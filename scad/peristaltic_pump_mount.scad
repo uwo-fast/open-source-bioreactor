@@ -4,8 +4,6 @@
 // Changes: applied formatting, modularized parts, reduced parameter set, added args, added comments, added example
 // usage, added z-fighting avoidance
 
-zFite = 0.1; // z-fighting avoidance
-
 module peri_mount(inner_diameter, outer_diameter, body_height, mount_height, mount_width, pump_thread_diameter,
                   base_thread_diameter, base_head_diameter, body_opening)
 {
@@ -68,7 +66,9 @@ module mounts(mount_height, bore1, bore2, bore_distance, mount_width)
     }
 }
 
-$fn = 64;
+$fn = $preview ? 16 : 64;
+
+zFite = $preview ? 0.1 : 0; // z-fighting avoidance
 
 // Example usage:
 body_thickness = 5;

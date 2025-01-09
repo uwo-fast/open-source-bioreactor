@@ -2,10 +2,6 @@
 // Inspired by: https://infinityplays.com/3d-part-design-with-openscad-57-a-universal-propeller-impeller-design-module/
 // Redone and optimized by: Cameron K. Brooks 2024
 
-$fn = $preview ? 16 : 64;
-
-zFite = 0.1; // z-fighting avoidance
-
 /**
  * Module: impeller
  *
@@ -76,6 +72,10 @@ module impeller(radius, fins, twist, fin_scale = [ 1, 2, 0.2 ], fin_rotate = [ 0
 //        fin_blade_width = 1, center_hub_radius = 22.26, center_hole_size = 5,
 //        hub_scale = [1, 1, 1.25], hub_fn = 8);
 
+$fn = $preview ? 16 : 64;
+
+zFite = $preview ? 0.1 : 0; // z-fighting avoidance
+
 rad = 45;
 n_fins = 3;
 twist_ang = 100;
@@ -98,9 +98,8 @@ impeller(radius = rad, fins = n_fins, twist = twist_ang, fin_scale = scale_fins,
          fin_blade_width = blade_wid, round = round_fins, center_hub_radius = hub_rad, center_hub_type = hub_type,
          center_hole_size = hole_rad, hub_scale = scale_hub, hub_fn = 32);
 
-translate([ 0, 0, rad / 2 * z_scale - blade_wid / 2 ])
-    linear_extrude(blade_wid, center = true) 
-    difference() {
-        circle(r = rad, $fn = 64);
-        circle(r = rad - blade_wid*2, $fn = 64);
-    }
+translate([ 0, 0, rad / 2 * z_scale - blade_wid / 2 ]) linear_extrude(blade_wid, center = true) difference()
+{
+    circle(r = rad, $fn = 64);
+    circle(r = rad - blade_wid * 2, $fn = 64);
+}
