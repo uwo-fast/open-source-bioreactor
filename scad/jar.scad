@@ -2,26 +2,28 @@ use <FunctionalOpenSCAD/functional.scad>;
 
 height = 305;
 diameter = 220;
+thickness = 5;
+
 corner_radius = 25;
 corner_radius_base = 12.5;
-thickness = 5;
+
 neck = 25;
-neck_corner_radius = 10;
-flat_to_neck = 0;
+neck_corner_radius = 12.5;
+
 punt_height = 5;
 punt_width = 30;
 
-rim_rad = 4;
-
-body_height = height - neck - neck_corner_radius;
+rim_rad = 2;
 
 arcFn = 64;
-rotextFn = 64;
+rotExtFn = 64;
 
-show_pts = false;
-show_2d = false;
-show_3d = true;
+show_pts = true;
+show_2d = true;
+show_3d = false;
 pts_r = 1;
+
+body_height = height - neck - neck_corner_radius / 2;
 
 outerline = square([ diameter, body_height ], center = true);
 innerline = square([ diameter - (2 * thickness), body_height - (2 * thickness) ], center = true);
@@ -112,6 +114,9 @@ neck_flat_px = translate(
     [ outerline[0][3][0] - corner_radius - neck_corner_radius, innerline[0][3][1] - neck - neck_corner_radius ],
     [ [ 0, 0 ], [ thickness, 0 ] ]);
 
+opening_diameter = neck_flat_px[0][0] - neck_flat_nx[1][0];
+echo("opening_diameter: ", opening_diameter);
+
 if (show_pts)
 {
     color("purple")
@@ -153,7 +158,6 @@ result = concat(neck_outer_corner_nx, outerCorner_nxny, outerCorner_nxpy, outer_
                 outerCorner_pxny, neck_outer_corner_px, rim_px, reverse(neck_flat_px), reverse(neck_inner_corner_px),
                 innerCorner_pxny, innerCorner_pxpy, inner_punt, innerCorner_nxpy, innerCorner_nxny,
                 reverse(neck_inner_corner_nx), reverse(neck_flat_nx), reverse(rim_nx));
-echo("result: ", result);
 
 // show the first and last point in pink and yellow
 if (show_pts)
@@ -167,6 +171,6 @@ if (show_2d)
 
 transformed_result = translate([ 0, body_height / 2 ], rotate(a = 180, v = [ 0, 1, 0 ], poly = result));
 
-result3d = rotate_extrude(angle = 180, poly = transformed_result, $fn = rotextFn);
+result3d = rotate_extrude(angle = 180, poly = transformed_result, $fn = rotExtFn);
 if (show_3d)
     color("Azure", 0.5) poly3d(result3d);
