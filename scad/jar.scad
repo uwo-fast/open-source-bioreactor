@@ -1,19 +1,20 @@
 use <FunctionalOpenSCAD/functional.scad>;
 
-height = 500;
-diameter = 300;
-corner_radius = 50;
-corner_radius_base = 30;
+height = 305;
+diameter = 220;
+corner_radius = 25;
+corner_radius_base = 12.5;
 thickness = 5;
 neck = 30;
-flat_to_neck = 10;
-punt = 5;
+flat_to_neck = 0;
+punt_height = 5;
+punt_width = 30;
 
 arcFn = 64;
 rotextFn = 64;
 
-show_pts = false;
-show_2d = false;
+show_pts = true;
+show_2d = true;
 show_3d = true;
 pts_r = 2;
 
@@ -30,12 +31,12 @@ function corners(outline, corner_rad, corner_rad_base = undef) = [for (i = [0:3]
             corner = arc(r = radius, angle = 90, offsetAngle = 180 + (i * -90), c = c_pt, center = false,
                          internal = false, $fn = arcFn))([reverse(corner)])];
 
-outer_punt = [[ 0, outerline[0][1][1] - punt ]];
+outer_punt = [[ -punt_width/2, outerline[0][1][1] - punt_height ], [ punt_width/2, outerline[0][1][1] - punt_height ]];
 
 if (show_pts)
     color("orange") showPoints(outer_punt, r = pts_r, $fn = 16);
 
-inner_punt = [[ 0, innerline[0][1][1] - punt ]];
+inner_punt = [[ punt_width/2, innerline[0][1][1] - punt_height ], [ -punt_width/2, innerline[0][1][1] - punt_height ]];
 
 if (show_pts)
     color("orange") showPoints(inner_punt, r = pts_r, $fn = 16);
