@@ -68,7 +68,6 @@ module mounts(mount_height, bore1, bore2, bore_distance, mount_width)
 
 $fn = $preview ? 16 : 64;
 
-
 // Example usage:
 body_thickness = 5;
 body_height = 26;

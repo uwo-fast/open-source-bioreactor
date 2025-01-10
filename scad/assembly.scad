@@ -57,7 +57,7 @@ top_base_floor_height = base_floor_height;
 
 translate([ 0, 0, jar_height + base_floor_height + top_base_height ]) rotate([ 0, 180, 0 ]) color("DarkViolet")
     base(inner_diameter = base_cut_diameter, height = top_base_height, wall_thickness = base_wall_thickness,
-         floor_height = top_base_floor_height, rod_hole_diameter = threaded_rod_hole_diameter, nut_dia = 1, 
+         floor_height = top_base_floor_height, rod_hole_diameter = threaded_rod_hole_diameter, nut_dia = 1,
          nut_h = nut_height);
 
 rod_length = jar_height + base_floor_height + top_base_height + nut_height;
