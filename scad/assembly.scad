@@ -33,7 +33,7 @@ $fn = 64;
 // vars for base
 base_jar_fit_tol = 0.4;
 base_cut_diameter = jar_diameter + base_jar_fit_tol;
-base_height = 20;
+base_height = 25;
 base_wall_thickness = 6;
 base_floor_height = base_wall_thickness / 2;
 
@@ -47,21 +47,26 @@ threaded_rod_hole_tolerance = 0.2;
 threaded_rod_hole_diameter = threaded_rod_diameter + threaded_rod_hole_tolerance;
 
 // size 6 nut is 14.5mm
-nut_diameter = threaded_rod_diameter * 1.7; // typically: diameter * [1.4:1.8]
-nut_height = 5;
+nut_diameter = threaded_rod_diameter * 1.8; // typically: diameter * [1.4:1.8]
+nut_height = 7;
 show_threads = false;
 
 // lid vars
 lid_rad_tol = 0.4;
 lid_h_tol = 0.2;
 
+// light vars
+light_length = 336;
+light_width = 14.1;
+light_depth = 9;
+
 // render control
-render_jar = true;
+render_jar = false;
 jar_x_sec = true;
 render_base = true;
-render_top_base = true;
-render_rods = true;
-render_lid = true;
+render_top_base = false;
+render_rods = false;
+render_lid = false;
 
 if (render_jar)
 {
@@ -120,3 +125,5 @@ if (render_rods)
         }
     }
 }
+
+// lights for the jar

@@ -1,7 +1,8 @@
 use <FunctionalOpenSCAD/functional.scad>;
 
 module jar(height, diameter, thickness, corner_radius, corner_radius_base, neck, neck_corner_radius, punt_height,
-           punt_width, rim_rad, arcFn, rotExtFn, show_pts = false, show_2d = false, show_3d = true, pts_r = 1, angle = 360)
+           punt_width, rim_rad, arcFn, rotExtFn, show_pts = false, show_2d = false, show_3d = true, pts_r = 1,
+           angle = 360)
 {
     body_height = height - neck - neck_corner_radius / 2;
 
@@ -19,14 +20,13 @@ module jar(height, diameter, thickness, corner_radius, corner_radius_base, neck,
                              internal = false, $fn = arcFn))([reverse(corner)])];
 
     outer_punt = [ [ -punt_width / 2, outerline[0][1][1] - punt_height ], [ 0, outerline[0][1][1] - punt_height ] ];
-
-    if (show_pts)
-        color("orange") showPoints(outer_punt, r = pts_r, $fn = 16);
-
     inner_punt = [ [ 0, innerline[0][1][1] - punt_height ], [ -punt_width / 2, innerline[0][1][1] - punt_height ] ];
 
     if (show_pts)
+    {
         color("orange") showPoints(inner_punt, r = pts_r, $fn = 16);
+        color("orange") showPoints(outer_punt, r = pts_r, $fn = 16);
+    }
 
     outerCornersPoly = corners(outerline, corner_rad = corner_radius, corner_rad_base = corner_radius_base);
 
@@ -45,25 +45,19 @@ module jar(height, diameter, thickness, corner_radius, corner_radius_base, neck,
         color("blue") showPoints(innerCornersPoly, r = pts_r, $fn = 16); // show the points of the resulting poly
 
     // neck corner
-
     neck_outer_corner_nx =
         arc(r = neck_corner_radius - thickness, angle = 90, offsetAngle = 0,
             c = [ outerline[0][0][0] + corner_radius, outerline[0][0][1] - neck_corner_radius + thickness ],
             center = false, internal = false, $fn = arcFn);
+
     neck_inner_corner_nx = arc(r = neck_corner_radius, angle = 90, offsetAngle = 0,
                                c = [ outerline[0][0][0] + corner_radius, innerline[0][0][1] - neck_corner_radius ],
                                center = false, internal = false, $fn = arcFn);
 
     if (show_pts)
     {
-        color("green")
-        {
-            showPoints(neck_outer_corner_nx, r = pts_r, $fn = 16);
-        }
-        color("orange")
-        {
-            showPoints(neck_inner_corner_nx, r = pts_r, $fn = 16);
-        }
+        color("green") showPoints(neck_outer_corner_nx, r = pts_r, $fn = 16);
+        color("orange") showPoints(neck_inner_corner_nx, r = pts_r, $fn = 16);
     }
 
     // neck flat
@@ -79,10 +73,7 @@ module jar(height, diameter, thickness, corner_radius, corner_radius_base, neck,
 
     if (show_pts)
     {
-        color("purple")
-        {
-            showPoints(neck_flat_nx, r = pts_r, $fn = 16);
-        }
+        color("purple") showPoints(neck_flat_nx, r = pts_r, $fn = 16);
     }
 
     // rim
