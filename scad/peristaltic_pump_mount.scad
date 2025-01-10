@@ -68,7 +68,6 @@ module mounts(mount_height, bore1, bore2, bore_distance, mount_width)
 
 $fn = $preview ? 16 : 64;
 
-zFite = $preview ? 0.1 : 0; // z-fighting avoidance
 
 // Example usage:
 body_thickness = 5;
