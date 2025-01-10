@@ -66,9 +66,11 @@ render_lid = true;
 if (render_jar)
 {
     translate([ 0, 0, base_floor_height ])
-
-        jar(jar_height, jar_diameter, jar_thickness, jar_upper_corner_radius, jar_corner_radius_base, jar_neck_height,
-            jar_neck_corner_radius, jar_punt_height, jar_punt_width, jar_rim_rad, corner_Fn, rot_Extrude_Fn);
+        jar(height = jar_height, diameter = jar_diameter, thickness = jar_thickness,
+            corner_radius = jar_upper_corner_radius, corner_radius_base = jar_corner_radius_base,
+            neck = jar_neck_height, neck_corner_radius = jar_neck_corner_radius, punt_height = jar_punt_height,
+            punt_width = jar_punt_width, rim_rad = jar_rim_rad, arcFn = corner_Fn, rotExtFn = rot_Extrude_Fn,
+            show_pts = false, show_2d = false, show_3d = true, pts_r = 1, angle = (jar_x_sec ? 180 : 360));
 }
 
 if (render_base)
