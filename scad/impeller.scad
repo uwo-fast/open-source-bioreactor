@@ -78,7 +78,7 @@ zFite = $preview ? 0.1 : 0; // z-fighting avoidance
 
 rad = 45;
 n_fins = 3;
-twist_ang = 100;
+twist_ang = 120;
 blade_wid = 2;
 
 height = 80;

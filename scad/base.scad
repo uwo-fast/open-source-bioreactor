@@ -36,7 +36,7 @@ module base(inner_diameter, height, wall_thickness, floor_height, rod_hole_diame
                     }
                     translate([ rod_hole_diameter, 0, -height / 2 - zFite ])
                     {
-                        cylinder(d = nut_dia, h = nut_h + zFite, $fn = 6);
+                        rotate([ 0, 0, 30 ]) cylinder(d = nut_dia, h = nut_h + zFite, $fn = 6);
                     }
                 }
             }
