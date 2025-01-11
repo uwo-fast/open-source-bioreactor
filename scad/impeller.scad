@@ -27,7 +27,7 @@
  *   The center hub is scaled and positioned at the center of the impeller.
  *   The center hole is subtracted from the impeller to create a hollow effect.
  */
-module impeller(radius, fins, twist, fin_scale = [ 1, 2, 0.2 ], fin_rotate = [ 0, 0, 120 ], fin_blade_width = 1,
+module impeller(radius, height_impeller, fins, twist, fin_scale = [ 1, 2, 0.2 ], fin_rotate = [ 0, 0, 120 ], fin_blade_width = 1,
                 round = false, center_hub_radius = 25, center_hub_type = "sphere", center_hole_size = 5,
                 hub_scale = [ 1, 1, 1 ], hub_fn = $fn)
 {
@@ -40,7 +40,7 @@ module impeller(radius, fins, twist, fin_scale = [ 1, 2, 0.2 ], fin_rotate = [ 0
             {
                 rotate([ 0, 0, (360 / fins) * i ])
                     // Scale and extrude the fin blade
-                    scale(fin_scale) intersection()
+                    scale(fin_scale) resize([ radius, radius, height_impeller ]) intersection()
                 {
                     translate([ 0, 0, -radius / 2 ]) linear_extrude(radius, twist = twist, slices = 360, convexity = 10)
                         rotate(fin_rotate) square([ radius, fin_blade_width ], center = false);
@@ -52,7 +52,8 @@ module impeller(radius, fins, twist, fin_scale = [ 1, 2, 0.2 ], fin_rotate = [ 0
             scale(hub_scale)
             {
                 if (center_hub_type == "cylinder")
-                    cylinder(r = center_hub_radius, h = radius, center = true, $fn = hub_fn);
+                    resize([ center_hub_radius * 2, center_hub_radius * 2, height_impeller ])
+                        cylinder(r = center_hub_radius, h = radius, center = true, $fn = hub_fn);
                 else if (center_hub_type == "sphere")
                     scale([ 1, 1, radius / (center_hub_radius) ]) sphere(r = center_hub_radius, $fn = hub_fn);
                 else
@@ -60,7 +61,7 @@ module impeller(radius, fins, twist, fin_scale = [ 1, 2, 0.2 ], fin_rotate = [ 0
             }
         }
         // Subtract the center hole
-        cylinder(r = center_hole_size, h = radius * hub_scale[2] * 2, center = true);
+        cylinder(r = center_hole_size, h = height_impeller * 2, center = true);
     }
 }
 
@@ -76,16 +77,29 @@ $fn = $preview ? 16 : 64;
 
 zFite = $preview ? 0.1 : 0; // z-fighting avoidance
 
-rad = 45;
-n_fins = 3;
-twist_ang = 120;
-blade_wid = 2;
+// Design parameter guidelines for impeller:
+// - The impeller radius (radius) should be 1/3 to 1/2 of the tank radius for bioreactors
+// - The number of fins (fins) and their twist angle (twist) influence mixing efficiency, flow patterns, and shear forces. 
+//   More fins generally increase turbulence and mixing but may require higher power input. 
+//   Twist angle adjusts the direction and intensity of flow, with higher angles promoting axial flow and lower angles favoring radial flow.
+//   Choose values based on the viscosity of the fluid, required mixing intensity, and sensitivity of the culture to shear forces.
 
-height = 80;
-z_scale = rad * 2 / height;
 
-scale_fins = [ 1, 1, z_scale ];
-scale_hub = [ 1, 1, z_scale ];
+tank_diameter = 220 - 2 * 5;
+impeller_DT_factor = 0.45;
+impeller_diameter = tank_diameter * impeller_DT_factor;
+impeller_radius = impeller_diameter / 2;
+
+echo("Impeller radius: ", impeller_radius);
+
+n_fins = 4;
+twist_ang = 55;
+blade_wid = 4;
+
+height_impeller = 60;
+
+scale_fins = [ 1, 1, 1 ];
+scale_hub = [ 1, 1, 1 ];
 rotate_fins = [ 0, 0, 0 ];
 
 hub_rad = 7.5;
@@ -94,12 +108,15 @@ hub_type = "cylinder";
 
 round_fins = false;
 
-impeller(radius = rad, fins = n_fins, twist = twist_ang, fin_scale = scale_fins, fin_rotate = rotate_fins,
-         fin_blade_width = blade_wid, round = round_fins, center_hub_radius = hub_rad, center_hub_type = hub_type,
-         center_hole_size = hole_rad, hub_scale = scale_hub, hub_fn = 32);
-
-translate([ 0, 0, rad / 2 * z_scale - blade_wid / 2 ]) linear_extrude(blade_wid, center = true) difference()
+translate([ 0, 0, height_impeller / 2 ]) union()
 {
-    circle(r = rad, $fn = 64);
-    circle(r = rad - blade_wid * 2, $fn = 64);
+    impeller(radius = impeller_radius, height_impeller = height_impeller, fins = n_fins, twist = twist_ang, fin_scale = scale_fins,
+             fin_rotate = rotate_fins, fin_blade_width = blade_wid, round = round_fins, center_hub_radius = hub_rad,
+             center_hub_type = hub_type, center_hole_size = hole_rad, hub_scale = scale_hub, hub_fn = 32);
+
+    translate([ 0, 0, height_impeller / 2 - blade_wid / 2 ]) linear_extrude(blade_wid, center = true) difference()
+    {
+        circle(r = impeller_radius + blade_wid, $fn = 64);
+        circle(r = impeller_radius , $fn = 64);
+    }
 }
