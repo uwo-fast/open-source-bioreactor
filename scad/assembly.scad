@@ -54,19 +54,23 @@ show_threads = false;
 // lid vars
 lid_rad_tol = 0.4;
 lid_h_tol = 0.2;
+bearing_diameter = 22.6;
+bearing_height = 5;
 
 // light vars
 light_length = 336;
 light_width = 14.1;
 light_depth = 9;
 
+// vizualization control
+jar_x_sec = true;
 // render control
 render_jar = false;
-jar_x_sec = true;
 render_base = false;
-render_top_base = true;
+render_top_base = false;
 render_rods = false;
-render_lid = false;
+render_lid = true;
+render_ribs = false;
 
 if (render_jar)
 {
@@ -90,16 +94,7 @@ if (render_top_base)
 {
     translate([ 0, 0, jar_height + base_floor_height + top_base_height ]) rotate([ 0, 180, 0 ]) color("DarkViolet")
         base(inner_diameter = base_cut_diameter, height = top_base_height, wall_thickness = base_wall_thickness,
-             floor_height = top_base_floor_height, rod_hole_diameter = threaded_rod_hole_diameter, nut_dia = 1,
-             nut_h = nut_height);
-}
-
-if (render_lid)
-{
-    color("DarkGrey") translate([ 0, 0, jar_height + top_base_height - lid_h_tol ]) rotate([ 0, 180, 0 ])
-        lid(outer_diameter = jar_diameter, inner_diameter = opening_diameter,
-            height = top_base_height - top_base_floor_height - lid_h_tol, tolerance = lid_rad_tol,
-            rod_hole_diameter = threaded_rod_diameter, nut_dia = nut_diameter, nut_h = nut_height);
+             floor_height = top_base_floor_height, rod_hole_diameter = threaded_rod_hole_diameter);
 }
 
 // threaded rods
@@ -121,6 +116,36 @@ if (render_rods)
                 {
                     color("grey") cylinder(d = threaded_rod_diameter, h = rod_length);
                 }
+            }
+        }
+    }
+}
+
+if (render_ribs)
+{
+    translate([ 0, 0, (jar_height + base_floor_height + top_base_height) / 2 ]) color("DarkViolet")
+        base(inner_diameter = base_cut_diameter, height = top_base_height, wall_thickness = base_wall_thickness,
+             floor_height = 0, rod_hole_diameter = threaded_rod_hole_diameter, rods = 2);
+}
+
+if (render_lid)
+{
+    lid_height = top_base_height - top_base_floor_height - lid_h_tol;
+    color("DarkGrey") translate([ 0, 0, jar_height + top_base_height - lid_h_tol ]) rotate([ 0, 180, 0 ])
+    {
+        difference()
+        {
+            // MAIN LID
+            lid(outer_diameter = jar_diameter, inner_diameter = opening_diameter, height = lid_height,
+                tolerance = lid_rad_tol, rod_hole_diameter = threaded_rod_diameter, nut_dia = nut_diameter,
+                nut_h = nut_height);
+
+            // BEARING AND ROD HOLE
+            translate([ 0, 0, -zFite / 2 ]) union()
+            {
+                cylinder(d = threaded_rod_diameter, h = lid_height * 2 + zFite);
+                translate([ 0, 0, 0 ])
+                    rotate([ 0, 0, 30 ]) cylinder(d = bearing_diameter, h = bearing_height + zFite);
             }
         }
     }

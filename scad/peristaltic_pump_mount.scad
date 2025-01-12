@@ -66,6 +66,8 @@ module mounts(mount_height, bore1, bore2, bore_distance, mount_width)
     }
 }
 
+zFite = $preview ? 0.1 : 0; // z-fighting avoidance
+
 $fn = $preview ? 16 : 64;
 
 // Example usage:

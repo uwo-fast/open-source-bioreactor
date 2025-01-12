@@ -4,7 +4,6 @@ zFite = $preview ? 0.1 : 0; // z-fighting avoidance
 
 module lid(outer_diameter, inner_diameter, height, tolerance, rod_hole_diameter, nut_dia, nut_h)
 {
-
     difference()
     {
 
