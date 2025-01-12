@@ -63,8 +63,8 @@ light_depth = 9;
 // render control
 render_jar = false;
 jar_x_sec = true;
-render_base = true;
-render_top_base = false;
+render_base = false;
+render_top_base = true;
 render_rods = false;
 render_lid = false;
 
