@@ -1,22 +1,56 @@
-// base for jar to sit in
+/**
+ * @file base.scad
+ * @brief Base for holding a jar or other cylindrical object
+ * @author Cameron K. Brooks
+ * @copyright 2025
+ *
+ * This file contains the base for holding a jar or other cylindrical object.
+ *
+ */
 
-zFite = $preview ? 0.1 : 0; // z-fighting avoidance
+// ---------------------------------
+// Global Parameters
+// ---------------------------------
+$fn = $preview ? 32 : 128;  // number of fragments for circles, affects render time
+zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
+
+// a:angle, d:diameter, h:height, center: center
+
+/**
+ * @brief Generates a "3D pie slice" shape, better thought of as a cylinder with an adjustable angle.
+ *
+ * @param a The angle of the pie slice.
+ * @param d The diameter of the pie slice.
+ * @param h The height of the pie slice.
+ * @param center Whether the pie slice should be centered.
+ */
 module pieSlice(a, d, h, center = false)
 {
-    // a:angle, d:diameter, h:height, center: center
     translate([ 0, 0, (center ? -h / 2 : 0) ]) rotate_extrude(angle = min(a, 360)) square([ d / 2, h ]);
 }
 
+/**
+ * @brief Generates a base for holding a jar or other cylindrical object.
+ *
+ * @param inner_diameter The inner diameter of the base.
+ * @param height The height of the base.
+ * @param wall_thickness The thickness of the base walls.
+ * @param floor_height The height of the base floor.
+ * @param rod_hole_diameter The diameter of the hole for rods.
+ * @param nut_dia The diameter of the nuts.
+ * @param nut_h The height of the nuts.
+ * @param rods The number of rods [2:4]; if not defined, 4 rods are rendered and the final quadrant closed.
+ */
 module base(inner_diameter, height, wall_thickness, floor_height, rod_hole_diameter, nut_dia = undef, nut_h = undef,
             rods = undef)
 {
     extra_angle = atan((rod_hole_diameter * 4) / (inner_diameter + wall_thickness));
     n_rods = is_undef(rods) ? 4 : rods;
     angle = is_undef(rods) ? 360 : (n_rods - 1) * 90 + 2 * extra_angle;
+    assert(!(n_rods < 2 || n_rods > 4), "Invalid number of rods. Must be between 2 and 4.");
 
     difference()
     {
-
         union()
         {
             rotate([ 0, 0, -extra_angle ]) pieSlice(a = angle, d = inner_diameter + wall_thickness, h = height);
