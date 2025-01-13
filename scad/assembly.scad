@@ -14,6 +14,7 @@ use <impeller.scad>;
 use <jar.scad>;
 use <lid.scad>;
 use <peristaltic_pump_mount.scad>;
+use <probe_mount.scad>;
 use <strip_light.scad>;
 
 // helper libs
@@ -132,7 +133,7 @@ motor_height = 59;
 impeller_DT_factor = 0.45; // impeller diameter to tank diameter ratio
 impeller_diameter = jar_diameter * impeller_DT_factor;
 impeller_radius = impeller_diameter / 2; // impeller radius
-echo("Impeller radius: ", impeller_radius);
+echo("impeller radius: ", impeller_radius);
 impeller_height = 60;      // impeller height
 impeller_n_fins = 4;       // number of fins
 impeller_twist_ang = 55;   // twist angle of each fin
@@ -179,11 +180,26 @@ peri_mount_opening_dim = (peri_pump_diameter) / 2;
 peri_mount_body_opening = [ peri_mount_opening_dim * 4, peri_mount_opening_dim, peri_mount_outer_diameter ];
 
 // ---------------------------------
+// Probe Mount Parameters
+// ---------------------------------
+
+// general probe mount parameters
+probe_mount_width = 20;
+probe_mount_height = 4;
+probe_mount_cuts_tol = 0.1;
+probe_mount_screw_hole_diameter = 3;
+
+// probe 1 parameters
+probe1_diameter = 10;
+probe1_entry_diameter = 4;
+probe1_cut_depth = probe_mount_height * 2 / 3;
+
+// ---------------------------------
 // Control Parameters
 // ---------------------------------
 // vizualization control
-jar_x_sec = true;
-show_threads = false;
+jar_x_sec = true;     // show jar as a cross section, useful during development
+show_threads = false; // show threads on rods, slow to render
 // render control
 render_jar = true;
 render_base = false;
@@ -195,6 +211,7 @@ render_lights = false;
 render_motor = false;
 render_impeller = false;
 render_peris = false;
+render_probemounts = false;
 
 // jar
 if (render_jar)
@@ -332,4 +349,13 @@ if (render_peris)
                    base_bore_distance = peri_base_screw_distance, pump_thread_diameter = peri_faceplate_thread_diameter,
                    pump_bore_diatance = peri_faceplate_screw_distance, base_thread_diameter = peri_base_thread_diameter,
                    base_head_diameter = peri_base_screwhead_diameter, body_opening = peri_mount_body_opening);
+}
+
+if (render_probemounts)
+{
+    tweak = 1;
+    translate([ 0, -jar_diameter / 2 + probe_mount_width + tweak, jar_height + base_floor_height + top_base_height ])
+        probe_mount(diameter = probe1_diameter, hole_diameter = probe1_entry_diameter, cut_height = probe1_cut_depth,
+                    width = probe_mount_width, height = probe_mount_height, tolerance = probe_mount_cuts_tol,
+                    screw_hole_diameter = probe_mount_screw_hole_diameter);
 }
