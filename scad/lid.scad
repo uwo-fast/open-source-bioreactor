@@ -1,4 +1,12 @@
-// lid for jar to sit in
+/**
+ * @file lid.scad
+ * @brief Lid for holding to cap a jar or other cylindrical object
+ * @author Cameron K. Brooks
+ * @copyright 2025
+ *
+ * This file contains the lid for holding to cap a jar or other cylindrical object.
+ *
+ */
 
 // ---------------------------------
 // Global Parameters
@@ -6,6 +14,17 @@
 $fn = $preview ? 32 : 128;  // number of fragments for circles, affects render time
 zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
 
+/**
+ * @brief Generates a lid for holding to cap a jar or other cylindrical object.
+ *
+ * @param outer_diameter The outer diameter of the lid.
+ * @param inner_diameter The inner diameter of the lid.
+ * @param height The height of the lid.
+ * @param tolerance The tolerance between the outer and inner diameters.
+ * @param rod_hole_diameter The diameter of the hole for rods.
+ * @param nut_dia The diameter of the nuts.
+ * @param nut_h The height of the nuts.
+ */
 module lid(outer_diameter, inner_diameter, height, tolerance, rod_hole_diameter, nut_dia, nut_h)
 {
     difference()

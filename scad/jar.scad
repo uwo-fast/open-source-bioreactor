@@ -116,33 +116,7 @@ module jar(height, diameter, thickness, corner_radius, corner_radius_base, neck,
         color("Azure", 0.5) poly3d(result3d);
 }
 
-// ------------------
-// example parameters
-// ------------------
-// body
-jar_height = 300;
-jar_diameter = 220;
-jar_thickness = 5;
-
-// corners
-jar_upper_corner_radius = 20;
-jar_lower_corner_radius = 25;
-
-// neck
-jar_neck_height = 30;
-jar_neck_corner_radius = 15;
-
-// punt
-jar_punt_height = 5;
-jar_punt_width = 5;
-
-// rim
-jar_rim_rad = 2;
-
-jar_corner_Fn = 32;
-jar_rot_Extrude_Fn = 32;
-
-jar(height = jar_height, diameter = jar_diameter, thickness = jar_thickness, corner_radius = jar_upper_corner_radius,
-    corner_radius_base = jar_lower_corner_radius, neck = jar_neck_height, neck_corner_radius = jar_neck_corner_radius,
-    punt_height = jar_punt_height, punt_width = jar_punt_width, rim_rad = jar_rim_rad, arcFn = jar_corner_Fn,
-    rotExtFn = jar_rot_Extrude_Fn, show_pts = false, show_2d = false, show_3d = true, pts_r = 1);
+// Example usage
+jar(height = 100, diameter = 50, thickness = 2, corner_radius = 5, corner_radius_base = 5, neck = 20,
+    neck_corner_radius = 5, punt_height = 5, punt_width = 10, rim_rad = 2, arcFn = 16, rotExtFn = 128, show_pts = false,
+    show_2d = false, show_3d = true, pts_r = 1, angle = 360);
