@@ -16,6 +16,24 @@
 zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 32 : 128;
 
+/**
+ * @brief Generates a mount for holding and fixing a peristaltic pump in place by its base.
+ *
+ * @param inner_diameter The inner diameter of the body.
+ * @param outer_diameter The outer diameter of the body.
+ * @param body_height The height of the body.
+ * @param base_mount_height The height of the base mount.
+ * @param base_mount_scale The scale of the base mount taper.
+ * @param pump_mount_height The height of the pump mount.
+ * @param pump_mount_scale The scale of the pump mount taper.
+ * @param mount_width The width of the mounting bars.
+ * @param base_bore_distance The distance between the screw holes on the base of the pump.
+ * @param pump_thread_diameter The diameter of the screw thread on the base of the pump.
+ * @param pump_bore_diatance The distance between the screw holes on the faceplate of the pump.
+ * @param base_thread_diameter The diameter of the screw thread on the base of the pump.
+ * @param base_head_diameter The diameter of the screw head on the base of the pump.
+ * @param body_opening The opening of the body.
+ */
 module peri_mount(inner_diameter, outer_diameter, body_height, base_mount_height, base_mount_scale, pump_mount_height,
                   pump_mount_scale, mount_width, base_bore_distance, pump_thread_diameter, pump_bore_diatance,
                   base_thread_diameter, base_head_diameter, body_opening = undef)
@@ -60,6 +78,16 @@ module peri_mount(inner_diameter, outer_diameter, body_height, base_mount_height
     }
 }
 
+/**
+ * @brief Generates a mount for holding and fixing the pump to the holder and the holder to the mount surface.
+ *
+ * @param mount_height The height of the mount.
+ * @param bore1 The diameter of the first bore hole.
+ * @param bore2 The diameter of the second bore hole.
+ * @param base_bore_distance The distance between the bore holes.
+ * @param mount_width The width of the mounting bars.
+ * @param scale The scale of the mount taper.
+ */
 module mounts(mount_height, bore1, bore2, base_bore_distance, mount_width, scale = 1)
 {
     bore2Ratio = -0.45 * scale + 0.95;
@@ -87,51 +115,3 @@ module mounts(mount_height, bore1, bore2, base_bore_distance, mount_width, scale
         }
     }
 }
-
-// ------------------------
-// User defined parameters
-// ------------------------
-
-body_thickness = 3; // thickness of the body; this is largely arbitrary just dont make it too thin or it will be weak
-// and too thick and it will be heavy/wasteful
-body_height = 50; // height of the body; this is the motor body length measured from the faceplate to base with some
-// extra to let terminals out
-inner_diameter = 30; // inner diameter of the body; this is the measurement of your pumps diameter
-outer_diameter =
-    inner_diameter + body_thickness; // outer diameter of the body; this is the outside diameter of the body
-
-// based on the desired attachment point of the pump
-base_mount_height = 5;         // height of the base mount
-base_screw_distance = 45;      // distance between the screw holes on the base of the pump
-base_screwhead_diameter = 5.4; // diameter of the screw head on the base of the pump
-base_thread_diameter = 3.5;    // diameter of the screw thread on the base of the pump
-base_mount_taper_scale = 0.95; // 1 is no taper (square edges), 0 is a lot of taper (fully smoothed); this is
-// superficial and can be changed to your liking
-
-// based on the faceplate of the pump
-faceplate_mount_height = 20; // height of the faceplate mount
-faceplate_screw_distance = 47.5;
-faceplate_thread_diameter = 3;
-faceplate_mount_taper_scale =
-    0.50; // for printing keep 0.5 - 1 as 0.5 results in 45 degree taper, 1 results in no taper
-
-mounts_width =
-    base_screwhead_diameter *
-    2; // width of the mounting bars; largely arbitrary, must be greater than mounting holes, ideally 2*screwhead
-
-// -----------------
-// Calculated values
-// -----------------
-// TODO: should really be changed to a function of the pump ID
-body_opening_dim = (inner_diameter) / 2;
-body_opening = [ body_opening_dim * 4, body_opening_dim, outer_diameter ];
-
-peri_mount(inner_diameter = inner_diameter, outer_diameter = outer_diameter, body_height = body_height,
-           base_mount_height = base_mount_height, base_mount_scale = base_mount_taper_scale,
-           pump_mount_height = faceplate_mount_height, pump_mount_scale = faceplate_mount_taper_scale,
-           mount_width = mounts_width, base_bore_distance = base_screw_distance,
-           pump_thread_diameter = faceplate_thread_diameter, pump_bore_diatance = faceplate_screw_distance,
-           base_thread_diameter = base_thread_diameter, base_head_diameter = base_screwhead_diameter,
-           body_opening = body_opening);
-
-// cube([outer_diameter, outer_diameter, body_height], center = true);

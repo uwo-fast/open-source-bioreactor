@@ -111,13 +111,15 @@ module jar(height, diameter, thickness, corner_radius, corner_radius_base, neck,
 
     result3d = rotate_extrude(angle = angle, poly = transformed_result, $fn = rotExtFn);
     if (show_3d)
+        // translate([ 0, body_height/2, 0])
+        // rotate([ 90, 0, 0 ])
         color("Azure", 0.5) poly3d(result3d);
 }
 
 // ------------------
 // example parameters
 // ------------------
-// body 
+// body
 jar_height = 300;
 jar_diameter = 220;
 jar_thickness = 5;

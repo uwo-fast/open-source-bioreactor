@@ -8,6 +8,13 @@
  *
  */
 
+/**
+ * @brief Creates a strip light
+ * @param width The width of the strip light
+ * @param depth The depth of the strip light
+ * @param length The length of the strip light
+ * @param radius The radius of the curved front of the strip light
+ */
 module strip_light(width, depth, length, radius)
 {
     union()
