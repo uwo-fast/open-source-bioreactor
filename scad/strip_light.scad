@@ -27,3 +27,5 @@ module strip_light(width, depth, length, radius)
         }
     }
 }
+
+strip_light(50, 50, 500, 10);

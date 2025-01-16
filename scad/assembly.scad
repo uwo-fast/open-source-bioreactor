@@ -26,7 +26,7 @@ use <threads-scad/threads.scad>;
 // ---------------------------------
 // Global Parameters
 // ---------------------------------
-$fn = $preview ? 32 : 128;  // number of fragments for circles, affects render time
+$fn = $preview ? 64 : 128;  // number of fragments for circles, affects render time
 zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
 
 // ---------------------------------
@@ -103,10 +103,11 @@ light_length = 336;
 light_width = 14.1;
 light_depth = 9;
 light_window_radius = 0.5;
+light_tol = 0.4;
 
 // patterning of lights
 number_of_lights = 6;
-occupy_angle = 90;
+occupy_angle = 90 * 3 / 4;
 
 // ---------------------------------
 // Motor & Shaft Parameters
@@ -202,12 +203,12 @@ jar_x_sec = true;     // show jar as a cross section, useful during development
 show_threads = false; // show threads on rods, slow to render
 // render control
 render_jar = true;
-render_base = false;
+render_base = true;
 render_top_base = false;
-render_rods = false;
+render_rods = true;
 render_lid = false;
-render_ribs = false;
-render_lights = false;
+render_ribs = true;
+render_lights = true;
 render_motor = false;
 render_impeller = false;
 render_peris = false;
@@ -216,6 +217,7 @@ render_probemounts = false;
 // jar
 if (render_jar)
 {
+    rotate([ 0, 0, 45 ])
     translate([ 0, 0, base_floor_height ])
         jar(height = jar_height, diameter = jar_diameter, thickness = jar_thickness,
             corner_radius = jar_upper_corner_radius, corner_radius_base = jar_lower_corner_radius,
@@ -291,9 +293,20 @@ if (render_lid)
 // ribs
 if (render_ribs)
 {
-    translate([ 0, 0, (jar_height + base_floor_height + top_base_height) / 2 ]) color("DarkViolet")
-        base(inner_diameter = base_jar_cut_diameter, height = top_base_height, wall_thickness = base_wall_thickness,
-             floor_height = 0, rod_hole_diameter = threaded_rod_hole_diameter, rods = 2);
+    rib_wall_thickness = (light_depth * 1.5) * 2; // thinnest part is 50% thicker than the light depth
+
+    // Number of rods holders on the ribs
+    n_rods_ribs = 2;
+    for (i = [0:3])
+    {
+        shift_z = (i % 2 == 0) ? 1 / 3 : 2 / 3;
+
+        rotate([ 0, 0, i * 90 ]) translate([ 0, 0, (jar_height + base_floor_height + top_base_height) * shift_z ])
+            color("DarkViolet")
+                rib(inner_diameter = base_jar_cut_diameter, height = top_base_height,
+                    wall_thickness = rib_wall_thickness, rod_hole_diameter = threaded_rod_hole_diameter,
+                    light_depth = light_depth, light_width = light_width, light_tol = light_tol, rods = n_rods_ribs);
+    }
 }
 
 // lights
