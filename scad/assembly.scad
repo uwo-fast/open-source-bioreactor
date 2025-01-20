@@ -10,7 +10,7 @@
 
 // project libs
 use <base.scad>;
-use <dcmotor.scad>;
+use <dc_motor.scad>;
 use <impeller.scad>;
 use <lid.scad>;
 use <motor_mount.scad>;
