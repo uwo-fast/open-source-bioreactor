@@ -1,5 +1,10 @@
 use <FunctionalOpenSCAD/functional.scad>;
 
+// Punt: A pontil mark or punt mark is the scar where the pontil, punty or punt was broken from a work of blown glass
+
+// TODO: alter jar.scad so that it accepts a combination of opening_diameter
+// and one of jar_upper_corner_radius or jar_neck_corner_radius
+
 module jar(height, diameter, thickness, corner_radius, corner_radius_base, neck, neck_corner_radius, punt_height,
            punt_width, rim_rad, arcFn, rotExtFn, show_pts = false, show_2d = false, show_3d = true, pts_r = 1,
            angle = 360)

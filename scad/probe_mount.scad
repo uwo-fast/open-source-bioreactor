@@ -43,4 +43,3 @@ module probe_mount(diameter, width, height, hole_diameter, tolerance, screw_hole
         }
     }
 }
-

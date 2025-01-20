@@ -46,7 +46,7 @@ module base(inner_diameter, height, wall_thickness, floor_height, rod_hole_diame
 {
     rod_holder_dia = rod_hole_diameter * 4;
 
-    extra_angle = 0*atan((rod_holder_dia / 2) / (inner_diameter + wall_thickness * 3));
+    extra_angle = 0 * atan((rod_holder_dia / 2) / (inner_diameter + wall_thickness * 3));
     n_rods = is_undef(rods) ? 4 : rods;
     angle = is_undef(rods) ? 360 : (n_rods - 1) * 90 + 2 * extra_angle;
     assert(!(n_rods < 2 || n_rods > 4), "Invalid number of rods. Must be between 2 and 4.");
@@ -104,31 +104,6 @@ module base(inner_diameter, height, wall_thickness, floor_height, rod_hole_diame
         translate([ 0, 0, -zFite / 2 ])
         {
             cylinder(d = inner_diameter - wall_thickness * 2, h = height + zFite);
-        }
-    }
-}
-
-module rib(inner_diameter, height, wall_thickness, rod_hole_diameter, light_depth, light_width, light_tol, rods = undef)
-{
-
-    difference()
-    {
-        f_height = -zFite;
-        base(inner_diameter = inner_diameter, height = height, wall_thickness = wall_thickness, floor_height = f_height,
-             rod_hole_diameter = rod_hole_diameter, rods = rods);
-
-        for (i = [1:rods - 1])
-        {
-            rotate([ 0, 0, (i - 1) * 90 ])
-
-                for (j = [1:3])
-            {
-                rotate([ 0, 0, j * 90 / 4 ])
-                {
-                    translate([ inner_diameter / 2, 0, height / 2 ]) 
-                        cube([ light_depth * 2 + light_tol, light_width + light_tol, height + zFite ], center = true);
-                }
-            }
         }
     }
 }
