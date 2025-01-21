@@ -134,7 +134,7 @@ mmount_motor_diameter = 36; // diameter of the motor
 mmount_base_screws_diameter = 3.5; // diameter of the screws that fix the motor mount down at by base
 mmount_face_screws_diameter = 4;   // diameter of the screws that connect the motor faceplate to the mount
 mmount_base_screws_cdist = 32;     // distance between the base screws
-mmount_face_screws_cdist = 30;     // distance between the face screws
+mmount_face_screws_cdist = 31;     // distance between the face screws
 
 mmount_corner_cuts = mmount_width * 0.1; // corner cuts for the motor mount
 
@@ -283,19 +283,19 @@ translate([ 0, 0, jar_height + upper_base_height - (face_plate_offset - mmount_h
     if (render_motor || render_all)
     {
         // external shaft
-        color("grey") cylinder(h = shaft_length, d = shaft_diameter, center = false);
+        //color("grey") cylinder(h = shaft_length, d = shaft_diameter, center = false);
 
         // shaft coupling
-        translate([ 0, 0, shaft_length ]) shaft_coupling(type = SC_8x8_rigid, colour = "MediumBlue");
+        //translate([ 0, 0, shaft_length ]) shaft_coupling(type = SC_8x8_rigid, colour = "MediumBlue");
 
         // motor
-        translate([ 0, 0, face_plate_offset + motor_length + gearbox_length ]) rotate([ 0, 180, 0 ]) union()
-        {
-            dcmotor(diameter = motor_diameter, length = motor_length);
-            translate([ 0, 0, motor_length ]) gearbox(
-                diameter = gearbox_diameter, length = gearbox_length, output_shaft_diameter = gearbox_shaft_diameter,
-                output_shaft_length = gearbox_shaft_length, faceplate_screws_cdist = mmount_face_screws_cdist);
-        }
+        // translate([ 0, 0, face_plate_offset + motor_length + gearbox_length ]) rotate([ 0, 180, 0 ]) union()
+        // {
+        //     dcmotor(diameter = motor_diameter, length = motor_length);
+        //     translate([ 0, 0, motor_length ]) gearbox(
+        //         diameter = gearbox_diameter, length = gearbox_length, output_shaft_diameter = gearbox_shaft_diameter,
+        //         output_shaft_length = gearbox_shaft_length, faceplate_screws_cdist = mmount_face_screws_cdist);
+        // }
 
         // motor mount
         color("DarkViolet") translate([ 0, 0, face_plate_offset - mmount_height ]) motor_mount(
@@ -373,10 +373,18 @@ if (render_ribs || render_all)
 {
     // Number of rods holders on the ribs
     n_rods_ribs = 2;
+
+    // for exporting
+    // export_cut = true; // comment for all ribs, true for one cut, false for one uncut
+    lowI = (!is_undef(export_cut) && export_cut) ? 3 : 0;
+    echo("lowI: ", lowI);
+    highI = (!is_undef(export_cut) && !export_cut) ? 0 : 3;
+    echo("highI: ", highI);
+
     difference()
     {
         // create the ribs
-        for (i = [0:3])
+        for (i = [lowI:highI])
         {
             z_shift_factor = (i % 2 == 0) ? 1 / 3 : 2 / 3;
             z_shift = (total_height)*z_shift_factor;
