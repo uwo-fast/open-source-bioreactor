@@ -90,9 +90,9 @@ opening_diameter = 143;
 
 light_length = 336;
 light_width = 14.1;
-light_depth = 9;
+light_depth = 7.6;
 light_window_radius = 0.5;
-light_tol = 0.4;
+light_tol = 0.2;
 
 // patterning of lights
 number_of_lights = 6;
@@ -283,10 +283,10 @@ translate([ 0, 0, jar_height + upper_base_height - (face_plate_offset - mmount_h
     if (render_motor || render_all)
     {
         // external shaft
-        //color("grey") cylinder(h = shaft_length, d = shaft_diameter, center = false);
+        // color("grey") cylinder(h = shaft_length, d = shaft_diameter, center = false);
 
         // shaft coupling
-        //translate([ 0, 0, shaft_length ]) shaft_coupling(type = SC_8x8_rigid, colour = "MediumBlue");
+        // translate([ 0, 0, shaft_length ]) shaft_coupling(type = SC_8x8_rigid, colour = "MediumBlue");
 
         // motor
         // translate([ 0, 0, face_plate_offset + motor_length + gearbox_length ]) rotate([ 0, 180, 0 ]) union()
@@ -351,6 +351,10 @@ if (render_base || render_all)
 
         // cut out the lights, rad_cut is true to extend the cut inwards to remove material between jar and light
         lights(light_tol = light_tol, diff_tol = light_tol, rad_cut = true);
+
+        // cut out a second time shifted by 180 for symmetry and to allow more alternative config of the lights
+        // this should be handled more elegantly in the future once the first iteration has been printed
+        rotate([ 0, 0, 90 ]) lights(light_tol = light_tol, diff_tol = light_tol, rad_cut = true);
     }
 }
 
@@ -365,6 +369,10 @@ if (render_top_base || render_all)
 
         // cut out the lights
         lights(light_tol = light_tol, diff_tol = light_tol, rad_cut = false);
+
+        // cut out a second time shifted by 180 for symmetry and to allow more alternative config of the lights
+        // this should be handled more elegantly in the future once the first iteration has been printed
+        rotate([ 0, 0, 90 ]) lights(light_tol = light_tol, diff_tol = light_tol, rad_cut = true);
     }
 }
 
@@ -375,27 +383,30 @@ if (render_ribs || render_all)
     n_rods_ribs = 2;
 
     // for exporting
-    // export_cut = true; // comment for all ribs, true for one cut, false for one uncut
+    export_cut = true; // comment for all ribs, true for one cut, false for one uncut
     lowI = (!is_undef(export_cut) && export_cut) ? 3 : 0;
     echo("lowI: ", lowI);
     highI = (!is_undef(export_cut) && !export_cut) ? 0 : 3;
     echo("highI: ", highI);
 
-    difference()
+    // create the ribs
+    for (i = [lowI:highI])
     {
-        // create the ribs
-        for (i = [lowI:highI])
+
+        z_shift_factor = (i % 2 == 0) ? 1 / 3 : 2 / 3;
+        z_shift = (total_height)*z_shift_factor;
+        f_height = -zFite;
+        rotate([ 0, 0, i * 90 ]) difference()
         {
-            z_shift_factor = (i % 2 == 0) ? 1 / 3 : 2 / 3;
-            z_shift = (total_height)*z_shift_factor;
-            f_height = -zFite;
-            rotate([ 0, 0, i * 90 ]) translate([ 0, 0, z_shift ]) color("DarkViolet")
+            translate([ 0, 0, z_shift ]) color("DarkViolet")
                 base(inner_diameter = base_jar_cut_diameter, height = upper_base_height,
                      wall_thickness = base_wall_thickness, floor_height = f_height,
                      rod_hole_diameter = threaded_rod_hole_diameter, rods = n_rods_ribs);
+
+            // cut out the lights, rad_cut is true to extend the cut inwards to remove material between jar and light
+            // this is done for all ribs to allow flexibility, again this should be handled more elegantly in the future
+            rotate([ 0, 0, 90 ]) lights(light_tol = light_tol, diff_tol = light_tol, rad_cut = true);
         }
-        // cut out the lights, rad_cut is true to extend the cut inwards to remove material between jar and light
-        lights(light_tol = light_tol, diff_tol = light_tol, rad_cut = true);
     }
 }
 
