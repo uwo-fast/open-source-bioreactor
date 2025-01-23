@@ -34,22 +34,22 @@ zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
 /* [Render Control] */
 
 // Overrides all other render flags
-render_all = true; // render all components
+render_all = false; // render all components
 
 // Cuts the jar in half for a cross section view
 jar_x_sec = false; // show jar as a cross section, useful during development
 // Visualize threads on the rods (slower to render)
 show_threads = false; // show threads on rods, slow to render
 
-render_jar = true;
-render_base = true;
-render_top_base = true;
-render_lid = true;
-render_ribs = true;
+render_jar = false;
+render_base = false;
+render_upper_base = false;
+render_lid = false;
+render_ribs = false;
 
-render_rods = true;
-render_rodspacers = true;
-render_lights = true;
+render_rods = false;
+render_rodspacers = false;
+render_lights = false;
 
 render_motor = false;
 render_impeller = false;
@@ -102,7 +102,7 @@ occupy_angle = 90 * 3 / 4;
 // nut is size 6  (d=14.5mm)
 
 nut_diameter = 15.4;
-nut_height = 7;
+nut_height = 6.4;
 
 threaded_rod_diameter = 8.5;
 threaded_rod_hole_tolerance = 0.2;
@@ -128,13 +128,13 @@ SC_8x8_rigid = [ "SC_5x8_rigid", 25, 12.5, 8, 8, false ];
 
 mmount_height = 50;         // height of the motor mount
 mmount_width = 42;          // width of the motor mount
-mmount_thickness = 6;       // thickness of the motor mount, must be at least 1.5x the dia of the screws
+mmount_thickness = 8;       // thickness of the motor mount, must be at least 1.5x the dia of the screws
 mmount_motor_diameter = 36; // diameter of the motor
 
 mmount_base_screws_diameter = 3.5; // diameter of the screws that fix the motor mount down at by base
 mmount_face_screws_diameter = 4;   // diameter of the screws that connect the motor faceplate to the mount
 mmount_base_screws_cdist = 32;     // distance between the base screws
-mmount_face_screws_cdist = 31;     // distance between the face screws
+mmount_face_screws_cdist = 30;     // distance between the face screws
 
 mmount_corner_cuts = mmount_width * 0.1; // corner cuts for the motor mount
 
@@ -148,6 +148,7 @@ base_jar_fit_tol = 0.4; // tolerance for the jar to fit in the base
 base_floor_height = 3;  // height of the floor of the base
 lower_base_height = 25; // height of the bottom base (holding jar)
 upper_base_height = 10; // height of the top base (holding lid)
+rib_base_height = 10;   // height of the rib base
 
 // Dependent Parameters
 base_wall_thickness = (light_depth * 1.5) * 2;           // thinnest part is 50% thicker than the light depth
@@ -243,7 +244,7 @@ if (render_rods || render_all)
     {
         rotate([ 0, 0, i * 90 ])
         {
-            translate([ rod_shift, 0, 0 ])
+            translate([ rod_shift, 0, -zFite ])
             {
                 if (show_threads)
                 {
@@ -252,6 +253,24 @@ if (render_rods || render_all)
                 else
                 {
                     color("Grey") cylinder(d = threaded_rod_diameter, h = rod_length);
+                }
+
+                // Nuts bottom base
+                translate([ 0, 0, -zFite ]) color("DimGrey") difference()
+                {
+                    rotate([ 0, 0, 30 ]) translate([ 0, 0, 0 ])
+                        cylinder(d = nut_diameter - 0.2, h = nut_height, $fn = 6);
+                    rotate([ 0, 0, 30 ]) translate([ 0, 0, -zFite / 2 ])
+                        cylinder(d = threaded_rod_diameter + 0.2, h = nut_height + zFite);
+                }
+
+                // Nuts top of base
+                translate([ 0, 0, lower_base_height + zFite * 2 ]) color("DimGrey") difference()
+                {
+                    rotate([ 0, 0, 30 ]) translate([ 0, 0, 0 ])
+                        cylinder(d = nut_diameter - 0.2, h = nut_height, $fn = 6);
+                    rotate([ 0, 0, 30 ]) translate([ 0, 0, -zFite / 2 ])
+                        cylinder(d = threaded_rod_diameter + 0.2, h = nut_height + zFite);
                 }
             }
         }
@@ -283,19 +302,19 @@ translate([ 0, 0, jar_height + upper_base_height - (face_plate_offset - mmount_h
     if (render_motor || render_all)
     {
         // external shaft
-        // color("grey") cylinder(h = shaft_length, d = shaft_diameter, center = false);
+        color("grey") cylinder(h = shaft_length, d = shaft_diameter, center = false);
 
         // shaft coupling
-        // translate([ 0, 0, shaft_length ]) shaft_coupling(type = SC_8x8_rigid, colour = "MediumBlue");
+        translate([ 0, 0, shaft_length ]) shaft_coupling(type = SC_8x8_rigid, colour = "MediumBlue");
 
         // motor
-        // translate([ 0, 0, face_plate_offset + motor_length + gearbox_length ]) rotate([ 0, 180, 0 ]) union()
-        // {
-        //     dcmotor(diameter = motor_diameter, length = motor_length);
-        //     translate([ 0, 0, motor_length ]) gearbox(
-        //         diameter = gearbox_diameter, length = gearbox_length, output_shaft_diameter = gearbox_shaft_diameter,
-        //         output_shaft_length = gearbox_shaft_length, faceplate_screws_cdist = mmount_face_screws_cdist);
-        // }
+        translate([ 0, 0, face_plate_offset + motor_length + gearbox_length ]) rotate([ 0, 180, 0 ]) union()
+        {
+            dcmotor(diameter = motor_diameter, length = motor_length);
+            translate([ 0, 0, motor_length ]) gearbox(
+                diameter = gearbox_diameter, length = gearbox_length, output_shaft_diameter = gearbox_shaft_diameter,
+                output_shaft_length = gearbox_shaft_length, faceplate_screws_cdist = mmount_face_screws_cdist);
+        }
 
         // motor mount
         color("DarkViolet") translate([ 0, 0, face_plate_offset - mmount_height ]) motor_mount(
@@ -359,7 +378,7 @@ if (render_base || render_all)
 }
 
 // top base
-if (render_top_base || render_all)
+if (render_upper_base || render_all)
 {
     difference()
     {
@@ -382,30 +401,37 @@ if (render_ribs || render_all)
     // Number of rods holders on the ribs
     n_rods_ribs = 2;
 
-    // for exporting
-    export_cut = true; // comment for all ribs, true for one cut, false for one uncut
-    lowI = (!is_undef(export_cut) && export_cut) ? 3 : 0;
-    echo("lowI: ", lowI);
-    highI = (!is_undef(export_cut) && !export_cut) ? 0 : 3;
-    echo("highI: ", highI);
+    spacer_dia_tol = 0.2;
+    spacer_z_tol = 0.4;
+    z_shift_factor = 1 / 3;
 
     // create the ribs
-    for (i = [lowI:highI])
+    for (i = [1:2])
     {
 
-        z_shift_factor = (i % 2 == 0) ? 1 / 3 : 2 / 3;
-        z_shift = (total_height)*z_shift_factor;
-        f_height = -zFite;
-        rotate([ 0, 0, i * 90 ]) difference()
-        {
-            translate([ 0, 0, z_shift ]) color("DarkViolet")
-                base(inner_diameter = base_jar_cut_diameter, height = upper_base_height,
-                     wall_thickness = base_wall_thickness, floor_height = f_height,
-                     rod_hole_diameter = threaded_rod_hole_diameter, rods = n_rods_ribs);
+        spacers_total_height =
+            total_height - base_floor_height * 2 - upper_base_height - lower_base_height - rib_base_height * 2;
 
-            // cut out the lights, rad_cut is true to extend the cut inwards to remove material between jar and light
-            // this is done for all ribs to allow flexibility, again this should be handled more elegantly in the future
-            rotate([ 0, 0, 90 ]) lights(light_tol = light_tol, diff_tol = light_tol, rad_cut = true);
+        z_shift = spacers_total_height * i * z_shift_factor;
+
+        spacer_pos = lower_base_height + nut_height + z_shift + rib_base_height * (i - 1);
+
+        f_height = -zFite;
+
+        for (j = [0:1])
+        {
+            rotate([ 0, 0, j * 180 ]) rotate([ 0, 0, i * 90 ]) difference()
+            {
+                translate([ 0, 0, spacer_pos ]) color("DarkViolet")
+                    base(inner_diameter = base_jar_cut_diameter, height = rib_base_height,
+                         wall_thickness = base_wall_thickness, floor_height = f_height,
+                         rod_hole_diameter = threaded_rod_hole_diameter, rods = n_rods_ribs);
+
+                // cut out the lights, rad_cut is true to extend the cut inwards to remove material between jar and
+                // light this is done for all ribs to allow flexibility, again this should be handled more elegantly in
+                // the future
+                rotate([ 0, 0, 90 ]) lights(light_tol = light_tol, diff_tol = light_tol, rad_cut = true);
+            }
         }
     }
 }
@@ -420,27 +446,27 @@ if (render_rodspacers || render_all)
 {
     spacer_dia_tol = 0.2;
     spacer_z_tol = 0.4;
+    z_shift_factor = 1 / 3;
+
     color(charcoal_color) // charcoal
         for (i = [0:2])
     {
         for (j = [0:3])
         {
-            z_shift_factor = 1 / 3;
 
-            z_shift_factor_height = i * z_shift_factor;
+            spacers_total_height =
+                total_height - base_floor_height * 2 - upper_base_height - lower_base_height - rib_base_height * 2;
 
-            sec_height = (i == 0) ? lower_base_height : upper_base_height;
+            z_shift = spacers_total_height * i * z_shift_factor;
 
-            z_shift_comm = (total_height);
+            spacer_pos = lower_base_height + nut_height + z_shift + spacer_z_tol / 2 + rib_base_height * i;
 
-            z_shift = z_shift_comm * z_shift_factor_height + sec_height + spacer_z_tol / 2;
+            spacer_height = spacers_total_height * z_shift_factor - spacer_z_tol*2;
 
-            z_gap_height = z_shift_comm * z_shift_factor - sec_height - spacer_z_tol;
-
-            rotate([ 0, 0, j * 90 ]) translate([ rod_shift, 0, z_shift ]) difference()
+            rotate([ 0, 0, j * 90 ]) translate([ rod_shift, 0, spacer_pos ]) difference()
             {
-                cylinder(d = rod_spacer_diameter, h = z_gap_height);
-                cylinder(d = threaded_rod_diameter + spacer_dia_tol, h = z_gap_height + zFite);
+                cylinder(d = rod_spacer_diameter, h = spacer_height);
+                cylinder(d = threaded_rod_diameter + spacer_dia_tol, h = spacer_height + zFite);
             }
         }
     }
