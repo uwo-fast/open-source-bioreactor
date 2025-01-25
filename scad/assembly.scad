@@ -14,7 +14,9 @@ use <dc_motor.scad>;
 use <impeller.scad>;
 use <lid.scad>;
 use <motor_mount.scad>;
+use <probe_atlas.scad>;
 use <probe_mount.scad>;
+use <probe_thermocouple.scad>;
 use <strip_light.scad>;
 
 // internal libs
@@ -23,7 +25,7 @@ use <lib/jar.scad>;
 // external libs
 include <NopSCADlib/core.scad>
 use <NopSCADlib/vitamins/shaft_coupling.scad>
-use <threads-scad/threads.scad>;
+use <threads-scad/threads.scad>; // only if you want to visualize threads
 
 // config for zFite, preview fn,
 include <_config.scad>;
@@ -39,6 +41,7 @@ jar_x_sec = false; // show jar as a cross section, useful during development
 show_threads = false; // show threads on rods, slow to render
 
 render_jar = false;
+
 render_base = false;
 render_upper_base = false;
 render_lid = false;
@@ -47,6 +50,8 @@ render_ribs = false;
 render_rods = false;
 render_rodspacers = false;
 render_lights = false;
+
+render_probes = false;
 
 render_motor = false;
 render_mmount = false;
@@ -138,6 +143,44 @@ mmount_face_screws_cdist = 30;     // distance between the face screws
 
 mmount_pillar_width = 7; // width of the pillars that support the motor mount
 
+/* [Probe Parameters] */
+
+ph_probe_neck_diameter = 10;                             // Diameter of the neck
+ph_probe_neck_height = 26;                               // Height of the neck
+ph_probe_neck_taper_diameter = 5;                        // Tapered diameter of the neck
+ph_probe_body_diameter = 16;                             // Diameter of the body
+ph_probe_body_height = 35;                               // Height of the body
+ph_probe_tip_diameter = 12;                              // Diameter of the sensing tip
+ph_probe_tip_height = 115;                               // Height of the sensing tip
+ph_probe_wire_diameter = 3;                              // Diameter of the wire
+ph_probe_wire_height = 50;                               // Height of the wire
+ph_probe_colors = [ "Black", "Red", "Black", "Yellow" ]; // Colors of the probe
+ph_probe_orient_base = true;                             // Whether to orient the probe to the base
+
+do_probe_neck_diameter = 10;                                   // Diameter of the neck
+do_probe_neck_height = 26;                                     // Height of the neck
+do_probe_neck_taper_diameter = 5;                              // Tapered diameter of the neck
+do_probe_body_diameter = 16;                                   // Diameter of the body
+do_probe_body_height = 35;                                     // Height of the body
+do_probe_tip_diameter = 12;                                    // Diameter of the sensing tip
+do_probe_tip_height = 115;                                     // Height of the sensing tip
+do_probe_wire_diameter = 3;                                    // Diameter of the wire
+do_probe_wire_height = 50;                                     // Height of the wire
+do_probe_colors = [ "Black", "Goldenrod", "Black", "Yellow" ]; // Colors of the probe
+do_probe_orient_base = true;                                   // Whether to orient the probe to the base
+
+thermocouple_probe_neck_diameter = 10;  // Diameter of the neck
+thermocouple_probe_neck_height = 12;    // Height of the neck
+thermocouple_probe_flats_diameter = 26; // Diameter of the flats
+thermocouple_probe_flats_height = 5;    // Height of the flats
+thermocouple_probe_body_diameter = 21;  // Diameter of the body
+thermocouple_probe_body_height = 20;    // Height of the body
+thermocouple_probe_tip_diameter = 3.5;  // Diameter of the sensing tip
+thermocouple_probe_tip_height = 115;    // Height of the sensing tip
+thermocouple_probe_wire_diameter = 3;   // Diameter of the wire
+thermocouple_probe_wire_height = 100;   // Height of the wire
+thermocouple_probe_orient_base = true;  // Whether to orient the probe to the base
+
 /*********************************************/
 /*         Custom-Design Constraints         */
 /*********************************************/
@@ -176,8 +219,7 @@ spacer_z_tol = 0.4;
 // Driven Parameters
 rod_shift = base_jar_cut_diameter / 2 + threaded_rod_hole_diameter;
 rod_length = total_height + nut_height;
-echo("rod length to cut x4: ", rod_length / 10, " c
-m");
+echo("rod length: ", rod_length / 10, " cm");
 
 /* [Probe Mount Parameters] */
 
@@ -216,17 +258,17 @@ probes_tot_n = probe1_n + probe2_n + probe3_n;
  *   of the culture to shear forces.
  */
 
-impeller_DT_factor = 0.45;// impeller diameter to tank diameter ratio
-impeller_height = 60;// impeller height
-impeller_n_fins = 4;// number of fins
-impeller_twist_ang = 55;// twist angle of each fin
-impeller_fin_width = 4;// width of each fin blade
-impeller_hub_radius = 7.5;// size of the center hub
-impeller_shaft_tol = 0.2;// tolerance for the shaft hole
+impeller_DT_factor = 0.45; // impeller diameter to tank diameter ratio
+impeller_height = 60;      // impeller height
+impeller_n_fins = 4;       // number of fins
+impeller_twist_ang = 55;   // twist angle of each fin
+impeller_fin_width = 4;    // width of each fin blade
+impeller_hub_radius = 7.5; // size of the center hub
+impeller_shaft_tol = 0.2;  // tolerance for the shaft hole
 
 // Driven Parameters
 impeller_diameter = jar_diameter * impeller_DT_factor;
-impeller_radius = impeller_diameter / 2;// impeller radius
+impeller_radius = impeller_diameter / 2; // impeller radius
 impeller_shaft_hole_radius = (shaft_diameter + impeller_shaft_tol) / 2;
 
 /* [Color Parameters] */
@@ -339,6 +381,31 @@ if (render_mmount || render_all)
         face_screws_diameter = mmount_face_screws_diameter, face_screws_cdist = mmount_face_screws_cdist);
 }
 
+if (render_probes)
+{
+    // ph probe
+    translate([ jar_diameter / 4, 0, lid_z_pos ]) atlas_probe(
+        neck_d = ph_probe_neck_diameter, neck_h = ph_probe_neck_height, neck_taper_d = ph_probe_neck_taper_diameter,
+        body_d = ph_probe_body_diameter, body_h = ph_probe_body_height, tip_d = ph_probe_tip_diameter,
+        tip_h = ph_probe_tip_height, wire_d = ph_probe_wire_diameter, wire_h = ph_probe_wire_height,
+        colors = ph_probe_colors, position_base = ph_probe_orient_base);
+
+    // do probe
+    translate([ -jar_diameter / 4, 0, lid_z_pos ]) atlas_probe(
+        neck_d = do_probe_neck_diameter, neck_h = do_probe_neck_height, neck_taper_d = do_probe_neck_taper_diameter,
+        body_d = do_probe_body_diameter, body_h = do_probe_body_height, tip_d = do_probe_tip_diameter,
+        tip_h = do_probe_tip_height, wire_d = do_probe_wire_diameter, wire_h = do_probe_wire_height,
+        colors = do_probe_colors, position_base = do_probe_orient_base);
+
+    // thermocouple probe
+    translate([ 0, -jar_diameter / 4, lid_z_pos ])
+        threaded_thermocouple(neck_d = thermocouple_probe_neck_diameter, neck_h = thermocouple_probe_neck_height,
+                              flats_d = thermocouple_probe_flats_diameter, flats_h = thermocouple_probe_flats_height,
+                              body_d = thermocouple_probe_body_diameter, body_h = thermocouple_probe_body_height,
+                              tip_d = thermocouple_probe_tip_diameter, tip_h = thermocouple_probe_tip_height,
+                              wire_d = thermocouple_probe_wire_diameter, wire_h = thermocouple_probe_wire_height,
+                              show_threads = show_threads, position_base = thermocouple_probe_orient_base);
+}
 // lights
 if (render_lights || render_all)
 {
