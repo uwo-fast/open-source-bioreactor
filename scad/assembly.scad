@@ -12,13 +12,13 @@
 use <base.scad>;
 use <dc_motor.scad>;
 use <impeller.scad>;
+use <jar.scad>;
 use <lid.scad>;
 use <motor_mount.scad>;
 use <probe_atlas.scad>;
 use <probe_mount.scad>;
 use <probe_thermocouple.scad>;
 use <strip_light.scad>;
-use <jar.scad>;
 
 // external libs
 include <NopSCADlib/core.scad>
