@@ -133,11 +133,11 @@ mmount_height = motor_req_height;  // height of the motor mount
 mmount_width = 42;                 // width of the motor mount
 mmount_thickness = 8;              // wall_thickness of the motor mount, must be at least 1.5x the dia of the screws
 mmount_floor_thickness = 4;        // thickness of the floor of the motor mount
-mmount_inner_diameter = 20;        // inner diameter of the motor mount, set based on diameter of motor mounting boss
+mmount_inner_diameter = 22;        // inner diameter of the motor mount, set based on diameter of motor mounting boss
 mmount_base_screws_diameter = 3.5; // diameter of the screws that fix the motor mount down at by base
 mmount_face_screws_diameter = 4;   // diameter of the screws that connect the motor faceplate to the mount
 mmount_base_screws_cdist = 32;     // distance between the base screws
-mmount_face_screws_cdist = 30;     // distance between the face screws
+mmount_face_screws_cdist = 27.6;     // distance between the face screws
 
 mmount_pillar_width = 7; // width of the pillars that support the motor mount
 
@@ -146,7 +146,7 @@ mmount_pillar_width = 7; // width of the pillars that support the motor mount
 ph_probe_neck_diameter = 10;                             // Diameter of the neck
 ph_probe_neck_height = 26;                               // Height of the neck
 ph_probe_neck_taper_diameter = 5;                        // Tapered diameter of the neck
-ph_probe_body_diameter = 16;                             // Diameter of the body
+ph_probe_body_diameter = 15.6;                             // Diameter of the body
 ph_probe_body_height = 35;                               // Height of the body
 ph_probe_tip_diameter = 12;                              // Diameter of the sensing tip
 ph_probe_tip_height = 115;                               // Height of the sensing tip

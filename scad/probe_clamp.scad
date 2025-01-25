@@ -1,5 +1,67 @@
 include <_config.scad>;
 
+render_export = false;
+export_angle_factor = 0.5; // [0:0.1:1]
+
+// Main body
+diameter = 15.6;
+dia_diff = 1;
+diameter_prime = diameter + dia_diff;
+height = 15;
+
+// For tabs
+collar_thickness = 2;
+mount_thickness = 3;
+mount_width = 6;
+hole_diameter = 3.2;
+
+// For rod mount
+rod_diameter = 4.6;
+rod_taper_diff = rod_diameter * 0.1;
+rod_diameter_taper = rod_diameter - rod_taper_diff;
+rod_mount_width = rod_diameter * 2.5;
+
+cord = circumference_from_diameter(diameter);
+echo("Circumference: ", cord);
+
+step = (sin($t * 360) + 1) * (dia_diff / 2); // Harmonic motion
+diameter_prime_step = diameter + step;
+echo("Diameter prime: ", diameter_prime_step);
+
+angular_range = chord_to_angle(cord, diameter) - chord_to_angle(cord, diameter_prime);
+echo("Angular range: ", angular_range);
+
+set_angle = 360 - angular_range * export_angle_factor;
+
+angle_in_degrees = render_export ? set_angle : chord_to_angle(cord, diameter_prime_step);
+echo("Angle in degrees: ", angle_in_degrees);
+
+inner = pie_slice(diameter_prime_step);
+outer = pie_slice(diameter_prime_step + collar_thickness * 2, 0, angle_in_degrees);
+half_angle_difference = (360 - angle_in_degrees) / 2;
+
+rotate([ 0, 0, half_angle_difference ]) difference()
+{
+    union()
+    {
+        linear_extrude(height) polygon(outer);
+
+        rotate([ 0, 0, 0 ]) translate([ diameter_prime_step / 2, 0, 0 ])
+            tab(mount_width + collar_thickness, mount_thickness, height, hole_diameter, collar_thickness);
+
+        rotate([ 0, 0, -half_angle_difference * 2 ]) mirror([ 0, 1, 0 ]) translate([ diameter_prime_step / 2, 0, 0 ])
+            tab(mount_width + collar_thickness, mount_thickness, height, hole_diameter, collar_thickness);
+
+        rotate([ 0, 0, -half_angle_difference ]) translate([ -(diameter_prime_step - collar_thickness) / 2, 0, 0 ])
+            scale([ 1, 0.5, 1 ]) cylinder(r = rod_mount_width, h = height);
+    }
+    translate([ 0, 0, -zFite / 2 ]) linear_extrude(height + zFite) polygon(inner);
+
+    rotate([ 0, 0, -half_angle_difference ])
+        translate([ -diameter_prime_step / 2 - rod_mount_width / 2, 0, -zFite / 2 ])
+            cylinder(d2 = rod_diameter, d1 = rod_diameter_taper, h = height + zFite);
+}
+
 /**
  * @brief Generates a series of points defining an arc.
  *
@@ -72,55 +134,4 @@ module tab(width, thickness, height, hole, collar_thickness = 0)
         translate([ width / 2 + collar_thickness / 2, thickness / 2, height / 4 * 3 ]) rotate([ 90, 0, 0 ])
             cylinder(d = hole, h = thickness + zFite, center = true);
     }
-}
-
-// Main body
-diameter = 30;
-diameter_prime = 32;
-height = 15;
-
-// For tabs
-collar_thickness = 3;
-mount_thickness = 3;
-mount_width = 6;
-hole_diameter = 3.2;
-
-// For rod mount
-rod_mount_width = 12;
-rod_diameter = 6;
-
-dia_diff = diameter_prime - diameter;
-cord = circumference_from_diameter(diameter);
-echo("Circumference: ", cord);
-
-step = (sin($t * 360) + 1) * (dia_diff / 2); // Harmonic motion
-diameter_prime_step = diameter + step;
-echo("Diameter prime: ", diameter_prime_step);
-
-angle_in_degrees = chord_to_angle(cord, diameter_prime_step);
-echo("Angle in degrees: ", angle_in_degrees);
-
-inner = pie_slice(diameter_prime_step);
-outer = pie_slice(diameter_prime_step + collar_thickness * 2, 0, angle_in_degrees);
-half_angle_difference = (360 - angle_in_degrees) / 2;
-
-rotate([ 0, 0, half_angle_difference ]) difference()
-{
-    union()
-    {
-        linear_extrude(height) polygon(outer);
-
-        rotate([ 0, 0, 0 ]) translate([ diameter_prime_step / 2, 0, 0 ])
-            tab(mount_width + collar_thickness, mount_thickness, height, hole_diameter, collar_thickness);
-
-        rotate([ 0, 0, -half_angle_difference * 2 ]) mirror([ 0, 1, 0 ]) translate([ diameter_prime_step / 2, 0, 0 ])
-            tab(mount_width + collar_thickness, mount_thickness, height, hole_diameter, collar_thickness);
-
-        rotate([ 0, 0, -half_angle_difference  ])translate([ -(diameter_prime_step - collar_thickness) / 2, 0, 0 ]) scale([1,0.75,1])
-            cylinder(r = rod_mount_width, h = height);
-    }
-    translate([ 0, 0, -zFite / 2 ]) linear_extrude(height + zFite) polygon(inner);
-
-    rotate([ 0, 0, -half_angle_difference  ])translate([ -diameter_prime_step/ 2 - rod_mount_width /2, 0, -zFite / 2 ])
-            cylinder(d = rod_diameter, h = height+ zFite);
 }
