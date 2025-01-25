@@ -18,9 +18,7 @@ use <probe_atlas.scad>;
 use <probe_mount.scad>;
 use <probe_thermocouple.scad>;
 use <strip_light.scad>;
-
-// internal libs
-use <lib/jar.scad>;
+use <jar.scad>;
 
 // external libs
 include <NopSCADlib/core.scad>
