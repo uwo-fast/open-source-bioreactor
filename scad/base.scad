@@ -8,11 +8,7 @@
  *
  */
 
-// ---------------------------------
-// Global Parameters
-// ---------------------------------
-$fn = $preview ? 32 : 128;  // number of fragments for circles, affects render time
-zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
+include <_config.scad>;
 
 // a:angle, d:diameter, h:height, center: center
 

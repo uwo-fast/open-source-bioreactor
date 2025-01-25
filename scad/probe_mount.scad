@@ -6,12 +6,18 @@
  *
  */
 
-// -----------------
-// Global variables
-// -----------------
-zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
-$fn = $preview ? 32 : 128;
+include <_config.scad>;
 
+/**
+ * @brief Create a probe mount for a long cylindrical sensor
+ * @param diameter The diameter of the sensor
+ * @param width The width of the mount
+ * @param height The height of the mount
+ * @param hole_diameter The diameter of the hole for the sensor
+ * @param tolerance The tolerance for the sensor hole
+ * @param screw_hole_diameter The diameter of the screw holes
+ * @param cut_height The height of the cutout for the sensor
+ */
 module probe_mount(diameter, width, height, hole_diameter, tolerance, screw_hole_diameter, cut_height)
 {
     difference()

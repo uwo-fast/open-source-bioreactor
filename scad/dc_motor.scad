@@ -6,12 +6,15 @@
  *
  */
 
-// ---------------------------------
-// Global Parameters
-// ---------------------------------
-$fn = $preview ? 64 : 128;  // number of fragments for circles, affects render time
-zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
+include <_config.scad>;
 
+/**
+ * @brief Create a basic DC motor model
+ * @param diameter The diameter of the motor
+ * @param length The length of the motor
+ * @param shaft_diameter The diameter of the motor shaft, optional
+ * @param shaft_length The length of the motor shaft, optional
+ */
 module dcmotor(diameter, length, shaft_diameter = undef, shaft_length = undef)
 {
     union()
@@ -22,6 +25,17 @@ module dcmotor(diameter, length, shaft_diameter = undef, shaft_length = undef)
     }
 }
 
+/**
+ * @brief Create a basic gearbox model
+ * @param diameter The diameter of the gearbox
+ * @param length The length of the gearbox
+ * @param output_shaft_diameter The diameter of the output shaft
+ * @param output_shaft_length The length of the output shaft
+ * @param input_shaft_diameter The diameter of the input shaft, optional
+ * @param input_shaft_length The length of the input shaft, optional
+ * @param faceplate_screws_cdist The distance between the screws that attach the faceplate to the gearbox
+ * @param screw_diameter The diameter of the screws that attach the gearbox to the base, optional
+ */
 module gearbox(diameter, length, output_shaft_diameter, output_shaft_length, input_shaft_diameter, input_shaft_length,
                faceplate_screws_cdist, screw_diameter = 5)
 {
@@ -68,6 +82,10 @@ module gearbox(diameter, length, output_shaft_diameter, output_shaft_length, inp
     }
 }
 
+/**
+ * @brief Create a basic screw head shape
+ * @param diameter The diameter of the screw head
+ */
 module screwhead(diameter)
 {
     union()

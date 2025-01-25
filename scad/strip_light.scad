@@ -8,6 +8,8 @@
  *
  */
 
+include <_config.scad>;
+
 /**
  * @brief Creates a strip light
  * @param width The width of the strip light
@@ -38,7 +40,6 @@ module strip_light(width, depth, length, radius = undef)
  * @param r Radius of the circle
  * @param offset Offset of the first child
  */
-
 module circular_pattern(a, n, r, offset, center = false)
 {
     c = center ? -a / n : 0;
