@@ -21,6 +21,9 @@ use <probe_mount.scad>;
 use <probe_thermocouple.scad>;
 use <strip_light.scad>;
 
+// internal libs
+use<lib/arc_points.scad>;
+
 // external libs
 include <NopSCADlib/core.scad>
 use <NopSCADlib/vitamins/shaft_coupling.scad>
@@ -29,18 +32,21 @@ use <threads-scad/threads.scad>; // only if you want to visualize threads
 // config for zFite, preview fn,
 include <_config.scad>;
 
-/* [Render Control] */
+/* [Visulization Modifiers] */
 
-// Overrides all other render flags
-render_all = false; // render all components
 // Cuts the jar in half for a cross section view
 jar_x_sec = false;
 // Visualize threads on the rods (slower to render)
 show_threads = false;
 // Animate the probe clamp opening and closing
 animate_probe_clamp = false;
+// Whether to shut the probe clamp
 shut_probe_clamp = true;
 
+/* [Render Control] */
+
+// Overrides all other render flags
+render_all = false; // render all components
 render_jar = false;
 render_base = false;
 render_upper_base = false;
@@ -60,6 +66,7 @@ render_probemounts = false;
 // ------------------------------------
 
 /* [Jar Parameters] */
+
 // height of the jar
 jar_height = 305;
 // diameter of the jar
@@ -110,8 +117,8 @@ number_of_lights = 6;
 occupy_angle = 90 * 3 / 4;
 
 /* [Nut & Rod Parameters] */
-// nut is size 6  (d=14.5mm)
 
+// nut irl is size 6  (d=14.5mm)
 // diameter of the nut
 nut_diameter = 15.4;
 // height of the nut
@@ -190,7 +197,7 @@ ph_probe_tip_height = 115;
 // Diameter of the wire
 ph_probe_wire_diameter = 3;
 // Height of the wire
-ph_probe_wire_height = 50;
+ph_probe_wire_height = 10;
 // Colors of the probe
 ph_probe_colors = [ "Black", "Red", "Black", "Yellow" ];
 // Whether to orient the probe to the base
@@ -250,7 +257,7 @@ do_probe_tip_height = 115;
 // Diameter of the wire
 do_probe_wire_diameter = 3;
 // Height of the wire
-do_probe_wire_height = 50;
+do_probe_wire_height = 10;
 // Colors of the probe
 do_probe_colors = [ "Black", "Goldenrod", "Black", "Yellow" ];
 
@@ -312,7 +319,7 @@ thermocouple_probe_tip_height = 115;
 // Diameter of the wire
 thermocouple_probe_wire_diameter = 3;
 // Height of the wire
-thermocouple_probe_wire_height = 100;
+thermocouple_probe_wire_height = 10;
 // Whether to orient the probe to the base
 thermocouple_probe_orient_base = true;
 
@@ -377,29 +384,6 @@ rod_length = total_height + nut_height;
 echo("rod length: ", rod_length / 10, " cm");
 
 /* [Probe Mount Parameters] */
-
-probe_mount_width = 20;
-probe_mount_height = 4;
-probe_mount_cuts_tol = 0.1;
-probe_mount_screw_hole_diameter = 3;
-
-probe1_diameter = 10;
-probe1_entry_diameter = 5;
-probe1_cut_depth = probe_mount_height * 2 / 3;
-probe1_n = 4;
-
-probe2_diameter = 15;
-probe2_entry_diameter = 7.5;
-probe2_cut_depth = probe_mount_height * 2 / 3;
-probe2_n = 4;
-
-probe3_diameter = 25;
-probe3_entry_diameter = 20;
-probe3_cut_depth = probe_mount_height * 2 / 3;
-probe3_n = 2;
-
-// Driven Parameters
-probes_tot_n = probe1_n + probe2_n + probe3_n;
 
 /* [Impeller Parameters] */
 
@@ -559,70 +543,60 @@ if (render_mmount || render_all)
 
 if (render_probes || render_all)
 {
+
     // ph probe
-    translate([
-        jar_diameter / 4, 0,
-        lid_z_pos - ph_probe_body_height / 2 + ph_probe_clamp_height / 2 - ph_probe_clamp_rod_height +
-        ph_probe_clamp_rod_height_lid
-    ])
+
+    translate([ jar_diameter / 4, 0, lid_z_pos - ph_probe_clamp_rod_height + ph_probe_clamp_rod_height_lid ])
+        rotate([ 0, 0, 0 ])
     {
         // suspension rod
-        translate([
-            -ph_probe_clamp_diameter / 2 - ph_probe_clamp_rod_mount_width / 2, 0,
-            ph_probe_clamp_rod_height / 2 + ph_probe_body_height / 2 - ph_probe_clamp_height / 2 -
-            zFite
-        ]) color("DimGray") cylinder(d = ph_probe_clamp_rod_diameter, h = ph_probe_clamp_rod_height, center = true);
+        color("DimGray") cylinder(d = ph_probe_clamp_rod_diameter, h = ph_probe_clamp_rod_height);
+
+        ph_probe_x_shift = ph_probe_clamp_rod_mount_width + ph_probe_clamp_rod_diameter / 2;
+        ph_probe_z_shift = ph_probe_body_height / 2 - ph_probe_clamp_height / 2;
 
         // pinch collar for ph probe
-        translate([ 0, 0, ph_probe_body_height / 2 - ph_probe_clamp_height / 2 ]) color(prints1_color)
-            probe_pinch_collar(
-                nominal_diameter = ph_probe_clamp_diameter, expanded_diameter = ph_probe_clamp_diameter_expanded,
-                height = ph_probe_clamp_height, collar_thickness = ph_probe_clamp_collar_thickness,
-                mount_thickness = ph_probe_clamp_mount_thickness, mount_width = ph_probe_clamp_mount_width,
-                hole_diameter = ph_probe_clamp_hole_diameter, rod_diameter = ph_probe_clamp_rod_diameter,
-                rod_diameter_taper = ph_probe_clamp_rod_diameter_taper,
-                rod_mount_width = ph_probe_clamp_rod_mount_width, animate = animate_probe_clamp,
-                static_angle_factor = ph_probe_clamp_static_angle_factor);
+        translate([ ph_probe_x_shift, 0, 0 ]) color(prints1_color) probe_pinch_collar(
+            nominal_diameter = ph_probe_clamp_diameter, expanded_diameter = ph_probe_clamp_diameter_expanded,
+            height = ph_probe_clamp_height, collar_thickness = ph_probe_clamp_collar_thickness,
+            mount_thickness = ph_probe_clamp_mount_thickness, mount_width = ph_probe_clamp_mount_width,
+            hole_diameter = ph_probe_clamp_hole_diameter, rod_diameter = ph_probe_clamp_rod_diameter,
+            rod_diameter_taper = ph_probe_clamp_rod_diameter_taper, rod_mount_width = ph_probe_clamp_rod_mount_width,
+            animate = animate_probe_clamp, static_angle_factor = ph_probe_clamp_static_angle_factor);
 
         // atlas probe for ph probe
-        atlas_probe(neck_d = ph_probe_neck_diameter, neck_h = ph_probe_neck_height,
-                    neck_taper_d = ph_probe_neck_taper_diameter, body_d = ph_probe_body_diameter,
-                    body_h = ph_probe_body_height, tip_d = ph_probe_tip_diameter, tip_h = ph_probe_tip_height,
-                    wire_d = ph_probe_wire_diameter, wire_h = ph_probe_wire_height, colors = ph_probe_colors,
-                    position_base = ph_probe_orient_base);
+        translate([ ph_probe_x_shift, 0, -ph_probe_z_shift ]) atlas_probe(
+            neck_d = ph_probe_neck_diameter, neck_h = ph_probe_neck_height, neck_taper_d = ph_probe_neck_taper_diameter,
+            body_d = ph_probe_body_diameter, body_h = ph_probe_body_height, tip_d = ph_probe_tip_diameter,
+            tip_h = ph_probe_tip_height, wire_d = ph_probe_wire_diameter, wire_h = ph_probe_wire_height,
+            colors = ph_probe_colors, position_base = ph_probe_orient_base);
     }
 
     // do probe
-    translate([
-        -jar_diameter / 4, 0,
-        lid_z_pos - do_probe_body_height / 2 + do_probe_clamp_height / 2 - do_probe_clamp_rod_height +
-        do_probe_clamp_rod_height_lid
-    ])
+    translate([ -jar_diameter / 4, 0, lid_z_pos - do_probe_clamp_rod_height + do_probe_clamp_rod_height_lid ])
+        rotate([ 0, 0, 180 ])
     {
         // suspension rod
-        translate([
-            -do_probe_clamp_diameter / 2 - do_probe_clamp_rod_mount_width / 2, 0,
-            do_probe_clamp_rod_height / 2 + do_probe_body_height / 2 - do_probe_clamp_height / 2 -
-            zFite
-        ]) color("DimGray") cylinder(d = do_probe_clamp_rod_diameter, h = do_probe_clamp_rod_height, center = true);
+        color("DimGray") cylinder(d = do_probe_clamp_rod_diameter, h = do_probe_clamp_rod_height);
+
+        do_probe_x_shift = do_probe_clamp_rod_mount_width + do_probe_clamp_rod_diameter / 2;
+        do_probe_z_shift = do_probe_body_height / 2 - do_probe_clamp_height / 2;
 
         // pinch collar for do probe
-        translate([ 0, 0, do_probe_body_height / 2 - do_probe_clamp_height / 2 ]) color(prints1_color)
-            probe_pinch_collar(
-                nominal_diameter = do_probe_clamp_diameter, expanded_diameter = do_probe_clamp_diameter_expanded,
-                height = do_probe_clamp_height, collar_thickness = do_probe_clamp_collar_thickness,
-                mount_thickness = do_probe_clamp_mount_thickness, mount_width = do_probe_clamp_mount_width,
-                hole_diameter = do_probe_clamp_hole_diameter, rod_diameter = do_probe_clamp_rod_diameter,
-                rod_diameter_taper = do_probe_clamp_rod_diameter_taper,
-                rod_mount_width = do_probe_clamp_rod_mount_width, animate = animate_probe_clamp,
-                static_angle_factor = do_probe_clamp_static_angle_factor);
+        translate([ do_probe_x_shift, 0, 0 ]) color(prints1_color) probe_pinch_collar(
+            nominal_diameter = do_probe_clamp_diameter, expanded_diameter = do_probe_clamp_diameter_expanded,
+            height = do_probe_clamp_height, collar_thickness = do_probe_clamp_collar_thickness,
+            mount_thickness = do_probe_clamp_mount_thickness, mount_width = do_probe_clamp_mount_width,
+            hole_diameter = do_probe_clamp_hole_diameter, rod_diameter = do_probe_clamp_rod_diameter,
+            rod_diameter_taper = do_probe_clamp_rod_diameter_taper, rod_mount_width = do_probe_clamp_rod_mount_width,
+            animate = animate_probe_clamp, static_angle_factor = do_probe_clamp_static_angle_factor);
 
         // atlas probe for do probe
-        atlas_probe(neck_d = do_probe_neck_diameter, neck_h = do_probe_neck_height,
-                    neck_taper_d = do_probe_neck_taper_diameter, body_d = do_probe_body_diameter,
-                    body_h = do_probe_body_height, tip_d = do_probe_tip_diameter, tip_h = do_probe_tip_height,
-                    wire_d = do_probe_wire_diameter, wire_h = do_probe_wire_height, colors = do_probe_colors,
-                    position_base = do_probe_orient_base);
+        translate([ do_probe_x_shift, 0, -do_probe_z_shift ]) atlas_probe(
+            neck_d = do_probe_neck_diameter, neck_h = do_probe_neck_height, neck_taper_d = do_probe_neck_taper_diameter,
+            body_d = do_probe_body_diameter, body_h = do_probe_body_height, tip_d = do_probe_tip_diameter,
+            tip_h = do_probe_tip_height, wire_d = do_probe_wire_diameter, wire_h = do_probe_wire_height,
+            colors = do_probe_colors, position_base = do_probe_orient_base);
     }
 
     // thermocouple probe
@@ -774,6 +748,45 @@ if (render_rodspacers || render_all)
     }
 }
 
+// probe mount
+// width of the probe mount
+entry_mount_width = 20;
+// height of the probe mount
+entry_mount_height = 8;
+// thickness of the probe mount
+entry_mount_cuts_tol = 0.1;
+// diameter of the probe mount hole
+entry_mount_screw_hole_diameter = 3;
+
+// number of holes for the first holes set
+entry_1_n = 4;
+// diameter of the holes for the first holes set
+entry_1_diameter = ph_probe_clamp_rod_diameter;
+
+// number of holes for the second holes set
+entry_2_n = 4;
+// diameter of the holes for the second holes set
+entry_2_diameter = ph_probe_clamp_rod_diameter;
+
+// number of holes for the third holes set
+entry_3_n = 4;
+// diameter of the holes for the third holes set
+entry_3_diameter = ph_probe_clamp_rod_diameter;
+
+// Intermediate calculations
+// total number of holes to make
+entry_tot_n = entry_1_n + entry_2_n + entry_3_n;
+// angular shift between the holes
+lid_holes_angular_shift = 360 / entry_tot_n;
+// offsets for the holes, this can be cleaner in the future
+entry_1_offset = 0;
+entry_2_offset = lid_holes_angular_shift * entry_1_n;
+entry_3_offset = entry_2_offset + lid_holes_angular_shift * entry_2_n;
+entry_1_specs = [ entry_1_n, entry_1_diameter, entry_1_offset ];
+entry_2_specs = [ entry_2_n, entry_2_diameter, entry_2_offset ];
+entry_3_specs = [ entry_3_n, entry_3_diameter, entry_3_offset ];
+entry_specs = [ entry_1_specs, entry_2_specs, entry_3_specs ];
+
 // lid
 if (render_lid || render_all)
 {
@@ -796,47 +809,45 @@ if (render_lid || render_all)
                 rotate([ 0, 0, 30 ]) cylinder(d = bearing_diameter, h = bearing_height + zFite);
             }
 
-            // flat cuts to reduce material and allow space for lights
+            // cut off corners to reduce material and allow space for lights
             translate([ 0, 0, lid_height ]) rotate([ 0, 0, 45 ]) difference()
             {
                 cube([ jar_diameter * 1.1, jar_diameter * 1.1, cut_height ], center = true);
                 cube([ jar_diameter - lid_cuts, jar_diameter - lid_cuts, cut_height * 1.1 ], center = true);
             }
 
-            // cut out probe holes
-            // turn this into a reusable module to be used for placement too!!
-            angular_sift = 360 / probes_tot_n;
-            for (i = [0:probe1_n - 1])
+            // cut out the entry holes for the probes and tubes
+            for (i = [0:len(entry_specs) - 1])
             {
-                rotate([ 0, 0, i * angular_sift ]) translate([ jar_diameter / 4, 0, lid_height ])
+                entry_n = entry_specs[i][0];
+                entry_diameter = entry_specs[i][1];
+                entry_offset = entry_specs[i][2];
+
+                for (j = [0:entry_n - 1])
                 {
-                    cylinder(d = probe1_entry_diameter, h = cut_height, center = true);
-                }
-            }
-            for (i = [0:probe2_n - 1])
-            {
-                rotate([ 0, 0, (i + probe1_n) * angular_sift ]) translate([ jar_diameter / 4, 0, lid_height ])
-                {
-                    cylinder(d = probe2_entry_diameter, h = cut_height, center = true);
-                }
-            }
-            for (i = [0:probe3_n - 1])
-            {
-                rotate([ 0, 0, (i + probe1_n + probe2_n) * angular_sift ])
-                    translate([ jar_diameter / 4, 0, lid_height ])
-                {
-                    cylinder(d = probe3_entry_diameter, h = cut_height, center = true);
+                    hole_rot = j * lid_holes_angular_shift + entry_offset;
+                    rotate([ 0, 0, hole_rot ]) translate([ jar_diameter / 4, 0, lid_height ])
+                    {
+                        cylinder(d = entry_diameter, h = cut_height, center = true);
+                    }
                 }
             }
         }
     }
 }
 
+probe_mount_inner_dia = entry_1_diameter + 4;
+
 // probe mounts
 if (render_probemounts || render_all)
 {
-    translate([ jar_diameter / 4, 0, total_height ]) color(prints1_color)
-        probe_mount(diameter = probe1_diameter, hole_diameter = probe1_entry_diameter, cut_height = probe1_cut_depth,
-                    width = probe_mount_width, height = probe_mount_height, tolerance = probe_mount_cuts_tol,
-                    screw_hole_diameter = probe_mount_screw_hole_diameter);
+    translate([ jar_diameter / 4, 0, lid_z_pos ]) color(prints1_color)
+        probe_mount(diameter = probe_mount_inner_dia, hole_diameter = entry_1_diameter,
+                    cut_height = entry_1_diameter / 2, width = entry_mount_width, height = entry_mount_height,
+                    tolerance = entry_mount_cuts_tol, screw_hole_diameter = entry_mount_screw_hole_diameter);
+
+    translate([ -jar_diameter / 4, 0, lid_z_pos ]) color(prints1_color)
+        probe_mount(diameter = probe_mount_inner_dia, hole_diameter = entry_1_diameter,
+                    cut_height = entry_1_diameter / 2, width = entry_mount_width, height = entry_mount_height,
+                    tolerance = entry_mount_cuts_tol, screw_hole_diameter = entry_mount_screw_hole_diameter);
 }
