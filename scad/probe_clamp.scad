@@ -97,23 +97,27 @@ module tab(width, thickness, height, hole, collar_thickness = 0)
  */
 module probe_pinch_collar(nominal_diameter, expanded_diameter, height, collar_thickness, mount_thickness, mount_width,
                           hole_diameter, rod_diameter, rod_diameter_taper, rod_mount_width, animate = false,
-                          static_angle_factor = 0.5)
+                          static_angle_factor = 0.5, debug = false)
 {
 
     cord = circumference_from_diameter(nominal_diameter);
-    echo("Circumference: ", cord);
+    if (debug)
+        echo("Circumference: ", cord);
 
     step = (sin($t * 360) + 1) * ((expanded_diameter - nominal_diameter) / 2); // Harmonic motion
     diameter_prime_step = nominal_diameter + step;
-    echo("Diameter prime: ", diameter_prime_step);
+    if (debug)
+        echo("Diameter prime: ", diameter_prime_step);
 
     angular_range = chord_to_angle(cord, nominal_diameter) - chord_to_angle(cord, expanded_diameter);
-    echo("Angular range: ", angular_range);
+    if (debug)
+        echo("Angular range: ", angular_range);
 
     set_angle = 360 - angular_range * static_angle_factor;
 
     angle_in_degrees = animate ? chord_to_angle(cord, diameter_prime_step) : set_angle;
-    echo("Angle in degrees: ", angle_in_degrees);
+    if (debug)
+        echo("Angle in degrees: ", angle_in_degrees);
 
     inner = pie_slice(diameter_prime_step);
     outer = pie_slice(diameter_prime_step + collar_thickness * 2, 0, angle_in_degrees);

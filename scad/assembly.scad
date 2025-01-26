@@ -33,7 +33,6 @@ include <_config.scad>;
 
 // Overrides all other render flags
 render_all = false; // render all components
-
 // Cuts the jar in half for a cross section view
 jar_x_sec = false;
 // Visualize threads on the rods (slower to render)
@@ -558,7 +557,7 @@ if (render_mmount || render_all)
         face_screws_diameter = mmount_face_screws_diameter, face_screws_cdist = mmount_face_screws_cdist);
 }
 
-if (render_probes)
+if (render_probes || render_all)
 {
     // ph probe
     translate([
