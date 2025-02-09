@@ -17,9 +17,10 @@ use <lid.scad>;
 use <motor_mount.scad>;
 use <probe_atlas.scad>;
 use <probe_clamp.scad>;
-use <probe_mount.scad>;
 use <probe_thermocouple.scad>;
 use <strip_light.scad>;
+use <tube_lock.scad>;
+use <tube_mount.scad>;
 
 // internal libs
 use<lib/arc_points.scad>;
@@ -60,6 +61,7 @@ render_motor = false;
 render_mmount = false;
 render_impeller = false;
 render_probemounts = false;
+render_tube_pinlock = false;
 
 // ------------------------------------
 // Commercial-off-the-shelf Constraints
@@ -109,8 +111,8 @@ light_width = 14.1;
 light_depth = 7.6;
 // radius of the light window
 light_window_radius = 0.5;
-// tolerance for the light to fit in the base
-light_tol = 0.2;
+// allowance for the light to fit in the base
+light_allow = 0.2;
 // number of lights
 number_of_lights = 6;
 // angle that the lights occupy
@@ -125,10 +127,10 @@ nut_diameter = 15.4;
 nut_height = 6.4;
 // diameter of the threaded rod
 threaded_rod_diameter = 8.5;
-// tolerance for the hole for the threaded rod
-threaded_rod_hole_tolerance = 0.6;
+// allowance for the hole for the threaded rod
+threaded_rod_hole_allowance = 0.6;
 // diameter of the hole for the threaded rod
-threaded_rod_hole_diameter = threaded_rod_diameter + threaded_rod_hole_tolerance;
+threaded_rod_hole_diameter = threaded_rod_diameter + threaded_rod_hole_allowance;
 
 /* [Motor & Shaft Parameters] */
 
@@ -329,8 +331,8 @@ thermocouple_probe_orient_base = true;
 
 /* [Base Parameters] */
 
-// tolerance for the jar to fit in the base
-base_jar_fit_tol = 0.4;
+// allowance for the jar to fit in the base
+base_jar_fit_allow = 0.4;
 // height of the floor of the base
 base_floor_height = 3;
 // height of the bottom base (holding jar)
@@ -346,14 +348,14 @@ total_height = jar_height + base_floor_height + upper_base_height;
 // distance from the center of the jar to the threaded rod
 base_wall_thickness = (light_depth * 1.5) * 2; // thinnest part is 50% thicker than the light depth
 // diameter of the cutout for the jar
-base_jar_cut_diameter = jar_diameter + base_jar_fit_tol;
+base_jar_cut_diameter = jar_diameter + base_jar_fit_allow;
 
 /* [Lid Parameters] */
 
-// tolerance for the lid to fit on the jar
-lid_rad_tol = 0.4;
-// height tolerance for the lid to fit on the jar
-lid_h_tol = 0.2;
+// allowance for the lid to fit on the jar
+lid_rad_allow = 0.4;
+// height allowance for the lid to fit on the jar
+lid_h_allow = 0.2;
 // height of the lid
 bearing_diameter = 22.6;
 // height of the bearing
@@ -361,20 +363,20 @@ bearing_height = 7.5;
 
 // Driven Parameters
 // height of the lid
-lid_height = upper_base_height - base_floor_height - lid_h_tol;
+lid_height = upper_base_height - base_floor_height - lid_h_allow;
 // diameter of the cuts on the lid
 lid_cuts = jar_diameter / 5;
 // height of the cuts on the lid
-lid_z_pos = jar_height + upper_base_height - lid_h_tol;
+lid_z_pos = jar_height + upper_base_height - lid_h_allow;
 
 /* [Rod Spacer Parameters] */
 
 // thickness of the rod spacer
 rod_spacer_thickness = 2;
-// tolerance for the rod spacer to fit on the rod
-spacer_dia_tol = 0.2;
-// tolerance for the rod spacer to fit on the rod
-spacer_z_tol = 0.4;
+// allowance for the rod spacer to fit on the rod
+spacer_dia_allow = 0.2;
+// allowance for the rod spacer to fit on the rod
+spacer_z_allow = 0.4;
 
 // Driven Parameters
 // distance from the center of the jar to the threaded rod
@@ -409,8 +411,8 @@ impeller_twist_ang = 55;
 impeller_fin_width = 4;
 // size of the center hub
 impeller_hub_radius = 7.5;
-// tolerance for the shaft hole
-impeller_shaft_tol = 0.1;
+// allowance for the shaft hole
+impeller_shaft_allow = 0.1;
 
 // Driven Parameters
 // diameter of the impeller
@@ -418,7 +420,7 @@ impeller_diameter = jar_diameter * impeller_DT_factor;
 // radius of the impeller
 impeller_radius = impeller_diameter / 2;
 // radius of the shaft hole in the impeller
-impeller_shaft_hole_radius = (shaft_diameter + impeller_shaft_tol) / 2;
+impeller_shaft_hole_radius = (shaft_diameter + impeller_shaft_allow) / 2;
 
 /* [Color Parameters] */
 // first color for 3D prints
@@ -444,7 +446,7 @@ if (render_jar || render_all)
 // threaded rods
 if (render_rods || render_all)
 {
-    threads_tol = 0.15;
+    threads_allow = 0.15;
     for (i = [0:3])
     {
         rotate([ 0, 0, i * 90 ])
@@ -464,27 +466,27 @@ if (render_rods || render_all)
                 translate([ 0, 0, -zFite ]) color("DimGray") difference()
                 {
                     rotate([ 0, 0, 30 ]) translate([ 0, 0, 0 ])
-                        cylinder(d = nut_diameter - threads_tol, h = nut_height, $fn = 6);
+                        cylinder(d = nut_diameter - threads_allow, h = nut_height, $fn = 6);
                     rotate([ 0, 0, 30 ]) translate([ 0, 0, -zFite / 2 ])
-                        cylinder(d = threaded_rod_diameter + threads_tol, h = nut_height + zFite);
+                        cylinder(d = threaded_rod_diameter + threads_allow, h = nut_height + zFite);
                 }
 
                 // Nuts top of base
                 translate([ 0, 0, lower_base_height + zFite * 2 ]) color("DimGray") difference()
                 {
                     rotate([ 0, 0, 30 ]) translate([ 0, 0, 0 ])
-                        cylinder(d = nut_diameter - threads_tol, h = nut_height, $fn = 6);
+                        cylinder(d = nut_diameter - threads_allow, h = nut_height, $fn = 6);
                     rotate([ 0, 0, 30 ]) translate([ 0, 0, -zFite / 2 ])
-                        cylinder(d = threaded_rod_diameter + threads_tol, h = nut_height + zFite);
+                        cylinder(d = threaded_rod_diameter + threads_allow, h = nut_height + zFite);
                 }
 
                 // Nuts on the lid
                 translate([ 0, 0, lid_z_pos + base_floor_height ]) color("DimGray") difference()
                 {
                     rotate([ 0, 0, 30 ]) translate([ 0, 0, 0 ])
-                        cylinder(d = nut_diameter - threads_tol, h = nut_height, $fn = 6);
+                        cylinder(d = nut_diameter - threads_allow, h = nut_height, $fn = 6);
                     rotate([ 0, 0, 30 ]) translate([ 0, 0, -zFite / 2 ])
-                        cylinder(d = threaded_rod_diameter + threads_tol, h = nut_height + zFite);
+                        cylinder(d = threaded_rod_diameter + threads_allow, h = nut_height + zFite);
                 }
             }
         }
@@ -611,22 +613,22 @@ if (render_probes || render_all)
 // lights
 if (render_lights || render_all)
 {
-    lights(light_tol = light_tol);
+    lights(light_allow = light_allow);
 }
 
 // put into a module so we can call it to remove from 3DP supporting components
-// light_tol is the tolerance between base_jar_cut_diameter and the light front face to create a small gap
-// diff_tol is the tolerance applied to the light dimensions to create a toleranced pocket
-module lights(light_tol = 0, diff_tol = 0, rad_cut = false)
+// light_allow is the allowance between base_jar_cut_diameter and the light front face to create a small gap
+// diff_allow is the allowance applied to the light dimensions to create a allowanced pocket
+module lights(light_allow = 0, diff_allow = 0, rad_cut = false)
 {
     // Add extra cut depth to prevent material between jar and light when creating pockets with lights
     radial_cut_ext = rad_cut ? light_depth * 0.1 : 0;
 
-    placement_rad = base_jar_cut_diameter / 2 + light_tol - diff_tol / 2 - radial_cut_ext;
+    placement_rad = base_jar_cut_diameter / 2 + light_allow - diff_allow / 2 - radial_cut_ext;
 
     // [width, depth, length, window_radius]
     dims = [
-        light_width + diff_tol, light_depth + diff_tol + radial_cut_ext, light_length + diff_tol,
+        light_width + diff_allow, light_depth + diff_allow + radial_cut_ext, light_length + diff_allow,
         light_window_radius
     ];
 
@@ -652,11 +654,11 @@ if (render_base || render_all)
              nut_h = nut_height);
 
         // cut out the lights, rad_cut is true to extend the cut inwards to remove material between jar and light
-        lights(light_tol = light_tol, diff_tol = light_tol, rad_cut = true);
+        lights(light_allow = light_allow, diff_allow = light_allow, rad_cut = true);
 
         // cut out a second time shifted by 180 for symmetry and to allow more alternative config of the lights
         // this should be handled more elegantly in the future once the first iteration has been printed
-        rotate([ 0, 0, 90 ]) lights(light_tol = light_tol, diff_tol = light_tol, rad_cut = true);
+        rotate([ 0, 0, 90 ]) lights(light_allow = light_allow, diff_allow = light_allow, rad_cut = true);
     }
 }
 
@@ -670,11 +672,11 @@ if (render_upper_base || render_all)
             floor_height = base_floor_height, rod_hole_diameter = threaded_rod_hole_diameter);
 
         // cut out the lights
-        lights(light_tol = light_tol, diff_tol = light_tol, rad_cut = false);
+        lights(light_allow = light_allow, diff_allow = light_allow, rad_cut = false);
 
         // cut out a second time shifted by 180 for symmetry and to allow more alternative config of the lights
         // this should be handled more elegantly in the future once the first iteration has been printed
-        rotate([ 0, 0, 90 ]) lights(light_tol = light_tol, diff_tol = light_tol, rad_cut = true);
+        rotate([ 0, 0, 90 ]) lights(light_allow = light_allow, diff_allow = light_allow, rad_cut = true);
     }
 }
 
@@ -684,8 +686,8 @@ if (render_ribs || render_all)
     // Number of rods holders on the ribs
     n_rods_ribs = 2;
 
-    spacer_dia_tol = 0.2;
-    spacer_z_tol = 0.4;
+    spacer_dia_allow = 0.2;
+    spacer_z_allow = 0.4;
     z_shift_factor = 1 / 3;
 
     // create the ribs
@@ -713,7 +715,7 @@ if (render_ribs || render_all)
                 // cut out the lights, rad_cut is true to extend the cut inwards to remove material between jar and
                 // light this is done for all ribs to allow flexibility, again this should be handled more elegantly in
                 // the future
-                rotate([ 0, 0, 90 ]) lights(light_tol = light_tol, diff_tol = light_tol, rad_cut = true);
+                rotate([ 0, 0, 90 ]) lights(light_allow = light_allow, diff_allow = light_allow, rad_cut = true);
             }
         }
     }
@@ -735,119 +737,135 @@ if (render_rodspacers || render_all)
 
             z_shift = spacers_total_height * i * z_shift_factor;
 
-            spacer_pos = lower_base_height + nut_height + z_shift + spacer_z_tol / 2 + rib_base_height * i;
+            spacer_pos = lower_base_height + nut_height + z_shift + spacer_z_allow / 2 + rib_base_height * i;
 
-            spacer_height = spacers_total_height * z_shift_factor - spacer_z_tol * 2;
+            spacer_height = spacers_total_height * z_shift_factor - spacer_z_allow * 2;
 
             rotate([ 0, 0, j * 90 ]) translate([ rod_shift, 0, spacer_pos ]) difference()
             {
                 cylinder(d = rod_spacer_diameter, h = spacer_height);
-                cylinder(d = threaded_rod_diameter + spacer_dia_tol, h = spacer_height + zFite);
+                cylinder(d = threaded_rod_diameter + spacer_dia_allow, h = spacer_height + zFite);
             }
         }
     }
 }
 
-// probe mount
-// width of the probe mount
-entry_mount_width = 20;
-// height of the probe mount
-entry_mount_height = 8;
-// thickness of the probe mount
-entry_mount_cuts_tol = 0.1;
-// diameter of the probe mount hole
-entry_mount_screw_hole_diameter = 3;
+// What style of lock to produce, with the pin pointed inward ou outward?
+bayonet_lock_pin_direction = "outer"; // ["inner", "outer"]
+
+// Render the mechanism with 2 to 6 locks / pins
+bayonet_lock_number_of_pins = 3;
+
+// The angle of the path that the pin will follow
+bayonet_lock_path_sweep_angle = 30;
+
+// Direction of the lock
+bayonet_lock_turn_direction = "CW"; // ["CW", "CCW"]
+
+// inner radius of the lock
+bayonet_lock_inner_radius = 7;
+// outer radius of the lock
+bayonet_lock_outer_radius = 12;
+
+// the allowance or "gap" between the pin and the lock
+bayonet_lock_allowance = 0.2;
+
+// manual pin radius, if not set, it will be calculated based on the inner and outer radius
+bayonet_lock_manual_pin_radius = 1.5;
+
+// radius of the locking pin
+bayonet_lock_pin_radius = (bayonet_lock_manual_pin_radius == 0)
+                              ? (bayonet_lock_outer_radius - bayonet_lock_inner_radius) / 4
+                              : bayonet_lock_manual_pin_radius;
+
+// Height of the connector part
+bayonet_lock_height = 10;
+
+// fragment count for arcs, 48 works best with FreeCAD
+_fn = 32;
+
+// height of the added neck to create a flange
+bayonet_lock_neck_height = 5;
+
+bayonet_lock_inner_radius_fill = 3;
+
+bayonet_lock_oring_height = 1.6;
+bayonet_lock_oring_height_interference = 0.15;
+
+bayonet_lock_oring_neck_cut_height = bayonet_lock_oring_height - bayonet_lock_oring_height_interference;
 
 // number of holes for the first holes set
-entry_1_n = 4;
+lid_holes_n = 12;
 // diameter of the holes for the first holes set
-entry_1_diameter = ph_probe_clamp_rod_diameter;
-
-// number of holes for the second holes set
-entry_2_n = 4;
-// diameter of the holes for the second holes set
-entry_2_diameter = ph_probe_clamp_rod_diameter;
-
-// number of holes for the third holes set
-entry_3_n = 4;
-// diameter of the holes for the third holes set
-entry_3_diameter = ph_probe_clamp_rod_diameter;
-
-// Intermediate calculations
-// total number of holes to make
-entry_tot_n = entry_1_n + entry_2_n + entry_3_n;
-// angular shift between the holes
-lid_holes_angular_shift = 360 / entry_tot_n;
-// offsets for the holes, this can be cleaner in the future
-entry_1_offset = 0;
-entry_2_offset = lid_holes_angular_shift * entry_1_n;
-entry_3_offset = entry_2_offset + lid_holes_angular_shift * entry_2_n;
-entry_1_specs = [ entry_1_n, entry_1_diameter, entry_1_offset ];
-entry_2_specs = [ entry_2_n, entry_2_diameter, entry_2_offset ];
-entry_3_specs = [ entry_3_n, entry_3_diameter, entry_3_offset ];
-entry_specs = [ entry_1_specs, entry_2_specs, entry_3_specs ];
+lid_holes_radius = bayonet_lock_outer_radius + 0.01;
 
 // lid
 if (render_lid || render_all)
 {
     cut_height = lid_height * 2 * 1.1;
 
-    translate([ 0, 0, lid_z_pos ]) rotate([ 0, 180, 0 ])
+    color(prints2_color) translate([ 0, 0, lid_z_pos ]) rotate([ 0, 180, 0 ])
     {
-
-        color(prints2_color) difference()
+        union()
         {
-            // create the lid
-            lid(outer_diameter = jar_diameter, inner_diameter = opening_diameter, height = lid_height,
-                tolerance = lid_rad_tol, rod_hole_diameter = threaded_rod_diameter, nut_dia = nut_diameter,
-                nut_h = nut_height);
-
-            // cut out the bearing and shaft hole
-            translate([ 0, 0, -zFite / 2 ]) union()
+            difference()
             {
-                cylinder(d = threaded_rod_diameter, h = lid_height * 2 + zFite);
-                rotate([ 0, 0, 30 ]) cylinder(d = bearing_diameter, h = bearing_height + zFite);
-            }
+                // create the lid
+                lid(outer_diameter = jar_diameter, inner_diameter = opening_diameter, height = lid_height,
+                    allowance = lid_rad_allow, rod_hole_diameter = threaded_rod_diameter, nut_dia = nut_diameter,
+                    nut_h = nut_height);
 
-            // cut off corners to reduce material and allow space for lights
-            translate([ 0, 0, lid_height ]) rotate([ 0, 0, 45 ]) difference()
-            {
-                cube([ jar_diameter * 1.1, jar_diameter * 1.1, cut_height ], center = true);
-                cube([ jar_diameter - lid_cuts, jar_diameter - lid_cuts, cut_height * 1.1 ], center = true);
+                // cut out the bearing and shaft hole
+                translate([ 0, 0, -zFite / 2 ]) union()
+                {
+                    cylinder(d = threaded_rod_diameter, h = lid_height * 2 + zFite);
+                    rotate([ 0, 0, 30 ]) cylinder(d = bearing_diameter, h = bearing_height + zFite);
+                }
+
+                // cut off corners to reduce material and allow space for lights
+                translate([ 0, 0, lid_height ]) rotate([ 0, 0, 45 ]) difference()
+                {
+                    cube([ jar_diameter * 1.1, jar_diameter * 1.1, cut_height ], center = true);
+                    cube([ jar_diameter - lid_cuts, jar_diameter - lid_cuts, cut_height * 1.1 ], center = true);
+                }
+
+                // cut out the entry holes for the probes and tubes
+                for (hole_rot = [0:360 / lid_holes_n:360])
+                {
+                    rotate([ 0, 0, hole_rot ]) translate([ jar_diameter / 4, 0, lid_height ])
+                    {
+                        cylinder(r = lid_holes_radius, h = cut_height, center = true);
+                    }
+                }
             }
 
             // cut out the entry holes for the probes and tubes
-            for (i = [0:len(entry_specs) - 1])
+            for (hole_rot = [0:360 / lid_holes_n:360])
             {
-                entry_n = entry_specs[i][0];
-                entry_diameter = entry_specs[i][1];
-                entry_offset = entry_specs[i][2];
-
-                for (j = [0:entry_n - 1])
+                rotate([ 0, 0, hole_rot ]) translate([ jar_diameter / 4, 0, lid_height + bayonet_lock_height * 0.5 ])
+                    rotate([ 180, 0, 0 ])
                 {
-                    hole_rot = j * lid_holes_angular_shift + entry_offset;
-                    rotate([ 0, 0, hole_rot ]) translate([ jar_diameter / 4, 0, lid_height ])
-                    {
-                        cylinder(d = entry_diameter, h = cut_height, center = true);
-                    }
+                    // add the bayonet locks
+                    tube_lock(
+                        part_to_render = "lock", pin_direction = bayonet_lock_pin_direction,
+                        number_of_pins = bayonet_lock_number_of_pins, path_sweep_angle = bayonet_lock_path_sweep_angle,
+                        turn_direction = bayonet_lock_turn_direction, inner_radius = bayonet_lock_inner_radius,
+                        outer_radius = bayonet_lock_outer_radius, pin_radius = bayonet_lock_pin_radius,
+                        allowance = bayonet_lock_allowance, part_height = bayonet_lock_height,
+                        neck_height = bayonet_lock_neck_height, inner_radius_fill = bayonet_lock_inner_radius_fill,
+                        oring_height = bayonet_lock_oring_height,
+                        oring_neck_cut_height = bayonet_lock_oring_neck_cut_height);
                 }
             }
         }
     }
 }
 
-probe_mount_inner_dia = entry_1_diameter + 4;
-
-// probe mounts
-if (render_probemounts || render_all)
-{
-    translate([ jar_diameter / 4, 0, lid_z_pos ]) color(prints1_color)
-        probe_mount(diameter = probe_mount_inner_dia, hole_diameter = entry_1_diameter,
-                    cut_height = entry_1_diameter / 2, width = entry_mount_width, height = entry_mount_height,
-                    tolerance = entry_mount_cuts_tol, screw_hole_diameter = entry_mount_screw_hole_diameter);
-
-    translate([ -jar_diameter / 4, 0, lid_z_pos ]) color(prints1_color)
-        probe_mount(diameter = probe_mount_inner_dia, hole_diameter = entry_1_diameter,
-                    cut_height = entry_1_diameter / 2, width = entry_mount_width, height = entry_mount_height,
-                    tolerance = entry_mount_cuts_tol, screw_hole_diameter = entry_mount_screw_hole_diameter);
-}
+if (render_tube_pinlock || render_all)
+    tube_lock(part_to_render = "pin", pin_direction = bayonet_lock_pin_direction,
+              number_of_pins = bayonet_lock_number_of_pins, path_sweep_angle = bayonet_lock_path_sweep_angle,
+              turn_direction = bayonet_lock_turn_direction, inner_radius = bayonet_lock_inner_radius,
+              outer_radius = bayonet_lock_outer_radius, pin_radius = bayonet_lock_pin_radius,
+              allowance = bayonet_lock_allowance, part_height = bayonet_lock_height,
+              neck_height = bayonet_lock_neck_height, inner_radius_fill = bayonet_lock_inner_radius_fill,
+              oring_height = bayonet_lock_oring_height, oring_neck_cut_height = bayonet_lock_oring_neck_cut_height);
