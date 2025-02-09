@@ -790,7 +790,7 @@ bayonet_lock_neck_height = 5;
 bayonet_lock_inner_radius_fill = 3;
 
 bayonet_lock_oring_height = 1.6;
-bayonet_lock_oring_height_interference = 0.15;
+bayonet_lock_oring_height_interference = 0.1;
 
 bayonet_lock_oring_neck_cut_height = bayonet_lock_oring_height - bayonet_lock_oring_height_interference;
 
