@@ -145,7 +145,7 @@ gearbox_length = 26;
 // diameter of the shaft for the gearbox
 gearbox_shaft_diameter = 8;
 // length of the shaft for the gearbox
-gearbox_shaft_length = 24;
+gearbox_shaft_length = 20;
 // length of the shaft for the impeller
 shaft_length = 300;
 // diameter of the shaft
@@ -153,7 +153,7 @@ shaft_diameter = 8.0;
 // distance the shaft protrudes from the gearbox
 shaft_protrusion = gearbox_shaft_length;
 // distance between the motor and the shaft coupling
-shaft_shaft_coupling_dist = 5;
+shaft_shaft_coupling_dist = 1;
 
 // reference, length, diameter, input diameter, output diameter, flex?
 shaft_coupler_8x8_rigid = [ "SC_8x8_rigid", 25, 12.5, 8, 8, false ];
@@ -787,7 +787,7 @@ _fn = 32;
 // height of the added neck to create a flange
 bayonet_lock_neck_height = 5;
 
-bayonet_lock_inner_radius_fill = 3;
+bayonet_lock_inner_radius_fill = 0;
 
 bayonet_lock_oring_height = 1.6;
 bayonet_lock_oring_height_interference = 0.1;
@@ -869,3 +869,20 @@ if (render_tube_pinlock || render_all)
               allowance = bayonet_lock_allowance, part_height = bayonet_lock_height,
               neck_height = bayonet_lock_neck_height, inner_radius_fill = bayonet_lock_inner_radius_fill,
               oring_height = bayonet_lock_oring_height, oring_neck_cut_height = bayonet_lock_oring_neck_cut_height);
+
+use <thermocouple_lock.scad>;
+
+render_thermocouple_pinlock = true;
+
+thermocouple_mount_height = 20;
+
+if (render_thermocouple_pinlock || render_all)
+    thermocouple_lock(part_to_render = "pin", pin_direction = bayonet_lock_pin_direction,
+                      number_of_pins = bayonet_lock_number_of_pins, path_sweep_angle = bayonet_lock_path_sweep_angle,
+                      turn_direction = bayonet_lock_turn_direction, inner_radius = bayonet_lock_inner_radius,
+                      outer_radius = bayonet_lock_outer_radius, pin_radius = bayonet_lock_pin_radius,
+                      allowance = bayonet_lock_allowance, part_height = bayonet_lock_height,
+                      neck_height = bayonet_lock_neck_height, inner_radius_fill = thermocouple_probe_tip_diameter / 2,
+                      oring_height = bayonet_lock_oring_height,
+                      oring_neck_cut_height = bayonet_lock_oring_neck_cut_height,
+                      thermocouple_mount_height = thermocouple_mount_height);
