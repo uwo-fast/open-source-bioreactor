@@ -5,4 +5,4 @@
  */
 
 zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
-$fn = $preview ? 32 : 128;
+$fn = $preview ? 64 : 128;
