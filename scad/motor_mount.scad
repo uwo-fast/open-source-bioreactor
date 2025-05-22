@@ -86,3 +86,4 @@ module elongated_octagonal_prism(width, height)
         translate([ 0, -adjusted_height, 0 ]) mirror([ 0, 1, 0 ]) polygon(trap_pts);
     }
 }
+

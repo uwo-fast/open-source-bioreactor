@@ -1,13 +1,13 @@
 thickness = 2.8;
 
-motor_diameter  = 28;
+motor_diameter  = 30;
 motor_diameter_allowance = 0.5;
-motor_holes_center_to_center = 48;
+motor_holes_center_to_center = 47.8;
 motor_holes_diameter = 3.5;
 
 turbidity_diameter = 28;
 turdibidity_diameter_allowance = 0.5;
-turbidity_edge_width = 4;
+turbidity_edge_width = 12;
 
 separation_center_to_center = 74;
 offset_center_to_center = 8;
@@ -20,7 +20,7 @@ difference() {
         {
 
         motor_loc()
-            cylinder(d = motor_holes_center_to_center+ motor_holes_diameter*2, h = thickness, center = true);
+            cylinder(d = motor_holes_center_to_center+ motor_holes_diameter*3, h = thickness, center = true);
         turbidity_loc()
         union(){
             cylinder(d = turbidity_diameter + turbidity_edge_width*2, h = thickness, center = true);
@@ -30,8 +30,8 @@ difference() {
         }
                 turbidity_loc()
 
-            translate([0, -(turbidity_diameter + turbidity_edge_width*2)/4,0])
-                cube([turbidity_diameter + turbidity_edge_width*2, (turbidity_diameter + turdibidity_diameter_allowance)*3/4, thickness], center = true);
+            translate([0, -(turbidity_diameter  + turbidity_edge_width)/2,0])
+                cube([turbidity_diameter + turbidity_edge_width*2, (turbidity_diameter + turbidity_edge_width), thickness], center = true);
 }
 
     // motor cuts
@@ -51,6 +51,8 @@ difference() {
             color("green")
                 union() { 
                     cylinder(d = turbidity_diameter + turdibidity_diameter_allowance, h = thickness *1.1, center = true);
+                    rotate([0,0,-90/4]) scale([1/2,2.5,1]) cylinder(d = turbidity_diameter + turdibidity_diameter_allowance, h = thickness *1.1, center = true);
+
                                 }
 }
 module motor_loc()
