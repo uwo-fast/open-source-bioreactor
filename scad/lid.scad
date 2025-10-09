@@ -21,19 +21,15 @@ include <_config.scad>;
  * @param nut_dia The diameter of the nuts.
  * @param nut_h The height of the nuts.
  */
-module lid(outer_diameter, inner_diameter, height, allowance, rod_hole_diameter, nut_dia, nut_h)
-{
-    difference()
-    {
+module lid(outer_diameter, inner_diameter, height, allowance, rod_hole_diameter, nut_dia, nut_h) {
+  difference() {
 
-        union()
-        {
+    union() {
 
-            cylinder(d = outer_diameter, h = height);
-            translate([ 0, 0, height ])
-            {
-                cylinder(d = inner_diameter - allowance, h = height);
-            }
-        }
+      cylinder(d=outer_diameter, h=height);
+      translate([0, 0, height]) {
+        cylinder(d=inner_diameter - allowance, h=height);
+      }
     }
+  }
 }

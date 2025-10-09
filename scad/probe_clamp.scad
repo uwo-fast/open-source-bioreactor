@@ -14,8 +14,13 @@ use <lib/arc_points.scad>;
  *
  * @return A list of [x, y] points representing the pie slice.
  */
-function pie_slice(diameter, start_angle = 0, end_angle = 360,
-                   num_points = 32) = concat([[ 0, 0 ]], arc_points(diameter, start_angle, end_angle, num_points));
+function pie_slice(
+  diameter,
+  start_angle = 0,
+  end_angle = 360,
+  num_points = 32
+) =
+  concat([[0, 0]], arc_points(diameter, start_angle, end_angle, num_points));
 
 /**
  * @brief Calculates the circumference of a circle from its diameter.
@@ -44,16 +49,14 @@ function chord_to_angle(cord_distance, diameter) = cord_distance / (diameter / 2
  * @param height The height of the tab.
  * @param hole The diameter of the hole in the tab.
  */
-module tab(width, thickness, height, hole, collar_thickness = 0)
-{
-    difference()
-    {
-        cube([ width, thickness, height ]);
-        translate([ width / 2 + collar_thickness / 2, thickness / 2, height / 4 ]) rotate([ 90, 0, 0 ])
-            cylinder(d = hole, h = thickness + zFite, center = true);
-        translate([ width / 2 + collar_thickness / 2, thickness / 2, height / 4 * 3 ]) rotate([ 90, 0, 0 ])
-            cylinder(d = hole, h = thickness + zFite, center = true);
-    }
+module tab(width, thickness, height, hole, collar_thickness = 0) {
+  difference() {
+    cube([width, thickness, height]);
+    translate([width / 2 + collar_thickness / 2, thickness / 2, height / 4]) rotate([90, 0, 0])
+        cylinder(d=hole, h=thickness + zFite, center=true);
+    translate([width / 2 + collar_thickness / 2, thickness / 2, height / 4 * 3]) rotate([90, 0, 0])
+        cylinder(d=hole, h=thickness + zFite, center=true);
+  }
 }
 
 /**
@@ -77,55 +80,64 @@ module tab(width, thickness, height, hole, collar_thickness = 0)
  * @param animate Whether to animate the collar.
  * @param static_angle_factor The static angle factor for the collar.
  */
-module probe_pinch_collar(nominal_diameter, expanded_diameter, height, collar_thickness, mount_thickness, mount_width,
-                          hole_diameter, rod_diameter, rod_diameter_taper, rod_mount_width, animate = false,
-                          static_angle_factor = 0.5, debug = false)
-{
+module probe_pinch_collar(
+  nominal_diameter,
+  expanded_diameter,
+  height,
+  collar_thickness,
+  mount_thickness,
+  mount_width,
+  hole_diameter,
+  rod_diameter,
+  rod_diameter_taper,
+  rod_mount_width,
+  animate = false,
+  static_angle_factor = 0.5,
+  debug = false
+) {
 
-    cord = circumference_from_diameter(nominal_diameter);
-    if (debug)
-        echo("Circumference: ", cord);
+  cord = circumference_from_diameter(nominal_diameter);
+  if (debug)
+    echo("Circumference: ", cord);
 
-    step = (sin($t * 360) + 1) * ((expanded_diameter - nominal_diameter) / 2); // Harmonic motion
-    diameter_prime_step = nominal_diameter + step;
-    if (debug)
-        echo("Diameter prime: ", diameter_prime_step);
+  step = (sin($t * 360) + 1) * ( (expanded_diameter - nominal_diameter) / 2); // Harmonic motion
+  diameter_prime_step = nominal_diameter + step;
+  if (debug)
+    echo("Diameter prime: ", diameter_prime_step);
 
-    angular_range = chord_to_angle(cord, nominal_diameter) - chord_to_angle(cord, expanded_diameter);
-    if (debug)
-        echo("Angular range: ", angular_range);
+  angular_range = chord_to_angle(cord, nominal_diameter) - chord_to_angle(cord, expanded_diameter);
+  if (debug)
+    echo("Angular range: ", angular_range);
 
-    set_angle = 360 - angular_range * static_angle_factor;
+  set_angle = 360 - angular_range * static_angle_factor;
 
-    angle_in_degrees = animate ? chord_to_angle(cord, diameter_prime_step) : set_angle;
-    if (debug)
-        echo("Angle in degrees: ", angle_in_degrees);
+  angle_in_degrees = animate ? chord_to_angle(cord, diameter_prime_step) : set_angle;
+  if (debug)
+    echo("Angle in degrees: ", angle_in_degrees);
 
-    inner = pie_slice(diameter_prime_step);
-    outer = pie_slice(diameter_prime_step + collar_thickness * 2, 0, angle_in_degrees);
-    half_angle_difference = (360 - angle_in_degrees) / 2;
+  inner = pie_slice(diameter_prime_step);
+  outer = pie_slice(diameter_prime_step + collar_thickness * 2, 0, angle_in_degrees);
+  half_angle_difference = (360 - angle_in_degrees) / 2;
 
-    rotate([ 0, 0, half_angle_difference ]) difference()
-    {
-        union()
-        {
-            linear_extrude(height) polygon(outer);
+  rotate([0, 0, half_angle_difference]) difference() {
+      union() {
+        linear_extrude(height) polygon(outer);
 
-            rotate([ 0, 0, 0 ]) translate([ diameter_prime_step / 2, 0, 0 ])
-                tab(mount_width + collar_thickness, mount_thickness, height, hole_diameter, collar_thickness);
+        rotate([0, 0, 0]) translate([diameter_prime_step / 2, 0, 0])
+            tab(mount_width + collar_thickness, mount_thickness, height, hole_diameter, collar_thickness);
 
-            rotate([ 0, 0, -half_angle_difference * 2 ]) mirror([ 0, 1, 0 ])
-                translate([ diameter_prime_step / 2, 0, 0 ])
-                    tab(mount_width + collar_thickness, mount_thickness, height, hole_diameter, collar_thickness);
+        rotate([0, 0, -half_angle_difference * 2]) mirror([0, 1, 0])
+            translate([diameter_prime_step / 2, 0, 0])
+              tab(mount_width + collar_thickness, mount_thickness, height, hole_diameter, collar_thickness);
 
-            rotate([ 0, 0, -half_angle_difference ]) translate([ -(diameter_prime_step - collar_thickness) / 2, 0, 0 ])
-                scale([ 1, 0.5, 1 ]) cylinder(r = rod_mount_width, h = height);
-        }
-        translate([ 0, 0, -zFite / 2 ]) linear_extrude(height + zFite) polygon(inner);
+        rotate([0, 0, -half_angle_difference]) translate([-(diameter_prime_step - collar_thickness) / 2, 0, 0])
+            scale([1, 0.5, 1]) cylinder(r=rod_mount_width, h=height);
+      }
+      translate([0, 0, -zFite / 2]) linear_extrude(height + zFite) polygon(inner);
 
-        rotate([ 0, 0, -half_angle_difference ])
-            translate([ -diameter_prime_step / 2 - rod_mount_width / 2, 0, -zFite / 2 ])
-                cylinder(d2 = rod_diameter, d1 = rod_diameter_taper, h = height + zFite);
+      rotate([0, 0, -half_angle_difference])
+        translate([-diameter_prime_step / 2 - rod_mount_width / 2, 0, -zFite / 2])
+          cylinder(d2=rod_diameter, d1=rod_diameter_taper, h=height + zFite);
     }
 }
 
@@ -147,9 +159,11 @@ test_rod_diameter = 5;
 test_rod_diameter_taper = 3;
 test_rod_mount_width = 10;
 
-probe_pinch_collar(nominal_diameter = test_nominal_diameter, expanded_diameter = test_expanded_diameter,
-                   height = test_height, collar_thickness = test_collar_thickness,
-                   mount_thickness = test_mount_thickness, mount_width = test_mount_width,
-                   hole_diameter = test_hole_diameter, rod_diameter = test_rod_diameter,
-                   rod_diameter_taper = test_rod_diameter_taper, rod_mount_width = test_rod_mount_width, animate = true,
-                   static_angle_factor = 0.5);
+probe_pinch_collar(
+  nominal_diameter=test_nominal_diameter, expanded_diameter=test_expanded_diameter,
+  height=test_height, collar_thickness=test_collar_thickness,
+  mount_thickness=test_mount_thickness, mount_width=test_mount_width,
+  hole_diameter=test_hole_diameter, rod_diameter=test_rod_diameter,
+  rod_diameter_taper=test_rod_diameter_taper, rod_mount_width=test_rod_mount_width, animate=true,
+  static_angle_factor=0.5
+);

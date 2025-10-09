@@ -15,6 +15,11 @@
  * @return A list of [x, y] points representing the arc.
  */
 function arc_points(diameter, start_angle = 0, end_angle = 360, num_points = 32) =
-    let(radius = diameter /
-                 2)[for (i = [0:num_points])[radius * cos(start_angle + (end_angle - start_angle) * i / num_points),
-                                             radius *sin(start_angle + (end_angle - start_angle) * i / num_points)]];
+  let (
+    radius = diameter / 2
+  ) [
+      for (i = [0:num_points]) [
+        radius * cos(start_angle + (end_angle - start_angle) * i / num_points),
+        radius * sin(start_angle + (end_angle - start_angle) * i / num_points),
+      ],
+  ];

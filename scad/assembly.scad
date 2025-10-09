@@ -23,7 +23,7 @@ use <tube_lock.scad>;
 use <tube_mount.scad>;
 
 // internal libs
-use<lib/arc_points.scad>;
+use <lib/arc_points.scad>;
 
 // external libs
 include <NopSCADlib/core.scad>
@@ -156,7 +156,7 @@ shaft_protrusion = gearbox_shaft_length;
 shaft_shaft_coupling_dist = 1;
 
 // reference, length, diameter, input diameter, output diameter, flex?
-shaft_coupler_8x8_rigid = [ "SC_8x8_rigid", 25, 12.5, 8, 8, false ];
+shaft_coupler_8x8_rigid = ["SC_8x8_rigid", 25, 12.5, 8, 8, false];
 // the height that the motor coupling assembly requires
 motor_req_height = gearbox_shaft_length + shaft_protrusion + shaft_shaft_coupling_dist;
 // height of the motor mount
@@ -201,7 +201,7 @@ ph_probe_wire_diameter = 3;
 // Height of the wire
 ph_probe_wire_height = 10;
 // Colors of the probe
-ph_probe_colors = [ "Black", "Red", "Black", "Yellow" ];
+ph_probe_colors = ["Black", "Red", "Black", "Yellow"];
 // Whether to orient the probe to the base
 ph_probe_orient_base = true;
 
@@ -261,7 +261,7 @@ do_probe_wire_diameter = 3;
 // Height of the wire
 do_probe_wire_height = 10;
 // Colors of the probe
-do_probe_colors = [ "Black", "Goldenrod", "Black", "Yellow" ];
+do_probe_colors = ["Black", "Goldenrod", "Black", "Yellow"];
 
 /* [DO Probe Clamp Parameters] */
 
@@ -433,321 +433,310 @@ prints2_color = "SlateBlue";
 /*********************************************/
 
 // jar
-if (render_jar || render_all)
-{
-    rotate([ 0, 0, 45 ]) translate([ 0, 0, base_floor_height ])
-        jar(height = jar_height, diameter = jar_diameter, thickness = jar_thickness,
-            corner_radius = jar_upper_corner_radius, corner_radius_base = jar_lower_corner_radius,
-            neck = jar_neck_height, neck_corner_radius = jar_neck_corner_radius, punt_height = jar_punt_height,
-            punt_width = jar_punt_width, rim_rad = jar_rim_rad, arcFn = jar_corner_Fn, rotExtFn = rot_Extrude_Fn,
-            show_pts = false, show_2d = false, show_3d = true, pts_r = 1, angle = (jar_x_sec ? 180 : 360));
+if (render_jar || render_all) {
+  rotate([0, 0, 45]) translate([0, 0, base_floor_height])
+      jar(
+        height=jar_height, diameter=jar_diameter, thickness=jar_thickness,
+        corner_radius=jar_upper_corner_radius, corner_radius_base=jar_lower_corner_radius,
+        neck=jar_neck_height, neck_corner_radius=jar_neck_corner_radius, punt_height=jar_punt_height,
+        punt_width=jar_punt_width, rim_rad=jar_rim_rad, arcFn=jar_corner_Fn, rotExtFn=rot_Extrude_Fn,
+        show_pts=false, show_2d=false, show_3d=true, pts_r=1, angle=(jar_x_sec ? 180 : 360)
+      );
 }
 
 // threaded rods
-if (render_rods || render_all)
-{
-    threads_allow = 0.15;
-    for (i = [0:3])
-    {
-        rotate([ 0, 0, i * 90 ])
-        {
-            translate([ rod_shift, 0, -zFite ])
-            {
-                if (show_threads)
-                {
-                    color("Grey") ScrewThread(outer_diam = threaded_rod_diameter, height = rod_length);
-                }
-                else
-                {
-                    color("Grey") cylinder(d = threaded_rod_diameter, h = rod_length);
-                }
-
-                // Nuts bottom base
-                translate([ 0, 0, -zFite ]) color("DimGray") difference()
-                {
-                    rotate([ 0, 0, 30 ]) translate([ 0, 0, 0 ])
-                        cylinder(d = nut_diameter - threads_allow, h = nut_height, $fn = 6);
-                    rotate([ 0, 0, 30 ]) translate([ 0, 0, -zFite / 2 ])
-                        cylinder(d = threaded_rod_diameter + threads_allow, h = nut_height + zFite);
-                }
-
-                // Nuts top of base
-                translate([ 0, 0, lower_base_height + zFite * 2 ]) color("DimGray") difference()
-                {
-                    rotate([ 0, 0, 30 ]) translate([ 0, 0, 0 ])
-                        cylinder(d = nut_diameter - threads_allow, h = nut_height, $fn = 6);
-                    rotate([ 0, 0, 30 ]) translate([ 0, 0, -zFite / 2 ])
-                        cylinder(d = threaded_rod_diameter + threads_allow, h = nut_height + zFite);
-                }
-
-                // Nuts on the lid
-                translate([ 0, 0, lid_z_pos + base_floor_height ]) color("DimGray") difference()
-                {
-                    rotate([ 0, 0, 30 ]) translate([ 0, 0, 0 ])
-                        cylinder(d = nut_diameter - threads_allow, h = nut_height, $fn = 6);
-                    rotate([ 0, 0, 30 ]) translate([ 0, 0, -zFite / 2 ])
-                        cylinder(d = threaded_rod_diameter + threads_allow, h = nut_height + zFite);
-                }
-            }
+if (render_rods || render_all) {
+  threads_allow = 0.15;
+  for (i = [0:3]) {
+    rotate([0, 0, i * 90]) {
+      translate([rod_shift, 0, -zFite]) {
+        if (show_threads) {
+          color("Grey") ScrewThread(outer_diam=threaded_rod_diameter, height=rod_length);
+        } else {
+          color("Grey") cylinder(d=threaded_rod_diameter, h=rod_length);
         }
+
+        // Nuts bottom base
+        translate([0, 0, -zFite]) color("DimGray") difference() {
+              rotate([0, 0, 30]) translate([0, 0, 0])
+                  cylinder(d=nut_diameter - threads_allow, h=nut_height, $fn=6);
+              rotate([0, 0, 30]) translate([0, 0, -zFite / 2])
+                  cylinder(d=threaded_rod_diameter + threads_allow, h=nut_height + zFite);
+            }
+
+        // Nuts top of base
+        translate([0, 0, lower_base_height + zFite * 2]) color("DimGray") difference() {
+              rotate([0, 0, 30]) translate([0, 0, 0])
+                  cylinder(d=nut_diameter - threads_allow, h=nut_height, $fn=6);
+              rotate([0, 0, 30]) translate([0, 0, -zFite / 2])
+                  cylinder(d=threaded_rod_diameter + threads_allow, h=nut_height + zFite);
+            }
+
+        // Nuts on the lid
+        translate([0, 0, lid_z_pos + base_floor_height]) color("DimGray") difference() {
+              rotate([0, 0, 30]) translate([0, 0, 0])
+                  cylinder(d=nut_diameter - threads_allow, h=nut_height, $fn=6);
+              rotate([0, 0, 30]) translate([0, 0, -zFite / 2])
+                  cylinder(d=threaded_rod_diameter + threads_allow, h=nut_height + zFite);
+            }
+      }
     }
+  }
 }
 
 // impeller
-if (render_impeller || render_all)
-{
-    translate([ 0, 0, lid_z_pos - shaft_length + shaft_protrusion + impeller_height / 2 ]) color(prints2_color) union()
-    {
-        impeller(radius = impeller_radius, height = impeller_height, fins = impeller_n_fins, twist = impeller_twist_ang,
-                 fin_width = impeller_fin_width, center_hub_radius = impeller_hub_radius,
-                 center_hole_size = impeller_shaft_hole_radius);
-        translate([ 0, 0, impeller_height / 2 - impeller_fin_width / 2 ])
-            linear_extrude(impeller_fin_width, center = true) difference()
-        {
-            circle(r = impeller_radius + impeller_fin_width, $fn = 64);
-            circle(r = impeller_radius, $fn = 64);
-        }
-    }
+if (render_impeller || render_all) {
+  translate([0, 0, lid_z_pos - shaft_length + shaft_protrusion + impeller_height / 2]) color(prints2_color) union() {
+        impeller(
+          radius=impeller_radius, height=impeller_height, fins=impeller_n_fins, twist=impeller_twist_ang,
+          fin_width=impeller_fin_width, center_hub_radius=impeller_hub_radius,
+          center_hole_size=impeller_shaft_hole_radius
+        );
+        translate([0, 0, impeller_height / 2 - impeller_fin_width / 2])
+          linear_extrude(impeller_fin_width, center=true) difference() {
+              circle(r=impeller_radius + impeller_fin_width, $fn=64);
+              circle(r=impeller_radius, $fn=64);
+            }
+      }
 }
 
 // motor and shaft
-if (render_motor || render_all)
-{
-    // external shaft
-    color("grey") translate([ 0, 0, lid_z_pos - shaft_length + shaft_protrusion ])
-        cylinder(h = shaft_length, d = shaft_diameter, center = false);
+if (render_motor || render_all) {
+  // external shaft
+  color("grey") translate([0, 0, lid_z_pos - shaft_length + shaft_protrusion])
+      cylinder(h=shaft_length, d=shaft_diameter, center=false);
 
-    // shaft coupling
-    translate(
-        [ 0, 0, shaft_length + mmount_height / 2 + shaft_coupler_8x8_rigid[1] / 2 + shaft_shaft_coupling_dist / 2 ])
-        shaft_coupling(type = shaft_coupler_8x8_rigid, colour = "MediumBlue");
+  // shaft coupling
+  translate(
+    [0, 0, shaft_length + mmount_height / 2 + shaft_coupler_8x8_rigid[1] / 2 + shaft_shaft_coupling_dist / 2]
+  )
+    shaft_coupling(type=shaft_coupler_8x8_rigid, colour="MediumBlue");
 
-    // motor
-    translate([ 0, 0, lid_z_pos + mmount_height + motor_length + gearbox_length ]) rotate([ 0, 180, 0 ]) union()
-    {
-        dcmotor(diameter = motor_diameter, length = motor_length);
-        translate([ 0, 0, motor_length ]) gearbox(
-            diameter = gearbox_diameter, length = gearbox_length, output_shaft_diameter = gearbox_shaft_diameter,
-            output_shaft_length = gearbox_shaft_length, faceplate_screws_cdist = mmount_face_screws_cdist);
-    }
+  // motor
+  translate([0, 0, lid_z_pos + mmount_height + motor_length + gearbox_length]) rotate([0, 180, 0]) union() {
+        dcmotor(diameter=motor_diameter, length=motor_length);
+        translate([0, 0, motor_length]) gearbox(
+            diameter=gearbox_diameter, length=gearbox_length, output_shaft_diameter=gearbox_shaft_diameter,
+            output_shaft_length=gearbox_shaft_length, faceplate_screws_cdist=mmount_face_screws_cdist
+          );
+      }
 }
 
 // motor mount
-if (render_mmount || render_all)
-{
-    // motor mount
-    color(prints1_color) translate([ 0, 0, lid_z_pos ]) motor_mount(
-        height = mmount_height, width = mmount_width, wall_thickness = mmount_thickness,
-        floor_thickness = mmount_floor_thickness, inner_dia = mmount_inner_diameter, pillar_width = mmount_pillar_width,
-        base_screws_diameter = mmount_base_screws_diameter, base_screws_cdist = mmount_base_screws_cdist,
-        face_screws_diameter = mmount_face_screws_diameter, face_screws_cdist = mmount_face_screws_cdist);
+if (render_mmount || render_all) {
+  // motor mount
+  color(prints1_color) translate([0, 0, lid_z_pos]) motor_mount(
+        height=mmount_height, width=mmount_width, wall_thickness=mmount_thickness,
+        floor_thickness=mmount_floor_thickness, inner_dia=mmount_inner_diameter, pillar_width=mmount_pillar_width,
+        base_screws_diameter=mmount_base_screws_diameter, base_screws_cdist=mmount_base_screws_cdist,
+        face_screws_diameter=mmount_face_screws_diameter, face_screws_cdist=mmount_face_screws_cdist
+      );
 }
 
-if (render_probes || render_all)
-{
+if (render_probes || render_all) {
 
-    // ph probe
+  // ph probe
 
-    translate([ jar_diameter / 4, 0, lid_z_pos - ph_probe_clamp_rod_height + ph_probe_clamp_rod_height_lid ])
-        rotate([ 0, 0, 0 ])
-    {
-        // suspension rod
-        color("DimGray") cylinder(d = ph_probe_clamp_rod_diameter, h = ph_probe_clamp_rod_height);
+  translate([jar_diameter / 4, 0, lid_z_pos - ph_probe_clamp_rod_height + ph_probe_clamp_rod_height_lid])
+    rotate([0, 0, 0]) {
+      // suspension rod
+      color("DimGray") cylinder(d=ph_probe_clamp_rod_diameter, h=ph_probe_clamp_rod_height);
 
-        ph_probe_x_shift = ph_probe_clamp_rod_mount_width + ph_probe_clamp_rod_diameter / 2;
-        ph_probe_z_shift = ph_probe_body_height / 2 - ph_probe_clamp_height / 2;
+      ph_probe_x_shift = ph_probe_clamp_rod_mount_width + ph_probe_clamp_rod_diameter / 2;
+      ph_probe_z_shift = ph_probe_body_height / 2 - ph_probe_clamp_height / 2;
 
-        // pinch collar for ph probe
-        translate([ ph_probe_x_shift, 0, 0 ]) color(prints1_color) probe_pinch_collar(
-            nominal_diameter = ph_probe_clamp_diameter, expanded_diameter = ph_probe_clamp_diameter_expanded,
-            height = ph_probe_clamp_height, collar_thickness = ph_probe_clamp_collar_thickness,
-            mount_thickness = ph_probe_clamp_mount_thickness, mount_width = ph_probe_clamp_mount_width,
-            hole_diameter = ph_probe_clamp_hole_diameter, rod_diameter = ph_probe_clamp_rod_diameter,
-            rod_diameter_taper = ph_probe_clamp_rod_diameter_taper, rod_mount_width = ph_probe_clamp_rod_mount_width,
-            animate = animate_probe_clamp, static_angle_factor = ph_probe_clamp_static_angle_factor);
+      // pinch collar for ph probe
+      translate([ph_probe_x_shift, 0, 0]) color(prints1_color) probe_pinch_collar(
+            nominal_diameter=ph_probe_clamp_diameter, expanded_diameter=ph_probe_clamp_diameter_expanded,
+            height=ph_probe_clamp_height, collar_thickness=ph_probe_clamp_collar_thickness,
+            mount_thickness=ph_probe_clamp_mount_thickness, mount_width=ph_probe_clamp_mount_width,
+            hole_diameter=ph_probe_clamp_hole_diameter, rod_diameter=ph_probe_clamp_rod_diameter,
+            rod_diameter_taper=ph_probe_clamp_rod_diameter_taper, rod_mount_width=ph_probe_clamp_rod_mount_width,
+            animate=animate_probe_clamp, static_angle_factor=ph_probe_clamp_static_angle_factor
+          );
 
-        // atlas probe for ph probe
-        translate([ ph_probe_x_shift, 0, -ph_probe_z_shift ]) atlas_probe(
-            neck_d = ph_probe_neck_diameter, neck_h = ph_probe_neck_height, neck_taper_d = ph_probe_neck_taper_diameter,
-            body_d = ph_probe_body_diameter, body_h = ph_probe_body_height, tip_d = ph_probe_tip_diameter,
-            tip_h = ph_probe_tip_height, wire_d = ph_probe_wire_diameter, wire_h = ph_probe_wire_height,
-            colors = ph_probe_colors, position_base = ph_probe_orient_base);
+      // atlas probe for ph probe
+      translate([ph_probe_x_shift, 0, -ph_probe_z_shift]) atlas_probe(
+          neck_d=ph_probe_neck_diameter, neck_h=ph_probe_neck_height, neck_taper_d=ph_probe_neck_taper_diameter,
+          body_d=ph_probe_body_diameter, body_h=ph_probe_body_height, tip_d=ph_probe_tip_diameter,
+          tip_h=ph_probe_tip_height, wire_d=ph_probe_wire_diameter, wire_h=ph_probe_wire_height,
+          colors=ph_probe_colors, position_base=ph_probe_orient_base
+        );
     }
 
-    // do probe
-    translate([ -jar_diameter / 4, 0, lid_z_pos - do_probe_clamp_rod_height + do_probe_clamp_rod_height_lid ])
-        rotate([ 0, 0, 180 ])
-    {
-        // suspension rod
-        color("DimGray") cylinder(d = do_probe_clamp_rod_diameter, h = do_probe_clamp_rod_height);
+  // do probe
+  translate([-jar_diameter / 4, 0, lid_z_pos - do_probe_clamp_rod_height + do_probe_clamp_rod_height_lid])
+    rotate([0, 0, 180]) {
+      // suspension rod
+      color("DimGray") cylinder(d=do_probe_clamp_rod_diameter, h=do_probe_clamp_rod_height);
 
-        do_probe_x_shift = do_probe_clamp_rod_mount_width + do_probe_clamp_rod_diameter / 2;
-        do_probe_z_shift = do_probe_body_height / 2 - do_probe_clamp_height / 2;
+      do_probe_x_shift = do_probe_clamp_rod_mount_width + do_probe_clamp_rod_diameter / 2;
+      do_probe_z_shift = do_probe_body_height / 2 - do_probe_clamp_height / 2;
 
-        // pinch collar for do probe
-        translate([ do_probe_x_shift, 0, 0 ]) color(prints1_color) probe_pinch_collar(
-            nominal_diameter = do_probe_clamp_diameter, expanded_diameter = do_probe_clamp_diameter_expanded,
-            height = do_probe_clamp_height, collar_thickness = do_probe_clamp_collar_thickness,
-            mount_thickness = do_probe_clamp_mount_thickness, mount_width = do_probe_clamp_mount_width,
-            hole_diameter = do_probe_clamp_hole_diameter, rod_diameter = do_probe_clamp_rod_diameter,
-            rod_diameter_taper = do_probe_clamp_rod_diameter_taper, rod_mount_width = do_probe_clamp_rod_mount_width,
-            animate = animate_probe_clamp, static_angle_factor = do_probe_clamp_static_angle_factor);
+      // pinch collar for do probe
+      translate([do_probe_x_shift, 0, 0]) color(prints1_color) probe_pinch_collar(
+            nominal_diameter=do_probe_clamp_diameter, expanded_diameter=do_probe_clamp_diameter_expanded,
+            height=do_probe_clamp_height, collar_thickness=do_probe_clamp_collar_thickness,
+            mount_thickness=do_probe_clamp_mount_thickness, mount_width=do_probe_clamp_mount_width,
+            hole_diameter=do_probe_clamp_hole_diameter, rod_diameter=do_probe_clamp_rod_diameter,
+            rod_diameter_taper=do_probe_clamp_rod_diameter_taper, rod_mount_width=do_probe_clamp_rod_mount_width,
+            animate=animate_probe_clamp, static_angle_factor=do_probe_clamp_static_angle_factor
+          );
 
-        // atlas probe for do probe
-        translate([ do_probe_x_shift, 0, -do_probe_z_shift ]) atlas_probe(
-            neck_d = do_probe_neck_diameter, neck_h = do_probe_neck_height, neck_taper_d = do_probe_neck_taper_diameter,
-            body_d = do_probe_body_diameter, body_h = do_probe_body_height, tip_d = do_probe_tip_diameter,
-            tip_h = do_probe_tip_height, wire_d = do_probe_wire_diameter, wire_h = do_probe_wire_height,
-            colors = do_probe_colors, position_base = do_probe_orient_base);
+      // atlas probe for do probe
+      translate([do_probe_x_shift, 0, -do_probe_z_shift]) atlas_probe(
+          neck_d=do_probe_neck_diameter, neck_h=do_probe_neck_height, neck_taper_d=do_probe_neck_taper_diameter,
+          body_d=do_probe_body_diameter, body_h=do_probe_body_height, tip_d=do_probe_tip_diameter,
+          tip_h=do_probe_tip_height, wire_d=do_probe_wire_diameter, wire_h=do_probe_wire_height,
+          colors=do_probe_colors, position_base=do_probe_orient_base
+        );
     }
 
-    // thermocouple probe
-    translate([ 0, -jar_diameter / 4, lid_z_pos ])
-        threaded_thermocouple(neck_d = thermocouple_probe_neck_diameter, neck_h = thermocouple_probe_neck_height,
-                              flats_d = thermocouple_probe_flats_diameter, flats_h = thermocouple_probe_flats_height,
-                              body_d = thermocouple_probe_body_diameter, body_h = thermocouple_probe_body_height,
-                              tip_d = thermocouple_probe_tip_diameter, tip_h = thermocouple_probe_tip_height,
-                              wire_d = thermocouple_probe_wire_diameter, wire_h = thermocouple_probe_wire_height,
-                              show_threads = show_threads, position_base = thermocouple_probe_orient_base);
+  // thermocouple probe
+  translate([0, -jar_diameter / 4, lid_z_pos])
+    threaded_thermocouple(
+      neck_d=thermocouple_probe_neck_diameter, neck_h=thermocouple_probe_neck_height,
+      flats_d=thermocouple_probe_flats_diameter, flats_h=thermocouple_probe_flats_height,
+      body_d=thermocouple_probe_body_diameter, body_h=thermocouple_probe_body_height,
+      tip_d=thermocouple_probe_tip_diameter, tip_h=thermocouple_probe_tip_height,
+      wire_d=thermocouple_probe_wire_diameter, wire_h=thermocouple_probe_wire_height,
+      show_threads=show_threads, position_base=thermocouple_probe_orient_base
+    );
 }
 // lights
-if (render_lights || render_all)
-{
-    lights(light_allow = light_allow);
+if (render_lights || render_all) {
+  lights(light_allow=light_allow);
 }
 
 // put into a module so we can call it to remove from 3DP supporting components
 // light_allow is the allowance between base_jar_cut_diameter and the light front face to create a small gap
 // diff_allow is the allowance applied to the light dimensions to create a allowanced pocket
-module lights(light_allow = 0, diff_allow = 0, rad_cut = false)
-{
-    // Add extra cut depth to prevent material between jar and light when creating pockets with lights
-    radial_cut_ext = rad_cut ? light_depth * 0.1 : 0;
+module lights(light_allow = 0, diff_allow = 0, rad_cut = false) {
+  // Add extra cut depth to prevent material between jar and light when creating pockets with lights
+  radial_cut_ext = rad_cut ? light_depth * 0.1 : 0;
 
-    placement_rad = base_jar_cut_diameter / 2 + light_allow - diff_allow / 2 - radial_cut_ext;
+  placement_rad = base_jar_cut_diameter / 2 + light_allow - diff_allow / 2 - radial_cut_ext;
 
-    // [width, depth, length, window_radius]
-    dims = [
-        light_width + diff_allow, light_depth + diff_allow + radial_cut_ext, light_length + diff_allow,
-        light_window_radius
-    ];
+  // [width, depth, length, window_radius]
+  dims = [
+    light_width + diff_allow,
+    light_depth + diff_allow + radial_cut_ext,
+    light_length + diff_allow,
+    light_window_radius,
+  ];
 
-    translate([ 0, 0, base_floor_height ]) rotate([ 0, 0, 45 ])
-    {
-        surround_lights(light_dims = dims, angle = occupy_angle, n = number_of_lights / 2, r = placement_rad,
-                        offset = 0, center = true);
+  translate([0, 0, base_floor_height]) rotate([0, 0, 45]) {
+      surround_lights(
+        light_dims=dims, angle=occupy_angle, n=number_of_lights / 2, r=placement_rad,
+        offset=0, center=true
+      );
 
-        if (!jar_x_sec)
-            surround_lights(light_dims = dims, angle = occupy_angle, n = number_of_lights / 2, r = placement_rad,
-                            offset = 180, center = true);
+      if (!jar_x_sec)
+        surround_lights(
+          light_dims=dims, angle=occupy_angle, n=number_of_lights / 2, r=placement_rad,
+          offset=180, center=true
+        );
     }
 }
 
 // base
-if (render_base || render_all)
-{
-    color(prints1_color) difference()
-    {
-        // create the base
-        base(inner_diameter = base_jar_cut_diameter, height = lower_base_height, wall_thickness = base_wall_thickness,
-             floor_height = base_floor_height, rod_hole_diameter = threaded_rod_hole_diameter, nut_dia = nut_diameter,
-             nut_h = nut_height);
+if (render_base || render_all) {
+  color(prints1_color) difference() {
+      // create the base
+      base(
+        inner_diameter=base_jar_cut_diameter, height=lower_base_height, wall_thickness=base_wall_thickness,
+        floor_height=base_floor_height, rod_hole_diameter=threaded_rod_hole_diameter, nut_dia=nut_diameter,
+        nut_h=nut_height
+      );
 
-        // cut out the lights, rad_cut is true to extend the cut inwards to remove material between jar and light
-        lights(light_allow = light_allow, diff_allow = light_allow, rad_cut = true);
+      // cut out the lights, rad_cut is true to extend the cut inwards to remove material between jar and light
+      lights(light_allow=light_allow, diff_allow=light_allow, rad_cut=true);
 
-        // cut out a second time shifted by 180 for symmetry and to allow more alternative config of the lights
-        // this should be handled more elegantly in the future once the first iteration has been printed
-        rotate([ 0, 0, 90 ]) lights(light_allow = light_allow, diff_allow = light_allow, rad_cut = true);
+      // cut out a second time shifted by 180 for symmetry and to allow more alternative config of the lights
+      // this should be handled more elegantly in the future once the first iteration has been printed
+      rotate([0, 0, 90]) lights(light_allow=light_allow, diff_allow=light_allow, rad_cut=true);
     }
 }
 
 // top base
-if (render_upper_base || render_all)
-{
-    difference()
-    {
-        translate([ 0, 0, total_height ]) rotate([ 0, 180, 0 ]) color(prints1_color) base(
-            inner_diameter = base_jar_cut_diameter, height = upper_base_height, wall_thickness = base_wall_thickness,
-            floor_height = base_floor_height, rod_hole_diameter = threaded_rod_hole_diameter);
+if (render_upper_base || render_all) {
+  difference() {
+    translate([0, 0, total_height]) rotate([0, 180, 0]) color(prints1_color) base(
+            inner_diameter=base_jar_cut_diameter, height=upper_base_height, wall_thickness=base_wall_thickness,
+            floor_height=base_floor_height, rod_hole_diameter=threaded_rod_hole_diameter
+          );
 
-        // cut out the lights
-        lights(light_allow = light_allow, diff_allow = light_allow, rad_cut = false);
+    // cut out the lights
+    lights(light_allow=light_allow, diff_allow=light_allow, rad_cut=false);
 
-        // cut out a second time shifted by 180 for symmetry and to allow more alternative config of the lights
-        // this should be handled more elegantly in the future once the first iteration has been printed
-        rotate([ 0, 0, 90 ]) lights(light_allow = light_allow, diff_allow = light_allow, rad_cut = true);
-    }
+    // cut out a second time shifted by 180 for symmetry and to allow more alternative config of the lights
+    // this should be handled more elegantly in the future once the first iteration has been printed
+    rotate([0, 0, 90]) lights(light_allow=light_allow, diff_allow=light_allow, rad_cut=true);
+  }
 }
 
 // ribs
-if (render_ribs || render_all)
-{
-    // Number of rods holders on the ribs
-    n_rods_ribs = 2;
+if (render_ribs || render_all) {
+  // Number of rods holders on the ribs
+  n_rods_ribs = 2;
 
-    spacer_dia_allow = 0.2;
-    spacer_z_allow = 0.4;
-    z_shift_factor = 1 / 3;
+  spacer_dia_allow = 0.2;
+  spacer_z_allow = 0.4;
+  z_shift_factor = 1 / 3;
 
-    // create the ribs
-    for (i = [1:2])
-    {
+  // create the ribs
+  for (i = [1:2]) {
 
-        spacers_total_height =
-            total_height - base_floor_height * 2 - upper_base_height - lower_base_height - rib_base_height * 2;
+    spacers_total_height =
+    total_height - base_floor_height * 2 - upper_base_height - lower_base_height - rib_base_height * 2;
 
-        z_shift = spacers_total_height * i * z_shift_factor;
+    z_shift = spacers_total_height * i * z_shift_factor;
 
-        spacer_pos = lower_base_height + nut_height + z_shift + rib_base_height * (i - 1);
+    spacer_pos = lower_base_height + nut_height + z_shift + rib_base_height * (i - 1);
 
-        f_height = -zFite;
+    f_height = 0 - zFite;
 
-        for (j = [1:2])
-        {
-            rotate([ 0, 0, j * 180 ]) rotate([ 0, 0, i * 90 ]) difference()
-            {
-                translate([ 0, 0, spacer_pos ]) color(prints1_color)
-                    base(inner_diameter = base_jar_cut_diameter, height = rib_base_height,
-                         wall_thickness = base_wall_thickness, floor_height = f_height,
-                         rod_hole_diameter = threaded_rod_hole_diameter, rods = n_rods_ribs);
+    for (j = [1:2]) {
+      rotate([0, 0, j * 180]) rotate([0, 0, i * 90]) difference() {
+            translate([0, 0, spacer_pos]) color(prints1_color)
+                base(
+                  inner_diameter=base_jar_cut_diameter, height=rib_base_height,
+                  wall_thickness=base_wall_thickness, floor_height=f_height,
+                  rod_hole_diameter=threaded_rod_hole_diameter, rods=n_rods_ribs
+                );
 
-                // cut out the lights, rad_cut is true to extend the cut inwards to remove material between jar and
-                // light this is done for all ribs to allow flexibility, again this should be handled more elegantly in
-                // the future
-                rotate([ 0, 0, 90 ]) lights(light_allow = light_allow, diff_allow = light_allow, rad_cut = true);
-            }
-        }
+            // cut out the lights, rad_cut is true to extend the cut inwards to remove material between jar and
+            // light this is done for all ribs to allow flexibility, again this should be handled more elegantly in
+            // the future
+            rotate([0, 0, 90]) lights(light_allow=light_allow, diff_allow=light_allow, rad_cut=true);
+          }
     }
+  }
 }
 
 // rod rib spacers
-if (render_rodspacers || render_all)
-{
-    rod_spacer_diameter = threaded_rod_diameter + 2 * rod_spacer_thickness;
-    z_shift_factor = 1 / 3;
+if (render_rodspacers || render_all) {
+  rod_spacer_diameter = threaded_rod_diameter + 2 * rod_spacer_thickness;
+  z_shift_factor = 1 / 3;
 
-    color(prints2_color) for (i = [0:2])
-    {
-        for (j = [0:3])
-        {
+  color(prints2_color)for (i = [0:2]) {
+    for (j = [0:3]) {
 
-            spacers_total_height =
-                total_height - base_floor_height * 2 - upper_base_height - lower_base_height - rib_base_height * 2;
+      spacers_total_height =
+      total_height - base_floor_height * 2 - upper_base_height - lower_base_height - rib_base_height * 2;
 
-            z_shift = spacers_total_height * i * z_shift_factor;
+      z_shift = spacers_total_height * i * z_shift_factor;
 
-            spacer_pos = lower_base_height + nut_height + z_shift + spacer_z_allow / 2 + rib_base_height * i;
+      spacer_pos = lower_base_height + nut_height + z_shift + spacer_z_allow / 2 + rib_base_height * i;
 
-            spacer_height = spacers_total_height * z_shift_factor - spacer_z_allow * 2;
+      spacer_height = spacers_total_height * z_shift_factor - spacer_z_allow * 2;
 
-            rotate([ 0, 0, j * 90 ]) translate([ rod_shift, 0, spacer_pos ]) difference()
-            {
-                cylinder(d = rod_spacer_diameter, h = spacer_height);
-                cylinder(d = threaded_rod_diameter + spacer_dia_allow, h = spacer_height + zFite);
-            }
-        }
+      rotate([0, 0, j * 90]) translate([rod_shift, 0, spacer_pos]) difference() {
+            cylinder(d=rod_spacer_diameter, h=spacer_height);
+            cylinder(d=threaded_rod_diameter + spacer_dia_allow, h=spacer_height + zFite);
+          }
     }
+  }
 }
 
 // What style of lock to produce, with the pin pointed inward ou outward?
@@ -774,9 +763,9 @@ bayonet_lock_allowance = 0.2;
 bayonet_lock_manual_pin_radius = 1.5;
 
 // radius of the locking pin
-bayonet_lock_pin_radius = (bayonet_lock_manual_pin_radius == 0)
-                              ? (bayonet_lock_outer_radius - bayonet_lock_inner_radius) / 4
-                              : bayonet_lock_manual_pin_radius;
+bayonet_lock_pin_radius =
+  (bayonet_lock_manual_pin_radius == 0) ? (bayonet_lock_outer_radius - bayonet_lock_inner_radius) / 4
+  : bayonet_lock_manual_pin_radius;
 
 // Height of the connector part
 bayonet_lock_height = 10;
@@ -800,75 +789,70 @@ lid_holes_n = 12;
 lid_holes_radius = bayonet_lock_outer_radius + 0.01;
 
 // lid
-if (render_lid || render_all)
-{
-    cut_height = lid_height * 2 * 1.1;
+if (render_lid || render_all) {
+  cut_height = lid_height * 2 * 1.1;
 
-    color(prints2_color) translate([ 0, 0, lid_z_pos ]) rotate([ 0, 180, 0 ])
-    {
-        union()
-        {
-            difference()
-            {
-                // create the lid
-                lid(outer_diameter = jar_diameter, inner_diameter = opening_diameter, height = lid_height,
-                    allowance = lid_rad_allow, rod_hole_diameter = threaded_rod_diameter, nut_dia = nut_diameter,
-                    nut_h = nut_height);
+  color(prints2_color) translate([0, 0, lid_z_pos]) rotate([0, 180, 0]) {
+        union() {
+          difference() {
+            // create the lid
+            lid(
+              outer_diameter=jar_diameter, inner_diameter=opening_diameter, height=lid_height,
+              allowance=lid_rad_allow, rod_hole_diameter=threaded_rod_diameter, nut_dia=nut_diameter,
+              nut_h=nut_height
+            );
 
-                // cut out the bearing and shaft hole
-                translate([ 0, 0, -zFite / 2 ]) union()
-                {
-                    cylinder(d = threaded_rod_diameter, h = lid_height * 2 + zFite);
-                    rotate([ 0, 0, 30 ]) cylinder(d = bearing_diameter, h = bearing_height + zFite);
+            // cut out the bearing and shaft hole
+            translate([0, 0, -zFite / 2]) union() {
+                cylinder(d=threaded_rod_diameter, h=lid_height * 2 + zFite);
+                rotate([0, 0, 30]) cylinder(d=bearing_diameter, h=bearing_height + zFite);
+              }
+
+            // cut off corners to reduce material and allow space for lights
+            translate([0, 0, lid_height]) rotate([0, 0, 45]) difference() {
+                  cube([jar_diameter * 1.1, jar_diameter * 1.1, cut_height], center=true);
+                  cube([jar_diameter - lid_cuts, jar_diameter - lid_cuts, cut_height * 1.1], center=true);
                 }
-
-                // cut off corners to reduce material and allow space for lights
-                translate([ 0, 0, lid_height ]) rotate([ 0, 0, 45 ]) difference()
-                {
-                    cube([ jar_diameter * 1.1, jar_diameter * 1.1, cut_height ], center = true);
-                    cube([ jar_diameter - lid_cuts, jar_diameter - lid_cuts, cut_height * 1.1 ], center = true);
-                }
-
-                // cut out the entry holes for the probes and tubes
-                for (hole_rot = [0:360 / lid_holes_n:360])
-                {
-                    rotate([ 0, 0, hole_rot ]) translate([ jar_diameter / 4, 0, lid_height ])
-                    {
-                        cylinder(r = lid_holes_radius, h = cut_height, center = true);
-                    }
-                }
-            }
 
             // cut out the entry holes for the probes and tubes
-            for (hole_rot = [0:360 / lid_holes_n:360])
-            {
-                rotate([ 0, 0, hole_rot ]) translate([ jar_diameter / 4, 0, lid_height + bayonet_lock_height * 0.5 ])
-                    rotate([ 180, 0, 0 ])
-                {
-                    // add the bayonet locks
-                    tube_lock(
-                        part_to_render = "lock", pin_direction = bayonet_lock_pin_direction,
-                        number_of_pins = bayonet_lock_number_of_pins, path_sweep_angle = bayonet_lock_path_sweep_angle,
-                        turn_direction = bayonet_lock_turn_direction, inner_radius = bayonet_lock_inner_radius,
-                        outer_radius = bayonet_lock_outer_radius, pin_radius = bayonet_lock_pin_radius,
-                        allowance = bayonet_lock_allowance, part_height = bayonet_lock_height,
-                        neck_height = bayonet_lock_neck_height, inner_radius_fill = bayonet_lock_inner_radius_fill,
-                        oring_height = bayonet_lock_oring_height,
-                        oring_neck_cut_height = bayonet_lock_oring_neck_cut_height);
+            for (hole_rot = [0:360 / lid_holes_n:360]) {
+              rotate([0, 0, hole_rot]) translate([jar_diameter / 4, 0, lid_height]) {
+                  cylinder(r=lid_holes_radius, h=cut_height, center=true);
                 }
             }
+          }
+
+          // cut out the entry holes for the probes and tubes
+          for (hole_rot = [0:360 / lid_holes_n:360]) {
+            rotate([0, 0, hole_rot]) translate([jar_diameter / 4, 0, lid_height + bayonet_lock_height * 0.5])
+                rotate([180, 0, 0]) {
+                  // add the bayonet locks
+                  tube_lock(
+                    part_to_render="lock", pin_direction=bayonet_lock_pin_direction,
+                    number_of_pins=bayonet_lock_number_of_pins, path_sweep_angle=bayonet_lock_path_sweep_angle,
+                    turn_direction=bayonet_lock_turn_direction, inner_radius=bayonet_lock_inner_radius,
+                    outer_radius=bayonet_lock_outer_radius, pin_radius=bayonet_lock_pin_radius,
+                    allowance=bayonet_lock_allowance, part_height=bayonet_lock_height,
+                    neck_height=bayonet_lock_neck_height, inner_radius_fill=bayonet_lock_inner_radius_fill,
+                    oring_height=bayonet_lock_oring_height,
+                    oring_neck_cut_height=bayonet_lock_oring_neck_cut_height
+                  );
+                }
+          }
         }
-    }
+      }
 }
 
 if (render_tube_pinlock || render_all)
-    tube_lock(part_to_render = "pin", pin_direction = bayonet_lock_pin_direction,
-              number_of_pins = bayonet_lock_number_of_pins, path_sweep_angle = bayonet_lock_path_sweep_angle,
-              turn_direction = bayonet_lock_turn_direction, inner_radius = bayonet_lock_inner_radius,
-              outer_radius = bayonet_lock_outer_radius, pin_radius = bayonet_lock_pin_radius,
-              allowance = bayonet_lock_allowance, part_height = bayonet_lock_height,
-              neck_height = bayonet_lock_neck_height, inner_radius_fill = bayonet_lock_inner_radius_fill,
-              oring_height = bayonet_lock_oring_height, oring_neck_cut_height = bayonet_lock_oring_neck_cut_height);
+  tube_lock(
+    part_to_render="pin", pin_direction=bayonet_lock_pin_direction,
+    number_of_pins=bayonet_lock_number_of_pins, path_sweep_angle=bayonet_lock_path_sweep_angle,
+    turn_direction=bayonet_lock_turn_direction, inner_radius=bayonet_lock_inner_radius,
+    outer_radius=bayonet_lock_outer_radius, pin_radius=bayonet_lock_pin_radius,
+    allowance=bayonet_lock_allowance, part_height=bayonet_lock_height,
+    neck_height=bayonet_lock_neck_height, inner_radius_fill=bayonet_lock_inner_radius_fill,
+    oring_height=bayonet_lock_oring_height, oring_neck_cut_height=bayonet_lock_oring_neck_cut_height
+  );
 
 use <thermocouple_lock.scad>;
 
@@ -877,12 +861,14 @@ render_thermocouple_pinlock = true;
 thermocouple_mount_height = 20;
 
 if (render_thermocouple_pinlock || render_all)
-    thermocouple_lock(part_to_render = "pin", pin_direction = bayonet_lock_pin_direction,
-                      number_of_pins = bayonet_lock_number_of_pins, path_sweep_angle = bayonet_lock_path_sweep_angle,
-                      turn_direction = bayonet_lock_turn_direction, inner_radius = bayonet_lock_inner_radius,
-                      outer_radius = bayonet_lock_outer_radius, pin_radius = bayonet_lock_pin_radius,
-                      allowance = bayonet_lock_allowance, part_height = bayonet_lock_height,
-                      neck_height = bayonet_lock_neck_height, inner_radius_fill = thermocouple_probe_tip_diameter / 2,
-                      oring_height = bayonet_lock_oring_height,
-                      oring_neck_cut_height = bayonet_lock_oring_neck_cut_height,
-                      thermocouple_mount_height = thermocouple_mount_height);
+  thermocouple_lock(
+    part_to_render="pin", pin_direction=bayonet_lock_pin_direction,
+    number_of_pins=bayonet_lock_number_of_pins, path_sweep_angle=bayonet_lock_path_sweep_angle,
+    turn_direction=bayonet_lock_turn_direction, inner_radius=bayonet_lock_inner_radius,
+    outer_radius=bayonet_lock_outer_radius, pin_radius=bayonet_lock_pin_radius,
+    allowance=bayonet_lock_allowance, part_height=bayonet_lock_height,
+    neck_height=bayonet_lock_neck_height, inner_radius_fill=thermocouple_probe_tip_diameter / 2,
+    oring_height=bayonet_lock_oring_height,
+    oring_neck_cut_height=bayonet_lock_oring_neck_cut_height,
+    thermocouple_mount_height=thermocouple_mount_height
+  );
