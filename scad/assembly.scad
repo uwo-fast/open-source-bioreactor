@@ -21,6 +21,7 @@ use <probe_thermocouple.scad>;
 use <strip_light.scad>;
 use <tube_lock.scad>;
 use <tube_mount.scad>;
+use <thermocouple_lock.scad>;
 
 // internal libs
 use <lib/arc_points.scad>;
@@ -62,6 +63,7 @@ render_mmount = false;
 render_impeller = false;
 render_probemounts = false;
 render_tube_pinlock = false;
+render_thermocouple_pinlock = false;
 
 // ------------------------------------
 // Commercial-off-the-shelf Constraints
@@ -385,8 +387,6 @@ rod_shift = base_jar_cut_diameter / 2 + threaded_rod_hole_diameter;
 rod_length = total_height + nut_height;
 echo("rod length: ", rod_length / 10, " cm");
 
-/* [Probe Mount Parameters] */
-
 /* [Impeller Parameters] */
 
 /** Design guidelines for impeller:
@@ -421,6 +421,10 @@ impeller_diameter = jar_diameter * impeller_DT_factor;
 impeller_radius = impeller_diameter / 2;
 // radius of the shaft hole in the impeller
 impeller_shaft_hole_radius = (shaft_diameter + impeller_shaft_allow) / 2;
+
+/* [Thermocouple Mount Parameters] */
+// height of the thermocouple mount
+thermocouple_mount_height = 20;
 
 /* [Color Parameters] */
 // first color for 3D prints
@@ -854,12 +858,6 @@ if (render_tube_pinlock || render_all)
     oring_height=bayonet_lock_oring_height, oring_neck_cut_height=bayonet_lock_oring_neck_cut_height
   );
 
-use <thermocouple_lock.scad>;
-
-render_thermocouple_pinlock = true;
-
-thermocouple_mount_height = 20;
-
 if (render_thermocouple_pinlock || render_all)
   thermocouple_lock(
     part_to_render="pin", pin_direction=bayonet_lock_pin_direction,
@@ -872,3 +870,32 @@ if (render_thermocouple_pinlock || render_all)
     oring_neck_cut_height=bayonet_lock_oring_neck_cut_height,
     thermocouple_mount_height=thermocouple_mount_height
   );
+
+extra_lip_motor = 5;
+outer_diameter = motor_diameter + extra_lip_motor * 2;
+side_mount_plate_height = 2.4;
+side_mount_insert_height = rib_base_height * 1.5;
+chamfer_cut_dim = 4;
+gap_size = 2;
+
+union() {
+  cube([light_width, light_depth, side_mount_insert_height], center=true); // main insert block
+
+  // gap bridge
+  translate([0, light_depth / 2 + gap_size / 2, side_mount_insert_height / 2 - side_mount_plate_height / 2])
+    cube([light_width, gap_size, side_mount_plate_height], center=true);
+
+  // motor cut out
+  translate([0, outer_diameter / 2 + extra_lip_motor / 2 + gap_size, side_mount_insert_height / 2 - side_mount_plate_height / 2]) {
+    difference() {
+      resize([mmount_face_screws_cdist * 2 + mmount_face_screws_diameter * 2, outer_diameter, side_mount_plate_height])
+        cylinder(d=outer_diameter, h=side_mount_plate_height, center=true);
+
+      // face screw cut outs
+      cylinder(d=motor_diameter, h=side_mount_plate_height + 0.1, center=true); // cut out for motor
+      for (i = [0:1])
+        mirror([i * 1, 0, 0]) // cut outs for face screws
+          translate([mmount_face_screws_cdist, 0, 0]) cylinder(d=mmount_face_screws_diameter, h=side_mount_plate_height + 0.1, center=true);
+    }
+  }
+}
