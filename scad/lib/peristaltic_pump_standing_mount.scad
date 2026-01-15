@@ -30,7 +30,7 @@ zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
  * @param base_head_diameter The diameter of the screw head on the base of the pump.
  * @param body_opening The opening of the body.
  */
-module peri_mount(
+module peri_pump_stand_mount(
   inner_diameter,
   outer_diameter,
   body_height,

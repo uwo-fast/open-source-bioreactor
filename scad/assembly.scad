@@ -22,6 +22,7 @@ use <strip_light.scad>;
 use <tube_lock.scad>;
 use <tube_mount.scad>;
 use <thermocouple_lock.scad>;
+use <peri_pump_side_mount.scad>;
 
 // internal libs
 use <lib/arc_points.scad>;
@@ -53,17 +54,18 @@ render_jar = false;
 render_base = false;
 render_upper_base = false;
 render_lid = false;
+render_bayonet_lock = false;
 render_ribs = false;
 render_rods = false;
 render_rodspacers = false;
 render_lights = false;
 render_probes = false;
 render_motor = false;
-render_mmount = false;
+render_motor_mount = false;
 render_impeller = false;
-render_probemounts = false;
 render_tube_pinlock = false;
 render_thermocouple_pinlock = false;
+render_peri_side_mount = true;
 
 // ------------------------------------
 // Commercial-off-the-shelf Constraints
@@ -162,25 +164,25 @@ shaft_coupler_8x8_rigid = ["SC_8x8_rigid", 25, 12.5, 8, 8, false];
 // the height that the motor coupling assembly requires
 motor_req_height = gearbox_shaft_length + shaft_protrusion + shaft_shaft_coupling_dist;
 // height of the motor mount
-mmount_height = motor_req_height;
+motor_mount_height = motor_req_height;
 // width of the motor mount
-mmount_width = 42;
+motor_mount_width = 42;
 // wall_thickness of the motor mount, must be at least 1.5x the dia of the screws
-mmount_thickness = 8;
+motor_mount_thickness = 8;
 // thickness of the floor of the motor mount
-mmount_floor_thickness = 4;
+motor_mount_floor_thickness = 4;
 // inner diameter of the motor mount, set based on diameter of motor mounting boss
-mmount_inner_diameter = 22;
+motor_mount_inner_diameter = 22;
 // diameter of the screws that fix the motor mount down at by base
-mmount_base_screws_diameter = 3.5;
+motor_mount_base_screws_diameter = 3.5;
 // diameter of the screws that connect the motor faceplate to the mount
-mmount_face_screws_diameter = 4;
+motor_mount_face_screws_diameter = 4;
 // distance between the base screws
-mmount_base_screws_cdist = 32;
+motor_mount_base_screws_cdist = 32;
 // distance between the face screws
-mmount_face_screws_cdist = 27.6;
+motor_face_screws_separation = 27.6;
 // width of the pillars that support the motor mount
-mmount_pillar_width = 7;
+motor_mount_pillar_width = 7;
 
 /* [pH Probe Parameters] */
 
@@ -426,6 +428,25 @@ impeller_shaft_hole_radius = (shaft_diameter + impeller_shaft_allow) / 2;
 // height of the thermocouple mount
 thermocouple_mount_height = 20;
 
+/* [Peristaltic Pump Side Mount Parameters] */
+
+// width of the motor mount flange
+peri_mount_flange_width = 5;
+// height of the motor mount flange
+peri_mount_flange_height = 2.4;
+// distance between the screw holes on the motor mount flange
+peri_mount_flange_screw_distance = 48.0;
+// separation offset between the motor mount flange and the insert
+peri_mount_flange_offset = 2;
+// height of the motor mount insert
+peri_mount_insert_height = 15;
+// width of the motor mount insert
+peri_mount_insert_width = 14.1;
+// depth of the motor mount insert
+peri_mount_insert_depth = 7.6;
+// diameter of the screws that fix the motor mount to the motor
+peri_screw_diameter = 4;
+
 /* [Color Parameters] */
 // first color for 3D prints
 prints1_color = "DarkSlateGray";
@@ -512,28 +533,28 @@ if (render_motor || render_all) {
 
   // shaft coupling
   translate(
-    [0, 0, shaft_length + mmount_height / 2 + shaft_coupler_8x8_rigid[1] / 2 + shaft_shaft_coupling_dist / 2]
+    [0, 0, shaft_length + motor_mount_height / 2 + shaft_coupler_8x8_rigid[1] / 2 + shaft_shaft_coupling_dist / 2]
   )
     shaft_coupling(type=shaft_coupler_8x8_rigid, colour="MediumBlue");
 
   // motor
-  translate([0, 0, lid_z_pos + mmount_height + motor_length + gearbox_length]) rotate([0, 180, 0]) union() {
+  translate([0, 0, lid_z_pos + motor_mount_height + motor_length + gearbox_length]) rotate([0, 180, 0]) union() {
         dcmotor(diameter=motor_diameter, length=motor_length);
         translate([0, 0, motor_length]) gearbox(
             diameter=gearbox_diameter, length=gearbox_length, output_shaft_diameter=gearbox_shaft_diameter,
-            output_shaft_length=gearbox_shaft_length, faceplate_screws_cdist=mmount_face_screws_cdist
+            output_shaft_length=gearbox_shaft_length, faceplate_screws_cdist=motor_face_screws_separation
           );
       }
 }
 
 // motor mount
-if (render_mmount || render_all) {
+if (render_motor_mount || render_all) {
   // motor mount
   color(prints1_color) translate([0, 0, lid_z_pos]) motor_mount(
-        height=mmount_height, width=mmount_width, wall_thickness=mmount_thickness,
-        floor_thickness=mmount_floor_thickness, inner_dia=mmount_inner_diameter, pillar_width=mmount_pillar_width,
-        base_screws_diameter=mmount_base_screws_diameter, base_screws_cdist=mmount_base_screws_cdist,
-        face_screws_diameter=mmount_face_screws_diameter, face_screws_cdist=mmount_face_screws_cdist
+        height=motor_mount_height, width=motor_mount_width, wall_thickness=motor_mount_thickness,
+        floor_thickness=motor_mount_floor_thickness, inner_dia=motor_mount_inner_diameter, pillar_width=motor_mount_pillar_width,
+        base_screws_diameter=motor_mount_base_screws_diameter, base_screws_cdist=motor_mount_base_screws_cdist,
+        face_screws_diameter=motor_mount_face_screws_diameter, face_screws_cdist=motor_face_screws_separation
       );
 }
 
@@ -714,6 +735,30 @@ if (render_ribs || render_all) {
             // the future
             rotate([0, 0, 90]) lights(light_allow=light_allow, diff_allow=light_allow, rad_cut=true);
           }
+
+      // Place peri pump mount on the upper ribs in the middle light insert gap
+      if (render_peri_side_mount || render_all) {
+        if (i == 2) {
+          for(i=[1:2:3])
+          rotate([0, 0, -360/16*i+j * 180])
+          translate([ 0,jar_diameter / 2 + peri_mount_insert_depth/2, spacer_pos + rib_base_height / 2])
+            //rotate([0, 0, 90])
+              color(prints2_color)
+
+                // peristaltic pump side mount
+                peri_pump_side_mount(
+                  flange_width=peri_mount_flange_width,
+                  flange_height=peri_mount_flange_height,
+                  flange_screw_distance=peri_mount_flange_screw_distance,
+                  flange_insert_separation=peri_mount_flange_offset,
+                  insert_height=peri_mount_insert_height,
+                  insert_width=peri_mount_insert_width,
+                  insert_depth=peri_mount_insert_depth,
+                  motor_diameter=motor_diameter,
+                  screw_diameter=peri_screw_diameter
+                );
+        }
+      }
     }
   }
 }
@@ -831,6 +876,7 @@ if (render_lid || render_all) {
             rotate([0, 0, hole_rot]) translate([jar_diameter / 4, 0, lid_height + bayonet_lock_height * 0.5])
                 rotate([180, 0, 0]) {
                   // add the bayonet locks
+                  if(render_bayonet_lock || render_all)
                   tube_lock(
                     part_to_render="lock", pin_direction=bayonet_lock_pin_direction,
                     number_of_pins=bayonet_lock_number_of_pins, path_sweep_angle=bayonet_lock_path_sweep_angle,
@@ -870,32 +916,3 @@ if (render_thermocouple_pinlock || render_all)
     oring_neck_cut_height=bayonet_lock_oring_neck_cut_height,
     thermocouple_mount_height=thermocouple_mount_height
   );
-
-extra_lip_motor = 5;
-outer_diameter = motor_diameter + extra_lip_motor * 2;
-side_mount_plate_height = 2.4;
-side_mount_insert_height = rib_base_height * 1.5;
-chamfer_cut_dim = 4;
-gap_size = 2;
-
-union() {
-  cube([light_width, light_depth, side_mount_insert_height], center=true); // main insert block
-
-  // gap bridge
-  translate([0, light_depth / 2 + gap_size / 2, side_mount_insert_height / 2 - side_mount_plate_height / 2])
-    cube([light_width, gap_size, side_mount_plate_height], center=true);
-
-  // motor cut out
-  translate([0, outer_diameter / 2 + extra_lip_motor / 2 + gap_size, side_mount_insert_height / 2 - side_mount_plate_height / 2]) {
-    difference() {
-      resize([mmount_face_screws_cdist * 2 + mmount_face_screws_diameter * 2, outer_diameter, side_mount_plate_height])
-        cylinder(d=outer_diameter, h=side_mount_plate_height, center=true);
-
-      // face screw cut outs
-      cylinder(d=motor_diameter, h=side_mount_plate_height + 0.1, center=true); // cut out for motor
-      for (i = [0:1])
-        mirror([i * 1, 0, 0]) // cut outs for face screws
-          translate([mmount_face_screws_cdist, 0, 0]) cylinder(d=mmount_face_screws_diameter, h=side_mount_plate_height + 0.1, center=true);
-    }
-  }
-}
