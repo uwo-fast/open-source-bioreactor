@@ -62,6 +62,8 @@ render_lights = false;
 render_probes = false;
 render_motor = false;
 render_motor_mount = false;
+render_shaft_coupler = false;
+render_ext_shaft = false;
 render_impeller = false;
 render_tube_pinlock = false;
 render_thermocouple_pinlock = false;
@@ -150,25 +152,23 @@ gearbox_length = 26;
 gearbox_shaft_diameter = 8;
 // length of the shaft for the gearbox
 gearbox_shaft_length = 20;
+
+// The distance between the bottom of the jar (punt) and the bottom of the shaft
+shaft_jar_punt_clearance = 5;
 // length of the shaft for the impeller
-shaft_length = 300;
+shaft_length = 400;
 // diameter of the shaft
 shaft_diameter = 8.0;
-// distance the shaft protrudes from the gearbox
-shaft_protrusion = gearbox_shaft_length;
-// distance between the motor and the shaft coupling
-shaft_shaft_coupling_dist = 1;
+// adjust distance between the motor and the shaft coupling
+shaft_shaft_coupling_offset = 0; // 
 
 // reference, length, diameter, input diameter, output diameter, flex?
 shaft_coupler_8x8_rigid = ["SC_8x8_rigid", 25, 12.5, 8, 8, false];
-// the height that the motor coupling assembly requires
-motor_req_height = gearbox_shaft_length + shaft_protrusion + shaft_shaft_coupling_dist;
-// height of the motor mount
-motor_mount_height = motor_req_height;
+
 // width of the motor mount
 motor_mount_width = 42;
 // wall_thickness of the motor mount, must be at least 1.5x the dia of the screws
-motor_mount_thickness = 8;
+motor_mount_thickness = 10;
 // thickness of the floor of the motor mount
 motor_mount_floor_thickness = 4;
 // inner diameter of the motor mount, set based on diameter of motor mounting boss
@@ -183,6 +183,15 @@ motor_mount_base_screws_cdist = 32;
 motor_face_screws_separation = 27.6;
 // width of the pillars that support the motor mount
 motor_mount_pillar_width = 7;
+// draft scale for the motor mount
+motor_mount_draft_scale = 1.5;
+// number of cross bars for the motor mount
+motor_mount_cross_bars = 1;
+
+shaft_protrusion = shaft_length - (jar_height - (jar_punt_height + shaft_jar_punt_clearance));
+
+// the height that the motor coupling assembly requires
+motor_mount_height = gearbox_shaft_length + shaft_protrusion + shaft_shaft_coupling_offset;
 
 /* [pH Probe Parameters] */
 
@@ -371,7 +380,7 @@ lid_height = upper_base_height - base_floor_height - lid_h_allow;
 // diameter of the cuts on the lid
 lid_cuts = jar_diameter / 5;
 // height of the cuts on the lid
-lid_z_pos = jar_height + upper_base_height - lid_h_allow;
+lid_z_pos = jar_height + base_floor_height + lid_height;
 
 /* [Rod Spacer Parameters] */
 
@@ -453,6 +462,14 @@ prints1_color = "DarkSlateGray";
 // second color for 3D prints
 prints2_color = "SlateBlue";
 
+module dummy() {
+  // stop the customizer detection from here onwards
+}
+
+/* [Derived Parameters] */
+
+jar_floor_height = jar_punt_height + jar_thickness + base_floor_height;
+
 /*********************************************/
 /*              START ASSEMBLY               */
 /*********************************************/
@@ -509,6 +526,50 @@ if (render_rods || render_all) {
   }
 }
 
+// motor and shaft
+if (render_motor || render_all) {
+
+  // motor
+  translate([0, 0, lid_z_pos + motor_mount_height + motor_length + gearbox_length]) rotate([0, 180, 0]) union() {
+        dcmotor(diameter=motor_diameter, length=motor_length);
+        translate([0, 0, motor_length]) gearbox(
+            diameter=gearbox_diameter, length=gearbox_length, output_shaft_diameter=gearbox_shaft_diameter,
+            output_shaft_length=gearbox_shaft_length, faceplate_screws_cdist=motor_face_screws_separation
+          );
+      }
+}
+
+// motor mount
+if (render_motor_mount || render_all) {
+  color(prints1_color) translate([0, 0, lid_z_pos]) motor_mount(
+        height=motor_mount_height, width=motor_mount_width, wall_thickness=motor_mount_thickness,
+        floor_thickness=motor_mount_floor_thickness, inner_dia=motor_mount_inner_diameter, pillar_width=motor_mount_pillar_width,
+        base_screws_diameter=motor_mount_base_screws_diameter, base_screws_cdist=motor_mount_base_screws_cdist,
+        face_screws_diameter=motor_mount_face_screws_diameter, face_screws_cdist=motor_face_screws_separation,
+        draft_scale=motor_mount_draft_scale, cross_bars=motor_mount_cross_bars
+      );
+}
+
+// shaft coupling
+if (render_shaft_coupler || render_all) {
+
+  translate(
+    [0, 0, lid_z_pos + shaft_protrusion + shaft_shaft_coupling_offset / 2]
+  )
+
+    shaft_coupling(type=shaft_coupler_8x8_rigid, colour="MediumBlue");
+}
+
+// external shaft
+if (render_ext_shaft || render_all) {
+
+  color("grey")
+    translate(
+      [0, 0, jar_floor_height + shaft_jar_punt_clearance]
+    )
+      cylinder(h=shaft_length, d=shaft_diameter, center=false);
+}
+
 // impeller
 if (render_impeller || render_all) {
   translate([0, 0, lid_z_pos - shaft_length + shaft_protrusion + impeller_height / 2]) color(prints2_color) union() {
@@ -523,39 +584,6 @@ if (render_impeller || render_all) {
               circle(r=impeller_radius, $fn=64);
             }
       }
-}
-
-// motor and shaft
-if (render_motor || render_all) {
-  // external shaft
-  color("grey") translate([0, 0, lid_z_pos - shaft_length + shaft_protrusion])
-      cylinder(h=shaft_length, d=shaft_diameter, center=false);
-
-  // shaft coupling
-  translate(
-    [0, 0, shaft_length + motor_mount_height / 2 + shaft_coupler_8x8_rigid[1] / 2 + shaft_shaft_coupling_dist / 2]
-  )
-    shaft_coupling(type=shaft_coupler_8x8_rigid, colour="MediumBlue");
-
-  // motor
-  translate([0, 0, lid_z_pos + motor_mount_height + motor_length + gearbox_length]) rotate([0, 180, 0]) union() {
-        dcmotor(diameter=motor_diameter, length=motor_length);
-        translate([0, 0, motor_length]) gearbox(
-            diameter=gearbox_diameter, length=gearbox_length, output_shaft_diameter=gearbox_shaft_diameter,
-            output_shaft_length=gearbox_shaft_length, faceplate_screws_cdist=motor_face_screws_separation
-          );
-      }
-}
-
-// motor mount
-if (render_motor_mount || render_all) {
-  // motor mount
-  color(prints1_color) translate([0, 0, lid_z_pos]) motor_mount(
-        height=motor_mount_height, width=motor_mount_width, wall_thickness=motor_mount_thickness,
-        floor_thickness=motor_mount_floor_thickness, inner_dia=motor_mount_inner_diameter, pillar_width=motor_mount_pillar_width,
-        base_screws_diameter=motor_mount_base_screws_diameter, base_screws_cdist=motor_mount_base_screws_cdist,
-        face_screws_diameter=motor_mount_face_screws_diameter, face_screws_cdist=motor_face_screws_separation
-      );
 }
 
 if (render_probes || render_all) {
@@ -739,24 +767,24 @@ if (render_ribs || render_all) {
       // Place peri pump mount on the upper ribs in the middle light insert gap
       if (render_peri_side_mount || render_all) {
         if (i == 2) {
-          for(i=[1:2:3])
-          rotate([0, 0, -360/16*i+j * 180])
-          translate([ 0,jar_diameter / 2 + peri_mount_insert_depth/2, spacer_pos + rib_base_height / 2])
-            //rotate([0, 0, 90])
-              color(prints2_color)
+          for (i = [1:2:3])
+            rotate([0, 0, -360 / 16 * i + j * 180])
+              translate([0, jar_diameter / 2 + peri_mount_insert_depth / 2, spacer_pos + rib_base_height / 2])
+                //rotate([0, 0, 90])
+                color(prints2_color)
 
-                // peristaltic pump side mount
-                peri_pump_side_mount(
-                  flange_width=peri_mount_flange_width,
-                  flange_height=peri_mount_flange_height,
-                  flange_screw_distance=peri_mount_flange_screw_distance,
-                  flange_insert_separation=peri_mount_flange_offset,
-                  insert_height=peri_mount_insert_height,
-                  insert_width=peri_mount_insert_width,
-                  insert_depth=peri_mount_insert_depth,
-                  motor_diameter=motor_diameter,
-                  screw_diameter=peri_screw_diameter
-                );
+                  // peristaltic pump side mount
+                  peri_pump_side_mount(
+                    flange_width=peri_mount_flange_width,
+                    flange_height=peri_mount_flange_height,
+                    flange_screw_distance=peri_mount_flange_screw_distance,
+                    flange_insert_separation=peri_mount_flange_offset,
+                    insert_height=peri_mount_insert_height,
+                    insert_width=peri_mount_insert_width,
+                    insert_depth=peri_mount_insert_depth,
+                    motor_diameter=motor_diameter,
+                    screw_diameter=peri_screw_diameter
+                  );
         }
       }
     }
@@ -876,17 +904,17 @@ if (render_lid || render_all) {
             rotate([0, 0, hole_rot]) translate([jar_diameter / 4, 0, lid_height + bayonet_lock_height * 0.5])
                 rotate([180, 0, 0]) {
                   // add the bayonet locks
-                  if(render_bayonet_lock || render_all)
-                  tube_lock(
-                    part_to_render="lock", pin_direction=bayonet_lock_pin_direction,
-                    number_of_pins=bayonet_lock_number_of_pins, path_sweep_angle=bayonet_lock_path_sweep_angle,
-                    turn_direction=bayonet_lock_turn_direction, inner_radius=bayonet_lock_inner_radius,
-                    outer_radius=bayonet_lock_outer_radius, pin_radius=bayonet_lock_pin_radius,
-                    allowance=bayonet_lock_allowance, part_height=bayonet_lock_height,
-                    neck_height=bayonet_lock_neck_height, inner_radius_fill=bayonet_lock_inner_radius_fill,
-                    oring_height=bayonet_lock_oring_height,
-                    oring_neck_cut_height=bayonet_lock_oring_neck_cut_height
-                  );
+                  if (render_bayonet_lock || render_all)
+                    tube_lock(
+                      part_to_render="lock", pin_direction=bayonet_lock_pin_direction,
+                      number_of_pins=bayonet_lock_number_of_pins, path_sweep_angle=bayonet_lock_path_sweep_angle,
+                      turn_direction=bayonet_lock_turn_direction, inner_radius=bayonet_lock_inner_radius,
+                      outer_radius=bayonet_lock_outer_radius, pin_radius=bayonet_lock_pin_radius,
+                      allowance=bayonet_lock_allowance, part_height=bayonet_lock_height,
+                      neck_height=bayonet_lock_neck_height, inner_radius_fill=bayonet_lock_inner_radius_fill,
+                      oring_height=bayonet_lock_oring_height,
+                      oring_neck_cut_height=bayonet_lock_oring_neck_cut_height
+                    );
                 }
           }
         }

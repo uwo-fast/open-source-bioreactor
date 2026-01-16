@@ -24,7 +24,7 @@ module jar(
   pts_r = 1,
   angle = 360
 ) {
-  body_height = height - neck - neck_corner_radius / 2;
+  body_height = height - neck - neck_corner_radius / 2 - rim_rad;
 
   outerline = square([diameter, body_height], center=true);
   innerline = square([diameter - (2 * thickness), body_height - (2 * thickness)], center=true);

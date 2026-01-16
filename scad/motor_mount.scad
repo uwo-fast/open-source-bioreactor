@@ -25,41 +25,51 @@ module motor_mount(
   base_screws_diameter,
   base_screws_cdist,
   face_screws_diameter,
-  face_screws_cdist
+  face_screws_cdist,
+  draft_scale = 1.0,
+  cross_bars = 0,
 ) {
+  // validate if draft scale is greater than 1
+  draft_scale_validated = draft_scale < 1 ? 1 : draft_scale;
+
+  base_screws_cdist_draft = base_screws_cdist * (draft_scale_validated);
 
   window_width = octagon_side_length(width / 2) - pillar_width;
-  window_depth = wall_thickness * 2;
+  window_depth = wall_thickness * 2 * draft_scale_validated;
   window_height = height - floor_thickness * 2;
+  window_height_eff = (window_height / (cross_bars + 1)) - (floor_thickness / 2 * (cross_bars));
 
   difference() {
 
     // main body
-    linear_extrude(height=height) difference() {
-        rotate([0, 0, 360 / 8 / 2]) circle(d=width, $fn=8);
-      }
+    rotate([0, -180, 0])
+      translate([0, 0, -height])
+        linear_extrude(height=height, scale=draft_scale_validated) difference() {
+            rotate([0, 0, 360 / 8 / 2]) circle(d=width, $fn=8);
+          }
 
     // central cut out where shafts couple
     translate([0, 0, -zFite / 2]) cylinder(h=height + zFite, d=inner_dia);
 
     // windows
-    for (i = [0:7])
-      rotate([0, 0, i * 45]) translate([0, width / 2 - window_depth, floor_thickness]) rotate([-90, 0, 0])
-            linear_extrude(window_depth) elongated_octagonal_prism(width=window_width, height=window_height);
+    for (j = [0:cross_bars])
+      for (i = [0:7])
+        rotate([0, 0, i * 45]) translate([0, 0, floor_thickness + j * (window_height_eff + floor_thickness)]) rotate([-90, 0, 0])
+              linear_extrude(window_depth) elongated_octagonal_prism(width=window_width, height=window_height_eff);
 
     // base screw holes
     for (i = [0:3])
-      rotate([0, 0, i * 90 + 45]) translate([base_screws_cdist / 2, 0, -zFite / 2]) {
+      rotate([0, 0, i * 90 + 45]) translate([base_screws_cdist_draft / 2, 0, -zFite / 2]) {
           cylinder(h=height + zFite, d=base_screws_diameter);
           translate([0, 0, wall_thickness])
-            cylinder(h=height - wall_thickness + zFite, d=base_screws_diameter * 1.5);
+            cylinder(h=height - wall_thickness + zFite, d=base_screws_diameter * 1.75);
         }
 
     // faceplate screw holes
     for (i = [0:3])
       rotate([0, 0, i * 90]) translate([face_screws_cdist / 2, 0, -zFite / 2]) {
           cylinder(h=height + zFite, d=face_screws_diameter);
-          translate([0, 0, 0]) cylinder(h=wall_thickness + zFite, d=face_screws_diameter * 1.5);
+          translate([0, 0, 0]) cylinder(h=height - wall_thickness + zFite, d=face_screws_diameter * 1.75);
         }
   }
 }
