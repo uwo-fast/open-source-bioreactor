@@ -424,6 +424,8 @@ impeller_fin_width = 4;
 impeller_hub_radius = 7.5;
 // allowance for the shaft hole
 impeller_shaft_allow = 0.1;
+// the amount the radius decreases from top to bottom to create a draft for the shaft hole
+impeller_shaft_radius_interference = 0.2;
 
 // Driven Parameters
 // diameter of the impeller
@@ -576,7 +578,7 @@ if (render_impeller || render_all) {
         impeller(
           radius=impeller_radius, height=impeller_height, fins=impeller_n_fins, twist=impeller_twist_ang,
           fin_width=impeller_fin_width, center_hub_radius=impeller_hub_radius,
-          center_hole_size=impeller_shaft_hole_radius
+          center_hole_radius=impeller_shaft_hole_radius, center_hole_radius_lower=impeller_shaft_hole_radius - impeller_shaft_radius_interference
         );
         translate([0, 0, impeller_height / 2 - impeller_fin_width / 2])
           linear_extrude(impeller_fin_width, center=true) difference() {
