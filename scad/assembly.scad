@@ -423,9 +423,9 @@ impeller_fin_width = 4;
 // size of the center hub
 impeller_hub_radius = 7.5;
 // allowance for the shaft hole
-impeller_shaft_allow = 0.1;
+impeller_shaft_allow = 0.4;
 // the amount the radius decreases from top to bottom to create a draft for the shaft hole
-impeller_shaft_radius_interference = 0.3;
+impeller_shaft_radius_interference = 0.2;
 
 // Driven Parameters
 // diameter of the impeller
