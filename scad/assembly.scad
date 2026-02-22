@@ -178,7 +178,7 @@ motor_mount_base_screws_diameter = 3.5;
 // diameter of the screws that connect the motor faceplate to the mount
 motor_mount_face_screws_diameter = 4;
 // distance between the base screws
-motor_mount_base_screws_cdist = 32;
+motor_mount_base_screws_cdist = 44;
 // distance between the face screws
 motor_face_screws_separation = 27.6;
 // width of the pillars that support the motor mount
