@@ -54,7 +54,9 @@ module motor_mount(
               }
 
         // central cut out where shafts couple
-        translate([0, 0, -zFite / 2]) cylinder(h=height + zFite, d=inner_dia);
+        translate([0, 0, -zFite / 2 + floor_thickness]) cylinder(h=height + zFite, d=inner_dia);
+        // Floor cutout needs to be smaller to block / retain the bearing in the lid below
+        translate([0, 0, -zFite / 2]) cylinder(h=height + zFite, d=inner_dia * 0.75);
 
         // windows
         for (j = [0:cross_bars])
