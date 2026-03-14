@@ -71,15 +71,7 @@ module motor_mount(
               translate([0, 0, 0]) cylinder(h=height - wall_thickness + zFite, d=face_screws_diameter * 1.75);
             }
       }
-      // Flanges for base mounting
-      for (i = [0:3])
-        rotate([0, 0, i * 90])
-          translate([width / 2 + wall_thickness / 2, 0, 0])
-            difference() {
-              cylinder(h=floor_thickness, r=(octagon_side_width * draft_scale_validated) / 2, center=false);
-              translate([-(octagon_side_width * draft_scale_validated) / 2, 0, 0])
-                cube([octagon_side_width * draft_scale_validated, octagon_side_width * draft_scale_validated, floor_thickness * 2 + zFite], center=true);
-            }
+
     }
     // base screw holes
     for (i = [0:3])
