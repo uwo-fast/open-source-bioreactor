@@ -1,5 +1,7 @@
 include <_config.scad>;
 
+// TODO: integrate into assembly.scad and remove redundant params
+
 // ------------------
 // Dev controls
 // ------------------
