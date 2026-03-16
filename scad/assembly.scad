@@ -192,6 +192,7 @@ shaft_protrusion = shaft_length - (jar_height - (jar_punt_height + shaft_jar_pun
 
 // the height that the motor coupling assembly requires
 motor_mount_height = gearbox_shaft_length + shaft_protrusion + shaft_shaft_coupling_offset;
+echo("motor mount height: ", motor_mount_height / 10, " cm");
 
 /* [pH Probe Parameters] */
 

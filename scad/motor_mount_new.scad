@@ -18,25 +18,28 @@ tube_screw_diameter = 3.1;
 face_screw_diameter = 4.2;
 
 bearing_diameter = 22.6;
+shaft_diameter = 8.0;
 
-motor_faceplate_diameter = 36;
+motor_faceplate_diameter = 36.0;
 motor_faceplate_screws_separation = 27.6;
-motor_boss_diameter = 22;
+motor_boss_diameter = 22.0;
 
-nut_width = 2;
-nut_dim = 5;
+nut_width = 2.5;
+nut_dim = 8.0;
 
 // ------------------
 // Design selections
 // ------------------
 
-allowance_fit = 0.15; // clearance for printed parts
+allowance_fit = 0.2; // clearance for printed parts
 
 base_height = 4;
 
-middle_height = 100;
-
 top_height = 6;
+
+temp_derived_height = 125;
+
+middle_height = 125 - base_height - top_height;
 
 // ------------------
 // Derived params
@@ -62,8 +65,9 @@ if (show_bottom) {
       translate([0, 0, base_height]) cylinder(h=collar_height, d=base_dia - wall_thickness, $fn=facets);
     }
 
+    // Center hole for the motor shaft, but smaller than bearing such that it retains the bearing in place
     translate([0, 0, -zFite / 2])
-      cylinder(h=collar_height + base_height + zFite, d=motor_boss_diameter, $fn=facets);
+      cylinder(h=collar_height + base_height + zFite, d=shaft_diameter * 1.5, $fn=facets);
 
     // Vertical holes for screws to fix the base to the world (in this case, the jar lid)
     for (i = [0:3])
@@ -101,6 +105,13 @@ if (show_middle) {
             cylinder(h=base_height + zFite, d=base_screw_diameter * 2, $fn=16);
       // expand holes so the screw heads have a place to sit
 
+      // Vertical holes for screws to fix the top to the motor faceplate
+      for (i = [0:3])
+        rotate([0, 0, i * 90])
+          translate([(base_dia - wall_thickness / 2) / 2, 0, middle_height - base_height])
+            cylinder(h=base_height + zFite, d=base_screw_diameter * 2, $fn=16);
+      // expand holes so the screw heads have a place to sit
+
       // Horizontal holes for screws to fix the female middle tube to the lower base
       for (i = [0:3])
         rotate([0, 0, i * 90 + 45])
@@ -121,7 +132,7 @@ if (show_middle) {
           translate([0, 0, middle_height / 2])
             rotate([-90, 0, 0])
               linear_extrude(height=base_dia)
-                resize([base_dia / 2, middle_height * 0.8])
+                resize([base_dia * 0.40, middle_height * 0.80])
                   circle(d=1, $fn=100);
     }
   }
