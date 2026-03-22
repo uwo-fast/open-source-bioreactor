@@ -7,7 +7,6 @@ include <_config.scad>;
 show_bottom = true;
 show_middle = true;
 show_top = true;
-
 separate = false;
 separate_objects = separate ? 25 : 0;
 
@@ -16,17 +15,23 @@ separate_objects = separate ? 25 : 0;
 // ------------------
 
 base_screw_diameter = 3.1;
+
 tube_screw_diameter = 3.1;
+
 face_screw_diameter = 4.2;
 
 bearing_diameter = 22.6;
+
 shaft_diameter = 8.0;
 
 motor_faceplate_diameter = 36.0;
+
 motor_faceplate_screws_separation = 27.6;
+
 motor_boss_diameter = 22.0;
 
 nut_width = 2.5;
+
 nut_dim = 8.0;
 
 // ------------------
@@ -43,11 +48,11 @@ middle_height = 125;
 
 facets = 20;
 
-temp_derived_height = 125;
-
 // ------------------
 // Derived params
 // ------------------
+
+temp_derived_height = 125;
 
 outer_diameter = bearing_diameter + (base_screw_diameter * 2) * 4;
 
@@ -164,16 +169,17 @@ if (show_top) {
               translate([motor_faceplate_screws_separation / 2, 0, flange_height - zFite / 2])
                 cylinder(h=raised_face_height + zFite, d=face_screw_diameter * 1.5, $fn=16);
 
-          // Horizontal holes for screws to fix the female middle tube to the top
+          // Horizontal holes for screws to fix the female middle tube to the lower base
           for (i = [0:3])
             rotate([0, 0, i * 90 + 45])
-              translate([0, 0, raised_face_height / 2])
+              translate([0, 0, flange_height + raised_face_height / 2])
                 rotate([0, 90, 0])
                   cylinder(h=outer_diameter, d=tube_screw_diameter, $fn=16);
 
+          // Horizontal nut traps for screws
           for (i = [0:3])
             rotate([0, 0, i * 90 + 45])
-              translate([(outer_diameter - wall_thickness / 2) / 2 - wall_thickness / 2, 0, nut_dim / 2])
+              translate([(outer_diameter - wall_thickness / 2) / 2 - wall_thickness / 2, 0, nut_dim / 2 + flange_height + raised_face_height / 2])
                 cube([nut_width, nut_dim, nut_dim + nut_dim], center=true);
         }
       }
