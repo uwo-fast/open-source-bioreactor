@@ -35,6 +35,10 @@ use <threads-scad/threads.scad>; // only if you want to visualize threads
 // config for zFite, preview fn,
 include <_config.scad>;
 
+
+include <motor_mount_new.scad>;
+
+
 /* [Visulization Modifiers] */
 
 // Cuts the jar in half for a cross section view
