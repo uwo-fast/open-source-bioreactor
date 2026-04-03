@@ -20,7 +20,6 @@ use <probe_clamp.scad>;
 use <probe_thermocouple.scad>;
 use <strip_light.scad>;
 use <tube_lock.scad>;
-use <tube_mount.scad>;
 use <thermocouple_lock.scad>;
 use <peri_pump_side_mount.scad>;
 
@@ -34,9 +33,6 @@ use <threads-scad/threads.scad>; // only if you want to visualize threads
 
 // config for zFite, preview fn,
 include <_config.scad>;
-
-
-include <motor_mount_new.scad>;
 
 
 /* [Visulization Modifiers] */
@@ -71,7 +67,7 @@ render_ext_shaft = false;
 render_impeller = false;
 render_tube_pinlock = false;
 render_thermocouple_pinlock = false;
-render_peri_side_mount = true;
+render_peri_side_mount = false;
 
 // ------------------------------------
 // Commercial-off-the-shelf Constraints
@@ -873,6 +869,8 @@ bayonet_lock_oring_neck_cut_height = bayonet_lock_oring_height - bayonet_lock_or
 lid_holes_n = 12;
 // diameter of the holes for the first holes set
 lid_holes_radius = bayonet_lock_outer_radius + 0.01;
+
+echo("lid_holes_radius: ", lid_holes_radius);
 
 // lid
 if (render_lid || render_all) {

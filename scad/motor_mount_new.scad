@@ -7,8 +7,6 @@ include <_config.scad>;
 show_bottom = true;
 show_middle = true;
 show_top = true;
-separate = false;
-separate_objects = separate ? 25 : 0;
 
 // ------------------
 // Hardware params
@@ -64,40 +62,55 @@ wall_thickness = (outer_diameter - motor_boss_diameter) / 2;
 
 // male base
 if (show_bottom) {
-  color("slategrey") difference() {
-      union() {
-        cylinder(h=flange_height, d=outer_diameter, $fn=facets);
-        translate([0, 0, flange_height]) cylinder(h=raised_face_height, d=outer_diameter - wall_thickness, $fn=facets);
-      }
 
-      // Center hole for the motor shaft, but smaller than bearing such that it retains the bearing in place
-      translate([0, 0, -zFite / 2])
-        cylinder(h=raised_face_height + flange_height + zFite, d=shaft_diameter * 1.5, $fn=facets);
+  center_hole_diameter = shaft_diameter * 1.5; // smaller than the bearing diameter to retain the bearing in place
 
-      // Vertical holes for screws to fix the base to the world (in this case, the jar lid)
-      for (i = [0:3])
-        rotate([0, 0, i * 90])
-          translate([(outer_diameter - wall_thickness / 2) / 2, 0, -zFite / 2])
-            cylinder(h=flange_height + zFite, d=base_screw_diameter, $fn=16);
 
-      // Horizontal holes for screws to fix the female middle tube to the lower base
-      for (i = [0:3])
-        rotate([0, 0, i * 90 + 45])
-          translate([0, 0, flange_height + raised_face_height / 2])
-            rotate([0, 90, 0])
-              cylinder(h=outer_diameter, d=tube_screw_diameter, $fn=16);
+  translate([0, 0, 0])
+    color("slategrey")
+      rotate([0, 0, 0])
+        difference() {
 
-      // Horizontal nut traps for screws
-      for (i = [0:3])
-        rotate([0, 0, i * 90 + 45])
-          translate([(outer_diameter - wall_thickness / 2) / 2 - wall_thickness / 2, 0, nut_dim / 2 + flange_height + raised_face_height / 2])
-            cube([nut_width, nut_dim, nut_dim + nut_dim], center=true);
-    }
+          union() {
+            cylinder(h=flange_height, d=outer_diameter, $fn=facets);
+            translate([0, 0, flange_height]) cylinder(h=raised_face_height, d=outer_diameter - wall_thickness, $fn=facets);
+          }
+
+          // Center hole for the motor shaft
+          translate([0, 0, -zFite / 2])
+            cylinder(h=raised_face_height + flange_height + zFite, d=center_hole_diameter, $fn=facets);
+
+          // Vertical holes for screws to fix
+          for (i = [0:3])
+            rotate([0, 0, i * 90])
+              translate([(outer_diameter - wall_thickness / 2) / 2, 0, -zFite / 2])
+                cylinder(h=flange_height + zFite, d=base_screw_diameter, $fn=16);
+
+          // Vertical counterbores for screws to fix
+          for (i = [0:3])
+            rotate([0, 0, i * 90])
+              translate([(outer_diameter - wall_thickness / 2) / 2, 0, flange_height - zFite / 2])
+                cylinder(h=raised_face_height + zFite, d=face_screw_diameter * 1.5, $fn=16);
+
+
+          // Horizontal holes for screws to fix the female middle tube to the lower base
+          for (i = [0:3])
+            rotate([0, 0, i * 90 + 45])
+              translate([0, 0, flange_height + raised_face_height / 2])
+                rotate([0, 90, 0])
+                  cylinder(h=outer_diameter, d=tube_screw_diameter, $fn=16);
+
+          // Horizontal nut traps for screws
+          for (i = [0:3])
+            rotate([0, 0, i * 90 + 45])
+              translate([(outer_diameter - wall_thickness / 2) / 2 - wall_thickness / 2, 0, nut_dim / 2 + flange_height + raised_face_height / 2])
+                cube([nut_width, nut_dim, nut_dim + nut_dim], center=true);
+        }
 }
 
 // female to female pipe
 if (show_middle) {
-  color("slateblue") translate([0, 0, flange_height + separate_objects * 0.85]) {
+  color("slateblue") translate([0, 0, flange_height]) {
       difference() {
         cylinder(h=middle_height, d=outer_diameter, $fn=facets);
         translate([0, 0, -zFite / 2])
@@ -145,8 +158,9 @@ if (show_middle) {
 
 // male top (same as the base, but upside down)
 if (show_top) {
-  color("grey") translate([0, 0, middle_height + flange_height * 2 + separate_objects]) rotate([0, 180, 0]) {
-
+  translate([0, 0, middle_height + flange_height * 2])
+    color("grey")
+      rotate([0, 180, 0]) {
         difference() {
 
           union() {
@@ -154,16 +168,17 @@ if (show_top) {
             translate([0, 0, flange_height]) cylinder(h=raised_face_height, d=outer_diameter - wall_thickness, $fn=facets);
           }
 
+          // Center hole for the motor shaft
           translate([0, 0, -zFite / 2])
             cylinder(h=raised_face_height + flange_height + zFite, d=motor_boss_diameter, $fn=facets);
 
-          // Vertical holes for screws to fix the top to the motor faceplate
+          // Vertical holes for screws to fix
           for (i = [0:3])
             rotate([0, 0, i * 90])
               translate([motor_faceplate_screws_separation / 2, 0, -zFite / 2])
                 cylinder(h=flange_height + raised_face_height + zFite, d=face_screw_diameter, $fn=16);
 
-          // Vertical counterbores for screws to fix the top to the motor faceplate
+          // Vertical counterbores for screws to fix
           for (i = [0:3])
             rotate([0, 0, i * 90])
               translate([motor_faceplate_screws_separation / 2, 0, flange_height - zFite / 2])

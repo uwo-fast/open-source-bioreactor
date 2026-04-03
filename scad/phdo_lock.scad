@@ -1,5 +1,6 @@
 use <Bayonet-Lock-SCAD/bayonet_lock.scad>
 
+
 zFite = $preview ? 0.1 : 0;
 $fn = $preview ? 32 : 128;
 
@@ -49,7 +50,9 @@ bayonet_lock_oring_height_interference = 0.1;
 
 bayonet_lock_oring_neck_cut_height = bayonet_lock_oring_height - bayonet_lock_oring_height_interference;
 
-bayonet_lock_thermocouple_mount_height = 20;
+// ----
+
+
 
 // Render the lock
 thermocouple_lock(
@@ -59,8 +62,7 @@ thermocouple_lock(
   outer_radius=bayonet_lock_outer_radius, pin_radius=bayonet_lock_pin_radius,
   allowance=bayonet_lock_allowance, part_height=bayonet_lock_height,
   neck_height=bayonet_lock_neck_height, inner_radius_fill=bayonet_lock_inner_radius_fill,
-  oring_height=bayonet_lock_oring_height, oring_neck_cut_height=bayonet_lock_oring_neck_cut_height,
-  thermocouple_mount_height=bayonet_lock_thermocouple_mount_height
+  oring_height=bayonet_lock_oring_height, oring_neck_cut_height=bayonet_lock_oring_neck_cut_height
 );
 
 module thermocouple_lock(
@@ -118,29 +120,7 @@ module thermocouple_lock(
           cylinder(h=neck_height * 1.1, r=outer_radius - neck_r_allow);
         }
   }
-  if (part_to_render == "pin") {
-    // Add NPT thread mount for the thermocouple
-    rotate([0, 180, 0])
-      npt_thread_mount(height=thermocouple_mount_height, lower_diameter=(outer_radius - neck_r_allow) * 2);
-  }
+
 }
 
-use <threads-scad/threads.scad>; // import the threads library
 
-module npt_thread_mount(height, wall_thickness = 2, lower_diameter = undef) {
-  half_npt_diameter = 21.34;
-  allowance = 0.6;
-  diameter = half_npt_diameter + wall_thickness * 2;
-  lower_diameter = (lower_diameter == undef) ? diameter : lower_diameter;
-
-  ScrewHole(
-    outer_diam=half_npt_diameter - allowance, // Major diameter of 1/2" NPT
-    height=height * 1.1, // Depth of threading
-    position=[0, 0, 0], // Center of hole
-    rotation=[0, 0, 0], // Orientation
-    pitch=1.814, // Pitch based on 14 TPI
-    tooth_angle=60, // NPT standard thread angle
-    tolerance=0.4, // Small clearance for fitting
-    tooth_height=1.0 // Adjust as needed for proper fit
-  ) cylinder(d1=lower_diameter, d2=diameter, h=height);
-}
