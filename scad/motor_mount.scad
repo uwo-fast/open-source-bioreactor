@@ -1,110 +1,113 @@
-use <lib/trapezium.scad>;
+// ----- modules only -----
 
-include <_config.scad>;
-
-/**
- * @brief Create a motor mount for a DC motor with a gearbox
- * @param height The height of the motor mount
- * @param width The width of the motor mount
- * @param wall_thickness The thickness of the walls of the motor mount
- * @param floor_thickness The thickness of the floor of the motor mount
- * @param inner_dia The inner diameter of the cavity where the motor shafts couple
- * @param pillar_width The width of the pillars that support the motor
- * @ param base_screws_diameter The diameter of the screws that attach the motor mount to the base
- * @param base_screws_cdist The distance between the screws that attach the motor mount to the base
- * @param face_screws_diameter The diameter of the screws that attach the faceplate to the motor mount
- * @param face_screws_cdist The distance between the screws that attach the faceplate to the motor mount
- */
-module motor_mount(
-  height,
-  width,
+module male_end(
+  center_hole_diameter,
+  vertical_hole_radius,
+  vertical_hole_diameter,
+  vertical_hole_depth,
+  flange_height,
+  raised_face_height,
+  outer_diameter,
   wall_thickness,
-  floor_thickness,
-  inner_dia,
-  pillar_width,
-  base_screws_diameter,
-  base_screws_cdist,
-  face_screws_diameter,
-  face_screws_cdist,
-  draft_scale = 1.0,
-  cross_bars = 0,
+  tube_screw_diameter,
+  face_screw_diameter,
+  nut_width,
+  nut_dim,
+  facets,
+  fit
 ) {
-  // validate if draft scale is greater than 1
-  draft_scale_validated = draft_scale < 1 ? 1 : draft_scale;
-
-  base_screws_cdist_draft = base_screws_cdist * (draft_scale_validated);
-
-  octagon_side_width = octagon_side_length(width / 2);
-
-  window_width = octagon_side_width - pillar_width;
-  window_depth = wall_thickness * 2 * draft_scale_validated;
-  window_height = height - floor_thickness * 2;
-  window_height_eff = (window_height / (cross_bars + 1)) - (floor_thickness / 2 * (cross_bars));
+  counterbore_radius = vertical_hole_radius;
+  counterbore_diameter = face_screw_diameter * 1.5;
+  counterbore_depth = raised_face_height + fit;
 
   difference() {
     union() {
-      // main body
-      difference() {
-
-        // main body
-        rotate([0, -180, 0])
-          translate([0, 0, -height])
-            linear_extrude(height=height, scale=draft_scale_validated) difference() {
-                rotate([0, 0, 360 / 8 / 2]) circle(d=width, $fn=8);
-              }
-
-        // central cut out where shafts couple
-        translate([0, 0, -zFite / 2 + floor_thickness]) cylinder(h=height + zFite, d=inner_dia);
-        // Floor cutout needs to be smaller to block / retain the bearing in the lid below
-        translate([0, 0, -zFite / 2]) cylinder(h=height + zFite, d=inner_dia * 0.75);
-
-        // windows
-        for (j = [0:cross_bars])
-          for (i = [0:7])
-            rotate([0, 0, i * 45]) translate([0, 0, floor_thickness + j * (window_height_eff + floor_thickness)]) rotate([-90, 0, 0])
-                  linear_extrude(window_depth) elongated_octagonal_prism(width=window_width, height=window_height_eff);
-
-        // faceplate screw holes
-        for (i = [0:3])
-          rotate([0, 0, i * 90]) translate([face_screws_cdist / 2, 0, -zFite / 2]) {
-              cylinder(h=height + zFite, d=face_screws_diameter);
-              translate([0, 0, 0]) cylinder(h=height - wall_thickness + zFite, d=face_screws_diameter * 1.75);
-            }
-      }
-
+      cylinder(h=flange_height, d=outer_diameter, $fn=facets);
+      translate([0, 0, flange_height]) cylinder(h=raised_face_height, d=outer_diameter - wall_thickness, $fn=facets);
     }
-    // base screw holes
+
+    // Center hole for the motor shaft / boss
+    translate([0, 0, -fit / 2])
+      cylinder(h=raised_face_height + flange_height + fit, d=center_hole_diameter, $fn=facets);
+
+    // Vertical holes
     for (i = [0:3])
-      rotate([0, 0, i * 90]) translate([base_screws_cdist_draft / 2, 0, -zFite / 2]) {
-          cylinder(h=height + zFite, d=base_screws_diameter);
-          translate([0, 0, wall_thickness])
-            cylinder(h=height - wall_thickness + zFite, d=base_screws_diameter * 1.75);
-        }
+      rotate([0, 0, i * 90])
+        translate([vertical_hole_radius, 0, -fit / 2])
+          cylinder(h=vertical_hole_depth, d=vertical_hole_diameter, $fn=16);
+
+    // Vertical counterbores
+    for (i = [0:3])
+      rotate([0, 0, i * 90])
+        translate([counterbore_radius, 0, flange_height - fit / 2])
+          cylinder(h=counterbore_depth, d=counterbore_diameter, $fn=16);
+
+    // Horizontal holes for screws to fix the female middle tube to each male end
+    for (i = [0:3])
+      rotate([0, 0, i * 90 + 45])
+        translate([0, 0, flange_height + raised_face_height / 2])
+          rotate([0, 90, 0])
+            cylinder(h=outer_diameter, d=tube_screw_diameter, $fn=16);
+
+    // Horizontal nut traps for screws
+    for (i = [0:3])
+      rotate([0, 0, i * 90 + 45])
+        translate([(outer_diameter - wall_thickness / 2) / 2 - wall_thickness / 2, 0, nut_dim / 2 + flange_height + raised_face_height / 2])
+          cube([nut_width, nut_dim, nut_dim + nut_dim], center=true);
   }
 }
 
-// ---------------------------------
-// Utility Functions
-// ---------------------------------
+module middle_pipe(
+  pipe_height,
+  inner_diameter,
+  interface_hole_radius,
+  interface_hole_diameter,
+  interface_hole_depth,
+  flange_height,
+  raised_face_height,
+  outer_diameter,
+  tube_screw_diameter,
+  facets,
+  fit
+) {
+  difference() {
+    cylinder(h=pipe_height, d=outer_diameter, $fn=facets);
+    translate([0, 0, -fit / 2])
+      cylinder(h=pipe_height + fit, d=inner_diameter, $fn=facets);
 
-/**
- * @brief Calculate the side length of an octagon given the radius of the circumscribed circle
- * @param radius The radius of the circumscribed circle
- * @return The side length of the octagon
- */
-function octagon_side_length(radius) = radius * sqrt(2 - sqrt(2));
+    // Vertical holes for screws to fix the base to the world (in this case, the jar lid)
+    for (i = [0:3])
+      rotate([0, 0, i * 90])
+        translate([interface_hole_radius, 0, -fit / 2])
+          cylinder(h=interface_hole_depth, d=interface_hole_diameter, $fn=16);
 
-/**
- * @brief Create a elongated octagonal prism
- * @param width The width of the prism
- * @param height The height of the prism
- */
-module elongated_octagonal_prism(width, height) {
-  trap_pts = trapezium_pts(bottom_width=width);
-  adjusted_height = height - trap_pts[3][1] * 2;
-  translate([0, -trap_pts[3][1], 0]) {
-    polygon(trap_pts);
-    translate([0, -adjusted_height / 2, 0]) square([width, adjusted_height], center=true);
-    translate([0, -adjusted_height, 0]) mirror([0, 1, 0]) polygon(trap_pts);
+    // Vertical holes for screws to fix the top to the motor faceplate
+    for (i = [0:3])
+      rotate([0, 0, i * 90])
+        translate([interface_hole_radius, 0, pipe_height - flange_height])
+          cylinder(h=interface_hole_depth, d=interface_hole_diameter, $fn=16);
+
+    // Horizontal holes for screws to fix the female middle tube to the lower base
+    for (i = [0:3])
+      rotate([0, 0, i * 90 + 45])
+        translate([0, 0, raised_face_height / 2])
+          rotate([0, 90, 0])
+            cylinder(h=outer_diameter, d=tube_screw_diameter, $fn=16);
+
+    // Horizontal holes for screws to fix the female middle tube to the upper top
+    for (i = [0:3])
+      rotate([0, 0, i * 90 + 45])
+        translate([0, 0, pipe_height - raised_face_height / 2])
+          rotate([0, 90, 0])
+            cylinder(h=outer_diameter, d=tube_screw_diameter, $fn=16);
+
+    // Cut out 4 windows for access to the screws that fix the top to the motor faceplate
+    for (i = [0:3])
+      rotate([0, 0, i * 90])
+        translate([0, 0, pipe_height / 2])
+          rotate([-90, 0, 0])
+            linear_extrude(height=outer_diameter)
+              resize([outer_diameter * 0.40, pipe_height * 0.80])
+                circle(d=1, $fn=100);
   }
 }

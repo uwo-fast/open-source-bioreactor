@@ -14,7 +14,7 @@ use <dc_motor.scad>;
 use <impeller.scad>;
 use <jar.scad>;
 use <lid.scad>;
-use <motor_mount.scad>;
+use <motor_mount_old.scad>;
 use <probe_atlas.scad>;
 use <probe_clamp.scad>;
 use <probe_thermocouple.scad>;
