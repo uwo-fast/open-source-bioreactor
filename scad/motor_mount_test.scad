@@ -26,10 +26,6 @@ motor_faceplate_screws_separation = 27.6;
 
 motor_boss_diameter = 22.0;
 
-nut_width = 2.5;
-
-nut_dim = 8.0;
-
 // ----- design selections -----
 
 allowance_fit = 0.2; // clearance for printed parts
@@ -80,8 +76,6 @@ if (show_bottom) {
         wall_thickness=wall_thickness,
         tube_screw_diameter=tube_screw_diameter,
         face_screw_diameter=face_screw_diameter,
-        nut_width=nut_width,
-        nut_dim=nut_dim,
         facets=facets,
         fit=zFite
       );
@@ -102,8 +96,6 @@ if (show_top) {
           wall_thickness=wall_thickness,
           tube_screw_diameter=tube_screw_diameter,
           face_screw_diameter=face_screw_diameter,
-          nut_width=nut_width,
-          nut_dim=nut_dim,
           facets=facets,
           fit=zFite
         );

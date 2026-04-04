@@ -11,8 +11,6 @@ module male_end(
   wall_thickness,
   tube_screw_diameter,
   face_screw_diameter,
-  nut_width,
-  nut_dim,
   facets,
   fit
 ) {
@@ -49,11 +47,6 @@ module male_end(
           rotate([0, 90, 0])
             cylinder(h=outer_diameter, d=tube_screw_diameter, $fn=16);
 
-    // Horizontal nut traps for screws
-    for (i = [0:3])
-      rotate([0, 0, i * 90 + 45])
-        translate([(outer_diameter - wall_thickness / 2) / 2 - wall_thickness / 2, 0, nut_dim / 2 + flange_height + raised_face_height / 2])
-          cube([nut_width, nut_dim, nut_dim + nut_dim], center=true);
   }
 }
 
