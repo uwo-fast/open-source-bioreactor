@@ -50,8 +50,6 @@ facets = 20;
 // Derived params
 // ------------------
 
-temp_derived_height = 125;
-
 outer_diameter = bearing_diameter + (base_screw_diameter * 2) * 4;
 
 wall_thickness = (outer_diameter - motor_boss_diameter) / 2;
