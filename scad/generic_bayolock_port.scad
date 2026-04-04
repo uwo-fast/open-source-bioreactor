@@ -1,6 +1,6 @@
 use <Bayonet-Lock-SCAD/bayonet_lock.scad>
 
-zFite = $preview ? 0.1 : 0;
+include <_config.scad>
 
 // What style of lock to produce, with the pin pointed inward ou outward?
 bayonet_lock_pin_direction = "outer"; // ["inner", "outer"]
@@ -48,18 +48,20 @@ bayonet_lock_oring_height_interference = 0.1;
 
 bayonet_lock_oring_neck_cut_height = bayonet_lock_oring_height - bayonet_lock_oring_height_interference;
 
+// ----
+
 // Render the lock
-tube_lock(
+generic_lock(
   part_to_render=bayonet_lock_part_render, pin_direction=bayonet_lock_pin_direction,
   number_of_pins=bayonet_lock_number_of_pins, path_sweep_angle=bayonet_lock_path_sweep_angle,
   turn_direction=bayonet_lock_turn_direction, inner_radius=bayonet_lock_inner_radius,
   outer_radius=bayonet_lock_outer_radius, pin_radius=bayonet_lock_pin_radius,
-  allowance=bayonet_lock_allowance, part_height=bayonet_lock_height, neck_height=bayonet_lock_neck_height,
-  inner_radius_fill=bayonet_lock_inner_radius_fill, oring_height=bayonet_lock_oring_height,
-  oring_neck_cut_height=bayonet_lock_oring_neck_cut_height
+  allowance=bayonet_lock_allowance, part_height=bayonet_lock_height,
+  neck_height=bayonet_lock_neck_height, inner_radius_fill=bayonet_lock_inner_radius_fill,
+  oring_height=bayonet_lock_oring_height, oring_neck_cut_height=bayonet_lock_oring_neck_cut_height
 );
 
-module tube_lock(
+module generic_lock(
   part_to_render,
   pin_direction,
   number_of_pins,
@@ -74,7 +76,7 @@ module tube_lock(
   oring_neck_cut_height,
   inner_radius_fill,
   oring_height,
-  oring_neck_cut_height
+  oring_neck_cut_height,
 ) {
 
   neck_h = (part_to_render == "lock") ? 0 : neck_height;
@@ -112,28 +114,5 @@ module tube_lock(
 
           cylinder(h=neck_height * 1.1, r=outer_radius - neck_r_allow);
         }
-
-    // cut holes to stick pliers to insert / rotate / remove the lock
-    color("red")for (i = [0:1])
-      mirror([i, 0, 0]) translate([inner_radius, 0, -zFite / 2])
-          cylinder(h=neck_height / 2, d=outer_radius - inner_radius);
-
-    radString = str("R", inner_radius_fill);
-    diaString = str("D", inner_radius_fill * 2);
-
-    translate([0, inner_radius, neck_height / 2 - zFite / 2]) color("green") {
-        rotate([0, 180, 0]) linear_extrude(neck_height / 2)
-            text(
-              radString, size=outer_radius - inner_radius, halign="center", valign="center", font="sans",
-              $fn=32
-            );
-      }
-    translate([0, -inner_radius, neck_height / 2 - zFite / 2]) color("green") {
-        rotate([0, 180, 0]) linear_extrude(neck_height / 2)
-            text(
-              diaString, size=outer_radius - inner_radius, halign="center", valign="center", font="sans",
-              $fn=32
-            );
-      }
   }
 }

@@ -1,8 +1,8 @@
-use <Bayonet-Lock-SCAD/bayonet_lock.scad>
+use <generic_bayolock_port.scad>
+use <phdo_pinch.scad>
 
 
-zFite = $preview ? 0.1 : 0;
-$fn = $preview ? 32 : 128;
+include <_config.scad>
 
 // What style of lock to produce, with the pin pointed inward ou outward?
 bayonet_lock_pin_direction = "outer"; // ["inner", "outer"]
@@ -52,10 +52,8 @@ bayonet_lock_oring_neck_cut_height = bayonet_lock_oring_height - bayonet_lock_or
 
 // ----
 
-
-
 // Render the lock
-thermocouple_lock(
+generic_lock(
   part_to_render=bayonet_lock_part_render, pin_direction=bayonet_lock_pin_direction,
   number_of_pins=bayonet_lock_number_of_pins, path_sweep_angle=bayonet_lock_path_sweep_angle,
   turn_direction=bayonet_lock_turn_direction, inner_radius=bayonet_lock_inner_radius,
@@ -64,63 +62,3 @@ thermocouple_lock(
   neck_height=bayonet_lock_neck_height, inner_radius_fill=bayonet_lock_inner_radius_fill,
   oring_height=bayonet_lock_oring_height, oring_neck_cut_height=bayonet_lock_oring_neck_cut_height
 );
-
-module thermocouple_lock(
-  part_to_render,
-  pin_direction,
-  number_of_pins,
-  path_sweep_angle,
-  turn_direction,
-  inner_radius,
-  outer_radius,
-  pin_radius,
-  allowance,
-  part_height,
-  neck_height,
-  oring_neck_cut_height,
-  inner_radius_fill,
-  oring_height,
-  oring_neck_cut_height,
-  thermocouple_mount_height
-) {
-
-  neck_h = (part_to_render == "lock") ? 0 : neck_height;
-  neck_cut_h = (part_to_render == "lock") ? 0 : oring_neck_cut_height;
-  neck_r_allow = (part_to_render == "lock") ? 0 : allowance;
-  inner_r_fill = (part_to_render == "lock") ? 0 : inner_radius_fill;
-  inner_h_fill = (part_to_render == "lock") ? 0 : neck_h + part_height;
-
-  difference() {
-    union() {
-      add_neck(neck_h, inner_radius, outer_radius)
-        outer_bayonet(
-          part_to_render, pin_direction, number_of_pins, path_sweep_angle, turn_direction,
-          inner_radius, outer_radius, pin_radius, allowance, part_height, 0
-        );
-
-      difference() {
-        cylinder(h=inner_h_fill, r=inner_radius + 0.1);
-        translate([0, 0, -zFite / 2]) cylinder(h=inner_h_fill + zFite, r=inner_r_fill);
-      }
-    }
-
-    mid_radius_1 = (inner_radius + outer_radius) / 2 - allowance;
-
-    // cut out the oring from +Z face of neck
-    color("red") translate([0, 0, neck_height - neck_cut_h]) difference() {
-          cylinder(h=neck_cut_h * 1.1, r=outer_radius * 1.1);
-
-          cylinder(h=neck_cut_h * 1.1, r=mid_radius_1);
-        }
-
-    // outer allowance on neck
-    color("red") translate([0, 0, -zFite / 2]) difference() {
-          cylinder(h=neck_height, r=outer_radius * 1.1);
-
-          cylinder(h=neck_height * 1.1, r=outer_radius - neck_r_allow);
-        }
-  }
-
-}
-
-
