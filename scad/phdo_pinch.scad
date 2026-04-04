@@ -23,25 +23,29 @@ union() {
       translate([0, 0, -probe_body_lenth])
         cylinder(h=probe_body_lenth, d=probe_body_diameter + wall_thickness * 2, $fn=64);
       cylinder(h=tail_length, d1=probe_body_diameter + wall_thickness * 2, d2=tail_minor_diameter + wall_thickness * 2, $fn=64);
+    translate([0, 0, tail_length * 0.5])
+      cylinder(h=tail_length, d=connector_part_diameter+wall_thickness, $fn=64);
     }
 
-    // Probe negative space and tail negative space
+    // Probe negative space
     translate([0, 0, -wall_thickness]) {
+      // Main body
       translate([0, 0, -probe_body_lenth])
         cylinder(h=probe_body_lenth, d=probe_body_diameter, $fn=64);
-      translate([0, 0, -z_fight]) // Avoid z-fighting with main body
-        cylinder(h=tail_length + z_fight, d1=probe_body_diameter, d2=tail_major_diameter, $fn=64);
-      translate([0, 0, tail_length])
+      // Tail body
+      translate([0, 0, -z_fight / 2]) // Avoid z-fighting with main body
+        cylinder(h=tail_length + z_fight, d1=tail_major_diameter, d2=tail_minor_diameter, $fn=64);
+      // Cord body
+      translate([0, 0, tail_length - z_fight / 2])
         cylinder(h=tail_length, d=tail_minor_diameter, $fn=64);
     }
-
-    // Cut off tail shell body halfway to let it flex
-    translate([0, 0, tail_length / 2])
-      cylinder(h=tail_length, d=probe_body_diameter + wall_thickness * 2, $fn=64);
 
     // Cut out pinch window
     translate([0, 0, -probe_body_lenth * (1 - (1 - ratio) / 2)]) scale([10, 1, 1])
         cylinder(h=probe_body_lenth * ratio, d2=probe_body_diameter * ratio, d1=probe_body_diameter * (ratio - 0.2), $fn=64);
+
+    // Hex cut thru all for the SMA connector
+    cylinder(h=probe_body_lenth * 3, d=connector_part_diameter, center=true, $fn=6);
   }
 
   translate([0, 0, -probe_body_lenth * (1 - (1 - ratio) / 2)])
