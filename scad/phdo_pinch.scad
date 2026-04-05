@@ -1,5 +1,10 @@
 include <_config.scad>;
 
+// TODO
+// right now the pinch is hardcoded to be a single wall inside the main body, 
+// but it would be nice to have the option to tune this to allow variability
+// as well as enabling animation by setting from 0 to the full pinch offset.
+
 // hardware params
 
 probe_body_lenth = 35.6;
@@ -13,8 +18,9 @@ tail_length = 24.5;
 
 wall_thickness = 0.6 * 2; // 2 walls of 0.6mm each
 
-ratio = 0.80; // 80% pinch ratio 
-pinch_gap = 0.8; // 0.8mm gap
+height_ratio = 0.80; // the pinch height is 80% of the body length, centered on the body
+width_ratio = 0.70; // the pinch width is 70% of the body outer diameter, centered on the body
+pinch_gap = 0.8; // 0.8mm gap separating pinch tab from shell body
 
 connector_part_diameter = 9.3;
 
@@ -27,16 +33,13 @@ phdo_pinch(
   tail_diameter_end=tail_minor_diameter,
   tail_len=tail_length,
   shell_wall=wall_thickness,
-  pinch_ratio=ratio,
+  height_pinch_ratio=height_ratio,
+  width_pinch_ratio=width_ratio,
   pinch_clearance=pinch_gap,
   connector_diameter=connector_part_diameter
 );
 
 // ----- helper funcs -----
-
-function pinch_start_z(body_length, pinch_ratio) = -body_length * (1 - (1 - pinch_ratio) / 2);
-function pinch_diameter_start(body_diameter, pinch_ratio) = body_diameter * (pinch_ratio - 0.2);
-function pinch_diameter_end(body_diameter, pinch_ratio) = body_diameter * pinch_ratio;
 
 module pinch_profile(height, d1, d2) {
   scale([10, 1, 1])
@@ -89,15 +92,18 @@ module phdo_pinch(
   tail_diameter_end,
   tail_len,
   shell_wall,
-  pinch_ratio,
+  height_pinch_ratio,
+  width_pinch_ratio,
   pinch_clearance,
   connector_diameter,
   connector_facets = 6
 ) {
-  pinch_z_start = pinch_start_z(body_length, pinch_ratio);
-  pinch_height = body_length * pinch_ratio;
-  pinch_d1 = pinch_diameter_start(body_diameter, pinch_ratio);
-  pinch_d2 = pinch_diameter_end(body_diameter, pinch_ratio);
+
+  // internal derived params for pinch design
+  pinch_z_start = -body_length * (1 + height_pinch_ratio) / 2;
+  pinch_height = body_length * height_pinch_ratio;
+  pinch_d1 = (body_diameter + shell_wall * 2) * (width_pinch_ratio * width_pinch_ratio);
+  pinch_d2 = (body_diameter + shell_wall * 2) * (width_pinch_ratio);
 
   union() {
     difference() {
