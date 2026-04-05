@@ -35,9 +35,6 @@ bayonet_lock_pin_radius =
 // Height of the connector part
 bayonet_lock_height = 10;
 
-// fragment count for arcs, 48 works best with FreeCAD
-_fn = 32;
-
 // height of the added neck to create a flange
 bayonet_lock_neck_height = 5;
 

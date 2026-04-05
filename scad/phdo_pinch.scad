@@ -1,10 +1,5 @@
 include <_config.scad>;
 
-// TODO
-// right now the pinch is hardcoded to be a single wall inside the main body, 
-// but it would be nice to have the option to tune this to allow variability
-// as well as enabling animation by setting from 0 to the full pinch offset.
-
 // hardware params
 
 probe_body_lenth = 35.6;
@@ -86,8 +81,7 @@ module probe_outer_body(
     translate([0, 0, -body_length])
       cylinder(h=body_length, d=body_diameter + shell_wall * 2);
     cylinder(h=tail_len, d1=body_diameter + shell_wall * 2, d2=tail_diameter_end + shell_wall * 2);
-    translate([0, 0, tail_len * 0.5])
-      cylinder(h=tail_len, d=connector_diameter + shell_wall * 2);
+    cylinder(h=tail_len, d=connector_diameter + shell_wall * 2);
   }
 }
 
@@ -127,7 +121,7 @@ module phdo_pinch(
   pinch_offset = 0,
   connector_facets = 6,
   render_supports = false,
-  support_z_contact_distance = 0.2
+  support_z_contact_distance = 0.25
 ) {
 
   // internal derived params for pinch design
@@ -187,8 +181,12 @@ module phdo_pinch(
   if (render_supports) {
     color("pink", 0.5) {
       // Optional built-in supports
-      translate([0, 0, -body_length])
-        cylinder(h=body_length - support_z_contact_distance, d=body_diameter - shell_wall * 2);
+      translate([0, 0, -body_length]) difference() {
+          cylinder(h=body_length - support_z_contact_distance, d=body_diameter - shell_wall * 2);
+
+          translate([0, 0, -zFite / 2])
+            cylinder(h=body_length, d=body_diameter - shell_wall * 4);
+        }
     }
   }
 }
