@@ -24,6 +24,16 @@ pinch_gap = 0.8; // 0.8mm gap separating pinch tab from shell body
 
 connector_part_diameter = 9.3;
 
+// optional dev params
+
+// animate from -wall_thickness (fully open) to zero (fully pinched)
+// use $t to control the animation frame (0 to 1)
+// use sine wave to create a smooth open-close-open animation loop
+// if animate_pinch is false, pinch_offset_anim will be zero and 
+// the pinch will be fully closed for rendering to 3D print
+animate_pinch = false;
+pinch_offset_anim = animate_pinch ? -(sin($t * 360) + 1) / 2 * wall_thickness : 0;
+
 // ----- build -----
 
 phdo_pinch(
@@ -36,7 +46,8 @@ phdo_pinch(
   height_pinch_ratio=height_ratio,
   width_pinch_ratio=width_ratio,
   pinch_clearance=pinch_gap,
-  connector_diameter=connector_part_diameter
+  connector_diameter=connector_part_diameter,
+  pinch_offset=pinch_offset_anim
 );
 
 // ----- helper funcs -----
@@ -96,6 +107,7 @@ module phdo_pinch(
   width_pinch_ratio,
   pinch_clearance,
   connector_diameter,
+  pinch_offset = 0,
   connector_facets = 6
 ) {
 
@@ -139,7 +151,7 @@ module phdo_pinch(
       intersection() {
         // Bell shape for pinch area
         difference() {
-          cylinder(h=pinch_height, d2=body_diameter, d1=body_diameter + shell_wall * 2);
+          cylinder(h=pinch_height, d2=body_diameter - pinch_offset * 2, d1=body_diameter + shell_wall * 2);
           translate([0, 0, -shell_wall])
             cylinder(h=body_length, d2=body_diameter - shell_wall, d1=body_diameter);
         }
