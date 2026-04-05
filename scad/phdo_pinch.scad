@@ -22,9 +22,11 @@ height_ratio = 0.80; // the pinch height is 80% of the body length, centered on 
 width_ratio = 0.70; // the pinch width is 70% of the body outer diameter, centered on the body
 pinch_gap = 0.8; // 0.8mm gap separating pinch tab from shell body
 
-connector_part_diameter = 9.3;
+connector_part_diameter = 10;
 
 // optional dev params
+
+render_optional_supports = true;
 
 // animate from -wall_thickness (fully open) to zero (fully pinched)
 // use $t to control the animation frame (0 to 1)
@@ -36,19 +38,33 @@ pinch_offset_anim = animate_pinch ? -(sin($t * 360) + 1) / 2 * wall_thickness : 
 
 // ----- build -----
 
-phdo_pinch(
-  body_length=probe_body_lenth,
-  body_diameter=probe_body_diameter,
-  tail_diameter_start=tail_major_diameter,
-  tail_diameter_end=tail_minor_diameter,
-  tail_len=tail_length,
-  shell_wall=wall_thickness,
-  height_pinch_ratio=height_ratio,
-  width_pinch_ratio=width_ratio,
-  pinch_clearance=pinch_gap,
-  connector_diameter=connector_part_diameter,
-  pinch_offset=pinch_offset_anim
-);
+cross_section()
+  phdo_pinch(
+    body_length=probe_body_lenth,
+    body_diameter=probe_body_diameter,
+    tail_diameter_start=tail_major_diameter,
+    tail_diameter_end=tail_minor_diameter,
+    tail_len=tail_length,
+    shell_wall=wall_thickness,
+    height_pinch_ratio=height_ratio,
+    width_pinch_ratio=width_ratio,
+    pinch_clearance=pinch_gap,
+    connector_diameter=connector_part_diameter,
+    pinch_offset=pinch_offset_anim,
+    render_supports=render_optional_supports
+  );
+
+// ----- dev -----
+
+module cross_section(show_cross = false) {
+  difference() {
+    children();
+    if (show_cross) {
+      translate([0, -50, 0])
+        cube([100, 100, 100], center=true);
+    }
+  }
+}
 
 // ----- helper funcs -----
 
@@ -71,7 +87,7 @@ module probe_outer_body(
       cylinder(h=body_length, d=body_diameter + shell_wall * 2);
     cylinder(h=tail_len, d1=body_diameter + shell_wall * 2, d2=tail_diameter_end + shell_wall * 2);
     translate([0, 0, tail_len * 0.5])
-      cylinder(h=tail_len, d=connector_diameter + shell_wall);
+      cylinder(h=tail_len, d=connector_diameter + shell_wall * 2);
   }
 }
 
@@ -83,7 +99,8 @@ module probe_negative_space(
   tail_diameter_end,
   shell_wall
 ) {
-  translate([0, 0, -shell_wall]) {
+  translate([0, 0, -zFite / 2]) // Avoid z-fighting with main body
+  {
     // Main body
     translate([0, 0, -body_length])
       cylinder(h=body_length, d=body_diameter);
@@ -108,7 +125,9 @@ module phdo_pinch(
   pinch_clearance,
   connector_diameter,
   pinch_offset = 0,
-  connector_facets = 6
+  connector_facets = 6,
+  render_supports = false,
+  support_z_contact_distance = 0.2
 ) {
 
   // internal derived params for pinch design
@@ -163,5 +182,13 @@ module phdo_pinch(
           d2=pinch_d2 - pinch_clearance
         );
       }
+  }
+
+  if (render_supports) {
+    color("pink", 0.5) {
+      // Optional built-in supports
+      translate([0, 0, -body_length])
+        cylinder(h=body_length - support_z_contact_distance, d=body_diameter - shell_wall * 2);
+    }
   }
 }
