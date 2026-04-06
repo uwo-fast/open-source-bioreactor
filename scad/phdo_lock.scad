@@ -65,7 +65,7 @@ wall_thickness = 0.6 * 2; // 2 walls of 0.6mm each
 
 height_ratio = 0.80; // the pinch height is 80% of the body length, centered on the body
 width_ratio = 0.70; // the pinch width is 70% of the body outer diameter, centered on the body
-pinch_gap = 0.8; // 0.8mm gap separating pinch tab from shell body
+pinch_gap = 1.0; // gap separating pinch tab from shell body
 
 connector_part_diameter = 10;
 
