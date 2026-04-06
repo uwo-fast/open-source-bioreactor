@@ -2,7 +2,7 @@
  * @file base.scad
  * @brief Base for holding a jar or other cylindrical object
  * @author Cameron K. Brooks
- * @copyright 2025
+ * @copyright 2026
  *
  * This file contains the base for holding a jar or other cylindrical object.
  *

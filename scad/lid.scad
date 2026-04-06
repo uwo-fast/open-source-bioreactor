@@ -2,7 +2,7 @@
  * @file lid.scad
  * @brief Lid for holding to cap a jar or other cylindrical object
  * @author Cameron K. Brooks
- * @copyright 2025
+ * @copyright 2026
  *
  * This file contains the lid for holding to cap a jar or other cylindrical object.
  *

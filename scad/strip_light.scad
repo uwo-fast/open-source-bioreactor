@@ -2,7 +2,7 @@
  * @file strip_light.scad
  * @brief Creates a strip grow light for the open-source-bioreactor project
  * @author Cameron K. Brooks
- * @copyright 2025
+ * @copyright 2026
  *
  * This file contains the strip light module for the open-source-bioreactor project.
  *

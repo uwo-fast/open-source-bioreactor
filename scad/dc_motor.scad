@@ -2,7 +2,7 @@
  * @file dc_motor.scad
  * @brief DC motor and gearbox model
  * @author Cameron K. Brooks
- * @copyright 2025
+ * @copyright 2026
  *
  */
 

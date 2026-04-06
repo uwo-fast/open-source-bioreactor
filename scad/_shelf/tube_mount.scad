@@ -2,7 +2,7 @@
  * @file tube_mount.scad
  * @brief tube_mount for any kind of long cylindrical sensor
  * @author Cameron K. Brooks
- * @copyright 2025
+ * @copyright 2026
  *
  */
 

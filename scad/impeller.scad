@@ -2,7 +2,7 @@
  * @file impeller.scad
  * @brief Highly customizable impeller module
  * @author Cameron K. Brooks
- * @copyright 2025
+ * @copyright 2026
  *
  * This file contains a customizable impeller module, it was inspired by the following article:
  * https://infinityplays.com/3d-part-design-with-openscad-57-a-universal-propeller-impeller-design-module/.

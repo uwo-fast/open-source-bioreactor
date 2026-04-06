@@ -2,7 +2,7 @@
  * @file peristaltic_pump_mount.scad
  * @brief Peristaltic pump mount
  * @author Cameron K. Brooks
- * @copyright 2025
+ * @copyright 2026
  *
  * This file contains a mount for holding and fixing a peristaltic pump in place by its base. The mount is
  * derived/inspired by a model found on printables.com: https://www.printables.com/model/857120-peristaltic-pump-mount.

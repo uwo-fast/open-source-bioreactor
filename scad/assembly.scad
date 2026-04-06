@@ -2,7 +2,7 @@
  * @file assembly.scad
  * @brief Assembly for the open-source-bioreactor
  * @author Cameron K. Brooks
- * @copyright 2025
+ * @copyright 2026
  *
  * This file contains the assembly for the open-source-bioreactor project.
  *

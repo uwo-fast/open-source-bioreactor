@@ -1,7 +1,8 @@
 /**
  * @file trapezium.scad
  * @brief Create a trapezium shape with the given parameters
- * @copyright Cameron K. Brooks 2025
+ * @author Cameron K. Brooks
+ * @copyright 2026
  * @description Create a trapezium shape given the bottom width and optionally the top width, height, angle, and offset.
  * The default call using only the bottom width will create a trapezium with a top width equal to half the bottom width
  * and a height calculated from the default angle of 45 degrees.
