@@ -30,13 +30,15 @@ motor_boss_diameter = 22.0;
 
 allowance_fit = 0.2; // clearance for printed parts
 
-flange_height = 8;
-
 raised_face_height = 10;
+
+flange_height = 8;
 
 middle_height = 125;
 
-facets = 20;
+// divisible by 4 (screws are placed every 90°) while providing rough poly 
+// such that the parts cannot concentrically rotate relatively to each other
+facets = 20; // number of facets for all cylindrical bodies
 
 part_to_render = "all"; // ["all", "base_plate", "face_plate", "middle_stand"]
 
