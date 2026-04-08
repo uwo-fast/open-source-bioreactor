@@ -1,3 +1,5 @@
+// This is the old rib design - it is now modularized into base.scad
+
 module rib(inner_diameter, height, wall_thickness, rod_hole_diameter, light_depth, light_width, light_allow, rods = undef) {
 
   difference() {

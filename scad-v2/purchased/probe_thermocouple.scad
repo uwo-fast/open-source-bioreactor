@@ -10,18 +10,20 @@ use <threads-scad/threads.scad>;
 zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
+threaded_thermocouple();
+
 // Creates a probe with customizable dimensions and colors
 module threaded_thermocouple(
-  neck_d = 8,
-  neck_h = 20,
-  flats_d = 20,
+  neck_d = 10,
+  neck_h = 12,
+  flats_d = 26,
   flats_h = 5,
-  body_d = 16,
-  body_h = 40,
-  tip_d = 12,
-  tip_h = 15,
-  wire_d = 4,
-  wire_h = 25,
+  body_d = 21,
+  body_h = 20,
+  tip_d = 3.5,
+  tip_h = 115,
+  wire_d = 3,
+  wire_h = 10,
   colors = ["Olive", "Silver", "DarkGrey", "Grey", "Silver"],
   show_threads = false,
   position_base = false

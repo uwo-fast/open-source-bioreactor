@@ -11,6 +11,7 @@
  */
 
 zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
+$fn = $preview ? 64 : 128;
 
 /**
  * @brief Generates a mount for holding and fixing a peristaltic pump in place by its base.

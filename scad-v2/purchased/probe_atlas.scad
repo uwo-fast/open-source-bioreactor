@@ -1,9 +1,3 @@
-// Upon observation, the atlas probes feature a similar geometry starting at the tip:
-// 1. A medium diameter cylinder for the sensing tip
-// 2. A larger diameter cylinder for the body
-// 3. A smaller tapering cylinder for the neck
-// 4. A very small diameter cylinder which is the cable
-
 use <lib/trapezium.scad>;
 
 zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview

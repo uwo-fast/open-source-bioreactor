@@ -1,6 +1,7 @@
-use <lib/trapezium.scad>;
+use <../utils/trapezium.scad>;
 
-include <_config.scad>;
+zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
+$fn = $preview ? 64 : 128;
 
 /**
  * @brief Create a motor mount for a DC motor with a gearbox
@@ -71,7 +72,6 @@ module motor_mount(
               translate([0, 0, 0]) cylinder(h=height - wall_thickness + zFite, d=face_screws_diameter * 1.75);
             }
       }
-
     }
     // base screw holes
     for (i = [0:3])
