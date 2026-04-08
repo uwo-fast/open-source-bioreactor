@@ -1,5 +1,5 @@
 use <generic_bayolock_port.scad>
-use <phdo_pinch.scad>
+use <cylindrical_flex_tab.scad>
 
 zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
@@ -64,11 +64,12 @@ tail_length = 24.5;
 
 wall_thickness = 1.0;
 
-height_ratio = 0.60; // the pinch height is 60% of the body length, centered on the body
-width_ratio = 0.70; // the pinch width is 70% of the body outer diameter, centered on the body
-pinch_gap = 1.0; // gap separating pinch tab from shell body
+height_ratio = 0.60; // the flex_tab  height is 60% of the body length, centered on the body
+width_ratio = 0.70; // the flex_tab  width is 70% of the body outer diameter, centered on the body
+flex_tab_gap = 1.0; // gap separating flex_tab from shell body
 
 connector_part_diameter = 10;
+flex_tab_offset = 0.5;
 
 // optional dev params
 
@@ -77,10 +78,10 @@ render_optional_supports = true;
 // animate from -wall_thickness (fully open) to zero (fully pinched)
 // use $t to control the animation frame (0 to 1)
 // use sine wave to create a smooth open-close-open animation loop
-// if animate_pinch is false, pinch_offset_anim will be zero and 
-// the pinch will be fully closed for rendering to 3D print
-animate_pinch = false;
-pinch_offset_anim = animate_pinch ? -(sin($t * 360) + 1) / 2 * wall_thickness : 0;
+// if animate_flex_tab is false, flex_tab_offset_anim will be zero and 
+// the flex_tab will be fully closed for rendering to 3D print
+animate_flex_tab = false;
+flex_tab_offset_anim = animate_flex_tab ? -(sin($t * 360) + 1) / 2 * wall_thickness + flex_tab_offset : flex_tab_offset;
 
 // Extra length
 extra_length = 5;
@@ -110,18 +111,18 @@ difference() {
     // Render the pinch     
 
     translate([0, 0, -tail_length - extra_length])
-      phdo_pinch(
+      cylindrical_flex_tab(
         body_length=probe_body_lenth,
         body_diameter=probe_body_diameter,
         tail_diameter_start=tail_major_diameter,
         tail_diameter_end=tail_minor_diameter,
         tail_len=tail_length,
         shell_wall=wall_thickness,
-        height_pinch_ratio=height_ratio,
-        width_pinch_ratio=width_ratio,
-        pinch_clearance=pinch_gap,
+        height_flex_tab_ratio=height_ratio,
+        width_flex_tab_ratio=width_ratio,
+        flex_tab_clearance=flex_tab_gap,
         connector_diameter=connector_part_diameter,
-        pinch_offset=pinch_offset_anim,
+        flex_tab_offset=flex_tab_offset_anim,
         render_supports=render_optional_supports
       );
   }
