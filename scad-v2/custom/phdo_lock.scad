@@ -1,7 +1,8 @@
 use <generic_bayolock_port.scad>
 use <phdo_pinch.scad>
 
-include <_config.scad>
+zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
+$fn = $preview ? 64 : 128;
 
 // ----- port params -----
 

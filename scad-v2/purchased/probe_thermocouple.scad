@@ -4,9 +4,11 @@
 // 3. A smaller tapering cylinder for the neck
 // 4. A very small diameter cylinder which is the cable
 
-include <_config.scad>;
-use <lib/trapezium.scad>;
+use <../utils/trapezium.scad>;
 use <threads-scad/threads.scad>;
+
+zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
+$fn = $preview ? 64 : 128;
 
 // Creates a probe with customizable dimensions and colors
 module threaded_thermocouple(

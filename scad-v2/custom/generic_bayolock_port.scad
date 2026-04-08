@@ -1,6 +1,7 @@
 use <Bayonet-Lock-SCAD/bayonet_lock.scad>
 
-include <_config.scad>
+zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
+$fn = $preview ? 64 : 128;
 
 // What style of lock to produce, with the pin pointed inward ou outward?
 bayonet_lock_pin_direction = "outer"; // ["inner", "outer"]

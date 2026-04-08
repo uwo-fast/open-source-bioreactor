@@ -6,7 +6,8 @@
  *
  */
 
-include <_config.scad>;
+zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
+$fn = $preview ? 64 : 128;
 
 /**
  * @brief Create a basic DC motor model
