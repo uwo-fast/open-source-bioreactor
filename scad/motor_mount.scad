@@ -1,7 +1,5 @@
 include <_config.scad>;
 
-use <motor_mount.scad>;
-
 // ----- render controls -----
 
 render_base_plate = true;
