@@ -174,22 +174,10 @@ module cylindrical_flex_tab(
 
         // Intersection (same as cut out flex_tab  window) to create flex_tab  tabs
         flex_tab_profile(
-          height=flex_tab_height - flex_tab_clearance,
+          height=flex_tab_height - flex_tab_clearance*2,
           d1=flex_tab_d1 - flex_tab_clearance,
           d2=flex_tab_d2 - flex_tab_clearance
         );
       }
   }
-
-  // if (render_supports) {
-  //   color("pink", 0.5) {
-  //     // Optional built-in supports
-  //     translate([0, 0, -body_length]) difference() {
-  //         cylinder(h=body_length - support_z_contact_distance, d=body_diameter - shell_wall * 2);
-
-  //         translate([0, 0, -zFite / 2])
-  //           cylinder(h=body_length, d=body_diameter - shell_wall * 4);
-  //       }
-  //   }
-  // }
 }

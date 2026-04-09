@@ -86,12 +86,16 @@ flex_tab_offset_anim = animate_flex_tab ? -(sin($t * 360) + 1) / 2 * wall_thickn
 // Extra length
 extra_length = 5;
 
+tilt_degrees = 3;
+
+bayonette_diameter = bayonet_lock_outer_radius + bayonet_lock_inner_radius - 0.2;
+
 // ----- build -----
 
-// Render the lock
+union() {
+  // Render the bayonette lock
+  difference() {
 
-difference() {
-  union() {
     rotate([0, 180, 0])
       translate([0, 0, -bayonet_lock_height - bayonet_lock_neck_height])
         generic_lock(
@@ -103,30 +107,53 @@ difference() {
           neck_height=bayonet_lock_neck_height, inner_radius_fill=bayonet_lock_inner_radius_fill,
           oring_height=bayonet_lock_oring_height, oring_neck_cut_height=bayonet_lock_oring_neck_cut_height
         );
-
-    // Draft between the two for a smooth transition
-    translate([0, 0, -tail_length - extra_length])
-      cylinder(h=tail_length + extra_length, d1=probe_body_diameter + wall_thickness * 2, d2=bayonet_lock_outer_radius + bayonet_lock_inner_radius - 0.2);
-
-    // Render the pinch     
-
-    translate([0, 0, -tail_length - extra_length])
-      cylindrical_flex_tab(
-        body_length=probe_body_lenth,
-        body_diameter=probe_body_diameter,
-        tail_diameter_start=tail_major_diameter,
-        tail_diameter_end=tail_minor_diameter,
-        tail_len=tail_length,
-        shell_wall=wall_thickness,
-        height_flex_tab_ratio=height_ratio,
-        width_flex_tab_ratio=width_ratio,
-        flex_tab_clearance=flex_tab_gap,
-        connector_diameter=connector_part_diameter,
-        flex_tab_offset=flex_tab_offset_anim,
-        render_supports=render_optional_supports
-      );
+    // Cut the hexagonal hole for the connector
+    cylinder(h=1000, d=connector_part_diameter, center=true, $fn=6);
   }
 
-  // Cut the hexagonal hole for the connector
-  cylinder(h=1000, d=connector_part_diameter, center=true, $fn=6);
+  difference() {
+
+    // Wedge to fill the missing slice created by the tilt
+    rotate([-90, 0, 0]) {
+      rotate_extrude(angle=tilt_degrees, convexity=10)
+        difference() {
+          circle(d=bayonette_diameter);
+          translate([-bayonette_diameter / 2, 0, 0])
+            square([bayonette_diameter, bayonette_diameter * 2], center=true);
+        }
+    }
+    // Cut the hexagonal hole for the connector
+    cylinder(h=1000, d=connector_part_diameter, center=true, $fn=6);
+  }
+
+  rotate([0, tilt_degrees, 0]) {
+    difference() {
+      union() {
+
+        // Draft between the two for a smooth transition
+        translate([0, 0, -tail_length - extra_length])
+          cylinder(h=tail_length + extra_length, d1=probe_body_diameter + wall_thickness * 2, d2=bayonette_diameter);
+
+        // Render the pinch     
+        translate([0, 0, -tail_length - extra_length])
+          cylindrical_flex_tab(
+            body_length=probe_body_lenth,
+            body_diameter=probe_body_diameter,
+            tail_diameter_start=tail_major_diameter,
+            tail_diameter_end=tail_minor_diameter,
+            tail_len=tail_length,
+            shell_wall=wall_thickness,
+            height_flex_tab_ratio=height_ratio,
+            width_flex_tab_ratio=width_ratio,
+            flex_tab_clearance=flex_tab_gap,
+            connector_diameter=connector_part_diameter,
+            flex_tab_offset=flex_tab_offset_anim,
+            render_supports=render_optional_supports
+          );
+      }
+
+      // Cut the hexagonal hole for the connector
+      cylinder(h=1000, d=connector_part_diameter, center=true, $fn=6);
+    }
+  }
 }
