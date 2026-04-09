@@ -86,7 +86,8 @@ flex_tab_offset_anim = animate_flex_tab ? -(sin($t * 360) + 1) / 2 * wall_thickn
 // Extra length
 extra_length = 5;
 
-tilt_degrees = 5;
+// The tilt of the probe to avoid bubbles getting trapped on face of the sensor
+tilt_degrees = 7;
 
 bayonette_diameter = bayonet_lock_outer_radius + bayonet_lock_inner_radius - 0.2;
 

@@ -15,8 +15,10 @@
  * This is an interface-based design, where each component is designed to fit together based on defined interfaces. 
  * Therefore, this file contains only parameters that cross-couple between components, such as the diameter of the 
  * vessel and the corresponding dimensions of the frame and head.
+ *
  * Preference or customization parameters that are specific to a single component are scoped to their respective
  * subassembly files (e.g., vessel.scad, head.scad, frame.scad) to maintain modularity and separation of concerns.
+ *
  * The two internal lib directories (purchased and custom) are the actual source components, defined as fully
  * parameterized modules that are then used in the subassembly files.
  *
