@@ -1,3 +1,6 @@
+// A model of the Atlas Scientific probes, which have a distinctive and consistent shape
+// across their ezo product line which varies in size but largely not in shape. 
+
 use <lib/trapezium.scad>;
 
 zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview

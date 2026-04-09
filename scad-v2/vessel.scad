@@ -1,15 +1,21 @@
+/**
+ * @file vessel.scad
+ * @brief A generic model of a glass blown, open mouth vessel with a neck and optional punt.
+ * @author Cameron K. Brooks
+ * @copyright 2026
+ *
+*/
+
 use <FunctionalOpenSCAD/functional.scad>;
 
 // TODO: alter vessel.scad so that it accepts a combination of opening_diameter
 // and one of vessel_upper_corner_radius or vessel_neck_corner_radius
-
 
 // Example usage
 vessel(
   height=100, diameter=50, thickness=2, corner_radius=5, corner_radius_base=5, neck=20,
   neck_corner_radius=5, punt_height=5, punt_width=10, rim_rad=2, show_pts=false, show_2d=true, show_3d=false
 );
-
 
 module vessel(
   height,

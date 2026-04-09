@@ -1,8 +1,6 @@
-// Upon observation, the atlas probes feature a similar geometry starting at the tip:
-// 1. A medium diameter cylinder for the sensing tip
-// 2. A larger diameter cylinder for the body
-// 3. A smaller tapering cylinder for the neck
-// 4. A very small diameter cylinder which is the cable
+// This is meant to model a metal-body threaded thermocouple probe
+// Atlas probe geometry: medium tip cylinder, larger body cylinder.
+// Tapered neck cylinder leading to a small cable cylinder.
 
 use <../utils/trapezium.scad>;
 use <threads-scad/threads.scad>;

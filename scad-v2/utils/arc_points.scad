@@ -1,5 +1,3 @@
-
-
 /**
  * @brief Generates a series of points defining an arc.
  *

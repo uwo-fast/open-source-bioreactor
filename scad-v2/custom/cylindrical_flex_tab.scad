@@ -174,7 +174,7 @@ module cylindrical_flex_tab(
 
         // Intersection (same as cut out flex_tab  window) to create flex_tab  tabs
         flex_tab_profile(
-          height=flex_tab_height - flex_tab_clearance*2,
+          height=flex_tab_height - flex_tab_clearance * 2,
           d1=flex_tab_d1 - flex_tab_clearance,
           d2=flex_tab_d2 - flex_tab_clearance
         );

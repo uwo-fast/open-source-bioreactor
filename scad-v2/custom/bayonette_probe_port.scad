@@ -1,4 +1,4 @@
-use <generic_bayolock_port.scad>
+use <bayonette_port.scad>
 use <cylindrical_flex_tab.scad>
 
 zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
@@ -86,7 +86,7 @@ flex_tab_offset_anim = animate_flex_tab ? -(sin($t * 360) + 1) / 2 * wall_thickn
 // Extra length
 extra_length = 5;
 
-tilt_degrees = 3;
+tilt_degrees = 5;
 
 bayonette_diameter = bayonet_lock_outer_radius + bayonet_lock_inner_radius - 0.2;
 
@@ -98,14 +98,21 @@ union() {
 
     rotate([0, 180, 0])
       translate([0, 0, -bayonet_lock_height - bayonet_lock_neck_height])
-        generic_lock(
-          part_to_render=bayonet_lock_part_render, pin_direction=bayonet_lock_pin_direction,
-          number_of_pins=bayonet_lock_number_of_pins, path_sweep_angle=bayonet_lock_path_sweep_angle,
-          turn_direction=bayonet_lock_turn_direction, inner_radius=bayonet_lock_inner_radius,
-          outer_radius=bayonet_lock_outer_radius, pin_radius=bayonet_lock_pin_radius,
-          allowance=bayonet_lock_allowance, part_height=bayonet_lock_height,
-          neck_height=bayonet_lock_neck_height, inner_radius_fill=bayonet_lock_inner_radius_fill,
-          oring_height=bayonet_lock_oring_height, oring_neck_cut_height=bayonet_lock_oring_neck_cut_height
+        bayonette_port(
+          part_to_render=bayonet_lock_part_render,
+          pin_direction=bayonet_lock_pin_direction,
+          number_of_pins=bayonet_lock_number_of_pins,
+          path_sweep_angle=bayonet_lock_path_sweep_angle,
+          turn_direction=bayonet_lock_turn_direction,
+          inner_radius=bayonet_lock_inner_radius,
+          outer_radius=bayonet_lock_outer_radius,
+          pin_radius=bayonet_lock_pin_radius,
+          allowance=bayonet_lock_allowance,
+          part_height=bayonet_lock_height,
+          neck_height=bayonet_lock_neck_height,
+          inner_radius_fill=bayonet_lock_inner_radius_fill,
+          oring_height=bayonet_lock_oring_height,
+          oring_neck_cut_height=bayonet_lock_oring_neck_cut_height
         );
     // Cut the hexagonal hole for the connector
     cylinder(h=1000, d=connector_part_diameter, center=true, $fn=6);

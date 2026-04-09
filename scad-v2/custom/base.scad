@@ -22,7 +22,9 @@ $fn = $preview ? 64 : 128;
  * @param center Whether the pie slice should be centered.
  */
 module pieSlice(a, d, h, center = false) {
-  translate([0, 0, (center ? -h / 2 : 0)]) rotate_extrude(angle=min(a, 360)) square([d / 2, h]);
+  translate([0, 0, (center ? -h / 2 : 0)])
+    rotate_extrude(angle=min(a, 360))
+      square([d / 2, h]);
 }
 
 /**
