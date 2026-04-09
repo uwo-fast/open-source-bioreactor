@@ -54,7 +54,7 @@ bayonet_lock_oring_neck_cut_height = bayonet_lock_oring_height - bayonet_lock_or
 // hardware params
 
 probe_body_lenth = 35.6;
-probe_body_diameter = 16.3;
+probe_body_diameter = 15.9; // 15.9 on soft backed probe, 16.3 on hard backed probe, 16.5 for a looser fit
 
 tail_major_diameter = 8.7;
 tail_minor_diameter = 4.3;
