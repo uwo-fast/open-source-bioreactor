@@ -51,12 +51,12 @@ bayonet_lock_oring_neck_cut_height = bayonet_lock_oring_height - bayonet_lock_or
 
 // ----- pinch params -----
 
-internal_allowance = 0.3; // internal gap between the flex tab and the body for a proper pinch, in addition to the wall thickness
+internal_allowance = 0.5; // remove extra material if your printer / material is off-tolerance
 
 // hardware params
 
 probe_body_lenth = 35.6;
-probe_body_diameter = 16.3; // 15.9 on soft backed probe, 16.3 on hard backed probe
+probe_body_diameter = 15.9; // 15.9 on soft backed probe, 16.3 on hard backed probe
 
 tail_major_diameter = 8.7;
 tail_minor_diameter = 4.3;
