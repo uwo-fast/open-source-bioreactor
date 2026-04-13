@@ -48,6 +48,7 @@ cross_section(show_cross=false)
     width_flex_tab_ratio=width_ratio,
     flex_tab_clearance=flex_tab_gap,
     connector_diameter=connector_part_diameter,
+    flex_tab_keep_ratio=flex_tab_keep_ratio,
     flex_tab_offset=flex_tab_offset_anim
   );
 
@@ -123,6 +124,7 @@ module cylindrical_flex_tab(
   flex_tab_clearance,
   connector_diameter,
   allowance,
+  flex_tab_keep_ratio = 0.75,
   flex_tab_offset = 0,
   connector_facets = 6,
   support_z_contact_distance = 0.25
@@ -174,12 +176,16 @@ module cylindrical_flex_tab(
             cylinder(h=body_length, d2=body_diameter - shell_wall * 2 - flex_tab_offset * 2 + allowance, d1=body_diameter + allowance);
         }
 
-        // Intersection (same as cut out flex_tab window) to create flex_tab tabs
-        flex_tab_profile(
-          height=flex_tab_height - flex_tab_clearance * 2,
-          d1=flex_tab_d1 - flex_tab_clearance,
-          d2=flex_tab_d2 - flex_tab_clearance
-        );
+        difference() {
+          // Intersection (same as cut out flex_tab window) to create flex_tab tabs
+          flex_tab_profile(
+            height=flex_tab_height - flex_tab_clearance,
+            d1=flex_tab_d1 - flex_tab_clearance,
+            d2=flex_tab_d2 - flex_tab_clearance
+          );
+          translate([0, 0, (flex_tab_height - flex_tab_clearance) * flex_tab_keep_ratio + body_length / 2])
+            cube([body_diameter * 10, body_diameter * 2, body_length], center=true);
+        }
       }
     }
   }

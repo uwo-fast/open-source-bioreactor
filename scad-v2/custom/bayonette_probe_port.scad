@@ -64,11 +64,14 @@ tail_length = 24.5;
 
 // design parameters
 
-wall_thickness = 1.0;
+wall_thickness = 1.5;
 
 height_ratio = 0.60; // the flex_tab  height is 60% of the body length, centered on the body
 width_ratio = 0.70; // the flex_tab  width is 70% of the body outer diameter, centered on the body
 flex_tab_gap = 1.0; // gap separating flex_tab from shell body
+
+// cut from the top of the flex tab since the main contact is at the foot of the flex tab
+flex_tab_keep_ratio = 0.5; // 0.0 - 1.0, the ratio of the flex tab height to keep, counted from the foot of the flex tab
 
 connector_part_diameter = 10;
 flex_tab_offset = 0.5;
@@ -155,6 +158,7 @@ union() {
             flex_tab_clearance=flex_tab_gap,
             connector_diameter=connector_part_diameter,
             allowance=internal_allowance,
+            flex_tab_keep_ratio=flex_tab_keep_ratio,
             flex_tab_offset=flex_tab_offset_anim
           );
       }
