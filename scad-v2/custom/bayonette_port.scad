@@ -1,6 +1,6 @@
 use <Bayonet-Lock-SCAD/bayonet_lock.scad>
 
-zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
+zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 // What style of lock to produce, with the pin pointed inward ou outward?
@@ -108,7 +108,7 @@ module bayonette_port(
         );
 
       difference() {
-        cylinder(h=inner_h_fill, r=inner_radius + 0.1);
+        cylinder(h=inner_h_fill, r=inner_radius + allowance);
         translate([0, 0, -zFite / 2]) cylinder(h=inner_h_fill + zFite, r=inner_r_fill);
       }
     }

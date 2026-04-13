@@ -1,4 +1,4 @@
-zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
+zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 // hardware params
@@ -48,8 +48,7 @@ cross_section(show_cross=false)
     width_flex_tab_ratio=width_ratio,
     flex_tab_clearance=flex_tab_gap,
     connector_diameter=connector_part_diameter,
-    flex_tab_offset=flex_tab_offset_anim,
-    render_supports=render_optional_supports
+    flex_tab_offset=flex_tab_offset_anim
   );
 
 // ----- dev -----
@@ -101,9 +100,11 @@ module probe_negative_space(
     // Main body
     translate([0, 0, -body_length])
       cylinder(h=body_length, d=body_diameter);
+
     // Tail body
     translate([0, 0, -zFite / 2]) // Avoid z-fighting with main body
       cylinder(h=tail_len + zFite, d1=tail_diameter_start, d2=tail_diameter_end);
+
     // Cord body
     translate([0, 0, tail_len - zFite / 2])
       cylinder(h=tail_len, d=tail_diameter_end);
@@ -121,9 +122,9 @@ module cylindrical_flex_tab(
   width_flex_tab_ratio,
   flex_tab_clearance,
   connector_diameter,
+  allowance,
   flex_tab_offset = 0,
   connector_facets = 6,
-  render_supports = false,
   support_z_contact_distance = 0.25
 ) {
 
@@ -148,14 +149,14 @@ module cylindrical_flex_tab(
       // Probe negative space
       probe_negative_space(
         body_length=body_length,
-        body_diameter=body_diameter,
+        body_diameter=body_diameter + allowance,
         tail_len=tail_len,
         tail_diameter_start=tail_diameter_start,
         tail_diameter_end=tail_diameter_end,
         shell_wall=shell_wall
       );
 
-      // Cut out flex_tab  window
+      // Cut out flex_tab window
       translate([0, 0, flex_tab_z_start])
         flex_tab_profile(height=flex_tab_height, d1=flex_tab_d1, d2=flex_tab_d2);
 
@@ -163,21 +164,23 @@ module cylindrical_flex_tab(
       cylinder(h=body_length * 3, d=connector_diameter, center=true, $fn=connector_facets);
     }
 
-    translate([0, 0, flex_tab_z_start])
+    translate([0, 0, flex_tab_z_start]) {
       intersection() {
-        // Bell shape for flex_tab  area
+
+        // Bell shape for flex_tab area
         difference() {
           cylinder(h=flex_tab_height, d2=body_diameter - flex_tab_offset * 2, d1=body_diameter + shell_wall * 2);
-          translate([0, 0, -shell_wall])
-            cylinder(h=body_length, d2=body_diameter - shell_wall * 2 - flex_tab_offset * 2, d1=body_diameter);
+          translate([0, 0, -zFite])
+            cylinder(h=body_length, d2=body_diameter - shell_wall * 2 - flex_tab_offset * 2 + allowance, d1=body_diameter + allowance);
         }
 
-        // Intersection (same as cut out flex_tab  window) to create flex_tab  tabs
+        // Intersection (same as cut out flex_tab window) to create flex_tab tabs
         flex_tab_profile(
           height=flex_tab_height - flex_tab_clearance * 2,
           d1=flex_tab_d1 - flex_tab_clearance,
           d2=flex_tab_d2 - flex_tab_clearance
         );
       }
+    }
   }
 }

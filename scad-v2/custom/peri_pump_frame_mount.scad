@@ -2,7 +2,7 @@
 // inserting into the pockets in the ribs
 // of the frame to allow mounting the pump
 
-zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
+zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 // diameter of the motor
@@ -72,13 +72,13 @@ module peri_pump_frame_mount(
           cylinder(d=outer_diameter, h=flange_height, center=true);
 
         // motor cut out
-        cylinder(d=motor_diameter, h=flange_height + 0.1, center=true); // cut out for motor
+        cylinder(d=motor_diameter, h=flange_height + zFite, center=true); // cut out for motor
 
         // face screw cut outs
         for (i = [0:1])
           mirror([i * 1, 0, 0]) // cut outs for face screws
             translate([flange_screw_distance / 2, 0, 0])
-              cylinder(d=screw_diameter, h=flange_height + 0.1, center=true);
+              cylinder(d=screw_diameter, h=flange_height + zFite, center=true);
       }
     }
   }

@@ -1,6 +1,6 @@
 use <../utils/arc_points.scad>;
 
-zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
+zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 /**

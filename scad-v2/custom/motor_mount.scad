@@ -1,7 +1,7 @@
 // Three-part motor mount for standard cylindrical electrical motors which have
 // a circular faceplate with 4 screws in a square pattern, and a central shaft.
 
-zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
+zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 // ----- render controls -----
