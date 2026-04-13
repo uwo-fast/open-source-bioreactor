@@ -1,6 +1,6 @@
 use <bayonette_port.scad>
 
-zFite = $preview ? 0.1 : 0;
+zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 32 : 128;
 
 // What style of lock to produce, with the pin pointed inward ou outward?
@@ -8,6 +8,7 @@ bayonet_lock_pin_direction = "outer"; // ["inner", "outer"]
 
 // What to render
 bayonet_lock_part_render = "pin"; // ["pin", "lock"]
+
 // Render the mechanism with 2 to 6 locks / pins
 bayonet_lock_number_of_pins = 3;
 
@@ -19,6 +20,7 @@ bayonet_lock_turn_direction = "CW"; // ["CW", "CCW"]
 
 // inner radius of the lock
 bayonet_lock_inner_radius = 7;
+
 // outer radius of the lock
 bayonet_lock_outer_radius = 12;
 

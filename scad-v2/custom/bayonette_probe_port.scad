@@ -1,7 +1,7 @@
 use <bayonette_port.scad>
 use <cylindrical_flex_tab.scad>
 
-zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
+zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 // ----- port params -----
@@ -51,10 +51,12 @@ bayonet_lock_oring_neck_cut_height = bayonet_lock_oring_height - bayonet_lock_or
 
 // ----- pinch params -----
 
+internal_allowance = 0.3; // internal gap between the flex tab and the body for a proper pinch, in addition to the wall thickness
+
 // hardware params
 
 probe_body_lenth = 35.6;
-probe_body_diameter = 15.9; // 15.9 on soft backed probe, 16.3 on hard backed probe, 16.5 for a looser fit
+probe_body_diameter = 16.3; // 15.9 on soft backed probe, 16.3 on hard backed probe
 
 tail_major_diameter = 8.7;
 tail_minor_diameter = 4.3;
@@ -70,10 +72,6 @@ flex_tab_gap = 1.0; // gap separating flex_tab from shell body
 
 connector_part_diameter = 10;
 flex_tab_offset = 0.5;
-
-// optional dev params
-
-render_optional_supports = true;
 
 // animate from -wall_thickness (fully open) to zero (fully pinched)
 // use $t to control the animation frame (0 to 1)
@@ -115,8 +113,9 @@ union() {
           oring_height=bayonet_lock_oring_height,
           oring_neck_cut_height=bayonet_lock_oring_neck_cut_height
         );
+
     // Cut the hexagonal hole for the connector
-    cylinder(h=1000, d=connector_part_diameter, center=true, $fn=6);
+    cylinder(h=1000, d=connector_part_diameter + internal_allowance, center=true, $fn=6);
   }
 
   difference() {
@@ -131,7 +130,7 @@ union() {
         }
     }
     // Cut the hexagonal hole for the connector
-    cylinder(h=1000, d=connector_part_diameter, center=true, $fn=6);
+    cylinder(h=1000, d=connector_part_diameter + internal_allowance, center=true, $fn=6);
   }
 
   rotate([0, tilt_degrees, 0]) {
@@ -155,13 +154,13 @@ union() {
             width_flex_tab_ratio=width_ratio,
             flex_tab_clearance=flex_tab_gap,
             connector_diameter=connector_part_diameter,
-            flex_tab_offset=flex_tab_offset_anim,
-            render_supports=render_optional_supports
+            allowance=internal_allowance,
+            flex_tab_offset=flex_tab_offset_anim
           );
       }
 
       // Cut the hexagonal hole for the connector
-      cylinder(h=1000, d=connector_part_diameter, center=true, $fn=6);
+      cylinder(h=1000, d=connector_part_diameter + internal_allowance, center=true, $fn=6);
     }
   }
 }
