@@ -51,7 +51,7 @@ bayonet_lock_oring_neck_cut_height = bayonet_lock_oring_height - bayonet_lock_or
 
 // ----- pinch params -----
 
-internal_allowance = 0.5; // remove extra material if your printer / material is off-tolerance
+internal_allowance = 0.6; // remove extra material if your printer / material is off-tolerance
 
 // hardware params
 
@@ -64,7 +64,7 @@ tail_length = 24.5;
 
 // design parameters
 
-wall_thickness = 1.5;
+wall_thickness = 1.2;
 
 height_ratio = 0.60; // the flex_tab  height is 60% of the body length, centered on the body
 width_ratio = 0.70; // the flex_tab  width is 70% of the body outer diameter, centered on the body
