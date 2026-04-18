@@ -1,4 +1,4 @@
-use <bayonette_port.scad>
+use <bayonet_port.scad>
 
 zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 32 : 128;
@@ -51,7 +51,7 @@ bayonet_lock_oring_neck_cut_height = bayonet_lock_oring_height - bayonet_lock_or
 bayonet_lock_thermocouple_mount_height = 20;
 
 // Render the lock
-bayonette_thermocouple_port(
+bayonet_thermocouple_port(
   part_to_render=bayonet_lock_part_render, pin_direction=bayonet_lock_pin_direction,
   number_of_pins=bayonet_lock_number_of_pins, path_sweep_angle=bayonet_lock_path_sweep_angle,
   turn_direction=bayonet_lock_turn_direction, inner_radius=bayonet_lock_inner_radius,
@@ -62,7 +62,7 @@ bayonette_thermocouple_port(
   thermocouple_mount_height=bayonet_lock_thermocouple_mount_height
 );
 
-module bayonette_thermocouple_port(
+module bayonet_thermocouple_port(
   part_to_render,
   pin_direction,
   number_of_pins,
@@ -81,7 +81,7 @@ module bayonette_thermocouple_port(
   thermocouple_mount_height
 ) {
 
-  bayonette_port(
+  bayonet_port(
     part_to_render=part_to_render,
     pin_direction=pin_direction,
     number_of_pins=number_of_pins,

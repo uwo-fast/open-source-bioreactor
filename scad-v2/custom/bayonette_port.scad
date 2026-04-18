@@ -49,7 +49,7 @@ bayonet_lock_oring_height_interference = 0.1;
 bayonet_lock_oring_neck_cut_height = bayonet_lock_oring_height - bayonet_lock_oring_height_interference;
 
 // Render the lock
-bayonette_port(
+bayonet_port(
   part_to_render=bayonet_lock_part_render,
   pin_direction=bayonet_lock_pin_direction,
   number_of_pins=bayonet_lock_number_of_pins,
@@ -69,7 +69,7 @@ bayonette_port(
   radius_string_override="DO"
 );
 
-module bayonette_port(
+module bayonet_port(
   part_to_render,
   pin_direction,
   number_of_pins,
