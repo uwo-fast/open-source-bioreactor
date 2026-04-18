@@ -1,3 +1,43 @@
+// This assumes the following hardware input structure:
+// 
+//
+//
+//                    ________
+//                   |        |
+//      end_diameter |<------>|
+//                   |_      _|
+//                     |    |
+//                     |    | 
+//                     |    |
+//                     |    |
+//                     |    |
+//                     |    |
+// tail_minor_diameter |<-->|                   _ _   
+//                    /      \                   | 
+//                   /        \                  |
+//                  /          \                 |
+//                 /            \    tail_length |
+//                /              \               |
+//               /                \              |
+//      ________/<---------------->\________    _|_
+//      |        tail_major_diameter        |    |
+//      |                                   |    |
+//      |                                   |    |
+//      |<--------------------------------->|    |
+//      |            body_diameter          |    | body_length
+//      |                                   |    |
+//      |                                   |    |
+//      |______                       ______|   _|_
+//            |                       |
+//            |                       |
+//            |                       |
+//           ...                     ...
+//            |                       |
+//            |                       |
+//            |                       |
+//            |_______________________|
+//    
+
 zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
