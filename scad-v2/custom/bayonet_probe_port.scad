@@ -69,9 +69,9 @@ connector_part_diameter = 10;
 
 wall_thickness = 1.2;
 
-flex_tab_gap = 1.0; // gap separating flex_tab from shell body
-
 internal_allowance = 0.6; // general allowance to compensate for printer/material tolerance
+
+flex_tab_gap = 1.0; // gap separating flex_tab from shell body
 
 flex_tab_offset = 0.5;
 
@@ -155,10 +155,10 @@ module bayonet_probe_port() {
               tail_diameter_start=tail_major_diameter,
               tail_diameter_end=tail_minor_diameter,
               tail_len=tail_length,
-              shell_wall=wall_thickness,
-              flex_tab_clearance=flex_tab_gap,
               end_diameter=connector_part_diameter,
+              shell_wall=wall_thickness,
               allowance=internal_allowance,
+              flex_tab_clearance=flex_tab_gap,
               flex_tab_offset=flex_tab_offset_anim
             );
         }
