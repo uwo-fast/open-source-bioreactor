@@ -51,9 +51,6 @@ bayonet_lock_oring_height_interference = 0.1;
 bayonet_lock_oring_neck_cut_height = bayonet_lock_oring_height - bayonet_lock_oring_height_interference;
 
 // ----- pinch params -----
-
-internal_allowance = 0.6; // remove extra material if your printer / material is off-tolerance
-
 // hardware params
 
 probe_body_lenth = 35.6;
@@ -66,19 +63,15 @@ tail_minor_diameter = 4.3;
 
 tail_length = 24.5;
 
+connector_part_diameter = 10;
+
 // design parameters
 
 wall_thickness = 1.2;
 
-height_ratio = 0.60; // the flex_tab  height is 60% of the body length, centered on the body
-
-width_ratio = 0.70; // the flex_tab  width is 70% of the body outer diameter, centered on the body
-
 flex_tab_gap = 1.0; // gap separating flex_tab from shell body
 
-flex_tab_keep_ratio = 0.5; // 0.0 - 1.0, the ratio of the flex tab height to keep, counted from the foot of the flex tab
-
-connector_part_diameter = 10;
+internal_allowance = 0.6; // general allowance to compensate for printer/material tolerance
 
 flex_tab_offset = 0.5;
 
@@ -89,6 +82,8 @@ extra_length = 5;
 
 // The tilt of the probe to avoid bubbles getting trapped on face of the sensor
 tilt_degrees = 7;
+
+bayonet_probe_port();
 
 // ----- build -----
 module bayonet_probe_port() {
@@ -161,12 +156,9 @@ module bayonet_probe_port() {
               tail_diameter_end=tail_minor_diameter,
               tail_len=tail_length,
               shell_wall=wall_thickness,
-              height_flex_tab_ratio=height_ratio,
-              width_flex_tab_ratio=width_ratio,
               flex_tab_clearance=flex_tab_gap,
-              connector_diameter=connector_part_diameter,
+              end_diameter=connector_part_diameter,
               allowance=internal_allowance,
-              flex_tab_keep_ratio=flex_tab_keep_ratio,
               flex_tab_offset=flex_tab_offset_anim
             );
         }
