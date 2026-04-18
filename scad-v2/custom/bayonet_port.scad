@@ -1,4 +1,4 @@
-use <Bayonet-Lock-SCAD/bayonet_lock.scad>
+use <bayonet-lock-scad/bayonet_lock.scad>
 
 zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
