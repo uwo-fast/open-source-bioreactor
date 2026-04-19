@@ -12,7 +12,6 @@ zFite = $preview ? 0.01 : 0;
 $fn = $preview ? 32 : 128;
 
 // ----- Bayonet parameters -----
-_bt_part = "pin"; // Part type: "pin" or "lock"
 _bt_inner_radius = 7; // Inner radius of the bayonet
 _bt_shell_thickness = 2.5; // Thickness of the bayonet shell
 _bt_part_height = 10; // Height of the bayonet part
@@ -25,7 +24,17 @@ _bt_oring_interference = 0.1; // Compression of the o-ring
 // ----- Thermocouple-specific parameters -----
 _bt_mount_height = 20; // Height of NPT thread mount
 
-bayonet_thermocouple_port();
+bayonet_thermocouple_port(
+  inner_radius=_bt_inner_radius,
+  shell_thickness=_bt_shell_thickness,
+  part_height=_bt_part_height,
+  neck_height=_bt_neck_height,
+  pin_radius=_bt_pin_radius,
+  center_bore_radius=_bt_center_bore_radius,
+  mount_height=_bt_mount_height,
+  oring_height=_bt_oring_height,
+  oring_interference=_bt_oring_interference
+);
 
 /**
  * Thermocouple port with bayonet connector and NPT thread mount
@@ -36,16 +45,16 @@ bayonet_thermocouple_port();
  * @param oring_interference   O-ring compression (mm)
  */
 module bayonet_thermocouple_port(
-  part = _bt_part,
-  inner_radius = _bt_inner_radius,
-  shell_thickness = _bt_shell_thickness,
-  part_height = _bt_part_height,
-  neck_height = _bt_neck_height,
-  pin_radius = _bt_pin_radius,
-  center_bore_radius = _bt_center_bore_radius,
-  mount_height = _bt_mount_height,
-  oring_height = _bt_oring_height,
-  oring_interference = _bt_oring_interference
+  part = "pin",
+  inner_radius,
+  shell_thickness,
+  part_height,
+  neck_height,
+  pin_radius,
+  center_bore_radius,
+  mount_height,
+  oring_height,
+  oring_interference
 ) {
   // Bayonet connector
   bayonet_port(

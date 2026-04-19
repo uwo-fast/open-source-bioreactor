@@ -55,7 +55,7 @@ part_end_fn = 6; // number of facets for the end cut, e.g. 6 for hexagonal cut f
 
 // ----- build -----
 
-cylindrical_flex_tab(
+cylindrical_flex_collet(
   body_length=part_body_length,
   body_diameter=part_body_diameter,
   tail_diameter_start=part_tail_major_diameter,
@@ -64,7 +64,7 @@ cylindrical_flex_tab(
   end_diameter=part_end_diameter
 );
 
-module cylindrical_flex_tab(
+module cylindrical_flex_collet(
   body_length,
   body_diameter,
   tail_diameter_start,

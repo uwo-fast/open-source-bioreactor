@@ -14,27 +14,27 @@ use <bayonet-lock-scad/bayonet_lock.scad>
 zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
-_ex_part = "pin"; // Part type: "pin" or "lock"
-_ex_inner_radius = 7; // Inner radius of the bayonet
-_ex_shell_thickness = 2.5; // Thickness of the bayonet shell
-_ex_part_height = 10; // Height of the bayonet part
-_ex_neck_height = 5; // Height of the neck (0 for no neck)
-_ex_pin_radius = 1.5; // Radius of the locking pins
-_ex_center_bore_radius = 3; // Radius of the center bore (0 for no bore)
-_ex_oring_height = 1.6; // Height of the o-ring (0 to disable)
-_ex_oring_interference = 0.1; // Compression of the o-ring (0 to disable)
+_bl_part = "pin"; // Part type: "pin" or "lock"
+_bl_inner_radius = 7; // Inner radius of the bayonet
+_bl_shell_thickness = 2.5; // Thickness of the bayonet shell
+_bl_part_height = 10; // Height of the bayonet part
+_bl_neck_height = 5; // Height of the neck (0 for no neck)
+_bl_pin_radius = 1.5; // Radius of the locking pins
+_bl_center_bore_radius = 3; // Radius of the center bore (0 for no bore)
+_bl_oring_height = 1.6; // Height of the o-ring (0 to disable)
+_bl_oring_interference = 0.1; // Compression of the o-ring (0 to disable)
 
 // Example usage 
 bayonet_port(
-  part=_ex_part,
-  inner_radius=_ex_inner_radius,
-  shell_thickness=_ex_shell_thickness,
-  part_height=_ex_part_height,
-  neck_height=_ex_neck_height,
-  pin_radius=_ex_pin_radius,
-  center_bore_radius=_ex_center_bore_radius,
-  oring_height=_ex_oring_height,
-  oring_interference=_ex_oring_interference,
+  part=_bl_part,
+  inner_radius=_bl_inner_radius,
+  shell_thickness=_bl_shell_thickness,
+  part_height=_bl_part_height,
+  neck_height=_bl_neck_height,
+  pin_radius=_bl_pin_radius,
+  center_bore_radius=_bl_center_bore_radius,
+  oring_height=_bl_oring_height,
+  oring_interference=_bl_oring_interference,
   text_labels=true
 );
 
