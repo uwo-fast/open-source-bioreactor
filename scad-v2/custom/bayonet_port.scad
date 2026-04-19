@@ -99,45 +99,73 @@ module bayonet_port(
 
   assert(!(!imprint_text && (!is_undef(radius_string_override) || !is_undef(diameter_string_override))), "If imprint_text is false, radius_string_override and diameter_string_override should not be set");
 
+  // Calculate library parameters
+  shell_thickness = (outer_radius - inner_radius) / 2;
+  entry_depth = part_height * 0.5;
+
   difference() {
     union() {
-      add_neck(neck_h, inner_radius, outer_radius)
-        outer_bayonet(
-          part_to_render, pin_direction, number_of_pins, path_sweep_angle, turn_direction,
-          inner_radius, outer_radius, pin_radius, allowance, part_height, 0
+      // Use correct library functions
+      if (neck_h > 0) {
+        bayonet_neck(neck_h, inner_radius, outer_radius)
+          bayonet(
+            half=part_to_render,
+            inner_radius=inner_radius,
+            shell_thickness=shell_thickness,
+            allowance=allowance,
+            part_height=part_height,
+            entry_depth=entry_depth,
+            number_of_pins=number_of_pins,
+            pin_radius=pin_radius,
+            sweep_angle=path_sweep_angle,
+            pin_direction=pin_direction,
+            turn_direction=turn_direction
+          );
+      } else {
+        bayonet(
+          half=part_to_render,
+          inner_radius=inner_radius,
+          shell_thickness=shell_thickness,
+          allowance=allowance,
+          part_height=part_height,
+          entry_depth=entry_depth,
+          number_of_pins=number_of_pins,
+          pin_radius=pin_radius,
+          sweep_angle=path_sweep_angle,
+          pin_direction=pin_direction,
+          turn_direction=turn_direction
         );
+      }
 
-      difference() {
-        cylinder(h=inner_h_fill, r=inner_radius + allowance);
-        translate([0, 0, -zFite / 2]) cylinder(h=inner_h_fill + zFite, r=inner_r_fill);
+      // Inner fill cylinder (creates sealing surface)
+      if (inner_r_fill > 0) {
+        tube(h=inner_h_fill, r_outer=inner_radius + allowance, r_inner=inner_r_fill);
       }
     }
 
     mid_radius_1 = (inner_radius + outer_radius) / 2 - allowance;
 
     // cut out the oring from +Z face of neck
-    color("red") translate([0, 0, neck_height - neck_cut_h]) difference() {
-          cylinder(h=neck_cut_h * 1.1, r=outer_radius * 1.1);
-
-          cylinder(h=neck_cut_h * 1.1, r=mid_radius_1);
-        }
+    if (neck_h > 0) {
+      color("red") translate([0, 0, neck_height - neck_cut_h]) 
+        tube(h=neck_cut_h * 1.1, r_outer=outer_radius * 1.1, r_inner=mid_radius_1);
+    }
 
     // outer allowance on neck
-    color("red") translate([0, 0, -zFite / 2]) difference() {
-          cylinder(h=neck_height, r=outer_radius * 1.1);
-
-          cylinder(h=neck_height * 1.1, r=outer_radius - neck_r_allow);
-        }
+    if (neck_h > 0 && neck_r_allow > 0) {
+      color("red") translate([0, 0, -zFite / 2]) 
+        tube(h=neck_height, r_outer=outer_radius * 1.1, r_inner=outer_radius - neck_r_allow);
+    }
 
     // cut holes to stick pliers to insert / rotate / remove the lock
-    if (catch_pockets) {
-      color("red")for (i = [0:1])
+    if (catch_pockets && neck_h > 0) {
+      color("red") for (i = [0:1])
         rotate([0, 0, i * 180]) translate([inner_radius, 0, -zFite / 2])
-            cylinder(h=neck_height / 2, d=outer_radius - inner_radius);
+          cylinder(h=neck_height / 2, d=outer_radius - inner_radius);
     }
 
     // Write the inner radius and diameter on the top for reference
-    if (imprint_text) {
+    if (imprint_text && neck_h > 0) {
       radString = is_undef(radius_string_override) ? str("R", inner_radius_fill) : radius_string_override;
       diaString = is_undef(diameter_string_override) ? str("D", inner_radius_fill * 2) : diameter_string_override;
 
