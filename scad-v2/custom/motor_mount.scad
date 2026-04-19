@@ -38,10 +38,6 @@ flange_height = 8;
 
 middle_height = 125;
 
-// divisible by 4 (screws are placed every 90°) while providing rough poly 
-// such that the parts cannot concentrically rotate relatively to each other
-facets = 20; // number of facets for all cylindrical bodies
-
 part_to_render = "all"; // ["all", "base_plate", "face_plate", "middle_stand"]
 
 motor_mount(
@@ -55,8 +51,7 @@ motor_mount(
   motor_boss_diameter=motor_boss_diameter,
   flange_height=flange_height,
   raised_face_height=raised_face_height,
-  middle_height=middle_height,
-  facets=facets
+  middle_height=middle_height
 );
 
 module motor_mount(
@@ -71,7 +66,7 @@ module motor_mount(
   flange_height,
   raised_face_height,
   middle_height,
-  facets,
+  facets = 20,
   render = part_to_render
 ) {
 
@@ -96,6 +91,12 @@ module motor_mount(
   top_vertical_hole_depth = flange_height + raised_face_height;
 
   bottom_vertical_hole_depth = flange_height;
+
+  // ----- assertions -----
+
+  // facets must be divisible by 4 (screws are placed every 90°) while providing rough 
+  // poly such that the parts cannot concentrically rotate relatively to each other
+  assert(facets % 4 == 0, "facets must be divisible by 4 for screw holes to be properly placed");
 
   // ----- build -----
 
