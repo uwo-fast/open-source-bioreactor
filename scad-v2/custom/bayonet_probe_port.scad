@@ -65,8 +65,10 @@ module bayonet_probe_port(
   oring_height,
   oring_interference
 ) {
+
   // Calculate bayonet diameter for transitions
-  bayonet_diameter = 2 * (inner_radius + bayonet_shell_thickness) - 0.2;
+  _bayonet_diameter = 2 * (inner_radius + bayonet_shell_thickness) - 0.2;
+  _transition_length = transition_length + probe_body_diameter / sqrt(3);
 
   union() {
 
@@ -95,15 +97,13 @@ module bayonet_probe_port(
       rotate([-90, 0, 0]) {
         rotate_extrude(angle=tilt_degrees, convexity=10)
           difference() {
-            circle(d=bayonet_diameter);
-            translate([-bayonet_diameter / 2, 0, 0])
-              square([bayonet_diameter, bayonet_diameter * 2], center=true);
+            circle(d=_bayonet_diameter);
+            translate([-_bayonet_diameter / 2, 0, 0])
+              square([_bayonet_diameter, _bayonet_diameter * 2], center=true);
           }
       }
       cylinder(h=1000, d=connector_part_diameter + collet_internal_allowance, center=true, $fn=6);
     }
-
-    _transition_length = transition_length + probe_body_diameter / sqrt(3);
 
     // Probe holder with tilt
     rotate([0, tilt_degrees, 0]) {
@@ -114,7 +114,7 @@ module bayonet_probe_port(
             cylinder(
               h=_transition_length,
               d1=probe_body_diameter + collet_wall_thickness * 2,
-              d2=bayonet_diameter
+              d2=_bayonet_diameter
             );
 
           difference() {
