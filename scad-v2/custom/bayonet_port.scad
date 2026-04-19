@@ -22,7 +22,7 @@ _ex_neck_height = 5; // Height of the neck (0 for no neck)
 _ex_pin_radius = 1.5; // Radius of the locking pins
 _ex_center_bore_radius = 3; // Radius of the center bore (0 for no bore)
 _ex_oring_height = 1.6; // Height of the o-ring (0 to disable)
-_ex_oring_interference = 0.1; // Compression of the o-ring (0
+_ex_oring_interference = 0.1; // Compression of the o-ring (0 to disable)
 
 // Example usage 
 bayonet_port(
