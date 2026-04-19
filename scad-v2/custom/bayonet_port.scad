@@ -147,21 +147,22 @@ module bayonet_port(
 
     // cut out the oring from +Z face of neck
     if (neck_h > 0) {
-      color("red") translate([0, 0, neck_height - neck_cut_h]) 
+      translate([0, 0, neck_height - neck_cut_h])
         tube(h=neck_cut_h * 1.1, r_outer=outer_radius * 1.1, r_inner=mid_radius_1);
     }
 
     // outer allowance on neck
     if (neck_h > 0 && neck_r_allow > 0) {
-      color("red") translate([0, 0, -zFite / 2]) 
+      translate([0, 0, -zFite / 2])
         tube(h=neck_height, r_outer=outer_radius * 1.1, r_inner=outer_radius - neck_r_allow);
     }
 
     // cut holes to stick pliers to insert / rotate / remove the lock
     if (catch_pockets && neck_h > 0) {
-      color("red") for (i = [0:1])
-        rotate([0, 0, i * 180]) translate([inner_radius, 0, -zFite / 2])
-          cylinder(h=neck_height / 2, d=outer_radius - inner_radius);
+      for (i = [0:1])
+        rotate([0, 0, i * 180])
+          translate([inner_radius, 0, -zFite / 2])
+            cylinder(h=neck_height / 2, d=outer_radius - inner_radius);
     }
 
     // Write the inner radius and diameter on the top for reference
@@ -169,20 +170,22 @@ module bayonet_port(
       radString = is_undef(radius_string_override) ? str("R", inner_radius_fill) : radius_string_override;
       diaString = is_undef(diameter_string_override) ? str("D", inner_radius_fill * 2) : diameter_string_override;
 
-      translate([0, inner_radius, neck_height / 2 - zFite / 2]) color("green") {
-          rotate([0, 180, 0]) linear_extrude(neck_height / 2)
-              text(
-                radString, size=outer_radius - inner_radius, halign="center", valign="center", font="sans",
-                $fn=32
-              );
-        }
-      translate([0, -inner_radius, neck_height / 2 - zFite / 2]) color("green") {
-          rotate([0, 180, 0]) linear_extrude(neck_height / 2)
-              text(
-                diaString, size=outer_radius - inner_radius, halign="center", valign="center", font="sans",
-                $fn=32
-              );
-        }
+      translate([0, inner_radius, neck_height / 2 - zFite / 2]) {
+        rotate([0, 180, 0])
+          linear_extrude(neck_height / 2)
+            text(
+              radString, size=outer_radius - inner_radius, halign="center", valign="center", font="sans",
+              $fn=32
+            );
+      }
+      translate([0, -inner_radius, neck_height / 2 - zFite / 2]) {
+        rotate([0, 180, 0])
+          linear_extrude(neck_height / 2)
+            text(
+              diaString, size=outer_radius - inner_radius, halign="center", valign="center", font="sans",
+              $fn=32
+            );
+      }
     }
   }
 }
