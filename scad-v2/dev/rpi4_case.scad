@@ -33,10 +33,10 @@ fan_pin_distance = 31.5;
 
 // --- Preview Selector ---
 
-show_top = true;
-show_bottom = true;
+show_top = false;
+show_bottom = false;
 show_full = false;
-show_rpi_model = false;
+show_rpi_model = true;
 
 // ---------------------------------------------------------------
 // --- Assembly Views ---
@@ -117,6 +117,7 @@ module rpi4() {
         cube([pil, pid, board_thickness]);
 
       // --- Component geometry ---
+
       translate([-(2.81 + extension), 2.15, 0])
         cube([21.3 + extension, 16.3, 13.6]);
       // Ethernet port

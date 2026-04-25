@@ -24,21 +24,21 @@ _bp_oring_interference = 0.1; // Compression of the o-ring
 
 // ----- Probe-specific (hardware) parameters -----
 
-probe_body_length = 35.6;
-probe_body_diameter = 15.9; // 15.9 on soft backed probe, 16.3 on hard backed probe
-tail_major_diameter = 8.7;
-tail_minor_diameter = 4.3;
-tail_length = 24.5;
-connector_part_diameter = 10;
+_bp_probe_body_length = 35.6;
+_bp_probe_body_diameter = 15.9; // 15.9 on soft backed probe, 16.3 on hard backed probe
+_bp_tail_major_diameter = 8.7;
+_bp_tail_minor_diameter = 4.3;
+_bp_tail_length = 24.5;
+_bp_connector_part_diameter = 10;
 
 // ----- Design parameters -----
 
-collet_wall_thickness = 1.2;
-collet_internal_allowance = 0.6;
-collet_tab_gap = 1.0;
-collet_tab_internal_deflection = 0.5;
-tilt_degrees = 7; // Tilt to avoid bubbles on sensor face
-transition_length = 25;
+_bp_collet_wall_thickness = 1.2;
+_bp_collet_internal_allowance = 0.6;
+_bp_collet_tab_gap = 1.0;
+_bp_collet_tab_internal_deflection = 0.5;
+_bp_tilt_degrees = 7; // Tilt to avoid bubbles on sensor face
+_bp_transition_length = 25;
 
 bayonet_probe_port(
   part="pin",
@@ -49,12 +49,23 @@ bayonet_probe_port(
   pin_radius=_bp_pin_radius,
   center_bore_radius=_bp_center_bore_radius,
   oring_height=_bp_oring_height,
-  oring_interference=_bp_oring_interference
+  oring_interference=_bp_oring_interference,
+  probe_body_length=_bp_probe_body_length,
+  probe_body_diameter=_bp_probe_body_diameter,
+  tail_major_diameter=_bp_tail_major_diameter,
+  tail_minor_diameter=_bp_tail_minor_diameter,
+  tail_length=_bp_tail_length,
+  connector_part_diameter=_bp_connector_part_diameter,
+  collet_wall_thickness=_bp_collet_wall_thickness,
+  collet_internal_allowance=_bp_collet_internal_allowance,
+  collet_tab_gap=_bp_collet_tab_gap,
+  collet_tab_internal_deflection=_bp_collet_tab_internal_deflection,
+  tilt_degrees=_bp_tilt_degrees,
+  transition_length=_bp_transition_length
 );
 
 // ----- build -----
 module bayonet_probe_port(
-  // Bayonet parameters
   part,
   inner_radius,
   bayonet_shell_thickness,
@@ -63,7 +74,19 @@ module bayonet_probe_port(
   pin_radius,
   center_bore_radius,
   oring_height,
-  oring_interference
+  oring_interference,
+  probe_body_length,
+  probe_body_diameter,
+  tail_major_diameter,
+  tail_minor_diameter,
+  tail_length,
+  connector_part_diameter,
+  collet_wall_thickness,
+  collet_internal_allowance,
+  collet_tab_gap,
+  collet_tab_internal_deflection,
+  tilt_degrees,
+  transition_length
 ) {
 
   // Calculate bayonet diameter for transitions
