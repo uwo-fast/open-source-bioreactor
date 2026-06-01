@@ -661,6 +661,7 @@ if (render_probes || render_all) {
       show_threads=show_threads, position_base=thermocouple_probe_orient_base
     );
 }
+
 // lights
 if (render_lights || render_all) {
   lights(light_allow=light_allow);
