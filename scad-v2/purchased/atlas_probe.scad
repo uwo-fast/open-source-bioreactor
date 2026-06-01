@@ -6,22 +6,37 @@ use <../utils/trapezium.scad>;
 zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
-atlas_probe();
+//atlas_probe(  neck_d = 8,  neck_h = 20,  neck_taper_d = 6,  body_d = 16,  body_h = 40,  tip_d = 12,  tip_h = 15,  wire_d = 4,  wire_h = 25,  accent_color = undef,   position_base = false);
 
 // Creates a probe with customizable dimensions and colors
 // TODO: remove all the default arguments,
 // except what isnt captured in registered params
+
+/** 
+* @brief Creates an Atlas Scientific probe with customizable dimensions and colors
+* @param neck_d Diameter of the neck
+* @param neck_h Height of the neck
+* @param neck_taper_d Diameter of the neck at the taper start
+* @param body_d Diameter of the body
+* @param body_h Height of the body
+* @param tip_d Diameter of the tip
+* @param tip_h Height of the tip
+* @param wire_d Diameter of the wire
+* @param wire_h Height of the wire (arbitrary selection since its a straight model for visualization or difference cuts)
+* @param accent_color Color used for the neck
+* @param position_base If true, positions the probe from the base tip
+*/
 module atlas_probe(
-  neck_d = 8,
-  neck_h = 20,
-  neck_taper_d = 6,
-  body_d = 16,
-  body_h = 40,
-  tip_d = 12,
-  tip_h = 15,
-  wire_d = 4,
-  wire_h = 25,
-  accent_color = undef, 
+  neck_d,
+  neck_h,
+  neck_taper_d,
+  body_d,
+  body_h,
+  tip_d,
+  tip_h,
+  wire_d,
+  wire_h = 10,
+  accent_color = undef,
   position_base = false
 ) {
   // None of the atlas probes are pink, so we set this so its obvious
@@ -63,6 +78,9 @@ module atlas_probe(
     }
 }
 
+
+// TODO: this can be a function which is driven by new parameter registry
+// values and figure out default positioning or rotated inline as needed
 module position_body(neck, body, position_base = false) {
   if (position_base)
     translate([0, 0, neck + body]) rotate([0, 180, 0]) children();
