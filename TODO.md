@@ -23,6 +23,10 @@
   - bayonette connector lib --> generic port --> specific port (e.g. probe holder, motor mount, etc.)
   - the "tube interface" should be literally just a generic port with the optional center bore appropriately set and wrapping the radius / diameter print out on the part
 
+## model accuracy / enhancement
+
+- optional end styles (sensor gland) for atlas probes to match product more closely
+
 ## nice to haves
 
 - [ ] Add curve / inflection point to holes in bayonette connectors to grip tubes better

@@ -1,12 +1,16 @@
 // A model of the Atlas Scientific probes, which have a distinctive and consistent shape
 // across their ezo product line which varies in size but largely not in shape. 
 
-use <lib/trapezium.scad>;
+use <../utils/trapezium.scad>;
 
 zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
+atlas_probe();
+
 // Creates a probe with customizable dimensions and colors
+// TODO: remove all the default arguments,
+// except what isnt captured in registered params
 module atlas_probe(
   neck_d = 8,
   neck_h = 20,
@@ -17,9 +21,15 @@ module atlas_probe(
   tip_h = 15,
   wire_d = 4,
   wire_h = 25,
-  colors = ["Black", "Red", "Black", "Yellow"],
+  accent_color = undef, 
   position_base = false
 ) {
+  // None of the atlas probes are pink, so we set this so its obvious
+  // that the color is unset and will apply for custom probes by default
+  accent_color_eff = is_undef(accent_color) ? "Pink" : accent_color;
+
+  colors = ["Black", accent_color_eff, "Black", "Yellow"];
+
   position_body(neck_h, body_h, position_base) union() {
       // Wire
       translate([0, 0, -wire_h]) color(colors[0]) cylinder(h=wire_h, d=wire_d, $fn=64);

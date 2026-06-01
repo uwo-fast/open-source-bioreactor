@@ -17,10 +17,11 @@ ph_probe_tip_diameter = 12;
 ph_probe_tip_height = 115;
 // Diameter of the wire
 ph_probe_wire_diameter = 3;
+// Colors of the probe
+ph_probe_color = "Red";
+
 // Height of the wire
 ph_probe_wire_height = 10;
-// Colors of the probe
-ph_probe_colors = ["Black", "Red", "Black", "Yellow"];
 
 
 
@@ -42,8 +43,8 @@ do_probe_tip_diameter = 12;
 do_probe_tip_height = 115;
 // Diameter of the wire
 do_probe_wire_diameter = 3;
+// Colors of the probe
+do_probe_color = "Goldenrod";
+
 // Height of the wire
 do_probe_wire_height = 10;
-// Colors of the probe
-do_probe_colors = ["Black", "Goldenrod", "Black", "Yellow"];
-
