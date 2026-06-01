@@ -311,11 +311,11 @@ do_probe_clamp_rod_taper_diff = do_probe_clamp_rod_diameter * 0.1;
 do_probe_clamp_rod_diameter_taper = do_probe_clamp_rod_diameter - do_probe_clamp_rod_taper_diff;
 // Width of the rod mount
 do_probe_clamp_rod_mount_width = do_probe_clamp_rod_diameter * 2.5;
+// Whether to orient the probe to the base
+do_probe_orient_base = true;
 
 /* [Temperature Probe Parameters] */
 
-// Whether to orient the probe to the base
-do_probe_orient_base = true;
 // Diameter of the neck
 thermocouple_probe_neck_diameter = 10;
 // Height of the neck
