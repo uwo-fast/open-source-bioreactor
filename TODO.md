@@ -1,5 +1,10 @@
 # TODO
 
+## top level
+
+- [ ] review open todos and close whats been done or superseeded
+- [ ] replace as many of the "generic" parameter registrations as possible with specific ones for the actual hardware (i.e. mcmaster carr part numbers or best effort for other parts)
+
 ## critical path
 
 - [ ] Archive to shelf/ any depreciated parts

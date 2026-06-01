@@ -34,14 +34,17 @@ render_peri_side_mount = false;
 
 /* [Light Parameters] */
 
-// length of the light
-light_length = 336;
-// width of the light
-light_width = 14.1;
-// depth of the light
-light_depth = 7.6;
-// radius of the light window
-light_window_radius = 0.5;
+
+// MOVED TO strip_lights.scad
+// // length of the light
+// light_length = 336;
+// // width of the light
+// light_width = 14.1;
+// // depth of the light
+// light_depth = 7.6;
+// // radius of the light window
+// light_window_radius = 0.5;
+
 // allowance for the light to fit in the base
 light_allow = 0.2;
 // number of lights
