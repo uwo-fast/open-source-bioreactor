@@ -31,6 +31,11 @@ module strip_light(width, depth, length, radius = undef) {
   }
 }
 
+// --------------------------
+// TODO: move to separate helper file for circular patterning since
+// its also required for the port placement on the head module
+// --------------------------
+
 /**
  * @brief Creates a circular pattern of children around the z-axis
  * @param a Angle between each child
