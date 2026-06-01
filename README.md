@@ -15,6 +15,8 @@ Composable, modular, and extensible bioreactor design.
 - [github.com/thehans/FunctionalOpenSCAD](https://github.com/thehans/FunctionalOpenSCAD)
 - [github.com/nophead/NopSCADlib](https://github.com/nophead/NopSCADlib)
 
+---
+
 <div align="center">
   <p>
     <img src="https://img.shields.io/badge/Developed_by-uwo--fast-purple" alt="Developed by uwo-FAST">
