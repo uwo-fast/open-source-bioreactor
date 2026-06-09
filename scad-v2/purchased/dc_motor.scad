@@ -45,6 +45,18 @@ module gearbox(
   faceplate_screws_cdist,
   screw_diameter = 5
 ) {
+
+  /**
+ * @brief Create a basic screw head shape
+ * @param diameter The diameter of the screw head
+ */
+  module screwhead(diameter) {
+    union() {
+      cylinder(d=diameter, h=diameter / 2);
+      translate([0, 0, diameter / 2]) scale([1, 1, 0.5]) sphere(d=diameter);
+    }
+  }
+
   cut_dim = screw_diameter * 1.1;
 
   union() {
@@ -79,16 +91,5 @@ module gearbox(
       rotate([0, 0, i * 90 + 45]) translate([diameter / 2 - cut_dim / 2, 0, length - cut_dim + zFite])
           color([0.4, 0.4, 0.4]) screwhead(screw_diameter);
     }
-  }
-}
-
-/**
- * @brief Create a basic screw head shape
- * @param diameter The diameter of the screw head
- */
-module screwhead(diameter) {
-  union() {
-    cylinder(d=diameter, h=diameter / 2);
-    translate([0, 0, diameter / 2]) scale([1, 1, 0.5]) sphere(d=diameter);
   }
 }
