@@ -3,7 +3,7 @@
 
 use <../utils/trapezium.scad>;
 
-zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
+z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 function atlas_probe_neck_dia(type) = type[1][0];       // diameter of the neck base
@@ -69,10 +69,10 @@ module atlas_probe(
     translate([0, 0, neck_h + body_h]) color(colors[3], alpha=0.5) difference() {
           cylinder(h=tip_h, d=tip_d, $fn=64);
 
-          translate([0, 0, tip_h - depth]) cylinder(h=depth + zFite, d=tip_d - thick * 2, $fn=64);
+          translate([0, 0, tip_h - depth]) cylinder(h=depth + z_fight, d=tip_d - thick * 2, $fn=64);
 
           for (i = [0:1])
-            rotate([0, 0, 90 * i]) translate([0, tip_d, tip_h - depth + curve_comp + zFite])
+            rotate([0, 0, 90 * i]) translate([0, tip_d, tip_h - depth + curve_comp + z_fight])
                 rotate([90, 0, 0]) linear_extrude(tip_d * 2) union() {
 
                       trapezium(bottom_width=cut_size, top_width=cut_size - thick / 2, height=depth - curve_comp);

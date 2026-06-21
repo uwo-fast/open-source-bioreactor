@@ -6,7 +6,7 @@
  *
  */
 
-zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
+z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 function dc_motor_diameter(type) = type[1][0]; // diameter of the motor
@@ -16,6 +16,11 @@ function gearbox_length(type) = type[2][1]; // length of the gearbox
 function gearbox_shaft_diameter(type) = type[2][2]; // diameter of the
 function gearbox_shaft_length(type) = type[2][3]; // length of the gearbox shaft
 
+light_grey = [0.6, 0.6, 0.6];
+medium_grey = [0.5, 0.5, 0.5];
+grey = [0.4, 0.4, 0.4];
+dark_grey = [0.3, 0.3, 0.3];
+
 /**
  * @brief Create a basic DC motor model
  * @param diameter The diameter of the motor
@@ -23,13 +28,13 @@ function gearbox_shaft_length(type) = type[2][3]; // length of the gearbox shaft
  * @param shaft_diameter The diameter of the motor shaft, optional
  * @param shaft_length The length of the motor shaft, optional
  */
-module dcmotor(diameter, length, shaft_diameter = undef, shaft_length = undef) {
+module dc_motor(diameter, length, shaft_diameter = undef, shaft_length = undef) {
   union() {
-    color([0.6, 0.6, 0.6])
+    color(light_grey)
       cylinder(d=diameter, h=length);
 
     if (!is_undef(shaft_diameter) && !is_undef(shaft_length))
-      color([0.5, 0.5, 0.5])
+      color(medium_grey)
         translate([0, 0, length])
           cylinder(d=shaft_diameter, h=shaft_length);
   }
@@ -59,38 +64,43 @@ module gearbox(
 
   cut_dim = screw_diameter * 1.1;
 
-  union() {
-    difference() {
-      // gearbox body
-      union() {
-        color([0.3, 0.3, 0.3]) cylinder(d=diameter, h=length);
-        color([0.5, 0.5, 0.5]) translate([0, 0, length])
-            cylinder(d=output_shaft_diameter, h=output_shaft_length);
-      }
-
-      // remove pocket for input shaft
-      if (!is_undef(input_shaft_diameter) && !is_undef(input_shaft_length))
-        translate([0, 0, -zFite]) color([0.3, 0.4, 0.4])
-            cylinder(d=input_shaft_diameter, h=input_shaft_length);
-
-      // remove spot where gearbox screws sit
-      for (i = [0:3]) {
-        rotate([0, 0, i * 90 + 45]) translate([diameter / 2 - cut_dim / 2, 0, length - cut_dim / 2 + zFite])
-            color([0.3, 0.4, 0.4]) cube([cut_dim, cut_dim, cut_dim], center=true);
-      }
-
-      // remove spot where faceplate screw holes
-      for (i = [0:3]) {
-        rotate([0, 0, i * 90])
-          translate([faceplate_screws_cdist / 2, 0, length - screw_diameter / 2 + zFite])
-            color([0.3, 0.4, 0.4]) cylinder(d=screw_diameter, h=screw_diameter * 2, center=true);
-      }
+  difference() {
+    // gearbox body
+    union() {
+      color(dark_grey)
+        cylinder(d=diameter, h=length);
+      color(medium_grey)
+        translate([0, 0, length])
+          cylinder(d=output_shaft_diameter, h=output_shaft_length);
     }
-    // add the screws
+
+    // remove pocket for input shaft
+    if (!is_undef(input_shaft_diameter) && !is_undef(input_shaft_length))
+      translate([0, 0, -z_fight])
+        cylinder(d=input_shaft_diameter, h=input_shaft_length);
+
+    // remove spot where gearbox screws sit
     for (i = [0:3]) {
-      rotate([0, 0, i * 90 + 45]) translate([diameter / 2 - cut_dim / 2, 0, length - cut_dim + zFite])
-          color([0.4, 0.4, 0.4]) screwhead(screw_diameter);
+      color(grey)
+        rotate([0, 0, i * 90 + 45])
+          translate([diameter / 2 - cut_dim / 2, 0, length - cut_dim / 2 + z_fight])
+            cube([cut_dim, cut_dim, cut_dim], center=true);
     }
+
+    // remove spot where faceplate screw holes
+    for (i = [0:3]) {
+      color(grey)
+        rotate([0, 0, i * 90])
+          translate([faceplate_screws_cdist / 2, 0, length - screw_diameter / 2 + z_fight])
+            cylinder(d=screw_diameter, h=screw_diameter * 2, center=true);
+    }
+  }
+  // add the screws
+  for (i = [0:3]) {
+    rotate([0, 0, i * 90 + 45])
+      translate([diameter / 2 - cut_dim / 2, 0, length - cut_dim + z_fight])
+        color(grey)
+          screwhead(screw_diameter);
   }
 }
 
@@ -101,7 +111,9 @@ module gearbox(
 module screwhead(diameter) {
   union() {
     cylinder(d=diameter, h=diameter / 2);
-    translate([0, 0, diameter / 2]) scale([1, 1, 0.5]) sphere(d=diameter);
+    translate([0, 0, diameter / 2])
+      scale([1, 1, 0.5])
+        sphere(d=diameter);
   }
 }
 

@@ -7,7 +7,7 @@ roller_carrier_base_th = 4;
 
 roller_inner_diameter = 10;
 roller_outer_diameter = 20;
-roller_length = 15;
+roller_length = 25;
 
 // the roller radius offset is the distance 
 roller_radius_offset = 0;
@@ -34,6 +34,8 @@ module roller() {
     cylinder(d=roller_inner_diameter, h=roller_length * 2); //x2 for thru cut
   }
 }
+
+roller_carrier();
 
 module pump_cassette(){}
 
