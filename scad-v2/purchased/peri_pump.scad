@@ -1,6 +1,8 @@
 // peristaltic pump
 //
 // Work-in-progress!
+// Note to self: revive and use uniTube project for
+// the tubing modelling? Here and in general?
 
 z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
@@ -63,20 +65,20 @@ linear_extrude(height=10) {
 }
 
 color("red")
-difference() {
+  difference() {
 
-  union() {
-    circle(d=cassette_inner_diameter);
-    for (i = [0:1])
-      mirror([i, 0, 0])
-        translate([cassette_inner_diameter / 2 - cassette_entry_channels_width * 2, cassette_inner_diameter / 4, 0])
-          polygon(points=[[0, 0], [cassette_entry_channels_width, 0], [cassette_entry_channels_width, cassette_inner_diameter / 4], [0, cassette_inner_diameter / 4]]);
+    union() {
+      circle(d=cassette_inner_diameter);
+      for (i = [0:1])
+        mirror([i, 0, 0])
+          translate([cassette_inner_diameter / 2 - cassette_entry_channels_width * 2, cassette_inner_diameter / 4, 0])
+            polygon(points=[[0, 0], [cassette_entry_channels_width, 0], [cassette_entry_channels_width, cassette_inner_diameter / 4], [0, cassette_inner_diameter / 4]]);
+    }
+
+    circle(d=cassette_inner_diameter - tube_diameter * 4);
+    translate([0, cassette_inner_diameter / 4, 0])
+      square([2 * (cassette_inner_diameter / 2 - cassette_entry_channels_width * 2), cassette_inner_diameter / 2], center=true);
   }
-
-  circle(d=cassette_inner_diameter - tube_diameter * 4);
-  translate([0, cassette_inner_diameter / 4, 0])
-    square([2 * (cassette_inner_diameter / 2 - cassette_entry_channels_width * 2), cassette_inner_diameter / 2], center=true);
-}
 
 module pump_cassette(){}
 
