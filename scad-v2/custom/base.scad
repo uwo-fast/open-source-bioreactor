@@ -79,10 +79,16 @@ module base(
           translate([rod_hole_diameter, 0, 0]) {
             cylinder(d=rod_hole_diameter, h=height + zFite, center=true);
           }
+          // If nut dimensions are provided, cut out a spot for the nut to fit in on both sides of the hole
           if (!is_undef(nut_dia) && !is_undef(nut_h)) {
-            translate([rod_hole_diameter, 0, -height / 2 - zFite]) {
-              rotate([0, 0, 30]) cylinder(d=nut_dia, h=nut_h + zFite, $fn=6);
-            }
+            // Lower
+            translate([rod_hole_diameter, 0, -height / 2 - zFite]) 
+              rotate([0, 0, 30]) 
+                cylinder(d=nut_dia, h=nut_h + zFite, $fn=6);
+            // Upper
+            translate([rod_hole_diameter, 0, height / 2 - nut_h + zFite]) 
+              rotate([0, 0, 30]) 
+                cylinder(d=nut_dia, h=nut_h + zFite, $fn=6);
           }
         }
       }
