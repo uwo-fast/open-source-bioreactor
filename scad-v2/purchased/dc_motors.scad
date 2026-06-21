@@ -1,10 +1,14 @@
 // parameters for physical realization of various dc motors
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
+include <gearboxes.scad>
 
-//        ["name"     [motor_diameter, motor_length], [gearbox_diameter, gearbox_length, gearbox_shaft_diameter, gearbox_shaft_length]]
-generic = ["generic", [34,             30],           [36,               26,             8,                      20]];
+//        ["name"     [motor_dia, motor_len], shaft,  gearbox]
+generic = ["generic", [34,        30],        undef,  generic_gearbox];
 
 dc_motors = [generic];
 
 use <dc_motor.scad>
+
+// example usage (open this file directly to preview)
+// dc_motor(generic);
