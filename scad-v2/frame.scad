@@ -7,9 +7,9 @@
 */
 
 include <purchased/strip_lights.scad>;
-use <utils/circular_pattern.scad>;
+
 use <custom/base.scad>;
-use <custom/peri_pump_frame_mount.scad>;
+//use <custom/peri_pump_frame_mount.scad>;
 
 temp_jar_height = 305;
 temp_jar_diameter = 220;
@@ -42,7 +42,7 @@ light_quadrants = [1, 3];
 // number of lights to place in each quadrant
 lights_per_quadrant = 3;
 // angle that the lights occupy
-occupy_angle = 65; // of the 90 degree quadrant
+occupy_angle = 60; // of the 90 degree quadrant
 
 /* [Nut & Rod Parameters] */
 
@@ -116,7 +116,9 @@ module lights(quadrants, jar_diameter, lights_per_quadrant, occupy_angle) {
       for (i = [0:lights_per_quadrant - 1]) {
 
         angle_offset = (90 - occupy_angle) / 2;
-        light_angle = i * (occupy_angle / (lights_per_quadrant - 1)) + angle_offset;
+        light_angle =
+          lights_per_quadrant == 1 ? 45
+          : i * (occupy_angle / (lights_per_quadrant - 1)) + angle_offset;
 
         rotate([0, 0, light_angle])
           translate([0, jar_diameter / 2, 0])
@@ -128,25 +130,50 @@ module lights(quadrants, jar_diameter, lights_per_quadrant, occupy_angle) {
 
 module frame(jar_height, jar_diameter) {
 
-  lights(light_quadrants, jar_diameter, lights_per_quadrant, occupy_angle);
+  module frame_lights(local_quadrants = light_quadrants) {
+    lights(local_quadrants, jar_diameter, lights_per_quadrant, occupy_angle);
+  }
+
+  module frame_lights_cutout(local_quadrants = [1, 2, 3, 4]) {
+    difference() {
+      children();
+      frame_lights(local_quadrants);
+    }
+  }
+
+  frame_lights();
+
+  // rods and nuts
+  for (i = [0:3]) {
+    rotate([0, 0, i * 90])
+      translate([rod_shift, 0, 0])
+        {
+          // 3 heights of x4 m8 nuts and and x4 m8 rods here
+        }
+  }
 
   // base
   if (render_base || render_all) {
-    color(prints1_color)
-      // create the base
-      base(
-        inner_diameter=base_jar_cut_diameter, height=lower_base_height, wall_thickness=base_wall_thickness,
-        floor_height=base_floor_height, rod_hole_diameter=threaded_rod_hole_diameter, nut_dia=nut_diameter,
-        nut_h=nut_height
-      );
+    frame_lights_cutout()
+      color(prints1_color)
+        // create the base
+        base(
+          inner_diameter=base_jar_cut_diameter, height=lower_base_height, wall_thickness=base_wall_thickness,
+          floor_height=base_floor_height, rod_hole_diameter=threaded_rod_hole_diameter, nut_dia=nut_diameter,
+          nut_h=nut_height
+        );
   }
 
   // top base
   if (render_upper_base || render_all) {
-    translate([0, 0, total_height]) rotate([0, 180, 0]) color(prints1_color) base(
-            inner_diameter=base_jar_cut_diameter, height=upper_base_height, wall_thickness=base_wall_thickness,
-            floor_height=base_floor_height, rod_hole_diameter=threaded_rod_hole_diameter
-          );
+    frame_lights_cutout()
+      color(prints1_color)
+        translate([0, 0, total_height])
+          rotate([0, 180, 0])
+            base(
+              inner_diameter=base_jar_cut_diameter, height=upper_base_height, wall_thickness=base_wall_thickness,
+              floor_height=base_floor_height, rod_hole_diameter=threaded_rod_hole_diameter
+            );
   }
 
   // ribs
@@ -162,17 +189,21 @@ module frame(jar_height, jar_diameter) {
     for (i = [1:2]) {
 
       spacers_total_height =
-      total_height - base_floor_height * 2 - upper_base_height - lower_base_height - rib_base_height * 2;
+      total_height - upper_base_height - lower_base_height - rib_base_height * 2;
 
       z_shift = spacers_total_height * i * z_shift_factor;
 
-      spacer_pos = lower_base_height + nut_height + z_shift + rib_base_height * (i - 1);
+      rib_pos = lower_base_height + z_shift - spacer_z_allow / 2 + rib_base_height * i - rib_base_height ;
 
       f_height = 0 - z_fight;
 
+      frame_lights_cutout()
+
       for (j = [1:2]) {
-        rotate([0, 0, j * 180]) rotate([0, 0, i * 90])
-            translate([0, 0, spacer_pos]) color(prints1_color)
+        rotate([0, 0, j * 180])
+          rotate([0, 0, i * 90])
+            translate([0, 0, rib_pos])
+              color(prints1_color)
                 base(
                   inner_diameter=base_jar_cut_diameter, height=rib_base_height,
                   wall_thickness=base_wall_thickness, floor_height=f_height,
@@ -191,15 +222,17 @@ module frame(jar_height, jar_diameter) {
       for (j = [0:3]) {
 
         spacers_total_height =
-        total_height - base_floor_height * 2 - upper_base_height - lower_base_height - rib_base_height * 2;
+        total_height - upper_base_height - lower_base_height - rib_base_height * 2;
 
         z_shift = spacers_total_height * i * z_shift_factor;
 
-        spacer_pos = lower_base_height + nut_height + z_shift + spacer_z_allow / 2 + rib_base_height * i;
+        spacer_pos = lower_base_height + z_shift + spacer_z_allow / 2 + rib_base_height * i;
 
         spacer_height = spacers_total_height * z_shift_factor - spacer_z_allow * 2;
 
-        rotate([0, 0, j * 90]) translate([rod_shift, 0, spacer_pos]) difference() {
+        rotate([0, 0, j * 90])
+          translate([rod_shift, 0, spacer_pos])
+            difference() {
               cylinder(d=rod_spacer_diameter, h=spacer_height);
               cylinder(d=threaded_rod_diameter + spacer_dia_allow, h=spacer_height + z_fight);
             }
