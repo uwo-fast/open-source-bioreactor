@@ -6,7 +6,8 @@
  *
 */
 
-use <purchased/strip_lights.scad>;
+include <purchased/strip_lights.scad>;
+use <utils/circular_pattern.scad>;
 use <custom/base.scad>;
 use <custom/peri_pump_frame_mount.scad>;
 
@@ -34,22 +35,14 @@ render_peri_side_mount = false;
 
 /* [Light Parameters] */
 
-// MOVED TO strip_lights.scad
-// // length of the light
-// light_length = 336;
-// // width of the light
-// light_width = 14.1;
-// // depth of the light
-// light_depth = 7.6;
-// // radius of the light window
-// light_window_radius = 0.5;
-
 // allowance for the light to fit in the base
 light_allow = 0.2;
-// number of lights
-number_of_lights = 6;
+// which quadrants to place lights in, 1-4 starting from positive x and going CCW
+light_quadrants = [1, 3];
+// number of lights to place in each quadrant
+lights_per_quadrant = 3;
 // angle that the lights occupy
-occupy_angle = 90 * 3 / 4;
+occupy_angle = 65; // of the 90 degree quadrant
 
 /* [Nut & Rod Parameters] */
 
@@ -91,27 +84,6 @@ spacer_dia_allow = 0.2;
 // allowance for the rod spacer to fit on the rod
 spacer_z_allow = 0.4;
 
-/* [Peristaltic Pump Side Mount Parameters] */
-
-// width of the motor mount flange
-peri_mount_flange_width = 5;
-// height of the motor mount flange
-peri_mount_flange_height = 2.4;
-// distance between the screw holes on the motor mount flange
-peri_mount_flange_screw_distance = 48.0;
-// separation offset between the motor mount flange and the insert
-peri_mount_flange_offset = 2;
-// height of the motor mount insert
-peri_mount_insert_height = 15;
-// width of the motor mount insert
-peri_mount_insert_width = 14.1;
-// depth of the motor mount insert
-peri_mount_insert_depth = 7.6;
-// diameter of the screws that fix the motor mount to the motor
-peri_screw_diameter = 4;
-// diameter of the motor for the motor mount
-peri_pump_motor_diameter = 30;
-
 /* [Color Parameters] */
 
 // first color for 3D prints
@@ -127,7 +99,7 @@ module dummy() {
 // total height of the assembly
 total_height = temp_jar_height + base_floor_height + upper_base_height;
 // distance from the center of the jar to the threaded rod
-base_wall_thickness = (light_depth * 1.5) * 2; // thinnest part is 50% thicker than the light depth
+base_wall_thickness = (strip_light_depth(generic) * 1.5) * 2; // thinnest part is 50% thicker than the light depth
 // diameter of the cutout for the jar
 base_jar_cut_diameter = temp_jar_diameter + base_jar_fit_allow;
 
@@ -138,42 +110,43 @@ rod_shift = base_jar_cut_diameter / 2 + threaded_rod_hole_diameter;
 rod_length = total_height + nut_height;
 echo("rod length: ", rod_length / 10, " cm");
 
+module lights(quadrants, jar_diameter, lights_per_quadrant, occupy_angle) {
+  for (q = quadrants) {
+    rotate([0, 0, (q - 1) * 90]) {
+      for (i = [0:lights_per_quadrant - 1]) {
+
+        angle_offset = (90 - occupy_angle) / 2;
+        light_angle = i * (occupy_angle / (lights_per_quadrant - 1)) + angle_offset;
+
+        rotate([0, 0, light_angle])
+          translate([0, jar_diameter / 2, 0])
+            strip_light(generic);
+      }
+    }
+  }
+}
+
 module frame(jar_height, jar_diameter) {
+
+  lights(light_quadrants, jar_diameter, lights_per_quadrant, occupy_angle);
 
   // base
   if (render_base || render_all) {
-    color(prints1_color) difference() {
-        // create the base
-        base(
-          inner_diameter=base_jar_cut_diameter, height=lower_base_height, wall_thickness=base_wall_thickness,
-          floor_height=base_floor_height, rod_hole_diameter=threaded_rod_hole_diameter, nut_dia=nut_diameter,
-          nut_h=nut_height
-        );
-
-        // cut out the lights, rad_cut is true to extend the cut inwards to remove material between jar and light
-        lights(light_allow=light_allow, diff_allow=light_allow, rad_cut=true);
-
-        // cut out a second time shifted by 180 for symmetry and to allow more alternative config of the lights
-        // this should be handled more elegantly in the future once the first iteration has been printed
-        rotate([0, 0, 90]) lights(light_allow=light_allow, diff_allow=light_allow, rad_cut=true);
-      }
+    color(prints1_color)
+      // create the base
+      base(
+        inner_diameter=base_jar_cut_diameter, height=lower_base_height, wall_thickness=base_wall_thickness,
+        floor_height=base_floor_height, rod_hole_diameter=threaded_rod_hole_diameter, nut_dia=nut_diameter,
+        nut_h=nut_height
+      );
   }
 
   // top base
   if (render_upper_base || render_all) {
-    difference() {
-      translate([0, 0, total_height]) rotate([0, 180, 0]) color(prints1_color) base(
-              inner_diameter=base_jar_cut_diameter, height=upper_base_height, wall_thickness=base_wall_thickness,
-              floor_height=base_floor_height, rod_hole_diameter=threaded_rod_hole_diameter
-            );
-
-      // cut out the lights
-      lights(light_allow=light_allow, diff_allow=light_allow, rad_cut=false);
-
-      // cut out a second time shifted by 180 for symmetry and to allow more alternative config of the lights
-      // this should be handled more elegantly in the future once the first iteration has been printed
-      rotate([0, 0, 90]) lights(light_allow=light_allow, diff_allow=light_allow, rad_cut=true);
-    }
+    translate([0, 0, total_height]) rotate([0, 180, 0]) color(prints1_color) base(
+            inner_diameter=base_jar_cut_diameter, height=upper_base_height, wall_thickness=base_wall_thickness,
+            floor_height=base_floor_height, rod_hole_diameter=threaded_rod_hole_diameter
+          );
   }
 
   // ribs
@@ -198,43 +171,13 @@ module frame(jar_height, jar_diameter) {
       f_height = 0 - z_fight;
 
       for (j = [1:2]) {
-        rotate([0, 0, j * 180]) rotate([0, 0, i * 90]) difference() {
-              translate([0, 0, spacer_pos]) color(prints1_color)
-                  base(
-                    inner_diameter=base_jar_cut_diameter, height=rib_base_height,
-                    wall_thickness=base_wall_thickness, floor_height=f_height,
-                    rod_hole_diameter=threaded_rod_hole_diameter, rods=n_rods_ribs
-                  );
-
-              // cut out the lights, rad_cut is true to extend the cut inwards to remove material between jar and
-              // light this is done for all ribs to allow flexibility, again this should be handled more elegantly in
-              // the future
-              rotate([0, 0, 90]) lights(light_allow=light_allow, diff_allow=light_allow, rad_cut=true);
-            }
-
-        // Place peri pump mount on the upper ribs in the middle light insert gap
-        if (render_peri_side_mount || render_all) {
-          if (i == 2) {
-            for (i = [1:2:3])
-              rotate([0, 0, -360 / 16 * i + j * 180])
-                translate([0, jar_diameter / 2 + peri_mount_insert_depth / 2, spacer_pos + rib_base_height / 2])
-                  //rotate([0, 0, 90])
-                  color(prints2_color)
-
-                    // peristaltic pump side mount
-                    peri_pump_frame_mount(
-                      flange_width=peri_mount_flange_width,
-                      flange_height=peri_mount_flange_height,
-                      flange_screw_distance=peri_mount_flange_screw_distance,
-                      flange_insert_separation=peri_mount_flange_offset,
-                      insert_height=peri_mount_insert_height,
-                      insert_width=peri_mount_insert_width,
-                      insert_depth=peri_mount_insert_depth,
-                      motor_diameter=peri_pump_motor_diameter,
-                      screw_diameter=peri_screw_diameter
-                    );
-          }
-        }
+        rotate([0, 0, j * 180]) rotate([0, 0, i * 90])
+            translate([0, 0, spacer_pos]) color(prints1_color)
+                base(
+                  inner_diameter=base_jar_cut_diameter, height=rib_base_height,
+                  wall_thickness=base_wall_thickness, floor_height=f_height,
+                  rod_hole_diameter=threaded_rod_hole_diameter, rods=n_rods_ribs
+                );
       }
     }
   }

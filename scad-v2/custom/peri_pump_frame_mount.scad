@@ -5,6 +5,29 @@
 zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
+// FROM FRAME ASSEMBLY:
+/* [Peristaltic Pump Side Mount Parameters] */
+
+// // width of the motor mount flange
+// peri_mount_flange_width = 5;
+// // height of the motor mount flange
+// peri_mount_flange_height = 2.4;
+// // distance between the screw holes on the motor mount flange
+// peri_mount_flange_screw_distance = 48.0;
+// // separation offset between the motor mount flange and the insert
+// peri_mount_flange_offset = 2;
+// // height of the motor mount insert
+// peri_mount_insert_height = 15;
+// // width of the motor mount insert
+// peri_mount_insert_width = 14.1;
+// // depth of the motor mount insert
+// peri_mount_insert_depth = 7.6;
+// // diameter of the screws that fix the motor mount to the motor
+// peri_screw_diameter = 4;
+// // diameter of the motor for the motor mount
+// peri_pump_motor_diameter = 30;
+
+
 // diameter of the motor
 motor_diameter = 34;
 
