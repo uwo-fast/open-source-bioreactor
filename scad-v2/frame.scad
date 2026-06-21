@@ -8,15 +8,18 @@
 
 include <purchased/strip_lights.scad>;
 
+include <NopSCADlib/core.scad>; // core utils (also silences the inch() warning)
+include <NopSCADlib/vitamins/nuts.scad>; // M8_nut type + nut()
+use <NopSCADlib/vitamins/rod.scad>; // studding()
+
 use <custom/base.scad>;
-//use <custom/peri_pump_frame_mount.scad>;
+
+z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
+$fn = $preview ? 64 : 128;
 
 temp_jar_height = 305;
 temp_jar_diameter = 220;
 jar_x_sec = false;
-
-z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
-$fn = $preview ? 64 : 128;
 
 frame(temp_jar_height, temp_jar_diameter);
 
@@ -25,24 +28,21 @@ frame(temp_jar_height, temp_jar_diameter);
 render_all = true; // render all components
 render_base = false;
 render_upper_base = false;
-render_lid = false;
-render_bayonet_lock = false;
 render_ribs = false;
 render_rods = false;
 render_rodspacers = false;
 render_lights = false;
-render_peri_side_mount = false;
 
 /* [Light Parameters] */
 
-// allowance for the light to fit in the base
-light_allow = 0.2;
 // which quadrants to place lights in, 1-4 starting from positive x and going CCW
 light_quadrants = [1, 3];
 // number of lights to place in each quadrant
 lights_per_quadrant = 3;
 // angle that the lights occupy
 occupy_angle = 60; // of the 90 degree quadrant
+// allowance for the light to fit in the base
+light_allow = 0.2;
 
 /* [Nut & Rod Parameters] */
 
@@ -52,11 +52,9 @@ nut_diameter = 15.4;
 // height of the nut
 nut_height = 6.4;
 // diameter of the threaded rod
-threaded_rod_diameter = 8.5;
+threaded_rod_diameter = 8.0;
 // allowance for the hole for the threaded rod
-threaded_rod_hole_allowance = 0.6;
-// diameter of the hole for the threaded rod
-threaded_rod_hole_diameter = threaded_rod_diameter + threaded_rod_hole_allowance;
+threaded_rod_hole_allowance = 1.2;
 
 /*********************************************/
 /*         Custom-Design Constraints         */
@@ -95,7 +93,6 @@ module dummy() {
   // stop the customizer detection from here onwards
 }
 
-// Driven Parameters
 // total height of the assembly
 total_height = temp_jar_height + base_floor_height + upper_base_height;
 // distance from the center of the jar to the threaded rod
@@ -103,7 +100,9 @@ base_wall_thickness = (strip_light_depth(generic) * 1.5) * 2; // thinnest part i
 // diameter of the cutout for the jar
 base_jar_cut_diameter = temp_jar_diameter + base_jar_fit_allow;
 
-// Driven Parameters
+// diameter of the hole for the threaded rod
+threaded_rod_hole_diameter = threaded_rod_diameter + threaded_rod_hole_allowance;
+
 // distance from the center of the jar to the threaded rod
 rod_shift = base_jar_cut_diameter / 2 + threaded_rod_hole_diameter;
 // height of the rod spacer
@@ -144,12 +143,30 @@ module frame(jar_height, jar_diameter) {
   frame_lights();
 
   // rods and nuts
-  for (i = [0:3]) {
-    rotate([0, 0, i * 90])
-      translate([rod_shift, 0, 0])
-        {
-          // 3 heights of x4 m8 nuts and and x4 m8 rods here
+  if (render_rods || render_all) {
+    for (i = [0:3]) {
+      rotate([0, 0, i * 90])
+        translate([rod_shift, 0, 0]) {
+          // M8 threaded rod, full height (base at z = 0)
+          studding(d=threaded_rod_diameter, l=rod_length, center=false);
+
+          // M8 nuts at three heights
+          // bottom
+          translate([0, 0, 0])
+            rotate([0, 0, 30])
+              nut(M8_nut);
+
+          // top of base
+          translate([0, 0, lower_base_height - nut_thickness(M8_nut)])
+            rotate([0, 0, 30])
+              nut(M8_nut);
+
+          // top of lid
+          translate([0, 0, total_height])
+            rotate([0, 0, 30])
+              nut(M8_nut);
         }
+    }
   }
 
   // base
@@ -181,8 +198,8 @@ module frame(jar_height, jar_diameter) {
     // Number of rods holders on the ribs
     n_rods_ribs = 2;
 
-    spacer_dia_allow = 0.2;
-    spacer_z_allow = 0.4;
+    // TODO: this should be parameterized based on the desired number of ribs
+    // right now its hardcoded to 2 ribs i.e. divides into 3 sections
     z_shift_factor = 1 / 3;
 
     // create the ribs
@@ -193,7 +210,7 @@ module frame(jar_height, jar_diameter) {
 
       z_shift = spacers_total_height * i * z_shift_factor;
 
-      rib_pos = lower_base_height + z_shift - spacer_z_allow / 2 + rib_base_height * i - rib_base_height ;
+      rib_pos = lower_base_height + z_shift - spacer_z_allow / 2 + rib_base_height * i - rib_base_height;
 
       f_height = 0 - z_fight;
 
@@ -216,6 +233,8 @@ module frame(jar_height, jar_diameter) {
   // rod rib spacers
   if (render_rodspacers || render_all) {
     rod_spacer_diameter = threaded_rod_diameter + 2 * rod_spacer_thickness;
+
+    // See the TODO in section above about the z_shift_factor
     z_shift_factor = 1 / 3;
 
     color(prints2_color)for (i = [0:2]) {
