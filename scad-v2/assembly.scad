@@ -35,11 +35,11 @@ use <frame.scad>;
 render_vessel = true;
 render_head = false;
 render_frame = false;
-render_all = false;
+render_all = true;
 
 /* [Rendering Parameters] */
 
-vessel_x_sec = false;
+cross_section_active = true;
 
 /* [Vessel Parameters - Coupling] */
 
@@ -84,6 +84,10 @@ if (render_vessel || render_all) {
     punt_height=vessel_punt_height,
     punt_width=vessel_punt_width,
     rim_rad=vessel_rim_rad,
-    angle=(vessel_x_sec ? 180 : 360)
+    angle=(cross_section_active ? 180 : 360)
   );
+}
+
+if (render_frame || render_all) {
+  frame(jar_height=vessel_height, jar_diameter=vessel_diameter);
 }
