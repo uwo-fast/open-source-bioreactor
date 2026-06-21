@@ -6,7 +6,7 @@
  *
  */
 
-zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
+z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 /**
@@ -60,7 +60,7 @@ module tube_mount(
     for (i = [0:3]) {
       rotate([0, 0, i * 90])
         translate([width / 2 - screw_hole_diameter * 1.5, width / 2 - screw_hole_diameter * 1.5, height / 2]) {
-          cylinder(d=screw_hole_diameter + screw_allowance, h=height + zFite, center=true);
+          cylinder(d=screw_hole_diameter + screw_allowance, h=height + z_fight, center=true);
         }
     }
   }

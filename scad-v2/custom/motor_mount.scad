@@ -1,7 +1,7 @@
 // Three-part motor mount for standard cylindrical electrical motors which have
 // a circular faceplate with 4 screws in a square pattern, and a central shaft.
 
-zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
+z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 // ----- render controls -----
@@ -170,7 +170,7 @@ module male_end(
 ) {
   counterbore_radius = vertical_hole_radius;
   counterbore_diameter = face_screw_diameter * 1.5;
-  counterbore_depth = raised_face_height + zFite;
+  counterbore_depth = raised_face_height + z_fight;
 
   difference() {
     union() {
@@ -179,20 +179,20 @@ module male_end(
     }
 
     // Center hole for the motor shaft / boss
-    translate([0, 0, -zFite / 2])
-      cylinder(h=raised_face_height + flange_height + zFite, d=center_hole_diameter, $fn=facets);
+    translate([0, 0, -z_fight / 2])
+      cylinder(h=raised_face_height + flange_height + z_fight, d=center_hole_diameter, $fn=facets);
 
     // Vertical holes
     for (i = [0:3])
       rotate([0, 0, i * 90])
-        translate([vertical_hole_radius, 0, -zFite / 2])
-          cylinder(h=vertical_hole_depth + zFite, d=vertical_hole_diameter, $fn=16);
+        translate([vertical_hole_radius, 0, -z_fight / 2])
+          cylinder(h=vertical_hole_depth + z_fight, d=vertical_hole_diameter, $fn=16);
 
     // Vertical counterbores
     for (i = [0:3])
       rotate([0, 0, i * 90])
-        translate([counterbore_radius, 0, flange_height - zFite / 2])
-          cylinder(h=counterbore_depth + zFite, d=counterbore_diameter, $fn=16);
+        translate([counterbore_radius, 0, flange_height - z_fight / 2])
+          cylinder(h=counterbore_depth + z_fight, d=counterbore_diameter, $fn=16);
 
     // Horizontal holes for screws to fix the female middle tube to each male end
     for (i = [0:3])
@@ -217,20 +217,20 @@ module middle_pipe(
 ) {
   difference() {
     cylinder(h=pipe_height, d=outer_diameter, $fn=facets);
-    translate([0, 0, -zFite / 2])
-      cylinder(h=pipe_height + zFite, d=inner_diameter, $fn=facets);
+    translate([0, 0, -z_fight / 2])
+      cylinder(h=pipe_height + z_fight, d=inner_diameter, $fn=facets);
 
     // Vertical holes for screws to fix the base to the world (in this case, the jar lid)
     for (i = [0:3])
       rotate([0, 0, i * 90])
-        translate([interface_hole_radius, 0, -zFite / 2])
-          cylinder(h=interface_hole_depth + zFite, d=interface_hole_diameter, $fn=16);
+        translate([interface_hole_radius, 0, -z_fight / 2])
+          cylinder(h=interface_hole_depth + z_fight, d=interface_hole_diameter, $fn=16);
 
     // Vertical holes for screws to fix the top to the motor faceplate
     for (i = [0:3])
       rotate([0, 0, i * 90])
         translate([interface_hole_radius, 0, pipe_height - flange_height])
-          cylinder(h=interface_hole_depth + zFite, d=interface_hole_diameter, $fn=16);
+          cylinder(h=interface_hole_depth + z_fight, d=interface_hole_diameter, $fn=16);
 
     // Horizontal holes for screws to fix the female middle tube to the lower base
     for (i = [0:3])

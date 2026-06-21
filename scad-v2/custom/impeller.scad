@@ -10,7 +10,7 @@
  *
  */
 
-zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
+z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 /**
@@ -88,7 +88,7 @@ module impeller(
     }
     // Subtract the center hole
     rotate([0, 180, 0])
-      linear_extrude(height + zFite, center=true, scale=center_hole_scale)
+      linear_extrude(height + z_fight, center=true, scale=center_hole_scale)
         circle(r=center_hole_radius, $fn=128);
   }
 }

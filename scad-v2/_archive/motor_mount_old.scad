@@ -1,6 +1,6 @@
 use <../utils/trapezium.scad>;
 
-zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
+z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 /**
@@ -55,9 +55,9 @@ module motor_mount(
               }
 
         // central cut out where shafts couple
-        translate([0, 0, -zFite / 2 + floor_thickness]) cylinder(h=height + zFite, d=inner_dia);
+        translate([0, 0, -z_fight / 2 + floor_thickness]) cylinder(h=height + z_fight, d=inner_dia);
         // Floor cutout needs to be smaller to block / retain the bearing in the lid below
-        translate([0, 0, -zFite / 2]) cylinder(h=height + zFite, d=inner_dia * 0.75);
+        translate([0, 0, -z_fight / 2]) cylinder(h=height + z_fight, d=inner_dia * 0.75);
 
         // windows
         for (j = [0:cross_bars])
@@ -67,18 +67,18 @@ module motor_mount(
 
         // faceplate screw holes
         for (i = [0:3])
-          rotate([0, 0, i * 90]) translate([face_screws_cdist / 2, 0, -zFite / 2]) {
-              cylinder(h=height + zFite, d=face_screws_diameter);
-              translate([0, 0, 0]) cylinder(h=height - wall_thickness + zFite, d=face_screws_diameter * 1.75);
+          rotate([0, 0, i * 90]) translate([face_screws_cdist / 2, 0, -z_fight / 2]) {
+              cylinder(h=height + z_fight, d=face_screws_diameter);
+              translate([0, 0, 0]) cylinder(h=height - wall_thickness + z_fight, d=face_screws_diameter * 1.75);
             }
       }
     }
     // base screw holes
     for (i = [0:3])
-      rotate([0, 0, i * 90]) translate([base_screws_cdist_draft / 2, 0, -zFite / 2]) {
-          cylinder(h=height + zFite, d=base_screws_diameter);
+      rotate([0, 0, i * 90]) translate([base_screws_cdist_draft / 2, 0, -z_fight / 2]) {
+          cylinder(h=height + z_fight, d=base_screws_diameter);
           translate([0, 0, wall_thickness])
-            cylinder(h=height - wall_thickness + zFite, d=base_screws_diameter * 1.75);
+            cylinder(h=height - wall_thickness + z_fight, d=base_screws_diameter * 1.75);
         }
   }
 }

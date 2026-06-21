@@ -8,7 +8,7 @@
  *
  */
 
-zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
+z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 // a:angle, d:diameter, h:height, center: center
@@ -77,18 +77,18 @@ module base(
       rotate([0, 0, i * 90]) {
         translate([inner_diameter / 2, 0, height / 2]) {
           translate([rod_hole_diameter, 0, 0]) {
-            cylinder(d=rod_hole_diameter, h=height + zFite, center=true);
+            cylinder(d=rod_hole_diameter, h=height + z_fight, center=true);
           }
           // If nut dimensions are provided, cut out a spot for the nut to fit in on both sides of the hole
           if (!is_undef(nut_dia) && !is_undef(nut_h)) {
             // Lower
-            translate([rod_hole_diameter, 0, -height / 2 - zFite]) 
+            translate([rod_hole_diameter, 0, -height / 2 - z_fight]) 
               rotate([0, 0, 30]) 
-                cylinder(d=nut_dia, h=nut_h + zFite, $fn=6);
+                cylinder(d=nut_dia, h=nut_h + z_fight, $fn=6);
             // Upper
-            translate([rod_hole_diameter, 0, height / 2 - nut_h + zFite]) 
+            translate([rod_hole_diameter, 0, height / 2 - nut_h + z_fight]) 
               rotate([0, 0, 30]) 
-                cylinder(d=nut_dia, h=nut_h + zFite, $fn=6);
+                cylinder(d=nut_dia, h=nut_h + z_fight, $fn=6);
           }
         }
       }
@@ -96,12 +96,12 @@ module base(
 
     // Cut out spot for the jar
     translate([0, 0, floor_height]) {
-      cylinder(d=inner_diameter, h=height - floor_height + zFite);
+      cylinder(d=inner_diameter, h=height - floor_height + z_fight);
     }
 
     // Cut out spot for the floor
-    translate([0, 0, -zFite / 2]) {
-      cylinder(d=inner_diameter - wall_thickness * 2, h=height + zFite);
+    translate([0, 0, -z_fight / 2]) {
+      cylinder(d=inner_diameter - wall_thickness * 2, h=height + z_fight);
     }
   }
 }

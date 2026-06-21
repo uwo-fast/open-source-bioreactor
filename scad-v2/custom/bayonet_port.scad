@@ -11,7 +11,7 @@
 
 use <bayonet-lock-scad/bayonet_lock.scad>
 
-zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
+z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 _bl_part = "pin"; // Part type: "pin" or "lock"
@@ -119,7 +119,7 @@ module bayonet_port(
     if (catch_pockets && _neck_h > 0) {
       for (i = [0:1])
         rotate([0, 0, i * 180])
-          translate([interface_radius * 0.8, 0, -zFite / 2])
+          translate([interface_radius * 0.8, 0, -z_fight / 2])
             cylinder(h=neck_height / 2, d=2 * interface_radius / 4);
     }
 
@@ -135,7 +135,7 @@ module bayonet_port(
         : text_diameter_override;
 
       // Top (+Y) string impression
-      translate([0, interface_radius * 0.8, neck_height / 2 - zFite / 2]) {
+      translate([0, interface_radius * 0.8, neck_height / 2 - z_fight / 2]) {
         rotate([0, 180, 0])
           linear_extrude(neck_height / 2)
             text(
@@ -145,7 +145,7 @@ module bayonet_port(
       }
 
       // Bottom (-Y) string impression
-      translate([0, -interface_radius * 0.8, neck_height / 2 - zFite / 2]) {
+      translate([0, -interface_radius * 0.8, neck_height / 2 - z_fight / 2]) {
         rotate([0, 180, 0])
           linear_extrude(neck_height / 2)
             text(

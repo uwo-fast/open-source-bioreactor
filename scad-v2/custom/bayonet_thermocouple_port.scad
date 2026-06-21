@@ -8,7 +8,7 @@
 use <bayonet_port.scad>
 use <threads-scad/threads.scad>
 
-zFite = $preview ? 0.01 : 0;
+z_fight = $preview ? 0.01 : 0;
 $fn = $preview ? 32 : 128;
 
 // ----- Bayonet parameters -----

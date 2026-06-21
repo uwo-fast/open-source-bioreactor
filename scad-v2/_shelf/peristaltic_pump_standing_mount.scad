@@ -10,7 +10,7 @@
  * reduction in the number of parameters.
  */
 
-zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
+z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 /**
@@ -75,7 +75,7 @@ module peri_pump_stand_mount(
     }
 
     // body_opening in the middle
-    translate([0, 0, -zFite / 2]) cylinder(d=inner_diameter, h=body_height + zFite);
+    translate([0, 0, -z_fight / 2]) cylinder(d=inner_diameter, h=body_height + z_fight);
 
     // body_opening on the sides
     rotate([0, 90, 0]) resize(body_opening) {
@@ -109,10 +109,10 @@ module mounts(mount_height, bore1, bore2, base_bore_distance, mount_width, scale
 
     // bore holes
     for (i = [0:1]) {
-      mirror([i, 0, 0]) translate([base_bore_distance / 2, 0, -zFite / 2]) union() {
-            cylinder(d=bore1, h=mount_height + zFite);
-            translate([0, 0, mount_height * bore2Ratio + zFite]) {
-              cylinder(d=bore2, h=mount_height * bore2Ratio + zFite);
+      mirror([i, 0, 0]) translate([base_bore_distance / 2, 0, -z_fight / 2]) union() {
+            cylinder(d=bore1, h=mount_height + z_fight);
+            translate([0, 0, mount_height * bore2Ratio + z_fight]) {
+              cylinder(d=bore2, h=mount_height * bore2Ratio + z_fight);
             }
           }
     }

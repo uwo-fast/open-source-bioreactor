@@ -8,7 +8,7 @@
 use <bayonet_port.scad>
 use <cylindrical_flex_collet.scad>
 
-zFite = $preview ? 0.01 : 0;
+z_fight = $preview ? 0.01 : 0;
 $fn = $preview ? 64 : 128;
 
 // ----- Bayonet parameters -----

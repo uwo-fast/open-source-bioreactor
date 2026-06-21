@@ -38,7 +38,7 @@
 //            |_______________________|
 //    
 
-zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
+z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 // ----  hardware params   ------
@@ -124,7 +124,7 @@ module cylindrical_flex_collet(
         // Bell shape for flex_tab area
         difference() {
           cylinder(h=flex_tab_height, d2=body_diameter - flex_tab_offset * 2, d1=body_diameter + shell_wall * 2);
-          translate([0, 0, -zFite])
+          translate([0, 0, -z_fight])
             cylinder(h=body_length, d2=body_diameter - shell_wall * 2 - flex_tab_offset * 2 + allowance, d1=body_diameter + allowance);
         }
 
@@ -175,18 +175,18 @@ module _part_negative_space(
   tail_diameter_end,
   shell_wall
 ) {
-  translate([0, 0, -zFite / 2]) // Avoid z-fighting with main body
+  translate([0, 0, -z_fight / 2]) // Avoid z-fighting with main body
   {
     // Main body
     translate([0, 0, -body_length])
       cylinder(h=body_length, d=body_diameter);
 
     // Tail body
-    translate([0, 0, -zFite / 2]) // Avoid z-fighting with main body
-      cylinder(h=tail_len + zFite, d1=tail_diameter_start, d2=tail_diameter_end);
+    translate([0, 0, -z_fight / 2]) // Avoid z-fighting with main body
+      cylinder(h=tail_len + z_fight, d1=tail_diameter_start, d2=tail_diameter_end);
 
     // Cord body
-    translate([0, 0, tail_len - zFite / 2])
+    translate([0, 0, tail_len - z_fight / 2])
       cylinder(h=tail_len, d=tail_diameter_end);
   }
 }

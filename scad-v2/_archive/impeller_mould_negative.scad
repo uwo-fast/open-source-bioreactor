@@ -1,4 +1,4 @@
-zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
+z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 rotate_xsection = 0; // [0:1:360]
@@ -103,13 +103,13 @@ module my_impeller() {
     for (i = [0:7])
       rotate([0, 0, i * 45])
         translate([shaft_diameter / 2 + hub_wall_thickness / 2, 0, -impeller_height / 2 - wall_thickness])
-          cylinder(h=wall_thickness + zFite, d2=hub_wall_thickness, d1=bottom_drain_hole_diameter, $fn=128);
+          cylinder(h=wall_thickness + z_fight, d2=hub_wall_thickness, d1=bottom_drain_hole_diameter, $fn=128);
 
     // line the bottom of the fins with holes for air escape during casting
     for (i = [0:impeller_n_fins - 1]) {
       rotate([0, 0, i * (360 / impeller_n_fins)])for (j = [1:5])
         translate([(impeller_radius) * (j / 6) + hub_wall_thickness, hub_wall_thickness / 2, -impeller_height / 2 - wall_thickness])
-          cylinder(h=wall_thickness + zFite, d2=hub_wall_thickness, d1=bottom_drain_hole_diameter, $fn=128);
+          cylinder(h=wall_thickness + z_fight, d2=hub_wall_thickness, d1=bottom_drain_hole_diameter, $fn=128);
     }
   }
 }

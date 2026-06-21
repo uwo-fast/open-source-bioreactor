@@ -1,6 +1,6 @@
 use <../utils/arc_points.scad>;
 
-zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
+z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 /**
@@ -55,9 +55,9 @@ module tab(width, thickness, height, hole, collar_thickness = 0) {
   difference() {
     cube([width, thickness, height]);
     translate([width / 2 + collar_thickness / 2, thickness / 2, height / 4]) rotate([90, 0, 0])
-        cylinder(d=hole, h=thickness + zFite, center=true);
+        cylinder(d=hole, h=thickness + z_fight, center=true);
     translate([width / 2 + collar_thickness / 2, thickness / 2, height / 4 * 3]) rotate([90, 0, 0])
-        cylinder(d=hole, h=thickness + zFite, center=true);
+        cylinder(d=hole, h=thickness + z_fight, center=true);
   }
 }
 
@@ -135,11 +135,11 @@ module probe_pinch_collar(
         rotate([0, 0, -half_angle_difference]) translate([-(diameter_prime_step - collar_thickness) / 2, 0, 0])
             scale([1, 0.5, 1]) cylinder(r=rod_mount_width, h=height);
       }
-      translate([0, 0, -zFite / 2]) linear_extrude(height + zFite) polygon(inner);
+      translate([0, 0, -z_fight / 2]) linear_extrude(height + z_fight) polygon(inner);
 
       rotate([0, 0, -half_angle_difference])
-        translate([-diameter_prime_step / 2 - rod_mount_width / 2, 0, -zFite / 2])
-          cylinder(d2=rod_diameter, d1=rod_diameter_taper, h=height + zFite);
+        translate([-diameter_prime_step / 2 - rod_mount_width / 2, 0, -z_fight / 2])
+          cylinder(d2=rod_diameter, d1=rod_diameter_taper, h=height + z_fight);
     }
 }
 
