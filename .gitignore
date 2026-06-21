@@ -1,0 +1,9 @@
+output/
+dist/
+artifacts/
+build/
+_reference/
+*.log
+*.tmp
+*.bak
+*.swp
