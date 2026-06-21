@@ -7,3 +7,8 @@ generic = ["generic", [14.1,   7.6,    336,   0.5  ]];
 strips_lights = [generic];
 
 use <strip_light.scad>
+
+// Usage: 
+//    strip_light(width, depth, length, radius)
+//    or
+//    strip_light(name)

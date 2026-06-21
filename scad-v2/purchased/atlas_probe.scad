@@ -6,11 +6,21 @@ use <../utils/trapezium.scad>;
 zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
+function atlas_probe_neck_dia(type) = type[1][0];       // diameter of the neck base
+function atlas_probe_neck_height(type) = type[1][1];    // height of the tapered neck
+function atlas_probe_neck_taper_dia(type) = type[1][2]; // diameter of the neck at taper end
+function atlas_probe_body_dia(type) = type[2][0];       // diameter of the body
+function atlas_probe_body_height(type) = type[2][1];    // height of the body
+function atlas_probe_tip_dia(type) = type[3][0];       // diameter of the tip
+function atlas_probe_tip_height(type) = type[3][1];    // height of the tip
+function atlas_probe_wire_dia(type) = type[4];         // diameter of the wire
+function atlas_probe_accent_color(type) = type[5];     // accent color for the neck
+
 /** 
 * @brief Creates an Atlas Scientific probe with customizable dimensions and colors
-* @param neck_d Diameter of the neck
-* @param neck_h Height of the neck
-* @param neck_taper_d Diameter of the neck at the taper start
+* @param neck_d Diameter of the neck base
+* @param neck_h Height of the tapered neck
+* @param neck_taper_d Diameter of the neck at the taper end
 * @param body_d Diameter of the body
 * @param body_h Height of the body
 * @param tip_d Diameter of the tip

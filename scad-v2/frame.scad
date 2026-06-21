@@ -6,7 +6,7 @@
  *
 */
 
-use <purchased/strip_light.scad>;
+use <purchased/strip_lights.scad>;
 use <custom/base.scad>;
 use <custom/peri_pump_frame_mount.scad>;
 
@@ -33,7 +33,6 @@ render_lights = false;
 render_peri_side_mount = false;
 
 /* [Light Parameters] */
-
 
 // MOVED TO strip_lights.scad
 // // length of the light
@@ -140,42 +139,6 @@ rod_length = total_height + nut_height;
 echo("rod length: ", rod_length / 10, " cm");
 
 module frame(jar_height, jar_diameter) {
-
-  // lights
-  if (render_lights || render_all) {
-    lights(light_allow=light_allow);
-  }
-
-  // put into a module so we can call it to remove from 3DP supporting components
-  // light_allow is the allowance between base_jar_cut_diameter and the light front face to create a small gap
-  // diff_allow is the allowance applied to the light dimensions to create a allowanced pocket
-  module lights(light_allow = 0, diff_allow = 0, rad_cut = false) {
-    // Add extra cut depth to prevent material between jar and light when creating pockets with lights
-    radial_cut_ext = rad_cut ? light_depth * 0.1 : 0;
-
-    placement_rad = base_jar_cut_diameter / 2 + light_allow - diff_allow / 2 - radial_cut_ext;
-
-    // [width, depth, length, window_radius]
-    dims = [
-      light_width + diff_allow,
-      light_depth + diff_allow + radial_cut_ext,
-      light_length + diff_allow,
-      light_window_radius,
-    ];
-
-    translate([0, 0, base_floor_height]) rotate([0, 0, 45]) {
-        surround_lights(
-          light_dims=dims, angle=occupy_angle, n=number_of_lights / 2, r=placement_rad,
-          offset=0, center=true
-        );
-
-        if (!jar_x_sec)
-          surround_lights(
-            light_dims=dims, angle=occupy_angle, n=number_of_lights / 2, r=placement_rad,
-            offset=180, center=true
-          );
-      }
-  }
 
   // base
   if (render_base || render_all) {

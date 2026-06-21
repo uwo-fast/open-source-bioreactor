@@ -9,6 +9,13 @@
 zFite = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
+function dc_motor_diameter(type) = type[1][0]; // diameter of the motor
+function dc_motor_length(type) = type[1][1]; // length of the motor
+function gearbox_diameter(type) = type[2][0]; // diameter of the gearbox
+function gearbox_length(type) = type[2][1]; // length of the gearbox
+function gearbox_shaft_diameter(type) = type[2][2]; // diameter of the
+function gearbox_shaft_length(type) = type[2][3]; // length of the gearbox shaft
+
 /**
  * @brief Create a basic DC motor model
  * @param diameter The diameter of the motor
@@ -18,9 +25,13 @@ $fn = $preview ? 64 : 128;
  */
 module dcmotor(diameter, length, shaft_diameter = undef, shaft_length = undef) {
   union() {
-    color([0.6, 0.6, 0.6]) cylinder(d=diameter, h=length);
+    color([0.6, 0.6, 0.6])
+      cylinder(d=diameter, h=length);
+
     if (!is_undef(shaft_diameter) && !is_undef(shaft_length))
-      color([0.5, 0.5, 0.5]) translate([0, 0, length]) cylinder(d=shaft_diameter, h=shaft_length);
+      color([0.5, 0.5, 0.5])
+        translate([0, 0, length])
+          cylinder(d=shaft_diameter, h=shaft_length);
   }
 }
 
@@ -45,17 +56,6 @@ module gearbox(
   faceplate_screws_cdist,
   screw_diameter = 5
 ) {
-
-  /**
- * @brief Create a basic screw head shape
- * @param diameter The diameter of the screw head
- */
-  module screwhead(diameter) {
-    union() {
-      cylinder(d=diameter, h=diameter / 2);
-      translate([0, 0, diameter / 2]) scale([1, 1, 0.5]) sphere(d=diameter);
-    }
-  }
 
   cut_dim = screw_diameter * 1.1;
 
@@ -93,3 +93,25 @@ module gearbox(
     }
   }
 }
+
+/**
+ * @brief Create a basic screw head shape
+ * @param diameter The diameter of the screw head
+ */
+module screwhead(diameter) {
+  union() {
+    cylinder(d=diameter, h=diameter / 2);
+    translate([0, 0, diameter / 2]) scale([1, 1, 0.5]) sphere(d=diameter);
+  }
+}
+
+gearbox(
+  diameter=30,
+  length=20,
+  output_shaft_diameter=5,
+  output_shaft_length=20,
+  input_shaft_diameter=5,
+  input_shaft_length=5,
+  faceplate_screws_cdist=20,
+  screw_diameter=3
+);
