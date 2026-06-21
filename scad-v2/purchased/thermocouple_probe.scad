@@ -8,24 +8,35 @@ use <threads-scad/threads.scad>;
 z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
-threaded_thermocouple();
+function thermocouple_probe_neck_dia(type) = type[1][0];     // diameter of the neck
+function thermocouple_probe_neck_height(type) = type[1][1];  // height of the neck
+function thermocouple_probe_flats_dia(type) = type[1][2];    // across-flats diameter of the hex
+function thermocouple_probe_flats_height(type) = type[1][3]; // height of the hex flats
+function thermocouple_probe_body_dia(type) = type[1][4];     // diameter of the body
+function thermocouple_probe_body_height(type) = type[1][5];  // height of the body
+function thermocouple_probe_tip_dia(type) = type[1][6];      // diameter of the sensing tip
+function thermocouple_probe_tip_height(type) = type[1][7];   // height of the sensing tip
+function thermocouple_probe_wire_dia(type) = type[1][8];     // diameter of the wire
+function thermocouple_probe_wire_height(type) = type[1][9];  // height of the wire stub
 
-// Creates a probe with customizable dimensions and colors
-module threaded_thermocouple(
-  neck_d = 10,
-  neck_h = 12,
-  flats_d = 26,
-  flats_h = 5,
-  body_d = 21,
-  body_h = 20,
-  tip_d = 3.5,
-  tip_h = 115,
-  wire_d = 3,
-  wire_h = 10,
+// Creates a probe from a registered type (see thermocouple_probes.scad)
+module thermocouple_probe(
+  type,
   colors = ["Olive", "Silver", "DarkGrey", "Grey", "Silver"],
   show_threads = false,
   position_base = false
 ) {
+  neck_d = thermocouple_probe_neck_dia(type);
+  neck_h = thermocouple_probe_neck_height(type);
+  flats_d = thermocouple_probe_flats_dia(type);
+  flats_h = thermocouple_probe_flats_height(type);
+  body_d = thermocouple_probe_body_dia(type);
+  body_h = thermocouple_probe_body_height(type);
+  tip_d = thermocouple_probe_tip_dia(type);
+  tip_h = thermocouple_probe_tip_height(type);
+  wire_d = thermocouple_probe_wire_dia(type);
+  wire_h = thermocouple_probe_wire_height(type);
+
   position_body(neck_h, flats_h, position_base) union() {
       // Wire
       translate([0, 0, -wire_h]) color(colors[0]) cylinder(h=wire_h, d=wire_d, $fn=64);

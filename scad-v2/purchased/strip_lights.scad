@@ -4,11 +4,10 @@
 //        ["name"     [width, depth, length, radius]]
 generic = ["generic", [14.1,   7.6,    336,   0.5  ]];
 
-strips_lights = [generic];
+strip_lights = [generic];
 
 use <strip_light.scad>
 
-// Usage: 
-//    strip_light(width, depth, length, radius)
-//    or
-//    strip_light(name)
+// example usage (open this file directly to preview)
+// strip_light(generic);                                                // registered set
+// translate([30, 0, 0]) strip_light(["custom", [14.1, 7.6, 200, 0.5]]); // direct (inline type)

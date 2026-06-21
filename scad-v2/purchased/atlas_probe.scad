@@ -16,33 +16,22 @@ function atlas_probe_tip_height(type) = type[3][1];    // height of the tip
 function atlas_probe_wire_dia(type) = type[4];         // diameter of the wire
 function atlas_probe_accent_color(type) = type[5];     // accent color for the neck
 
-/** 
-* @brief Creates an Atlas Scientific probe with customizable dimensions and colors
-* @param neck_d Diameter of the neck base
-* @param neck_h Height of the tapered neck
-* @param neck_taper_d Diameter of the neck at the taper end
-* @param body_d Diameter of the body
-* @param body_h Height of the body
-* @param tip_d Diameter of the tip
-* @param tip_h Height of the tip
-* @param wire_d Diameter of the wire
-* @param wire_h Height of the wire (arbitrary selection since its a straight model for visualization or difference cuts)
-* @param accent_color Color used for the neck
-* @param position_base If true, positions the probe from the base tip
-*/
-module atlas_probe(
-  neck_d,
-  neck_h,
-  neck_taper_d,
-  body_d,
-  body_h,
-  tip_d,
-  tip_h,
-  wire_d,
-  wire_h = 10,
-  accent_color = undef,
-  position_base = false
-) {
+/**
+ * @brief Creates an Atlas Scientific probe from a registered type
+ * @param type Registered parameter set (see atlas_probes.scad)
+ * @param wire_h Height of the wire stub (display only; arbitrary length for visualization or difference cuts)
+ */
+module atlas_probe(type, wire_h = 10) {
+  neck_d = atlas_probe_neck_dia(type);
+  neck_h = atlas_probe_neck_height(type);
+  neck_taper_d = atlas_probe_neck_taper_dia(type);
+  body_d = atlas_probe_body_dia(type);
+  body_h = atlas_probe_body_height(type);
+  tip_d = atlas_probe_tip_dia(type);
+  tip_h = atlas_probe_tip_height(type);
+  wire_d = atlas_probe_wire_dia(type);
+  accent_color = atlas_probe_accent_color(type);
+
   // None of the atlas probes are pink, so we set this so its obvious
   // that the color is unset and will apply for custom probes by default
   accent_color_eff = is_undef(accent_color) ? "Pink" : accent_color;
