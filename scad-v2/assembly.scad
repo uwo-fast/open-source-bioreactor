@@ -32,13 +32,19 @@
  *
  * Cross-coupling:
  *
- * - vessel  <->  frame:     1) Outer diameter, and 2) height of the vessel.
+ * - vessel  <->  frame:     1) Outer diameter of vessel, and 
+ *                           2) height of vessel.
  *
- * - vessel  <->  head:      1) Outer diameter, and 2) opening diameter of the vessel.
+ * - vessel  <->  head:      1) Outer diameter of vessel, 
+ *                           2) opening diameter of vessel, and 
+ *                           3) internal height of vessel.
  *
- * - head    <->  frame:     1) lid_flange_height, note: the frame assumes the head presents a flat  
- *                           circular face the same diameter as the vessel, with
- *                           an edge at least the thickness of the vessel wall.
+ * - head    <->  frame:     1) lid_flange_height, 
+ *                              note: the frame assumes the head 
+ *                              presents a flat circular face the 
+ *                              same diameter as the vessel, with
+ *                              an edge at least the thickness of 
+ *                              the vessel wall.
  *
  * From this we can determine which parameters much be passed from the top-level assembly:
  * - vessel:
@@ -49,6 +55,7 @@
  *   - chosen lid flange height
  *   - vessel opening diameter
  *   - vessel outer diameter
+ *   - vessel internal height
  * - frame:
  *   - vessel height
  *   - vessel diameter
@@ -101,6 +108,10 @@ module dummy() {
   // stop the customizer detection from here onwards
 }
 
+// required to calculate positioning of impeller to determine
+// the height of the motor mount and shaft protrusion
+vessel_internal_height = vessel_height - vessel_punt_height - vessel_thickness;
+
 // vessel
 if (render_vessel || render_all) {
   vessel(
@@ -120,4 +131,12 @@ if (render_vessel || render_all) {
 
 if (render_frame || render_all) {
   frame(jar_height=vessel_height, jar_diameter=vessel_diameter);
+}
+
+if (render_head || render_all) {
+
+  // will need, or something similar:
+  // height of the cuts on the lid
+  // lid_z_pos = jar_height + base_floor_height + lid_height;
+  // translate([0, 0, lid_z_pos]) rotate([0, 180, 0])
 }
