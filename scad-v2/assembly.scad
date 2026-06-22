@@ -24,6 +24,16 @@
  *
  * The _archive directory contains older versions of the components that are no longer in use, but are kept for reference and potential future use.
  * The _shelf directory contains components that are not currently in use, but may be used in the future or are kept for reference.
+ *
+ * Cross-coupling:
+ *
+ * - vessel  <->  frame:     1) Outer diameter, and 2) height of the vessel.
+ *
+ * - vessel  <->  head:      1) Outer diameter, and 2) opening diameter of the vessel.
+ *
+ * - head    <->  frame:     0) None, the frame assumes the head presents a flat  
+ *                           circular face the same diameter as the vessel, with
+ *                           an edge at least the thickness of the vessel wall.
  */
 
 use <vessel.scad>;
@@ -47,13 +57,15 @@ cross_section_active = true;
 vessel_height = 305;
 // diameter of the vessel
 vessel_diameter = 220;
+// diameter of the vessel opening
+//vessel_opening_diameter = TODO; // need to define return func
+
+/* [Vessel Parameters - Details] */
+
 // thickness of the vessel
 vessel_thickness = 5;
 // height of the neck
 vessel_neck_height = 25;
-
-/* [Vessel Parameters - Customization] */
-
 // radius of the shoulder-to-body transition
 vessel_upper_corner_radius = 25;
 // radius of the body-to-base transition
