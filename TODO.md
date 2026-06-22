@@ -1,12 +1,10 @@
 # TODO
 
-## top level
-
-- [ ] review open todos and close whats been done or superseeded
-
 ## critical path
 
-- [ ] Better parameterization of the bayonette connectors so that inputs map obviously to the geometry of the connectors, for example, not to some arbitrary dimension in the middle of the connectors major and minor diameters. This is largely a concern of: A) intuitiveness and B) making it actually feasible to integrate into an assembly or as a composite part
+- [ ] Better parameterization of the bayonette connectors so that inputs map obviously to the geometry of the connectors
+  - for example, not to some arbitrary dimension in the middle of the connectors major and minor diameters
+  - this is largely a concern of: A) intuitiveness and B) making it actually feasible to integrate into an assembly or as a composite part
 
 - [ ] stronger interface-based design surrounding the bayonette connectors
   - bayonette connector lib --> generic port --> specific port (e.g. probe holder, motor mount, etc.)
@@ -19,10 +17,12 @@
 
 ## nice to haves
 
-- [ ] Add curve / inflection point to holes in bayonette connectors to grip tubes better (sehan's idea, currently they grip really tight already so this is just a thought for improving the design if we find the tubes are slipping out too easily in testing; or if we wanted to reduce the interference fit and make it easier to insert the tubes in the first place while keeping them from slipping out)
+- [ ] Add curve / inflection point to holes in bayonette connectors to grip tubes better
+  - sehan's idea, currently they grip really tight already so this is just a thought for improving the design if we find the tubes are slipping out too easily in testing; or if we wanted to reduce the interference fit and make it easier to insert the tubes in the first place while keeping them from slipping out
 - [ ] optional end styles (sensor gland) for atlas probes to match product more closely
 
 ## second hardware revision
 
-- [ ] use a less expensive shaft for the impeller (might not need to be linear motion surface rated and all that) and try and get in 300mm instead of oversized 400mm thats being compensated by the parameteric printed motor mount
+- [ ] use a less expensive shaft for the impeller and try and get in 300mm instead of oversized 400mm thats being compensated by the parameteric printed motor mount
+  - might not need to be linear motion surface rated and all that
 - [ ] swap out the threaded rods with printed parts
