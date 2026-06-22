@@ -11,6 +11,21 @@ use <FunctionalOpenSCAD/functional.scad>;
 // TODO: alter vessel.scad so that it accepts a combination of opening_diameter
 // and one of vessel_upper_corner_radius or vessel_neck_corner_radius
 
+/**
+ * @brief Returns the inner opening (mouth bore) diameter of the vessel.
+ *
+ * Closed form derived from the neck profile: the opening sits inboard of the outer
+ * wall by the shoulder (upper) corner radius plus the neck corner radius on each
+ * side. Wall thickness cancels out of the neck-flat point, so it is intentionally
+ * absent here. This is the value cross-coupled to the head (lid plug diameter).
+ *
+ * @param diameter            Outer diameter of the vessel body.
+ * @param corner_radius       Shoulder-to-body (upper) corner radius.
+ * @param neck_corner_radius  Shoulder-to-neck corner radius.
+ */
+function vessel_opening_diameter(diameter, corner_radius, neck_corner_radius) =
+  diameter - 2 * (corner_radius + neck_corner_radius);
+
 // Example usage
 vessel(
   height=100, diameter=50, thickness=2, corner_radius=5, corner_radius_base=5, neck=20,
@@ -115,7 +130,12 @@ module vessel(
     [[0, 0], [thickness, 0]]
   );
 
-  opening_diameter = abs(neck_flat_nx[1][0]) * 2;
+  opening_diameter = vessel_opening_diameter(diameter, corner_radius, neck_corner_radius);
+  // guard: the closed-form function must match the geometric neck point that builds the profile
+  assert(
+    abs(opening_diameter - abs(neck_flat_nx[1][0]) * 2) < 1e-6,
+    "vessel_opening_diameter() disagrees with the neck geometry"
+  );
   echo("vessel opening_diameter: ", opening_diameter);
 
   if (show_pts) {
