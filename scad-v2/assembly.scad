@@ -57,8 +57,8 @@ cross_section_active = true;
 vessel_height = 305;
 // diameter of the vessel
 vessel_diameter = 220;
-// diameter of the vessel opening
-//vessel_opening_diameter = TODO; // need to define return func
+// diameter of the vessel opening — driven, derived in the section below from
+// vessel_opening_diameter
 
 /* [Vessel Parameters - Details] */
 
@@ -82,6 +82,15 @@ vessel_rim_rad = 2;
 module dummy() {
   // stop the customizer detection from here onwards
 }
+
+// Driven Parameters
+// diameter of the vessel opening, derived from the vessel profile.
+// Cross-coupled to the head (sets the lid plug / inner diameter).
+vessel_opening_diameter = vessel_opening_diameter(
+  diameter=vessel_diameter,
+  corner_radius=vessel_upper_corner_radius,
+  neck_corner_radius=vessel_neck_corner_radius
+);
 
 // vessel
 if (render_vessel || render_all) {
