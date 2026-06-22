@@ -76,8 +76,8 @@ cross_section_active = true;
 vessel_height = 305;
 // diameter of the vessel
 vessel_diameter = 220;
-// diameter of the vessel opening — driven, derived in the section below from
-// vessel_opening_diameter
+// diameter of the vessel opening
+vessel_opening_diameter = 143;
 
 /* [Vessel Parameters - Details] */
 
@@ -89,8 +89,7 @@ vessel_neck_height = 25;
 vessel_upper_corner_radius = 25;
 // radius of the body-to-base transition
 vessel_lower_corner_radius = 12.5;
-// radius of the shoulder-to-neck transition
-vessel_neck_corner_radius = 13.5;
+// radius of the shoulder-to-neck transition: derived by vessel() from the opening
 // height of the punt from the bottom of the vessel
 vessel_punt_height = 5;
 // width/diameter of the punt
@@ -102,15 +101,6 @@ module dummy() {
   // stop the customizer detection from here onwards
 }
 
-// Driven Parameters
-// diameter of the vessel opening, derived from the vessel profile.
-// Cross-coupled to the head (sets the lid plug / inner diameter).
-vessel_opening_diameter = vessel_opening_diameter(
-  diameter=vessel_diameter,
-  corner_radius=vessel_upper_corner_radius,
-  neck_corner_radius=vessel_neck_corner_radius
-);
-
 // vessel
 if (render_vessel || render_all) {
   vessel(
@@ -120,7 +110,7 @@ if (render_vessel || render_all) {
     corner_radius=vessel_upper_corner_radius,
     corner_radius_base=vessel_lower_corner_radius,
     neck=vessel_neck_height,
-    neck_corner_radius=vessel_neck_corner_radius,
+    opening_diameter=vessel_opening_diameter,
     punt_height=vessel_punt_height,
     punt_width=vessel_punt_width,
     rim_rad=vessel_rim_rad,
