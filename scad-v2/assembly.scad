@@ -6,11 +6,16 @@
  *
  * This file contains the assembly for the open-source-bioreactor project.
  *
+ * The bioreactor is divided into three subassemblies:
+ * - Vessel: Glass jar.
+ * - Head: Closure with flange, rotational drive system, and I/O and instrumentation ports.
+ * - Frame: Base plate, closure retaining plate with frame tie points, ribs, threaded rods, spacers, and nuts.
+ *
  * Project structure:
  * - assembly.scad: This file, which contains the assembly of the bioreactor.
- *   - frame.scad: Contains the module for the frame component of the bioreactor.
- *   - head.scad: Contains the module for the head component of the bioreactor.
- *   - vessel.scad: Contains the module for the vessel component of the bioreactor.
+ *   - frame.scad: Contains the module for the frame subassembly of the bioreactor.
+ *   - head.scad: Contains the module for the head subassembly of the bioreactor.
+ *   - vessel.scad: Contains the module for the vessel subassembly of the bioreactor.
  *
  * This is an interface-based design, where each component is designed to fit together based on defined interfaces. 
  * Therefore, this file contains only parameters that cross-couple between components, such as the diameter of the 
@@ -31,9 +36,23 @@
  *
  * - vessel  <->  head:      1) Outer diameter, and 2) opening diameter of the vessel.
  *
- * - head    <->  frame:     0) None, the frame assumes the head presents a flat  
+ * - head    <->  frame:     1) lid_flange_height, note: the frame assumes the head presents a flat  
  *                           circular face the same diameter as the vessel, with
  *                           an edge at least the thickness of the vessel wall.
+ *
+ * From this we can determine which parameters much be passed from the top-level assembly:
+ * - vessel:
+ *   - vessel height
+ *   - vessel diameter
+ *   - vessel opening diameter
+ * - head:
+ *   - chosen lid flange height
+ *   - vessel opening diameter
+ *   - vessel outer diameter
+ * - frame:
+ *   - vessel height
+ *   - vessel diameter
+ *   - lid flange height
  */
 
 use <vessel.scad>;

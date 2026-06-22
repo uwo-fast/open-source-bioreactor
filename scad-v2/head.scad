@@ -21,6 +21,8 @@ render_bayonet_lock = false;
 render_tube_pinlock = false;
 render_thermocouple_pinlock = false;
 
+temp_lid_flange_height = 10;
+
 /* [Lid Parameters] */
 
 // allowance for the lid to fit on the jar
@@ -39,7 +41,6 @@ lid_height = upper_base_height - base_floor_height - lid_h_allow;
 lid_cuts = jar_diameter / 5;
 // height of the cuts on the lid
 lid_z_pos = jar_height + base_floor_height + lid_height;
-
 
 /* [Impeller Parameters] */
 
@@ -138,9 +139,6 @@ echo("motor mount height: ", motor_mount_height / 10, " cm");
 // height of the thermocouple mount
 thermocouple_mount_height = 20;
 
-
-
-
 // What style of lock to produce, with the pin pointed inward ou outward?
 bayonet_lock_pin_direction = "outer"; // ["inner", "outer"]
 
@@ -201,15 +199,21 @@ if (render_lid || render_all) {
           difference() {
             // create the lid
             lid(
-              outer_diameter=jar_diameter, inner_diameter=opening_diameter, height=lid_height,
-              allowance=lid_rad_allow, rod_hole_diameter=threaded_rod_diameter, nut_dia=nut_diameter,
+              outer_diameter=jar_diameter,
+              inner_diameter=opening_diameter,
+              height=lid_height,
+              allowance=lid_rad_allow,
+              rod_hole_diameter=threaded_rod_diameter,
+              nut_dia=nut_diameter,
               nut_h=nut_height
             );
 
             // cut out the bearing and shaft hole
-            translate([0, 0, -zFite / 2]) union() {
+            translate([0, 0, -zFite / 2])
+              union() {
                 cylinder(d=threaded_rod_diameter, h=lid_height * 2 + zFite);
-                rotate([0, 0, 30]) cylinder(d=bearing_diameter, h=bearing_height + zFite);
+                rotate([0, 0, 30])
+                  cylinder(d=bearing_diameter, h=bearing_height + zFite);
               }
 
             // cut off corners to reduce material and allow space for lights
@@ -220,7 +224,8 @@ if (render_lid || render_all) {
 
             // cut out the entry holes for the probes and tubes
             for (hole_rot = [0:360 / lid_holes_n:360]) {
-              rotate([0, 0, hole_rot]) translate([jar_diameter / 4, 0, lid_height]) {
+              rotate([0, 0, hole_rot])
+                translate([jar_diameter / 4, 0, lid_height]) {
                   cylinder(r=lid_holes_radius, h=cut_height, center=true);
                 }
             }
@@ -228,17 +233,24 @@ if (render_lid || render_all) {
 
           // cut out the entry holes for the probes and tubes
           for (hole_rot = [0:360 / lid_holes_n:360]) {
-            rotate([0, 0, hole_rot]) translate([jar_diameter / 4, 0, lid_height + bayonet_lock_height * 0.5])
+            rotate([0, 0, hole_rot])
+              translate([jar_diameter / 4, 0, lid_height + bayonet_lock_height * 0.5])
                 rotate([180, 0, 0]) {
                   // add the bayonet locks
                   if (render_bayonet_lock || render_all)
                     tube_lock(
-                      part_to_render="lock", pin_direction=bayonet_lock_pin_direction,
-                      number_of_pins=bayonet_lock_number_of_pins, path_sweep_angle=bayonet_lock_path_sweep_angle,
-                      turn_direction=bayonet_lock_turn_direction, inner_radius=bayonet_lock_inner_radius,
-                      outer_radius=bayonet_lock_outer_radius, pin_radius=bayonet_lock_pin_radius,
-                      allowance=bayonet_lock_allowance, part_height=bayonet_lock_height,
-                      neck_height=bayonet_lock_neck_height, inner_radius_fill=bayonet_lock_inner_radius_fill,
+                      part_to_render="lock",
+                      pin_direction=bayonet_lock_pin_direction,
+                      number_of_pins=bayonet_lock_number_of_pins,
+                      path_sweep_angle=bayonet_lock_path_sweep_angle,
+                      turn_direction=bayonet_lock_turn_direction,
+                      inner_radius=bayonet_lock_inner_radius,
+                      outer_radius=bayonet_lock_outer_radius,
+                      pin_radius=bayonet_lock_pin_radius,
+                      allowance=bayonet_lock_allowance,
+                      part_height=bayonet_lock_height,
+                      neck_height=bayonet_lock_neck_height,
+                      inner_radius_fill=bayonet_lock_inner_radius_fill,
                       oring_height=bayonet_lock_oring_height,
                       oring_neck_cut_height=bayonet_lock_oring_neck_cut_height
                     );
@@ -250,23 +262,36 @@ if (render_lid || render_all) {
 
 if (render_tube_pinlock || render_all)
   tube_lock(
-    part_to_render="pin", pin_direction=bayonet_lock_pin_direction,
-    number_of_pins=bayonet_lock_number_of_pins, path_sweep_angle=bayonet_lock_path_sweep_angle,
-    turn_direction=bayonet_lock_turn_direction, inner_radius=bayonet_lock_inner_radius,
-    outer_radius=bayonet_lock_outer_radius, pin_radius=bayonet_lock_pin_radius,
-    allowance=bayonet_lock_allowance, part_height=bayonet_lock_height,
-    neck_height=bayonet_lock_neck_height, inner_radius_fill=bayonet_lock_inner_radius_fill,
-    oring_height=bayonet_lock_oring_height, oring_neck_cut_height=bayonet_lock_oring_neck_cut_height
+    part_to_render="pin",
+    pin_direction=bayonet_lock_pin_direction,
+    number_of_pins=bayonet_lock_number_of_pins,
+    path_sweep_angle=bayonet_lock_path_sweep_angle,
+    turn_direction=bayonet_lock_turn_direction,
+    inner_radius=bayonet_lock_inner_radius,
+    outer_radius=bayonet_lock_outer_radius,
+    pin_radius=bayonet_lock_pin_radius,
+    allowance=bayonet_lock_allowance,
+    part_height=bayonet_lock_height,
+    neck_height=bayonet_lock_neck_height,
+    inner_radius_fill=bayonet_lock_inner_radius_fill,
+    oring_height=bayonet_lock_oring_height,
+    oring_neck_cut_height=bayonet_lock_oring_neck_cut_height
   );
 
 if (render_thermocouple_pinlock || render_all)
   thermocouple_lock(
-    part_to_render="pin", pin_direction=bayonet_lock_pin_direction,
-    number_of_pins=bayonet_lock_number_of_pins, path_sweep_angle=bayonet_lock_path_sweep_angle,
-    turn_direction=bayonet_lock_turn_direction, inner_radius=bayonet_lock_inner_radius,
-    outer_radius=bayonet_lock_outer_radius, pin_radius=bayonet_lock_pin_radius,
-    allowance=bayonet_lock_allowance, part_height=bayonet_lock_height,
-    neck_height=bayonet_lock_neck_height, inner_radius_fill=thermocouple_probe_tip_diameter / 2,
+    part_to_render="pin",
+    pin_direction=bayonet_lock_pin_direction,
+    number_of_pins=bayonet_lock_number_of_pins,
+    path_sweep_angle=bayonet_lock_path_sweep_angle,
+    turn_direction=bayonet_lock_turn_direction,
+    inner_radius=bayonet_lock_inner_radius,
+    outer_radius=bayonet_lock_outer_radius,
+    pin_radius=bayonet_lock_pin_radius,
+    allowance=bayonet_lock_allowance,
+    part_height=bayonet_lock_height,
+    neck_height=bayonet_lock_neck_height,
+    inner_radius_fill=thermocouple_probe_tip_diameter / 2,
     oring_height=bayonet_lock_oring_height,
     oring_neck_cut_height=bayonet_lock_oring_neck_cut_height,
     thermocouple_mount_height=thermocouple_mount_height
