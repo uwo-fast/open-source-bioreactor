@@ -6,6 +6,13 @@
  *
 */
 
+use <custom/lid.scad>;
+
+z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
+$fn = $preview ? 64 : 128;
+
+// -----
+
 // Overrides all other render flags
 render_all = false; // render all components
 render_lid = false;
@@ -21,26 +28,95 @@ render_bayonet_lock = false;
 render_tube_pinlock = false;
 render_thermocouple_pinlock = false;
 
-temp_lid_flange_height = 10;
+// -----
+
+// these will constitute the mandatory input parameters for the head, which are cross-coupled
+// to the vessel and frame, and therefore must be set from the top-level assembly
+
+temp_lid_flange_height = 8;
+temp_vessel_opening_diameter = 143;
+temp_vessel_outer_diameter = 220;
+temp_vessel_internal_height = 295;
+
+vessel_outer_diameter = temp_vessel_outer_diameter;
+vessel_opening_diameter = temp_vessel_opening_diameter;
+lid_flange_height = temp_lid_flange_height;
+vessel_internal_height = temp_vessel_internal_height;
+
+// -----
 
 /* [Lid Parameters] */
 
+// the height of the lids plug (inner diameter part)
+lid_plug_height = 10;
 // allowance for the lid to fit on the jar
-lid_rad_allow = 0.4;
+lid_radial_allowance = 0.4;
 // height allowance for the lid to fit on the jar
-lid_h_allow = 0.2;
-// height of the lid
+lid_vertical_allowance = 0.2;
+// number of holes for the first holes set
+lid_holes_n = 12;
+// allowance for the bearing and shaft holes
+bearing_hole_allowance = 0.2;
+
+/* [Bearing Parameters] */
+
+// diameter of the bearing (outer casing)
 bearing_diameter = 22.6;
 // height of the bearing
 bearing_height = 7.5;
 
-// Driven Parameters
-// height of the lid
-lid_height = upper_base_height - base_floor_height - lid_h_allow;
-// diameter of the cuts on the lid
-lid_cuts = jar_diameter / 5;
-// height of the cuts on the lid
-lid_z_pos = jar_height + base_floor_height + lid_height;
+/* [Motor & Gearbox Parameters] */
+
+// diameter of the motor
+motor_diameter = 34;
+// length of the motor
+motor_length = 30;
+// diameter of the gearbox
+gearbox_diameter = 36;
+// length of the gearbox
+gearbox_length = 26;
+// diameter of the shaft for the gearbox
+gearbox_shaft_diameter = 8;
+// length of the shaft for the gearbox
+gearbox_shaft_length = 20;
+
+/* [Shaft Parameters] */
+
+// The distance between the bottom of the jar (punt) and the bottom of the shaft
+shaft_jar_punt_clearance = 5;
+// length of the shaft for the impeller
+shaft_length = 400;
+// diameter of the shaft
+shaft_diameter = 8.0;
+// adjust distance between the motor and the shaft coupling
+shaft_shaft_coupling_offset = 0; // can be positive or negative
+// reference, length, diameter, input diameter, output diameter, flex?
+shaft_coupler_8x8_rigid = ["SC_8x8_rigid", 25, 12.5, 8, 8, false];
+
+/* [Motor Mount Parameters] */
+
+// width of the motor mount
+motor_mount_width = 42;
+// wall_thickness of the motor mount, must be at least 1.5x the dia of the screws
+motor_mount_thickness = 10;
+// thickness of the floor of the motor mount
+motor_mount_floor_thickness = 4;
+// inner diameter of the motor mount, set based on diameter of motor mounting boss
+motor_mount_inner_diameter = 22;
+// diameter of the screws that fix the motor mount down at by base
+motor_mount_base_screws_diameter = 3.5;
+// diameter of the screws that connect the motor faceplate to the mount
+motor_mount_face_screws_diameter = 4;
+// distance between the base screws
+motor_mount_base_screws_cdist = 32;
+// distance between the face screws
+motor_face_screws_separation = 27.6;
+// width of the pillars that support the motor mount
+motor_mount_pillar_width = 7;
+// draft scale for the motor mount
+motor_mount_draft_scale = 1.5;
+// number of cross bars for the motor mount
+motor_mount_cross_bars = 1;
 
 /* [Impeller Parameters] */
 
@@ -71,83 +147,16 @@ impeller_shaft_allow = 0.4;
 // the amount the radius decreases from top to bottom to create a draft for the shaft hole
 impeller_shaft_radius_interference = 0.2;
 
-// Driven Parameters
-// diameter of the impeller
-impeller_diameter = jar_diameter * impeller_DT_factor;
-// radius of the impeller
-impeller_radius = impeller_diameter / 2;
-// radius of the shaft hole in the impeller
-impeller_shaft_hole_radius = (shaft_diameter + impeller_shaft_allow) / 2;
-
-/* [Motor & Shaft Parameters] */
-
-// diameter of the motor
-motor_diameter = 34;
-// length of the motor
-motor_length = 30;
-// diameter of the gearbox
-gearbox_diameter = 36;
-// length of the gearbox
-gearbox_length = 26;
-// diameter of the shaft for the gearbox
-gearbox_shaft_diameter = 8;
-// length of the shaft for the gearbox
-gearbox_shaft_length = 20;
-
-// The distance between the bottom of the jar (punt) and the bottom of the shaft
-shaft_jar_punt_clearance = 5;
-// length of the shaft for the impeller
-shaft_length = 400;
-// diameter of the shaft
-shaft_diameter = 8.0;
-// adjust distance between the motor and the shaft coupling
-shaft_shaft_coupling_offset = 0; // 
-
-// reference, length, diameter, input diameter, output diameter, flex?
-shaft_coupler_8x8_rigid = ["SC_8x8_rigid", 25, 12.5, 8, 8, false];
-
-// width of the motor mount
-motor_mount_width = 42;
-// wall_thickness of the motor mount, must be at least 1.5x the dia of the screws
-motor_mount_thickness = 10;
-// thickness of the floor of the motor mount
-motor_mount_floor_thickness = 4;
-// inner diameter of the motor mount, set based on diameter of motor mounting boss
-motor_mount_inner_diameter = 22;
-// diameter of the screws that fix the motor mount down at by base
-motor_mount_base_screws_diameter = 3.5;
-// diameter of the screws that connect the motor faceplate to the mount
-motor_mount_face_screws_diameter = 4;
-// distance between the base screws
-motor_mount_base_screws_cdist = 32;
-// distance between the face screws
-motor_face_screws_separation = 27.6;
-// width of the pillars that support the motor mount
-motor_mount_pillar_width = 7;
-// draft scale for the motor mount
-motor_mount_draft_scale = 1.5;
-// number of cross bars for the motor mount
-motor_mount_cross_bars = 1;
-
-shaft_protrusion = shaft_length - (jar_height - (jar_punt_height + shaft_jar_punt_clearance));
-
-// the height that the motor coupling assembly requires
-motor_mount_height = gearbox_shaft_length + shaft_protrusion + shaft_shaft_coupling_offset;
-echo("motor mount height: ", motor_mount_height / 10, " cm");
-
 /* [Thermocouple Mount Parameters] */
+
 // height of the thermocouple mount
 thermocouple_mount_height = 20;
-
 // What style of lock to produce, with the pin pointed inward ou outward?
 bayonet_lock_pin_direction = "outer"; // ["inner", "outer"]
-
 // Render the mechanism with 2 to 6 locks / pins
 bayonet_lock_number_of_pins = 3;
-
 // The angle of the path that the pin will follow
 bayonet_lock_path_sweep_angle = 30;
-
 // Direction of the lock
 bayonet_lock_turn_direction = "CW"; // ["CW", "CCW"]
 
@@ -162,16 +171,8 @@ bayonet_lock_allowance = 0.2;
 // manual pin radius, if not set, it will be calculated based on the inner and outer radius
 bayonet_lock_manual_pin_radius = 1.5;
 
-// radius of the locking pin
-bayonet_lock_pin_radius =
-  (bayonet_lock_manual_pin_radius == 0) ? (bayonet_lock_outer_radius - bayonet_lock_inner_radius) / 4
-  : bayonet_lock_manual_pin_radius;
-
 // Height of the connector part
 bayonet_lock_height = 10;
-
-// fragment count for arcs, 48 works best with FreeCAD
-_fn = 32;
 
 // height of the added neck to create a flange
 bayonet_lock_neck_height = 5;
@@ -181,82 +182,162 @@ bayonet_lock_inner_radius_fill = 0;
 bayonet_lock_oring_height = 1.6;
 bayonet_lock_oring_height_interference = 0.1;
 
+/* [Color Parameters] */
+
+// first color for 3D prints
+prints1_color = "DarkSlateGray";
+// second color for 3D prints
+prints2_color = "SlateBlue";
+
+module dummy() {
+  // stop the customizer detection from here onwards
+}
+
+// Impeller Driven Parameters
+// diameter of the impeller
+impeller_diameter = vessel_outer_diameter * impeller_DT_factor;
+// radius of the impeller
+impeller_radius = impeller_diameter / 2;
+// radius of the shaft hole in the impeller
+impeller_shaft_hole_radius = (shaft_diameter + impeller_shaft_allow) / 2;
+
+// Motor and shaft driven parameters
+shaft_protrusion = shaft_length - (vessel_internal_height - shaft_jar_punt_clearance);
+// the height that the motor coupling assembly requires
+motor_mount_height = gearbox_shaft_length + shaft_protrusion + shaft_shaft_coupling_offset;
+echo("motor mount height: ", motor_mount_height / 10, " cm");
+
+// Bayonet driven parameters
+// radius of the locking pin
+bayonet_lock_pin_radius =
+  (bayonet_lock_manual_pin_radius == 0) ? (bayonet_lock_outer_radius - bayonet_lock_inner_radius) / 4
+  : bayonet_lock_manual_pin_radius;
+
 bayonet_lock_oring_neck_cut_height = bayonet_lock_oring_height - bayonet_lock_oring_height_interference;
 
-// number of holes for the first holes set
-lid_holes_n = 12;
-// diameter of the holes for the first holes set
-lid_holes_radius = bayonet_lock_outer_radius + 0.01;
+color(prints2_color) {
+  union() {
+    difference() {
+      // create the lid
+      lid(
+        outer_diameter=vessel_outer_diameter,
+        inner_diameter=vessel_opening_diameter,
+        height_od=lid_flange_height,
+        height_id=lid_plug_height,
+        allowance=lid_radial_allowance
+      );
 
-echo("lid_holes_radius: ", lid_holes_radius);
-
-// lid
-if (render_lid || render_all) {
-  cut_height = lid_height * 2 * 1.1;
-
-  color(prints2_color) translate([0, 0, lid_z_pos]) rotate([0, 180, 0]) {
+      // cut out the bearing and shaft hole
+      translate([0, 0, -z_fight / 2])
         union() {
-          difference() {
-            // create the lid
-            lid(
-              outer_diameter=jar_diameter,
-              inner_diameter=opening_diameter,
-              height=lid_height,
-              allowance=lid_rad_allow,
-              rod_hole_diameter=threaded_rod_diameter,
-              nut_dia=nut_diameter,
-              nut_h=nut_height
-            );
-
-            // cut out the bearing and shaft hole
-            translate([0, 0, -zFite / 2])
-              union() {
-                cylinder(d=threaded_rod_diameter, h=lid_height * 2 + zFite);
-                rotate([0, 0, 30])
-                  cylinder(d=bearing_diameter, h=bearing_height + zFite);
-              }
-
-            // cut off corners to reduce material and allow space for lights
-            translate([0, 0, lid_height]) rotate([0, 0, 45]) difference() {
-                  cube([jar_diameter * 1.1, jar_diameter * 1.1, cut_height], center=true);
-                  cube([jar_diameter - lid_cuts, jar_diameter - lid_cuts, cut_height * 1.1], center=true);
-                }
-
-            // cut out the entry holes for the probes and tubes
-            for (hole_rot = [0:360 / lid_holes_n:360]) {
-              rotate([0, 0, hole_rot])
-                translate([jar_diameter / 4, 0, lid_height]) {
-                  cylinder(r=lid_holes_radius, h=cut_height, center=true);
-                }
-            }
-          }
-
-          // cut out the entry holes for the probes and tubes
-          for (hole_rot = [0:360 / lid_holes_n:360]) {
-            rotate([0, 0, hole_rot])
-              translate([jar_diameter / 4, 0, lid_height + bayonet_lock_height * 0.5])
-                rotate([180, 0, 0]) {
-                  // add the bayonet locks
-                  if (render_bayonet_lock || render_all)
-                    tube_lock(
-                      part_to_render="lock",
-                      pin_direction=bayonet_lock_pin_direction,
-                      number_of_pins=bayonet_lock_number_of_pins,
-                      path_sweep_angle=bayonet_lock_path_sweep_angle,
-                      turn_direction=bayonet_lock_turn_direction,
-                      inner_radius=bayonet_lock_inner_radius,
-                      outer_radius=bayonet_lock_outer_radius,
-                      pin_radius=bayonet_lock_pin_radius,
-                      allowance=bayonet_lock_allowance,
-                      part_height=bayonet_lock_height,
-                      neck_height=bayonet_lock_neck_height,
-                      inner_radius_fill=bayonet_lock_inner_radius_fill,
-                      oring_height=bayonet_lock_oring_height,
-                      oring_neck_cut_height=bayonet_lock_oring_neck_cut_height
-                    );
-                }
-          }
+          // shaft hole
+          cylinder(d=shaft_diameter + bearing_hole_allowance, h=lid_flange_height + lid_plug_height + z_fight);
+          
+          // bearing pocket
+          rotate([0, 0, 30])
+            cylinder(d=bearing_diameter + bearing_hole_allowance, h=bearing_height + z_fight);
         }
+
+      // cut out the entry holes for the probes and tubes
+      for (hole_rot = [0:360 / lid_holes_n:360]) {
+        rotate([0, 0, hole_rot])
+          translate([vessel_outer_diameter / 4, 0, (lid_flange_height + lid_plug_height) / 2]) {
+            cylinder(r=bayonet_lock_outer_radius, h=lid_flange_height + lid_plug_height + z_fight, center=true);
+          }
+      }
+    }
+
+    // // cut out the entry holes for the probes and tubes
+    // for (hole_rot = [0:360 / lid_holes_n:360]) {
+    //   rotate([0, 0, hole_rot])
+    //     translate([vessel_outer_diameter / 4, 0, lid_flange_height + bayonet_lock_height * 0.5])
+    //       rotate([180, 0, 0]) {
+    //         // add the bayonet locks
+    //           tube_lock(
+    //             part_to_render="lock",
+    //             pin_direction=bayonet_lock_pin_direction,
+    //             number_of_pins=bayonet_lock_number_of_pins,
+    //             path_sweep_angle=bayonet_lock_path_sweep_angle,
+    //             turn_direction=bayonet_lock_turn_direction,
+    //             inner_radius=bayonet_lock_inner_radius,
+    //             outer_radius=bayonet_lock_outer_radius,
+    //             pin_radius=bayonet_lock_pin_radius,
+    //             allowance=bayonet_lock_allowance,
+    //             part_height=bayonet_lock_height,
+    //             neck_height=bayonet_lock_neck_height,
+    //             inner_radius_fill=bayonet_lock_inner_radius_fill,
+    //             oring_height=bayonet_lock_oring_height,
+    //             oring_neck_cut_height=bayonet_lock_oring_neck_cut_height
+    //           );
+    //       }
+    // }
+  }
+}
+
+// motor and shaft
+if (render_motor || render_all) {
+
+  // motor
+  translate([0, 0, lid_z_pos + motor_mount_height + motor_length + gearbox_length]) rotate([0, 180, 0]) union() {
+        dcmotor(diameter=motor_diameter, length=motor_length);
+        translate([0, 0, motor_length]) gearbox(
+            diameter=gearbox_diameter, length=gearbox_length, output_shaft_diameter=gearbox_shaft_diameter,
+            output_shaft_length=gearbox_shaft_length, faceplate_screws_cdist=motor_face_screws_separation
+          );
+      }
+}
+
+// motor mount
+if (render_motor_mount || render_all) {
+  color(prints1_color) translate([0, 0, lid_z_pos]) motor_mount(
+        height=motor_mount_height, width=motor_mount_width, wall_thickness=motor_mount_thickness,
+        floor_thickness=motor_mount_floor_thickness, inner_dia=motor_mount_inner_diameter, pillar_width=motor_mount_pillar_width,
+        base_screws_diameter=motor_mount_base_screws_diameter, base_screws_cdist=motor_mount_base_screws_cdist,
+        face_screws_diameter=motor_mount_face_screws_diameter, face_screws_cdist=motor_face_screws_separation,
+        draft_scale=motor_mount_draft_scale, cross_bars=motor_mount_cross_bars
+      );
+}
+
+// shaft coupling
+if (render_shaft_coupler || render_all) {
+
+  translate(
+    [0, 0, lid_z_pos + shaft_protrusion + shaft_shaft_coupling_offset / 2]
+  )
+
+    shaft_coupling(type=shaft_coupler_8x8_rigid, colour="MediumBlue");
+}
+
+// external shaft
+if (render_ext_shaft || render_all) {
+
+  color("grey")
+    translate(
+      [0, 0, jar_floor_height + shaft_jar_punt_clearance]
+    )
+      cylinder(h=shaft_length, d=shaft_diameter, center=false);
+}
+
+// impeller
+if (render_impeller || render_all) {
+  translate([0, 0, lid_z_pos - shaft_length + shaft_protrusion + impeller_height / 2]) color(prints2_color) union() {
+        // main impeller body
+        impeller(
+          radius=impeller_radius,
+          height=impeller_height,
+          fins=impeller_n_fins,
+          twist=impeller_twist_ang,
+          fin_width=impeller_fin_width,
+          center_hub_radius=impeller_hub_radius,
+          center_hole_radius=impeller_shaft_hole_radius,
+          center_hole_radius_lower=impeller_shaft_hole_radius - impeller_shaft_radius_interference
+        );
+        // top ring to connect the fin tops for mechanical stability
+        translate([0, 0, impeller_height / 2 - impeller_fin_width / 2])
+          linear_extrude(impeller_fin_width, center=true) difference() {
+              circle(r=impeller_radius + impeller_fin_width, $fn=64);
+              circle(r=impeller_radius, $fn=64);
+            }
       }
 }
 
@@ -296,3 +377,5 @@ if (render_thermocouple_pinlock || render_all)
     oring_neck_cut_height=bayonet_lock_oring_neck_cut_height,
     thermocouple_mount_height=thermocouple_mount_height
   );
+
+// READD PROBES USING NEW REGISTERED PARAMETERS
