@@ -1,4 +1,4 @@
-use <Bayonet-Lock-SCAD/bayonet_lock.scad>
+use <bayonet-lock-scad/bayonet_lock.scad>
 
 zFite = $preview ? 0.1 : 0;
 $fn = $preview ? 32 : 128;

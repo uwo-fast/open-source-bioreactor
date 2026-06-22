@@ -11,7 +11,7 @@ Composable, modular, and extensible bioreactor design.
 
 ## OpenSCAD Libraries
 
-- [github.com/CameronBrooks11/Bayonet-Lock-SCAD](https://github.com/CameronBrooks11/Bayonet-Lock-SCAD)
+- [github.com/CameronBrooks11/bayonet-lock-scad](https://github.com/CameronBrooks11/bayonet-lock-scad)
 - [github.com/thehans/FunctionalOpenSCAD](https://github.com/thehans/FunctionalOpenSCAD)
 - [github.com/nophead/NopSCADlib](https://github.com/nophead/NopSCADlib)
 
