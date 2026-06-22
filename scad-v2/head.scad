@@ -6,18 +6,18 @@
  *
 */
 
-
-
 // Overrides all other render flags
 render_all = false; // render all components
 render_lid = false;
-render_bayonet_lock = false;
-render_probes = false;
+
 render_motor = false;
 render_motor_mount = false;
 render_shaft_coupler = false;
 render_ext_shaft = false;
 render_impeller = false;
+
+render_probes = false;
+render_bayonet_lock = false;
 render_tube_pinlock = false;
 render_thermocouple_pinlock = false;
 
@@ -46,11 +46,11 @@ lid_z_pos = jar_height + base_floor_height + lid_height;
 /** Design guidelines for impeller:
  * - The impeller radius (radius) should be 1/3 to 1/2 of the tank radius for bioreactors
  * - The number of fins (fins) and their twist angle (twist) influence mixing efficiency, flow patterns, and shear
- * forces.
- *   More fins generally increase turbulence and mixing but may require higher power input.
- *   Twist angle adjusts the direction and intensity of flow, with higher angles promoting axial flow and lower angles
- *   favoring radial flow. Choose values based on the viscosity of the fluid, required mixing intensity, and sensitivity
- *   of the culture to shear forces.
+ *   forces.
+ *   - More fins generally increase turbulence and mixing but may require higher power input.
+ *   - Twist angle adjusts the direction and intensity of flow, with higher angles promoting axial flow and lower angles
+ *     favoring radial flow. Choose values based on the viscosity of the fluid, required mixing intensity, and sensitivity
+ *     of the culture to shear forces.
  */
 
 // impeller diameter to tank diameter ratio
