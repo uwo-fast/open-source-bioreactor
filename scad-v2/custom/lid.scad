@@ -16,18 +16,18 @@ $fn = $preview ? 64 : 128;
  *
  * @param outer_diameter The outer diameter of the lid.
  * @param inner_diameter The inner diameter of the lid.
- * @param height The height of the lid.
+ * @param height_od The height of the outer diameter part of the lid.
+ * @param height_id The height of the inner diameter part of the lid.
  * @param allowance The allowance between the outer and inner diameters.
- * @param rod_hole_diameter The diameter of the hole for rods.
- * @param nut_dia The diameter of the nuts.
- * @param nut_h The height of the nuts.
  */
-module lid(outer_diameter, inner_diameter, height, allowance, rod_hole_diameter, nut_dia, nut_h) {
+module lid(outer_diameter, inner_diameter, height_od, height_id, allowance) {
   union() {
+    // flange of the lid
+    cylinder(d=outer_diameter, h=height_od);
 
-    cylinder(d=outer_diameter, h=height);
-    translate([0, 0, height]) {
-      cylinder(d=inner_diameter - allowance, h=height);
+    // center closure extrusion
+    translate([0, 0, height_od]) {
+      cylinder(d=inner_diameter - allowance, h=height_id);
     }
   }
 }
