@@ -87,6 +87,10 @@ prints1_color = "DarkSlateGray";
 // second color for 3D prints
 prints2_color = "SlateBlue";
 
+module dummy() {
+  // stop the customizer detection from here onwards
+}
+
 module lights(quadrants, jar_diameter, lights_per_quadrant, occupy_angle, allowance_cutout = undef) {
   for (q = quadrants) {
     rotate([0, 0, (q - 1) * 90]) {
