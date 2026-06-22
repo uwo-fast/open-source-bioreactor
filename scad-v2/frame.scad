@@ -42,7 +42,7 @@ lights_per_quadrant = 3;
 // angle that the lights occupy
 occupy_angle = 60; // of the 90 degree quadrant
 // allowance for the light to fit in the base
-light_allow = 0.2;
+light_allow = 0.4;
 
 /* [Nut & Rod Parameters] */
 
@@ -87,7 +87,7 @@ prints1_color = "DarkSlateGray";
 // second color for 3D prints
 prints2_color = "SlateBlue";
 
-module lights(quadrants, jar_diameter, lights_per_quadrant, occupy_angle) {
+module lights(quadrants, jar_diameter, lights_per_quadrant, occupy_angle, allowance_cutout = undef) {
   for (q = quadrants) {
     rotate([0, 0, (q - 1) * 90]) {
       for (i = [0:lights_per_quadrant - 1]) {
@@ -98,8 +98,12 @@ module lights(quadrants, jar_diameter, lights_per_quadrant, occupy_angle) {
           : i * (occupy_angle / (lights_per_quadrant - 1)) + angle_offset;
 
         rotate([0, 0, light_angle])
-          translate([0, jar_diameter / 2, 0])
+          translate([0, jar_diameter / 2, 0]) if (is_undef(allowance_cutout)) {
             strip_light(generic);
+          } else {
+            translate([0, strip_light_depth(generic) / 2, strip_light_length(generic) / 2])
+              cube([strip_light_width(generic) + allowance_cutout, strip_light_depth(generic) + allowance_cutout, strip_light_length(generic)], center=true);
+          }
       }
     }
   }
@@ -130,9 +134,12 @@ module frame(jar_height, jar_diameter) {
   module frame_lights_cutout(local_quadrants = [1, 2, 3, 4]) {
     difference() {
       children();
-      frame_lights(local_quadrants);
+      lights(local_quadrants, jar_diameter, lights_per_quadrant, occupy_angle, allowance_cutout=light_allow);
     }
   }
+
+  // Translate entire frame down by the height of the base floor
+  // Since design is located based on the bottom of the vessel
   translate([0, 0, -base_floor_height - z_fight]) {
     frame_lights();
 
