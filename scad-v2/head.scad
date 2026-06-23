@@ -276,14 +276,10 @@ module head() {
   // motor and shaft
   if (render_motor || render_all) {
 
-    // motor
+    // motor (dc_motor mounts its own gearbox via the registered type)
     translate([0, 0, motor_mount_height + motor_length + gearbox_length])
       rotate([0, 180, 0])
-        union() {
-          dc_motor(generic_dc_motor);
-          translate([0, 0, motor_length])
-            gearbox(generic_gearbox);
-        }
+        dc_motor(generic_dc_motor);
   }
 
   // motor mount
