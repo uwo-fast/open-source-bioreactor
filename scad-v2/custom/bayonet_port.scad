@@ -102,12 +102,13 @@ module bayonet_port(
           turn_direction=turn_direction
         );
 
-      // Fill middle with center bore
-      if (center_bore_radius > 0) {
-        _tube(h=part_height + _neck_h, r_outer=interface_radius - pin_radius, r_inner=center_bore_radius);
-      } else {
-
-        cylinder(h=part_height + _neck_h, r=interface_radius - pin_radius);
+      // Fill middle with center bore when set to pins
+      if (part == "pin") {
+        if (center_bore_radius > 0) {
+          _tube(h=part_height + _neck_h, r_outer=interface_radius - pin_radius, r_inner=center_bore_radius);
+        } else {
+          cylinder(h=part_height + _neck_h, r=interface_radius - pin_radius);
+        }
       }
 
       // neck cylinder
