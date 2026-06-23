@@ -103,10 +103,10 @@ module lights(quadrants, jar_diameter, lights_per_quadrant, occupy_angle, allowa
 
         rotate([0, 0, light_angle])
           translate([0, jar_diameter / 2, 0]) if (is_undef(allowance_cutout)) {
-            strip_light(generic);
+            strip_light(generic_strip_light);
           } else {
-            translate([0, strip_light_depth(generic) / 2, strip_light_length(generic) / 2])
-              cube([strip_light_width(generic) + allowance_cutout, strip_light_depth(generic) + allowance_cutout, strip_light_length(generic)], center=true);
+            translate([0, strip_light_depth(generic_strip_light) / 2, strip_light_length(generic_strip_light) / 2])
+              cube([strip_light_width(generic_strip_light) + allowance_cutout, strip_light_depth(generic_strip_light) + allowance_cutout, strip_light_length(generic_strip_light)], center=true);
           }
       }
     }
@@ -118,7 +118,7 @@ module frame(jar_height, jar_diameter) {
   // total height of the assembly
   total_height = jar_height + base_floor_height + upper_base_height;
   // distance from the center of the jar to the threaded rod
-  base_wall_thickness = (strip_light_depth(generic) * 1.5) * 2; // thinnest part is 50% thicker than the light depth
+  base_wall_thickness = (strip_light_depth(generic_strip_light) * 1.5) * 2; // thinnest part is 50% thicker than the light depth
   // diameter of the cutout for the jar
   base_jar_cut_diameter = jar_diameter + base_jar_fit_allow;
 

@@ -3,12 +3,12 @@
 
 include <gearboxes.scad>
 
-//        ["name"     [motor_dia, motor_len], shaft,  gearbox]
-generic = ["generic", [34,        30],        undef,  generic_gearbox];
+//                 ["name"     [motor_dia, motor_len], shaft,  gearbox]
+generic_dc_motor = ["generic", [34,        30],        undef,  generic_gearbox];
 
-dc_motors = [generic];
+dc_motors = [generic_dc_motor];
 
 use <dc_motor.scad>
 
 // example usage (open this file directly to preview)
-// dc_motor(generic);
+// dc_motor(generic_dc_motor);

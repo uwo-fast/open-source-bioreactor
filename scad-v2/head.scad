@@ -280,9 +280,9 @@ module head() {
     translate([0, 0, motor_mount_height + motor_length + gearbox_length])
       rotate([0, 180, 0])
         union() {
-          dc_motor(generic);
+          dc_motor(generic_dc_motor);
           translate([0, 0, motor_length])
-            gearbox(generic);
+            gearbox(generic_gearbox);
         }
   }
 
