@@ -101,28 +101,22 @@ shaft_coupler_8x8_rigid = ["SC_8x8_rigid", 25, 12.5, 8, 8, false];
 
 /* [Motor Mount Parameters] */
 
-// width of the motor mount
-motor_mount_width = 42;
-// wall_thickness of the motor mount, must be at least 1.5x the dia of the screws
-motor_mount_thickness = 10;
-// thickness of the floor of the motor mount
-motor_mount_floor_thickness = 4;
-// inner diameter of the motor mount, set based on diameter of motor mounting boss
-motor_mount_inner_diameter = 22;
-// diameter of the screws that fix the motor mount down at by base
+// diameter of the screws that fix each mount end down (lid side / motor side)
 motor_mount_base_screws_diameter = 3.5;
+// diameter of the screws that clamp the middle tube to the end caps
+motor_mount_tube_screws_diameter = 3.1;
 // diameter of the screws that connect the motor faceplate to the mount
 motor_mount_face_screws_diameter = 4;
-// distance between the base screws
-motor_mount_base_screws_cdist = 32;
-// distance between the face screws
+// diameter of the motor mounting boss (sets the mount inner diameter)
+motor_mount_boss_diameter = 22;
+// distance between the motor faceplate screws
 motor_face_screws_separation = 27.6;
-// width of the pillars that support the motor mount
-motor_mount_pillar_width = 7;
-// draft scale for the motor mount
-motor_mount_draft_scale = 1.5;
-// number of cross bars for the motor mount
-motor_mount_cross_bars = 1;
+// height of the flange on each mount end cap
+motor_mount_flange_height = 8;
+// height of the raised register face on each mount end cap
+motor_mount_raised_face_height = 10;
+// number of facets for the mount body (must be divisible by 4)
+motor_mount_facets = 20;
 
 /* [Impeller Parameters] */
 
@@ -282,23 +276,22 @@ module head() {
         dc_motor(generic_dc_motor);
   }
 
-  // motor mount
+  // motor mount (the module colors its three telescoping parts internally)
   if (render_motor_mount || render_all) {
-    color(prints1_color)
-      motor_mount(
-        height=motor_mount_height,
-        width=motor_mount_width,
-        wall_thickness=motor_mount_thickness,
-        floor_thickness=motor_mount_floor_thickness,
-        inner_dia=motor_mount_inner_diameter,
-        pillar_width=motor_mount_pillar_width,
-        base_screws_diameter=motor_mount_base_screws_diameter,
-        base_screws_cdist=motor_mount_base_screws_cdist,
-        face_screws_diameter=motor_mount_face_screws_diameter,
-        face_screws_cdist=motor_face_screws_separation,
-        draft_scale=motor_mount_draft_scale,
-        cross_bars=motor_mount_cross_bars
-      );
+    motor_mount(
+      base_screw_diameter=motor_mount_base_screws_diameter,
+      tube_screw_diameter=motor_mount_tube_screws_diameter,
+      face_screw_diameter=motor_mount_face_screws_diameter,
+      bearing_diameter=bearing_diameter,
+      shaft_diameter=shaft_diameter,
+      motor_faceplate_diameter=gearbox_diameter,
+      motor_faceplate_screws_separation=motor_face_screws_separation,
+      motor_boss_diameter=motor_mount_boss_diameter,
+      flange_height=motor_mount_flange_height,
+      raised_face_height=motor_mount_raised_face_height,
+      middle_height=motor_mount_height,
+      facets=motor_mount_facets
+    );
   }
 
   // shaft coupling
