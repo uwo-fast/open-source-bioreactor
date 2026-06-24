@@ -74,20 +74,12 @@ bearing_diameter = 22.6;
 // height of the bearing
 bearing_height = 7.5;
 
-/* [Motor & Gearbox Parameters] */
+/* [Motor & Gearbox Selection] */
 
-// diameter of the motor
-motor_diameter = 34;
-// length of the motor
-motor_length = 30;
-// diameter of the gearbox
-gearbox_diameter = 36;
-// length of the gearbox
-gearbox_length = 26;
-// diameter of the shaft for the gearbox
-gearbox_shaft_diameter = 8;
-// length of the shaft for the gearbox
-gearbox_shaft_length = 20;
+// the registered motor type; the gearbox is taken from the motor's registration
+// (dc_motor_gearbox), and all motor/gearbox dimensions are derived from these via
+// the accessor functions rather than re-entered here
+head_motor = generic_dc_motor;
 
 /* [Shaft Parameters] */
 
@@ -108,12 +100,8 @@ shaft_coupler_8x8_rigid = ["SC_8x8_rigid", 25, 12.5, 8, 8, false];
 motor_mount_base_screws_diameter = 3.5;
 // diameter of the screws that clamp the middle tube to the end caps
 motor_mount_tube_screws_diameter = 3.1;
-// diameter of the screws that connect the motor faceplate to the mount
-motor_mount_face_screws_diameter = 4;
 // diameter of the motor mounting boss (sets the mount inner diameter)
 motor_mount_boss_diameter = 22;
-// distance between the motor faceplate screws
-motor_face_screws_separation = 27.6;
 // height of the flange on each mount end cap
 motor_mount_flange_height = 8;
 // height of the raised register face on each mount end cap
@@ -197,6 +185,9 @@ module dummy() {
   // stop the customizer detection from here onwards
 }
 
+// the gearbox carried by the selected motor - single source for gearbox dims
+head_gearbox = dc_motor_gearbox(head_motor);
+
 // Impeller Driven Parameters
 // diameter of the impeller
 impeller_diameter = vessel_outer_diameter * impeller_impeller_vessel_diameter_factor;
@@ -208,7 +199,7 @@ impeller_shaft_hole_radius = (shaft_diameter + impeller_shaft_allow) / 2;
 // Motor and shaft driven parameters
 shaft_protrusion = shaft_length - (vessel_internal_height - shaft_jar_punt_clearance);
 // the height that the motor coupling assembly requires
-motor_mount_height = gearbox_shaft_length + shaft_protrusion + shaft_shaft_coupling_offset;
+motor_mount_height = gearbox_output_shaft_length(head_gearbox) + shaft_protrusion + shaft_shaft_coupling_offset;
 echo("motor mount height: ", motor_mount_height / 10, " cm");
 
 module lid_pocketed() {
@@ -275,9 +266,9 @@ module head() {
   if (render_motor || render_all) {
 
     // motor (dc_motor mounts its own gearbox via the registered type)
-    translate([0, 0, motor_mount_height + motor_length + gearbox_length])
+    translate([0, 0, motor_mount_height + dc_motor_length(head_motor) + gearbox_length(head_gearbox)])
       rotate([0, 180, 0])
-        dc_motor(generic_dc_motor);
+        dc_motor(head_motor);
   }
 
   // motor mount (the module colors its three telescoping parts internally)
@@ -285,11 +276,11 @@ module head() {
     motor_mount(
       base_screw_diameter=motor_mount_base_screws_diameter,
       tube_screw_diameter=motor_mount_tube_screws_diameter,
-      face_screw_diameter=motor_mount_face_screws_diameter,
+      face_screw_diameter=gearbox_screw_diameter(head_gearbox),
       bearing_diameter=bearing_diameter,
       shaft_diameter=shaft_diameter,
-      motor_faceplate_diameter=gearbox_diameter,
-      motor_faceplate_screws_separation=motor_face_screws_separation,
+      motor_faceplate_diameter=gearbox_diameter(head_gearbox),
+      motor_faceplate_screws_separation=gearbox_faceplate_screws_cdist(head_gearbox),
       motor_boss_diameter=motor_mount_boss_diameter,
       flange_height=motor_mount_flange_height,
       raised_face_height=motor_mount_raised_face_height,
