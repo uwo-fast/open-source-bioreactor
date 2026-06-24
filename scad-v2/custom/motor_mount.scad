@@ -102,12 +102,29 @@ module motor_mount(
 
   if (render == "all" || render == "base_plate") {
     translate([0, 0, 0])
-      color("slategrey")
+      male_end(
+        center_hole_diameter=bottom_center_hole_diameter,
+        vertical_hole_radius=bottom_top_hole_radius,
+        vertical_hole_diameter=base_screw_diameter,
+        vertical_hole_depth=bottom_vertical_hole_depth,
+        flange_height=flange_height,
+        raised_face_height=raised_face_height,
+        outer_diameter=outer_diameter,
+        wall_thickness=wall_thickness,
+        tube_screw_diameter=tube_screw_diameter,
+        face_screw_diameter=face_screw_diameter,
+        facets=facets
+      );
+  }
+
+  if (render == "all" || render == "face_plate") {
+    translate([0, 0, middle_height + flange_height * 2])
+      rotate([0, 180, 0])
         male_end(
-          center_hole_diameter=bottom_center_hole_diameter,
-          vertical_hole_radius=bottom_top_hole_radius,
-          vertical_hole_diameter=base_screw_diameter,
-          vertical_hole_depth=bottom_vertical_hole_depth,
+          center_hole_diameter=motor_boss_diameter,
+          vertical_hole_radius=motor_faceplate_screws_separation / 2,
+          vertical_hole_diameter=face_screw_diameter,
+          vertical_hole_depth=top_vertical_hole_depth,
           flange_height=flange_height,
           raised_face_height=raised_face_height,
           outer_diameter=outer_diameter,
@@ -118,40 +135,20 @@ module motor_mount(
         );
   }
 
-  if (render == "all" || render == "face_plate") {
-    translate([0, 0, middle_height + flange_height * 2])
-      color("grey")
-        rotate([0, 180, 0])
-          male_end(
-            center_hole_diameter=motor_boss_diameter,
-            vertical_hole_radius=motor_faceplate_screws_separation / 2,
-            vertical_hole_diameter=face_screw_diameter,
-            vertical_hole_depth=top_vertical_hole_depth,
-            flange_height=flange_height,
-            raised_face_height=raised_face_height,
-            outer_diameter=outer_diameter,
-            wall_thickness=wall_thickness,
-            tube_screw_diameter=tube_screw_diameter,
-            face_screw_diameter=face_screw_diameter,
-            facets=facets
-          );
-  }
-
   if (render == "all" || render == "middle_stand") {
-    color("slateblue")
-      translate([0, 0, flange_height])
-        middle_pipe(
-          pipe_height=middle_height,
-          inner_diameter=middle_inner_diameter,
-          interface_hole_radius=middle_interface_hole_radius,
-          interface_hole_diameter=middle_interface_hole_diameter,
-          interface_hole_depth=middle_interface_hole_depth,
-          flange_height=flange_height,
-          raised_face_height=raised_face_height,
-          outer_diameter=outer_diameter,
-          tube_screw_diameter=tube_screw_diameter,
-          facets=facets
-        );
+    translate([0, 0, flange_height])
+      middle_pipe(
+        pipe_height=middle_height,
+        inner_diameter=middle_inner_diameter,
+        interface_hole_radius=middle_interface_hole_radius,
+        interface_hole_diameter=middle_interface_hole_diameter,
+        interface_hole_depth=middle_interface_hole_depth,
+        flange_height=flange_height,
+        raised_face_height=raised_face_height,
+        outer_diameter=outer_diameter,
+        tube_screw_diameter=tube_screw_diameter,
+        facets=facets
+      );
   }
 }
 
