@@ -2,12 +2,8 @@
 
 ## critical path
 
-- [ ] Better parameterization of the bayonet connectors so that inputs map obviously to the geometry of the connectors
-  - for example, not to some arbitrary dimension in the middle of the connectors major and minor diameters
-  - this is largely a concern of: A) intuitiveness and B) making it actually feasible to integrate into an assembly or as a composite part
-
-- [ ] stronger interface-based design surrounding the bayonet connectors
-  - bayonet connector lib --> generic port --> specific port (e.g. probe holder, motor mount, etc.)
+- [ ] stronger interface-based design surrounding the bayonet connectors ports
+  - bayonet connector lib --> generic port --> specific port (e.g. probe holder, thermocouple, etc.)
   - the "tube interface" should be literally just a generic port with the optional center bore appropriately set and wrapping the radius / diameter print out on the part
 
 ## model completeness / enhancement
