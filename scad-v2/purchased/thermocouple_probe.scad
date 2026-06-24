@@ -2,7 +2,6 @@
 // Atlas probe geometry: medium tip cylinder, larger body cylinder.
 // Tapered neck cylinder leading to a small cable cylinder.
 
-use <../utils/trapezium.scad>;
 use <threads-scad/threads.scad>;
 
 z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview

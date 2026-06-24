@@ -1,4 +1,4 @@
-use <../utils/arc_points.scad>;
+use <arc_points.scad>;
 
 z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
