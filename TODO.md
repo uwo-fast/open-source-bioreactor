@@ -26,3 +26,4 @@
 - [ ] use a less expensive shaft for the impeller and try and get in 300mm instead of oversized 400mm thats being compensated by the parameteric printed motor mount
   - might not need to be linear motion surface rated and all that
 - [ ] swap out the threaded rods with printed parts
+- [ ] review and revise geometry composition method of bayonet connectors to make it computationally more efficient (slow in viewer at the moment with multiple on the lid)
