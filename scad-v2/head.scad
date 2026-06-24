@@ -14,6 +14,9 @@ use <custom/impeller.scad>;
 include <purchased/dc_motors.scad>;
 include <purchased/gearboxes.scad>;
 
+include <NopSCADlib/core.scad>;
+use <NopSCADlib/vitamins/shaft_coupling.scad>;
+
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
@@ -210,53 +213,54 @@ echo("motor mount height: ", motor_mount_height / 10, " cm");
 
 module lid_pocketed() {
   color(prints2_color) {
-    union() {
-      difference() {
-        // create the lid
-        lid(
-          outer_diameter=vessel_outer_diameter,
-          inner_diameter=vessel_opening_diameter,
-          height_od=lid_flange_height,
-          height_id=lid_plug_height,
-          allowance=lid_radial_allowance
-        );
+    rotate([0, 180, 0])
+      union() {
+        difference() {
+          // create the lid
+          lid(
+            outer_diameter=vessel_outer_diameter,
+            inner_diameter=vessel_opening_diameter,
+            height_od=lid_flange_height,
+            height_id=lid_plug_height,
+            allowance=lid_radial_allowance
+          );
 
-        // cut out the bearing and shaft hole
-        translate([0, 0, -z_fight / 2])
-          union() {
-            // shaft hole
-            cylinder(d=shaft_diameter + bearing_hole_allowance, h=lid_flange_height + lid_plug_height + z_fight);
+          // cut out the bearing and shaft hole
+          translate([0, 0, -z_fight / 2])
+            union() {
+              // shaft hole
+              cylinder(d=shaft_diameter + bearing_hole_allowance, h=lid_flange_height + lid_plug_height + z_fight);
 
-            // bearing pocket
-            rotate([0, 0, 30])
-              cylinder(d=bearing_diameter + bearing_hole_allowance, h=bearing_height + z_fight);
+              // bearing pocket
+              rotate([0, 0, 30])
+                cylinder(d=bearing_diameter + bearing_hole_allowance, h=bearing_height + z_fight);
+            }
+
+          // cut out the entry holes for the probes and tubes
+          for (hole_rot = [0:360 / lid_holes_n:360]) {
+            rotate([0, 0, hole_rot])
+              translate([vessel_outer_diameter / 4, 0, (lid_flange_height + lid_plug_height) / 2]) {
+                cylinder(r=bayonet_interface_radius + bayonet_pin_radius * 1.5, h=lid_flange_height + lid_plug_height + z_fight, center=true);
+              }
           }
-
+        }
         // cut out the entry holes for the probes and tubes
         for (hole_rot = [0:360 / lid_holes_n:360]) {
           rotate([0, 0, hole_rot])
-            translate([vessel_outer_diameter / 4, 0, (lid_flange_height + lid_plug_height) / 2]) {
-              cylinder(r=bayonet_interface_radius + bayonet_pin_radius * 1.5, h=lid_flange_height + lid_plug_height + z_fight, center=true);
-            }
+            translate([vessel_outer_diameter / 4, 0, bayonet_part_height + bayonet_oring_cs_diameter])
+              rotate([180, 0, 0]) {
+                // add the bayonet locks
+                bayonet_port(
+                  part="lock",
+                  interface_radius=bayonet_interface_radius,
+                  pin_radius=bayonet_pin_radius,
+                  part_height=bayonet_part_height,
+                  neck_height=bayonet_neck_height,
+                  neck_radius=bayonet_neck_radius
+                );
+              }
         }
       }
-      // cut out the entry holes for the probes and tubes
-      for (hole_rot = [0:360 / lid_holes_n:360]) {
-        rotate([0, 0, hole_rot])
-          translate([vessel_outer_diameter / 4, 0, bayonet_part_height + bayonet_oring_cs_diameter])
-            rotate([180, 0, 0]) {
-              // add the bayonet locks
-              bayonet_port(
-                part="lock",
-                interface_radius=bayonet_interface_radius,
-                pin_radius=bayonet_pin_radius,
-                part_height=bayonet_part_height,
-                neck_height=bayonet_neck_height,
-                neck_radius=bayonet_neck_radius
-              );
-            }
-      }
-    }
   }
 }
 
@@ -308,7 +312,7 @@ module head() {
   if (render_ext_shaft || render_all) {
 
     color("grey")
-      translate([0, 0, jar_floor_height + shaft_jar_punt_clearance])
+      translate([0, 0, -vessel_internal_height + shaft_jar_punt_clearance])
         cylinder(h=shaft_length, d=shaft_diameter, center=false);
   }
 
