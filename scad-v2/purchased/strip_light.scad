@@ -11,8 +11,8 @@
 z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
-function strip_light_width(type) = type[1][0];  // width of the strip light
-function strip_light_depth(type) = type[1][1];  // depth of the strip light
+function strip_light_width(type) = type[1][0]; // width of the strip light
+function strip_light_depth(type) = type[1][1]; // depth of the strip light
 function strip_light_length(type) = type[1][2]; // length of the strip light
 function strip_light_radius(type) = type[1][3]; // radius of the curved front, optional
 

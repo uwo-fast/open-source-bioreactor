@@ -27,7 +27,6 @@ $fn = $preview ? 64 : 128;
 // // diameter of the motor for the motor mount
 // peri_pump_motor_diameter = 30;
 
-
 // diameter of the motor
 motor_diameter = 34;
 

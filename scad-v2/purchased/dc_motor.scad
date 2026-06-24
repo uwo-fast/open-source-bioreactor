@@ -12,9 +12,9 @@ light_grey = [0.6, 0.6, 0.6];
 medium_grey = [0.5, 0.5, 0.5];
 
 function dc_motor_diameter(type) = type[1][0]; // diameter of the motor
-function dc_motor_length(type) = type[1][1];   // length of the motor
-function dc_motor_shaft(type) = type[2];       // [shaft_d, shaft_l] of the bare shaft, optional
-function dc_motor_gearbox(type) = type[3];     // gearbox type mounted to the face, optional
+function dc_motor_length(type) = type[1][1]; // length of the motor
+function dc_motor_shaft(type) = type[2]; // [shaft_d, shaft_l] of the bare shaft, optional
+function dc_motor_gearbox(type) = type[3]; // gearbox type mounted to the face, optional
 
 /**
  * @brief Create a DC motor from a registered type

@@ -13,14 +13,14 @@ medium_grey = [0.5, 0.5, 0.5];
 grey = [0.4, 0.4, 0.4];
 dark_grey = [0.3, 0.3, 0.3];
 
-function gearbox_diameter(type) = type[1][0];             // diameter of the gearbox body
-function gearbox_length(type) = type[1][1];               // length of the gearbox body
-function gearbox_output_shaft_dia(type) = type[2][0];     // diameter of the output shaft
-function gearbox_output_shaft_length(type) = type[2][1];  // length of the output shaft
-function gearbox_input_shaft_dia(type) = type[3][0];      // diameter of the input shaft bore, optional
-function gearbox_input_shaft_length(type) = type[3][1];   // depth of the input shaft bore, optional
-function gearbox_faceplate_screws_cdist(type) = type[4];  // centre distance of the faceplate screws
-function gearbox_screw_diameter(type) = type[5];          // diameter of the faceplate screws
+function gearbox_diameter(type) = type[1][0]; // diameter of the gearbox body
+function gearbox_length(type) = type[1][1]; // length of the gearbox body
+function gearbox_output_shaft_dia(type) = type[2][0]; // diameter of the output shaft
+function gearbox_output_shaft_length(type) = type[2][1]; // length of the output shaft
+function gearbox_input_shaft_dia(type) = type[3][0]; // diameter of the input shaft bore, optional
+function gearbox_input_shaft_length(type) = type[3][1]; // depth of the input shaft bore, optional
+function gearbox_faceplate_screws_cdist(type) = type[4]; // centre distance of the faceplate screws
+function gearbox_screw_diameter(type) = type[5]; // diameter of the faceplate screws
 
 /**
  * @brief Create a gearbox from a registered type

@@ -8,16 +8,16 @@ use <threads-scad/threads.scad>;
 z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
-function thermocouple_probe_neck_dia(type) = type[1][0];     // diameter of the neck
-function thermocouple_probe_neck_height(type) = type[1][1];  // height of the neck
-function thermocouple_probe_flats_dia(type) = type[1][2];    // across-flats diameter of the hex
+function thermocouple_probe_neck_dia(type) = type[1][0]; // diameter of the neck
+function thermocouple_probe_neck_height(type) = type[1][1]; // height of the neck
+function thermocouple_probe_flats_dia(type) = type[1][2]; // across-flats diameter of the hex
 function thermocouple_probe_flats_height(type) = type[1][3]; // height of the hex flats
-function thermocouple_probe_body_dia(type) = type[1][4];     // diameter of the body
-function thermocouple_probe_body_height(type) = type[1][5];  // height of the body
-function thermocouple_probe_tip_dia(type) = type[1][6];      // diameter of the sensing tip
-function thermocouple_probe_tip_height(type) = type[1][7];   // height of the sensing tip
-function thermocouple_probe_wire_dia(type) = type[1][8];     // diameter of the wire
-function thermocouple_probe_wire_height(type) = type[1][9];  // height of the wire stub
+function thermocouple_probe_body_dia(type) = type[1][4]; // diameter of the body
+function thermocouple_probe_body_height(type) = type[1][5]; // height of the body
+function thermocouple_probe_tip_dia(type) = type[1][6]; // diameter of the sensing tip
+function thermocouple_probe_tip_height(type) = type[1][7]; // height of the sensing tip
+function thermocouple_probe_wire_dia(type) = type[1][8]; // diameter of the wire
+function thermocouple_probe_wire_height(type) = type[1][9]; // height of the wire stub
 
 // Creates a probe from a registered type (see thermocouple_probes.scad)
 module thermocouple_probe(
