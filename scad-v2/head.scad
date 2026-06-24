@@ -31,11 +31,11 @@ render_motor_mount = false;
 render_shaft_coupler = false;
 render_ext_shaft = false;
 render_impeller = false;
-
-render_probes = false;
 render_bayonet_lock = false;
 render_tube_pinlock = false;
 render_thermocouple_pinlock = false;
+render_probe_pinlock = false;
+render_phdo_probes = false;
 
 // -----
 
@@ -199,59 +199,39 @@ impeller_shaft_hole_radius = (shaft_diameter + impeller_shaft_allow) / 2;
 // Motor and shaft driven parameters
 shaft_protrusion = shaft_length - (vessel_internal_height - shaft_jar_punt_clearance);
 // the height that the motor coupling assembly requires
-motor_mount_height = gearbox_output_shaft_length(head_gearbox) + shaft_protrusion + shaft_shaft_coupling_offset;
-echo("motor mount height: ", motor_mount_height / 10, " cm");
+motor_mount_middle_height = gearbox_output_shaft_length(head_gearbox) + shaft_protrusion + shaft_shaft_coupling_offset - motor_mount_flange_height * 2;
+echo("motor mount height: ", motor_mount_middle_height / 10, " cm");
 
 module lid_pocketed() {
-  color(prints2_color) {
-    rotate([0, 180, 0])
+
+  difference() {
+    // create the lid
+    lid(
+      outer_diameter=vessel_outer_diameter,
+      inner_diameter=vessel_opening_diameter,
+      height_od=lid_flange_height,
+      height_id=lid_plug_height,
+      allowance=lid_radial_allowance
+    );
+
+    // cut out the bearing and shaft hole
+    translate([0, 0, -z_fight / 2])
       union() {
-        difference() {
-          // create the lid
-          lid(
-            outer_diameter=vessel_outer_diameter,
-            inner_diameter=vessel_opening_diameter,
-            height_od=lid_flange_height,
-            height_id=lid_plug_height,
-            allowance=lid_radial_allowance
-          );
+        // shaft hole
+        cylinder(d=shaft_diameter + bearing_hole_allowance, h=lid_flange_height + lid_plug_height + z_fight);
 
-          // cut out the bearing and shaft hole
-          translate([0, 0, -z_fight / 2])
-            union() {
-              // shaft hole
-              cylinder(d=shaft_diameter + bearing_hole_allowance, h=lid_flange_height + lid_plug_height + z_fight);
-
-              // bearing pocket
-              rotate([0, 0, 30])
-                cylinder(d=bearing_diameter + bearing_hole_allowance, h=bearing_height + z_fight);
-            }
-
-          // cut out the entry holes for the probes and tubes
-          for (hole_rot = [0:360 / lid_holes_n:360]) {
-            rotate([0, 0, hole_rot])
-              translate([vessel_outer_diameter / 4, 0, (lid_flange_height + lid_plug_height) / 2]) {
-                cylinder(r=bayonet_interface_radius + bayonet_pin_radius * 1.5, h=lid_flange_height + lid_plug_height + z_fight, center=true);
-              }
-          }
-        }
-        // cut out the entry holes for the probes and tubes
-        for (hole_rot = [0:360 / lid_holes_n:360]) {
-          rotate([0, 0, hole_rot])
-            translate([vessel_outer_diameter / 4, 0, bayonet_part_height + bayonet_oring_cs_diameter])
-              rotate([180, 0, 0]) {
-                // add the bayonet locks
-                bayonet_port(
-                  part="lock",
-                  interface_radius=bayonet_interface_radius,
-                  pin_radius=bayonet_pin_radius,
-                  part_height=bayonet_part_height,
-                  neck_height=bayonet_neck_height,
-                  neck_radius=bayonet_neck_radius
-                );
-              }
-        }
+        // bearing pocket
+        rotate([0, 0, 30])
+          cylinder(d=bearing_diameter + bearing_hole_allowance, h=bearing_height + z_fight);
       }
+
+    // cut out the entry holes for the probes and tubes
+    for (hole_rot = [0:360 / lid_holes_n:360]) {
+      rotate([0, 0, hole_rot])
+        translate([vessel_outer_diameter / 4, 0, (lid_flange_height + lid_plug_height) / 2]) {
+          cylinder(r=bayonet_interface_radius + bayonet_pin_radius * 1.5, h=lid_flange_height + lid_plug_height + z_fight, center=true);
+        }
+    }
   }
 }
 
@@ -259,20 +239,40 @@ module head() {
 
   // Render the lid with pockets for the bearing and shaft, and holes for the bayonet locks
   if (render_lid || render_all) {
-    lid_pocketed();
+    color(prints2_color)
+      rotate([0, 180, 0])
+        lid_pocketed();
+  }
+
+  if (render_bayonet_lock || render_all) {
+    for (hole_rot = [0:360 / lid_holes_n:360]) {
+      color(prints2_color)
+        rotate([0, 0, hole_rot])
+          translate([vessel_outer_diameter / 4, 0, -bayonet_part_height - bayonet_oring_cs_diameter])
+            // add the bayonet locks
+            bayonet_port(
+              part="lock",
+              interface_radius=bayonet_interface_radius,
+              pin_radius=bayonet_pin_radius,
+              part_height=bayonet_part_height,
+              neck_height=bayonet_neck_height,
+              neck_radius=bayonet_neck_radius
+            );
+    }
   }
 
   // motor and shaft
   if (render_motor || render_all) {
 
     // motor (dc_motor mounts its own gearbox via the registered type)
-    translate([0, 0, motor_mount_height + dc_motor_length(head_motor) + gearbox_length(head_gearbox)])
+    translate([0, 0, motor_mount_middle_height + motor_mount_flange_height * 2 + dc_motor_length(head_motor) + gearbox_length(head_gearbox)])
       rotate([0, 180, 0])
         dc_motor(head_motor);
   }
 
   // motor mount (the module colors its three telescoping parts internally)
   if (render_motor_mount || render_all) {
+    color(prints1_color)
     motor_mount(
       base_screw_diameter=motor_mount_base_screws_diameter,
       tube_screw_diameter=motor_mount_tube_screws_diameter,
@@ -284,7 +284,7 @@ module head() {
       motor_boss_diameter=motor_mount_boss_diameter,
       flange_height=motor_mount_flange_height,
       raised_face_height=motor_mount_raised_face_height,
-      middle_height=motor_mount_height,
+      middle_height=motor_mount_middle_height,
       facets=motor_mount_facets
     );
   }
