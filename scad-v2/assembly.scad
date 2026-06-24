@@ -82,7 +82,7 @@ cross_section_active = true;
 // height of the vessel
 vessel_height = 305;
 // diameter of the vessel
-vessel_diameter = 220;
+vessel_outer_diameter = 220;
 // diameter of the vessel opening
 vessel_opening_diameter = 143;
 
@@ -104,6 +104,12 @@ vessel_punt_width = 30;
 // radius of the rim
 vessel_rim_rad = 2;
 
+/* [Head Parameters - Coupling] */
+
+// height of the lid flange, which is the distance 
+// from the top of the vessel to the top of the lid
+lid_flange_height = 8;
+
 module dummy() {
   // stop the customizer detection from here onwards
 }
@@ -116,7 +122,7 @@ vessel_internal_height = vessel_height - vessel_punt_height - vessel_thickness;
 if (render_vessel || render_all) {
   vessel(
     height=vessel_height,
-    diameter=vessel_diameter,
+    diameter=vessel_outer_diameter,
     thickness=vessel_thickness,
     corner_radius=vessel_upper_corner_radius,
     corner_radius_base=vessel_lower_corner_radius,
@@ -130,13 +136,15 @@ if (render_vessel || render_all) {
 }
 
 if (render_frame || render_all) {
-  frame(jar_height=vessel_height, jar_diameter=vessel_diameter);
+  frame(vessel_height=vessel_height, vessel_outer_diameter=vessel_outer_diameter);
 }
 
 if (render_head || render_all) {
-
-  // will need, or something similar:
-  // height of the cuts on the lid
-  // lid_z_pos = jar_height + base_floor_height + lid_height;
-  // translate([0, 0, lid_z_pos]) rotate([0, 180, 0])
+  translate([0, 0, vessel_height + lid_flange_height])
+    head(
+      lid_flange_height=lid_flange_height,
+      vessel_outer_diameter=vessel_outer_diameter,
+      vessel_opening_diameter=vessel_opening_diameter,
+      vessel_internal_height=vessel_internal_height
+    );
 }

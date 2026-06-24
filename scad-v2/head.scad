@@ -39,21 +39,6 @@ render_phdo_probes = false;
 
 // -----
 
-// these will constitute the mandatory input parameters for the head, which are cross-coupled
-// to the vessel and frame, and therefore must be set from the top-level assembly
-
-temp_lid_flange_height = 8;
-temp_vessel_opening_diameter = 143;
-temp_vessel_outer_diameter = 220;
-temp_vessel_internal_height = 295;
-
-vessel_outer_diameter = temp_vessel_outer_diameter;
-vessel_opening_diameter = temp_vessel_opening_diameter;
-lid_flange_height = temp_lid_flange_height;
-vessel_internal_height = temp_vessel_internal_height;
-
-// -----
-
 /* [Lid Parameters] */
 
 // the height of the lids plug (inner diameter part)
@@ -122,7 +107,7 @@ motor_mount_facets = 20;
  */
 
 // impeller diameter to tank diameter ratio
-impeller_impeller_vessel_diameter_factor = 0.45;
+impeller_impeller_vessel_outer_diameter_factor = 0.45;
 // impeller height
 impeller_height = 60;
 // number of fins
@@ -185,24 +170,7 @@ module dummy() {
   // stop the customizer detection from here onwards
 }
 
-// the gearbox carried by the selected motor - single source for gearbox dims
-head_gearbox = dc_motor_gearbox(head_motor);
-
-// Impeller Driven Parameters
-// diameter of the impeller
-impeller_diameter = vessel_outer_diameter * impeller_impeller_vessel_diameter_factor;
-// radius of the impeller
-impeller_radius = impeller_diameter / 2;
-// radius of the shaft hole in the impeller
-impeller_shaft_hole_radius = (shaft_diameter + impeller_shaft_allow) / 2;
-
-// Motor and shaft driven parameters
-shaft_protrusion = shaft_length - (vessel_internal_height - shaft_jar_punt_clearance);
-// the height that the motor coupling assembly requires
-motor_mount_middle_height = gearbox_output_shaft_length(head_gearbox) + shaft_protrusion + shaft_shaft_coupling_offset - motor_mount_flange_height * 2;
-echo("motor mount height: ", motor_mount_middle_height / 10, " cm");
-
-module lid_pocketed() {
+module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter) {
 
   difference() {
     // create the lid
@@ -235,13 +203,32 @@ module lid_pocketed() {
   }
 }
 
-module head() {
+module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_internal_height) {
+
+  // the gearbox carried by the selected motor - single source for gearbox dims
+  head_gearbox = dc_motor_gearbox(head_motor);
+
+  // Impeller Driven Parameters
+  // diameter of the impeller
+  // needs to be rethought how this works, should also assert that the 
+  // impeller is smaller than the vessel opening diameter
+  impeller_diameter = vessel_outer_diameter * impeller_impeller_vessel_outer_diameter_factor;
+  impeller_radius = impeller_diameter / 2; // radius of the impeller
+
+  // radius of the shaft hole in the impeller
+  impeller_shaft_hole_radius = (shaft_diameter + impeller_shaft_allow) / 2;
+
+  // Motor and shaft driven parameters
+  shaft_protrusion = shaft_length - (vessel_internal_height - shaft_jar_punt_clearance);
+  // the height that the motor coupling assembly requires
+  motor_mount_middle_height = gearbox_output_shaft_length(head_gearbox) + shaft_protrusion + shaft_shaft_coupling_offset - motor_mount_flange_height * 2;
+  echo("motor mount height: ", motor_mount_middle_height / 10, " cm");
 
   // Render the lid with pockets for the bearing and shaft, and holes for the bayonet locks
   if (render_lid || render_all) {
     color(prints2_color)
       rotate([0, 180, 0])
-        lid_pocketed();
+        lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter);
   }
 
   if (render_bayonet_lock || render_all) {
@@ -273,20 +260,20 @@ module head() {
   // motor mount (the module colors its three telescoping parts internally)
   if (render_motor_mount || render_all) {
     color(prints1_color)
-    motor_mount(
-      base_screw_diameter=motor_mount_base_screws_diameter,
-      tube_screw_diameter=motor_mount_tube_screws_diameter,
-      face_screw_diameter=gearbox_screw_diameter(head_gearbox),
-      bearing_diameter=bearing_diameter,
-      shaft_diameter=shaft_diameter,
-      motor_faceplate_diameter=gearbox_diameter(head_gearbox),
-      motor_faceplate_screws_separation=gearbox_faceplate_screws_cdist(head_gearbox),
-      motor_boss_diameter=motor_mount_boss_diameter,
-      flange_height=motor_mount_flange_height,
-      raised_face_height=motor_mount_raised_face_height,
-      middle_height=motor_mount_middle_height,
-      facets=motor_mount_facets
-    );
+      motor_mount(
+        base_screw_diameter=motor_mount_base_screws_diameter,
+        tube_screw_diameter=motor_mount_tube_screws_diameter,
+        face_screw_diameter=gearbox_screw_diameter(head_gearbox),
+        bearing_diameter=bearing_diameter,
+        shaft_diameter=shaft_diameter,
+        motor_faceplate_diameter=gearbox_diameter(head_gearbox),
+        motor_faceplate_screws_separation=gearbox_faceplate_screws_cdist(head_gearbox),
+        motor_boss_diameter=motor_mount_boss_diameter,
+        flange_height=motor_mount_flange_height,
+        raised_face_height=motor_mount_raised_face_height,
+        middle_height=motor_mount_middle_height,
+        facets=motor_mount_facets
+      );
   }
 
   // shaft coupling
@@ -334,7 +321,12 @@ module head() {
   }
 }
 
-head();
+head(
+  lid_flange_height=8,
+  vessel_outer_diameter=220,
+  vessel_opening_diameter=143,
+  vessel_internal_height=295
+);
 
 // if (render_tube_pinlock || render_all)
 //   tube_lock(

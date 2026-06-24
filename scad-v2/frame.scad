@@ -29,7 +29,7 @@ render_lights = false;
 
 // -------
 
-frame(jar_height=305, jar_diameter=220);
+frame(vessel_height=305, vessel_outer_diameter=220);
 
 // -------
 
@@ -91,7 +91,7 @@ module dummy() {
   // stop the customizer detection from here onwards
 }
 
-module lights(quadrants, jar_diameter, lights_per_quadrant, occupy_angle, allowance_cutout = undef) {
+module lights(quadrants, vessel_outer_diameter, lights_per_quadrant, occupy_angle, allowance_cutout = undef) {
   for (q = quadrants) {
     rotate([0, 0, (q - 1) * 90]) {
       for (i = [0:lights_per_quadrant - 1]) {
@@ -102,7 +102,7 @@ module lights(quadrants, jar_diameter, lights_per_quadrant, occupy_angle, allowa
           : i * (occupy_angle / (lights_per_quadrant - 1)) + angle_offset;
 
         rotate([0, 0, light_angle])
-          translate([0, jar_diameter / 2, 0]) if (is_undef(allowance_cutout)) {
+          translate([0, vessel_outer_diameter / 2, 0]) if (is_undef(allowance_cutout)) {
             strip_light(generic_strip_light);
           } else {
             translate([0, strip_light_depth(generic_strip_light) / 2, strip_light_length(generic_strip_light) / 2])
@@ -113,14 +113,14 @@ module lights(quadrants, jar_diameter, lights_per_quadrant, occupy_angle, allowa
   }
 }
 
-module frame(jar_height, jar_diameter) {
+module frame(vessel_height, vessel_outer_diameter) {
 
   // total height of the assembly
-  total_height = jar_height + base_floor_height + upper_base_height;
+  total_height = vessel_height + base_floor_height + upper_base_height;
   // distance from the center of the jar to the threaded rod
   base_wall_thickness = (strip_light_depth(generic_strip_light) * 1.5) * 2; // thinnest part is 50% thicker than the light depth
   // diameter of the cutout for the jar
-  base_jar_cut_diameter = jar_diameter + base_jar_fit_allow;
+  base_jar_cut_diameter = vessel_outer_diameter + base_jar_fit_allow;
 
   // diameter of the hole for the threaded rod
   threaded_rod_hole_diameter = threaded_rod_diameter + threaded_rod_hole_allowance;
@@ -132,13 +132,13 @@ module frame(jar_height, jar_diameter) {
   echo("rod length: ", rod_length / 10, " cm");
 
   module frame_lights(local_quadrants = light_quadrants) {
-    lights(local_quadrants, jar_diameter, lights_per_quadrant, occupy_angle);
+    lights(local_quadrants, vessel_outer_diameter, lights_per_quadrant, occupy_angle);
   }
 
   module frame_lights_cutout(local_quadrants = [1, 2, 3, 4]) {
     difference() {
       children();
-      lights(local_quadrants, jar_diameter, lights_per_quadrant, occupy_angle, allowance_cutout=light_allow);
+      lights(local_quadrants, vessel_outer_diameter, lights_per_quadrant, occupy_angle, allowance_cutout=light_allow);
     }
   }
 
