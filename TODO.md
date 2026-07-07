@@ -5,6 +5,7 @@
 - [ ] stronger interface-based design surrounding the bayonet connectors ports
   - bayonet connector lib --> generic port --> specific port (e.g. probe holder, thermocouple, etc.)
   - the "tube interface" should be literally just a generic port with the optional center bore appropriately set and wrapping the radius / diameter print out on the part
+  - reconcile `bayonet_port()` params (`interface_radius`, `oring_cs_diameter`) with the probe/thermocouple adapter call signatures (`inner_radius`, `shell_thickness`, `oring_height`, `oring_interference`); confirm `head.scad` + all 12 ports generate without error (was paper TODO B4)
 
 ## model completeness / enhancement
 
