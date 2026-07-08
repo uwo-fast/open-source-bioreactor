@@ -8,3 +8,12 @@
   - lubricant: grease
   - ball material: stainless steel
   - https://www.mcmaster.com/6153K71/
+
+- thermocouple selection
+  - McMaster-Carr 3872K117
+  - Type K threaded thermocouple probe for liquids and gases
+  - 1/2 NPT male fitting, wire leads
+  - 9 in long x 1/8 in diameter grounded 304 stainless probe
+  - 4 ft fiberglass cable, 24 AWG, 1/2 in wire leads
+  - 0.5 s response time, 900 F maximum temperature
+  - https://www.mcmaster.com/3872K117/
