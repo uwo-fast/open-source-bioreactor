@@ -17,3 +17,7 @@
   - 4 ft fiberglass cable, 24 AWG, 1/2 in wire leads
   - 0.5 s response time, 900 F maximum temperature
   - https://www.mcmaster.com/3872K117/
+
+- current motors in lab
+  - 36GP-3530 Planetary Gear DC Motor Torque 50KG (12V 1154 RPM)
+  - https://electric-b2c.com/products/36gp-3530-planetary-gear-dc-motor-torque-50kg-12v-24v-reduce-speed-8pm-to-1154rpm-pwm-reverse-forward-electric-12-volt-motor?variant=47572164116673
