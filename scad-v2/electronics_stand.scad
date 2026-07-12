@@ -24,6 +24,9 @@ beam_y = 200;
 // length of the beam along the +Z axis
 beam_z = 200;
 
+// Render bracket for printing
+print_corner = false;
+
 module dummy() {
   // stop the customizer detection from here onwards
 }
@@ -35,8 +38,8 @@ stand_bracket = extrusion_corner_bracket_3D_2020;
 module electronics_stand() {
 
   // corner bracket at the origin, with grub screws
-  color("peachpuff")
-  extrusion_corner_bracket_3D(stand_bracket, grub_screws=true);
+  color("peachpuff", 0.5)
+    extrusion_corner_bracket_3D(stand_bracket, grub_screws=true);
 
   // +Z beam (vertical)
   translate([0, 0, beam_z / 2])
@@ -55,4 +58,11 @@ module electronics_stand() {
         extrusion(stand_extrusion, beam_x);
 }
 
-electronics_stand();
+if (print_corner) {
+  // Render the corner bracket for printing
+  color("peachpuff")
+    extrusion_corner_bracket_3D(stand_bracket, grub_screws=false);
+} else {
+  // Render the stand for previewing
+  electronics_stand();
+}
