@@ -15,14 +15,18 @@
  * - assembly.scad: This file, which contains the assembly of the bioreactor.
  *   - frame.scad: Contains the module for the frame subassembly of the bioreactor.
  *   - head.scad: Contains the module for the head subassembly of the bioreactor.
- *   - vessel.scad: Contains the module for the vessel subassembly of the bioreactor.
+ *
+ * The vessel is a purchased part rather than a designed subassembly, so it lives with the
+ * other purchased components: purchased/vessel.scad holds the model and its accessors, and
+ * purchased/vessels.scad registers the jars. This file selects one and reads the coupling
+ * dimensions back out of it through those accessors.
  *
  * This is an interface-based design, where each component is designed to fit together based on defined interfaces. 
  * Therefore, this file contains only parameters that cross-couple between components, such as the diameter of the 
  * vessel and the corresponding dimensions of the frame and head.
  *
  * Preference or customization parameters that are specific to a single component are scoped to their respective
- * subassembly files (e.g., vessel.scad, head.scad, frame.scad) to maintain modularity and separation of concerns.
+ * subassembly files (e.g., head.scad, frame.scad) to maintain modularity and separation of concerns.
  *
  * The two internal lib directories (purchased and custom) are the actual source components, defined as fully
  * parameterized modules that are then used in the subassembly files.
@@ -62,7 +66,8 @@
  *   - lid flange height
  */
 
-use <vessel.scad>;
+include <purchased/vessels.scad>;
+
 use <head.scad>;
 use <frame.scad>;
 
@@ -77,32 +82,11 @@ render_all = true;
 
 cross_section_active = true;
 
-/* [Vessel Parameters - Coupling] */
+/* [Vessel Selection] */
 
-// height of the vessel
-vessel_height = 305;
-// diameter of the vessel
-vessel_outer_diameter = 220;
-// diameter of the vessel opening
-vessel_opening_diameter = 143;
-
-/* [Vessel Parameters - Details] */
-
-// thickness of the vessel
-vessel_thickness = 5;
-// height of the neck
-vessel_neck_height = 25;
-// radius of the shoulder-to-body transition
-vessel_upper_corner_radius = 25;
-// radius of the body-to-base transition
-vessel_lower_corner_radius = 12.5;
-// radius of the shoulder-to-neck transition: derived by vessel() from the opening
-// height of the punt from the bottom of the vessel
-vessel_punt_height = 5;
-// width/diameter of the punt
-vessel_punt_width = 30;
-// radius of the rim
-vessel_rim_rad = 2;
+// the registered vessel; every vessel dimension the head and frame are built against
+// is read back out of this registration via the accessor functions (see purchased/vessel.scad)
+reactor_vessel = jar_10L_220x305;
 
 /* [Head Parameters - Coupling] */
 
@@ -114,37 +98,24 @@ module dummy() {
   // stop the customizer detection from here onwards
 }
 
-// required to calculate positioning of impeller to determine
-// the height of the motor mount and shaft protrusion
-vessel_internal_height = vessel_height - vessel_punt_height - vessel_thickness;
-
 // vessel
 if (render_vessel || render_all) {
-  vessel(
-    height=vessel_height,
-    diameter=vessel_outer_diameter,
-    thickness=vessel_thickness,
-    corner_radius=vessel_upper_corner_radius,
-    corner_radius_base=vessel_lower_corner_radius,
-    neck=vessel_neck_height,
-    opening_diameter=vessel_opening_diameter,
-    punt_height=vessel_punt_height,
-    punt_width=vessel_punt_width,
-    rim_rad=vessel_rim_rad,
-    angle=(cross_section_active ? 180 : 360)
-  );
+  vessel(reactor_vessel, angle=(cross_section_active ? 180 : 360));
 }
 
 if (render_frame || render_all) {
-  frame(vessel_height=vessel_height, vessel_outer_diameter=vessel_outer_diameter);
+  frame(
+    vessel_height=vessel_height(reactor_vessel),
+    vessel_outer_diameter=vessel_diameter(reactor_vessel)
+  );
 }
 
 if (render_head || render_all) {
-  translate([0, 0, vessel_height + lid_flange_height])
+  translate([0, 0, vessel_height(reactor_vessel) + lid_flange_height])
     head(
       lid_flange_height=lid_flange_height,
-      vessel_outer_diameter=vessel_outer_diameter,
-      vessel_opening_diameter=vessel_opening_diameter,
-      vessel_internal_height=vessel_internal_height
+      vessel_outer_diameter=vessel_diameter(reactor_vessel),
+      vessel_opening_diameter=vessel_opening_diameter(reactor_vessel),
+      vessel_internal_height=vessel_internal_height(reactor_vessel)
     );
 }
