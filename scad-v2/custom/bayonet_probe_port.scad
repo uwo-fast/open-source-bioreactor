@@ -13,13 +13,14 @@ $fn = $preview ? 64 : 128;
 
 // ----- Bayonet parameters -----
 
-_bp_inner_radius = 7; // Inner radius of the bayonet
-_bp_bayonet_shell_thickness = 2.5; // Thickness of the bayonet shell
+_bp_interface_radius = 9.5; // Interface radius of the bayonet (the mating surface)
+_bp_bayonet_shell_thickness = 2.5; // Shell thickness either side of the interface radius
 _bp_part_height = 10; // Height of the bayonet part
 _bp_neck_height = 5; // Height of the neck
+_bp_neck_radius = 15; // Radius of the neck flange
 _bp_pin_radius = 1.5; // Radius of the locking pins
 _bp_center_bore_radius = 3; // Radius of the center bore
-_bp_oring_height = 1.6; // Height of the o-ring
+_bp_oring_cs_diameter = 1.6; // Cross section of the o-ring
 _bp_oring_interference = 0.1; // Compression of the o-ring
 
 // ----- Probe-specific (hardware) parameters -----
@@ -42,13 +43,14 @@ _bp_transition_length = 25;
 
 bayonet_probe_port(
   part="pin",
-  inner_radius=_bp_inner_radius,
+  interface_radius=_bp_interface_radius,
   bayonet_shell_thickness=_bp_bayonet_shell_thickness,
   part_height=_bp_part_height,
   neck_height=_bp_neck_height,
+  neck_radius=_bp_neck_radius,
   pin_radius=_bp_pin_radius,
   center_bore_radius=_bp_center_bore_radius,
-  oring_height=_bp_oring_height,
+  oring_cs_diameter=_bp_oring_cs_diameter,
   oring_interference=_bp_oring_interference,
   probe_body_length=_bp_probe_body_length,
   probe_body_diameter=_bp_probe_body_diameter,
@@ -67,13 +69,14 @@ bayonet_probe_port(
 // ----- build -----
 module bayonet_probe_port(
   part,
-  inner_radius,
+  interface_radius,
   bayonet_shell_thickness,
   part_height,
   neck_height,
+  neck_radius,
   pin_radius,
   center_bore_radius,
-  oring_height,
+  oring_cs_diameter,
   oring_interference,
   probe_body_length,
   probe_body_diameter,
@@ -86,11 +89,12 @@ module bayonet_probe_port(
   collet_tab_gap,
   collet_tab_internal_deflection,
   tilt_degrees,
-  transition_length
+  transition_length,
+  allowance = 0.2
 ) {
 
-  // Calculate bayonet diameter for transitions
-  _bayonet_diameter = 2 * (inner_radius + bayonet_shell_thickness) - 0.2;
+  // The transitions mate to the bayonet at its interface (mating) surface, less the allowance.
+  _bayonet_diameter = 2 * interface_radius - allowance;
   _transition_length = transition_length + probe_body_diameter / sqrt(3);
 
   union() {
@@ -101,19 +105,24 @@ module bayonet_probe_port(
         translate([0, 0, -part_height - neck_height])
           bayonet_port(
             part=part,
-            inner_radius=inner_radius,
+            interface_radius=interface_radius,
             shell_thickness=bayonet_shell_thickness,
             part_height=part_height,
             neck_height=neck_height,
+            neck_radius=neck_radius,
             pin_radius=pin_radius,
             center_bore_radius=center_bore_radius,
-            oring_height=oring_height,
+            allowance=allowance,
+            oring_cs_diameter=oring_cs_diameter,
             oring_interference=oring_interference
           );
 
       // Cut hexagonal hole for connector
       cylinder(h=1000, d=connector_part_diameter + collet_internal_allowance, center=true, $fn=6);
     }
+
+    // The probe holder hangs off the pin half; the lock half is just the bayonet.
+    if (part == "pin") {
 
     // Tilt transition wedge
     difference() {
@@ -162,6 +171,7 @@ module bayonet_probe_port(
         // Cut hexagonal hole for connector
         cylinder(h=1000, d=connector_part_diameter + collet_internal_allowance, center=true, $fn=6);
       }
+    }
     }
   }
 }
