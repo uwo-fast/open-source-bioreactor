@@ -18,31 +18,7 @@
  * @return The trapezium polygon
  */
 module trapezium(bottom_width, top_width = undef, height = undef, angle = 45, offset = 0) {
-  // Calculate missing parameter based on the provided inputs
-  // First calculate the top width if it is not provided
-  top_width =
-    is_undef(top_width) ? // check top_width undef
-      (
-        is_undef(height) // check if height is undef
-        ? bottom_width / 2 // if height is also undef, set top width to half of bottom width
-        : bottom_width - 2 * height * tan(angle)
-      ) // if height is provided, calculate top width
-    : top_width; // if top width is provided, use it
-
-  // Next calculate height if it is not provided
-  height =
-    is_undef(height) ? // check if height is undef
-      (bottom_width - top_width) / (2 * tan(angle)) // calculate height based on the angle and width difference
-    : height; // if height is provided, use it
-
-  polygon(
-    points=[
-      [-bottom_width / 2, 0], // Bottom left
-      [bottom_width / 2, 0], // Bottom right
-      [offset + top_width / 2, height], // Top right
-      [offset - top_width / 2, height], // Top left
-    ]
-  );
+  polygon(points=trapezium_pts(bottom_width, top_width, height, angle, offset));
 }
 
 /**
