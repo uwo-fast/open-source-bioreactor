@@ -3,7 +3,7 @@
 // bottle height is used with sleeve ratio to determine how far up the bottle holder should go to support the bottles
 // two pairs of male-female dove tails located on either side to allow for grid stacking of holders
 
-use <utils/trapezium.scad>;
+use <utils/dovetail.scad>;
 
 $fn = $preview ? 48 : 96;
 z_fight = $preview ? 0.05 : 0.0;
@@ -17,36 +17,32 @@ allowance = 0.2;
 
 // Derived
 
+sleeve_height = bottle_height * sleeve_ratio;
+outer_width = bottle_diameter + wall_thickness * 2;
+
 dovetail_height = wall_thickness * 2 / 3;
 dovetail_width = bottle_diameter / 2;
-
-// The dovetail cross section: narrow at the root, splayed out to the crown. Both the male
-// tail and the female socket are cut from this one profile, so it is the only place the
-// shape is defined.
-function dovetail_pts(width, height) =
-  trapezium_pts(bottom_width=width * 2 / 3, top_width=width, height=height);
 
 difference() {
 
   union() {
+    // sleeve
     difference() {
-      cube([bottle_diameter + wall_thickness * 2, bottle_diameter + wall_thickness * 2, bottle_height * sleeve_ratio + wall_thickness], center=true);
+      cube([outer_width, outer_width, sleeve_height + wall_thickness], center=true);
       translate([0, 0, wall_thickness / 2])
-        cube([bottle_diameter + allowance * 2, bottle_diameter + allowance * 2, bottle_height * sleeve_ratio + z_fight], center=true);
+        cube([bottle_diameter + allowance * 2, bottle_diameter + allowance * 2, sleeve_height + z_fight], center=true);
     }
 
-    // dovetail trapezoid
+    // tails, on the +x and +y faces
     for (i = [0, 1])
       rotate([0, 0, i * 90])
-        translate([0, bottle_diameter / 2 + wall_thickness, -(bottle_height * sleeve_ratio) / 2 + allowance])
-          linear_extrude(height=bottle_height * sleeve_ratio)
-            polygon(dovetail_pts(dovetail_width, dovetail_height));
+        translate([0, outer_width / 2, -sleeve_height / 2 + allowance])
+          dovetail(dovetail_width, dovetail_height, sleeve_height);
   }
 
-  // dovetail trapezoid
+  // sockets, on the -x and -y faces; grown by the allowance so a tail slides in
   for (i = [0, 1])
     rotate([0, 0, i * 90])
-      translate([0, -bottle_diameter / 2 - wall_thickness, -(bottle_height * sleeve_ratio) / 2])
-        linear_extrude(height=bottle_height * sleeve_ratio * 2)
-          polygon(dovetail_pts(dovetail_width, dovetail_height));
+      translate([0, -outer_width / 2, -sleeve_height / 2])
+        dovetail(dovetail_width, dovetail_height, sleeve_height * 2, allowance=allowance);
 }
