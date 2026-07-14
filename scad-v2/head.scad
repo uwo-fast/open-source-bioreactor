@@ -9,6 +9,8 @@
 use <custom/lid.scad>;
 use <custom/motor_mount.scad>;
 use <custom/bayonet_port.scad>;
+use <custom/bayonet_probe_port.scad>;
+use <custom/bayonet_thermocouple_port.scad>;
 use <custom/impeller.scad>;
 
 include <purchased/dc_motors.scad>;
@@ -130,8 +132,10 @@ thermocouple_mount_height = 20;
 
 /* [Bayonet Lock Parameters] */
 
-// Interface radius of the bayonet
+// Interface radius of the bayonet (the mating surface between pin and lock)
 bayonet_interface_radius = 10;
+// Shell thickness either side of the interface radius
+bayonet_shell_thickness = 2.5;
 // Radius of the locking pins
 bayonet_pin_radius = 1.2;
 // Height of the bayonet part
@@ -144,20 +148,51 @@ bayonet_neck_radius = 15;
 bayonet_center_bore_radius = 3;
 // Oring cross section, set to undef to disable o-ring groove
 bayonet_oring_cs_diameter = 1.6;
+// Squeeze on the o-ring; the groove depth is cs_diameter less this
+bayonet_oring_interference = 0.1;
 // Allowance for the bayonet lock to fit properly (applied to lid cutouts)
 bayonet_allowance = 0.2;
 
-// bayonet_port(
-//   part="pin",
-//   interface_radius=bayonet_interface_radius,
-//   pin_radius=bayonet_pin_radius,
-//   part_height=bayonet_part_height,
-//   neck_height=bayonet_neck_height,
-//   neck_radius=bayonet_neck_radius,
-//   center_bore_radius=bayonet_center_bore_radius,
-//   oring_cs_diameter=bayonet_oring_cs_diameter,
-//   text_labels=true
-// );
+/* [Port Assignment] */
+
+// What sits at each of the lid_holes_n bayonet locks, going around the lid.
+// Each entry is [type, bore_radius]:
+//   "tube"         -> generic bayonet port, bore_radius sets the tube through-hole
+//   "probe"        -> atlas probe holder (flex collet), bore_radius unused
+//   "thermocouple" -> NPT thread mount, bore_radius unused
+head_ports = [
+  ["thermocouple", 0],
+  ["probe", 0],
+  ["probe", 0],
+  ["tube", 3],
+  ["tube", 3],
+  ["tube", 3],
+  ["tube", 2.4],
+  ["tube", 2.4],
+  ["tube", 2.4],
+  ["tube", 1.5],
+  ["tube", 1.5],
+  ["tube", 1.5],
+];
+
+/* [Probe Port Parameters] */
+
+// Hardware dimensions of the atlas probe body the collet grips. These are still entered
+// here rather than read from purchased/atlas_probes.scad, because the registry does not yet
+// carry the tail and connector dimensions the collet needs.
+probe_port_body_length = 35.6;
+probe_port_body_diameter = 15.9; // 15.9 soft-backed probe, 16.3 hard-backed
+probe_port_tail_major_diameter = 8.7;
+probe_port_tail_minor_diameter = 4.3;
+probe_port_tail_length = 24.5;
+probe_port_connector_diameter = 10;
+probe_port_collet_wall_thickness = 1.2;
+probe_port_collet_internal_allowance = 0.6;
+probe_port_collet_tab_gap = 1.0;
+probe_port_collet_tab_deflection = 0.5;
+// Tilt to keep bubbles off the sensor face
+probe_port_tilt_degrees = 7;
+probe_port_transition_length = 25;
 
 /* [Color Parameters] */
 
@@ -203,6 +238,75 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
   }
 }
 
+// One port pin half, dispatched on its registered type. All three share the same bayonet
+// interface, so they are interchangeable across the lid's locks.
+module head_port(port) {
+  _type = port[0];
+  _bore = port[1];
+
+  if (_type == "tube") {
+    // per TODO: the tube interface is just the generic port with its bore set, and the
+    // bore printed on the flange
+    bayonet_port(
+      part="pin",
+      interface_radius=bayonet_interface_radius,
+      shell_thickness=bayonet_shell_thickness,
+      pin_radius=bayonet_pin_radius,
+      part_height=bayonet_part_height,
+      neck_height=bayonet_neck_height,
+      neck_radius=bayonet_neck_radius,
+      center_bore_radius=_bore,
+      allowance=bayonet_allowance,
+      oring_cs_diameter=bayonet_oring_cs_diameter,
+      oring_interference=bayonet_oring_interference,
+      text_labels=true
+    );
+  } else if (_type == "probe") {
+    bayonet_probe_port(
+      part="pin",
+      interface_radius=bayonet_interface_radius,
+      bayonet_shell_thickness=bayonet_shell_thickness,
+      part_height=bayonet_part_height,
+      neck_height=bayonet_neck_height,
+      neck_radius=bayonet_neck_radius,
+      pin_radius=bayonet_pin_radius,
+      center_bore_radius=bayonet_center_bore_radius,
+      allowance=bayonet_allowance,
+      oring_cs_diameter=bayonet_oring_cs_diameter,
+      oring_interference=bayonet_oring_interference,
+      probe_body_length=probe_port_body_length,
+      probe_body_diameter=probe_port_body_diameter,
+      tail_major_diameter=probe_port_tail_major_diameter,
+      tail_minor_diameter=probe_port_tail_minor_diameter,
+      tail_length=probe_port_tail_length,
+      connector_part_diameter=probe_port_connector_diameter,
+      collet_wall_thickness=probe_port_collet_wall_thickness,
+      collet_internal_allowance=probe_port_collet_internal_allowance,
+      collet_tab_gap=probe_port_collet_tab_gap,
+      collet_tab_internal_deflection=probe_port_collet_tab_deflection,
+      tilt_degrees=probe_port_tilt_degrees,
+      transition_length=probe_port_transition_length
+    );
+  } else if (_type == "thermocouple") {
+    bayonet_thermocouple_port(
+      part="pin",
+      interface_radius=bayonet_interface_radius,
+      shell_thickness=bayonet_shell_thickness,
+      part_height=bayonet_part_height,
+      neck_height=bayonet_neck_height,
+      neck_radius=bayonet_neck_radius,
+      pin_radius=bayonet_pin_radius,
+      center_bore_radius=bayonet_center_bore_radius,
+      allowance=bayonet_allowance,
+      mount_height=thermocouple_mount_height,
+      oring_cs_diameter=bayonet_oring_cs_diameter,
+      oring_interference=bayonet_oring_interference
+    );
+  } else {
+    assert(false, str("head_port: unknown port type '", _type, "'"));
+  }
+}
+
 module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_internal_height) {
 
   // the gearbox carried by the selected motor - single source for gearbox dims
@@ -232,19 +336,42 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   }
 
   if (render_bayonet_lock || render_all) {
-    for (hole_rot = [0:360 / lid_holes_n:360]) {
+    for (i = [0:lid_holes_n - 1]) {
       color(prints2_color)
-        rotate([0, 0, hole_rot])
+        rotate([0, 0, i * 360 / lid_holes_n])
           translate([vessel_outer_diameter / 4, 0, -bayonet_part_height - bayonet_oring_cs_diameter])
             // add the bayonet locks
             bayonet_port(
               part="lock",
               interface_radius=bayonet_interface_radius,
+              shell_thickness=bayonet_shell_thickness,
               pin_radius=bayonet_pin_radius,
               part_height=bayonet_part_height,
               neck_height=bayonet_neck_height,
-              neck_radius=bayonet_neck_radius
+              neck_radius=bayonet_neck_radius,
+              allowance=bayonet_allowance
             );
+    }
+  }
+
+  // Port pin halves. Each drops into the lock above from outside the lid, so it is flipped
+  // and lifted until its bayonet band coincides with the lock's: the pin's bayonet starts at
+  // neck_height in its own frame, and the lock's starts at -(part_height + oring_cs).
+  if (render_tube_pinlock || render_probe_pinlock || render_thermocouple_pinlock || render_all) {
+    for (i = [0:lid_holes_n - 1]) {
+      _port = head_ports[i];
+      _show =
+        render_all
+        || (_port[0] == "tube" && render_tube_pinlock)
+        || (_port[0] == "probe" && render_probe_pinlock)
+        || (_port[0] == "thermocouple" && render_thermocouple_pinlock);
+
+      if (_show)
+        color(prints1_color)
+          rotate([0, 0, i * 360 / lid_holes_n])
+            translate([vessel_outer_diameter / 4, 0, bayonet_neck_height - bayonet_oring_cs_diameter])
+              rotate([0, 180, 0])
+                head_port(_port);
     }
   }
 
@@ -327,42 +454,3 @@ head(
   vessel_opening_diameter=143,
   vessel_internal_height=295
 );
-
-// if (render_tube_pinlock || render_all)
-//   tube_lock(
-//     part_to_render="pin",
-//     pin_direction=bayonet_lock_pin_direction,
-//     number_of_pins=bayonet_lock_number_of_pins,
-//     path_sweep_angle=bayonet_lock_path_sweep_angle,
-//     turn_direction=bayonet_lock_turn_direction,
-//     inner_radius=bayonet_lock_inner_radius,
-//     outer_radius=bayonet_lock_outer_radius,
-//     pin_radius=bayonet_lock_pin_radius,
-//     allowance=bayonet_lock_allowance,
-//     part_height=bayonet_lock_height,
-//     neck_height=bayonet_lock_neck_height,
-//     inner_radius_fill=bayonet_lock_inner_radius_fill,
-//     oring_height=bayonet_lock_oring_height,
-//     oring_neck_cut_height=bayonet_lock_oring_neck_cut_height
-//   );
-
-// if (render_thermocouple_pinlock || render_all)
-//   thermocouple_lock(
-//     part_to_render="pin",
-//     pin_direction=bayonet_lock_pin_direction,
-//     number_of_pins=bayonet_lock_number_of_pins,
-//     path_sweep_angle=bayonet_lock_path_sweep_angle,
-//     turn_direction=bayonet_lock_turn_direction,
-//     inner_radius=bayonet_lock_inner_radius,
-//     outer_radius=bayonet_lock_outer_radius,
-//     pin_radius=bayonet_lock_pin_radius,
-//     allowance=bayonet_lock_allowance,
-//     part_height=bayonet_lock_height,
-//     neck_height=bayonet_lock_neck_height,
-//     inner_radius_fill=thermocouple_probe_tip_diameter / 2,
-//     oring_height=bayonet_lock_oring_height,
-//     oring_neck_cut_height=bayonet_lock_oring_neck_cut_height,
-//     thermocouple_mount_height=thermocouple_mount_height
-//   );
-
-// READD PROBES USING NEW REGISTERED PARAMETERS
