@@ -8,7 +8,7 @@ use <utils/dovetail.scad>;
 $fn = $preview ? 48 : 96;
 z_fight = $preview ? 0.05 : 0.0;
 
-bottle_diameter = 62.6;
+bottle_diameter = 86.1; // square bottle is 62.6mm, round bottle is 86.1
 bottle_height = 130;
 
 sleeve_ratio = 0.3;
