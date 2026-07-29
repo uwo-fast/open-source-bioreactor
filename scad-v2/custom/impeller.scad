@@ -98,7 +98,7 @@ module impeller(
 
 // Example call to the impeller module with all parameters specified
 impeller(
-  radius=80, height=50, fins=6, twist=90, fin_width=1, center_hub_radius=10, center_hole_radius=5,
+  radius=80, height=50, fins=4, twist=90, fin_width=2, center_hub_radius=10, center_hole_radius=5,
   center_hub_type="cylinder", fin_scale=[1, 1, 1], fin_rotate=[0, 0, 120], hub_scale=[1, 1, 1],
   round=false, hub_fn=128
 );
