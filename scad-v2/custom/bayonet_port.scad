@@ -60,9 +60,7 @@ module bayonet_port(
   oring_cs_diameter = undef,
   oring_interference = 0.1,
   catch_pockets = true,
-  text_labels = false,
-  text_radius_override = undef,
-  text_diameter_override = undef
+  text_labels = false
 ) {
 
   // Validation
@@ -77,10 +75,6 @@ module bayonet_port(
   assert(
     oring_cs_diameter == undef || oring_interference < oring_cs_diameter,
     "bayonet_port: oring_interference must be < oring_cs_diameter (the groove would have no depth)"
-  );
-  assert(
-    !text_labels || is_undef(text_radius_override) || is_undef(text_diameter_override) || text_labels,
-    "bayonet_port: text_radius_override and text_diameter_override require text_labels=true"
   );
 
   // Auto-calculate entry_depth if not specified (50% of part_height)
@@ -155,13 +149,9 @@ module bayonet_port(
     // Text labels (radius and diameter markings)
     if (text_labels && _neck_h > 0) {
 
-      // Construct label strings with overrides if provided
-      _radString =
-        is_undef(text_radius_override) ? str("R", center_bore_radius)
-        : text_radius_override;
-      _diaString =
-        is_undef(text_diameter_override) ? str("D", center_bore_radius * 2)
-        : text_diameter_override;
+      // Radius and diameter of the center bore, marked on the neck face
+      _radString = str("R", center_bore_radius);
+      _diaString = str("D", center_bore_radius * 2);
 
       // Top (+Y) string impression
       translate([0, interface_radius * 0.8, neck_height / 2 - z_fight / 2]) {
