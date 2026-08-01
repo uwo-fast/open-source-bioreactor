@@ -16,7 +16,7 @@ InfluxDB just before the culture was evacuated and the bench sterilized.
 - **Window:** `2026-07-23T02:10:05Z → 2026-07-31T18:05:05Z` (~8.7 days, full retained history of this culture)
 - **Exported:** 2026-07-31 (~14:05 EDT) via **`anolis-telemetry-export` v0.1.1** (`POST /v1/exports/signals:query`, `resolution.mode=raw_event`, `format=csv`), run from source on the Pi.
 - All timestamps are **UTC (RFC3339 Z)**. EDT = UTC−4.
-- Per-export manifests (query params + sha256 content hash) are in `manifests/`; `export_index.tsv` maps each signal → export-id → manifest-hash → row count.
+- Per-export manifests (query params + sha256 content hash) are in `raw/manifests/`; `raw/export_index.tsv` maps each signal → export-id → manifest-hash → row count.
 
 ### Why per-`(device,signal)` queries (tool caveat)
 
@@ -32,12 +32,26 @@ spans **multiple field types** (`value_double`/`value_int`/`value_bool`/`value_s
 
 | Path | What |
 |---|---|
-| `signals_raw_long.csv` | **Master dataset** — all 29 signals, raw events, time-sorted, long/tidy format. 587,061 rows. |
-| `per_signal/<device>__<signal>.csv` | Same data split one file per signal (handy for loading a single series). |
-| `manifests/<device>__<signal>.manifest.json` | Export manifest per signal (query window, selector, row count, content hash). |
-| `export_index.tsv` | device · signal · rows · leaked_hdr(=0) · export_id · manifest_hash. |
+| `raw/signals_raw_long.csv` | **Master dataset** — all 29 signals, raw events, time-sorted, long/tidy format. 587,061 rows. |
+| `raw/manifests/<device>__<signal>.manifest.json` | Export manifest per signal (query window, selector, row count, content hash). |
+| `raw/export_index.tsv` | device · signal · rows · leaked_hdr(=0) · export_id · manifest_hash. |
+| `pipeline.py` | Rebuilds everything below from the master. |
+| `derived/per_signal/<device>__<signal>.csv` | The master split one file per signal (handy for loading a single series). Git-ignored. |
+| `derived/pivoted_1min.csv` | Sensors resampled onto a shared 1-minute grid. Git-ignored. |
+| `figures/` | Committed plots. |
 
-### Schema (`signals_raw_long.csv`)
+`per_signal/` used to be committed next to the master, which stored all
+587,061 rows twice. It is now regenerated:
+
+```bash
+just analysis-run 2026-07-23-chlorella-ccpc90    # or: python pipeline.py --verify
+```
+
+`--verify` cross-checks every regenerated split against the row counts in
+`raw/export_index.tsv`; the splits come back byte-identical to the original
+export.
+
+### Schema (`raw/signals_raw_long.csv`)
 
 ```
 timestamp,runtime_name,provider_id,device_id,signal_id,value,value_type,quality
@@ -84,7 +98,7 @@ Full ops/dev detail: `anolis/working/incident-2026-07-24-impeller-failure.md`.
 
 ```python
 import pandas as pd
-df = pd.read_csv("signals_raw_long.csv", parse_dates=["timestamp"])
+df = pd.read_csv("raw/signals_raw_long.csv", parse_dates=["timestamp"])
 ph  = df[df.signal_id=="ph_value"][["timestamp","value"]]
 do  = df[df.signal_id=="do_saturation_pct"][["timestamp","value"]]
 tmp = df[df.signal_id=="t1_c"][["timestamp","value"]]
