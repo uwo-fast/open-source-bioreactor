@@ -13,15 +13,9 @@ $fn = $preview ? 64 : 128;
 
 // ----- Bayonet parameters -----
 
-_bp_interface_radius = 9.5; // Interface radius of the bayonet (the mating surface)
-_bp_bayonet_shell_thickness = 2.5; // Shell thickness either side of the interface radius
-_bp_part_height = 10; // Height of the bayonet part
-_bp_neck_height = 5; // Height of the neck
-_bp_neck_radius = 15; // Radius of the neck flange
-_bp_pin_radius = 1.5; // Radius of the locking pins
+//              ["name" [iface_r, shell_t, pin_r], [part_h, neck_h, neck_r], [oring_cs, oring_intf], allow]
+_bp_bayonet = ["std", [9.5,    2.5,     1.5],   [10,     5,      15],      [1.6,      0.1],       0.2];
 _bp_center_bore_radius = 3; // Radius of the center bore
-_bp_oring_cs_diameter = 1.6; // Cross section of the o-ring
-_bp_oring_interference = 0.1; // Compression of the o-ring
 
 // ----- Probe-specific (hardware) parameters -----
 
@@ -42,16 +36,9 @@ _bp_tilt_degrees = 7; // Tilt to avoid bubbles on sensor face
 _bp_transition_length = 25;
 
 bayonet_probe_port(
+  bayonet=_bp_bayonet,
   part="pin",
-  interface_radius=_bp_interface_radius,
-  bayonet_shell_thickness=_bp_bayonet_shell_thickness,
-  part_height=_bp_part_height,
-  neck_height=_bp_neck_height,
-  neck_radius=_bp_neck_radius,
-  pin_radius=_bp_pin_radius,
   center_bore_radius=_bp_center_bore_radius,
-  oring_cs_diameter=_bp_oring_cs_diameter,
-  oring_interference=_bp_oring_interference,
   probe_body_length=_bp_probe_body_length,
   probe_body_diameter=_bp_probe_body_diameter,
   tail_major_diameter=_bp_tail_major_diameter,
@@ -68,16 +55,9 @@ bayonet_probe_port(
 
 // ----- build -----
 module bayonet_probe_port(
+  bayonet,
   part,
-  interface_radius,
-  bayonet_shell_thickness,
-  part_height,
-  neck_height,
-  neck_radius,
-  pin_radius,
   center_bore_radius,
-  oring_cs_diameter,
-  oring_interference,
   probe_body_length,
   probe_body_diameter,
   tail_major_diameter,
@@ -89,9 +69,14 @@ module bayonet_probe_port(
   collet_tab_gap,
   collet_tab_internal_deflection,
   tilt_degrees,
-  transition_length,
-  allowance = 0.2
+  transition_length
 ) {
+
+  // Interface scalars this adapter needs for its own placement and taper.
+  interface_radius = bayonet_interface_radius(bayonet);
+  part_height = bayonet_part_height(bayonet);
+  neck_height = bayonet_neck_height(bayonet);
+  allowance = bayonet_allowance(bayonet);
 
   // The transitions mate to the bayonet at its interface (mating) surface, less the allowance.
   _bayonet_diameter = 2 * interface_radius - allowance;
@@ -104,17 +89,9 @@ module bayonet_probe_port(
       rotate([0, 180, 0])
         translate([0, 0, -part_height - neck_height])
           bayonet_port(
+            bayonet=bayonet,
             part=part,
-            interface_radius=interface_radius,
-            shell_thickness=bayonet_shell_thickness,
-            part_height=part_height,
-            neck_height=neck_height,
-            neck_radius=neck_radius,
-            pin_radius=pin_radius,
-            center_bore_radius=center_bore_radius,
-            allowance=allowance,
-            oring_cs_diameter=oring_cs_diameter,
-            oring_interference=oring_interference
+            center_bore_radius=center_bore_radius
           );
 
       // Cut hexagonal hole for connector

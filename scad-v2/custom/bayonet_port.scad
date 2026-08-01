@@ -14,54 +14,46 @@ use <bayonet-lock-scad/bayonet_lock.scad>
 z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
-_bl_part = "pin"; // Part type: "pin" or "lock"
+// The bayonet interface every port mates to, bundled as one vector so it is defined once and
+// passed by name. Consumers register their own (see bayonet_std in head.scad); accessors below.
+//   ["name" [iface_r, shell_t, pin_r], [part_h, neck_h, neck_r], [oring_cs, oring_intf], allow]
+function bayonet_interface_radius(b)   = b[1][0]; // mating surface radius
+function bayonet_shell_thickness(b)    = b[1][1]; // annulus thickness either side of the interface
+function bayonet_pin_radius(b)         = b[1][2]; // locking pin radius
+function bayonet_part_height(b)        = b[2][0]; // height of the bayonet band
+function bayonet_neck_height(b)        = b[2][1]; // height of the neck (0 for no neck)
+function bayonet_neck_radius(b)        = b[2][2]; // neck flange radius
+function bayonet_oring_cs_diameter(b)  = b[3][0]; // o-ring cross section (undef to disable groove)
+function bayonet_oring_interference(b) = b[3][1]; // o-ring squeeze; groove depth is cs - this
+function bayonet_allowance(b)          = b[4];    // fit clearance between mating halves
 
-_bl_interface_radius = 9.5; // Interface radius of the bayonet (the mating surface)
-_bl_shell_thickness = 2.5; // Shell thickness either side of the interface radius
-_bl_pin_radius = 1.5; // Radius of the locking pins
-_bl_part_height = 10; // Height of the bayonet part
-_bl_neck_height = 5; // Height of the neck (0 for no neck)
-_bl_neck_radius = 15; // Radius of the neck (only relevant if neck_height > 0)
-
-_bl_center_bore_radius = 3; // Radius of the center bore (0 for no bore)
-_bl_oring_cs_diameter = 1.6; // Set to undef to disable o-ring groove
-_bl_oring_interference = 0.1; // Squeeze on the o-ring; groove depth is cs_diameter - this
-
-// Example usage (o-ring enabled by specifying oring_cs_diameter)
-bayonet_port(
-  part=_bl_part,
-  interface_radius=_bl_interface_radius,
-  shell_thickness=_bl_shell_thickness,
-  pin_radius=_bl_pin_radius,
-  part_height=_bl_part_height,
-  neck_height=_bl_neck_height,
-  neck_radius=_bl_neck_radius,
-  center_bore_radius=_bl_center_bore_radius,
-  oring_cs_diameter=_bl_oring_cs_diameter,
-  oring_interference=_bl_oring_interference,
-  text_labels=true
-);
+// Example usage (open this file directly to preview)
+_bl_bayonet = ["std", [9.5, 2.5, 1.5], [10, 5, 15], [1.6, 0.1], 0.2];
+bayonet_port(_bl_bayonet, part="pin", center_bore_radius=3, text_labels=true);
 
 module bayonet_port(
+  bayonet,
   part,
-  interface_radius,
-  pin_radius,
-  part_height,
-  neck_height,
-  neck_radius,
-  shell_thickness = undef,
   center_bore_radius = 0,
-  allowance = 0.2,
   number_of_pins = 3,
   sweep_angle = 30,
   pin_direction = "outer",
   turn_direction = "CW",
   entry_depth = undef,
-  oring_cs_diameter = undef,
-  oring_interference = 0.1,
   catch_pockets = true,
   text_labels = false
 ) {
+
+  // Unpack the shared bayonet interface into the scalars the body works in.
+  interface_radius = bayonet_interface_radius(bayonet);
+  shell_thickness = bayonet_shell_thickness(bayonet);
+  pin_radius = bayonet_pin_radius(bayonet);
+  part_height = bayonet_part_height(bayonet);
+  neck_height = bayonet_neck_height(bayonet);
+  neck_radius = bayonet_neck_radius(bayonet);
+  allowance = bayonet_allowance(bayonet);
+  oring_cs_diameter = bayonet_oring_cs_diameter(bayonet);
+  oring_interference = bayonet_oring_interference(bayonet);
 
   // Validation
   assert(

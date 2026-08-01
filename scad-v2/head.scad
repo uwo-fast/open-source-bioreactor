@@ -132,36 +132,19 @@ thermocouple_mount_height = 20;
 
 /* [Bayonet Lock Parameters] */
 
-// Interface radius of the bayonet (the mating surface between pin and lock)
-bayonet_interface_radius = 10;
-// Shell thickness either side of the interface radius
-bayonet_shell_thickness = 2.5;
-// Radius of the locking pins
-bayonet_pin_radius = 1.2;
-// Height of the bayonet part
-bayonet_part_height = 10;
-// Height of the neck (0 for no neck)
-bayonet_neck_height = 5;
-// Radius of the neck (only relevant if neck_height > 0)
-bayonet_neck_radius = 15;
-// Radius of the center bore (0 for no bore)
-bayonet_center_bore_radius = 3;
-// Oring cross section, set to undef to disable o-ring groove
-bayonet_oring_cs_diameter = 1.6;
-// Squeeze on the o-ring; the groove depth is cs_diameter less this
-bayonet_oring_interference = 0.1;
-// Allowance for the bayonet lock to fit properly (applied to lid cutouts)
-bayonet_allowance = 0.2;
+// The bayonet interface every port mates to, bundled as one vector (accessors in bayonet_port.scad).
+//          ["name" [iface_r, shell_t, pin_r], [part_h, neck_h, neck_r], [oring_cs, oring_intf], allow]
+bayonet = ["std", [10,     2.5,     1.2],   [10,     5,      15],      [1.6,      0.1],       0.2];
 
 /* [Port Assignment] */
 
 // What sits at each of the lid_holes_n bayonet locks, going around the lid.
 // Each entry is [type, bore_radius]:
 //   "tube"         -> generic bayonet port, bore_radius sets the tube through-hole
-//   "probe"        -> atlas probe holder (flex collet), bore_radius unused
-//   "thermocouple" -> NPT thread mount, bore_radius unused
+//   "probe"        -> atlas probe holder (flex collet); bore is swallowed by the connector cut, so 0
+//   "thermocouple" -> NPT thread mount, bore_radius is the through-hole the thermocouple passes down
 head_ports = [
-  ["thermocouple", 0],
+  ["thermocouple", 3],
   ["probe", 0],
   ["probe", 0],
   ["tube", 3],
@@ -232,7 +215,7 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
     for (hole_rot = [0:360 / lid_holes_n:360]) {
       rotate([0, 0, hole_rot])
         translate([vessel_outer_diameter / 4, 0, (lid_flange_height + lid_plug_height) / 2]) {
-          cylinder(r=bayonet_interface_radius + bayonet_pin_radius * 1.5, h=lid_flange_height + lid_plug_height + z_fight, center=true);
+          cylinder(r=bayonet_interface_radius(bayonet) + bayonet_pin_radius(bayonet) * 1.5, h=lid_flange_height + lid_plug_height + z_fight, center=true);
         }
     }
   }
@@ -245,35 +228,19 @@ module head_port(port) {
   _bore = port[1];
 
   if (_type == "tube") {
-    // per TODO: the tube interface is just the generic port with its bore set, and the
-    // bore printed on the flange
+    // The tube interface is just the generic port with its bore set, and the bore printed
+    // on the flange.
     bayonet_port(
+      bayonet=bayonet,
       part="pin",
-      interface_radius=bayonet_interface_radius,
-      shell_thickness=bayonet_shell_thickness,
-      pin_radius=bayonet_pin_radius,
-      part_height=bayonet_part_height,
-      neck_height=bayonet_neck_height,
-      neck_radius=bayonet_neck_radius,
       center_bore_radius=_bore,
-      allowance=bayonet_allowance,
-      oring_cs_diameter=bayonet_oring_cs_diameter,
-      oring_interference=bayonet_oring_interference,
       text_labels=true
     );
   } else if (_type == "probe") {
     bayonet_probe_port(
+      bayonet=bayonet,
       part="pin",
-      interface_radius=bayonet_interface_radius,
-      bayonet_shell_thickness=bayonet_shell_thickness,
-      part_height=bayonet_part_height,
-      neck_height=bayonet_neck_height,
-      neck_radius=bayonet_neck_radius,
-      pin_radius=bayonet_pin_radius,
-      center_bore_radius=bayonet_center_bore_radius,
-      allowance=bayonet_allowance,
-      oring_cs_diameter=bayonet_oring_cs_diameter,
-      oring_interference=bayonet_oring_interference,
+      center_bore_radius=_bore,
       probe_body_length=probe_port_body_length,
       probe_body_diameter=probe_port_body_diameter,
       tail_major_diameter=probe_port_tail_major_diameter,
@@ -289,18 +256,10 @@ module head_port(port) {
     );
   } else if (_type == "thermocouple") {
     bayonet_thermocouple_port(
+      bayonet=bayonet,
       part="pin",
-      interface_radius=bayonet_interface_radius,
-      shell_thickness=bayonet_shell_thickness,
-      part_height=bayonet_part_height,
-      neck_height=bayonet_neck_height,
-      neck_radius=bayonet_neck_radius,
-      pin_radius=bayonet_pin_radius,
-      center_bore_radius=bayonet_center_bore_radius,
-      allowance=bayonet_allowance,
-      mount_height=thermocouple_mount_height,
-      oring_cs_diameter=bayonet_oring_cs_diameter,
-      oring_interference=bayonet_oring_interference
+      center_bore_radius=_bore,
+      mount_height=thermocouple_mount_height
     );
   } else {
     assert(false, str("head_port: unknown port type '", _type, "'"));
@@ -339,18 +298,9 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     for (i = [0:lid_holes_n - 1]) {
       color(prints2_color)
         rotate([0, 0, i * 360 / lid_holes_n])
-          translate([vessel_outer_diameter / 4, 0, -bayonet_part_height - bayonet_oring_cs_diameter])
+          translate([vessel_outer_diameter / 4, 0, -bayonet_part_height(bayonet) - bayonet_oring_cs_diameter(bayonet)])
             // add the bayonet locks
-            bayonet_port(
-              part="lock",
-              interface_radius=bayonet_interface_radius,
-              shell_thickness=bayonet_shell_thickness,
-              pin_radius=bayonet_pin_radius,
-              part_height=bayonet_part_height,
-              neck_height=bayonet_neck_height,
-              neck_radius=bayonet_neck_radius,
-              allowance=bayonet_allowance
-            );
+            bayonet_port(bayonet=bayonet, part="lock");
     }
   }
 
@@ -369,7 +319,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       if (_show)
         color(prints1_color)
           rotate([0, 0, i * 360 / lid_holes_n])
-            translate([vessel_outer_diameter / 4, 0, bayonet_neck_height - bayonet_oring_cs_diameter])
+            translate([vessel_outer_diameter / 4, 0, bayonet_neck_height(bayonet) - bayonet_oring_cs_diameter(bayonet)])
               rotate([0, 180, 0])
                 head_port(_port);
     }

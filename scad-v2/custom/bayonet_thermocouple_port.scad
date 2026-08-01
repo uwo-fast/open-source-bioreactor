@@ -12,67 +12,43 @@ z_fight = $preview ? 0.01 : 0;
 $fn = $preview ? 32 : 128;
 
 // ----- Bayonet parameters -----
-_bt_interface_radius = 9.5; // Interface radius of the bayonet (the mating surface)
-_bt_shell_thickness = 2.5; // Shell thickness either side of the interface radius
-_bt_part_height = 10; // Height of the bayonet part
-_bt_neck_height = 5; // Height of the neck
-_bt_neck_radius = 15; // Radius of the neck flange
-_bt_pin_radius = 1.5; // Radius of the locking pins
+//              ["name" [iface_r, shell_t, pin_r], [part_h, neck_h, neck_r], [oring_cs, oring_intf], allow]
+_bt_bayonet = ["std", [9.5,    2.5,     1.5],   [10,     5,      15],      [1.6,      0.1],       0.2];
 _bt_center_bore_radius = 3; // Radius of the center bore
-_bt_oring_cs_diameter = 1.6; // Cross section of the o-ring
-_bt_oring_interference = 0.1; // Compression of the o-ring
 
 // ----- Thermocouple-specific parameters -----
 _bt_mount_height = 20; // Height of NPT thread mount
 
 bayonet_thermocouple_port(
-  interface_radius=_bt_interface_radius,
-  shell_thickness=_bt_shell_thickness,
-  part_height=_bt_part_height,
-  neck_height=_bt_neck_height,
-  neck_radius=_bt_neck_radius,
-  pin_radius=_bt_pin_radius,
+  bayonet=_bt_bayonet,
+  part="pin",
   center_bore_radius=_bt_center_bore_radius,
-  mount_height=_bt_mount_height,
-  oring_cs_diameter=_bt_oring_cs_diameter,
-  oring_interference=_bt_oring_interference
+  mount_height=_bt_mount_height
 );
 
 /**
  * Thermocouple port with bayonet connector and NPT thread mount
  *
- * @param part                 "pin" or "lock"
- * @param mount_height         Height of NPT thread mount
- * @param oring_cs_diameter    O-ring cross section (mm)
- * @param oring_interference   O-ring compression (mm)
+ * @param bayonet      Bayonet interface vector (see bayonet_port.scad)
+ * @param part         "pin" or "lock"
+ * @param mount_height Height of NPT thread mount
  */
 module bayonet_thermocouple_port(
+  bayonet,
   part = "pin",
-  interface_radius,
-  shell_thickness,
-  part_height,
-  neck_height,
-  neck_radius,
-  pin_radius,
   center_bore_radius,
-  mount_height,
-  oring_cs_diameter,
-  oring_interference,
-  allowance = 0.2
+  mount_height
 ) {
+  // Interface scalars this adapter needs for the mount taper.
+  interface_radius = bayonet_interface_radius(bayonet);
+  shell_thickness = bayonet_shell_thickness(bayonet);
+  allowance = bayonet_allowance(bayonet);
+
   // Bayonet connector
   bayonet_port(
+    bayonet=bayonet,
     part=part,
-    interface_radius=interface_radius,
-    shell_thickness=shell_thickness,
-    part_height=part_height,
-    neck_height=neck_height,
-    neck_radius=neck_radius,
-    pin_radius=pin_radius,
-    center_bore_radius=center_bore_radius,
-    allowance=allowance,
-    oring_cs_diameter=oring_cs_diameter,
-    oring_interference=oring_interference
+    center_bore_radius=center_bore_radius
   );
 
   // Add NPT thread mount for thermocouple (pin part only)
