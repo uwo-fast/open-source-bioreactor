@@ -1,0 +1,14 @@
+[project]
+name = "bioreactor-analysis"
+version = "0.1.0"
+description = "Telemetry analysis for the open-source-bioreactor culture runs"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.2,<4",
+    "matplotlib>=3.8,<4",
+]
+
+# Not an installable package — the pipelines are run as scripts and import
+# lib/ from the analysis root.
+[tool.uv]
+package = false

@@ -7,3 +7,10 @@ _reference/
 *.tmp
 *.bak
 *.swp
+
+# Analysis: raw/ and figures/ are committed, everything regenerable is not.
+# See analysis/README.md.
+analysis/**/derived/
+analysis/.venv/
+__pycache__/
+*.pyc
