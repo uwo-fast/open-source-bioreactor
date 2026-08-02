@@ -66,7 +66,7 @@ bearing_height = 7.5;
 // the registered motor type; the gearbox is taken from the motor's registration
 // (dc_motor_gearbox), and all motor/gearbox dimensions are derived from these via
 // the accessor functions rather than re-entered here
-head_motor = generic_dc_motor;
+head_motor = motor_36pg_3530_5p18;
 
 /* [Shaft Parameters] */
 
