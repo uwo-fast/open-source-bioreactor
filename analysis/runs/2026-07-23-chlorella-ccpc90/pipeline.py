@@ -17,7 +17,6 @@ else is regenerated here:
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 
 import matplotlib
@@ -25,9 +24,6 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import pandas as pd  # noqa: E402
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from lib import rawio  # noqa: E402
 
 RUN = Path(__file__).resolve().parent
 MASTER = RUN / "raw" / "signals_raw_long.csv"
@@ -47,6 +43,51 @@ EVENTS = [
 ]
 
 
+def read_master():
+    """Read the long-format export into a tidy frame.
+
+    Timestamps are RFC3339 with a Z offset and a varying number of fractional
+    digits, so they need an explicit ISO8601 parse to land as datetimes. The
+    exporter's original timestamp text is kept alongside so the splits can be
+    written back out byte-for-byte rather than in pandas' datetime rendering.
+    """
+    frame = pd.read_csv(MASTER)
+    frame["timestamp_text"] = frame["timestamp"]
+    frame["timestamp"] = pd.to_datetime(
+        frame["timestamp"], format="ISO8601", utc=True
+    )
+    frame["key"] = frame["device_id"] + "__" + frame["signal_id"]
+    return frame
+
+
+def detect_line_terminator(path):
+    r"""Return the line terminator a text file actually uses.
+
+    The exporter emits CRLF, but ``.gitattributes`` normalises ``*.csv`` to LF,
+    so a fresh clone sees LF while the original export on disk still has CRLF.
+    The splits mirror whichever the master uses rather than assuming either.
+    """
+    with open(path, "rb") as handle:
+        line = handle.readline()
+    return "\r\n" if line.endswith(b"\r\n") else "\n"
+
+
+def pivot(frame, keys, freq="1min"):
+    """Resample selected ``device__signal`` series onto a shared time grid.
+
+    Telemetry is emitted on change rather than on a clock, so the series do
+    not share timestamps and have to be resampled before they can be compared.
+    """
+    columns = {}
+    for key in keys:
+        series = frame.loc[frame["key"] == key, ["timestamp", "value"]]
+        series = pd.to_numeric(
+            series.set_index("timestamp")["value"], errors="coerce"
+        ).dropna()
+        columns[key] = series.resample(freq).mean()
+    return pd.DataFrame(columns).sort_index()
+
+
 def split_per_signal(frame):
     """Write the master back out as one file per (device, signal).
 
@@ -56,7 +97,7 @@ def split_per_signal(frame):
     out = DERIVED / "per_signal"
     out.mkdir(parents=True, exist_ok=True)
     columns = [c for c in frame.columns if c not in ("key", "timestamp_text")]
-    terminator = rawio.detect_line_terminator(MASTER)
+    terminator = detect_line_terminator(MASTER)
 
     counts = {}
     for key, group in frame.groupby("key", sort=True):
@@ -144,13 +185,13 @@ def main():
     FIGURES.mkdir(exist_ok=True)
 
     print(f"reading {MASTER.name} …")
-    frame = rawio.read_long_telemetry(MASTER)
+    frame = read_master()
     print(f"  {len(frame):,} rows, {frame['key'].nunique()} signals")
 
     counts = split_per_signal(frame)
     print(f"wrote derived/per_signal/ ({len(counts)} files)")
 
-    pivoted = rawio.pivot_long_telemetry(frame, SENSORS + [IMPELLER], freq="1min")
+    pivoted = pivot(frame, SENSORS + [IMPELLER], freq="1min")
     pivoted.to_csv(DERIVED / "pivoted_1min.csv")
     print(f"wrote derived/pivoted_1min.csv ({len(pivoted):,} rows)")
 

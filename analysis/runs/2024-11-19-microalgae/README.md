@@ -87,7 +87,7 @@ pH below 7 is the probe still settling at the start of the run.
 
 The step from `raw` to `cleaned0` was originally done by hand in a spreadsheet
 and **no script for it was ever committed**. It has since been reverse-
-engineered and is now `align_by_row_index()` in [`../../lib/rawio.py`](../../lib/rawio.py):
+engineered and is now `align_by_row_index()` in [`pipeline.py`](pipeline.py):
 take channels by raw row position, set `time = round(Thermo 1 time)`, drop the
 duplicated first scan, drop the final row, and uppercase the booleans.
 

@@ -6,10 +6,15 @@ Culture runs and hardware characterisation for the bioreactor.
 
 ```
 analysis/
-  lib/rawio.py              shared readers for both raw telemetry formats
   runs/<date>-<subject>/    one culture run
   methods/<name>/           hardware characterisation, re-runnable anytime
 ```
+
+Each `pipeline.py` is self-contained: it reads its own raw format, writes its
+own outputs, and shares no code with the others. The raw formats have nothing
+in common — a 2024 paired-channel dump and a 2026 long-event export — so
+there is nothing worth factoring out, and each pipeline stays readable on its
+own.
 
 Every run and method directory has the same shape:
 

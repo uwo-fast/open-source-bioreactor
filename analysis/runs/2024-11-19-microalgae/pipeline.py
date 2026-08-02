@@ -15,17 +15,14 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import sys
 from pathlib import Path
 
 import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
+import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from lib import rawio  # noqa: E402
 
 RUN = Path(__file__).resolve().parent
 RAW = RUN / "raw" / "microalgae_raw.csv"
@@ -61,6 +58,65 @@ LEGACY_DIGESTS = {
 }
 
 
+def read_paired_channels(path):
+    """Return ``{label: DataFrame[time, value]}`` from the raw logger CSV.
+
+    The file is not a table. It is fourteen independent channels laid side by
+    side, each a ``(time, value)`` column pair carrying its own clock and its
+    own length, space-padded to the longest. Frames keep their original row
+    positions and full length — padding rows stay in as NaN, which
+    :func:`align_by_row_index` depends on.
+    """
+    raw = pd.read_csv(path, header=0, dtype=str)
+    labels = [c for i, c in enumerate(raw.columns) if i % 2 == 1]
+
+    channels = {}
+    for i, label in enumerate(labels):
+        time = pd.to_numeric(raw.iloc[:, 2 * i].str.strip(), errors="coerce")
+        value = raw.iloc[:, 2 * i + 1].str.strip().replace("", np.nan)
+        channels[label] = pd.DataFrame({"time": time, "value": value})
+    return channels
+
+
+def align_by_row_index(channels):
+    """Stack channels by raw row position, as the 2024 spreadsheet did.
+
+    This is **wrong** — it pairs the i-th row of each channel regardless of
+    when each sample was actually recorded. Kept only so the archived derived
+    files regenerate bit-for-bit; see README.md for the measured skew.
+    """
+    out = pd.DataFrame({"time": channels[BASE]["time"].round().astype("Int64")})
+    for label, name in COLUMNS.items():
+        out[name] = channels[label]["value"]
+    return out[out["time"].notna()]
+
+
+def align_by_timestamp(channels, tolerance_s=30):
+    """Align channels onto the base channel's clock with a backward as-of join.
+
+    Each channel contributes its most recent sample at or before every base
+    timestamp, and nothing at all when that sample is older than
+    ``tolerance_s``, so gaps stay NaN instead of being carried forward.
+    """
+
+    def clean(label):
+        frame = channels[label].dropna(subset=["time"]).copy()
+        frame["time"] = frame["time"].astype(float)
+        return frame.sort_values("time")
+
+    out = clean(BASE).rename(columns={"value": COLUMNS[BASE]})[["time", COLUMNS[BASE]]]
+
+    for label, name in COLUMNS.items():
+        if label == BASE:
+            continue
+        other = clean(label).rename(columns={"value": name})[["time", name]]
+        out = pd.merge_asof(
+            out, other, on="time", direction="backward",
+            tolerance=float(tolerance_s),
+        )
+    return out.reset_index(drop=True)
+
+
 def build_legacy(channels):
     """Replay the historical cleaned0 -> cleaned1 -> cleaned2 chain.
 
@@ -69,7 +125,7 @@ def build_legacy(channels):
     that re-read it, which is what turned those booleans into True/False. The
     chain is replayed through disk here for exactly that reason.
     """
-    cleaned0 = rawio.align_by_row_index(channels, BASE, COLUMNS)
+    cleaned0 = align_by_row_index(channels)
     # The logger emitted its first scan twice, and the export was cut one row
     # short of the last temperature sample.
     cleaned0 = cleaned0.drop_duplicates(subset=["time"], keep="first").iloc[:-1]
@@ -98,7 +154,7 @@ def build_legacy(channels):
 
 def build_tidy(channels):
     """The corrected frame: real timestamps, same physical filters."""
-    tidy = rawio.align_by_timestamp(channels, BASE, COLUMNS, tolerance_s=30)
+    tidy = align_by_timestamp(channels, tolerance_s=30)
     for column in ("temperature", "dissolved oxygen", "pH"):
         tidy[column] = pd.to_numeric(tidy[column], errors="coerce")
     for column in ("stirring motor", "sample pump"):
@@ -160,7 +216,7 @@ def main():
     DERIVED.mkdir(exist_ok=True)
     FIGURES.mkdir(exist_ok=True)
 
-    channels = rawio.read_paired_channels(RAW)
+    channels = read_paired_channels(RAW)
     for name, frame in build_legacy(channels).items():
         print(f"wrote derived/{name} ({len(frame):,} rows)")
 
