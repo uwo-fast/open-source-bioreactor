@@ -16,6 +16,8 @@ use <custom/impeller.scad>;
 include <purchased/dc_motors.scad>;
 include <purchased/gearboxes.scad>;
 
+include <custom/bayonet_interfaces.scad>;
+
 include <NopSCADlib/core.scad>;
 use <NopSCADlib/vitamins/shaft_coupling.scad>;
 
@@ -132,9 +134,9 @@ thermocouple_mount_height = 20;
 
 /* [Bayonet Lock Parameters] */
 
-// The bayonet interface every port mates to, bundled as one vector (accessors in bayonet_port.scad).
-//          ["name" [iface_r, shell_t, pin_r], [part_h, neck_h, neck_r], [oring_cs, oring_intf], allow]
-bayonet = ["std", [10,     2.5,     1.2],   [10,     5,      15],      [1.6,      0.1],       0.2];
+// the registered bayonet interface every port on the lid mates to; all bayonet
+// dimensions are derived from it via the accessor functions in bayonet_port.scad
+head_bayonet = bayonet_std;
 
 /* [Port Assignment] */
 
@@ -215,7 +217,7 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
     for (hole_rot = [0:360 / lid_holes_n:360]) {
       rotate([0, 0, hole_rot])
         translate([vessel_outer_diameter / 4, 0, (lid_flange_height + lid_plug_height) / 2]) {
-          cylinder(r=bayonet_interface_radius(bayonet) + bayonet_pin_radius(bayonet) * 1.5, h=lid_flange_height + lid_plug_height + z_fight, center=true);
+          cylinder(r=bayonet_interface_radius(head_bayonet) + bayonet_pin_radius(head_bayonet) * 1.5, h=lid_flange_height + lid_plug_height + z_fight, center=true);
         }
     }
   }
@@ -231,14 +233,14 @@ module head_port(port) {
     // The tube interface is just the generic port with its bore set, and the bore printed
     // on the flange.
     bayonet_port(
-      bayonet=bayonet,
+      type=head_bayonet,
       part="pin",
       center_bore_radius=_bore,
       text_labels=true
     );
   } else if (_type == "probe") {
     bayonet_probe_port(
-      bayonet=bayonet,
+      type=head_bayonet,
       center_bore_radius=_bore,
       probe_body_length=probe_port_body_length,
       probe_body_diameter=probe_port_body_diameter,
@@ -255,7 +257,7 @@ module head_port(port) {
     );
   } else if (_type == "thermocouple") {
     bayonet_thermocouple_port(
-      bayonet=bayonet,
+      type=head_bayonet,
       center_bore_radius=_bore,
       mount_height=thermocouple_mount_height
     );
@@ -296,9 +298,9 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     for (i = [0:lid_holes_n - 1]) {
       color(prints2_color)
         rotate([0, 0, i * 360 / lid_holes_n])
-          translate([vessel_outer_diameter / 4, 0, -bayonet_part_height(bayonet) - bayonet_oring_cs_diameter(bayonet)])
+          translate([vessel_outer_diameter / 4, 0, -bayonet_part_height(head_bayonet) - bayonet_oring_cs_diameter(head_bayonet)])
             // add the bayonet locks
-            bayonet_port(bayonet=bayonet, part="lock");
+            bayonet_port(type=head_bayonet, part="lock");
     }
   }
 
@@ -317,7 +319,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       if (_show)
         color(prints1_color)
           rotate([0, 0, i * 360 / lid_holes_n])
-            translate([vessel_outer_diameter / 4, 0, bayonet_neck_height(bayonet) - bayonet_oring_cs_diameter(bayonet)])
+            translate([vessel_outer_diameter / 4, 0, bayonet_neck_height(head_bayonet) - bayonet_oring_cs_diameter(head_bayonet)])
               rotate([0, 180, 0])
                 head_port(_port);
     }

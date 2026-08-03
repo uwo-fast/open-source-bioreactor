@@ -7,14 +7,11 @@
 
 use <bayonet_port.scad>
 use <cylindrical_flex_collet.scad>
+include <bayonet_interfaces.scad>
 
 z_fight = $preview ? 0.01 : 0;
 $fn = $preview ? 64 : 128;
 
-// ----- Bayonet parameters -----
-
-//              ["name" [iface_r, shell_t, pin_r], [part_h, neck_h, neck_r], [oring_cs, oring_intf], allow]
-_bp_bayonet = ["std", [9.5,    2.5,     1.5],   [10,     5,      15],      [1.6,      0.1],       0.2];
 _bp_center_bore_radius = 3; // Radius of the center bore
 
 // ----- Probe-specific (hardware) parameters -----
@@ -36,7 +33,7 @@ _bp_tilt_degrees = 7; // Tilt to avoid bubbles on sensor face
 _bp_transition_length = 25;
 
 bayonet_probe_port(
-  bayonet=_bp_bayonet,
+  type=bayonet_std,
   center_bore_radius=_bp_center_bore_radius,
   probe_body_length=_bp_probe_body_length,
   probe_body_diameter=_bp_probe_body_diameter,
@@ -56,7 +53,7 @@ bayonet_probe_port(
 // This is a pin half by definition - the lock half is the same for every port, so the
 // lid takes it straight from bayonet_port().
 module bayonet_probe_port(
-  bayonet,
+  type,
   center_bore_radius,
   probe_body_length,
   probe_body_diameter,
@@ -73,10 +70,10 @@ module bayonet_probe_port(
 ) {
 
   // Interface scalars this adapter needs for its own placement and taper.
-  interface_radius = bayonet_interface_radius(bayonet);
-  part_height = bayonet_part_height(bayonet);
-  neck_height = bayonet_neck_height(bayonet);
-  allowance = bayonet_allowance(bayonet);
+  interface_radius = bayonet_interface_radius(type);
+  part_height = bayonet_part_height(type);
+  neck_height = bayonet_neck_height(type);
+  allowance = bayonet_allowance(type);
 
   // The transitions mate to the bayonet at its interface (mating) surface, less the allowance.
   _bayonet_diameter = 2 * interface_radius - allowance;
@@ -89,7 +86,7 @@ module bayonet_probe_port(
       rotate([0, 180, 0])
         translate([0, 0, -part_height - neck_height])
           bayonet_port(
-            bayonet=bayonet,
+            type=type,
             part="pin",
             center_bore_radius=center_bore_radius
           );

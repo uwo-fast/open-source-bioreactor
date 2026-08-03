@@ -7,20 +7,18 @@
 
 use <bayonet_port.scad>
 use <threads-scad/threads.scad>
+include <bayonet_interfaces.scad>
 
 z_fight = $preview ? 0.01 : 0;
 $fn = $preview ? 32 : 128;
 
-// ----- Bayonet parameters -----
-//              ["name" [iface_r, shell_t, pin_r], [part_h, neck_h, neck_r], [oring_cs, oring_intf], allow]
-_bt_bayonet = ["std", [9.5,    2.5,     1.5],   [10,     5,      15],      [1.6,      0.1],       0.2];
 _bt_center_bore_radius = 3; // Radius of the center bore
 
 // ----- Thermocouple-specific parameters -----
 _bt_mount_height = 20; // Height of NPT thread mount
 
 bayonet_thermocouple_port(
-  bayonet=_bt_bayonet,
+  type=bayonet_std,
   center_bore_radius=_bt_center_bore_radius,
   mount_height=_bt_mount_height
 );
@@ -31,22 +29,22 @@ bayonet_thermocouple_port(
  * This is a pin half by definition - the lock half is the same for every port, so the
  * lid takes it straight from bayonet_port().
  *
- * @param bayonet      Bayonet interface vector (see bayonet_port.scad)
+ * @param type         Registered bayonet interface (see bayonet_interfaces.scad)
  * @param mount_height Height of NPT thread mount
  */
 module bayonet_thermocouple_port(
-  bayonet,
+  type,
   center_bore_radius,
   mount_height
 ) {
   // Interface scalars this adapter needs for the mount taper.
-  interface_radius = bayonet_interface_radius(bayonet);
-  shell_thickness = bayonet_shell_thickness(bayonet);
-  allowance = bayonet_allowance(bayonet);
+  interface_radius = bayonet_interface_radius(type);
+  shell_thickness = bayonet_shell_thickness(type);
+  allowance = bayonet_allowance(type);
 
   // Bayonet connector
   bayonet_port(
-    bayonet=bayonet,
+    type=type,
     part="pin",
     center_bore_radius=center_bore_radius
   );
