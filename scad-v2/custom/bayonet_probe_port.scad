@@ -13,6 +13,7 @@ z_fight = $preview ? 0.01 : 0;
 $fn = $preview ? 64 : 128;
 
 _bp_center_bore_radius = 3; // Radius of the center bore
+_bp_panel_thickness = 18; // Lid thickness at the port, for standalone preview
 
 // ----- Probe-specific (hardware) parameters -----
 
@@ -34,6 +35,7 @@ _bp_transition_length = 25;
 
 bayonet_probe_port(
   type=bayonet_std,
+  panel_thickness=_bp_panel_thickness,
   center_bore_radius=_bp_center_bore_radius,
   probe_body_length=_bp_probe_body_length,
   probe_body_diameter=_bp_probe_body_diameter,
@@ -50,10 +52,12 @@ bayonet_probe_port(
 );
 
 // ----- build -----
-// This is a pin half by definition - the lock half is the same for every port, so the
-// lid takes it straight from bayonet_port().
+// This is a pin half by definition - the lock half is the same for every port, so the lid
+// takes it straight from bayonet_port(). Shares bayonet_port's datum: the collet hangs off
+// the bottom of the coupling, inside the vessel, and the connector passes up through the bore.
 module bayonet_probe_port(
   type,
+  panel_thickness,
   center_bore_radius,
   probe_body_length,
   probe_body_diameter,
@@ -71,29 +75,31 @@ module bayonet_probe_port(
 
   // Interface scalars this adapter needs for its own placement and taper.
   interface_radius = bayonet_interface_radius(type);
-  part_height = bayonet_part_height(type);
-  neck_height = bayonet_neck_height(type);
   allowance = bayonet_allowance(type);
 
   // The transitions mate to the bayonet at its interface (mating) surface, less the allowance.
   _bayonet_diameter = 2 * interface_radius - allowance;
   _transition_length = transition_length + probe_body_diameter / sqrt(3);
 
+  // Bottom of the coupling band, which the probe holder hangs from.
+  _band_z = -panel_thickness - bayonet_part_height(type);
+
   union() {
 
-    // Bayonet lock connector
+    // Bayonet connector
     difference() {
-      rotate([0, 180, 0])
-        translate([0, 0, -part_height - neck_height])
-          bayonet_port(
-            type=type,
-            part="pin",
-            center_bore_radius=center_bore_radius
-          );
+      bayonet_port(
+        type=type,
+        part="pin",
+        panel_thickness=panel_thickness,
+        center_bore_radius=center_bore_radius
+      );
 
       // Cut hexagonal hole for connector
       cylinder(h=1000, d=connector_part_diameter + collet_internal_allowance, center=true, $fn=6);
     }
+
+    translate([0, 0, _band_z]) {
 
     // Tilt transition wedge
     difference() {
@@ -142,6 +148,7 @@ module bayonet_probe_port(
         // Cut hexagonal hole for connector
         cylinder(h=1000, d=connector_part_diameter + collet_internal_allowance, center=true, $fn=6);
       }
+    }
     }
   }
 }

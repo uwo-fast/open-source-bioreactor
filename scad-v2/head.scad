@@ -138,6 +138,11 @@ thermocouple_mount_height = 20;
 // dimensions are derived from it via the accessor functions in bayonet_port.scad
 head_bayonet = bayonet_std;
 
+// how to draw each port on its lock: "locked" as assembled, or "entry" as it sits on
+// insertion before the turn. Entry is the useful one for checking clearance around the
+// bent atlas probe bodies.
+port_position = "locked"; // [locked, entry]
+
 /* [Port Assignment] */
 
 // What sits at each of the lid_holes_n bayonet locks, going around the lid.
@@ -213,11 +218,12 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
           cylinder(d=bearing_diameter + bearing_hole_allowance, h=bearing_height + z_fight);
       }
 
-    // cut out the entry holes for the probes and tubes
+    // cut out the entry holes for the probes and tubes; the port sizes its own hole so the
+    // lock keeps a bearing land against the lid's underside
     for (hole_rot = [0:360 / lid_holes_n:360]) {
       rotate([0, 0, hole_rot])
         translate([vessel_outer_diameter / 4, 0, (lid_flange_height + lid_plug_height) / 2]) {
-          cylinder(r=bayonet_interface_radius(head_bayonet) + bayonet_pin_radius(head_bayonet) * 1.5, h=lid_flange_height + lid_plug_height + z_fight, center=true);
+          cylinder(r=bayonet_port_hole_radius(head_bayonet), h=lid_flange_height + lid_plug_height + z_fight, center=true);
         }
     }
   }
@@ -225,7 +231,7 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
 
 // One port pin half, dispatched on its registered type. All three share the same bayonet
 // interface, so they are interchangeable across the lid's locks.
-module head_port(port) {
+module head_port(port, panel_thickness) {
   _type = port[0];
   _bore = port[1];
 
@@ -235,12 +241,14 @@ module head_port(port) {
     bayonet_port(
       type=head_bayonet,
       part="pin",
+      panel_thickness=panel_thickness,
       center_bore_radius=_bore,
       text_labels=true
     );
   } else if (_type == "probe") {
     bayonet_probe_port(
       type=head_bayonet,
+      panel_thickness=panel_thickness,
       center_bore_radius=_bore,
       probe_body_length=probe_port_body_length,
       probe_body_diameter=probe_port_body_diameter,
@@ -258,6 +266,7 @@ module head_port(port) {
   } else if (_type == "thermocouple") {
     bayonet_thermocouple_port(
       type=head_bayonet,
+      panel_thickness=panel_thickness,
       center_bore_radius=_bore,
       mount_height=thermocouple_mount_height
     );
@@ -287,6 +296,10 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   motor_mount_middle_height = gearbox_output_shaft_length(head_gearbox) + shaft_protrusion + shaft_shaft_coupling_offset - motor_mount_flange_height * 2;
   echo("motor mount height: ", motor_mount_middle_height / 10, " cm");
 
+  // The lid is flipped so its outer face lands on z = 0, which is the datum both port halves
+  // are built around; that is why the ports below need no z placement of their own.
+  lid_thickness = lid_flange_height + lid_plug_height;
+
   // Render the lid with pockets for the bearing and shaft, and holes for the bayonet locks
   if (render_lid || render_all) {
     color(prints2_color)
@@ -298,16 +311,17 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     for (i = [0:lid_holes_n - 1]) {
       color(prints2_color)
         rotate([0, 0, i * 360 / lid_holes_n])
-          translate([vessel_outer_diameter / 4, 0, -bayonet_part_height(head_bayonet) - bayonet_oring_cs_diameter(head_bayonet)])
+          translate([vessel_outer_diameter / 4, 0, 0])
             // add the bayonet locks
-            bayonet_port(type=head_bayonet, part="lock");
+            bayonet_port(type=head_bayonet, part="lock", panel_thickness=lid_thickness);
     }
   }
 
-  // Port pin halves. Each drops into the lock above from outside the lid, so it is flipped
-  // and lifted until its bayonet band coincides with the lock's: the pin's bayonet starts at
-  // neck_height in its own frame, and the lock's starts at -(part_height + oring_cs).
+  // Port pin halves. Each shares the lock's datum, so it needs no placement beyond its hole
+  // centre; port_position only turns it about its own axis, between locked and entry.
   if (render_tube_pinlock || render_probe_pinlock || render_thermocouple_pinlock || render_all) {
+    _port_turn = (port_position == "entry") ? bayonet_entry_rotation(head_bayonet) : 0;
+
     for (i = [0:lid_holes_n - 1]) {
       _port = head_ports[i];
       _show =
@@ -319,9 +333,9 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       if (_show)
         color(prints1_color)
           rotate([0, 0, i * 360 / lid_holes_n])
-            translate([vessel_outer_diameter / 4, 0, bayonet_neck_height(head_bayonet) - bayonet_oring_cs_diameter(head_bayonet)])
-              rotate([0, 180, 0])
-                head_port(_port);
+            translate([vessel_outer_diameter / 4, 0, 0])
+              rotate([0, 0, _port_turn])
+                head_port(_port, lid_thickness);
     }
   }
 
