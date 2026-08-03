@@ -131,21 +131,20 @@ module bayonet_port(
 
       if (part == "pin") {
 
-        // Core: fills the middle of the coupling, carries on up the shank through the panel
-        // and into the flange, and is bored through where a tube or probe passes.
-        // The bore is triple-height and centered so it clears both ends without z-fighting.
-        _core_h = part_height + panel_thickness + _flange_h;
-        difference() {
-          translate([0, 0, _band_z])
-            cylinder(h=_core_h, r=interface_radius - pin_radius);
-          if (center_bore_radius > 0)
-            cylinder(h=_core_h * 3, r=center_bore_radius, center=true);
-        }
+        // Core: fills the middle of the coupling, then carries on up the shank through the
+        // panel and into the flange.
+        translate([0, 0, _band_z])
+          cylinder(h=part_height + panel_thickness + _flange_h, r=interface_radius - pin_radius);
 
         // Flange, seating on the panel's outer face
         cylinder(h=_flange_h, r=flange_radius);
       }
     }
+
+    // Center bore for the tube or probe. Cut against the finished body so it opens through
+    // the flange as well as the core; triple-height and centered to clear both ends.
+    if (part == "pin" && center_bore_radius > 0)
+      cylinder(h=(part_height + panel_thickness + _flange_h) * 3, r=center_bore_radius, center=true);
 
     // O-ring rebate: an annular recess in the flange's panel-facing face, running from the
     // spigot out to the flange edge. The o-ring seats here and is squeezed against the
