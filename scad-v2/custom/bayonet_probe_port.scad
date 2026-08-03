@@ -37,7 +37,6 @@ _bp_transition_length = 25;
 
 bayonet_probe_port(
   bayonet=_bp_bayonet,
-  part="pin",
   center_bore_radius=_bp_center_bore_radius,
   probe_body_length=_bp_probe_body_length,
   probe_body_diameter=_bp_probe_body_diameter,
@@ -54,9 +53,10 @@ bayonet_probe_port(
 );
 
 // ----- build -----
+// This is a pin half by definition - the lock half is the same for every port, so the
+// lid takes it straight from bayonet_port().
 module bayonet_probe_port(
   bayonet,
-  part,
   center_bore_radius,
   probe_body_length,
   probe_body_diameter,
@@ -90,16 +90,13 @@ module bayonet_probe_port(
         translate([0, 0, -part_height - neck_height])
           bayonet_port(
             bayonet=bayonet,
-            part=part,
+            part="pin",
             center_bore_radius=center_bore_radius
           );
 
       // Cut hexagonal hole for connector
       cylinder(h=1000, d=connector_part_diameter + collet_internal_allowance, center=true, $fn=6);
     }
-
-    // The probe holder hangs off the pin half; the lock half is just the bayonet.
-    if (part == "pin") {
 
     // Tilt transition wedge
     difference() {
@@ -148,7 +145,6 @@ module bayonet_probe_port(
         // Cut hexagonal hole for connector
         cylinder(h=1000, d=connector_part_diameter + collet_internal_allowance, center=true, $fn=6);
       }
-    }
     }
   }
 }

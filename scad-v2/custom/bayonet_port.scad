@@ -55,26 +55,11 @@ module bayonet_port(
   oring_cs_diameter = bayonet_oring_cs_diameter(bayonet);
   oring_interference = bayonet_oring_interference(bayonet);
 
-  // Validation
-  assert(
-    part == "pin" || part == "lock",
-    str("bayonet_port: part must be 'pin' or 'lock', got: ", part)
-  );
-  assert(
-    oring_cs_diameter == undef || oring_cs_diameter > 0,
-    "bayonet_port: oring_cs_diameter must be > 0 when specified"
-  );
+  // `part`, `entry_depth` and `shell_thickness` are validated and defaulted by the library.
   assert(
     oring_cs_diameter == undef || oring_interference < oring_cs_diameter,
     "bayonet_port: oring_interference must be < oring_cs_diameter (the groove would have no depth)"
   );
-
-  // Auto-calculate entry_depth if not specified (50% of part_height)
-  _entry_depth = is_undef(entry_depth) ? part_height * 0.5 : entry_depth;
-
-  // Shell thickness of the bayonet annulus, measured either side of the interface radius.
-  // Left undef, the library falls back to pin_radius * 2.
-  _shell_thickness = is_undef(shell_thickness) ? pin_radius * 2 : shell_thickness;
 
   // O-ring groove is cut into the top face of the neck, so it only exists on the pin half.
   // Its depth is the cross section less the interference, which is what compresses the o-ring
@@ -94,10 +79,10 @@ module bayonet_port(
         bayonet(
           half=part,
           interface_radius=interface_radius,
-          shell_thickness=_shell_thickness,
+          shell_thickness=shell_thickness,
           allowance=allowance,
           part_height=part_height,
-          entry_depth=_entry_depth,
+          entry_depth=entry_depth,
           number_of_pins=number_of_pins,
           pin_radius=pin_radius,
           sweep_angle=sweep_angle,
@@ -105,12 +90,13 @@ module bayonet_port(
           turn_direction=turn_direction
         );
 
-      // Fill middle with center bore when set to pins
+      // Fill the middle, bored through for a tube or probe when a bore is set.
+      // The bore is triple-height and centered so it clears both faces without z-fighting.
       if (part == "pin") {
-        if (center_bore_radius > 0) {
-          _tube(h=part_height + _neck_h, r_outer=interface_radius - pin_radius, r_inner=center_bore_radius);
-        } else {
+        difference() {
           cylinder(h=part_height + _neck_h, r=interface_radius - pin_radius);
+          if (center_bore_radius > 0)
+            cylinder(h=(part_height + _neck_h) * 3, r=center_bore_radius, center=true);
         }
       }
 
@@ -165,17 +151,5 @@ module bayonet_port(
             );
       }
     }
-  }
-}
-
-// Hollow cylindrical tube primitive consisting of an outer shell minus thru-bore.
-// The bore is triple-height and centered to avoid z-fighting on both faces.
-module _tube(h, r_outer, r_inner) {
-  difference() {
-
-    cylinder(h=h, r=r_outer);
-
-    if (r_inner > 0)
-      cylinder(h=h * 3, r=r_inner, center=true);
   }
 }

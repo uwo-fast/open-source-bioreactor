@@ -21,21 +21,21 @@ _bt_mount_height = 20; // Height of NPT thread mount
 
 bayonet_thermocouple_port(
   bayonet=_bt_bayonet,
-  part="pin",
   center_bore_radius=_bt_center_bore_radius,
   mount_height=_bt_mount_height
 );
 
 /**
- * Thermocouple port with bayonet connector and NPT thread mount
+ * Thermocouple port with bayonet connector and NPT thread mount.
+ *
+ * This is a pin half by definition - the lock half is the same for every port, so the
+ * lid takes it straight from bayonet_port().
  *
  * @param bayonet      Bayonet interface vector (see bayonet_port.scad)
- * @param part         "pin" or "lock"
  * @param mount_height Height of NPT thread mount
  */
 module bayonet_thermocouple_port(
   bayonet,
-  part = "pin",
   center_bore_radius,
   mount_height
 ) {
@@ -47,18 +47,16 @@ module bayonet_thermocouple_port(
   // Bayonet connector
   bayonet_port(
     bayonet=bayonet,
-    part=part,
+    part="pin",
     center_bore_radius=center_bore_radius
   );
 
-  // Add NPT thread mount for thermocouple (pin part only)
-  if (part == "pin") {
-    rotate([0, 180, 0])
-      npt_thread_mount(
-        height=mount_height,
-        lower_diameter=(interface_radius + shell_thickness - allowance) * 2
-      );
-  }
+  // NPT thread mount the thermocouple screws into
+  rotate([0, 180, 0])
+    npt_thread_mount(
+      height=mount_height,
+      lower_diameter=(interface_radius + shell_thickness - allowance) * 2
+    );
 }
 
 module npt_thread_mount(height, wall_thickness = 2, lower_diameter = undef) {

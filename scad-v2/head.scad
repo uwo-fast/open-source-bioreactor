@@ -239,7 +239,6 @@ module head_port(port) {
   } else if (_type == "probe") {
     bayonet_probe_port(
       bayonet=bayonet,
-      part="pin",
       center_bore_radius=_bore,
       probe_body_length=probe_port_body_length,
       probe_body_diameter=probe_port_body_diameter,
@@ -257,7 +256,6 @@ module head_port(port) {
   } else if (_type == "thermocouple") {
     bayonet_thermocouple_port(
       bayonet=bayonet,
-      part="pin",
       center_bore_radius=_bore,
       mount_height=thermocouple_mount_height
     );
