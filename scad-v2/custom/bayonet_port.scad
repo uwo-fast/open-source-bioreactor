@@ -26,7 +26,16 @@ use <bayonet-lock-scad/bayonet_lock.scad>
 include <bayonet_interfaces.scad>
 
 z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
-$fn = $preview ? 64 : 128;
+
+// Tessellate by feature size, not by a flat segment count. The coupling mixes a 12.5 mm
+// shell with 1.2 mm locking pins, and a flat $fn spends the same 128 segments on both -
+// a 0.06 mm chord on the pins, far finer than anything printable, and the cost of those
+// spheres dominates the CGAL render. $fs holds the chord length instead, so the shell keeps
+// its resolution and the small features get what they actually need. $fn must be 0 or it
+// would take precedence over $fa/$fs, including a value inherited from a caller.
+$fn = 0;
+$fa = $preview ? 6 : 2;
+$fs = $preview ? 1.2 : 0.6;
 
 // Accessors for the registered bayonet interface (see bayonet_interfaces.scad).
 //   ["name" [iface_r, shell_t, pin_r, part_h, allow], [flange_h, flange_r], [oring_cs, oring_intf], [n_pins, sweep, pin_dir, turn_dir]]
