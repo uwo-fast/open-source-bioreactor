@@ -4,12 +4,6 @@
 z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
-// ----- render controls -----
-
-render_base_plate = true;
-render_middle_stand = true;
-render_face_plate = true;
-
 // ----- hardware params -----
 
 base_screw_diameter = 3.1;
@@ -21,8 +15,6 @@ face_screw_diameter = 4.2;
 bearing_diameter = 22.6;
 
 shaft_diameter = 8.0;
-
-motor_faceplate_diameter = 36.0;
 
 motor_faceplate_screws_separation = 27.6;
 
@@ -46,7 +38,6 @@ motor_mount(
   face_screw_diameter=face_screw_diameter,
   bearing_diameter=bearing_diameter,
   shaft_diameter=shaft_diameter,
-  motor_faceplate_diameter=motor_faceplate_diameter,
   motor_faceplate_screws_separation=motor_faceplate_screws_separation,
   motor_boss_diameter=motor_boss_diameter,
   flange_height=flange_height,
@@ -60,7 +51,6 @@ module motor_mount(
   face_screw_diameter,
   bearing_diameter,
   shaft_diameter,
-  motor_faceplate_diameter,
   motor_faceplate_screws_separation,
   motor_boss_diameter,
   flange_height,
@@ -101,20 +91,19 @@ module motor_mount(
   // ----- build -----
 
   if (render == "all" || render == "base_plate") {
-    translate([0, 0, 0])
-      male_end(
-        center_hole_diameter=bottom_center_hole_diameter,
-        vertical_hole_radius=bottom_top_hole_radius,
-        vertical_hole_diameter=base_screw_diameter,
-        vertical_hole_depth=bottom_vertical_hole_depth,
-        flange_height=flange_height,
-        raised_face_height=raised_face_height,
-        outer_diameter=outer_diameter,
-        wall_thickness=wall_thickness,
-        tube_screw_diameter=tube_screw_diameter,
-        face_screw_diameter=face_screw_diameter,
-        facets=facets
-      );
+    male_end(
+      center_hole_diameter=bottom_center_hole_diameter,
+      vertical_hole_radius=bottom_top_hole_radius,
+      vertical_hole_diameter=base_screw_diameter,
+      vertical_hole_depth=bottom_vertical_hole_depth,
+      flange_height=flange_height,
+      raised_face_height=raised_face_height,
+      outer_diameter=outer_diameter,
+      wall_thickness=wall_thickness,
+      tube_screw_diameter=tube_screw_diameter,
+      face_screw_diameter=face_screw_diameter,
+      facets=facets
+    );
   }
 
   if (render == "all" || render == "face_plate") {

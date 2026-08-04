@@ -39,7 +39,6 @@ render_bayonet_lock = false;
 render_tube_pinlock = false;
 render_thermocouple_pinlock = false;
 render_probe_pinlock = false;
-render_phdo_probes = false;
 
 // -----
 
@@ -357,7 +356,6 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         face_screw_diameter=gearbox_screw_diameter(head_gearbox),
         bearing_diameter=bearing_diameter,
         shaft_diameter=shaft_diameter,
-        motor_faceplate_diameter=gearbox_diameter(head_gearbox),
         motor_faceplate_screws_separation=gearbox_faceplate_screws_cdist(head_gearbox),
         motor_boss_diameter=motor_mount_boss_diameter,
         flange_height=motor_mount_flange_height,

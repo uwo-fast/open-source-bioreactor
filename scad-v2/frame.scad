@@ -145,7 +145,9 @@ module frame(vessel_height, vessel_outer_diameter) {
   // Translate entire frame down by the height of the base floor
   // Since design is located based on the bottom of the vessel
   translate([0, 0, -base_floor_height - z_fight]) {
-    frame_lights();
+    if (render_lights || render_all) {
+      frame_lights();
+    }
 
     // rods and nuts
     if (render_rods || render_all) {
@@ -157,9 +159,8 @@ module frame(vessel_height, vessel_outer_diameter) {
 
             // M8 nuts at three heights
             // bottom
-            translate([0, 0, 0])
-              rotate([0, 0, 30])
-                nut(M8_nut);
+            rotate([0, 0, 30])
+              nut(M8_nut);
 
             // top of base
             translate([0, 0, lower_base_height - nut_thickness(M8_nut)])
