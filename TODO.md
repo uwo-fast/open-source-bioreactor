@@ -11,6 +11,12 @@
   - `head()` scales it off `vessel_outer_diameter`, but what it has to pass through is the vessel *opening*; nothing asserts the impeller is smaller than the opening, so an out-of-range `impeller_impeller_vessel_outer_diameter_factor` silently models an impeller that cannot be installed
 - [ ] align the assembly -> subassembly -> part parameter interfaces
   - `head.scad` and `frame.scad` hardcode the vessel dimensions in their standalone preview calls (`220 / 143 / 295` and `305 / 220`), which reproduce `jar_10L_220x305` — 295 being a hand-copy of the derived `vessel_internal_height()`. Deliberate for now so each subassembly previews standalone; fold into the interface pass rather than patching piecemeal
+- [ ] carry the probe tail and connector dimensions in `atlas_probes.scad` and read them back
+  - the collet needs six hardware numbers the registry does not hold, so they are entered again in `head.scad` (`probe_port_*`) and a third time in `bayonet_probe_port.scad` (`_bp_*`)
+  - proposal: append one group rather than reshuffle, so every existing accessor keeps its index — `["name" [neck…], [body…], [tip…], wire_d, accent_color, [tail_major_d, tail_minor_d, tail_len, connector_d]]` — with `atlas_probe_tail(type) = type[6]` and four scalar accessors beside the existing ones
+  - the collet's own design values (wall thickness, allowances, tab gap, deflection, tilt) are choices not probe facts, so they stay in `head.scad`; only the six hardware numbers move
+  - decide first: `body_d` is already registered yet still duplicated, and there are four values in play for it — `15.6` (ph) and `16.0` (do) in the registry against `15.9` soft-backed / `16.3` hard-backed in the comments. Measurement question before schema question; the backing variant may want its own registered row
+  - caveat: the tail group describes the connector end, which `atlas_probe()` itself does not draw, so it is data held for a consumer rather than for the model
 
 ## nice to haves
 
