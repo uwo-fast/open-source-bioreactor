@@ -9,7 +9,6 @@ use <bayonet_port.scad>
 use <threads-scad/threads.scad>
 include <bayonet_interfaces.scad>
 
-z_fight = $preview ? 0.01 : 0;
 $fn = $preview ? 32 : 128;
 
 _bt_center_bore_radius = 3; // Radius of the center bore
@@ -62,7 +61,7 @@ module npt_thread_mount(height, wall_thickness = 2, lower_diameter = undef) {
   half_npt_diameter = 21.34;
   allowance = 0.6;
   diameter = half_npt_diameter + wall_thickness * 2;
-  lower_diameter = (lower_diameter == undef) ? diameter : lower_diameter;
+  lower_diameter_eff = is_undef(lower_diameter) ? diameter : lower_diameter;
 
   ScrewHole(
     outer_diam=half_npt_diameter - allowance, // Major diameter of 1/2" NPT
@@ -73,5 +72,5 @@ module npt_thread_mount(height, wall_thickness = 2, lower_diameter = undef) {
     tooth_angle=60, // NPT standard thread angle
     tolerance=0.4, // Small clearance for fitting
     tooth_height=1.0 // Adjust as needed for proper fit
-  ) cylinder(d1=lower_diameter, d2=diameter, h=height);
+  ) cylinder(d1=lower_diameter_eff, d2=diameter, h=height);
 }
