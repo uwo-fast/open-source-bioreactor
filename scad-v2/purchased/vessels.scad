@@ -26,18 +26,15 @@ jar_1p5L_109x215     = ["jar_1p5L_109x215",     [215,       109.22,     4       
 // Opening is listed as 4" (101.6) but measures 95.8: the bore steps in below the lip and tapers
 // down from there, so the listed figure is the lip, not the bore. Our lid enters the mouth, so
 // the measured bore is the one that governs and the one registered here.
-// Shoulder corner measures ~30, but 29.75 is the entire radial drop from the body to the mouth
-// and vessel_neck_corner_radius() solves the neck corner out of what is left, so 30 leaves it
-// nothing (and it must clear the 3 wall). Registered at 25, leaving a 4.75 neck corner.
 // rim_rad is 0, not measured: 110/400 is a threaded finish, so the glass ends in a flat sealing
-// face rather than a rolled bead. The threads are deliberately not modelled - nothing here mates
-// with them, and glass thread profiles are a project of their own.
-jar_1gal_155x251     = ["jar_1gal_155x251",     [251,       155.3,      3        ], [95.8,        30  ], [25,          8             ], [6,      73    ], 0    ];
+// face rather than a radially rolled bead. The threads are deliberately not modelled - nothing 
+// here mates with them, and glass thread profiles are a project of their own.
+jar_1gal_155x251     = ["jar_1gal_155x251",     [251,       155.3,      3        ], [95.8,        30  ], [25,          14             ], [6,      73    ], 0    ];
 
 vessels = [generic_vessel, jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x215, jar_1gal_155x251];
 
 use <vessel.scad>;
 
 // example usage (open this file directly to preview)
-//vessel(generic_vessel, angle=180);                                     // registered set, cross section
-// translate([250, 0, 0]) vessel(["custom", [100, 50, 2], [30, 20], [5, 5], [5, 10], 2]); // direct (inline type)
+vessel(jar_1gal_155x251, angle=180);                                     // registered set, cross section
+translate([250, 0, 0]) vessel(["custom", [100, 50, 2], [30, 20], [5, 5], [5, 10], 2]); // direct (inline type)
