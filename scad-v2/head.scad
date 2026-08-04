@@ -67,7 +67,7 @@ bearing_height = 7.5;
 // the registered motor type; the gearbox is taken from the motor's registration
 // (dc_motor_gearbox), and all motor/gearbox dimensions are derived from these via
 // the accessor functions rather than re-entered here
-head_motor = motor_36pg_3530_5p18;
+head_motor = motor_36gp_3530_5p18;
 
 /* [Shaft Parameters] */
 
@@ -280,9 +280,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   head_gearbox = dc_motor_gearbox(head_motor);
 
   // Impeller Driven Parameters
-  // diameter of the impeller
-  // needs to be rethought how this works, should also assert that the 
-  // impeller is smaller than the vessel opening diameter
+  // diameter of the impeller (see TODO.md: scaled off the outer diameter, unguarded)
   impeller_diameter = vessel_outer_diameter * impeller_impeller_vessel_outer_diameter_factor;
   impeller_radius = impeller_diameter / 2; // radius of the impeller
 
