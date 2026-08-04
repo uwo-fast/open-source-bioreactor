@@ -1,3 +1,13 @@
+/**
+ * @file cylindrical_flex_collet.scad
+ * @brief Flexible pinch collet that grips a cylindrical probe body
+ * @author Cameron K. Brooks
+ * @copyright 2026
+ *
+ * A shell around the probe with a bell-shaped flexing tab section that squeezes inward by
+ * flex_tab_offset, so the probe is held by spring pressure rather than an interference fit.
+ */
+
 // This assumes the following hardware input structure:
 // 
 //

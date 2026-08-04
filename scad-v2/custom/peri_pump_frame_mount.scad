@@ -1,6 +1,12 @@
-// Peristaltic pump frame mount insert for
-// inserting into the pockets in the ribs
-// of the frame to allow mounting the pump
+/**
+ * @file peri_pump_frame_mount.scad
+ * @brief Peristaltic pump mount insert for the frame ribs
+ * @author Cameron K. Brooks
+ * @copyright 2026
+ *
+ * An insert block that seats in the pockets in the frame's ribs, bridging out to a flange
+ * that the pump's motor bolts through.
+ */
 
 include <../purchased/dc_motors.scad>;
 

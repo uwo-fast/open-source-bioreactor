@@ -1,5 +1,14 @@
-// Three-part motor mount for standard cylindrical electrical motors which have
-// a circular faceplate with 4 screws in a square pattern, and a central shaft.
+/**
+ * @file motor_mount.scad
+ * @brief Three-part telescoping motor mount
+ * @author Cameron K. Brooks
+ * @copyright 2026
+ *
+ * For standard cylindrical electrical motors which have a circular faceplate with 4 screws
+ * in a square pattern, and a central shaft. Built as two identical male end caps joined by a
+ * female middle tube, so the standoff height is set by one parameter; part_to_render selects
+ * one part for printing or "all" for the assembled view.
+ */
 
 z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;

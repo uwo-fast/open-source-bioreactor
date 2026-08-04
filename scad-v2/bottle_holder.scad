@@ -1,7 +1,13 @@
-// bottle holder
-// diameter for bottle diameter (assumes bottles could be cylindrical or square to accomadate either)
-// bottle height is used with sleeve ratio to determine how far up the bottle holder should go to support the bottles
-// two pairs of male-female dove tails located on either side to allow for grid stacking of holders
+/**
+ * @file bottle_holder.scad
+ * @brief Stackable holder sleeve for media bottles
+ * @author Cameron K. Brooks
+ * @copyright 2026
+ *
+ * The sleeve is square, so it takes either a cylindrical or a square bottle of the given
+ * diameter. sleeve_ratio sets how far up the bottle the sleeve reaches. Two pairs of
+ * male-female dovetails on opposing faces let holders be stacked into a grid.
+ */
 
 use <utils/dovetail.scad>;
 
@@ -14,6 +20,10 @@ bottle_height = 130;
 sleeve_ratio = 0.3;
 wall_thickness = 6;
 allowance = 0.2;
+
+module dummy() {
+  // stop the customizer detection from here onwards
+}
 
 // Derived
 

@@ -1,5 +1,12 @@
-// A model of the Atlas Scientific probes, which have a distinctive and consistent shape
-// across their ezo product line which varies in size but largely not in shape. 
+/**
+ * @file atlas_probe.scad
+ * @brief Atlas Scientific EZO-line probe model
+ * @author Cameron K. Brooks
+ * @copyright 2026
+ *
+ * The EZO product line shares a distinctive shape across its variants, which differ in size
+ * but largely not in form: a wire stub, a tapered accent neck, a body, and a vented tip.
+ */
 
 use <../utils/trapezium.scad>;
 

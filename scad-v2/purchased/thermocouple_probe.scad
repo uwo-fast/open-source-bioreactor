@@ -1,6 +1,12 @@
-// This is meant to model a metal-body threaded thermocouple probe
-// Atlas probe geometry: medium tip cylinder, larger body cylinder.
-// Tapered neck cylinder leading to a small cable cylinder.
+/**
+ * @file thermocouple_probe.scad
+ * @brief Metal-body threaded thermocouple probe
+ * @author Cameron K. Brooks
+ * @copyright 2026
+ *
+ * Stacked from the cable end up: a cable stub, a tapered neck, a hex across the flats, a
+ * threaded body (drawn plain unless show_threads is set) and the sensing tip.
+ */
 
 use <threads-scad/threads.scad>;
 
