@@ -9,7 +9,6 @@ use <bayonet_port.scad>
 use <cylindrical_flex_collet.scad>
 include <bayonet_interfaces.scad>
 
-z_fight = $preview ? 0.01 : 0;
 $fn = $preview ? 64 : 128;
 
 _bp_center_bore_radius = 3; // Radius of the center bore

@@ -86,7 +86,7 @@ module peri_pump_frame_mount(
     translate([0, insert_depth / 2 + flange_insert_separation / 2, insert_height / 2 - flange_height / 2])
       cube([insert_width, flange_insert_separation, flange_height], center=true);
 
-    // motor cut out
+    // flange the motor bolts to
     translate([0, outer_diameter / 2 + flange_width / 2 + flange_insert_separation, insert_height / 2 - flange_height / 2]) {
       difference() {
         resize([flange_screw_distance + flange_width * 2, outer_diameter, flange_height])
@@ -97,7 +97,7 @@ module peri_pump_frame_mount(
 
         // face screw cut outs
         for (i = [0:1])
-          mirror([i * 1, 0, 0]) // cut outs for face screws
+          mirror([i, 0, 0]) // cut outs for face screws
             translate([flange_screw_distance / 2, 0, 0])
               cylinder(d=screw_diameter, h=flange_height + z_fight, center=true);
       }

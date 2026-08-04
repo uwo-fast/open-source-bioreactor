@@ -4,7 +4,6 @@
 
 use <threads-scad/threads.scad>;
 
-z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 function thermocouple_probe_neck_dia(type) = type[1][0]; // diameter of the neck

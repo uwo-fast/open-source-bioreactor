@@ -55,18 +55,16 @@ module gearbox(type) {
 
     // remove spot where gearbox screws sit
     for (i = [0:3]) {
-      color(grey)
-        rotate([0, 0, i * 90 + 45])
-          translate([diameter / 2 - cut_dim / 2, 0, length - cut_dim / 2 + z_fight])
-            cube([cut_dim, cut_dim, cut_dim], center=true);
+      rotate([0, 0, i * 90 + 45])
+        translate([diameter / 2 - cut_dim / 2, 0, length - cut_dim / 2 + z_fight])
+          cube([cut_dim, cut_dim, cut_dim], center=true);
     }
 
     // remove spot where faceplate screw holes
     for (i = [0:3]) {
-      color(grey)
-        rotate([0, 0, i * 90])
-          translate([faceplate_screws_cdist / 2, 0, length - screw_diameter / 2 + z_fight])
-            cylinder(d=screw_diameter, h=screw_diameter * 2, center=true);
+      rotate([0, 0, i * 90])
+        translate([faceplate_screws_cdist / 2, 0, length - screw_diameter / 2 + z_fight])
+          cylinder(d=screw_diameter, h=screw_diameter * 2, center=true);
     }
   }
   // add the screws

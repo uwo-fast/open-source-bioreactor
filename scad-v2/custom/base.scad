@@ -51,16 +51,15 @@ module base(
 ) {
   rod_holder_dia = rod_hole_diameter * 4;
 
-  extra_angle = 0 * atan((rod_holder_dia / 2) / (inner_diameter + wall_thickness * 3));
   n_rods = is_undef(rods) ? 4 : rods;
-  angle = is_undef(rods) ? 360 : (n_rods - 1) * 90 + 2 * extra_angle;
-  assert(!(n_rods < 2 || n_rods > 4), "Invalid number of rods. Must be between 2 and 4.");
+  angle = is_undef(rods) ? 360 : (n_rods - 1) * 90;
+  assert(n_rods >= 2 && n_rods <= 4, "Invalid number of rods. Must be between 2 and 4.");
 
   difference() {
     union() {
 
       // Generate the base
-      rotate([0, 0, -extra_angle]) pieSlice(a=angle, d=inner_diameter + wall_thickness, h=height);
+      pieSlice(a=angle, d=inner_diameter + wall_thickness, h=height);
 
       // Generate the rod supports
       for (i = [0:n_rods - 1]) {

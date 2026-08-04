@@ -8,7 +8,6 @@
  *
  */
 
-z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 function strip_light_width(type) = type[1][0]; // width of the strip light

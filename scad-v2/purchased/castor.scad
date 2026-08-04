@@ -10,7 +10,6 @@
  * straight onto the underside of a frame member.
  */
 
-z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 48 : 96;
 
 function castor_plate_size(type) = [type[1][0], type[1][1]]; // mounting plate [x, y]

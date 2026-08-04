@@ -61,7 +61,8 @@ cylindrical_flex_collet(
   tail_diameter_start=part_tail_major_diameter,
   tail_diameter_end=part_tail_minor_diameter,
   tail_len=part_tail_length,
-  end_diameter=part_end_diameter
+  end_diameter=part_end_diameter,
+  end_fn=part_end_fn
 );
 
 module cylindrical_flex_collet(
@@ -86,7 +87,7 @@ module cylindrical_flex_collet(
   flex_tab_height = body_length * height_flex_tab_ratio;
   flex_tab_d1 = (body_diameter + shell_wall * 2) * (width_flex_tab_ratio * width_flex_tab_ratio);
   flex_tab_d2 = (body_diameter + shell_wall * 2) * (width_flex_tab_ratio);
-  flex_tab_clearance = (flex_tab_clearance == undef) ? shell_wall : flex_tab_clearance;
+  flex_tab_clearance_eff = is_undef(flex_tab_clearance) ? shell_wall : flex_tab_clearance;
 
   union() {
     difference() {
@@ -106,8 +107,7 @@ module cylindrical_flex_collet(
         body_diameter=body_diameter + allowance,
         tail_len=tail_len,
         tail_diameter_start=tail_diameter_start,
-        tail_diameter_end=tail_diameter_end,
-        shell_wall=shell_wall
+        tail_diameter_end=tail_diameter_end
       );
 
       // Cut out flex_tab window
@@ -131,11 +131,11 @@ module cylindrical_flex_collet(
         difference() {
           // Intersection (same as cut out flex_tab window) to create flex_tab tabs
           _flex_tab_profile(
-            height=flex_tab_height - flex_tab_clearance,
-            d1=flex_tab_d1 - flex_tab_clearance,
-            d2=flex_tab_d2 - flex_tab_clearance
+            height=flex_tab_height - flex_tab_clearance_eff,
+            d1=flex_tab_d1 - flex_tab_clearance_eff,
+            d2=flex_tab_d2 - flex_tab_clearance_eff
           );
-          translate([0, 0, (flex_tab_height - flex_tab_clearance) * flex_tab_keep_ratio + body_length / 2])
+          translate([0, 0, (flex_tab_height - flex_tab_clearance_eff) * flex_tab_keep_ratio + body_length / 2])
             cube([body_diameter * 10, body_diameter * 2, body_length], center=true);
         }
       }
@@ -172,8 +172,7 @@ module _part_negative_space(
   body_diameter,
   tail_len,
   tail_diameter_start,
-  tail_diameter_end,
-  shell_wall
+  tail_diameter_end
 ) {
   translate([0, 0, -z_fight / 2]) // Avoid z-fighting with main body
   {
