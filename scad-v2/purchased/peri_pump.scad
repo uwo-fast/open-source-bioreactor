@@ -32,6 +32,9 @@ function peri_pump_shaft_bore(type) = type[5]; // bore for the driving motor sha
 function peri_pump_cassette_inner_diameter(type) =
   peri_pump_carrier_diameter(type) + peri_pump_cassette_allowance(type);
 function peri_pump_entry_channels_width(type) = peri_pump_tube_diameter(type) * 2;
+// distance from the shaft axis to a roller axis; the carrier and the rollers must agree on it
+function peri_pump_roller_radius(type) =
+  peri_pump_carrier_diameter(type) / 2 - peri_pump_roller_outer_diameter(type) / 2 + peri_pump_roller_offset(type);
 
 /**
  * @brief Create a peristaltic pump from a registered type
@@ -62,10 +65,9 @@ module roller_carrier(type) {
   roller_inner_diameter = peri_pump_roller_inner_diameter(type);
   roller_length = peri_pump_roller_length(type);
   roller_count = peri_pump_roller_count(type);
-  roller_offset = peri_pump_roller_offset(type);
   shaft_bore = peri_pump_shaft_bore(type);
 
-  roller_radius = carrier_diameter / 2 - roller_outer_diameter / 2 + roller_offset;
+  roller_radius = peri_pump_roller_radius(type);
 
   difference() {
 
@@ -110,13 +112,10 @@ module roller(type) {
 }
 
 module roller_subassembly(type) {
-  carrier_diameter = peri_pump_carrier_diameter(type);
   base_thickness = peri_pump_carrier_base_thickness(type);
-  roller_outer_diameter = peri_pump_roller_outer_diameter(type);
   roller_count = peri_pump_roller_count(type);
-  roller_offset = peri_pump_roller_offset(type);
 
-  roller_radius = carrier_diameter / 2 - roller_outer_diameter / 2 + roller_offset;
+  roller_radius = peri_pump_roller_radius(type);
 
   color("forestgreen")
     roller_carrier(type);
