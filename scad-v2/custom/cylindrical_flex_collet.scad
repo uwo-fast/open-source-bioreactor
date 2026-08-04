@@ -48,7 +48,7 @@
 //            |_______________________|
 //    
 
-z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
+z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 // ----  hardware params   ------

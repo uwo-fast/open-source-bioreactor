@@ -25,7 +25,7 @@
 use <bayonet-lock-scad/bayonet_lock.scad>
 include <bayonet_interfaces.scad>
 
-z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
+z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 
 // Tessellate by feature size, not by a flat segment count. The coupling mixes a 12.5 mm
 // shell with 1.2 mm locking pins, and a flat $fn spends the same 128 segments on both -

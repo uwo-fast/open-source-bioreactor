@@ -11,7 +11,7 @@
  * for when approaching final design.
  */
 
-z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
+z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 function peri_pump_carrier_diameter(type) = type[1][0]; // diameter of the roller carrier
