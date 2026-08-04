@@ -80,9 +80,6 @@ module bayonet_probe_port(
   _bayonet_diameter = 2 * interface_radius - allowance;
   _transition_length = transition_length + probe_body_diameter / sqrt(3);
 
-  // Bottom of the coupling band, which the probe holder hangs from.
-  _band_z = -panel_thickness - bayonet_part_height(type);
-
   union() {
 
     // Bayonet connector
@@ -98,7 +95,7 @@ module bayonet_probe_port(
       cylinder(h=1000, d=connector_part_diameter + collet_internal_allowance, center=true, $fn=6);
     }
 
-    translate([0, 0, _band_z]) {
+    translate([0, 0, -panel_thickness]) {
 
     // Tilt transition wedge
     difference() {

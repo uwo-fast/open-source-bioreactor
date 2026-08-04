@@ -42,8 +42,7 @@ $fs = $preview ? 1.2 : 0.6;
 function bayonet_interface_radius(type)   = type[1][0]; // mating surface radius
 function bayonet_shell_thickness(type)    = type[1][1]; // annulus thickness either side of the interface
 function bayonet_pin_radius(type)         = type[1][2]; // locking pin radius
-function bayonet_part_height(type)        = type[1][3]; // height of the coupling band
-function bayonet_allowance(type)          = type[1][4]; // fit clearance between mating halves
+function bayonet_allowance(type)          = type[1][3]; // fit clearance between mating halves
 function bayonet_flange_height(type)      = type[2][0]; // flange thickness (0 for no flange)
 function bayonet_flange_radius(type)      = type[2][1]; // flange outer radius
 function bayonet_oring_cs_diameter(type)  = type[3][0]; // o-ring cross section (undef to disable seal)
@@ -53,14 +52,13 @@ function bayonet_sweep_angle(type)        = type[4][1]; // arc the pin travels w
 function bayonet_pin_direction(type)      = type[4][2]; // "inner" or "outer"
 function bayonet_turn_direction(type)     = type[4][3]; // "CW" or "CCW"
 
-// Radial clearance between the panel hole and the coupling's interface radius. Sets the hole
-// size and the inner edge of the o-ring rebate, and leaves the lock a bearing land of
-// (shell_thickness - this) against the panel's inner face.
-bayonet_port_hole_clearance = 0.5;
+// Radial interference between the lid and the bayonet  
+// lock to ensure a clean union without any gaps
+bayonet_port_hole_fudge = 0.1;
 
 // The clearance hole a port needs through the panel. Big enough to pass the pin half's
 // coupling band on assembly, small enough that the lock still has a face to bear on.
-function bayonet_port_hole_radius(type) = bayonet_interface_radius(type) + bayonet_port_hole_clearance;
+function bayonet_port_hole_radius(type) = bayonet_interface_radius(type) + bayonet_shell_thickness(type) - bayonet_port_hole_fudge;
 
 // Rotation that takes a pin half from the locked position to the entry position, i.e. pins at
 // the channel mouths before the turn.
@@ -92,7 +90,6 @@ module bayonet_port(
   // Unpack the shared bayonet interface into the scalars the body works in.
   interface_radius = bayonet_interface_radius(type);
   pin_radius = bayonet_pin_radius(type);
-  part_height = bayonet_part_height(type);
   allowance = bayonet_allowance(type);
   flange_radius = bayonet_flange_radius(type);
   oring_cs_diameter = bayonet_oring_cs_diameter(type);
@@ -109,9 +106,6 @@ module bayonet_port(
   _oring_enabled = !is_undef(oring_cs_diameter) && part != "lock";
   _rebate_h = _oring_enabled ? oring_cs_diameter - oring_interference : 0;
 
-  // Bottom of the coupling band, i.e. the deepest point of the whole port.
-  _band_z = -panel_thickness - part_height;
-
   // The flange leaves a short spigot that pilots into the panel hole, so the port stays
   // centred while it is turned. Set one allowance under the hole so it is a clearance fit,
   // and cut the o-ring rebate outside it, which keeps the seal on panel material rather
@@ -123,13 +117,13 @@ module bayonet_port(
 
       // The coupling, sitting below the panel. Both halves are authored in one frame by the
       // library, so this same placement puts them in the locked position.
-      translate([0, 0, _band_z])
+      translate([0, 0, -panel_thickness])
         bayonet(
           half=part,
           interface_radius=interface_radius,
           shell_thickness=bayonet_shell_thickness(type),
           allowance=allowance,
-          part_height=part_height,
+          part_height=panel_thickness,
           entry_depth=entry_depth,
           number_of_pins=bayonet_number_of_pins(type),
           pin_radius=pin_radius,
@@ -142,8 +136,8 @@ module bayonet_port(
 
         // Core: fills the middle of the coupling, then carries on up the shank through the
         // panel and into the flange.
-        translate([0, 0, _band_z])
-          cylinder(h=part_height + panel_thickness + _flange_h, r=interface_radius - pin_radius);
+        translate([0, 0, -panel_thickness])
+          cylinder(h= panel_thickness + _flange_h, r=interface_radius - pin_radius);
 
         // Flange, seating on the panel's outer face
         cylinder(h=_flange_h, r=flange_radius);
@@ -153,7 +147,7 @@ module bayonet_port(
     // Center bore for the tube or probe. Cut against the finished body so it opens through
     // the flange as well as the core; triple-height and centered to clear both ends.
     if (part == "pin" && center_bore_radius > 0)
-      cylinder(h=(part_height + panel_thickness + _flange_h) * 3, r=center_bore_radius, center=true);
+      cylinder(h=(panel_thickness + _flange_h) * 3, r=center_bore_radius, center=true);
 
     // O-ring rebate: an annular recess in the flange's panel-facing face, running from the
     // spigot out to the flange edge. The o-ring seats here and is squeezed against the
