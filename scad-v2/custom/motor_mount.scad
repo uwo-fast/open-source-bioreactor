@@ -66,7 +66,7 @@ module motor_mount(
   raised_face_height,
   middle_height,
   facets = 20,
-  render = part_to_render
+  part_render = part_to_render
 ) {
 
   // ----- derived params -----
@@ -99,7 +99,7 @@ module motor_mount(
 
   // ----- build -----
 
-  if (render == "all" || render == "base_plate") {
+  if (part_render == "all" || part_render == "base_plate") {
     male_end(
       center_hole_diameter=bottom_center_hole_diameter,
       vertical_hole_radius=bottom_top_hole_radius,
@@ -115,7 +115,7 @@ module motor_mount(
     );
   }
 
-  if (render == "all" || render == "face_plate") {
+  if (part_render == "all" || part_render == "face_plate") {
     translate([0, 0, middle_height + flange_height * 2])
       rotate([0, 180, 0])
         male_end(
@@ -133,7 +133,7 @@ module motor_mount(
         );
   }
 
-  if (render == "all" || render == "middle_stand") {
+  if (part_render == "all" || part_render == "middle_stand") {
     translate([0, 0, flange_height])
       middle_pipe(
         pipe_height=middle_height,
@@ -163,7 +163,6 @@ module male_end(
   face_screw_diameter,
   facets
 ) {
-  counterbore_radius = vertical_hole_radius;
   counterbore_diameter = face_screw_diameter * 1.5;
   counterbore_depth = raised_face_height + z_fight;
 
@@ -186,7 +185,7 @@ module male_end(
     // Vertical counterbores
     for (i = [0:3])
       rotate([0, 0, i * 90])
-        translate([counterbore_radius, 0, flange_height - z_fight / 2])
+        translate([vertical_hole_radius, 0, flange_height - z_fight / 2])
           cylinder(h=counterbore_depth + z_fight, d=counterbore_diameter, $fn=16);
 
     // Horizontal holes for screws to fix the female middle tube to each male end

@@ -32,6 +32,7 @@ render_lid = false;
 
 render_motor = false;
 render_motor_mount = false;
+motor_mount_part_to_render = "all"; // ["all", "base_plate", "face_plate", "middle_stand"]
 render_shaft_coupler = false;
 render_ext_shaft = false;
 render_impeller = false;
@@ -217,6 +218,12 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
           cylinder(d=bearing_diameter + bearing_hole_allowance, h=bearing_height + z_fight);
       }
 
+    // Motor mount base holes
+    // #for (i = [0:3])
+    //   rotate([0, 0, i * 90])
+    //     translate([motor_mount_screw_distance, 0, -z_fight / 2])
+    //       cylinder(d=motor_mount_base_screws_diameter, h=lid_flange_height + z_fight);
+
     // cut out the entry holes for the probes and tubes; the port sizes its own hole so the
     // lock keeps a bearing land against the lid's underside
     for (hole_rot = [0:360 / lid_holes_n:360]) {
@@ -322,10 +329,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     for (i = [0:lid_holes_n - 1]) {
       _port = head_ports[i];
       _show =
-        render_all
-        || (_port[0] == "tube" && render_tube_pinlock)
-        || (_port[0] == "probe" && render_probe_pinlock)
-        || (_port[0] == "thermocouple" && render_thermocouple_pinlock);
+      render_all || (_port[0] == "tube" && render_tube_pinlock) || (_port[0] == "probe" && render_probe_pinlock) || (_port[0] == "thermocouple" && render_thermocouple_pinlock);
 
       if (_show)
         color(prints1_color)
@@ -359,7 +363,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         flange_height=motor_mount_flange_height,
         raised_face_height=motor_mount_raised_face_height,
         middle_height=motor_mount_middle_height,
-        facets=motor_mount_facets
+        facets=motor_mount_facets,
+        part_render=motor_mount_part_to_render
       );
   }
 
