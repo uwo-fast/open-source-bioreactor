@@ -107,7 +107,13 @@ module vessel(
       ) ([reverse(corner)]),
     ];
 
-  body_height = height - neck - neck_corner_radius / 2 - rim_rad;
+  // The profile is authored mouth-down and flipped at the end, so the neck hangs off the outer
+  // rectangle rather than fitting inside it: the flat is placed off innerline, which is one wall
+  // shorter than outerline, and the corner arc between them rises its full radius. So the neck
+  // adds (neck + neck_corner_radius - thickness) beyond the body and the rectangle has to give
+  // that back for the jar to stand at its registered height. The rim arc is centred on the flat
+  // and sweeps symmetrically about it, so it adds no height and does not belong here.
+  body_height = height - neck - neck_corner_radius + thickness;
 
   outerline = square([diameter, body_height], center=true);
   innerline = square([diameter - (2 * thickness), body_height - (2 * thickness)], center=true);
