@@ -21,7 +21,20 @@ jar_6p5gal_305x470   = ["jar_6p5gal_305x470",   [18.5*25.4, 12*25.4,    12      
 // https://www.walmart.ca/en/ip/Main-Stays-Glass-Canister-Large/6000199421846
 jar_1p5L_109x215     = ["jar_1p5L_109x215",     [215,       109.22,     4        ], [87.5,        22.5], [7.5,         7.5           ], [7,     15    ], 0    ];
 
-vessels = [generic_vessel, jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x215];
+// Uline S-19317P, 1 gallon wide-mouth glass jar, 110/400 plastic cap
+// https://www.uline.ca/Product/Detail/S-19317P/Jars/Clear-Wide-Mouth-Glass-Jars-1-Gallon-4-Opening-Plastic-Cap
+// Opening is listed as 4" (101.6) but measures 95.8: the bore steps in below the lip and tapers
+// down from there, so the listed figure is the lip, not the bore. Our lid enters the mouth, so
+// the measured bore is the one that governs and the one registered here.
+// Shoulder corner measures ~30, but 29.75 is the entire radial drop from the body to the mouth
+// and vessel_neck_corner_radius() solves the neck corner out of what is left, so 30 leaves it
+// nothing (and it must clear the 3 wall). Registered at 25, leaving a 4.75 neck corner.
+// rim_rad is 0, not measured: 110/400 is a threaded finish, so the glass ends in a flat sealing
+// face rather than a rolled bead. The threads are deliberately not modelled - nothing here mates
+// with them, and glass thread profiles are a project of their own.
+jar_1gal_155x251     = ["jar_1gal_155x251",     [251,       155.3,      3        ], [95.8,        30  ], [25,          8             ], [6,      73    ], 0    ];
+
+vessels = [generic_vessel, jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x215, jar_1gal_155x251];
 
 use <vessel.scad>;
 
