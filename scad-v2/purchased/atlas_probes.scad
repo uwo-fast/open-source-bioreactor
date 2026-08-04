@@ -14,7 +14,7 @@ atlas_probes = [ph, do];
 use <atlas_probe.scad>;
 
 // example usage (open this file directly to preview)
-atlas_probe(ph);                       // registered set
-translate([40, 0, 0]) atlas_probe(do); // registered set
-translate([80, 0, 0])                  // direct (inline type)
-  atlas_probe(["custom", [10, 26, 5], [15.6, 35], [12, 115], 3, "Cyan"]);
+// atlas_probe(ph);                       // registered set
+// translate([40, 0, 0]) atlas_probe(do); // registered set
+// translate([80, 0, 0])                  // direct (inline type)
+//   atlas_probe(["custom", [10, 26, 5], [15.6, 35], [12, 115], 3, "Cyan"]);

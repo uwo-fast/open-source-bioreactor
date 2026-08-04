@@ -15,6 +15,6 @@ thermocouple_probes = [generic_thermocouple_probe, mcmaster_3872K117_thermocoupl
 use <thermocouple_probe.scad>
 
 // example usage (open this file directly to preview)
-thermocouple_probe(generic_thermocouple_probe);     // registered set
-translate([45, 0, 0])            // direct (inline type)
-  thermocouple_probe(mcmaster_3872K117_thermocouple_probe, position_base=true);
+// thermocouple_probe(generic_thermocouple_probe);     // registered set
+// translate([45, 0, 0])            // direct (inline type)
+//   thermocouple_probe(mcmaster_3872K117_thermocouple_probe, position_base=true);
