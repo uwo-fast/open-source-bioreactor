@@ -1,12 +1,5 @@
 # TODO
 
-## critical path
-
-- [x] stronger interface-based design surrounding the bayonet connectors ports
-  - bayonet connector lib --> generic port --> specific port (e.g. probe holder, thermocouple, etc.)
-  - the "tube interface" should be literally just a generic port with the optional center bore appropriately set and wrapping the radius / diameter print out on the part
-  - reconcile `bayonet_port()` params (`interface_radius`, `oring_cs_diameter`) with the probe/thermocouple adapter call signatures (`inner_radius`, `shell_thickness`, `oring_height`, `oring_interference`); confirm `head.scad` + all 12 ports generate without error (was paper TODO B4)
-
 ## model completeness / enhancement
 
 - [ ] finish modelling peri pumps and integrating with a motor then into the assembly using the peri pump motor mount that has been modified to take the registered parameters for the motor and pump
@@ -25,4 +18,3 @@
 - [ ] use a less expensive shaft for the impeller and try and get in 300mm instead of oversized 400mm thats being compensated by the parameteric printed motor mount
   - might not need to be linear motion surface rated and all that
 - [ ] swap out the threaded rods with printed parts
-- [ ] review and revise geometry composition method of bayonet connectors to make it computationally more efficient (slow in viewer at the moment with multiple on the lid)
