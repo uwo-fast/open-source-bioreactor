@@ -55,7 +55,7 @@ module bayonet_thermocouple_port(
   translate([0, 0, bayonet_flange_height(type)])
     npt_thread_mount(
       height=mount_height,
-      lower_diameter=bayonet_flange_radius(type) * 2 - bayonet_allowance(type),
+      lower_diameter=bayonet_flange_radius(type) * 2,
       marks=[
         "1/2NPT", // what screws in
         str("Ø", center_bore_radius * 2), // bore the probe tip passes down
