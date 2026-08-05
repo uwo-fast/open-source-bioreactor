@@ -15,6 +15,8 @@ use <custom/impeller.scad>;
 
 include <purchased/dc_motors.scad>;
 include <purchased/gearboxes.scad>;
+include <purchased/vessels.scad>;
+include <purchased/atlas_probes.scad>;
 
 include <custom/bayonet_interfaces.scad>;
 
@@ -142,14 +144,15 @@ port_position = "locked"; // [locked, entry]
 /* [Port Assignment] */
 
 // What sits at each of the lid_holes_n bayonet locks, going around the lid.
-// Each entry is [type, bore_radius]:
+// Each entry is [type, bore_radius], plus a third slot for "probe":
 //   "tube"         -> generic bayonet port, bore_radius sets the tube through-hole
-//   "probe"        -> atlas probe holder (flex collet); bore is swallowed by the connector cut, so 0
+//   "probe"        -> atlas probe holder (flex collet); bore is swallowed by the connector cut,
+//                     so 0, and the third slot is the registered probe it is cut for
 //   "thermocouple" -> NPT thread mount, bore_radius is the through-hole the thermocouple passes down
 head_ports = [
   ["thermocouple", 3],
-  ["probe", 0],
-  ["probe", 0],
+  ["probe", 0, ph],
+  ["probe", 0, do],
   ["tube", 3],
   ["tube", 3],
   ["tube", 3],
@@ -163,11 +166,10 @@ head_ports = [
 
 /* [Probe Port Parameters] */
 
-// Hardware dimensions of the atlas probe body the collet grips. These are still entered
-// here rather than read from purchased/atlas_probes.scad, because the registry does not yet
-// carry the tail and connector dimensions the collet needs.
+// Hardware dimensions of the atlas probe body the collet grips. The body diameter now comes
+// from the registered probe named in head_ports; the rest is still entered here, because the
+// registry does not yet carry the tail and connector dimensions the collet needs.
 probe_port_body_length = 35.6;
-probe_port_body_diameter = 15.9; // 15.9 soft-backed probe, 16.3 hard-backed
 probe_port_tail_major_diameter = 8.7;
 probe_port_tail_minor_diameter = 4.3;
 probe_port_tail_length = 24.5;
@@ -237,6 +239,7 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
 module head_port(port, panel_thickness) {
   _type = port[0];
   _bore = port[1];
+  _probe = port[2];
 
   if (_type == "tube") {
     // The tube interface is just the generic port with its bore set, and the bore printed
@@ -249,12 +252,13 @@ module head_port(port, panel_thickness) {
       text_labels=true
     );
   } else if (_type == "probe") {
+    assert(!is_undef(_probe), "head_port: a \"probe\" entry needs a registered atlas probe in slot 3");
     bayonet_probe_port(
       type=head_bayonet,
+      probe=_probe,
       panel_thickness=panel_thickness,
       center_bore_radius=_bore,
       probe_body_length=probe_port_body_length,
-      probe_body_diameter=probe_port_body_diameter,
       tail_major_diameter=probe_port_tail_major_diameter,
       tail_minor_diameter=probe_port_tail_minor_diameter,
       tail_length=probe_port_tail_length,
@@ -412,9 +416,13 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   }
 }
 
+reactor_vessel = jar_10L_220x305; // [generic_vessel, jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x215, jar_1gal_155x251]
+
+
+
 head(
   lid_flange_height=8,
-  vessel_outer_diameter=220,
-  vessel_opening_diameter=143,
-  vessel_internal_height=295
+  vessel_outer_diameter=vessel_diameter(reactor_vessel),
+  vessel_opening_diameter=vessel_opening_diameter(reactor_vessel),
+  vessel_internal_height=vessel_internal_height(reactor_vessel)
 );

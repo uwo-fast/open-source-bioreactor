@@ -8,6 +8,7 @@
 use <bayonet_port.scad>
 use <cylindrical_flex_collet.scad>
 include <bayonet_interfaces.scad>
+include <../purchased/atlas_probes.scad>
 
 $fn = $preview ? 64 : 128;
 
@@ -15,9 +16,10 @@ _bp_center_bore_radius = 3; // Radius of the center bore
 _bp_panel_thickness = 18; // Lid thickness at the port, for standalone preview
 
 // ----- Probe-specific (hardware) parameters -----
+// The body diameter comes from the registered probe; the rest is still entered here because
+// atlas_probes.scad does not carry the tail and connector dimensions the collet needs.
 
 _bp_probe_body_length = 35.6;
-_bp_probe_body_diameter = 15.9; // 15.9 on soft backed probe, 16.3 on hard backed probe
 _bp_tail_major_diameter = 8.7;
 _bp_tail_minor_diameter = 4.3;
 _bp_tail_length = 24.5;
@@ -34,10 +36,10 @@ _bp_transition_length = 25;
 
 bayonet_probe_port(
   type=bayonet_std,
+  probe=ph,
   panel_thickness=_bp_panel_thickness,
   center_bore_radius=_bp_center_bore_radius,
   probe_body_length=_bp_probe_body_length,
-  probe_body_diameter=_bp_probe_body_diameter,
   tail_major_diameter=_bp_tail_major_diameter,
   tail_minor_diameter=_bp_tail_minor_diameter,
   tail_length=_bp_tail_length,
@@ -56,10 +58,10 @@ bayonet_probe_port(
 // the bottom of the coupling, inside the vessel, and the connector passes up through the bore.
 module bayonet_probe_port(
   type,
+  probe,
   panel_thickness,
   center_bore_radius,
   probe_body_length,
-  probe_body_diameter,
   tail_major_diameter,
   tail_minor_diameter,
   tail_length,
@@ -75,6 +77,10 @@ module bayonet_probe_port(
   // Interface scalars this adapter needs for its own placement and taper.
   interface_radius = bayonet_interface_radius(type);
   allowance = bayonet_allowance(type);
+
+  // The collet grips the probe body, so the registered probe sets the bore this port is cut
+  // for - and the mark that says which probe it takes.
+  probe_body_diameter = atlas_probe_body_dia(probe);
 
   // The transitions mate to the bayonet at its interface (mating) surface, less the allowance.
   _bayonet_diameter = 2 * interface_radius - allowance;
