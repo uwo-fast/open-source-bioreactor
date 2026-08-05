@@ -76,6 +76,8 @@ bayonet_port(bayonet_std, part="pin", panel_thickness=18, center_bore_radius=3, 
  * @param panel_thickness    Thickness of the panel the port passes through
  * @param center_bore_radius Through-bore up the middle of the pin half; 0 for solid
  * @param entry_depth        Insertion depth before the turn; the library defaults it
+ * @param label              Top mark; defaults to the bore. Adapters whose real opening is
+ *                           not the bore must pass their own (see bayonet_probe_port).
  */
 module bayonet_port(
   type,
@@ -84,7 +86,8 @@ module bayonet_port(
   center_bore_radius = 0,
   entry_depth = undef,
   catch_pockets = true,
-  text_labels = false
+  text_labels = false,
+  label = undef
 ) {
 
   // Unpack the shared bayonet interface into the scalars the body works in.
@@ -161,30 +164,34 @@ module bayonet_port(
             cylinder(h=_flange_h / 2 + z_fight, d=2 * interface_radius / 4);
     }
 
-    // Text labels (radius and diameter markings), sunk into the outer face
+    // Text labels, sunk into the outer face
     if (text_labels && _flange_h > 0) {
 
-      // Radius and diameter of the center bore, marked on the flange face
-      _radString = str("R", center_bore_radius);
-      _diaString = str("D", center_bore_radius * 2);
+      _boreString = is_undef(label) ? str("\u00d8", center_bore_radius * 2) : label; // \u00d8, not \u2300: every font has it
+      _specString = str("B", interface_radius * 2, "-", pin_radius); // interface dia - pin r
 
-      // Top (+Y) string impression
-      translate([0, interface_radius * 0.8, _flange_h / 2]) {
-        linear_extrude(_flange_h / 2 + z_fight)
+      _engrave_depth = 0.6; // 3 layers at 0.2, 2 at 0.3
+
+      // Shrink long labels so they stay inside the flange.
+      _boreSize = min(interface_radius * 0.40, flange_radius * 2.0 / len(_boreString));
+      _specSize = min(interface_radius / 3, flange_radius * 2.0 / len(_specString));
+
+      translate([0, interface_radius * 0.7, _flange_h - _engrave_depth]) {
+        linear_extrude(_engrave_depth + z_fight)
           text(
-            _radString, size=interface_radius / 2,
-            halign="center", valign="center", font="sans", $fn=32
+            _boreString, size=_boreSize,
+            halign="center", valign="center", font="sans"
           );
       }
 
-      // Bottom (-Y) string impression
-      translate([0, -interface_radius * 0.8, _flange_h / 2]) {
-        linear_extrude(_flange_h / 2 + z_fight)
+      translate([0, -interface_radius * 0.7, _flange_h - _engrave_depth]) {
+        linear_extrude(_engrave_depth + z_fight)
           text(
-            _diaString, size=interface_radius / 2,
-            halign="center", valign="center", font="sans", $fn=32
+            _specString, size=_specSize,
+            halign="center", valign="center", font="sans"
           );
       }
+      
     }
   }
 }

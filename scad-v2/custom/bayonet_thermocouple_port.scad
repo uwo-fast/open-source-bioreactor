@@ -41,7 +41,9 @@ module bayonet_thermocouple_port(
   center_bore_radius,
   mount_height
 ) {
-  // Bayonet connector
+  // Bayonet connector. text_labels stays off: the mount below lands on the flange's outer
+  // face at very nearly the flange diameter, so anything engraved there would be buried.
+  // This port's marks go on the mount wall instead.
   bayonet_port(
     type=type,
     part="pin",
@@ -53,24 +55,60 @@ module bayonet_thermocouple_port(
   translate([0, 0, bayonet_flange_height(type)])
     npt_thread_mount(
       height=mount_height,
-      lower_diameter=bayonet_flange_radius(type) * 2 - bayonet_allowance(type)
+      lower_diameter=bayonet_flange_radius(type) * 2 - bayonet_allowance(type),
+      marks=[
+        "1/2NPT", // what screws in
+        str("Ø", center_bore_radius * 2), // bore the probe tip passes down
+        str("B", bayonet_interface_radius(type) * 2, "-", bayonet_pin_radius(type)) // coupling
+      ]
     );
 }
 
-module npt_thread_mount(height, wall_thickness = 2, lower_diameter = undef) {
+/**
+ * Text laid around a cylinder of the given radius, reading correctly from outside. Solid, so
+ * difference() it out of the wall to engrave.
+ */
+module wrapped_text(s, radius, size, depth, angle = 0) {
+  step = 2 * asin(size * 0.8 / (2 * radius)); // angular advance per character, ~0.8 em to avoid crowding
+
+  for (i = [0:len(s) - 1])
+    rotate([0, 0, angle - (len(s) - 1) * step / 2 + i * step])
+      translate([radius - depth, 0, 0])
+        rotate([90, 0, 90])
+          linear_extrude(depth * 2) // overshoots the surface so the cut opens cleanly
+            text(s[i], size=size, halign="center", valign="center", font="sans");
+}
+
+module npt_thread_mount(height, wall_thickness = 2, lower_diameter = undef, marks = []) {
   half_npt_diameter = 21.34;
   allowance = 0.6;
   diameter = half_npt_diameter + wall_thickness * 2;
   lower_diameter_eff = is_undef(lower_diameter) ? diameter : lower_diameter;
 
-  ScrewHole(
-    outer_diam=half_npt_diameter - allowance, // Major diameter of 1/2" NPT
-    height=height * 1.1, // Depth of threading
-    position=[0, 0, 0], // Center of hole
-    rotation=[0, 0, 0], // Orientation
-    pitch=1.814, // Pitch based on 14 TPI
-    tooth_angle=60, // NPT standard thread angle
-    tolerance=0.4, // Small clearance for fitting
-    tooth_height=1.0 // Adjust as needed for proper fit
-  ) cylinder(d1=lower_diameter_eff, d2=diameter, h=height);
+  difference() {
+    ScrewHole(
+      outer_diam=half_npt_diameter - allowance, // Major diameter of 1/2" NPT
+      height=height * 1.1, // Depth of threading
+      position=[0, 0, 0], // Center of hole
+      rotation=[0, 0, 0], // Orientation
+      pitch=1.814, // Pitch based on 14 TPI
+      tooth_angle=60, // NPT standard thread angle
+      tolerance=0.4, // Small clearance for fitting
+      tooth_height=1.0 // Adjust as needed for proper fit
+    ) cylinder(d1=lower_diameter_eff, d2=diameter, h=height);
+
+    // Marks spaced around the outer wall, set in its upper half where the taper has put the
+    // most material between the surface and the thread.
+    if (len(marks) > 0) {
+      _mark_z = height * 0.65;
+      _mark_r = (lower_diameter_eff + (diameter - lower_diameter_eff) * 0.65) / 2;
+
+      for (i = [0:len(marks) - 1])
+        translate([0, 0, _mark_z])
+          wrapped_text(
+            marks[i], radius=_mark_r, size=3.5, depth=0.8,
+            angle=i * 360 / len(marks)
+          );
+    }
+  }
 }
