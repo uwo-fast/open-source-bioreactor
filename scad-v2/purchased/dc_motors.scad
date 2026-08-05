@@ -19,4 +19,4 @@ dc_motors = [motor_36gp_3530_5p18, motor_36pg_3429_5p2, motor_12v_5w];
 use <dc_motor.scad>
 
 // example usage (open this file directly to preview)
-dc_motor(motor_36gp_3530_5p18);
+// dc_motor(motor_36gp_3530_5p18);

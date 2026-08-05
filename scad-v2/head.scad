@@ -85,16 +85,12 @@ shaft_coupler_8x8_rigid = ["SC_8x8_rigid", 25, 12.5, 8, 8, false];
 
 /* [Motor Mount Parameters] */
 
-// diameter of the screws that fix each mount end down (lid side / motor side)
-motor_mount_base_screws_diameter = 3.5;
-// diameter of the screws that clamp the middle tube to the end caps
-motor_mount_tube_screws_diameter = 3.1;
-// diameter of the motor mounting boss (sets the mount inner diameter)
-motor_mount_boss_diameter = 22;
-// height of the flange on each mount end cap
-motor_mount_flange_height = 8;
-// height of the raised register face on each mount end cap
-motor_mount_raised_face_height = 10;
+// outer diameter of the mount body
+motor_mount_body_diameter = 56;
+// wall thickness of the mount body; also sets the flange and raised face heights
+motor_mount_wall_thickness = 10;
+// clearance between the telescoping parts, for printed fit
+motor_mount_coupling_allowance = 0.2;
 // number of facets for the mount body (must be divisible by 4)
 motor_mount_facets = 20;
 
@@ -195,6 +191,7 @@ module dummy() {
   // stop the customizer detection from here onwards
 }
 
+
 module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter) {
 
   difference() {
@@ -222,7 +219,7 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
     // #for (i = [0:3])
     //   rotate([0, 0, i * 90])
     //     translate([motor_mount_screw_distance, 0, -z_fight / 2])
-    //       cylinder(d=motor_mount_base_screws_diameter, h=lid_flange_height + z_fight);
+    //       cylinder(d=gearbox_screw_diameter(head_motor), h=lid_flange_height + z_fight);
 
     // cut out the entry holes for the probes and tubes; the port sizes its own hole so the
     // lock keeps a bearing land against the lid's underside
@@ -296,9 +293,10 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   // Motor and shaft driven parameters
   shaft_protrusion = shaft_length - (vessel_internal_height - shaft_jar_punt_clearance);
+
   // the height that the motor coupling assembly requires
-  motor_mount_middle_height = gearbox_output_shaft_length(head_gearbox) + shaft_protrusion + shaft_shaft_coupling_offset - motor_mount_flange_height * 2;
-  echo("motor mount height: ", motor_mount_middle_height / 10, " cm");
+  motor_mount_height = gearbox_output_shaft_length(head_gearbox) + shaft_protrusion + shaft_shaft_coupling_offset;
+  echo("motor mount height: ", motor_mount_height / 10, " cm");
 
   // The lid is flipped so its outer face lands on z = 0, which is the datum both port halves
   // are built around; that is why the ports below need no z placement of their own.
@@ -343,26 +341,27 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // motor and shaft
   if (render_motor || render_all) {
 
-    // motor (dc_motor mounts its own gearbox via the registered type)
-    translate([0, 0, motor_mount_middle_height + motor_mount_flange_height * 2 + dc_motor_length(head_motor) + gearbox_length(head_gearbox)])
+    // Motor, flipped so it hangs off the top of the mount; dc_motor mounts its own gearbox via
+    // the registered type. motor_mount() takes an overall height, so the mount's top face sits
+    // at motor_mount_height and the gearbox output face lands flush on it, with the output boss
+    // dropping into the faceplate's centre hole.
+    translate([0, 0, motor_mount_height + dc_motor_length(head_motor) + gearbox_length(head_gearbox)])
       rotate([0, 180, 0])
         dc_motor(head_motor);
   }
 
-  // motor mount (the module colors its three telescoping parts internally)
+  // motor mount; the module does not color itself, so all three telescoping parts take this one
   if (render_motor_mount || render_all) {
     color(prints1_color)
       motor_mount(
-        base_screw_diameter=motor_mount_base_screws_diameter,
-        tube_screw_diameter=motor_mount_tube_screws_diameter,
-        face_screw_diameter=gearbox_screw_diameter(head_gearbox),
-        bearing_diameter=bearing_diameter,
+        height=motor_mount_height,
+        body_diameter=motor_mount_body_diameter,
+        wall_thickness=motor_mount_wall_thickness,
+        screws_diameter=gearbox_screw_diameter(head_gearbox),
         shaft_diameter=shaft_diameter,
         motor_faceplate_screws_separation=gearbox_faceplate_screws_cdist(head_gearbox),
-        motor_boss_diameter=motor_mount_boss_diameter,
-        flange_height=motor_mount_flange_height,
-        raised_face_height=motor_mount_raised_face_height,
-        middle_height=motor_mount_middle_height,
+        motor_boss_diameter=gearbox_out_boss(head_gearbox)[0],
+        coupling_allowance=motor_mount_coupling_allowance,
         facets=motor_mount_facets,
         part_render=motor_mount_part_to_render
       );

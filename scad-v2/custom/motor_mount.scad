@@ -13,83 +13,44 @@
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
-// ----- hardware params -----
+// Function to check if the body diameter is large enough such that the screws do not intersect with the bearing. 
+function check_body_diameter(body_diameter, screws_diameter, bearing_diameter, motor_screw_distance) = ( ( (bearing_diameter + (screws_diameter * 2) * 4) > body_diameter) && ( (motor_screw_distance + screws_diameter * 2) > body_diameter)) ? true : false;
 
-base_screw_diameter = 3.1;
-
-tube_screw_diameter = 3.1;
-
-face_screw_diameter = 4.2;
-
-bearing_diameter = 22.6;
-
-shaft_diameter = 8.0;
-
-motor_faceplate_screws_separation = 27.6;
-
-motor_boss_diameter = 22.0;
-
-// ----- design selections -----
-
-allowance_fit = 0.2; // clearance for printed parts
-
-raised_face_height = 10;
-
-flange_height = 8;
-
-middle_height = 125;
-
-part_to_render = "all"; // ["all", "base_plate", "face_plate", "middle_stand"]
-
-motor_mount(
-  base_screw_diameter=base_screw_diameter,
-  tube_screw_diameter=tube_screw_diameter,
-  face_screw_diameter=face_screw_diameter,
-  bearing_diameter=bearing_diameter,
-  shaft_diameter=shaft_diameter,
-  motor_faceplate_screws_separation=motor_faceplate_screws_separation,
-  motor_boss_diameter=motor_boss_diameter,
-  flange_height=flange_height,
-  raised_face_height=raised_face_height,
-  middle_height=middle_height
-);
+// Function to get the (centered) distance between the base holes
+function get_base_screw_separation_radius(body_diameter, screws_diameter) = (body_diameter - screws_diameter * 3) / 2;
 
 module motor_mount(
-  base_screw_diameter,
-  tube_screw_diameter,
-  face_screw_diameter,
-  bearing_diameter,
+  height,
+  body_diameter,
+  wall_thickness,
+  screws_diameter,
   shaft_diameter,
   motor_faceplate_screws_separation,
   motor_boss_diameter,
-  flange_height,
-  raised_face_height,
-  middle_height,
+  coupling_allowance,
+  vertical_hole_allowance = 1.1,
+  horizontal_hole_allowance = 0.1,
   facets = 20,
-  part_render = part_to_render
+  part_render = "all"
 ) {
 
   // ----- derived params -----
 
-  outer_diameter = bearing_diameter + (base_screw_diameter * 2) * 4;
+  base_screw_diameter = screws_diameter + vertical_hole_allowance;
 
-  wall_thickness = (outer_diameter - motor_boss_diameter) / 2;
+  coupling_screw_diameter = screws_diameter + horizontal_hole_allowance;
 
-  bottom_top_hole_radius = (outer_diameter - wall_thickness / 2) / 2;
+  motor_screw_diameter = screws_diameter + vertical_hole_allowance;
 
-  bottom_center_hole_diameter = shaft_diameter * 1.5;
+  raised_face_height = wall_thickness;
 
-  middle_inner_diameter = outer_diameter - wall_thickness + allowance_fit;
+  flange_height = wall_thickness;
 
-  middle_interface_hole_radius = bottom_top_hole_radius;
+  base_screw_separation_radius = get_base_screw_separation_radius(body_diameter, screws_diameter);
 
-  middle_interface_hole_diameter = base_screw_diameter * 2;
+  middle_height = height - flange_height * 2;
 
-  middle_interface_hole_depth = flange_height;
-
-  top_vertical_hole_depth = flange_height + raised_face_height;
-
-  bottom_vertical_hole_depth = flange_height;
+  middle_inner_diameter = body_diameter - wall_thickness + coupling_allowance;
 
   // ----- assertions -----
 
@@ -99,52 +60,51 @@ module motor_mount(
 
   // ----- build -----
 
+  // The base plate side
   if (part_render == "all" || part_render == "base_plate") {
     male_end(
-      center_hole_diameter=bottom_center_hole_diameter,
-      vertical_hole_radius=bottom_top_hole_radius,
+      center_hole_diameter=shaft_diameter * 1.5,
+      vertical_hole_separation_radius=base_screw_separation_radius,
       vertical_hole_diameter=base_screw_diameter,
-      vertical_hole_depth=bottom_vertical_hole_depth,
       flange_height=flange_height,
       raised_face_height=raised_face_height,
-      outer_diameter=outer_diameter,
+      body_diameter=body_diameter,
       wall_thickness=wall_thickness,
-      tube_screw_diameter=tube_screw_diameter,
-      face_screw_diameter=face_screw_diameter,
+      coupling_screw_diameter=coupling_screw_diameter,
+      motor_screw_diameter=motor_screw_diameter,
       facets=facets
     );
   }
 
+  // Motor interface side
   if (part_render == "all" || part_render == "face_plate") {
-    translate([0, 0, middle_height + flange_height * 2])
+    translate([0, 0, middle_height + flange_height * 2 + z_fight / 2])
       rotate([0, 180, 0])
         male_end(
           center_hole_diameter=motor_boss_diameter,
-          vertical_hole_radius=motor_faceplate_screws_separation / 2,
-          vertical_hole_diameter=face_screw_diameter,
-          vertical_hole_depth=top_vertical_hole_depth,
+          vertical_hole_separation_radius=motor_faceplate_screws_separation / 2,
+          vertical_hole_diameter=motor_screw_diameter,
           flange_height=flange_height,
           raised_face_height=raised_face_height,
-          outer_diameter=outer_diameter,
+          body_diameter=body_diameter,
           wall_thickness=wall_thickness,
-          tube_screw_diameter=tube_screw_diameter,
-          face_screw_diameter=face_screw_diameter,
+          coupling_screw_diameter=coupling_screw_diameter,
+          motor_screw_diameter=motor_screw_diameter,
           facets=facets
         );
   }
 
   if (part_render == "all" || part_render == "middle_stand") {
-    translate([0, 0, flange_height])
+    translate([0, 0, flange_height + z_fight])
       middle_pipe(
         pipe_height=middle_height,
         inner_diameter=middle_inner_diameter,
-        interface_hole_radius=middle_interface_hole_radius,
-        interface_hole_diameter=middle_interface_hole_diameter,
-        interface_hole_depth=middle_interface_hole_depth,
+        interface_hole_separation_radius=base_screw_separation_radius,
+        interface_hole_diameter=base_screw_diameter * 2,
         flange_height=flange_height,
         raised_face_height=raised_face_height,
-        outer_diameter=outer_diameter,
-        tube_screw_diameter=tube_screw_diameter,
+        body_diameter=body_diameter,
+        coupling_screw_diameter=coupling_screw_diameter,
         facets=facets
       );
   }
@@ -152,24 +112,22 @@ module motor_mount(
 
 module male_end(
   center_hole_diameter,
-  vertical_hole_radius,
+  vertical_hole_separation_radius,
   vertical_hole_diameter,
-  vertical_hole_depth,
   flange_height,
   raised_face_height,
-  outer_diameter,
+  body_diameter,
   wall_thickness,
-  tube_screw_diameter,
-  face_screw_diameter,
+  coupling_screw_diameter,
+  motor_screw_diameter,
   facets
 ) {
-  counterbore_diameter = face_screw_diameter * 1.5;
-  counterbore_depth = raised_face_height + z_fight;
+  counterbore_diameter = motor_screw_diameter * 2;
 
   difference() {
     union() {
-      cylinder(h=flange_height, d=outer_diameter, $fn=facets);
-      translate([0, 0, flange_height]) cylinder(h=raised_face_height, d=outer_diameter - wall_thickness, $fn=facets);
+      cylinder(h=flange_height, d=body_diameter, $fn=facets);
+      translate([0, 0, flange_height]) cylinder(h=raised_face_height, d=body_diameter - wall_thickness, $fn=facets);
     }
 
     // Center hole for the motor shaft / boss
@@ -179,74 +137,96 @@ module male_end(
     // Vertical holes
     for (i = [0:3])
       rotate([0, 0, i * 90])
-        translate([vertical_hole_radius, 0, -z_fight / 2])
-          cylinder(h=vertical_hole_depth + z_fight, d=vertical_hole_diameter, $fn=16);
+        translate([vertical_hole_separation_radius, 0, -z_fight / 2])
+          cylinder(h=flange_height + raised_face_height + z_fight, d=vertical_hole_diameter, $fn=16);
 
     // Vertical counterbores
     for (i = [0:3])
       rotate([0, 0, i * 90])
-        translate([vertical_hole_radius, 0, flange_height - z_fight / 2])
-          cylinder(h=counterbore_depth + z_fight, d=counterbore_diameter, $fn=16);
+        translate([vertical_hole_separation_radius, 0, flange_height / 2])
+          cylinder(h=raised_face_height + flange_height, d=counterbore_diameter, $fn=16);
 
     // Horizontal holes for screws to fix the female middle tube to each male end
     for (i = [0:3])
       rotate([0, 0, i * 90 + 45])
         translate([0, 0, flange_height + raised_face_height / 2])
           rotate([0, 90, 0])
-            cylinder(h=outer_diameter, d=tube_screw_diameter, $fn=16);
+            cylinder(h=body_diameter, d=coupling_screw_diameter, $fn=16);
   }
 }
 
 module middle_pipe(
   pipe_height,
   inner_diameter,
-  interface_hole_radius,
+  body_diameter,
+  interface_hole_separation_radius,
   interface_hole_diameter,
-  interface_hole_depth,
   flange_height,
   raised_face_height,
-  outer_diameter,
-  tube_screw_diameter,
+  coupling_screw_diameter,
   facets
 ) {
+
   difference() {
-    cylinder(h=pipe_height, d=outer_diameter, $fn=facets);
+    cylinder(h=pipe_height, d=body_diameter, $fn=facets);
     translate([0, 0, -z_fight / 2])
       cylinder(h=pipe_height + z_fight, d=inner_diameter, $fn=facets);
-
-    // Vertical holes for screws to fix the base to the world (in this case, the jar lid)
-    for (i = [0:3])
-      rotate([0, 0, i * 90])
-        translate([interface_hole_radius, 0, -z_fight / 2])
-          cylinder(h=interface_hole_depth + z_fight, d=interface_hole_diameter, $fn=16);
-
-    // Vertical holes for screws to fix the top to the motor faceplate
-    for (i = [0:3])
-      rotate([0, 0, i * 90])
-        translate([interface_hole_radius, 0, pipe_height - flange_height])
-          cylinder(h=interface_hole_depth + z_fight, d=interface_hole_diameter, $fn=16);
 
     // Horizontal holes for screws to fix the female middle tube to the lower base
     for (i = [0:3])
       rotate([0, 0, i * 90 + 45])
         translate([0, 0, raised_face_height / 2])
           rotate([0, 90, 0])
-            cylinder(h=outer_diameter, d=tube_screw_diameter, $fn=16);
+            cylinder(h=body_diameter, d=coupling_screw_diameter, $fn=16);
 
     // Horizontal holes for screws to fix the female middle tube to the upper top
     for (i = [0:3])
       rotate([0, 0, i * 90 + 45])
         translate([0, 0, pipe_height - raised_face_height / 2])
           rotate([0, 90, 0])
-            cylinder(h=outer_diameter, d=tube_screw_diameter, $fn=16);
+            cylinder(h=body_diameter, d=coupling_screw_diameter, $fn=16);
 
     // Cut out 4 windows for access to the screws that fix the top to the motor faceplate
     for (i = [0:3])
       rotate([0, 0, i * 90])
         translate([0, 0, pipe_height / 2])
           rotate([-90, 0, 0])
-            linear_extrude(height=outer_diameter)
-              resize([outer_diameter * 0.40, pipe_height * 0.80])
+            linear_extrude(height=body_diameter)
+              resize([body_diameter * 0.40, pipe_height * 0.80])
                 circle(d=1, $fn=100);
   }
 }
+
+// ----- hardware params -----
+
+_mm_screws_diameter = 3;
+
+_mm_shaft_diameter = 8.0;
+
+_mm_motor_faceplate_screws_separation = 27.6;
+
+_mm_motor_boss_diameter = 22.0;
+
+// ----- design selections -----
+
+_mm_body_diameter = 56.0;
+
+_mm_wall_thickness = 10.0;
+
+_mm_height = 141;
+
+_mm_allowance_fit = 0.2; // clearance for printed parts
+
+_mm_part_to_render = "all"; // ["all", "base_plate", "face_plate", "middle_stand"]
+
+motor_mount(
+  height=_mm_height,
+  body_diameter=_mm_body_diameter,
+  wall_thickness=_mm_wall_thickness,
+  screws_diameter=_mm_screws_diameter,
+  shaft_diameter=_mm_shaft_diameter,
+  motor_faceplate_screws_separation=_mm_motor_faceplate_screws_separation,
+  motor_boss_diameter=_mm_motor_boss_diameter,
+  coupling_allowance=_mm_allowance_fit,
+  part_render=_mm_part_to_render
+);
