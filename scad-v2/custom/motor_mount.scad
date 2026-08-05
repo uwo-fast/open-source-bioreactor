@@ -30,6 +30,7 @@ module motor_mount(
   coupling_allowance,
   vertical_hole_allowance = 1.1,
   horizontal_hole_allowance = 0.1,
+  boss_allowance = 0.4,
   facets = 20,
   part_render = "all"
 ) {
@@ -41,6 +42,12 @@ module motor_mount(
   coupling_screw_diameter = screws_diameter + horizontal_hole_allowance;
 
   motor_screw_diameter = screws_diameter + vertical_hole_allowance;
+
+  // Clearance for a purchased boss entering a printed hole. The hole is cut as a facets-sided
+  // polygon, so it is the inscribed circle the boss has to pass, not the nominal diameter;
+  // sizing off that keeps boss_allowance the real clearance instead of most of it being eaten
+  // by the faceting.
+  motor_boss_hole_diameter = (motor_boss_diameter + boss_allowance) / cos(180 / facets);
 
   raised_face_height = wall_thickness;
 
@@ -81,7 +88,7 @@ module motor_mount(
     translate([0, 0, middle_height + flange_height * 2 + z_fight / 2])
       rotate([0, 180, 0])
         male_end(
-          center_hole_diameter=motor_boss_diameter,
+          center_hole_diameter=motor_boss_hole_diameter,
           vertical_hole_separation_radius=motor_faceplate_screws_separation / 2,
           vertical_hole_diameter=motor_screw_diameter,
           flange_height=flange_height,
