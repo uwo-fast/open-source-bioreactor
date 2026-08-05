@@ -7,7 +7,7 @@
 
 //   ["name" [neck_d, neck_h, neck_taper_d], [body_d, body_h], [tip_d, tip_h], wire_d, accent_color];   
 ph = ["ph",  [10,     26,      5          ], [15.6,   35    ], [12,      115], 3,      "Red"       ];
-do = ["do",  [10,     26,      5          ], [16,     35    ], [12,      115], 3,      "Goldenrod" ];
+do = ["do",  [10,     26,      5          ], [16.0,   35    ], [12,      115], 3,      "Goldenrod" ];
 
 atlas_probes = [ph, do];
 

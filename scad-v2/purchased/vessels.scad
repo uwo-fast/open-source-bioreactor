@@ -36,5 +36,5 @@ vessels = [generic_vessel, jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470
 use <vessel.scad>;
 
 // example usage (open this file directly to preview)
-vessel(jar_1gal_155x251, angle=180);                                     // registered set, cross section
-translate([250, 0, 0]) vessel(["custom", [100, 50, 2], [30, 20], [5, 5], [5, 10], 2]); // direct (inline type)
+// vessel(jar_1gal_155x251, angle=180);                                     // registered set, cross section
+// translate([250, 0, 0]) vessel(["custom", [100, 50, 2], [30, 20], [5, 5], [5, 10], 2]); // direct (inline type)
