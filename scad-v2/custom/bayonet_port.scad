@@ -106,12 +106,6 @@ module bayonet_port(
   _oring_enabled = !is_undef(oring_cs_diameter) && part != "lock";
   _rebate_h = _oring_enabled ? oring_cs_diameter - oring_interference : 0;
 
-  // The flange leaves a short spigot that pilots into the panel hole, so the port stays
-  // centred while it is turned. Set one allowance under the hole so it is a clearance fit,
-  // and cut the o-ring rebate outside it, which keeps the seal on panel material rather
-  // than overhanging the hole.
-  _spigot_radius = bayonet_port_hole_radius(type) - allowance;
-
   difference() {
     union() {
 
@@ -149,15 +143,14 @@ module bayonet_port(
     if (part == "pin" && center_bore_radius > 0)
       cylinder(h=(panel_thickness + _flange_h) * 3, r=center_bore_radius, center=true);
 
-    // O-ring rebate: an annular recess in the flange's panel-facing face, running from the
-    // spigot out to the flange edge. The o-ring seats here and is squeezed against the
-    // panel; its depth is the cross section less the interference.
+    // O-ring rebate: an annular recess in the flange's panel-facing face
     if (_rebate_h > 0) {
       translate([0, 0, -z_fight])
-        difference() {
-          cylinder(h=_rebate_h + z_fight, r=flange_radius + z_fight);
-          cylinder(h=_rebate_h + z_fight, r=_spigot_radius);
-        }
+      difference(){
+          cylinder(h=_rebate_h , r=flange_radius + z_fight);
+          cylinder(h=_rebate_h + z_fight, r=interface_radius - allowance);
+          }
+        
     }
 
     // Catch pockets (holes for pliers to grip and rotate), sunk into the outer face
