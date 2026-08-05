@@ -7,8 +7,8 @@
 // agree on lives here, so a pin and a lock built from the same row always mate. Accessors are
 // in bayonet_port.scad. Pure data - no geometry, so consumers can include it freely.
 
-//                ["name" [iface_r, shell_t, pin_r, allow], [flange_h, flange_r], [oring_cs, oring_intf], [n_pins, sweep, pin_dir, turn_dir]]
-bayonet_std     = ["std", [10,     2.5,     1.2,     0.2  ], [5,        13.4      ], [1.6,      0.1       ], [3,      30,    "outer", "CW"    ]];
+//                ["name" [iface_r, shell_t, pin_r, allow], [flange_h, flange_r],   [oring_cs, oring_intf], [n_pins, sweep, pin_dir, turn_dir]]
+bayonet_std     = ["std", [10,      2.5,     1.2,   0.2  ], [5,        13.4      ], [1.6,      0.1       ], [3,      30,    "outer", "CW"    ]];
 
 bayonet_interfaces = [bayonet_std];
 
