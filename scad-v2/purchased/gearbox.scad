@@ -21,6 +21,14 @@ function gearbox_input_shaft_dia(type) = type[3][0]; // diameter of the input sh
 function gearbox_input_shaft_length(type) = type[3][1]; // depth of the input shaft bore, optional
 function gearbox_faceplate_screws_cdist(type) = type[4]; // centre distance of the faceplate screws
 function gearbox_screw_diameter(type) = type[5]; // diameter of the faceplate screws
+function gearbox_out_boss(type) = type[6]; // [boss_d, boss_l] pilot boss on the output face, optional
+function gearbox_in_boss(type) = type[7]; // [boss_d, boss_l] recess in the input face, optional
+
+// The input pockets are registered at the motor's own boss and shaft dimensions, because that
+// is what they receive, so a motor seats in them face to face and CGAL will not call the union
+// 2-manifold. Opening them by a hair keeps the mesh clean. This is a render allowance, not a
+// fit, which is why it lives here instead of in the registry.
+gearbox_input_render_allowance = 0.2;
 
 /**
  * @brief Create a gearbox from a registered type
@@ -35,6 +43,15 @@ module gearbox(type) {
   input_shaft_length = gearbox_input_shaft_length(type);
   faceplate_screws_cdist = gearbox_faceplate_screws_cdist(type);
   screw_diameter = gearbox_screw_diameter(type);
+  out_boss = gearbox_out_boss(type);
+  in_boss = gearbox_in_boss(type);
+
+  // Neither boss counts toward `length`, which stays the body length, the same way dc_motor
+  // keeps the motor's own boss out of its length. The output boss stands the shaft off the
+  // face instead of eating into it, so output_shaft_length remains free length past the boss;
+  // the input boss is a recess, so the input bore has to start below it to reach as deep.
+  out_boss_length = is_undef(out_boss) ? 0 : out_boss[1];
+  in_boss_depth = is_undef(in_boss) ? 0 : in_boss[1];
 
   cut_dim = screw_diameter * 1.1;
 
@@ -43,15 +60,33 @@ module gearbox(type) {
     union() {
       color(dark_grey)
         cylinder(d=diameter, h=length);
+
+      // pilot boss standing off the output face
+      if (!is_undef(out_boss))
+        color(dark_grey)
+          translate([0, 0, length])
+            cylinder(d=out_boss[0], h=out_boss[1]);
+
       color(medium_grey)
-        translate([0, 0, length])
+        translate([0, 0, length + out_boss_length])
           cylinder(d=output_shaft_diameter, h=output_shaft_length);
     }
 
-    // remove pocket for input shaft
+    // recess in the input face that receives the motor's boss
+    if (!is_undef(in_boss))
+      translate([0, 0, -z_fight])
+        cylinder(
+          d=in_boss[0] + gearbox_input_render_allowance,
+          h=in_boss[1] + gearbox_input_render_allowance + z_fight
+        );
+
+    // remove pocket for input shaft, sunk past the input boss recess
     if (!is_undef(input_shaft_diameter) && !is_undef(input_shaft_length))
       translate([0, 0, -z_fight])
-        cylinder(d=input_shaft_diameter, h=input_shaft_length);
+        cylinder(
+          d=input_shaft_diameter + gearbox_input_render_allowance,
+          h=in_boss_depth + input_shaft_length + gearbox_input_render_allowance + z_fight
+        );
 
     // remove spot where gearbox screws sit
     for (i = [0:3]) {

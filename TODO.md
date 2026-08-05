@@ -4,9 +4,6 @@
 
 - [ ] finish modelling peri pumps and integrating with a motor then into the assembly using the peri pump motor mount that has been modified to take the registered parameters for the motor and pump
 - [ ] replace as many of the "generic" parameter registrations as possible with specific ones for the actual hardware (i.e. mcmaster carr part numbers or best effort for other parts)
-- [ ] give `gearbox_36gp_5p18` an input recess that actually receives the motor's boss and shaft
-  - it models its input as one `[22, 3]` bore, so the boss (8 x 3) and shaft (2 x 8) on `motor_36gp_3530_5p18` intersect the gearbox body instead of seating in it; fine while it is only visualisation, wrong once anything keys off that interface
-  - the 22 may be a mis-assignment rather than a measurement: `gearbox_36pg_3429_5p2`'s vendor drawing shows a 22 mm pilot register on the *output* face, so the same number may have been read off the wrong end
 - [ ] rethink how the impeller diameter is driven, and guard it
   - `head()` scales it off `vessel_outer_diameter`, but what it has to pass through is the vessel *opening*; nothing asserts the impeller is smaller than the opening, so an out-of-range `impeller_impeller_vessel_outer_diameter_factor` silently models an impeller that cannot be installed
 - [ ] align the assembly -> subassembly -> part parameter interfaces
