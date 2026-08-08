@@ -43,6 +43,11 @@ render_tube_pinlock = false;
 render_thermocouple_pinlock = false;
 render_probe_pinlock = false;
 
+// Draw the lid's 24 bayonet halves as bare shells while previewing; their pins and channels
+// are boolean-heavy and only the coupling positions read on screen. Renders are unaffected.
+fast_bayonet_preview = true;
+$bayonet_shell_only = $preview && fast_bayonet_preview;
+
 // -----
 
 /* [Lid Parameters] */
