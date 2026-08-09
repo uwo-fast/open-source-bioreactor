@@ -5,6 +5,11 @@
 // the upper end is common and the grades differ below it. Cap diameter and height on the pH
 // and DO rows are caliper readings of the units on hand; the rest is from the datasheets.
 //
+// body_d is the only registered number that reaches printed geometry - the collet is cut from
+// it - so measure the probe before printing a port for any row that is not a caliper reading.
+// The pH cap measured 15.6 against a nominal 16.0, and 0.4 mm is most of the flex tab's 0.5 mm
+// deflection.
+//
 // Atlas states totals as cap + shaft, leaving out the strain relief boot that neck models.
 // Only three sheets dimension that boot - the 8 cm EC and the two full size ORP - all at the
 // 26 mm used here. Those same three are built as boot + black body rather than a 16 mm cap
