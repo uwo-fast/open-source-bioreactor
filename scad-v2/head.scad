@@ -171,13 +171,8 @@ head_ports = [
 
 /* [Probe Port Parameters] */
 
-// Hardware dimensions of the atlas probe body the collet grips. The body itself now comes
-// from the registered probe named in head_ports; the tail and connector are still entered
-// here, because the registry does not yet carry them.
-probe_port_tail_major_diameter = 8.7;
-probe_port_tail_minor_diameter = 4.3;
-probe_port_tail_length = 24.5;
-probe_port_connector_diameter = 10;
+// Design choices for the collet. Every hardware dimension comes from the registered probe
+// named in head_ports, so nothing about the probe itself is entered here.
 probe_port_collet_wall_thickness = 1.2;
 probe_port_collet_internal_allowance = 0.6;
 probe_port_collet_tab_gap = 1.0;
@@ -262,10 +257,6 @@ module head_port(port, panel_thickness) {
       probe=_probe,
       panel_thickness=panel_thickness,
       center_bore_radius=_bore,
-      tail_major_diameter=probe_port_tail_major_diameter,
-      tail_minor_diameter=probe_port_tail_minor_diameter,
-      tail_length=probe_port_tail_length,
-      connector_part_diameter=probe_port_connector_diameter,
       collet_wall_thickness=probe_port_collet_wall_thickness,
       collet_internal_allowance=probe_port_collet_internal_allowance,
       collet_tab_gap=probe_port_collet_tab_gap,

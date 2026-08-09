@@ -8,12 +8,17 @@
   - `head()` scales it off `vessel_outer_diameter`, but what it has to pass through is the vessel *opening*; nothing asserts the impeller is smaller than the opening, so an out-of-range `impeller_impeller_vessel_outer_diameter_factor` silently models an impeller that cannot be installed
 - [ ] align the assembly -> subassembly -> part parameter interfaces
   - `head.scad` and `frame.scad` hardcode the vessel dimensions in their standalone preview calls (`220 / 143 / 295` and `305 / 220`), which reproduce `jar_10L_220x305` — 295 being a hand-copy of the derived `vessel_internal_height()`. Deliberate for now so each subassembly previews standalone; fold into the interface pass rather than patching piecemeal
-- [ ] carry the probe tail and connector dimensions in `atlas_probes.scad` and read them back
-  - the collet needs six hardware numbers the registry does not hold, so they are entered again in `head.scad` (`probe_port_*`) and a third time in `bayonet_probe_port.scad` (`_bp_*`)
-  - proposal: append one group rather than reshuffle, so every existing accessor keeps its index — `["name" [neck…], [body…], [tip…], wire_d, accent_color, [tail_major_d, tail_minor_d, tail_len, connector_d]]` — with `atlas_probe_tail(type) = type[6]` and four scalar accessors beside the existing ones
-  - the collet's own design values (wall thickness, allowances, tab gap, deflection, tilt) are choices not probe facts, so they stay in `head.scad`; only the six hardware numbers move
-  - decide first: `body_d` is already registered yet still duplicated, and there are four values in play for it — `15.6` (ph) and `16.0` (do) in the registry against `15.9` soft-backed / `16.3` hard-backed in the comments. Measurement question before schema question; the backing variant may want its own registered row
-  - caveat: the tail group describes the connector end, which `atlas_probe()` itself does not draw, so it is data held for a consumer rather than for the model
+- [x] carry the probe tail and connector dimensions in `atlas_probes.scad` and read them back
+  - added as `[tail_maj_d, tail_min_d, tail_h, conn_d]` at index 4, keeping `wire_d` and `accent_color` last as the scalar tail of the row. That shifts those two to 5 and 6 rather than appending — safe because every index lives in `atlas_probe.scad`, checked against the whole tree
+  - four scalar accessors added; `head.scad` and `bayonet_probe_port.scad` now read them back and hold only the collet's own design choices. Printed geometry byte-identical — verified as the same 9300-facet vertex multiset
+  - the body pair moved earlier (`3835aed`, `fd2b824`), so four numbers moved here rather than six
+
+- [ ] reconcile `neck` against the tail group — they describe the same strain relief boot and disagree
+  - surfaced by the move above: `neck` reads 5 at the cord widening to 10 at the cap over 26 mm, the tail group reads 8.7 at the cap narrowing to 4.3 at the cord over 24.5 mm. Same feature, opposite ends, two independent measurements. They were never side by side before, so the conflict was invisible
+  - the datasheets put that boot at 26 mm, which backs `neck`. The tail numbers are the caliper reading the collet has always been cut from, and they came off the hard-backed unit, which still has no registered row
+  - if `neck` is right the collet's tail cavity is currently 1.3 mm too small at the cap and may be stopping the probe seating fully — worth checking on a printed port before re-measuring
+  - resolving it either deletes the tail group's first three numbers (read `neck` instead, leaving only `conn_d`) or corrects `neck`. Changing either moves printed geometry, so measure first
+  - still open from the original entry: `15.9` soft-backed / `16.3` hard-backed. `15.9` is gone from the tree; `16.3` survives in `cylindrical_flex_collet.scad` and is now commented as the hard-backed variant. None of the 15 datasheets mentions a backing variant, so this is a caliper question. The backing variant may want its own registered row
 
 ## nice to haves
 
