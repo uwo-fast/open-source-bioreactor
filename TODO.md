@@ -26,6 +26,9 @@
 - [ ] Add curve / inflection point to holes in bayonet connectors to grip tubes better
   - sehan's idea, currently they grip really tight already so this is just a thought for improving the design if we find the tubes are slipping out too easily in testing; or if we wanted to reduce the interference fit and make it easier to insert the tubes in the first place while keeping them from slipping out
 - [ ] optional end styles (sensor gland) for atlas probes to match product more closely
+- [ ] register lights per cord on the strip lights and drive the frame from it
+  - recorded in the row comments for now: `rwntao_13in` is 3 tubes per cord, the three `grow_*` are 4. `lights_per_quadrant` in `frame.scad` is still set by hand and has no relation to what a cord actually carries
+  - `strip_lights.scad` would gain the count, and `frame.scad` would derive placement from it rather than from a free parameter — cords come in fixed multiples, so the current setup can ask for a light count no purchasable product provides
 
 ## second hardware revision
 

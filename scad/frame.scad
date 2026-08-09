@@ -35,6 +35,9 @@ frame(vessel_height=305, vessel_outer_diameter=220);
 
 /* [Light Parameters] */
 
+// the registered strip light the base is pocketed for; every light dimension is read back
+// out of it via the accessor functions (see purchased/strip_light.scad)
+frame_light = rwntao_13in; // [generic_strip_light, rwntao_13in, grow_13in, grow_16in, grow_8p6in]
 // which quadrants to place lights in, 1-4 starting from positive x and going CCW
 light_quadrants = [1, 3];
 // number of lights to place in each quadrant
@@ -103,10 +106,10 @@ module lights(quadrants, vessel_outer_diameter, lights_per_quadrant, occupy_angl
 
         rotate([0, 0, light_angle])
           translate([0, vessel_outer_diameter / 2, 0]) if (is_undef(allowance_cutout)) {
-            strip_light(generic_strip_light);
+            strip_light(frame_light);
           } else {
-            translate([0, strip_light_depth(generic_strip_light) / 2, strip_light_length(generic_strip_light) / 2])
-              cube([strip_light_width(generic_strip_light) + allowance_cutout, strip_light_depth(generic_strip_light) + allowance_cutout, strip_light_length(generic_strip_light)], center=true);
+            translate([0, strip_light_depth(frame_light) / 2, strip_light_length(frame_light) / 2])
+              cube([strip_light_width(frame_light) + allowance_cutout, strip_light_depth(frame_light) + allowance_cutout, strip_light_length(frame_light)], center=true);
           }
       }
     }
@@ -118,7 +121,7 @@ module frame(vessel_height, vessel_outer_diameter) {
   // total height of the assembly
   total_height = vessel_height + base_floor_height + upper_base_height;
   // distance from the center of the jar to the threaded rod
-  base_wall_thickness = (strip_light_depth(generic_strip_light) * 1.5) * 2; // thinnest part is 50% thicker than the light depth
+  base_wall_thickness = (strip_light_depth(frame_light) * 1.5) * 2; // thinnest part is 50% thicker than the light depth
   // diameter of the cutout for the jar
   base_jar_cut_diameter = vessel_outer_diameter + base_jar_fit_allow;
 
