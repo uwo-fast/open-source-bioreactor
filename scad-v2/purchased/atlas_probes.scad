@@ -12,10 +12,19 @@
 //
 // CONFLICT: the tail group and neck describe the same strain relief boot from opposite ends
 // and disagree. neck reads 5 at the cord widening to 10 at the cap over 26 mm; tail reads 8.7
-// at the cap narrowing to 4.3 at the cord over 24.5 mm. The datasheets put that boot at 26 mm,
-// which backs neck, but tail is the caliper reading the collet has always been cut from - and
-// it came off the hard-backed unit, which has no registered row. Reconcile with a caliper
-// before trusting either; until then the tail group holds what the collet already used.
+// at the cap narrowing to 4.3 at the cord over 24.5 mm.
+//
+// Both are caliper readings, of different probes. neck came off the June 2026 session that
+// also measured body 15.6 - the probe these ports are built for - and its 26 mm matches the
+// four sheets that dimension the boot. tail came off the April 2026 session on the hard-backed
+// unit, body 16.3, which still has no registered row. So a printed collet mixes the two: the
+// cap bore comes from this registry, the boot hole from tail. Measured in the rendered part,
+// the bore at the plane the cap seats against is 8.697.
+//
+// If the boot really is 10 there, the probe would stand ~6.8 mm proud of its seat - far too
+// obvious to have gone unnoticed, so the soft boot most likely just deforms through. Push a
+// probe into a printed port before changing either number; until then the tail group holds
+// what the collet has always been cut from.
 //
 // Atlas states totals as cap + shaft, leaving out the strain relief boot that neck models.
 // Only three sheets dimension that boot - the 8 cm EC and the two full size ORP - all at the
@@ -116,7 +125,7 @@ atlas_probes = [
 use <atlas_probe.scad>;
 
 // example usage (open this file directly to preview)
-// atlas_probe(ph_lab);                       // registered set
-// translate([40, 0, 0]) atlas_probe(do_lab); // registered set
+atlas_probe(ph_lab);                       // registered set
+translate([40, 0, 0]) atlas_probe(do_lab); // registered set
 // translate([80, 0, 0])                      // direct (inline type)
 //   atlas_probe(["custom", [10, 26, 5], [15.6, 36], [12, 115], [8.7, 4.3, 24.5, 10], 3, "Cyan"]);

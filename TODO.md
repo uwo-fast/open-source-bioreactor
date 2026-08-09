@@ -14,9 +14,10 @@
   - the body pair moved earlier (`3835aed`, `fd2b824`), so four numbers moved here rather than six
 
 - [ ] reconcile `neck` against the tail group — they describe the same strain relief boot and disagree
-  - surfaced by the move above: `neck` reads 5 at the cord widening to 10 at the cap over 26 mm, the tail group reads 8.7 at the cap narrowing to 4.3 at the cord over 24.5 mm. Same feature, opposite ends, two independent measurements. They were never side by side before, so the conflict was invisible
-  - the datasheets put that boot at 26 mm, which backs `neck`. The tail numbers are the caliper reading the collet has always been cut from, and they came off the hard-backed unit, which still has no registered row
-  - if `neck` is right the collet's tail cavity is currently 1.3 mm too small at the cap and may be stopping the probe seating fully — worth checking on a printed port before re-measuring
+  - surfaced by the move above: `neck` reads 5 at the cord widening to 10 at the cap over 26 mm, the tail group reads 8.7 at the cap narrowing to 4.3 at the cord over 24.5 mm. Same feature, opposite ends. They were never side by side before, so the conflict was invisible
+  - both are caliper readings, of different probes. `neck` came off the June 2026 session (`6332a84`) that also measured body 15.6 — the probe these ports are built for — and its 26 mm matches the four sheets that dimension the boot. The tail numbers came off the April 2026 session (`52757dc`) on the hard-backed unit, body 16.3, which still has no registered row
+  - so a printed collet mixes the two: cap bore from the registry, boot hole from `tail`. Measured in the rendered part, the bore at the plane the cap seats against is Ø8.697
+  - **check before changing anything**: push a probe into a printed port. If the boot really were Ø10 at the cap the probe would stand ~6.8 mm proud, which is too obvious to have gone unnoticed — most likely the soft boot just deforms through, making this bookkeeping rather than a fit fault. If it does stand proud, `tail` needs `neck`'s numbers
   - resolving it either deletes the tail group's first three numbers (read `neck` instead, leaving only `conn_d`) or corrects `neck`. Changing either moves printed geometry, so measure first
   - still open from the original entry: `15.9` soft-backed / `16.3` hard-backed. `15.9` is gone from the tree; `16.3` survives in `cylindrical_flex_collet.scad` and is now commented as the hard-backed variant. None of the 15 datasheets mentions a backing variant, so this is a caliper question. The backing variant may want its own registered row
 
