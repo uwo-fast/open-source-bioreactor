@@ -157,7 +157,7 @@ port_position = "locked"; // [locked, entry]
 head_ports = [
   ["thermocouple", 3],
   ["probe", 0, ph_lab],
-  ["probe", 0, do],
+  ["probe", 0, do_lab],
   ["tube", 3],
   ["tube", 3],
   ["tube", 3],
