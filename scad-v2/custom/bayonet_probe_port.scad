@@ -16,10 +16,9 @@ _bp_center_bore_radius = 3; // Radius of the center bore
 _bp_panel_thickness = 18; // Lid thickness at the port, for standalone preview
 
 // ----- Probe-specific (hardware) parameters -----
-// The body diameter comes from the registered probe; the rest is still entered here because
+// The body comes from the registered probe; the rest is still entered here because
 // atlas_probes.scad does not carry the tail and connector dimensions the collet needs.
 
-_bp_probe_body_length = 35.6;
 _bp_tail_major_diameter = 8.7;
 _bp_tail_minor_diameter = 4.3;
 _bp_tail_length = 24.5;
@@ -39,7 +38,6 @@ bayonet_probe_port(
   probe=ph,
   panel_thickness=_bp_panel_thickness,
   center_bore_radius=_bp_center_bore_radius,
-  probe_body_length=_bp_probe_body_length,
   tail_major_diameter=_bp_tail_major_diameter,
   tail_minor_diameter=_bp_tail_minor_diameter,
   tail_length=_bp_tail_length,
@@ -67,7 +65,6 @@ module bayonet_probe_port(
   probe,
   panel_thickness,
   center_bore_radius,
-  probe_body_length,
   tail_major_diameter,
   tail_minor_diameter,
   tail_length,
@@ -87,6 +84,7 @@ module bayonet_probe_port(
   // The collet grips the probe body, so the registered probe sets the bore this port is cut
   // for - and the mark that says which probe it takes.
   probe_body_diameter = atlas_probe_body_dia(probe);
+  probe_body_length = atlas_probe_body_height(probe);
 
   // The transitions mate to the bayonet at its interface (mating) surface, less the allowance.
   _bayonet_diameter = 2 * interface_radius - allowance;
