@@ -9,17 +9,14 @@
 - [ ] align the assembly -> subassembly -> part parameter interfaces
   - `head.scad` and `frame.scad` hardcode the vessel dimensions in their standalone preview calls (`220 / 143 / 295` and `305 / 220`), which reproduce `jar_10L_220x305` — 295 being a hand-copy of the derived `vessel_internal_height()`. Deliberate for now so each subassembly previews standalone; fold into the interface pass rather than patching piecemeal
 - [x] carry the probe tail and connector dimensions in `atlas_probes.scad` and read them back
-  - added as `[tail_maj_d, tail_min_d, tail_h, conn_d]` at index 4, keeping `wire_d` and `accent_color` last as the scalar tail of the row. That shifts those two to 5 and 6 rather than appending — safe because every index lives in `atlas_probe.scad`, checked against the whole tree
-  - four scalar accessors added; `head.scad` and `bayonet_probe_port.scad` now read them back and hold only the collet's own design choices. Printed geometry byte-identical — verified as the same 9300-facet vertex multiset
-  - the body pair moved earlier (`3835aed`, `fd2b824`), so four numbers moved here rather than six
+  - first attempt added a four-number tail group, which was wrong: tracing the geometry showed it held one dead number, two collet-shape numbers, and one derived hex size — no probe facts at all. `tail_maj_d` was provably inert (8.7 → 6 and 8.7 → 9.1 both render an identical part, because the port's hex cut is 9.18 across flats and removes strictly more), and it duplicated `neck`, which already described the same strain relief boot
+  - settled shape: the registry holds one group per physical feature — `neck` the boot, `body` the cap, `tip` the shaft, `conn_d` the connector — and `bayonet_probe_port` derives the rest. The collet's neck section houses the boot, so `neck` sizes it; the hex is derived as `(conn_d + allowance) / cos(30)` so a round Ø8 connector clears the flats, instead of the magic 10 that silently encoded the same sum
+  - envelope unchanged, internal cavities changed on purpose: same z extent and max radius, 9300 → 9556 facets
 
-- [ ] reconcile `neck` against the tail group — they describe the same strain relief boot and disagree
-  - surfaced by the move above: `neck` reads 5 at the cord widening to 10 at the cap over 26 mm, the tail group reads 8.7 at the cap narrowing to 4.3 at the cord over 24.5 mm. Same feature, opposite ends. They were never side by side before, so the conflict was invisible
-  - both are caliper readings, of different probes. `neck` came off the June 2026 session (`6332a84`) that also measured body 15.6 — the probe these ports are built for — and its 26 mm matches the four sheets that dimension the boot. The tail numbers came off the April 2026 session (`52757dc`) on the hard-backed unit, body 16.3, which still has no registered row
-  - so a printed collet mixes the two: cap bore from the registry, boot hole from `tail`. Measured in the rendered part, the bore at the plane the cap seats against is Ø8.697
-  - **check before changing anything**: push a probe into a printed port. If the boot really were Ø10 at the cap the probe would stand ~6.8 mm proud, which is too obvious to have gone unnoticed — most likely the soft boot just deforms through, making this bookkeeping rather than a fit fault. If it does stand proud, `tail` needs `neck`'s numbers
-  - resolving it either deletes the tail group's first three numbers (read `neck` instead, leaving only `conn_d`) or corrects `neck`. Changing either moves printed geometry, so measure first
-  - still open from the original entry: `15.9` soft-backed / `16.3` hard-backed. `15.9` is gone from the tree; `16.3` survives in `cylindrical_flex_collet.scad` and is now commented as the hard-backed variant. None of the 15 datasheets mentions a backing variant, so this is a caliper question. The backing variant may want its own registered row
+- [ ] put the pH and DO caps on their datasheet values
+  - the registry is meant to be the product as its sheet describes it, with the consuming part's allowances absorbing tolerance. The pH and DO rows are the last exception: caps carry caliper readings of 15.6/16.0 and 36.0/35.6 where all six of those sheets say 16.0 x 36.2
+  - this moves printed geometry — the collet bore and grip length both come off it — so it wants a deliberate pass, not a silent edit
+  - the `15.9` soft-backed / `16.3` hard-backed question folds into this. `15.9` is gone from the tree; `16.3` survives in `cylindrical_flex_collet.scad`, commented as the hard-backed variant. No datasheet mentions a backing variant, so if it is a real product it wants its own registered row rather than a competing number
 
 ## nice to haves
 

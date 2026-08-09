@@ -2,29 +2,16 @@
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
 // Four product lines - pH in four grades, DO in two, EC in five, ORP in four. Within a line
-// the upper end is common and the grades differ below it. Cap diameter and height on the pH
-// and DO rows are caliper readings of the units on hand; the rest is from the datasheets.
+// the upper end is common and the grades differ below it.
 //
-// body_d, body_h and the tail group are the numbers that reach printed geometry - the collet
-// is cut from them - so measure the probe before printing a port for any row that is not a
-// caliper reading. The pH cap measured 15.6 against a nominal 16.0, and 0.4 mm is most of the
-// flex tab's 0.5 mm deflection.
+// Every row is the product as its datasheet describes it. Fit is the consuming part's job -
+// bayonet_probe_port carries the collet allowances that absorb product and printer tolerance -
+// so nothing here should be tightened or loosened to make a part fit.
+// One exception left to reconcile: the pH and DO cap diameters and heights are caliper
+// readings (15.6/16.0 and 36.0/35.6) where all six of those sheets say 16.0 x 36.2.
 //
-// CONFLICT: the tail group and neck describe the same strain relief boot from opposite ends
-// and disagree. neck reads 5 at the cord widening to 10 at the cap over 26 mm; tail reads 8.7
-// at the cap narrowing to 4.3 at the cord over 24.5 mm.
-//
-// Both are caliper readings, of different probes. neck came off the June 2026 session that
-// also measured body 15.6 - the probe these ports are built for - and its 26 mm matches the
-// four sheets that dimension the boot. tail came off the April 2026 session on the hard-backed
-// unit, body 16.3, which still has no registered row. So a printed collet mixes the two: the
-// cap bore comes from this registry, the boot hole from tail. Measured in the rendered part,
-// the bore at the plane the cap seats against is 8.697.
-//
-// If the boot really is 10 there, the probe would stand ~6.8 mm proud of its seat - far too
-// obvious to have gone unnoticed, so the soft boot most likely just deforms through. Push a
-// probe into a printed port before changing either number; until then the tail group holds
-// what the collet has always been cut from.
+// The whole probe is four features and each has exactly one group: neck is the strain relief
+// boot, body the cap the collet grips, tip the shaft, and conn_d the connector at the cord end.
 //
 // Atlas states totals as cap + shaft, leaving out the strain relief boot that neck models.
 // Only three sheets dimension that boot - the 8 cm EC and the two full size ORP - all at the
@@ -38,71 +25,71 @@
 // - pH lab by 1.8 mm, ORP consumer and lab by 0.6 mm - and the components are registered.
 
 // atlas_probe is not a real probe, but a placeholder showing the expected format.
-//             ["name"          [neck_d, neck_h, neck_taper_d], [body_d, body_h], [tip_d, tip_h], [tail_maj_d, tail_min_d, tail_h, conn_d], wire_d, accent_color];
-atlas_probe  = ["generic",      [10,     26,     5           ], [15.5,   36.0  ], [12,    115.0], [8.7,        4.3,        24.5,   10    ], 3,      "Pink"      ];
+//             ["name"          [neck_d, neck_h, neck_taper_d], [body_d, body_h], [tip_d, tip_h], conn_d, wire_d, accent_color];
+atlas_probe  = ["generic",      [10,     26,     5           ], [15.5,   36.0  ], [12,    115.0], 8,      3,      "Pink"      ];
 
 // https://atlas-scientific.com/probes/mini-ph-probe/
 // https://files.atlas-scientific.com/Mini_pH_probe.pdf
-ph_mini      = ["pH mini",      [10,     26,     5           ], [15.6,   36.0  ], [12,    27.8 ], [8.7,        4.3,        24.5,   10    ], 2.6,    "Red"       ];
+ph_mini      = ["pH mini",      [10,     26,     5           ], [15.6,   36.0  ], [12,    27.8 ], 8,      2.6,    "Red"       ];
 
 // https://atlas-scientific.com/probes/consumer-grade-ph-probe/
 // https://files.atlas-scientific.com/consumer-grade-pH-probe.pdf
-ph_consumer  = ["pH con",       [10,     26,     5           ], [15.6,   36.0  ], [12,    116.3], [8.7,        4.3,        24.5,   10    ], 2.8,    "Red"       ];
+ph_consumer  = ["pH con",       [10,     26,     5           ], [15.6,   36.0  ], [12,    116.3], 8,      2.8,    "Red"       ];
 
 // https://atlas-scientific.com/probes/ph-probe/
 // https://files.atlas-scientific.com/pH_probe.pdf
-ph_lab       = ["pH lab",       [10,     26,     5           ], [15.6,   36.0  ], [12,    115.0], [8.7,        4.3,        24.5,   10    ], 2.8,    "Red"       ];
+ph_lab       = ["pH lab",       [10,     26,     5           ], [15.6,   36.0  ], [12,    115.0], 8,      2.8,    "Red"       ];
 
 // https://atlas-scientific.com/probes/research-grade-ph-probe/
 // https://files.atlas-scientific.com/Research_grade_pH_probe.pdf
-ph_research  = ["pH res",       [10,     26,     5           ], [15.6,   36.0  ], [12,    113.1], [8.7,        4.3,        24.5,   10    ], 2.8,    "Red"       ];
+ph_research  = ["pH res",       [10,     26,     5           ], [15.6,   36.0  ], [12,    113.1], 8,      2.8,    "Red"       ];
 
 // https://atlas-scientific.com/probes/mini-d-o-probe/
 // https://files.atlas-scientific.com/Mini_DO_probe.pdf
-do_mini      = ["DO mini",      [10,     26,     5           ], [16.0,   35.6  ], [12,    39.0 ], [8.7,        4.3,        24.5,   10    ], 2.6,    "Goldenrod" ];
+do_mini      = ["DO mini",      [10,     26,     5           ], [16.0,   35.6  ], [12,    39.0 ], 8,      2.6,    "Goldenrod" ];
 
 // https://atlas-scientific.com/probes/dissolved-oxygen-probe/
 // https://files.atlas-scientific.com/LG_DO_probe.pdf
-do_lab       = ["DO lab",       [10,     26,     5           ], [16.0,   35.6  ], [12,    69.1 ], [8.7,        4.3,        24.5,   10    ], 2.6,    "Goldenrod" ];
+do_lab       = ["DO lab",       [10,     26,     5           ], [16.0,   35.6  ], [12,    69.1 ], 8,      2.6,    "Goldenrod" ];
 
 // https://atlas-scientific.com/probes/mini-e-c-probe-k-1-0/
 // https://files.atlas-scientific.com/Mini_EC_K_1.0_probe.pdf
-ec_mini_k1   = ["EC mini K1.0", [10,     26,     5           ], [16.0,   36.5  ], [12,    47.5 ], [8.7,        4.3,        24.5,   10    ], 2.6,    "SeaGreen"  ];
+ec_mini_k1   = ["EC mini K1.0", [10,     26,     5           ], [16.0,   36.5  ], [12,    47.5 ], 8,      2.6,    "SeaGreen"  ];
 
 // https://atlas-scientific.com/probes/conductivity-probe-k-0-1/
 // https://files.atlas-scientific.com/EC_K_0.1_probe.pdf
-ec_k0p1      = ["EC K0.1",      [10,     26,     5           ], [16.0,   37.6  ], [12,    112.7], [8.7,        4.3,        24.5,   10    ], 2.6,    "SeaGreen"  ];
+ec_k0p1      = ["EC K0.1",      [10,     26,     5           ], [16.0,   37.6  ], [12,    112.7], 8,      2.6,    "SeaGreen"  ];
 
 // https://atlas-scientific.com/probes/conductivity-probe-k-1-0/
 // https://files.atlas-scientific.com/EC_K_1.0_probe.pdf
-ec_k1        = ["EC K1.0",      [10,     26,     5           ], [16.0,   37.6  ], [12,    112.7], [8.7,        4.3,        24.5,   10    ], 2.6,    "SeaGreen"  ];
+ec_k1        = ["EC K1.0",      [10,     26,     5           ], [16.0,   37.6  ], [12,    112.7], 8,      2.6,    "SeaGreen"  ];
 
 // https://atlas-scientific.com/probes/conductivity-probe-k-10/
 // https://files.atlas-scientific.com/EC_K_10_probe.pdf
-ec_k10       = ["EC K10",       [10,     26,     5           ], [16.0,   37.6  ], [12,    115.7], [8.7,        4.3,        24.5,   10    ], 2.6,    "SeaGreen"  ];
+ec_k10       = ["EC K10",       [10,     26,     5           ], [16.0,   37.6  ], [12,    115.7], 8,      2.6,    "SeaGreen"  ];
 
 // https://atlas-scientific.com/probes/8cm-k01/
 // https://files.atlas-scientific.com/l-EC_K_0.1_probe.pdf
 // body_d is not on this sheet; 16.0 assumed from the rest of the family
-ec_k0p1_8cm  = ["EC K0.1 8cm",  [10,     26,     5           ], [16.0,   35.5  ], [12,    110.0], [8.7,        4.3,        24.5,   10    ], 2.6,    "SeaGreen"  ];
+ec_k0p1_8cm  = ["EC K0.1 8cm",  [10,     26,     5           ], [16.0,   35.5  ], [12,    110.0], 8,      2.6,    "SeaGreen"  ];
 
 // https://atlas-scientific.com/probes/mini-orp-probe/
 // https://files.atlas-scientific.com/mini-orp-probe.pdf
-orp_mini     = ["ORP mini",     [10,     26,     5           ], [16.0,   36.2  ], [12,    28.9 ], [8.7,        4.3,        24.5,   10    ], 2.6,    "SteelBlue" ];
+orp_mini     = ["ORP mini",     [10,     26,     5           ], [16.0,   36.2  ], [12,    28.9 ], 8,      2.6,    "SteelBlue" ];
 
 // https://atlas-scientific.com/probes/consumer-grade-orp-probe/
 // https://files.atlas-scientific.com/consumer-grade-ORP-probe.pdf
 // body_d is not on this sheet; 16.0 assumed from the rest of the family
-orp_consumer = ["ORP con",      [10,     26,     5           ], [16.0,   35.0  ], [12,    115.0], [8.7,        4.3,        24.5,   10    ], 2.8,    "SteelBlue" ];
+orp_consumer = ["ORP con",      [10,     26,     5           ], [16.0,   35.0  ], [12,    115.0], 8,      2.8,    "SteelBlue" ];
 
 // https://atlas-scientific.com/probes/orp-probe/
 // https://files.atlas-scientific.com/orp_probe.pdf
 // body_d is not on this sheet; 16.0 assumed from the rest of the family
-orp_lab      = ["ORP lab",      [10,     26,     5           ], [16.0,   35.0  ], [12,    115.0], [8.7,        4.3,        24.5,   10    ], 2.8,    "SteelBlue" ];
+orp_lab      = ["ORP lab",      [10,     26,     5           ], [16.0,   35.0  ], [12,    115.0], 8,      2.8,    "SteelBlue" ];
 
 // https://atlas-scientific.com/probes/lab-grade-gold-orp-probe/
 // https://files.atlas-scientific.com/ENV-40-ORP-G.pdf
-orp_gold     = ["ORP gold",     [10,     26,     5           ], [16.0,   36.2  ], [12,    113.8], [8.7,        4.3,        24.5,   10    ], 2.8,    "SteelBlue" ];
+orp_gold     = ["ORP gold",     [10,     26,     5           ], [16.0,   36.2  ], [12,    113.8], 8,      2.8,    "SteelBlue" ];
 
 atlas_probes = [
   ph_mini,

@@ -21,12 +21,7 @@ function atlas_probe_body_dia(type) = type[2][0]; // diameter of the body
 function atlas_probe_body_height(type) = type[2][1]; // height of the body
 function atlas_probe_tip_dia(type) = type[3][0]; // diameter of the tip
 function atlas_probe_tip_height(type) = type[3][1]; // height of the tip
-// The tail group describes the cord end, which atlas_probe() does not draw; it is held for the
-// collet in bayonet_probe_port. See the CONFLICT note in atlas_probes.scad - it overlaps neck.
-function atlas_probe_tail_major_dia(type) = type[4][0]; // tail diameter at the cap
-function atlas_probe_tail_minor_dia(type) = type[4][1]; // tail diameter at the cord
-function atlas_probe_tail_length(type) = type[4][2]; // length of the tapered tail
-function atlas_probe_connector_dia(type) = type[4][3]; // connector across the hex flats
+function atlas_probe_connector_dia(type) = type[4]; // cord-end connector, drawn by no one yet
 function atlas_probe_wire_dia(type) = type[5]; // diameter of the wire
 function atlas_probe_accent_color(type) = type[6]; // accent color for the neck
 
