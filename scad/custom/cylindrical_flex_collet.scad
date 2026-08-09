@@ -54,7 +54,7 @@ $fn = $preview ? 64 : 128;
 // ----  hardware params   ------
 
 part_body_length = 35.6;
-part_body_diameter = 16.3; // hard-backed probe variant; no registered row holds it (see TODO.md)
+part_body_diameter = 16.3;
 
 part_tail_major_diameter = 8.7;
 part_tail_minor_diameter = 4.3;

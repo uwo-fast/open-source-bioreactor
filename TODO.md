@@ -15,7 +15,7 @@
 
 - [x] put the pH and DO caps on their datasheet values
   - they carried caliper readings of 15.6/16.0 and 36.0/35.6 where all six of those sheets say 16.0 x 36.2. Every row in the registry is now the product as its sheet describes it, with no exceptions, and the collet's allowances do the compensating
-  - the `15.9` soft-backed / `16.3` hard-backed numbers are the loose end. `15.9` is gone from the tree; `16.3` survives in `cylindrical_flex_collet.scad`, commented as the hard-backed variant. No datasheet mentions a backing variant, so if it is a real product it wants its own registered row rather than a competing number in a comment
+  - the `15.9` soft-backed / `16.3` hard-backed numbers are dropped. No datasheet mentions a backing variant, so it is not tracked; `cylindrical_flex_collet.scad` is a generic module and its preview values are just example hardware. If a backing variant turns out to be a real product it gets its own registered row
 
 ## nice to haves
 
