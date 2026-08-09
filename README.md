@@ -6,8 +6,7 @@ Composable, modular, and extensible bioreactor design.
 
 > Under development, not yet ready for use.
 
-- `scad/` - original OpenSCAD files, this was the main iteration path but over time became bloated and unwieldy as the design evolved and the assembly grew more complex.
-- `scad-v2/` - new OpenSCAD files with a focus on modularity, composability, and maintainability. This is the main iteration path going forward, and the original `scad/` files will be archived once the new design is fully fleshed out and all critical path items are complete.
+- `scad/` - the OpenSCAD source, built around registered parameter sets for purchased parts and composable modules for printed ones. This replaced an earlier iteration that became unwieldy as the assembly grew; that tree was removed in `376c21f` and remains in the history.
 
 ## OpenSCAD Libraries
 
