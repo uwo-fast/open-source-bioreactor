@@ -156,7 +156,7 @@ port_position = "locked"; // [locked, entry]
 //   "thermocouple" -> NPT thread mount, bore_radius is the through-hole the thermocouple passes down
 head_ports = [
   ["thermocouple", 3],
-  ["probe", 0, ph],
+  ["probe", 0, ph_lab],
   ["probe", 0, do],
   ["tube", 3],
   ["tube", 3],

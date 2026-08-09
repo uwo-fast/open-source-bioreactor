@@ -35,7 +35,7 @@ _bp_transition_length = 25;
 
 bayonet_probe_port(
   type=bayonet_std,
-  probe=ph,
+  probe=ph_lab,
   panel_thickness=_bp_panel_thickness,
   center_bore_radius=_bp_center_bore_radius,
   tail_major_diameter=_bp_tail_major_diameter,
