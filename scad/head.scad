@@ -174,7 +174,8 @@ head_ports = [
 // Design choices for the collet. Every hardware dimension comes from the registered probe
 // named in head_ports, so nothing about the probe itself is entered here.
 probe_port_collet_wall_thickness = 1.2;
-probe_port_collet_internal_allowance = 0.6;
+probe_port_collet_body_allowance = 0.6; // grip fit; tune this, not the registry, if a cap is tight
+probe_port_collet_connector_allowance = 0.6;
 probe_port_collet_tab_gap = 1.0;
 probe_port_collet_tab_deflection = 0.5;
 // Tilt to keep bubbles off the sensor face
@@ -258,7 +259,8 @@ module head_port(port, panel_thickness) {
       panel_thickness=panel_thickness,
       center_bore_radius=_bore,
       collet_wall_thickness=probe_port_collet_wall_thickness,
-      collet_internal_allowance=probe_port_collet_internal_allowance,
+      collet_body_allowance=probe_port_collet_body_allowance,
+      collet_connector_allowance=probe_port_collet_connector_allowance,
       collet_tab_gap=probe_port_collet_tab_gap,
       collet_tab_internal_deflection=probe_port_collet_tab_deflection,
       tilt_degrees=probe_port_tilt_degrees,

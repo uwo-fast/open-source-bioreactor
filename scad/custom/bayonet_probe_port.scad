@@ -20,7 +20,8 @@ _bp_panel_thickness = 18; // Lid thickness at the port, for standalone preview
 // collet's own design choices.
 
 _bp_collet_wall_thickness = 1.2;
-_bp_collet_internal_allowance = 0.6;
+_bp_collet_body_allowance = 0.6; // grip fit; tune this, not the registry, if a cap is tight
+_bp_collet_connector_allowance = 0.6;
 _bp_collet_tab_gap = 1.0;
 _bp_collet_tab_internal_deflection = 0.5;
 _bp_tilt_degrees = 7; // Tilt to avoid bubbles on sensor face
@@ -32,7 +33,8 @@ bayonet_probe_port(
   panel_thickness=_bp_panel_thickness,
   center_bore_radius=_bp_center_bore_radius,
   collet_wall_thickness=_bp_collet_wall_thickness,
-  collet_internal_allowance=_bp_collet_internal_allowance,
+  collet_body_allowance=_bp_collet_body_allowance,
+  collet_connector_allowance=_bp_collet_connector_allowance,
   collet_tab_gap=_bp_collet_tab_gap,
   collet_tab_internal_deflection=_bp_collet_tab_internal_deflection,
   tilt_degrees=_bp_tilt_degrees,
@@ -55,7 +57,8 @@ module bayonet_probe_port(
   panel_thickness,
   center_bore_radius,
   collet_wall_thickness,
-  collet_internal_allowance,
+  collet_body_allowance,
+  collet_connector_allowance,
   collet_tab_gap,
   collet_tab_internal_deflection,
   tilt_degrees,
@@ -77,7 +80,7 @@ module bayonet_probe_port(
   boot_length = atlas_probe_neck_height(probe);
 
   // The connector passes up a hex, so size it across the flats to clear a round connector.
-  _hex_diameter = (atlas_probe_connector_dia(probe) + collet_internal_allowance) / cos(30);
+  _hex_diameter = (atlas_probe_connector_dia(probe) + collet_connector_allowance) / cos(30);
 
   // The transitions mate to the bayonet at its interface (mating) surface, less the allowance.
   _bayonet_diameter = 2 * interface_radius - allowance;
@@ -140,7 +143,7 @@ module bayonet_probe_port(
                 tail_len=boot_length,
                 end_diameter=_hex_diameter,
                 shell_wall=collet_wall_thickness,
-                allowance=collet_internal_allowance,
+                allowance=collet_body_allowance,
                 flex_tab_clearance=collet_tab_gap,
                 flex_tab_offset=collet_tab_internal_deflection
               );

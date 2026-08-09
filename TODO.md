@@ -13,10 +13,9 @@
   - settled shape: the registry holds one group per physical feature — `neck` the boot, `body` the cap, `tip` the shaft, `conn_d` the connector — and `bayonet_probe_port` derives the rest. The collet's neck section houses the boot, so `neck` sizes it; the hex is derived as `(conn_d + allowance) / cos(30)` so a round Ø8 connector clears the flats, instead of the magic 10 that silently encoded the same sum
   - envelope unchanged, internal cavities changed on purpose: same z extent and max radius, 9300 → 9556 facets
 
-- [ ] put the pH and DO caps on their datasheet values
-  - the registry is meant to be the product as its sheet describes it, with the consuming part's allowances absorbing tolerance. The pH and DO rows are the last exception: caps carry caliper readings of 15.6/16.0 and 36.0/35.6 where all six of those sheets say 16.0 x 36.2
-  - this moves printed geometry — the collet bore and grip length both come off it — so it wants a deliberate pass, not a silent edit
-  - the `15.9` soft-backed / `16.3` hard-backed question folds into this. `15.9` is gone from the tree; `16.3` survives in `cylindrical_flex_collet.scad`, commented as the hard-backed variant. No datasheet mentions a backing variant, so if it is a real product it wants its own registered row rather than a competing number
+- [x] put the pH and DO caps on their datasheet values
+  - they carried caliper readings of 15.6/16.0 and 36.0/35.6 where all six of those sheets say 16.0 x 36.2. Every row in the registry is now the product as its sheet describes it, with no exceptions, and the collet's allowances do the compensating
+  - the `15.9` soft-backed / `16.3` hard-backed numbers are the loose end. `15.9` is gone from the tree; `16.3` survives in `cylindrical_flex_collet.scad`, commented as the hard-backed variant. No datasheet mentions a backing variant, so if it is a real product it wants its own registered row rather than a competing number in a comment
 
 ## nice to haves
 

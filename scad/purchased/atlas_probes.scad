@@ -7,8 +7,6 @@
 // Every row is the product as its datasheet describes it. Fit is the consuming part's job -
 // bayonet_probe_port carries the collet allowances that absorb product and printer tolerance -
 // so nothing here should be tightened or loosened to make a part fit.
-// One exception left to reconcile: the pH and DO cap diameters and heights are caliper
-// readings (15.6/16.0 and 36.0/35.6) where all six of those sheets say 16.0 x 36.2.
 //
 // The whole probe is four features and each has exactly one group: neck is the strain relief
 // boot, body the cap the collet grips, tip the shaft, and conn_d the connector at the cord end.
@@ -26,31 +24,31 @@
 
 // atlas_probe is not a real probe, but a placeholder showing the expected format.
 //             ["name"          [neck_d, neck_h, neck_taper_d], [body_d, body_h], [tip_d, tip_h], conn_d, wire_d, accent_color];
-atlas_probe  = ["generic",      [10,     26,     5           ], [15.5,   36.0  ], [12,    115.0], 8,      3,      "Pink"      ];
+atlas_probe  = ["generic",      [10,     26,     5           ], [16.0,   36.2  ], [12,    115.0], 8,      3,      "Pink"      ];
 
 // https://atlas-scientific.com/probes/mini-ph-probe/
 // https://files.atlas-scientific.com/Mini_pH_probe.pdf
-ph_mini      = ["pH mini",      [10,     26,     5           ], [15.6,   36.0  ], [12,    27.8 ], 8,      2.6,    "Red"       ];
+ph_mini      = ["pH mini",      [10,     26,     5           ], [16.0,   36.2  ], [12,    27.8 ], 8,      2.6,    "Red"       ];
 
 // https://atlas-scientific.com/probes/consumer-grade-ph-probe/
 // https://files.atlas-scientific.com/consumer-grade-pH-probe.pdf
-ph_consumer  = ["pH con",       [10,     26,     5           ], [15.6,   36.0  ], [12,    116.3], 8,      2.8,    "Red"       ];
+ph_consumer  = ["pH con",       [10,     26,     5           ], [16.0,   36.2  ], [12,    116.3], 8,      2.8,    "Red"       ];
 
 // https://atlas-scientific.com/probes/ph-probe/
 // https://files.atlas-scientific.com/pH_probe.pdf
-ph_lab       = ["pH lab",       [10,     26,     5           ], [15.6,   36.0  ], [12,    115.0], 8,      2.8,    "Red"       ];
+ph_lab       = ["pH lab",       [10,     26,     5           ], [16.0,   36.2  ], [12,    115.0], 8,      2.8,    "Red"       ];
 
 // https://atlas-scientific.com/probes/research-grade-ph-probe/
 // https://files.atlas-scientific.com/Research_grade_pH_probe.pdf
-ph_research  = ["pH res",       [10,     26,     5           ], [15.6,   36.0  ], [12,    113.1], 8,      2.8,    "Red"       ];
+ph_research  = ["pH res",       [10,     26,     5           ], [16.0,   36.2  ], [12,    113.1], 8,      2.8,    "Red"       ];
 
 // https://atlas-scientific.com/probes/mini-d-o-probe/
 // https://files.atlas-scientific.com/Mini_DO_probe.pdf
-do_mini      = ["DO mini",      [10,     26,     5           ], [16.0,   35.6  ], [12,    39.0 ], 8,      2.6,    "Goldenrod" ];
+do_mini      = ["DO mini",      [10,     26,     5           ], [16.0,   36.2  ], [12,    39.0 ], 8,      2.6,    "Goldenrod" ];
 
 // https://atlas-scientific.com/probes/dissolved-oxygen-probe/
 // https://files.atlas-scientific.com/LG_DO_probe.pdf
-do_lab       = ["DO lab",       [10,     26,     5           ], [16.0,   35.6  ], [12,    69.1 ], 8,      2.6,    "Goldenrod" ];
+do_lab       = ["DO lab",       [10,     26,     5           ], [16.0,   36.2  ], [12,    69.1 ], 8,      2.6,    "Goldenrod" ];
 
 // https://atlas-scientific.com/probes/mini-e-c-probe-k-1-0/
 // https://files.atlas-scientific.com/Mini_EC_K_1.0_probe.pdf
@@ -116,4 +114,4 @@ use <atlas_probe.scad>;
 // atlas_probe(ph_lab);                       // registered set
 // translate([40, 0, 0]) atlas_probe(do_lab); // registered set
 // translate([80, 0, 0])                      // direct (inline type)
-//   atlas_probe(["custom", [10, 26, 5], [15.6, 36], [12, 115], [8.7, 4.3, 24.5, 10], 3, "Cyan"]);
+//   atlas_probe(["custom", [10, 26, 5], [16, 36.2], [12, 115], 8, 3, "Cyan"]);
