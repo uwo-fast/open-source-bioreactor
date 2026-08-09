@@ -28,19 +28,23 @@ atlas_probe  = ["generic",      [10,     26,     5           ], [16.0,   36.2  ]
 
 // https://atlas-scientific.com/probes/mini-ph-probe/
 // https://files.atlas-scientific.com/Mini_pH_probe.pdf
-ph_mini      = ["pH mini",      [10,     26,     5           ], [16.0,   36.2  ], [12,    27.8 ], 8,      2.6,    "Red"       ];
-
+// body height + tail height = 36.2mm, split based on measured (all pH probes)
+ph_mini      = ["pH mini",      [9,     6,     8            ], [16.0,   30.2  ], [12,    27.8 ], 8,      2.6,    "Red"       ];
+ 
 // https://atlas-scientific.com/probes/consumer-grade-ph-probe/
 // https://files.atlas-scientific.com/consumer-grade-pH-probe.pdf
-ph_consumer  = ["pH con",       [10,     26,     5           ], [16.0,   36.2  ], [12,    116.3], 8,      2.8,    "Red"       ];
+ph_consumer  = ["pH con",       [9,     6,     8            ], [16.0,   30.2  ], [12,    116.3], 8,      2.8,    "Red"       ];
 
 // https://atlas-scientific.com/probes/ph-probe/
 // https://files.atlas-scientific.com/pH_probe.pdf
-ph_lab       = ["pH lab",       [10,     26,     5           ], [16.0,   36.2  ], [12,    115.0], 8,      2.8,    "Red"       ];
+// g2 is the current product and the sheet above.
+// g1 are no longer sold to my knowledge as of 2026-08.
+ph_lab_g1    = ["pH lab g1",    [10,    26,    5            ], [15.6,   36.0  ], [12,    115.0], 8,      2.8,    "Red"       ];
+ph_lab_g2    = ["pH lab g2",    [9,     6,     8            ], [16.0,   30.2  ], [12,    115.0], 8,      2.8,    "Red"       ];
 
 // https://atlas-scientific.com/probes/research-grade-ph-probe/
 // https://files.atlas-scientific.com/Research_grade_pH_probe.pdf
-ph_research  = ["pH res",       [10,     26,     5           ], [16.0,   36.2  ], [12,    113.1], 8,      2.8,    "Red"       ];
+ph_research  = ["pH res",       [9,     6,     8            ], [16.0,   30.2  ], [12,    113.1], 8,      2.8,    "Red"       ];
 
 // https://atlas-scientific.com/probes/mini-d-o-probe/
 // https://files.atlas-scientific.com/Mini_DO_probe.pdf
@@ -48,7 +52,10 @@ do_mini      = ["DO mini",      [10,     26,     5           ], [16.0,   36.2  ]
 
 // https://atlas-scientific.com/probes/dissolved-oxygen-probe/
 // https://files.atlas-scientific.com/LG_DO_probe.pdf
-do_lab       = ["DO lab",       [10,     26,     5           ], [16.0,   36.2  ], [12,    69.1 ], 8,      2.6,    "Goldenrod" ];
+// g2 is the current product and the sheet above. 
+// g1 are no longer sold to my knowledge as of 2026-08.
+do_lab_g1    = ["DO lab g1",    [9,     26,    4.5          ], [16.1,   36.2  ], [12,    64.0 ], 8,      2.6,    "Goldenrod" ];
+do_lab_g2    = ["DO lab g2",    [9,     6,     8            ], [16.0,   30.2  ], [12,    69.1 ], 8,      2.6,    "Goldenrod" ];
 
 // https://atlas-scientific.com/probes/mini-e-c-probe-k-1-0/
 // https://files.atlas-scientific.com/Mini_EC_K_1.0_probe.pdf
@@ -92,10 +99,12 @@ orp_gold     = ["ORP gold",     [10,     26,     5           ], [16.0,   36.2  ]
 atlas_probes = [
   ph_mini,
   ph_consumer,
-  ph_lab,
+  ph_lab_g1,
+  ph_lab_g2,
   ph_research,
   do_mini,
-  do_lab,
+  do_lab_g1,
+  do_lab_g2,
   ec_mini_k1,
   ec_k0p1,
   ec_k1,
@@ -111,7 +120,7 @@ use <atlas_probe.scad>;
 
 // example usage - keep commented, this file is include'd and would emit the probes into
 // every consumer (see 1a6df3d)
-// atlas_probe(ph_lab);                       // registered set
-// translate([40, 0, 0]) atlas_probe(do_lab); // registered set
+// atlas_probe(ph_lab_g2);                       // registered set
+// translate([40, 0, 0]) atlas_probe(do_lab_g2); // registered set
 // translate([80, 0, 0])                      // direct (inline type)
 //   atlas_probe(["custom", [10, 26, 5], [16, 36.2], [12, 115], 8, 3, "Cyan"]);
