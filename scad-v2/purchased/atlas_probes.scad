@@ -124,8 +124,9 @@ atlas_probes = [
 
 use <atlas_probe.scad>;
 
-// example usage (open this file directly to preview)
-atlas_probe(ph_lab);                       // registered set
-translate([40, 0, 0]) atlas_probe(do_lab); // registered set
+// example usage - keep commented, this file is include'd and would emit the probes into
+// every consumer (see 1a6df3d)
+// atlas_probe(ph_lab);                       // registered set
+// translate([40, 0, 0]) atlas_probe(do_lab); // registered set
 // translate([80, 0, 0])                      // direct (inline type)
 //   atlas_probe(["custom", [10, 26, 5], [15.6, 36], [12, 115], [8.7, 4.3, 24.5, 10], 3, "Cyan"]);
