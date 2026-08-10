@@ -6,8 +6,6 @@
  *
 */
 
-use <custom/base.scad>;
-
 include <purchased/strip_lights.scad>;
 
 include <NopSCADlib/core.scad>; // core utils (also silences the inch() warning)
@@ -140,6 +138,8 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
   // distance from the center of the jar to the threaded rod
   rod_shift = base_jar_cut_diameter / 2 + threaded_rod_hole_diameter;
 
+  f_height = 0 - z_fight;
+
   lower_base_height = base_floor_height + lower_base_wall_height;
 
   // ribs and spacers share one stack, so both read these rather than deriving them separately
@@ -209,28 +209,63 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
       }
     }
 
-    // base
+    // lower base
     if (render_base || render_all) {
       frame_lights_cutout()
         color(prints1_color)
           // create the base
-          base(
-            inner_diameter=base_jar_cut_diameter, height=lower_base_height, wall_thickness=_base_wall_thickness,
-            floor_height=base_floor_height, rod_hole_diameter=threaded_rod_hole_diameter, nut_dia=nut_pocket_diameter,
-            nut_h=nut_height
-          );
+          difference() {
+            cylinder(d=base_jar_cut_diameter + _base_wall_thickness, h=lower_base_height);
+
+            // jar cavity above the floor, and the bore that leaves the floor a ring
+            translate([0, 0, base_floor_height])
+              cylinder(d=base_jar_cut_diameter, h=lower_base_height - base_floor_height + z_fight);
+            translate([0, 0, -z_fight / 2])
+              cylinder(d=base_jar_cut_diameter - _base_wall_thickness * 2, h=lower_base_height + z_fight);
+
+            for (i = [0:3]) {
+              _nut_pocket_height = nut_height * 1.1;
+              rotate([0, 0, i * 90])
+                translate([rod_shift, 0, 0]) {
+                  translate([0, 0, base_floor_height])
+                    cylinder(d=threaded_rod_hole_diameter, h=lower_base_height + z_fight);
+
+                  // cut out the nut pocket sitting at same height as vessel
+                  translate([0, 0, base_floor_height]) {
+                    cylinder(d=nut_pocket_diameter, h=_nut_pocket_height + z_fight);
+                    translate([nut_pocket_diameter / 2, 0, (_nut_pocket_height + z_fight) / 2])
+                      cube([nut_pocket_diameter, nut_pocket_diameter, _nut_pocket_height + z_fight], center=true);
+                  }
+                }
+            }
+          }
     }
 
     // top base
     if (render_upper_base || render_all) {
       frame_lights_cutout()
         color(prints1_color)
-          translate([0, 0, total_height])
-            rotate([0, 180, 0])
-              base(
-                inner_diameter=base_jar_cut_diameter, height=upper_base_height, wall_thickness=_base_wall_thickness,
-                floor_height=base_floor_height, rod_hole_diameter=threaded_rod_hole_diameter
-              );
+          translate([0, 0, total_height - upper_base_height])
+            difference() {
+              cylinder(d=base_jar_cut_diameter + _base_wall_thickness, h=upper_base_height);
+
+              // hollow right through - the lid sits in it, so there is no floor
+              translate([0, 0, f_height])
+                cylinder(d=base_jar_cut_diameter, h=upper_base_height - f_height + z_fight);
+
+              for (i = [0:3]) {
+                rotate([0, 0, i * 90])
+                  translate([rod_shift, 0, 0]) {
+                    translate([0, 0, -z_fight / 2])
+                      cylinder(d=threaded_rod_hole_diameter, h=upper_base_height + z_fight);
+
+                    // cut out the nut pocket on the top base
+                    translate([0, 0, upper_base_height - nut_height])
+                      rotate([0, 0, 30])
+                        cylinder(d=nut_pocket_diameter, h=nut_height + z_fight);
+                  }
+              }
+            }
     }
 
     // ribs
@@ -245,8 +280,6 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
 
         rib_pos = lower_base_height + z_shift - spacer_z_allow / 2 + rib_level_height * (i - 1);
 
-        f_height = 0 - z_fight;
-
         frame_lights_cutout()
 
         // a 2-rod base is a 90 degree arc, so the j pair leaves two gaps; k stacks a second
@@ -256,11 +289,27 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
             rotate([0, 0, i * 90])
               translate([0, 0, rib_pos + k * rib_base_height])
                 color(prints1_color)
-                  base(
-                    inner_diameter=base_jar_cut_diameter, height=rib_base_height,
-                    wall_thickness=_base_wall_thickness, floor_height=f_height,
-                    rod_hole_diameter=threaded_rod_hole_diameter, rods=n_rods_ribs
-                  );
+                  difference() {
+                    union() {
+                      rotate_extrude(angle=(n_rods_ribs - 1) * 90)
+                        square([(base_jar_cut_diameter + _base_wall_thickness) / 2, rib_base_height]);
+
+                      // a boss at each rod, so the arc's cut ends still enclose the hole
+                      // TODO: make a clean semi circle end cap that matches instead of oversized
+                      for (r = [0:n_rods_ribs - 1])
+                        rotate([0, 0, r * 90])
+                          translate([base_jar_cut_diameter / 2, 0, 0])
+                            cylinder(d=_base_wall_thickness, h=rib_base_height);
+                    }
+
+                    for (r = [0:n_rods_ribs - 1])
+                      rotate([0, 0, r * 90])
+                        translate([rod_shift, 0, -z_fight / 2])
+                          cylinder(d=threaded_rod_hole_diameter, h=rib_base_height + z_fight);
+
+                    translate([0, 0, f_height])
+                      cylinder(d=base_jar_cut_diameter, h=rib_base_height - f_height + z_fight);
+                  }
         }
       }
     }

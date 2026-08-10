@@ -127,6 +127,7 @@ if (render_head || render_all) {
       lid_flange_height=lid_flange_height,
       vessel_outer_diameter=vessel_diameter(reactor_vessel),
       vessel_opening_diameter=vessel_opening_diameter(reactor_vessel),
-      vessel_internal_height=vessel_internal_height(reactor_vessel)
+      vessel_internal_height=vessel_internal_height(reactor_vessel),
+      frame_wall_thickness=frame_wall_thickness
     );
 }

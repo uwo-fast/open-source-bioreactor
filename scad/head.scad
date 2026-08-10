@@ -6,7 +6,6 @@
  *
 */
 
-use <custom/lid.scad>;
 use <custom/motor_mount.scad>;
 use <custom/bayonet_port.scad>;
 use <custom/bayonet_probe_port.scad>;
@@ -194,18 +193,16 @@ module dummy() {
 }
 
 
-module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter) {
+module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, frame_wall_thickness) {
 
   difference() {
-    // create the lid
-    lid(
-      outer_diameter=vessel_outer_diameter,
-      inner_diameter=vessel_opening_diameter,
-      height_od=lid_flange_height,
-      height_id=lid_plug_height,
-      allowance=lid_radial_allowance
-    );
-
+    // flange, then the plug that enters the vessel opening
+    union() {
+      cylinder(d=vessel_outer_diameter + frame_wall_thickness, h=lid_flange_height);
+      translate([0, 0, lid_flange_height])
+        cylinder(d=vessel_opening_diameter - lid_radial_allowance, h=lid_plug_height);
+    }
+    
     // cut out the bearing and shaft hole
     translate([0, 0, -z_fight / 2])
       union() {
@@ -278,7 +275,7 @@ module head_port(port, panel_thickness) {
   }
 }
 
-module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_internal_height) {
+module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_internal_height, frame_wall_thickness) {
 
   // the gearbox carried by the selected motor - single source for gearbox dims
   head_gearbox = dc_motor_gearbox(head_motor);
@@ -306,7 +303,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   if (render_lid || render_all) {
     color(prints2_color)
       rotate([0, 180, 0])
-        lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter);
+        lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, frame_wall_thickness);
   }
 
   if (render_bayonet_lock || render_all) {
@@ -420,5 +417,6 @@ head(
   lid_flange_height=8,
   vessel_outer_diameter=vessel_diameter(reactor_vessel),
   vessel_opening_diameter=vessel_opening_diameter(reactor_vessel),
-  vessel_internal_height=vessel_internal_height(reactor_vessel)
+  vessel_internal_height=vessel_internal_height(reactor_vessel),
+  frame_wall_thickness=37
 );
