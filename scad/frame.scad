@@ -109,6 +109,10 @@ module lights(quadrants, vessel_outer_diameter, lights_per_quadrant, occupy_angl
           } else {
             translate([0, strip_light_depth(frame_light) / 2, strip_light_length(frame_light) / 2])
               cube([strip_light_width(frame_light) + allowance_cutout, strip_light_depth(frame_light) + allowance_cutout, strip_light_length(frame_light)], center=true);
+
+            // same profile on its side, cut radially thru the wall so the cord can escape
+            translate([0, vessel_outer_diameter / 2, (strip_light_depth(frame_light) + allowance_cutout) / 2 - z_fight/2])
+              cube([strip_light_width(frame_light) + allowance_cutout, vessel_outer_diameter, strip_light_depth(frame_light) + allowance_cutout], center=true);
           }
       }
     }
