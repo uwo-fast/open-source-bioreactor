@@ -117,7 +117,8 @@ if (render_frame || render_all) {
     vessel_outer_diameter=vessel_diameter(reactor_vessel),
     lights_length=strip_light_length(reactor_lights),
     wall_thickness=frame_wall_thickness,
-    rod_length=vessel_height(reactor_vessel) + lid_flange_height+8 //hardcoded extra for nut until i get it to pass thru nicely
+    rod_length=vessel_height(reactor_vessel) + lid_flange_height+8, //hardcoded extra for nut until i get it to pass thru nicely
+    collapse_spacer_z_allow=true
   );
 }
 

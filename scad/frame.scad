@@ -27,7 +27,7 @@ render_lights = false;
 
 // -------
 
-frame(vessel_height=305, vessel_outer_diameter=220, lights_length=330, wall_thickness=37, rod_length=313);
+frame(vessel_height=305, vessel_outer_diameter=220, lights_length=330, wall_thickness=37, rod_length=313, collapse_spacer_z_allow=false);
 
 // -------
 
@@ -119,7 +119,7 @@ module lights(quadrants, vessel_outer_diameter, lights_per_quadrant, occupy_angl
   }
 }
 
-module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness, rod_length) {
+module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness, rod_length, collapse_spacer_z_allow=true) {
 
   _base_floor_height_min = 2; // minimum height of the base floor
 
@@ -149,6 +149,14 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
   rib_level_height = rib_base_height * ribs_per_level;
   spacers_total_height = total_height - upper_base_height - lower_base_height - rib_level_height * n_rib_levels;
   z_shift_factor = 1 / (n_rib_levels + 1);
+  spacer_slot_height = spacers_total_height * z_shift_factor;
+  spacer_height = spacer_slot_height - spacer_z_allow * 2;
+
+  // collapsed, the stack pitches on the real part height and butts down from the lower base, so every
+  // joint allowance shows as one gap under the top base - review that against the lid flange
+  spacer_pitch = collapse_spacer_z_allow ? spacer_height : spacer_slot_height;
+  spacer_joint = collapse_spacer_z_allow ? 0 : spacer_z_allow / 2;
+  stack_slack = (spacer_slot_height - spacer_pitch) * (n_rib_levels + 1); // what the collapsed stack gives up, so the top base drops with it
 
   // distance from the center of the jar to the threaded rod
   base_wall_thickness_from_lights = (strip_light_depth(frame_light) * 1.5) * 2; // thinnest part is 50% thicker than the light depth
@@ -202,7 +210,7 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
                 nut(M8_nut);
 
             // top of lid
-            translate([0, 0, total_height - nut_height - z_fight])
+            translate([0, 0, total_height - stack_slack - nut_height - z_fight])
               rotate([0, 0, 30])
                 nut(M8_nut);
           }
@@ -245,7 +253,7 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
     if (render_upper_base || render_all) {
       frame_lights_cutout()
         color(prints1_color)
-          translate([0, 0, total_height - upper_base_height])
+          translate([0, 0, total_height - stack_slack - upper_base_height])
             difference() {
               cylinder(d=base_jar_cut_diameter + _base_wall_thickness, h=upper_base_height);
 
@@ -276,9 +284,7 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
       // create the ribs
       for (i = [1:2]) {
 
-        z_shift = spacers_total_height * i * z_shift_factor;
-
-        rib_pos = lower_base_height + z_shift - spacer_z_allow / 2 + rib_level_height * (i - 1);
+        rib_pos = lower_base_height + spacer_pitch * i - spacer_joint + rib_level_height * (i - 1);
 
         frame_lights_cutout()
 
@@ -321,11 +327,7 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
       color(prints2_color)for (i = [0:2]) {
         for (j = [0:3]) {
 
-          z_shift = spacers_total_height * i * z_shift_factor;
-
-          spacer_pos = lower_base_height + z_shift + spacer_z_allow / 2 + rib_level_height * i;
-
-          spacer_height = spacers_total_height * z_shift_factor - spacer_z_allow * 2;
+          spacer_pos = lower_base_height + spacer_pitch * i + spacer_joint + rib_level_height * i;
 
           rotate([0, 0, j * 90])
             translate([rod_shift, 0, spacer_pos])
