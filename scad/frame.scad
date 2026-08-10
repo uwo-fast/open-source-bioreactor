@@ -72,6 +72,8 @@ lower_base_wall_height = 25;
 upper_base_height = 10;
 // height of the rib base
 rib_base_height = 10;
+// stack a second rib at each level, rotated to close the arc the pair below leaves open
+double_ribs = true;
 
 /* [Rod Spacer Parameters] */
 
@@ -139,6 +141,14 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
   rod_shift = base_jar_cut_diameter / 2 + threaded_rod_hole_diameter;
 
   lower_base_height = base_floor_height + lower_base_wall_height;
+
+  // ribs and spacers share one stack, so both read these rather than deriving them separately
+  // TODO: n_rib_levels is still hardcoded to 2 by the loops below
+  n_rib_levels = 2;
+  ribs_per_level = double_ribs ? 2 : 1;
+  rib_level_height = rib_base_height * ribs_per_level;
+  spacers_total_height = total_height - upper_base_height - lower_base_height - rib_level_height * n_rib_levels;
+  z_shift_factor = 1 / (n_rib_levels + 1);
 
   // distance from the center of the jar to the threaded rod
   base_wall_thickness_from_lights = (strip_light_depth(frame_light) * 1.5) * 2; // thinnest part is 50% thicker than the light depth
@@ -228,28 +238,23 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
       // Number of rods holders on the ribs
       n_rods_ribs = 2;
 
-      // TODO: this should be parameterized based on the desired number of ribs
-      // right now its hardcoded to 2 ribs i.e. divides into 3 sections
-      z_shift_factor = 1 / 3;
-
       // create the ribs
       for (i = [1:2]) {
 
-        spacers_total_height =
-        total_height - upper_base_height - lower_base_height - rib_base_height * 2;
-
         z_shift = spacers_total_height * i * z_shift_factor;
 
-        rib_pos = lower_base_height + z_shift - spacer_z_allow / 2 + rib_base_height * i - rib_base_height;
+        rib_pos = lower_base_height + z_shift - spacer_z_allow / 2 + rib_level_height * (i - 1);
 
         f_height = 0 - z_fight;
 
         frame_lights_cutout()
 
-        for (j = [1:2]) {
-          rotate([0, 0, j * 180])
+        // a 2-rod base is a 90 degree arc, so the j pair leaves two gaps; k stacks a second
+        // pair on the first pair's rod bosses, turned 90 to fill them
+        for (j = [1:2], k = [0:ribs_per_level - 1]) {
+          rotate([0, 0, j * 180 + k * 90])
             rotate([0, 0, i * 90])
-              translate([0, 0, rib_pos])
+              translate([0, 0, rib_pos + k * rib_base_height])
                 color(prints1_color)
                   base(
                     inner_diameter=base_jar_cut_diameter, height=rib_base_height,
@@ -264,18 +269,12 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
     if (render_rodspacers || render_all) {
       rod_spacer_diameter = threaded_rod_diameter + 2 * rod_spacer_thickness;
 
-      // See the TODO in section above about the z_shift_factor
-      z_shift_factor = 1 / 3;
-
       color(prints2_color)for (i = [0:2]) {
         for (j = [0:3]) {
 
-          spacers_total_height =
-          total_height - upper_base_height - lower_base_height - rib_base_height * 2;
-
           z_shift = spacers_total_height * i * z_shift_factor;
 
-          spacer_pos = lower_base_height + z_shift + spacer_z_allow / 2 + rib_base_height * i;
+          spacer_pos = lower_base_height + z_shift + spacer_z_allow / 2 + rib_level_height * i;
 
           spacer_height = spacers_total_height * z_shift_factor - spacer_z_allow * 2;
 
