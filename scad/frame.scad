@@ -29,7 +29,7 @@ render_lights = false;
 
 // -------
 
-frame(vessel_height=305, vessel_outer_diameter=220);
+frame(vessel_height=305, vessel_outer_diameter=220, lights_length=330, wall_thickness=37, rod_length=313);
 
 // -------
 
@@ -52,7 +52,7 @@ light_allow = 0.4;
 // diameter of the threaded rod
 threaded_rod_diameter = 8.0; // M8
 // allowance for the nut pocket to fit the nut
-nut_pocket_allowance = 0.4;
+nut_pocket_allowance = 0.6;
 // allowance for the hole for the threaded rod
 threaded_rod_hole_allowance = 1.2;
 
@@ -65,10 +65,9 @@ nut_height = nut_thickness(M8_nut);
 
 // allowance for the jar to fit in the base
 base_jar_fit_allow = 0.4;
-// height of the floor of the base
-base_floor_height = 3;
+
 // height of the bottom base (holding jar)
-lower_base_height = 25;
+lower_base_wall_height = 25;
 // height of the top base (holding lid)
 upper_base_height = 10;
 // height of the rib base
@@ -116,12 +115,16 @@ module lights(quadrants, vessel_outer_diameter, lights_per_quadrant, occupy_angl
   }
 }
 
-module frame(vessel_height, vessel_outer_diameter) {
+module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness, rod_length) {
+
+  _base_floor_height_min = 2; // minimum height of the base floor
+
+  height_delta = (lights_length + nut_height * 1.5 + upper_base_height) - vessel_height; // 150% nut thickness added so radial bolt heads have clearance
+  base_floor_height = height_delta > _base_floor_height_min ? height_delta : _base_floor_height_min;
 
   // total height of the assembly
-  total_height = vessel_height + base_floor_height + upper_base_height;
-  // distance from the center of the jar to the threaded rod
-  base_wall_thickness = (strip_light_depth(frame_light) * 1.5) * 2; // thinnest part is 50% thicker than the light depth
+  total_height = vessel_height + base_floor_height;
+
   // diameter of the cutout for the jar
   base_jar_cut_diameter = vessel_outer_diameter + base_jar_fit_allow;
 
@@ -130,9 +133,26 @@ module frame(vessel_height, vessel_outer_diameter) {
 
   // distance from the center of the jar to the threaded rod
   rod_shift = base_jar_cut_diameter / 2 + threaded_rod_hole_diameter;
-  // height of the rod spacer
-  rod_length = total_height + nut_height;
-  echo("rod length: ", rod_length / 10, " cm");
+
+  lower_base_height = base_floor_height + lower_base_wall_height;
+
+  // distance from the center of the jar to the threaded rod
+  base_wall_thickness_from_lights = (strip_light_depth(frame_light) * 1.5) * 2; // thinnest part is 50% thicker than the light depth
+
+  base_wall_thickness_from_rod = threaded_rod_hole_diameter * 4; // thinnest part is 4x the rod diameter or approx x2 the nut diameter
+
+  assert(
+    wall_thickness >= max(base_wall_thickness_from_lights, base_wall_thickness_from_rod),
+    str(
+      "Base wall thickness is too thin. Must be at least ",
+      max(base_wall_thickness_from_lights, base_wall_thickness_from_rod),
+      " mm."
+    )
+  );
+
+  _base_wall_thickness = wall_thickness;
+
+  echo("base wall thickness: ", _base_wall_thickness / 10, " cm");
 
   module frame_lights(local_quadrants = light_quadrants) {
     lights(local_quadrants, vessel_outer_diameter, lights_per_quadrant, occupy_angle);
@@ -157,21 +177,18 @@ module frame(vessel_height, vessel_outer_diameter) {
       for (i = [0:3]) {
         rotate([0, 0, i * 90])
           translate([rod_shift, 0, 0]) {
+
             // M8 threaded rod, full height (base at z = 0)
+            translate([0, 0, base_floor_height])
             studding(d=threaded_rod_diameter, l=rod_length, center=false);
 
-            // M8 nuts at three heights
-            // bottom
-            rotate([0, 0, 30])
-              nut(M8_nut);
-
-            // top of base
-            translate([0, 0, lower_base_height - nut_thickness(M8_nut)])
+            // within of base
+            translate([0, 0, base_floor_height])
               rotate([0, 0, 30])
                 nut(M8_nut);
 
             // top of lid
-            translate([0, 0, total_height])
+            translate([0, 0, total_height - nut_height - z_fight])
               rotate([0, 0, 30])
                 nut(M8_nut);
           }
@@ -184,7 +201,7 @@ module frame(vessel_height, vessel_outer_diameter) {
         color(prints1_color)
           // create the base
           base(
-            inner_diameter=base_jar_cut_diameter, height=lower_base_height, wall_thickness=base_wall_thickness,
+            inner_diameter=base_jar_cut_diameter, height=lower_base_height, wall_thickness=_base_wall_thickness,
             floor_height=base_floor_height, rod_hole_diameter=threaded_rod_hole_diameter, nut_dia=nut_pocket_diameter,
             nut_h=nut_height
           );
@@ -197,7 +214,7 @@ module frame(vessel_height, vessel_outer_diameter) {
           translate([0, 0, total_height])
             rotate([0, 180, 0])
               base(
-                inner_diameter=base_jar_cut_diameter, height=upper_base_height, wall_thickness=base_wall_thickness,
+                inner_diameter=base_jar_cut_diameter, height=upper_base_height, wall_thickness=_base_wall_thickness,
                 floor_height=base_floor_height, rod_hole_diameter=threaded_rod_hole_diameter
               );
     }
@@ -232,7 +249,7 @@ module frame(vessel_height, vessel_outer_diameter) {
                 color(prints1_color)
                   base(
                     inner_diameter=base_jar_cut_diameter, height=rib_base_height,
-                    wall_thickness=base_wall_thickness, floor_height=f_height,
+                    wall_thickness=_base_wall_thickness, floor_height=f_height,
                     rod_hole_diameter=threaded_rod_hole_diameter, rods=n_rods_ribs
                   );
         }

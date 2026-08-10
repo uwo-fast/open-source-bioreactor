@@ -67,6 +67,7 @@
  */
 
 include <purchased/vessels.scad>;
+include <purchased/strip_lights.scad>;
 
 use <head.scad>;
 use <frame.scad>;
@@ -88,11 +89,18 @@ cross_section_active = true;
 // is read back out of this registration via the accessor functions (see purchased/vessel.scad)
 reactor_vessel = jar_10L_220x305; // [generic_vessel, jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x215, jar_1gal_155x251]
 
+/* [Light Strip Selection] */
+// This should be made to be driven by the vessel for whatever is optimal; future TODO.
+
+reactor_lights = rwntao_13in;
+
 /* [Head Parameters - Coupling] */
 
 // height of the lid flange, which is the distance 
 // from the top of the vessel to the top of the lid
 lid_flange_height = 8;
+
+frame_wall_thickness = 37; // thickness of the frame walls, which is the distance from the outer edge of the vessel to the outer edge of the frame; also used in lid
 
 module dummy() {
   // stop the customizer detection from here onwards
@@ -106,7 +114,10 @@ if (render_vessel || render_all) {
 if (render_frame || render_all) {
   frame(
     vessel_height=vessel_height(reactor_vessel),
-    vessel_outer_diameter=vessel_diameter(reactor_vessel)
+    vessel_outer_diameter=vessel_diameter(reactor_vessel),
+    lights_length=strip_light_length(reactor_lights),
+    wall_thickness=frame_wall_thickness,
+    rod_length=vessel_height(reactor_vessel) + lid_flange_height+8 //hardcoded extra for nut until i get it to pass thru nicely
   );
 }
 
