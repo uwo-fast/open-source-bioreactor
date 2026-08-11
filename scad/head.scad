@@ -112,6 +112,13 @@ motor_mount_facets = 20;
  *   - Twist angle adjusts the direction and intensity of flow, with higher angles promoting axial flow and lower angles
  *     favoring radial flow. Choose values based on the viscosity of the fluid, required mixing intensity, and sensitivity
  *     of the culture to shear forces.
+ * - A tall vessel needs more than one impeller, spaced 1 to 2 impeller diameters apart. Closer than
+ *   0.5 diameters the pair behaves as a single impeller rather than two; at 2 diameters their power
+ *   draw is simply additive. https://onlinelibrary.wiley.com/doi/full/10.1002/cite.201900121
+ * - The upper impeller is the mirror image of the lower, not the same part turned over. Pumping
+ *   direction follows the blade's handedness, and rotating a part cannot change that, so only a
+ *   mirrored blade opposes the one below it. Opposing them converges the two flows into a
+ *   high velocity zone between the impellers, which mixes hard but shears hard with it.
  */
 
 // impeller diameter to tank diameter ratio
@@ -130,6 +137,8 @@ impeller_hub_radius = 7.5;
 impeller_shaft_allow = 0.4;
 // the amount the radius decreases from top to bottom to create a draft for the shaft hole
 impeller_shaft_radius_interference = 0.2;
+// centre to centre spacing of the two impellers, in impeller diameters
+impeller_spacing_factor = 1.0;
 
 /* [Thermocouple Mount Parameters] */
 
@@ -296,6 +305,23 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // radius of the shaft hole in the impeller
   impeller_shaft_hole_radius = (shaft_diameter + impeller_shaft_allow) / 2;
 
+  impeller_spacing = impeller_diameter * impeller_spacing_factor;
+
+  // this impeller is tall for its diameter, so the pair collide before they reach the 0.5 diameter
+  // spacing at which they would stop behaving as two impellers
+  assert(
+    impeller_spacing > impeller_height,
+    str("Impellers overlap: ", impeller_spacing, " mm apart but ", impeller_height, " mm tall.")
+  );
+
+  assert(
+    shaft_jar_punt_clearance + impeller_height + impeller_spacing <= vessel_internal_height,
+    str(
+      "Upper impeller reaches ", shaft_jar_punt_clearance + impeller_height + impeller_spacing,
+      " mm above the punt, past the ", vessel_internal_height, " mm the vessel has."
+    )
+  );
+
   // Motor and shaft driven parameters
   shaft_protrusion = shaft_length - (vessel_internal_height - shaft_jar_punt_clearance);
 
@@ -390,30 +416,41 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         cylinder(h=shaft_length, d=shaft_diameter, center=false);
   }
 
-  // impeller
+  module head_impeller() {
+    color(prints2_color)
+      union() {
+        // main impeller body
+        impeller(
+          radius=impeller_radius,
+          height=impeller_height,
+          fins=impeller_n_fins,
+          twist=impeller_twist_ang,
+          fin_width=impeller_fin_width,
+          center_hub_radius=impeller_hub_radius,
+          center_hole_radius=impeller_shaft_hole_radius,
+          center_hole_radius_lower=impeller_shaft_hole_radius - impeller_shaft_radius_interference
+        );
+        // top ring to connect the fin tops for mechanical stability
+        translate([0, 0, impeller_height / 2 - impeller_fin_width / 2])
+          linear_extrude(impeller_fin_width, center=true)
+            difference() {
+              circle(r=impeller_radius + impeller_fin_width, $fn=64);
+              circle(r=impeller_radius, $fn=64);
+            }
+      }
+  }
+
+  // impellers
   if (render_impeller || render_all) {
-    translate([0, 0, -shaft_length + shaft_protrusion + impeller_height / 2])
-      color(prints2_color)
-        union() {
-          // main impeller body
-          impeller(
-            radius=impeller_radius,
-            height=impeller_height,
-            fins=impeller_n_fins,
-            twist=impeller_twist_ang,
-            fin_width=impeller_fin_width,
-            center_hub_radius=impeller_hub_radius,
-            center_hole_radius=impeller_shaft_hole_radius,
-            center_hole_radius_lower=impeller_shaft_hole_radius - impeller_shaft_radius_interference
-          );
-          // top ring to connect the fin tops for mechanical stability
-          translate([0, 0, impeller_height / 2 - impeller_fin_width / 2])
-            linear_extrude(impeller_fin_width, center=true)
-              difference() {
-                circle(r=impeller_radius + impeller_fin_width, $fn=64);
-                circle(r=impeller_radius, $fn=64);
-              }
-        }
+    translate([0, 0, -shaft_length + shaft_protrusion + impeller_height / 2]) {
+      head_impeller();
+
+      // mirrored, not turned over: handedness sets which way a blade pumps and no rotation changes
+      // it, so this is what makes the upper impeller push down against the lower one pushing up
+      translate([0, 0, impeller_spacing])
+        mirror([0, 1, 0])
+          head_impeller();
+    }
   }
 }
 
