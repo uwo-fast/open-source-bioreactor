@@ -60,6 +60,12 @@ bayonet_port_hole_fudge = 0.1;
 // coupling band on assembly, small enough that the lock still has a face to bear on.
 function bayonet_port_hole_radius(type) = bayonet_interface_radius(type) + bayonet_shell_thickness(type) - bayonet_port_hole_fudge;
 
+// The two mating surfaces of the coupling, the allowance splitting evenly across the interface.
+// The pin face is what an adapter's own geometry grows out of; the lock bore is the gate that
+// anything an adapter hangs below the coupling has to drop through on assembly.
+function bayonet_pin_face_radius(type) = bayonet_interface_radius(type) - bayonet_allowance(type) / 2;
+function bayonet_lock_bore_radius(type) = bayonet_interface_radius(type) + bayonet_allowance(type) / 2;
+
 // Rotation that takes a pin half from the locked position to the entry position, i.e. pins at
 // the channel mouths before the turn.
 function bayonet_entry_rotation(type) =
