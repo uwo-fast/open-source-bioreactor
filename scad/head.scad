@@ -12,6 +12,7 @@ use <custom/motor_mount.scad>;
 use <custom/bayonet_port.scad>;
 use <custom/bayonet_probe_port.scad>;
 use <custom/bayonet_thermocouple_port.scad>;
+use <custom/bayonet_baffle_port.scad>;
 use <custom/impeller.scad>;
 
 include <purchased/dc_motors.scad>;
@@ -43,6 +44,7 @@ render_bayonet_lock = false;
 render_tube_pinlock = false;
 render_thermocouple_pinlock = false;
 render_probe_pinlock = false;
+render_baffle_pinlock = false;
 
 // Draw the lid's 24 bayonet halves as bare shells while previewing; their pins and channels
 // are boolean-heavy and only the coupling positions read on screen. Renders are unaffected.
@@ -164,20 +166,50 @@ port_position = "locked"; // [locked, entry]
 //   "probe"        -> atlas probe holder (flex collet); bore is swallowed by the connector cut,
 //                     so 0, and the third slot is the registered probe it is cut for
 //   "thermocouple" -> NPT thread mount, bore_radius is the through-hole the thermocouple passes down
+//   "baffle"       -> blind port carrying a swirl baffle, bore 0 since nothing passes through it.
+//                     However many are listed, they have to come out equally spaced, so their
+//                     count has to divide lid_holes_n; the assert in head() enforces it.
 head_ports = [
   ["thermocouple", 3],
   ["probe", 0, ph_lab_g2],
   ["probe", 0, do_lab_g2],
-  ["tube", 3],
+  ["baffle", 0],
   ["tube", 3],
   ["tube", 3],
   ["tube", 2.4],
+  ["baffle", 0],
   ["tube", 2.4],
-  ["tube", 2.4],
   ["tube", 1.5],
   ["tube", 1.5],
-  ["tube", 1.5],
+  ["baffle", 0],
 ];
+
+/* [Baffle Parameters] */
+
+/** How baffles sit in this vessel. What a baffle is, and what settles its width, belong to
+ *  custom/bayonet_baffle_port.scad, which owns the part.
+ * - Each plate is centred on its port, a quarter of the vessel diameter out, and can be no wider
+ *   than its lock's bore lets through. So it reaches nowhere near the wall the standard wants it
+ *   against: these are partial baffles standing inboard. They still break the swirl and the vortex
+ *   with it, and standing off the wall is not purely a loss, since flow accelerating behind a
+ *   baffle is what keeps that region from going stagnant.
+ *   https://pmc.ncbi.nlm.nih.gov/articles/PMC8459426/
+ * - Centred, the plates overlap the circle the impellers sweep, so they have to stop above them.
+ *   That is the trade for the width: depth is capped, and the assert below says where.
+ */
+
+// clearance between the top of the upper impeller and the bottom of the baffle
+baffle_impeller_clearance = 2;
+// clearance between the jar's neck bore and the baffle's outer corner
+baffle_neck_clearance = 1.5;
+// clearance between the lock's bore and the plate dropping through it on assembly
+baffle_bore_clearance = 0.2;
+// how far the plate hangs below the port's bottom face; raise it until the print goes floppy
+baffle_length = 100;
+// thickness of the plate
+baffle_thickness = 4;
+// height over which the port's round bottom face blends out into the plate
+baffle_transition_height = 10;
 
 /* [Probe Port Parameters] */
 
@@ -248,7 +280,7 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
   }
 }
 
-// One port pin half, dispatched on its registered type. All three share the same bayonet
+// One port pin half, dispatched on its registered type. All share the same bayonet
 // interface, so they are interchangeable across the lid's locks.
 module head_port(port, panel_thickness) {
   _type = port[0];
@@ -279,6 +311,15 @@ module head_port(port, panel_thickness) {
       collet_tab_internal_deflection=probe_port_collet_tab_deflection,
       tilt_degrees=probe_port_tilt_degrees,
       transition_length=probe_port_transition_length
+    );
+  } else if (_type == "baffle") {
+    bayonet_baffle_port(
+      type=head_bayonet,
+      panel_thickness=panel_thickness,
+      length=baffle_length,
+      thickness=baffle_thickness,
+      transition_height=baffle_transition_height,
+      bore_clearance=baffle_bore_clearance
     );
   } else if (_type == "thermocouple") {
     bayonet_thermocouple_port(
@@ -333,6 +374,35 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // are built around; that is why the ports below need no z placement of their own.
   lid_thickness = lid_flange_height + lid_plug_height;
 
+  port_circle_radius = vessel_outer_diameter / 4;
+
+  // centred on its port the plate crosses the circle the impellers sweep, so it stops above them
+  baffle_max_length =
+    vessel_internal_height - shaft_jar_punt_clearance - impeller_height - impeller_spacing - baffle_impeller_clearance - lid_thickness;
+
+  _baffle_at = [for (i = [0:lid_holes_n - 1]) if (head_ports[i][0] == "baffle") i];
+
+  // the plate's width is settled by the lock it hangs from, so it is read back, not chosen here
+  _baffle_width = bayonet_baffle_width(head_bayonet, baffle_thickness, baffle_bore_clearance);
+
+  echo("baffles: ", len(_baffle_at), " x ", _baffle_width, " mm wide, up to ", baffle_max_length, " mm long");
+
+  assert(
+    len(_baffle_at) == 0 ||
+    _baffle_at == [for (k = [0:len(_baffle_at) - 1]) _baffle_at[0] + k * lid_holes_n / len(_baffle_at)],
+    str("Baffles must come out equally spaced, but ", len(_baffle_at), " of them sit at ", _baffle_at, " of ", lid_holes_n, " holes.")
+  );
+
+  assert(
+    baffle_length <= baffle_max_length,
+    str("Baffle is ", baffle_length, " mm long and would reach the upper impeller; ", baffle_max_length, " mm is the most that clears it.")
+  );
+
+  assert(
+    port_circle_radius + _baffle_width / 2 <= vessel_opening_diameter / 2 - baffle_neck_clearance,
+    str("Baffle reaches ", port_circle_radius + _baffle_width / 2, " mm out, past the ", vessel_opening_diameter / 2 - baffle_neck_clearance, " mm the jar's neck allows.")
+  );
+
   // Render the lid with pockets for the bearing and shaft, and holes for the bayonet locks
   if (render_lid || render_all) {
     color(prints2_color)
@@ -344,7 +414,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     for (i = [0:lid_holes_n - 1]) {
       color(prints2_color)
         rotate([0, 0, i * 360 / lid_holes_n])
-          translate([vessel_outer_diameter / 4, 0, 0])
+          translate([port_circle_radius, 0, 0])
             // add the bayonet locks
             bayonet_port(type=head_bayonet, part="lock", panel_thickness=lid_thickness);
     }
@@ -352,18 +422,18 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   // Port pin halves. Each shares the lock's datum, so it needs no placement beyond its hole
   // centre; port_position only turns it about its own axis, between locked and entry.
-  if (render_tube_pinlock || render_probe_pinlock || render_thermocouple_pinlock || render_all) {
+  if (render_tube_pinlock || render_probe_pinlock || render_thermocouple_pinlock || render_baffle_pinlock || render_all) {
     _port_turn = (port_position == "entry") ? bayonet_entry_rotation(head_bayonet) : 0;
 
     for (i = [0:lid_holes_n - 1]) {
       _port = head_ports[i];
       _show =
-      render_all || (_port[0] == "tube" && render_tube_pinlock) || (_port[0] == "probe" && render_probe_pinlock) || (_port[0] == "thermocouple" && render_thermocouple_pinlock);
+      render_all || (_port[0] == "tube" && render_tube_pinlock) || (_port[0] == "probe" && render_probe_pinlock) || (_port[0] == "thermocouple" && render_thermocouple_pinlock) || (_port[0] == "baffle" && render_baffle_pinlock);
 
       if (_show)
         color(prints1_color)
           rotate([0, 0, i * 360 / lid_holes_n])
-            translate([vessel_outer_diameter / 4, 0, 0])
+            translate([port_circle_radius, 0, 0])
               rotate([0, 0, _port_turn])
                 head_port(_port, lid_thickness);
     }
