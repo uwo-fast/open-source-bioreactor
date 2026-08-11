@@ -69,6 +69,11 @@
 include <purchased/vessels.scad>;
 include <purchased/strip_lights.scad>;
 
+use <utils/bolt_pattern.scad>;
+
+include <NopSCADlib/core.scad>;
+include <NopSCADlib/vitamins/screws.scad>; // M8_hex_screw type
+
 use <head.scad>;
 use <frame.scad>;
 
@@ -102,9 +107,31 @@ lid_flange_height = 8;
 
 frame_wall_thickness = 37; // thickness of the frame walls, which is the distance from the outer edge of the vessel to the outer edge of the frame; also used in lid
 
+/* [Head to Frame Joint] */
+
+// tie rods running the assembly; they are also posts on the bolt circle, so the lid is bored for them
+n_rods = 4;
+// the fastener clamping the lid flange to the top base, its nut and clearance following from the type
+joint_bolt = M8_hex_screw;
+// gasket factor m for the lid seal, ASME VIII-1 Table 2-5.1: 0 o-ring, 0.5 silicone under 75A, 1.0 over
+lid_gasket_factor = 0.5;
+
 module dummy() {
   // stop the customizer detection from here onwards
 }
+
+// the joint is derived once here, since the top base and the lid flange have to be bored from the
+// same pattern or the holes will not line up; the lid flange is the thinner of the two, so it governs
+joint_bolt_circle = frame_bolt_circle_diameter(vessel_diameter(reactor_vessel));
+joint_hole_diameter = frame_rod_hole_diameter();
+joint_posts = bolt_post_count(n_rods, screw_radius(joint_bolt) * 2, joint_bolt_circle, lid_flange_height, lid_gasket_factor);
+
+assert(
+  bolt_post_spacing(joint_posts, joint_bolt_circle) >= screw_radius(joint_bolt) * 5, // 2.5x nominal, enough to get a wrench in
+  str("Bolt spacing of ", bolt_post_spacing(joint_posts, joint_bolt_circle), " mm is too tight to get a wrench on.")
+);
+
+echo("joint: ", joint_posts, " posts at ", bolt_post_spacing(joint_posts, joint_bolt_circle), " mm on a ", joint_bolt_circle, " mm circle");
 
 // vessel
 if (render_vessel || render_all) {
@@ -118,6 +145,10 @@ if (render_frame || render_all) {
     lights_length=strip_light_length(reactor_lights),
     wall_thickness=frame_wall_thickness,
     rod_length=vessel_height(reactor_vessel) + lid_flange_height+8, //hardcoded extra for nut until i get it to pass thru nicely
+    lid_flange_height=lid_flange_height,
+    n_rods=n_rods,
+    bolt_screw=joint_bolt,
+    bolt_pts=bolt_pattern_pts(joint_posts, joint_bolt_circle, n_rods),
     collapse_spacer_z_allow=true
   );
 }
@@ -129,6 +160,8 @@ if (render_head || render_all) {
       vessel_outer_diameter=vessel_diameter(reactor_vessel),
       vessel_opening_diameter=vessel_opening_diameter(reactor_vessel),
       vessel_internal_height=vessel_internal_height(reactor_vessel),
-      frame_wall_thickness=frame_wall_thickness
+      frame_wall_thickness=frame_wall_thickness,
+      post_pts=bolt_pattern_pts(joint_posts, joint_bolt_circle),
+      post_hole_diameter=joint_hole_diameter
     );
 }

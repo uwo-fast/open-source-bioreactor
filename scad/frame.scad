@@ -8,8 +8,11 @@
 
 include <purchased/strip_lights.scad>;
 
+use <utils/bolt_pattern.scad>;
+
 include <NopSCADlib/core.scad>; // core utils (also silences the inch() warning)
 include <NopSCADlib/vitamins/nuts.scad>; // M8_nut type + nut()
+include <NopSCADlib/vitamins/screws.scad>; // M8_hex_screw type + screw_length()
 use <NopSCADlib/vitamins/rod.scad>; // studding()
 
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
@@ -27,7 +30,12 @@ render_lights = false;
 
 // -------
 
-frame(vessel_height=305, vessel_outer_diameter=220, lights_length=330, wall_thickness=37, rod_length=313, collapse_spacer_z_allow=false);
+frame(
+  vessel_height=305, vessel_outer_diameter=220, lights_length=330, wall_thickness=37, rod_length=321,
+  lid_flange_height=8, n_rods=4, bolt_screw=M8_hex_screw,
+  bolt_pts=bolt_pattern_pts(_preview_posts, _preview_bolt_circle, 4),
+  collapse_spacer_z_allow=false
+);
 
 // -------
 
@@ -93,6 +101,17 @@ module dummy() {
   // stop the customizer detection from here onwards
 }
 
+// The rod circle is where the frame puts its tie rods, and the lid has to bolt to the same circle,
+// so the assembly reads these back out rather than rebuilding them from the frame's own allowances.
+function frame_rod_hole_diameter() = threaded_rod_diameter + threaded_rod_hole_allowance;
+function frame_bolt_circle_diameter(vessel_outer_diameter) =
+  (vessel_outer_diameter + base_jar_fit_allow) + frame_rod_hole_diameter() * 2;
+
+// the assembly derives the joint once and hands the same pattern to the frame and the lid; the
+// standalone preview above reproduces it, see the interface TODO about the hardcoded vessel dimensions
+_preview_bolt_circle = frame_bolt_circle_diameter(220);
+_preview_posts = bolt_post_count(4, threaded_rod_diameter, _preview_bolt_circle, 8, 0.5);
+
 module lights(quadrants, vessel_outer_diameter, lights_per_quadrant, occupy_angle, allowance_cutout = undef) {
   for (q = quadrants) {
     rotate([0, 0, (q - 1) * 90]) {
@@ -119,7 +138,7 @@ module lights(quadrants, vessel_outer_diameter, lights_per_quadrant, occupy_angl
   }
 }
 
-module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness, rod_length, collapse_spacer_z_allow=true) {
+module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness, rod_length, lid_flange_height, n_rods, bolt_pts, bolt_screw, collapse_spacer_z_allow=true) {
 
   _base_floor_height_min = 2; // minimum height of the base floor
 
@@ -133,12 +152,15 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
   base_jar_cut_diameter = vessel_outer_diameter + base_jar_fit_allow;
 
   // diameter of the hole for the threaded rod
-  threaded_rod_hole_diameter = threaded_rod_diameter + threaded_rod_hole_allowance;
+  threaded_rod_hole_diameter = frame_rod_hole_diameter();
 
   // distance from the center of the jar to the threaded rod
-  rod_shift = base_jar_cut_diameter / 2 + threaded_rod_hole_diameter;
+  rod_shift = frame_bolt_circle_diameter(vessel_outer_diameter) / 2;
 
   f_height = 0 - z_fight;
+
+  // the bolts clamp the lid flange down onto the top base, so they grip both
+  bolt_length = screw_length(bolt_screw, upper_base_height + lid_flange_height, 0, nut=true);
 
   lower_base_height = base_floor_height + lower_base_wall_height;
 
@@ -196,8 +218,8 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
 
     // rods and nuts
     if (render_rods || render_all) {
-      for (i = [0:3]) {
-        rotate([0, 0, i * 90])
+      for (i = [0:n_rods - 1]) {
+        rotate([0, 0, i * 360 / n_rods])
           translate([rod_shift, 0, 0]) {
 
             // M8 threaded rod, full height (base at z = 0)
@@ -209,11 +231,27 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
               rotate([0, 0, 30])
                 nut(M8_nut);
 
-            // top of lid
+            // pocketed in the top base, holding it as the fixed face the lid bolts to
             translate([0, 0, total_height - stack_slack - nut_height - z_fight])
               rotate([0, 0, 30])
                 nut(M8_nut);
+
+            // the rods are posts like the bolts, so they take a nut on top of the lid as well
+            translate([0, 0, total_height - stack_slack + lid_flange_height])
+              rotate([0, 0, 30])
+                nut(M8_nut);
           }
+      }
+
+      // bolts clamping the lid flange onto the top base, heads bearing on the face underneath
+      translate([0, 0, total_height - stack_slack - upper_base_height]) {
+        bolt_pattern_bolts(bolt_pts, bolt_screw, bolt_length);
+
+        // their nuts land on the far side of the grip, on top of the lid flange
+        for (p = bolt_pts)
+          translate([p[0], p[1], upper_base_height + lid_flange_height])
+            rotate([0, 0, 30])
+              nut(screw_nut(bolt_screw));
       }
     }
 
@@ -231,9 +269,9 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
             translate([0, 0, -z_fight / 2])
               cylinder(d=base_jar_cut_diameter - _base_wall_thickness * 2, h=lower_base_height + z_fight);
 
-            for (i = [0:3]) {
+            for (i = [0:n_rods - 1]) {
               _nut_pocket_height = nut_height * 1.1;
-              rotate([0, 0, i * 90])
+              rotate([0, 0, i * 360 / n_rods])
                 translate([rod_shift, 0, 0]) {
                   translate([0, 0, base_floor_height])
                     cylinder(d=threaded_rod_hole_diameter, h=lower_base_height + z_fight);
@@ -254,6 +292,8 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
       frame_lights_cutout()
         color(prints1_color)
           translate([0, 0, total_height - stack_slack - upper_base_height])
+            // the lid bolts down through these, the heads bearing on the face underneath
+            bolt_pattern_bores(bolt_pts, threaded_rod_hole_diameter, upper_base_height + z_fight, -z_fight / 2)
             difference() {
               cylinder(d=base_jar_cut_diameter + _base_wall_thickness, h=upper_base_height);
 
@@ -261,8 +301,8 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
               translate([0, 0, f_height])
                 cylinder(d=base_jar_cut_diameter, h=upper_base_height - f_height + z_fight);
 
-              for (i = [0:3]) {
-                rotate([0, 0, i * 90])
+              for (i = [0:n_rods - 1]) {
+                rotate([0, 0, i * 360 / n_rods])
                   translate([rod_shift, 0, 0]) {
                     translate([0, 0, -z_fight / 2])
                       cylinder(d=threaded_rod_hole_diameter, h=upper_base_height + z_fight);
@@ -325,11 +365,11 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
       rod_spacer_diameter = threaded_rod_diameter + 2 * rod_spacer_thickness;
 
       color(prints2_color)for (i = [0:2]) {
-        for (j = [0:3]) {
+        for (j = [0:n_rods - 1]) {
 
           spacer_pos = lower_base_height + spacer_pitch * i + spacer_joint + rib_level_height * i;
 
-          rotate([0, 0, j * 90])
+          rotate([0, 0, j * 360 / n_rods])
             translate([rod_shift, 0, spacer_pos])
               difference() {
                 cylinder(d=rod_spacer_diameter, h=spacer_height);

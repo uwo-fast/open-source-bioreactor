@@ -6,6 +6,8 @@
  *
 */
 
+use <utils/bolt_pattern.scad>;
+
 use <custom/motor_mount.scad>;
 use <custom/bayonet_port.scad>;
 use <custom/bayonet_probe_port.scad>;
@@ -192,9 +194,15 @@ module dummy() {
   // stop the customizer detection from here onwards
 }
 
+// the assembly derives the joint from the frame and hands the same pattern to both sides; the
+// standalone preview reproduces it, see the interface TODO about the hardcoded vessel dimensions
+_preview_bolt_circle = 238.8; // the frame's rod circle for jar_10L_220x305
+_preview_post_pts = bolt_pattern_pts(bolt_post_count(4, 8, _preview_bolt_circle, 8, 0.5), _preview_bolt_circle);
 
-module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, frame_wall_thickness) {
+module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, frame_wall_thickness, post_pts, post_hole_diameter) {
 
+  // the rods run through the flange alongside the bolts, so every post on the circle is bored
+  bolt_pattern_bores(post_pts, post_hole_diameter, lid_flange_height + z_fight, -z_fight / 2)
   difference() {
     // flange, then the plug that enters the vessel opening
     union() {
@@ -275,7 +283,7 @@ module head_port(port, panel_thickness) {
   }
 }
 
-module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_internal_height, frame_wall_thickness) {
+module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_internal_height, frame_wall_thickness, post_pts, post_hole_diameter) {
 
   // the gearbox carried by the selected motor - single source for gearbox dims
   head_gearbox = dc_motor_gearbox(head_motor);
@@ -303,7 +311,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   if (render_lid || render_all) {
     color(prints2_color)
       rotate([0, 180, 0])
-        lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, frame_wall_thickness);
+        lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, frame_wall_thickness, post_pts, post_hole_diameter);
   }
 
   if (render_bayonet_lock || render_all) {
@@ -418,5 +426,7 @@ head(
   vessel_outer_diameter=vessel_diameter(reactor_vessel),
   vessel_opening_diameter=vessel_opening_diameter(reactor_vessel),
   vessel_internal_height=vessel_internal_height(reactor_vessel),
-  frame_wall_thickness=37
+  frame_wall_thickness=37,
+  post_pts=_preview_post_pts,
+  post_hole_diameter=9.2
 );
