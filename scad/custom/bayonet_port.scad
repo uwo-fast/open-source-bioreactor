@@ -166,6 +166,10 @@ module bayonet_port(
     )
   );
 
+  // Not checked here: oring_containment. This gland's depth is always 0.75 of the cord, so the
+  // fraction held in the groove is 80.4% whatever ring is fitted - an assert on it could never
+  // fire. The lid plug takes its squeeze as a parameter, so it does check (see head.scad).
+
   // Without the keying helpers pin_angles reaches the library as undef and the coupling renders
   // with no pins or channels at all, on warnings alone. Fail here instead.
   assert(

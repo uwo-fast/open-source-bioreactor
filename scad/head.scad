@@ -563,6 +563,18 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     str("The plug o-ring fills ", _plug_fill * 100, "% of its gland; over 90 leaves the squeeze nowhere to go.")
   );
 
+  // how much of the cord the groove is actually holding onto, which is the check against it
+  // rolling out. Measured from the plug's own face, not from the bore it seals against.
+  _plug_containment = oring_containment(
+    oring_cross_section(lid_plug_oring),
+    head_lid_plug_diameter(vessel_opening_diameter) / 2 - _groove_r
+  );
+
+  assert(
+    _plug_containment >= 0.75,
+    str("Only ", _plug_containment * 100, "% of the plug o-ring's section sits inside its groove; under 75 it rolls out.")
+  );
+
   // The coupling decides where a port comes to rest, so a port carrying an orientation is only
   // as true as the coupling is keyed. Unkeyed, each of these locks just as willingly in any of
   // its seatings and the plate or the lean ends up somewhere the model never showed.

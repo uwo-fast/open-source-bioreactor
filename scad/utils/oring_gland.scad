@@ -51,6 +51,26 @@ function oring_gland_depth(cs, squeeze = 0.25) = cs * (1 - squeeze);
 // Fraction of the groove the cord fills. Over 1 and the ring cannot be closed into it.
 function oring_gland_fill(cs, width, depth) = (PI * pow(cs, 2) / 4) / (width * depth);
 
+/**
+ * @brief Fraction of the cord's section sitting inside the groove.
+ *
+ * "No less than 75% of the seal cross-section should be contained within the groove to ensure
+ * the seal does not roll or extrude out of the groove" - the same table's notes. Fill says
+ * whether the cord has room; this says whether the groove is holding onto it, and a shallow
+ * wide groove can pass the first and fail this one.
+ *
+ * The part standing out past the groove's mouth is a circular segment, so this is one minus its
+ * share of the section. OpenSCAD's acos returns degrees, hence the conversion.
+ *
+ * @param cs           Cord diameter
+ * @param groove_depth Depth of the groove cut into the part, mouth to floor
+ */
+function oring_containment(cs, groove_depth) =
+  let (r = cs / 2, d = groove_depth - r) // d: how far the cord's centre sits inside the mouth
+    d >= r ? 1
+    : d <= -r ? 0
+    : 1 - (r * r * acos(d / r) * PI / 180 - d * sqrt(r * r - d * d)) / (PI * r * r);
+
 // How far a ring is stretched onto a groove of this diameter. A piston gland wants 0 to 5%:
 // slack lets the ring sag out of its groove, and stretching thins the cord it seals with.
 function oring_stretch(ring_id, groove_bottom_diameter) = (groove_bottom_diameter - ring_id) / ring_id;
