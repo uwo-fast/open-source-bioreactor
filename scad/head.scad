@@ -298,6 +298,12 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
     }
 }
 
+// Does this port type care which way round it ends up? A tube's bore and a thermocouple's
+// thread mount are figures of revolution, so their seating does not matter. A baffle plate
+// stands in a plane and a probe collet leans in a direction, and both take that direction from
+// the port's own frame - so both need the coupling to admit exactly one seating.
+function head_port_is_oriented(type) = type == "baffle" || type == "probe";
+
 // One port pin half, dispatched on its registered type. All share the same bayonet
 // interface, so they are interchangeable across the lid's locks.
 module head_port(port, panel_thickness) {
@@ -412,6 +418,27 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   assert(
     _port_gap >= lid_holes_offset,
     str(lid_holes_n, " ports leave ", _port_gap, " mm between bores on a ", port_circle_radius * 2, " mm circle; ", lid_holes_offset, " mm is the least this lid keeps.")
+  );
+
+  // The coupling decides where a port comes to rest, so a port carrying an orientation is only
+  // as true as the coupling is keyed. Unkeyed, each of these locks just as willingly in any of
+  // its seatings and the plate or the lean ends up somewhere the model never showed.
+  _oriented_at = [for (i = [0:lid_holes_n - 1]) if (head_port_is_oriented(head_ports[i][0])) i];
+
+  // checked before the keying assert below, which would otherwise report the missing helpers as
+  // an undef seating count and send you looking in the wrong place
+  assert(
+    !is_undef(bayonet_pin_angles(head_bayonet)),
+    "head: needs bayonet-lock-scad >= 0.11.0, for pin_angles and the keying functions"
+  );
+
+  assert(
+    len(_oriented_at) == 0 || bayonet_is_keyed(head_bayonet),
+    str(
+      "Ports at ", _oriented_at, " carry an orientation, but the bayonet locks in ",
+      bayonet_seating_count(head_bayonet), " indistinguishable seatings, so each would come to rest ",
+      360 / bayonet_seating_count(head_bayonet), " degrees from where it is drawn. Key the interface."
+    )
   );
 
   assert(

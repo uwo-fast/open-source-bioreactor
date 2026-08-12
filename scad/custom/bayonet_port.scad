@@ -51,6 +51,25 @@ function bayonet_number_of_pins(type)     = type[4][0]; // locking points around
 function bayonet_sweep_angle(type)        = type[4][1]; // arc the pin travels when turning
 function bayonet_pin_direction(type)      = type[4][2]; // "inner" or "outer"
 function bayonet_turn_direction(type)     = type[4][3]; // "CW" or "CCW"
+function bayonet_key_angle(type)          = type[4][4]; // offset keying the pins; 0 spaces them evenly
+
+// Where this interface's pins sit. Evenly spaced when unkeyed, which is also what makes the
+// coupling mate in as many orientations as it has pins - see bayonet_seating_count().
+function bayonet_pin_angles(type) =
+  bayonet_key_angle(type) == 0
+    ? [for (i = [0:bayonet_number_of_pins(type) - 1]) 360 / bayonet_number_of_pins(type) * i]
+    : bayonet_keyed_pin_angles(bayonet_number_of_pins(type), bayonet_key_angle(type));
+
+// How many ways a pin half can be locked into its lock. Anything a port hangs below the
+// coupling that has an orientation of its own needs this to be 1.
+function bayonet_seating_count(type) = bayonet_pin_pattern_order(bayonet_pin_angles(type));
+function bayonet_is_keyed(type) = bayonet_seating_count(type) == 1;
+
+// A key only blocks a wrong seating when it throws the pins clear of the channel mouths; below
+// the mouth's half-width the pattern still reads as keyed and a wrong attempt still starts in.
+function bayonet_key_margin(type) = bayonet_pin_pattern_margin(bayonet_pin_angles(type));
+function bayonet_key_margin_needed(type) =
+  bayonet_channel_half_angle(bayonet_interface_radius(type), bayonet_pin_radius(type), bayonet_allowance(type));
 
 // Radial interference between the lid and the bayonet  
 // lock to ensure a clean union without any gaps
@@ -110,6 +129,22 @@ module bayonet_port(
     "bayonet_port: oring_interference must be < oring_cs_diameter (the rebate would have no depth)"
   );
 
+  // Without the keying helpers pin_angles reaches the library as undef and the coupling renders
+  // with no pins or channels at all, on warnings alone. Fail here instead.
+  assert(
+    !is_undef(bayonet_pin_angles(type)),
+    "bayonet_port: needs bayonet-lock-scad >= 0.11.0, for pin_angles and the keying functions"
+  );
+
+  assert(
+    bayonet_key_angle(type) == 0 || bayonet_key_margin(type) > bayonet_key_margin_needed(type),
+    str(
+      "bayonet_port: a key angle of ", bayonet_key_angle(type), " leaves a wrong seating only ",
+      bayonet_key_margin(type), " degrees off the channel mouths, which are ",
+      bayonet_key_margin_needed(type), " degrees wide either side - it would still go in"
+    )
+  );
+
   // The flange and its seal belong to the pin half; the lock is bare coupling.
   _flange_h = (part == "lock") ? 0 : bayonet_flange_height(type);
   _oring_enabled = !is_undef(oring_cs_diameter) && part != "lock";
@@ -128,7 +163,7 @@ module bayonet_port(
           allowance=allowance,
           part_height=panel_thickness,
           entry_depth=entry_depth,
-          number_of_pins=bayonet_number_of_pins(type),
+          pin_angles=bayonet_pin_angles(type),
           pin_radius=pin_radius,
           sweep_angle=bayonet_sweep_angle(type),
           pin_direction=bayonet_pin_direction(type),

@@ -7,8 +7,14 @@
 // agree on lives here, so a pin and a lock built from the same row always mate. Accessors are
 // in bayonet_port.scad. Pure data - no geometry, so consumers can include it freely.
 
-//                ["name" [iface_r, shell_t, pin_r, allow], [flange_h, flange_r],   [oring_cs, oring_intf], [n_pins, sweep, pin_dir, turn_dir]]
-bayonet_std     = ["std", [10,      2.5,     1.2,   0.2  ], [5,        13.4      ], [1.6,      0.1       ], [3,      30,    "outer", "CW"    ]];
+// key is how far the second pin is brought back from even spacing. Evenly spaced pins (key 0)
+// repeat every 360/n, so the coupling locks in n orientations and nothing tells them apart -
+// fine for a tube, wrong for a baffle plate or a tilted probe, which would lock pointing
+// anywhere. 25 degrees clears the channel mouth's 7.4 degree half-width, so a wrong seating
+// jams rather than mates. See head.scad's assert and the library's keying section.
+
+//                ["name" [iface_r, shell_t, pin_r, allow], [flange_h, flange_r],   [oring_cs, oring_intf], [n_pins, sweep, pin_dir, turn_dir, key]]
+bayonet_std     = ["std", [10,      2.5,     1.2,   0.2  ], [5,        13.4      ], [1.6,      0.1       ], [3,      30,    "outer", "CW",     25 ]];
 
 bayonet_interfaces = [bayonet_std];
 
