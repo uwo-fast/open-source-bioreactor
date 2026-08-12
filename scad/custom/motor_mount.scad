@@ -13,17 +13,21 @@
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
-// Function to check if the body diameter is large enough such that the screws do not intersect with the bearing. 
-function check_body_diameter(body_diameter, screws_diameter, bearing_diameter, motor_screw_distance) = ( ( (bearing_diameter + (screws_diameter * 2) * 4) > body_diameter) && ( (motor_screw_distance + screws_diameter * 2) > body_diameter)) ? true : false;
-
-// Function to get the (centered) distance between the base holes
+// Function to get the (centered) distance between the base holes. Leaves 1.5 hole diameters from
+// centre to the body's edge, so the counterbore over it - one hole diameter in radius - always
+// keeps half a hole diameter of wall, whatever the body is scaled to.
 function get_base_screw_separation_radius(body_diameter, screws_diameter) = (body_diameter - screws_diameter * 3) / 2;
+
+// The flange left under a base screw's head: the counterbore floor is halfway down it, so this
+// is what the screw grips before it reaches whatever the mount is bolted to.
+function motor_mount_base_screw_grip(wall_thickness) = wall_thickness / 2;
 
 module motor_mount(
   height,
   body_diameter,
   wall_thickness,
   screws_diameter,
+  base_screw_hole_diameter,
   shaft_diameter,
   motor_faceplate_screws_separation,
   motor_boss_diameter,
@@ -36,8 +40,6 @@ module motor_mount(
 ) {
 
   // ----- derived params -----
-
-  base_screw_diameter = screws_diameter + vertical_hole_allowance;
 
   coupling_screw_diameter = screws_diameter + horizontal_hole_allowance;
 
@@ -53,7 +55,10 @@ module motor_mount(
 
   flange_height = wall_thickness;
 
-  base_screw_separation_radius = get_base_screw_separation_radius(body_diameter, screws_diameter);
+  // The base screws fasten the mount to whatever carries it, so they are sized and placed by
+  // that joint, not by the gearbox. Driven off the hole rather than a nominal size because the
+  // caller owns the screw and so knows its real clearance.
+  base_screw_separation_radius = get_base_screw_separation_radius(body_diameter, base_screw_hole_diameter);
 
   middle_height = height - flange_height * 2;
 
@@ -61,9 +66,26 @@ module motor_mount(
 
   // ----- assertions -----
 
-  // facets must be divisible by 4 (screws are placed every 90°) while providing rough 
+  // facets must be divisible by 4 (screws are placed every 90°) while providing rough
   // poly such that the parts cannot concentrically rotate relatively to each other
   assert(facets % 4 == 0, "facets must be divisible by 4 for screw holes to be properly placed");
+
+  // The mount telescopes to reach the shaft, so its height is derived from the vessel it stands
+  // over and can come out negative on a tall one. Nothing downstream notices, so it is caught here.
+  assert(
+    middle_height > 0,
+    str("Motor mount is ", height, " mm tall, which leaves ", middle_height, " mm of middle stand between two ", flange_height, " mm flanges.")
+  );
+
+  // The body is a free choice and the bolt circle comes with the gearbox, so nothing but this
+  // makes the mount wide enough for the motor it was picked to carry.
+  assert(
+    motor_faceplate_screws_separation / 2 + motor_screw_diameter <= body_diameter / 2,
+    str(
+      "The gearbox's screws counterbore out to r ", motor_faceplate_screws_separation / 2 + motor_screw_diameter,
+      " on a ", body_diameter, " mm body."
+    )
+  );
 
   // ----- build -----
 
@@ -72,13 +94,12 @@ module motor_mount(
     male_end(
       center_hole_diameter=shaft_diameter * 1.5,
       vertical_hole_separation_radius=base_screw_separation_radius,
-      vertical_hole_diameter=base_screw_diameter,
+      vertical_hole_diameter=base_screw_hole_diameter,
       flange_height=flange_height,
       raised_face_height=raised_face_height,
       body_diameter=body_diameter,
       wall_thickness=wall_thickness,
       coupling_screw_diameter=coupling_screw_diameter,
-      motor_screw_diameter=motor_screw_diameter,
       facets=facets
     );
   }
@@ -96,7 +117,6 @@ module motor_mount(
           body_diameter=body_diameter,
           wall_thickness=wall_thickness,
           coupling_screw_diameter=coupling_screw_diameter,
-          motor_screw_diameter=motor_screw_diameter,
           facets=facets
         );
   }
@@ -106,9 +126,6 @@ module motor_mount(
       middle_pipe(
         pipe_height=middle_height,
         inner_diameter=middle_inner_diameter,
-        interface_hole_separation_radius=base_screw_separation_radius,
-        interface_hole_diameter=base_screw_diameter * 2,
-        flange_height=flange_height,
         raised_face_height=raised_face_height,
         body_diameter=body_diameter,
         coupling_screw_diameter=coupling_screw_diameter,
@@ -126,10 +143,11 @@ module male_end(
   body_diameter,
   wall_thickness,
   coupling_screw_diameter,
-  motor_screw_diameter,
   facets
 ) {
-  counterbore_diameter = motor_screw_diameter * 2;
+  // the head's pocket follows the hole it sinks into, so each end plate counterbores its own
+  // screw rather than both ends following the motor's
+  counterbore_diameter = vertical_hole_diameter * 2;
 
   difference() {
     union() {
@@ -166,9 +184,6 @@ module middle_pipe(
   pipe_height,
   inner_diameter,
   body_diameter,
-  interface_hole_separation_radius,
-  interface_hole_diameter,
-  flange_height,
   raised_face_height,
   coupling_screw_diameter,
   facets
@@ -208,6 +223,9 @@ module middle_pipe(
 
 _mm_screws_diameter = 3;
 
+// clearance hole for the screws holding the mount down; an M3's, to match the example above
+_mm_base_screw_hole_diameter = 3.4;
+
 _mm_shaft_diameter = 8.0;
 
 _mm_motor_faceplate_screws_separation = 27.6;
@@ -231,6 +249,7 @@ motor_mount(
   body_diameter=_mm_body_diameter,
   wall_thickness=_mm_wall_thickness,
   screws_diameter=_mm_screws_diameter,
+  base_screw_hole_diameter=_mm_base_screw_hole_diameter,
   shaft_diameter=_mm_shaft_diameter,
   motor_faceplate_screws_separation=_mm_motor_faceplate_screws_separation,
   motor_boss_diameter=_mm_motor_boss_diameter,

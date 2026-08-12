@@ -26,6 +26,8 @@ include <purchased/orings.scad>;
 include <custom/bayonet_interfaces.scad>;
 
 include <NopSCADlib/core.scad>;
+include <NopSCADlib/vitamins/inserts.scad>; // F1BM4 type + insert()
+include <NopSCADlib/vitamins/screws.scad>; // M4_cap_screw type + screw()
 use <NopSCADlib/vitamins/shaft_coupling.scad>;
 
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
@@ -39,6 +41,7 @@ render_lid = false;
 
 render_motor = false;
 render_motor_mount = false;
+render_motor_mount_fasteners = false; // the inserts seated in the lid and the screws into them
 motor_mount_part_to_render = "all"; // ["all", "base_plate", "face_plate", "middle_stand"]
 render_shaft_coupler = false;
 render_ext_shaft = false;
@@ -142,6 +145,17 @@ motor_mount_wall_thickness = 10;
 motor_mount_coupling_allowance = 0.2;
 // number of facets for the mount body (must be divisible by 4)
 motor_mount_facets = 20;
+// The mount comes off whenever the shaft, bearing or coupling is serviced, and a thread cut
+// straight into the print does not survive that many cycles, so the lid takes heat-set inserts.
+// F1BM4 is the common generic; CNCKM4 is the same screw in a 4 mm insert if the hole should stay
+// inside the flange. Nothing here has anything to do with the gearbox - see the base screw note
+// in motor_mount.scad.
+motor_mount_base_insert = F1BM4;
+// the screw into that insert; its size must match what the insert takes
+motor_mount_base_screw = M4_cap_screw;
+// least lid left under an insert. The far side of the plug is the culture, so this is what keeps
+// a blind hole blind rather than a leak path
+motor_mount_insert_floor_min = 3.0;
 
 /* [Impeller Parameters] */
 
@@ -288,6 +302,12 @@ function head_lid_plug_diameter(vessel_opening_diameter) = vessel_opening_diamet
 function head_port_circle_radius(vessel_opening_diameter) =
   head_lid_plug_diameter(vessel_opening_diameter) / 2 - bayonet_port_hole_radius(head_bayonet) - lid_holes_offset;
 
+// The mount's base screws land on one circle in two parts: clearance holes through the mount's
+// flange, insert holes into the lid. Both read this, so the pattern cannot drift between them.
+function head_motor_mount_screw_hole_diameter() = screw_clearance_radius(motor_mount_base_screw) * 2;
+function head_motor_mount_screw_radius() =
+  get_base_screw_separation_radius(motor_mount_body_diameter, head_motor_mount_screw_hole_diameter());
+
 // The gasket sits on the flat top of the glass, which runs from the bore out by the wall
 // thickness, inset by a land at each edge for the flange to bottom on.
 function head_gasket_inner_radius(vessel_opening_diameter) =
@@ -341,11 +361,12 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
             cylinder(d=bearing_diameter + bearing_hole_allowance, h=bearing_height + z_fight);
         }
 
-      // Motor mount base holes
-      // #for (i = [0:3])
-      //   rotate([0, 0, i * 90])
-      //     translate([motor_mount_screw_distance, 0, -z_fight / 2])
-      //       cylinder(d=gearbox_screw_diameter(head_motor), h=lid_flange_height + z_fight);
+      // Insert holes for the motor mount, blind: this face carries the mount, the far side of
+      // the plug is the culture, and the assert in head() is what keeps the two apart.
+      for (i = [0:3])
+        rotate([0, 0, i * 90])
+          translate([head_motor_mount_screw_radius(), 0, -z_fight / 2])
+            cylinder(r=insert_hole_radius(motor_mount_base_insert), h=insert_hole_length(motor_mount_base_insert) + z_fight / 2);
 
       // cut out the entry holes for the probes and tubes; the port sizes its own hole so the
       // lock keeps a bearing land against the lid's underside
@@ -467,6 +488,35 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // the height that the motor coupling assembly requires
   motor_mount_height = gearbox_output_shaft_length(head_gearbox) + shaft_protrusion + shaft_shaft_coupling_offset;
   echo("motor mount height: ", motor_mount_height / 10, " cm");
+
+  // --- motor mount joint ---
+
+  // The insert is bought and the screw is bought, and nothing about either makes the pair agree.
+  assert(
+    screw_radius(motor_mount_base_screw) * 2 == insert_screw_diameter(motor_mount_base_insert),
+    str(
+      "The motor mount takes an M", screw_radius(motor_mount_base_screw) * 2, " screw into an insert sized for M",
+      insert_screw_diameter(motor_mount_base_insert), "."
+    )
+  );
+
+  // The hole is blind because what is on the other side of the plug is the culture. This is the
+  // one guard that matters here: the insert reaches most of the way through the flange already,
+  // so a thinner lid or a longer insert breaks through without it.
+  _insert_floor = head_lid_thickness(lid_flange_height) - insert_hole_length(motor_mount_base_insert);
+  assert(
+    _insert_floor >= motor_mount_insert_floor_min,
+    str(
+      "A ", motor_mount_base_insert[0], " insert leaves ", _insert_floor, " mm of lid before the culture; ",
+      motor_mount_insert_floor_min, " mm is the least this lid keeps."
+    )
+  );
+
+  echo(str(
+    "motor mount: 4 x ", motor_mount_base_insert[0], " inserts on a ", head_motor_mount_screw_radius() * 2,
+    " mm circle, ", screw_length(motor_mount_base_screw, motor_mount_base_screw_grip(motor_mount_wall_thickness), 0, insert=motor_mount_base_insert),
+    " mm M", insert_screw_diameter(motor_mount_base_insert), " screws, ", _insert_floor, " mm of lid left under them"
+  ));
 
   // The lid is flipped so its outer face lands on z = 0, which is the datum both port halves
   // are built around; that is why the ports below need no z placement of their own.
@@ -697,6 +747,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         body_diameter=motor_mount_body_diameter,
         wall_thickness=motor_mount_wall_thickness,
         screws_diameter=gearbox_screw_diameter(head_gearbox),
+        base_screw_hole_diameter=head_motor_mount_screw_hole_diameter(),
         shaft_diameter=shaft_diameter,
         motor_faceplate_screws_separation=gearbox_faceplate_screws_cdist(head_gearbox),
         motor_boss_diameter=gearbox_out_boss(head_gearbox)[0],
@@ -704,6 +755,22 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         facets=motor_mount_facets,
         part_render=motor_mount_part_to_render
       );
+  }
+
+  // The joint holding the mount down: inserts heat-set into the lid from this face, screws
+  // dropped through the mount's flange into them. The screw head lands on the counterbore floor
+  // partway down that flange, so it is that depth, not the whole flange, the screw has to clear.
+  if (render_motor_mount_fasteners || render_all) {
+    _mm_grip = motor_mount_base_screw_grip(motor_mount_wall_thickness);
+
+    for (i = [0:3])
+      rotate([0, 0, i * 90])
+        translate([head_motor_mount_screw_radius(), 0, 0]) {
+          insert(motor_mount_base_insert);
+
+          translate([0, 0, _mm_grip])
+            screw(motor_mount_base_screw, screw_length(motor_mount_base_screw, _mm_grip, 0, insert=motor_mount_base_insert));
+        }
   }
 
   // shaft coupling
