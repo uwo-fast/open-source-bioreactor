@@ -22,6 +22,7 @@ include <purchased/gearboxes.scad>;
 include <purchased/vessels.scad>;
 include <purchased/atlas_probes.scad>;
 include <purchased/orings.scad>;
+include <purchased/heat_set_inserts.scad>;
 
 include <custom/bayonet_interfaces.scad>;
 
@@ -41,8 +42,9 @@ render_lid = false;
 
 render_motor = false;
 render_motor_mount = false;
-render_motor_mount_fasteners = false; // the inserts seated in the lid and the screws into them
 motor_mount_part_to_render = "all"; // ["all", "base_plate", "face_plate", "middle_stand"]
+render_motor_mount_inserts = false; // heat-set into the lid, and they stay there once set
+render_motor_mount_screws = false; // the screws into them, which come out every service
 render_shaft_coupler = false;
 render_ext_shaft = false;
 render_impeller = false;
@@ -147,10 +149,9 @@ motor_mount_coupling_allowance = 0.2;
 motor_mount_facets = 20;
 // The mount comes off whenever the shaft, bearing or coupling is serviced, and a thread cut
 // straight into the print does not survive that many cycles, so the lid takes heat-set inserts.
-// F1BM4 is the common generic; CNCKM4 is the same screw in a 4 mm insert if the hole should stay
-// inside the flange. Nothing here has anything to do with the gearbox - see the base screw note
-// in motor_mount.scad.
-motor_mount_base_insert = F1BM4;
+// The hole and the screw length both come off this row, so changing it is the whole change.
+// Nothing here has anything to do with the gearbox - see the base screw note in motor_mount.scad.
+motor_mount_base_insert = insert_m4x4p7_ss;
 // the screw into that insert; its size must match what the insert takes
 motor_mount_base_screw = M4_cap_screw;
 // least lid left under an insert. The far side of the plug is the culture, so this is what keeps
@@ -512,10 +513,23 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     )
   );
 
+  // The screw circle is set by the mount's body and the pocket by the bearing, and the two are
+  // chosen independently, so nothing but this stops an insert being sunk into the bearing's wall.
+  _insert_to_bearing =
+  head_motor_mount_screw_radius() - insert_outer_d(motor_mount_base_insert) / 2 - (bearing_diameter + bearing_hole_allowance) / 2;
+  assert(
+    _insert_to_bearing > 0,
+    str(
+      "Motor mount inserts on a ", head_motor_mount_screw_radius() * 2, " mm circle overlap the bearing pocket by ",
+      -_insert_to_bearing, " mm."
+    )
+  );
+
   echo(str(
     "motor mount: 4 x ", motor_mount_base_insert[0], " inserts on a ", head_motor_mount_screw_radius() * 2,
     " mm circle, ", screw_length(motor_mount_base_screw, motor_mount_base_screw_grip(motor_mount_wall_thickness), 0, insert=motor_mount_base_insert),
-    " mm M", insert_screw_diameter(motor_mount_base_insert), " screws, ", _insert_floor, " mm of lid left under them"
+    " mm M", insert_screw_diameter(motor_mount_base_insert), " screws, ", _insert_floor, " mm of lid left under them, ",
+    _insert_to_bearing, " mm to the bearing pocket"
   ));
 
   // The lid is flipped so its outer face lands on z = 0, which is the datum both port halves
@@ -760,18 +774,27 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // The joint holding the mount down: inserts heat-set into the lid from this face, screws
   // dropped through the mount's flange into them. The screw head lands on the counterbore floor
   // partway down that flange, so it is that depth, not the whole flange, the screw has to clear.
-  if (render_motor_mount_fasteners || render_all) {
-    _mm_grip = motor_mount_base_screw_grip(motor_mount_wall_thickness);
+  _mm_grip = motor_mount_base_screw_grip(motor_mount_wall_thickness);
 
+  // one placement for both halves of the joint, so a screw cannot land anywhere but in its insert
+  module motor_mount_fastener_at() {
     for (i = [0:3])
       rotate([0, 0, i * 90])
-        translate([head_motor_mount_screw_radius(), 0, 0]) {
-          insert(motor_mount_base_insert);
-
-          translate([0, 0, _mm_grip])
-            screw(motor_mount_base_screw, screw_length(motor_mount_base_screw, _mm_grip, 0, insert=motor_mount_base_insert));
-        }
+        translate([head_motor_mount_screw_radius(), 0, 0])
+          children();
   }
+
+  // Separate flags because the two have different lives: the insert is set into the lid once and
+  // stays, while the screw comes out whenever the mount does. The insert drawn alone is also how
+  // the interference against its hole reads on screen.
+  if (render_motor_mount_inserts || render_all)
+    motor_mount_fastener_at()
+      insert(motor_mount_base_insert);
+
+  if (render_motor_mount_screws || render_all)
+    motor_mount_fastener_at()
+      translate([0, 0, _mm_grip])
+        screw(motor_mount_base_screw, screw_length(motor_mount_base_screw, _mm_grip, 0, insert=motor_mount_base_insert));
 
   // shaft coupling
   if (render_shaft_coupler || render_all) {
