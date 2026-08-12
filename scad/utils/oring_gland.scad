@@ -33,8 +33,24 @@
 // against, and the only one of the two worth holding to size.
 function oring_gland_od(id, cs) = id + 2 * cs;
 
-function oring_gland_width(cs) = cs * 1.5;
+// Table A's groove width, stepped at the cords it tabulates. The ratio is 1.5 for everything at
+// or under 0.070 in and tapers as the cord grows, because a fat cord spreads proportionally less
+// than a thin one. Real cords are the tabulated ones; anything in between takes the ratio of the
+// next size up, and oring_gland_fill is what catches a groove that cannot hold its ring.
+function oring_gland_width(cs) =
+  cs <= 1.78 ? cs * 1.500  // .020 through .070 in
+  : cs <= 2.62 ? cs * 1.417 // .103 in
+  : cs <= 3.53 ? cs * 1.403 // .139 in
+  : cs <= 5.33 ? cs * 1.333 // .210 in
+  : cs * 1.273; // .275 in
+
+// Depth for a target squeeze, and the same arithmetic either way up: axial glands want 19-33%
+// squeeze at this scale, radial ones 14-23%, so it is the caller that knows which it is cutting.
 function oring_gland_depth(cs, squeeze = 0.25) = cs * (1 - squeeze);
 
 // Fraction of the groove the cord fills. Over 1 and the ring cannot be closed into it.
 function oring_gland_fill(cs, width, depth) = (PI * pow(cs, 2) / 4) / (width * depth);
+
+// How far a ring is stretched onto a groove of this diameter. A piston gland wants 0 to 5%:
+// slack lets the ring sag out of its groove, and stretching thins the cord it seals with.
+function oring_stretch(ring_id, groove_bottom_diameter) = (groove_bottom_diameter - ring_id) / ring_id;

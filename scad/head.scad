@@ -7,6 +7,7 @@
 */
 
 use <utils/bolt_pattern.scad>;
+use <utils/oring_gland.scad>;
 
 use <custom/motor_mount.scad>;
 use <custom/bayonet_port.scad>;
@@ -67,6 +68,39 @@ lid_holes_n = 12;
 lid_holes_offset = 2.0;
 // allowance for the bearing and shaft holes
 bearing_hole_allowance = 0.2;
+
+/* [Lid Seal Parameters] */
+
+/** How the lid seals to the jar.
+ * - The pressure boundary is a flat gasket cut from sheet, squeezed between the lid's flange and
+ *   the flat land on top of the glass rim. It is recessed rather than clamped flat: the recess
+ *   makes its compression a printed dimension instead of a torque guess, and because the recess
+ *   swallows the gasket the flange still lands where it did, so the frame stack above is
+ *   untouched. The land left either side of the recess bottoms on the glass and stops the bolts
+ *   crushing the gasket, over an annulus broad enough that the stress on the glass is nothing.
+ * - The plug o-ring is not a second pressure boundary and should not be trusted as one. A radial
+ *   seal's squeeze is bore minus groove, so it tracks the jar's bore one for one, and a
+ *   commodity jar's bore is not a controlled dimension - half a millimetre on the radius moves
+ *   this cord across the whole of its usable band. It is here to centre the plug in the neck,
+ *   which it does whatever the bore turns out to be, and to stand behind the gasket against
+ *   splash. Sized toward the loose end for that reason.
+ * Bands are Apple Rubber's Table A, static seals: 19-33% squeeze axial, 14-23% radial at this
+ * cord. https://www.applerubber.com/src/pdf/section4-seal-types-and-gland-design-tables.pdf
+ */
+
+// thickness of the EPDM sheet the rim gasket is cut from
+lid_gasket_thickness = 1.5;
+// fraction of that the recess squeezes out; 25% is mid-band for a soft sheet
+lid_gasket_compression = 0.25;
+// land left between the gasket and each edge of the glass's flat top, for the flange to bear on
+lid_gasket_land_margin = 1.0;
+// cord of the o-ring centring the plug in the neck; 2.62 is the AS568 1xx series. A 3.53 cord
+// digs too deep for this plug and trips the wall assert - the groove is cut from the bore, so a
+// fatter cord eats the material between it and the ports
+lid_plug_oring_cs = 2.62;
+// radial squeeze; low in the 14-25% band because a ring stretched onto the groove thins by
+// roughly half its stretch, landing this nearer 16%
+lid_plug_oring_squeeze = 0.18;
 
 /* [Bearing Parameters] */
 
@@ -251,6 +285,19 @@ function head_lid_plug_diameter(vessel_opening_diameter) = vessel_opening_diamet
 function head_port_circle_radius(vessel_opening_diameter) =
   head_lid_plug_diameter(vessel_opening_diameter) / 2 - bayonet_port_hole_radius(head_bayonet) - lid_holes_offset;
 
+// The gasket sits on the flat top of the glass, which runs from the bore out by the wall
+// thickness, inset by a land at each edge for the flange to bottom on.
+function head_gasket_inner_radius(vessel_opening_diameter) =
+  vessel_opening_diameter / 2 + lid_gasket_land_margin;
+function head_gasket_outer_radius(vessel_opening_diameter, vessel_wall_thickness) =
+  vessel_opening_diameter / 2 + vessel_wall_thickness - lid_gasket_land_margin;
+function head_gasket_depth() = lid_gasket_thickness * (1 - lid_gasket_compression);
+
+// A piston gland: cut relative to the bore it seals against, not to the plug it is cut into, so
+// the ring's squeeze is what the glass leaves it.
+function head_plug_oring_groove_radius(vessel_opening_diameter) =
+  vessel_opening_diameter / 2 - oring_gland_depth(lid_plug_oring_cs, lid_plug_oring_squeeze);
+
 // Place children at port i, on the ring and turned to face out.
 module head_port_at(i, vessel_opening_diameter) {
   rotate([0, 0, i * 360 / lid_holes_n])
@@ -258,9 +305,16 @@ module head_port_at(i, vessel_opening_diameter) {
       children();
 }
 
-module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, frame_wall_thickness, post_pts, post_hole_diameter) {
+module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, frame_wall_thickness, post_pts, post_hole_diameter) {
 
   _thickness = head_lid_thickness(lid_flange_height);
+
+  // z = 0 is the lid's outer face here and the part is flipped by the caller, so the flange's
+  // glass-facing side is its far face, at z = lid_flange_height, where the plug starts.
+  _gasket_depth = head_gasket_depth();
+  _plug_groove_w = oring_gland_width(lid_plug_oring_cs);
+  _plug_groove_z = lid_flange_height + lid_plug_height / 2; // mid plug: most land either side,
+  // and clear of the bayonet channels, which sit in the half of the coupling nearest this face
 
   // the rods run through the flange alongside the bolts, so every post on the circle is bored
   bolt_pattern_bores(post_pts, post_hole_diameter, lid_flange_height + z_fight, -z_fight / 2)
@@ -295,6 +349,22 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
         head_port_at(i, vessel_opening_diameter)
           translate([0, 0, _thickness / 2])
             cylinder(r=bayonet_port_hole_radius(head_bayonet), h=_thickness + z_fight, center=true);
+
+      // rim gasket recess, sunk into the flange's glass-facing face
+      translate([0, 0, lid_flange_height - _gasket_depth])
+        difference() {
+          cylinder(r=head_gasket_outer_radius(vessel_opening_diameter, vessel_wall_thickness), h=_gasket_depth + z_fight);
+          translate([0, 0, -z_fight])
+            cylinder(r=head_gasket_inner_radius(vessel_opening_diameter), h=_gasket_depth + z_fight * 3);
+        }
+
+      // o-ring groove round the plug
+      translate([0, 0, _plug_groove_z - _plug_groove_w / 2])
+        difference() {
+          cylinder(r=head_lid_plug_diameter(vessel_opening_diameter) / 2 + 1, h=_plug_groove_w);
+          translate([0, 0, -z_fight])
+            cylinder(r=head_plug_oring_groove_radius(vessel_opening_diameter), h=_plug_groove_w + z_fight * 2);
+        }
     }
 }
 
@@ -357,7 +427,7 @@ module head_port(port, panel_thickness) {
   }
 }
 
-module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_internal_height, frame_wall_thickness, post_pts, post_hole_diameter) {
+module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, vessel_internal_height, frame_wall_thickness, post_pts, post_hole_diameter) {
 
   // the gearbox carried by the selected motor - single source for gearbox dims
   head_gearbox = dc_motor_gearbox(head_motor);
@@ -421,6 +491,63 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     str(lid_holes_n, " ports leave ", _port_gap, " mm between flanges on a ", port_circle_radius * 2, " mm circle; ", lid_holes_offset, " mm is the least this lid keeps.")
   );
 
+  // --- lid seal ---
+  _gasket_ir = head_gasket_inner_radius(vessel_opening_diameter);
+  _gasket_or = head_gasket_outer_radius(vessel_opening_diameter, vessel_wall_thickness);
+  _groove_r = head_plug_oring_groove_radius(vessel_opening_diameter);
+  _groove_w = oring_gland_width(lid_plug_oring_cs);
+  _ring_id = _groove_r * 2; // 0% stretch; anything down to this over 1.05 still hugs the groove
+
+  echo(str(
+    "lid gasket: cut ", _gasket_ir * 2, " x ", _gasket_or * 2, " mm from ", lid_gasket_thickness,
+    " mm sheet, recess ", head_gasket_depth(), " mm deep (", lid_gasket_compression * 100, "% squeeze)"
+  ));
+  echo(str(
+    "plug o-ring: ", lid_plug_oring_cs, " mm cord, ID ", _ring_id, " mm / ", _ring_id / 25.4,
+    " in down to ", _ring_id / 1.05, " mm / ", _ring_id / 1.05 / 25.4, " in (0-5% stretch)"
+  ));
+
+  assert(
+    _gasket_or > _gasket_ir,
+    str("Gasket land margin of ", lid_gasket_land_margin, " mm leaves no gasket on a ", vessel_wall_thickness, " mm rim.")
+  );
+  assert(
+    _gasket_ir > head_lid_plug_diameter(vessel_opening_diameter) / 2,
+    "Gasket recess reaches inside the plug, so it would open into the vessel rather than seat on the rim."
+  );
+  assert(
+    head_gasket_depth() < lid_flange_height,
+    str("Gasket recess is ", head_gasket_depth(), " mm deep in a ", lid_flange_height, " mm flange.")
+  );
+
+  // the groove is cut from the bore, so a fatter cord walks inward toward the port bores; the
+  // wall it must leave them is the same one the lid keeps everywhere else
+  assert(
+    _groove_r - (port_circle_radius + bayonet_lock_bore_radius(head_bayonet)) >= lid_holes_offset,
+    str(
+      "A ", lid_plug_oring_cs, " mm cord puts the plug groove at r ", _groove_r, ", leaving ",
+      _groove_r - (port_circle_radius + bayonet_lock_bore_radius(head_bayonet)),
+      " mm to the port bores; ", lid_holes_offset, " mm is the least this lid keeps."
+    )
+  );
+  assert(
+    _groove_w < lid_plug_height,
+    str("Plug o-ring groove is ", _groove_w, " mm wide and the plug is only ", lid_plug_height, " mm.")
+  );
+
+  // the gland a radial seal actually lives in is the groove's width by the distance from its
+  // bottom out to the bore, which is what the cord has to fit inside once it is squeezed
+  _plug_fill = oring_gland_fill(
+    lid_plug_oring_cs,
+    _groove_w,
+    oring_gland_depth(lid_plug_oring_cs, lid_plug_oring_squeeze)
+  );
+
+  assert(
+    _plug_fill <= 0.90,
+    str("The plug o-ring fills ", _plug_fill * 100, "% of its gland; over 90 leaves the squeeze nowhere to go.")
+  );
+
   // The coupling decides where a port comes to rest, so a port carrying an orientation is only
   // as true as the coupling is keyed. Unkeyed, each of these locks just as willingly in any of
   // its seatings and the plate or the lean ends up somewhere the model never showed.
@@ -472,7 +599,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     color(prints2_color)
       union() {
         rotate([0, 180, 0])
-          lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, frame_wall_thickness, post_pts, post_hole_diameter);
+          lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, frame_wall_thickness, post_pts, post_hole_diameter);
         lid_locks();
       }
   }
@@ -592,6 +719,7 @@ head(
   lid_flange_height=8,
   vessel_outer_diameter=vessel_diameter(reactor_vessel),
   vessel_opening_diameter=vessel_opening_diameter(reactor_vessel),
+  vessel_wall_thickness=vessel_thickness(reactor_vessel),
   vessel_internal_height=vessel_internal_height(reactor_vessel),
   frame_wall_thickness=37,
   post_pts=_preview_post_pts,
