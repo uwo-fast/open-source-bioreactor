@@ -63,6 +63,8 @@ lid_radial_allowance = 0.4;
 lid_vertical_allowance = 0.2;
 // number of holes for the first holes set
 lid_holes_n = 12;
+// minimum wall the lid keeps around a port bore, both to the plug's edge and to its neighbours
+lid_holes_offset = 2.0;
 // allowance for the bearing and shaft holes
 bearing_hole_allowance = 0.2;
 
@@ -240,44 +242,60 @@ module dummy() {
 _preview_bolt_circle = 238.8; // the frame's rod circle for jar_10L_220x305
 _preview_post_pts = bolt_pattern_pts(bolt_post_count(4, 8, _preview_bolt_circle, 8, 0.5), _preview_bolt_circle);
 
+// The lid is one part in two sections: a flange landing on the vessel rim that carries the joint,
+// and a plug entering the mouth that carries the ports. Both sections are bored for the ports, so
+// the ring is set by how far out a bore can sit and still leave lid_holes_offset to the plug's
+// edge. Derived here rather than in each consumer, so the holes and the couplings cannot drift.
+function head_lid_thickness(lid_flange_height) = lid_flange_height + lid_plug_height;
+function head_lid_plug_diameter(vessel_opening_diameter) = vessel_opening_diameter - lid_radial_allowance;
+function head_port_circle_radius(vessel_opening_diameter) =
+  head_lid_plug_diameter(vessel_opening_diameter) / 2 - bayonet_port_hole_radius(head_bayonet) - lid_holes_offset;
+
+// Place children at port i, on the ring and turned to face out.
+module head_port_at(i, vessel_opening_diameter) {
+  rotate([0, 0, i * 360 / lid_holes_n])
+    translate([head_port_circle_radius(vessel_opening_diameter), 0, 0])
+      children();
+}
+
 module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, frame_wall_thickness, post_pts, post_hole_diameter) {
+
+  _thickness = head_lid_thickness(lid_flange_height);
 
   // the rods run through the flange alongside the bolts, so every post on the circle is bored
   bolt_pattern_bores(post_pts, post_hole_diameter, lid_flange_height + z_fight, -z_fight / 2)
-  difference() {
-    // flange, then the plug that enters the vessel opening
-    union() {
-      cylinder(d=vessel_outer_diameter + frame_wall_thickness, h=lid_flange_height);
-      translate([0, 0, lid_flange_height])
-        cylinder(d=vessel_opening_diameter - lid_radial_allowance, h=lid_plug_height);
-    }
-    
-    // cut out the bearing and shaft hole
-    translate([0, 0, -z_fight / 2])
+    difference() {
+      // flange, then the plug that enters the vessel opening
       union() {
-        // shaft hole
-        cylinder(d=shaft_diameter + bearing_hole_allowance, h=lid_flange_height + lid_plug_height + z_fight);
-
-        // bearing pocket
-        rotate([0, 0, 30])
-          cylinder(d=bearing_diameter + bearing_hole_allowance, h=bearing_height + z_fight);
+        cylinder(d=vessel_outer_diameter + frame_wall_thickness, h=lid_flange_height);
+        translate([0, 0, lid_flange_height])
+          cylinder(d=head_lid_plug_diameter(vessel_opening_diameter), h=lid_plug_height);
       }
 
-    // Motor mount base holes
-    // #for (i = [0:3])
-    //   rotate([0, 0, i * 90])
-    //     translate([motor_mount_screw_distance, 0, -z_fight / 2])
-    //       cylinder(d=gearbox_screw_diameter(head_motor), h=lid_flange_height + z_fight);
+      // cut out the bearing and shaft hole
+      translate([0, 0, -z_fight / 2])
+        union() {
+          // shaft hole
+          cylinder(d=shaft_diameter + bearing_hole_allowance, h=_thickness + z_fight);
 
-    // cut out the entry holes for the probes and tubes; the port sizes its own hole so the
-    // lock keeps a bearing land against the lid's underside
-    for (hole_rot = [0:360 / lid_holes_n:360]) {
-      rotate([0, 0, hole_rot])
-        translate([vessel_outer_diameter / 4, 0, (lid_flange_height + lid_plug_height) / 2]) {
-          cylinder(r=bayonet_port_hole_radius(head_bayonet), h=lid_flange_height + lid_plug_height + z_fight, center=true);
+          // bearing pocket
+          rotate([0, 0, 30])
+            cylinder(d=bearing_diameter + bearing_hole_allowance, h=bearing_height + z_fight);
         }
+
+      // Motor mount base holes
+      // #for (i = [0:3])
+      //   rotate([0, 0, i * 90])
+      //     translate([motor_mount_screw_distance, 0, -z_fight / 2])
+      //       cylinder(d=gearbox_screw_diameter(head_motor), h=lid_flange_height + z_fight);
+
+      // cut out the entry holes for the probes and tubes; the port sizes its own hole so the
+      // lock keeps a bearing land against the lid's underside
+      for (i = [0:lid_holes_n - 1])
+        head_port_at(i, vessel_opening_diameter)
+          translate([0, 0, _thickness / 2])
+            cylinder(r=bayonet_port_hole_radius(head_bayonet), h=_thickness + z_fight, center=true);
     }
-  }
 }
 
 // One port pin half, dispatched on its registered type. All share the same bayonet
@@ -372,13 +390,13 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   // The lid is flipped so its outer face lands on z = 0, which is the datum both port halves
   // are built around; that is why the ports below need no z placement of their own.
-  lid_thickness = lid_flange_height + lid_plug_height;
+  lid_thickness = head_lid_thickness(lid_flange_height);
 
-  port_circle_radius = vessel_outer_diameter / 4;
+  port_circle_radius = head_port_circle_radius(vessel_opening_diameter);
 
   // centred on its port the plate crosses the circle the impellers sweep, so it stops above them
   baffle_max_length =
-    vessel_internal_height - shaft_jar_punt_clearance - impeller_height - impeller_spacing - baffle_impeller_clearance - lid_thickness;
+  vessel_internal_height - shaft_jar_punt_clearance - impeller_height - impeller_spacing - baffle_impeller_clearance - lid_thickness;
 
   _baffle_at = [for (i = [0:lid_holes_n - 1]) if (head_ports[i][0] == "baffle") i];
 
@@ -387,9 +405,17 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   echo("baffles: ", len(_baffle_at), " x ", _baffle_width, " mm wide, up to ", baffle_max_length, " mm long");
 
+  // the ring is sized against the plug's edge, so what it does not settle is whether that many
+  // bores still clear each other on it
+  _port_gap = 2 * port_circle_radius * sin(180 / lid_holes_n) - bayonet_port_hole_radius(head_bayonet) * 2;
+
   assert(
-    len(_baffle_at) == 0 ||
-    _baffle_at == [for (k = [0:len(_baffle_at) - 1]) _baffle_at[0] + k * lid_holes_n / len(_baffle_at)],
+    _port_gap >= lid_holes_offset,
+    str(lid_holes_n, " ports leave ", _port_gap, " mm between bores on a ", port_circle_radius * 2, " mm circle; ", lid_holes_offset, " mm is the least this lid keeps.")
+  );
+
+  assert(
+    len(_baffle_at) == 0 || _baffle_at == [for (k = [0:len(_baffle_at) - 1]) _baffle_at[0] + k * lid_holes_n / len(_baffle_at)],
     str("Baffles must come out equally spaced, but ", len(_baffle_at), " of them sit at ", _baffle_at, " of ", lid_holes_n, " holes.")
   );
 
@@ -413,10 +439,9 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   if (render_bayonet_lock || render_all) {
     for (i = [0:lid_holes_n - 1]) {
       color(prints2_color)
-        rotate([0, 0, i * 360 / lid_holes_n])
-          translate([port_circle_radius, 0, 0])
-            // add the bayonet locks
-            bayonet_port(type=head_bayonet, part="lock", panel_thickness=lid_thickness);
+        head_port_at(i, vessel_opening_diameter)
+          // add the bayonet locks
+          bayonet_port(type=head_bayonet, part="lock", panel_thickness=lid_thickness);
     }
   }
 
@@ -432,10 +457,9 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
       if (_show)
         color(prints1_color)
-          rotate([0, 0, i * 360 / lid_holes_n])
-            translate([port_circle_radius, 0, 0])
-              rotate([0, 0, _port_turn])
-                head_port(_port, lid_thickness);
+          head_port_at(i, vessel_opening_diameter)
+            rotate([0, 0, _port_turn])
+              head_port(_port, lid_thickness);
     }
   }
 
@@ -525,8 +549,6 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 }
 
 reactor_vessel = jar_10L_220x305; // [generic_vessel, jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x215, jar_1gal_155x251]
-
-
 
 head(
   lid_flange_height=8,
