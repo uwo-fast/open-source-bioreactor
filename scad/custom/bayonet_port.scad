@@ -12,17 +12,22 @@
  * a single translate() to the hole centre - no flips and no stack-up arithmetic:
  *
  *      +z    _________
- *            | flange |   z = [0, flange_h]                   pin half, outside the vessel
- *       0  --|--------|--  panel OUTER face, o-ring rebate cut into this face
- *            | shank  |   z = [-panel, 0]                     pin half, through the hole
- *  -panel  --|--------|--  panel INNER face, the lock bears here
- *            |coupling|   z = [-panel-part_h, -panel]         both halves, inside the vessel
+ *            | flange |   z = [0, flange_h]      pin half, outside the vessel; the o-ring
+ *       0  --|--------|--  panel OUTER face      groove is cut into its underside, and the
+ *            |coupling|   z = [-panel, 0]        land either side of that groove seats here
+ *  -panel  --|--------|--  panel INNER face      both halves, filling the panel's thickness
+ *
+ * The coupling fills the hole rather than hanging below it: part_height is the panel
+ * thickness, so there is nothing under the inner face. The lock is a radial interference fit
+ * into the bore (bayonet_port_hole_fudge) rather than a part bearing on a face, which is why
+ * it unions into the panel and its channels become the walls of the panel's bore.
  *
  * The lock half is the same for every port, which is why the adapters in this directory only
  * build pin halves and the lid takes its locks straight from here.
  */
 
 use <bayonet-lock-scad/bayonet_lock.scad>
+use <../utils/oring_gland.scad>
 include <bayonet_interfaces.scad>
 
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
@@ -38,15 +43,15 @@ $fa = $preview ? 6 : 2;
 $fs = $preview ? 1.2 : 0.6;
 
 // Accessors for the registered bayonet interface (see bayonet_interfaces.scad).
-//   ["name" [iface_r, shell_t, pin_r, part_h, allow], [flange_h, flange_r], [oring_cs, oring_intf], [n_pins, sweep, pin_dir, turn_dir]]
+//   ["name" [iface_r, shell_t, pin_r, allow], [flange_h, flange_lip], [oring_id, oring_cs], [n_pins, sweep, pin_dir, turn_dir, key]]
 function bayonet_interface_radius(type)   = type[1][0]; // mating surface radius
 function bayonet_shell_thickness(type)    = type[1][1]; // annulus thickness either side of the interface
 function bayonet_pin_radius(type)         = type[1][2]; // locking pin radius
 function bayonet_allowance(type)          = type[1][3]; // fit clearance between mating halves
 function bayonet_flange_height(type)      = type[2][0]; // flange thickness (0 for no flange)
-function bayonet_flange_radius(type)      = type[2][1]; // flange outer radius
-function bayonet_oring_cs_diameter(type)  = type[3][0]; // o-ring cross section (undef to disable seal)
-function bayonet_oring_interference(type) = type[3][1]; // o-ring squeeze; rebate depth is cs - this
+function bayonet_flange_lip(type)         = type[2][1]; // material outboard of the o-ring groove
+function bayonet_oring_id(type)           = type[3][0]; // o-ring inside diameter (undef to disable seal)
+function bayonet_oring_cs_diameter(type)  = type[3][1]; // o-ring cross section
 function bayonet_number_of_pins(type)     = type[4][0]; // locking points around the coupling
 function bayonet_sweep_angle(type)        = type[4][1]; // arc the pin travels when turning
 function bayonet_pin_direction(type)      = type[4][2]; // "inner" or "outer"
@@ -78,6 +83,20 @@ bayonet_port_hole_fudge = 0.1;
 // The clearance hole a port needs through the panel. Big enough to pass the pin half's
 // coupling band on assembly, small enough that the lock still has a face to bear on.
 function bayonet_port_hole_radius(type) = bayonet_interface_radius(type) + bayonet_shell_thickness(type) - bayonet_port_hole_fudge;
+
+// The seal. Squeezed between the flange's underside and the panel's outer face, so it has to
+// encircle the lock's bore and stand entirely on the land outboard of it; see the asserts in
+// bayonet_port. All of it follows from the registered ring - utils/oring_gland.scad has why.
+function bayonet_gland_outer_radius(type) = oring_gland_od(bayonet_oring_id(type), bayonet_oring_cs_diameter(type)) / 2;
+function bayonet_gland_width(type) = oring_gland_width(bayonet_oring_cs_diameter(type));
+function bayonet_gland_inner_radius(type) = bayonet_gland_outer_radius(type) - bayonet_gland_width(type);
+function bayonet_gland_depth(type) = oring_gland_depth(bayonet_oring_cs_diameter(type));
+
+// Derived, not registered: a flange narrower than its own groove is not expressible.
+function bayonet_flange_radius(type) =
+  is_undef(bayonet_oring_id(type))
+    ? bayonet_interface_radius(type) + bayonet_shell_thickness(type) + bayonet_flange_lip(type)
+    : bayonet_gland_outer_radius(type) + bayonet_flange_lip(type);
 
 // The two mating surfaces of the coupling, the allowance splitting evenly across the interface.
 // The pin face is what an adapter's own geometry grows out of; the lock bore is the gate that
@@ -121,12 +140,29 @@ module bayonet_port(
   allowance = bayonet_allowance(type);
   flange_radius = bayonet_flange_radius(type);
   oring_cs_diameter = bayonet_oring_cs_diameter(type);
-  oring_interference = bayonet_oring_interference(type);
 
   // `part`, `entry_depth` and `shell_thickness` are validated and defaulted by the library.
+
+  // The groove has to stand on the land, not straddle the opening it seals around: inboard of
+  // the lock's bore there is nothing under it but the hole. This is what a ring smaller than
+  // the coupling's opening fails, whatever its cross section.
   assert(
-    oring_cs_diameter == undef || oring_interference < oring_cs_diameter,
-    "bayonet_port: oring_interference must be < oring_cs_diameter (the rebate would have no depth)"
+    is_undef(bayonet_oring_id(type)) || bayonet_gland_inner_radius(type) > bayonet_lock_bore_radius(type),
+    str(
+      "bayonet_port: a ", bayonet_oring_id(type), " x ", oring_cs_diameter, " o-ring puts the groove's",
+      " inner wall at r ", bayonet_gland_inner_radius(type), ", inside the lock's ",
+      bayonet_lock_bore_radius(type), " bore - the seal would sit over the opening"
+    )
+  );
+
+  assert(
+    is_undef(bayonet_oring_id(type)) ||
+    oring_gland_fill(oring_cs_diameter, bayonet_gland_width(type), bayonet_gland_depth(type)) <= 0.90,
+    str(
+      "bayonet_port: the o-ring fills ",
+      oring_gland_fill(oring_cs_diameter, bayonet_gland_width(type), bayonet_gland_depth(type)) * 100,
+      "% of its groove; over 90 leaves the squeeze nowhere to go"
+    )
   );
 
   // Without the keying helpers pin_angles reaches the library as undef and the coupling renders
@@ -147,8 +183,8 @@ module bayonet_port(
 
   // The flange and its seal belong to the pin half; the lock is bare coupling.
   _flange_h = (part == "lock") ? 0 : bayonet_flange_height(type);
-  _oring_enabled = !is_undef(oring_cs_diameter) && part != "lock";
-  _rebate_h = _oring_enabled ? oring_cs_diameter - oring_interference : 0;
+  _oring_enabled = !is_undef(bayonet_oring_id(type)) && part != "lock";
+  _gland_h = _oring_enabled ? bayonet_gland_depth(type) : 0;
 
   difference() {
     union() {
@@ -187,14 +223,16 @@ module bayonet_port(
     if (part == "pin" && center_bore_radius > 0)
       cylinder(h=(panel_thickness + _flange_h) * 3, r=center_bore_radius, center=true);
 
-    // O-ring rebate: an annular recess in the flange's panel-facing face
-    if (_rebate_h > 0) {
+    // O-ring groove, sunk into the flange's panel-facing face. Only the ring is cut, so the
+    // face either side of it stays proud and lands on the panel - that contact is the stop
+    // that makes the squeeze the groove's depth rather than however far the coupling happens
+    // to pull down.
+    if (_gland_h > 0) {
       translate([0, 0, -z_fight])
-      difference(){
-          cylinder(h=_rebate_h , r=flange_radius + z_fight);
-          cylinder(h=_rebate_h + z_fight, r=interface_radius - allowance);
-          }
-        
+        difference() {
+          cylinder(h=_gland_h + z_fight, r=bayonet_gland_outer_radius(type));
+          cylinder(h=(_gland_h + z_fight) * 3, r=bayonet_gland_inner_radius(type), center=true);
+        }
     }
 
     // Catch pockets (holes for pliers to grip and rotate), sunk into the outer face

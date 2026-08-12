@@ -411,13 +411,14 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   echo("baffles: ", len(_baffle_at), " x ", _baffle_width, " mm wide, up to ", baffle_max_length, " mm long");
 
-  // the ring is sized against the plug's edge, so what it does not settle is whether that many
-  // bores still clear each other on it
-  _port_gap = 2 * port_circle_radius * sin(180 / lid_holes_n) - bayonet_port_hole_radius(head_bayonet) * 2;
+  // the port circle is sized against the plug's edge, so what it does not settle is whether
+  // that many ports clear each other on it. The flange is the widest thing a port has, and it
+  // carries the o-ring groove outboard of the bore, so it is what meets the neighbour first.
+  _port_gap = 2 * port_circle_radius * sin(180 / lid_holes_n) - bayonet_flange_radius(head_bayonet) * 2;
 
   assert(
     _port_gap >= lid_holes_offset,
-    str(lid_holes_n, " ports leave ", _port_gap, " mm between bores on a ", port_circle_radius * 2, " mm circle; ", lid_holes_offset, " mm is the least this lid keeps.")
+    str(lid_holes_n, " ports leave ", _port_gap, " mm between flanges on a ", port_circle_radius * 2, " mm circle; ", lid_holes_offset, " mm is the least this lid keeps.")
   );
 
   // The coupling decides where a port comes to rest, so a port carrying an orientation is only
