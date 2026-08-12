@@ -429,20 +429,30 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     str("Baffle reaches ", port_circle_radius + _baffle_width / 2, " mm out, past the ", vessel_opening_diameter / 2 - baffle_neck_clearance, " mm the jar's neck allows.")
   );
 
-  // Render the lid with pockets for the bearing and shaft, and holes for the bayonet locks
-  if (render_lid || render_all) {
-    color(prints2_color)
-      rotate([0, 180, 0])
-        lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, frame_wall_thickness, post_pts, post_hole_diameter);
+  // Every lock in the lid's bores, in the port datum. The bore is bayonet_port_hole_fudge
+  // narrower than the lock, so this unions into the lid rather than dropping into it.
+  module lid_locks() {
+    for (i = [0:lid_holes_n - 1])
+      head_port_at(i, vessel_opening_diameter)
+        bayonet_port(type=head_bayonet, part="lock", panel_thickness=lid_thickness);
   }
 
-  if (render_bayonet_lock || render_all) {
-    for (i = [0:lid_holes_n - 1]) {
-      color(prints2_color)
-        head_port_at(i, vessel_opening_diameter)
-          // add the bayonet locks
-          bayonet_port(type=head_bayonet, part="lock", panel_thickness=lid_thickness);
-    }
+  // The lid part: the blank, pocketed for the bearing and shaft and bored for the ports, with
+  // its locks. One printed piece - the channels are the walls of its bores, so a lid without
+  // them exports as twelve plain holes and nothing will lock into it.
+  if (render_lid || render_all) {
+    color(prints2_color)
+      union() {
+        rotate([0, 180, 0])
+          lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, frame_wall_thickness, post_pts, post_hole_diameter);
+        lid_locks();
+      }
+  }
+
+  // the locks alone, for looking at the channels the assembled lid buries
+  if (render_bayonet_lock && !(render_lid || render_all)) {
+    color(prints2_color)
+      lid_locks();
   }
 
   // Port pin halves. Each shares the lock's datum, so it needs no placement beyond its hole
