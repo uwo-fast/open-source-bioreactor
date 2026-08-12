@@ -26,6 +26,12 @@
   - recorded in the row comments for now: `rwntao_13in` is 3 tubes per cord, the three `grow_*` are 4. `lights_per_quadrant` in `frame.scad` is still set by hand and has no relation to what a cord actually carries
   - `strip_lights.scad` would gain the count, and `frame.scad` would derive placement from it rather than from a free parameter — cords come in fixed multiples, so the current setup can ask for a light count no purchasable product provides
 
+## tooling / infrastructure / documentation
+
+- [ ] add PowerShell and shell scripts to export a chosen assembly parameter set (eventually JSON, once the assembly is fully parameterized) as individual STL files, together with a print list, BOM, and other relevant build outputs
+- [ ] run `tokei` in CI to report lines of code and other codebase statistics
+- [ ] adopt the Just the Docs OpenSCAD setup for this project, including its web-based OpenSCAD preview
+
 ## second hardware revision
 
 - [ ] use a less expensive shaft for the impeller and try and get in 300mm instead of oversized 400mm thats being compensated by the parameteric printed motor mount
