@@ -6,6 +6,8 @@
 - [ ] replace as many of the "generic" parameter registrations as possible with specific ones for the actual hardware (i.e. mcmaster carr part numbers or best effort for other parts)
 - [ ] rethink how the impeller diameter is driven, and guard it
   - `head()` scales it off `vessel_outer_diameter`, but what it has to pass through is the vessel *opening*; nothing asserts the impeller is smaller than the opening, so an out-of-range `impeller_impeller_vessel_outer_diameter_factor` silently models an impeller that cannot be installed
+- [ ] caliper the real jar rim against the registered profile
+  - the lid's gasket recess is cut to the flat land on top of the glass, which the model puts at 5.00 mm wide (r 71.5 out to 76.5) with a 2 mm bead rolled outboard below it. That land comes from the registered `rim_radius` and wall thickness rather than from a measurement, and the recess width follows from it, so it is worth confirming before cutting a gasket to it
 - [ ] align the assembly -> subassembly -> part parameter interfaces
   - `head.scad` and `frame.scad` hardcode the vessel dimensions in their standalone preview calls (`220 / 143 / 295` and `305 / 220`), which reproduce `jar_10L_220x305` — 295 being a hand-copy of the derived `vessel_internal_height()`. Deliberate for now so each subassembly previews standalone; fold into the interface pass rather than patching piecemeal
 - [x] carry the probe tail and connector dimensions in `atlas_probes.scad` and read them back
@@ -25,6 +27,16 @@
 - [ ] register lights per cord on the strip lights and drive the frame from it
   - recorded in the row comments for now: `rwntao_13in` is 3 tubes per cord, the three `grow_*` are 4. `lights_per_quadrant` in `frame.scad` is still set by hand and has no relation to what a cord actually carries
   - `strip_lights.scad` would gain the count, and `frame.scad` would derive placement from it rather than from a free parameter — cords come in fixed multiples, so the current setup can ask for a light count no purchasable product provides
+
+## bill of materials
+
+- [ ] add the sealing parts the model now calls for
+  - AS568-160 EPDM o-ring, 5.237 in ID x 0.103 in cord, one per lid. It centres the plug in the neck and is stretched onto a groove sized from the jar's bore, so a substitute has to land in the range `head.scad` echoes at render: 132.098 to 138.703 mm ID, which is 0 to 5% stretch
+  - EPDM sheet stock, 1.5 mm, for the rim gasket. The cut is 145 x 151 mm and is echoed too, so the row can quote it rather than duplicate the arithmetic
+  - the existing "Silicone gasket ring, 142 mm ID" row is this same rim gasket under an older name, at a size that cannot pass over the 142.6 mm plug. Replace that row rather than adding beside it
+- [ ] the head-to-frame joint fasteners have no rows at all
+  - the model draws 8 M8 hex bolts clamping the lid flange to the top base, 8 nuts for them, and 3 nuts on each of the 4 tie rods - 20 M8 nuts in total. Only the rod itself is listed
+  - hold the bolt length until the lid-to-top-base gap is settled: `frame.scad` sizes them for an 18 mm grip and so picks M8x25, but the real span across the gap is 20.4 mm and wants M8x30. That gap is the first work package of the parameter audit, so buying against the current figure would be buying the wrong bolt
 
 ## tooling / infrastructure / documentation
 
