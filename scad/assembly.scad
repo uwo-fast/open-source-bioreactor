@@ -133,9 +133,30 @@ assert(
 
 echo("joint: ", joint_posts, " posts at ", bolt_post_spacing(joint_posts, joint_bolt_circle), " mm on a ", joint_bolt_circle, " mm circle");
 
+// The vessel sections itself by revolving through 180 degrees, which keeps the +y half. Cut the
+// head to that same half so the two read as one section: almost everything the head seals with
+// is buried - the o-ring glands, the bayonet channels, the gasket recess - and a section is the
+// only way to look at them in place.
+// Sectioning is for looking, never for making: a mesh export is how parts are taken out of this
+// file, and a part exported half-cut would be silently wrong. $preview is false in exactly that
+// case, so the section is confined to it.
+_section_active = cross_section_active && $preview;
+
+module cross_section(active) {
+  _s = vessel_height(reactor_vessel) * 2; // comfortably past anything the head reaches
+
+  if (active)
+    difference() {
+      children();
+      translate([-_s, -_s, -_s]) cube([_s * 2, _s, _s * 2]);
+    }
+  else
+    children();
+}
+
 // vessel
 if (render_vessel || render_all) {
-  vessel(reactor_vessel, angle=(cross_section_active ? 180 : 360));
+  vessel(reactor_vessel, angle=(_section_active ? 180 : 360));
 }
 
 if (render_frame || render_all) {
@@ -154,6 +175,7 @@ if (render_frame || render_all) {
 }
 
 if (render_head || render_all) {
+  cross_section(_section_active)
   translate([0, 0, vessel_height(reactor_vessel) + lid_flange_height])
     head(
       lid_flange_height=lid_flange_height,

@@ -8,6 +8,7 @@
 
 use <utils/bolt_pattern.scad>;
 use <utils/oring_gland.scad>;
+use <custom/sheet_gasket.scad>;
 
 use <custom/motor_mount.scad>;
 use <custom/bayonet_port.scad>;
@@ -20,6 +21,7 @@ include <purchased/dc_motors.scad>;
 include <purchased/gearboxes.scad>;
 include <purchased/vessels.scad>;
 include <purchased/atlas_probes.scad>;
+include <purchased/orings.scad>;
 
 include <custom/bayonet_interfaces.scad>;
 
@@ -46,6 +48,7 @@ render_tube_pinlock = false;
 render_thermocouple_pinlock = false;
 render_probe_pinlock = false;
 render_baffle_pinlock = false;
+render_seals = false; // the EPDM parts: rim gasket, plug o-ring, port o-rings
 
 // Draw the lid's 24 bayonet halves as bare shells while previewing; their pins and channels
 // are boolean-heavy and only the coupling positions read on screen. Renders are unaffected.
@@ -94,10 +97,10 @@ lid_gasket_thickness = 1.5;
 lid_gasket_compression = 0.25;
 // land left between the gasket and each edge of the glass's flat top, for the flange to bear on
 lid_gasket_land_margin = 1.0;
-// cord of the o-ring centring the plug in the neck; 2.62 is the AS568 1xx series. A 3.53 cord
-// digs too deep for this plug and trips the wall assert - the groove is cut from the bore, so a
-// fatter cord eats the material between it and the ports
-lid_plug_oring_cs = 2.62;
+// the o-ring centring the plug in the neck. Its groove is cut from the jar's bore rather than
+// from the ring, so the ring is stretched onto it and head() checks that stretch rather than
+// deriving from it. A 3.53 cord digs too deep for this plug and trips the wall assert below
+lid_plug_oring = oring_as568_160_epdm;
 // radial squeeze; low in the 14-25% band because a ring stretched onto the groove thins by
 // roughly half its stretch, landing this nearer 16%
 lid_plug_oring_squeeze = 0.18;
@@ -292,11 +295,12 @@ function head_gasket_inner_radius(vessel_opening_diameter) =
 function head_gasket_outer_radius(vessel_opening_diameter, vessel_wall_thickness) =
   vessel_opening_diameter / 2 + vessel_wall_thickness - lid_gasket_land_margin;
 function head_gasket_depth() = lid_gasket_thickness * (1 - lid_gasket_compression);
+function head_plug_groove_width() = oring_gland_width(oring_cross_section(lid_plug_oring));
 
 // A piston gland: cut relative to the bore it seals against, not to the plug it is cut into, so
 // the ring's squeeze is what the glass leaves it.
 function head_plug_oring_groove_radius(vessel_opening_diameter) =
-  vessel_opening_diameter / 2 - oring_gland_depth(lid_plug_oring_cs, lid_plug_oring_squeeze);
+  vessel_opening_diameter / 2 - oring_gland_depth(oring_cross_section(lid_plug_oring), lid_plug_oring_squeeze);
 
 // Place children at port i, on the ring and turned to face out.
 module head_port_at(i, vessel_opening_diameter) {
@@ -312,7 +316,7 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
   // z = 0 is the lid's outer face here and the part is flipped by the caller, so the flange's
   // glass-facing side is its far face, at z = lid_flange_height, where the plug starts.
   _gasket_depth = head_gasket_depth();
-  _plug_groove_w = oring_gland_width(lid_plug_oring_cs);
+  _plug_groove_w = head_plug_groove_width();
   _plug_groove_z = lid_flange_height + lid_plug_height / 2; // mid plug: most land either side,
   // and clear of the bayonet channels, which sit in the half of the coupling nearest this face
 
@@ -495,17 +499,28 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _gasket_ir = head_gasket_inner_radius(vessel_opening_diameter);
   _gasket_or = head_gasket_outer_radius(vessel_opening_diameter, vessel_wall_thickness);
   _groove_r = head_plug_oring_groove_radius(vessel_opening_diameter);
-  _groove_w = oring_gland_width(lid_plug_oring_cs);
+  _groove_w = head_plug_groove_width();
   _ring_id = _groove_r * 2; // 0% stretch; anything down to this over 1.05 still hugs the groove
 
   echo(str(
     "lid gasket: cut ", _gasket_ir * 2, " x ", _gasket_or * 2, " mm from ", lid_gasket_thickness,
     " mm sheet, recess ", head_gasket_depth(), " mm deep (", lid_gasket_compression * 100, "% squeeze)"
   ));
+  _plug_stretch = oring_stretch(oring_inner_diameter(lid_plug_oring), _ring_id);
+
   echo(str(
-    "plug o-ring: ", lid_plug_oring_cs, " mm cord, ID ", _ring_id, " mm / ", _ring_id / 25.4,
-    " in down to ", _ring_id / 1.05, " mm / ", _ring_id / 1.05 / 25.4, " in (0-5% stretch)"
+    "plug o-ring: ", oring_name(lid_plug_oring), " at ", _plug_stretch * 100, "% stretch. Groove takes ",
+    "ID ", _ring_id, " mm / ", _ring_id / 25.4, " in down to ",
+    _ring_id / 1.05, " mm / ", _ring_id / 1.05 / 25.4, " in (0-5% stretch)"
   ));
+
+  assert(
+    _plug_stretch >= 0 && _plug_stretch <= 0.05,
+    str(
+      oring_name(lid_plug_oring), " sits at ", _plug_stretch * 100, "% stretch on a ", _ring_id,
+      " mm groove; under 0 it sags out of the groove and over 5 it thins the cord it seals with."
+    )
+  );
 
   assert(
     _gasket_or > _gasket_ir,
@@ -525,7 +540,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   assert(
     _groove_r - (port_circle_radius + bayonet_lock_bore_radius(head_bayonet)) >= lid_holes_offset,
     str(
-      "A ", lid_plug_oring_cs, " mm cord puts the plug groove at r ", _groove_r, ", leaving ",
+      "A ", oring_cross_section(lid_plug_oring), " mm cord puts the plug groove at r ", _groove_r, ", leaving ",
       _groove_r - (port_circle_radius + bayonet_lock_bore_radius(head_bayonet)),
       " mm to the port bores; ", lid_holes_offset, " mm is the least this lid keeps."
     )
@@ -538,9 +553,9 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // the gland a radial seal actually lives in is the groove's width by the distance from its
   // bottom out to the bore, which is what the cord has to fit inside once it is squeezed
   _plug_fill = oring_gland_fill(
-    lid_plug_oring_cs,
+    oring_cross_section(lid_plug_oring),
     _groove_w,
-    oring_gland_depth(lid_plug_oring_cs, lid_plug_oring_squeeze)
+    oring_gland_depth(oring_cross_section(lid_plug_oring), lid_plug_oring_squeeze)
   );
 
   assert(
@@ -608,6 +623,28 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   if (render_bayonet_lock && !(render_lid || render_all)) {
     color(prints2_color)
       lid_locks();
+  }
+
+  // The EPDM. Each is drawn at its free size on the diameter it is installed at, so it overlaps
+  // what it seals against by exactly the squeeze its gland was cut for - that overlap is the
+  // check. Kept behind their own flag so a part export never picks up a purchased ring.
+  if (render_seals || render_all) {
+    // rim gasket, standing proud of the flange by what the recess squeezes out of it
+    translate([0, 0, -lid_flange_height - (lid_gasket_thickness - head_gasket_depth())])
+      sheet_gasket(_gasket_ir * 2, _gasket_or * 2, lid_gasket_thickness);
+
+    // plug o-ring, stretched onto its groove and reaching past the plug into the glass
+    translate([0, 0, -lid_flange_height - lid_plug_height / 2])
+      oring(lid_plug_oring, id=_ring_id);
+
+    // port o-rings, each seated against the outer wall of its gland
+    for (i = [0:lid_holes_n - 1])
+      head_port_at(i, vessel_opening_diameter)
+        translate([0, 0, bayonet_gland_depth(head_bayonet) / 2])
+          oring(
+            bayonet_oring(head_bayonet),
+            id=(bayonet_gland_outer_radius(head_bayonet) - bayonet_oring_cs_diameter(head_bayonet)) * 2
+          );
   }
 
   // Port pin halves. Each shares the lock's datum, so it needs no placement beyond its hole
