@@ -166,7 +166,6 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
   lower_base_height = base_floor_height + lower_base_wall_height;
 
   // ribs and spacers share one stack, so both read these rather than deriving them separately
-  // TODO: n_rib_levels is still hardcoded to 2 by the loops below
   n_rib_levels = 2;
   ribs_per_level = double_ribs ? 2 : 1;
   rib_level_height = rib_base_height * ribs_per_level;
@@ -356,8 +355,8 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
       // Number of rods holders on the ribs
       n_rods_ribs = 2;
 
-      // create the ribs
-      for (i = [1:2]) {
+      // create the ribs, one level per rib level
+      for (i = [1:n_rib_levels]) {
 
         rib_pos = lower_base_height + spacer_pitch * i - spacer_joint + rib_level_height * (i - 1);
 
@@ -399,7 +398,8 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
     if (render_rodspacers || render_all) {
       rod_spacer_diameter = threaded_rod_diameter + 2 * rod_spacer_thickness;
 
-      color(prints2_color)for (i = [0:2]) {
+      // one spacer run under each rib level and one above the topmost, hence the extra
+      color(prints2_color)for (i = [0:n_rib_levels]) {
         for (j = [0:n_rods - 1]) {
 
           spacer_pos = lower_base_height + spacer_pitch * i + spacer_joint + rib_level_height * i;
