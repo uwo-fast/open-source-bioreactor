@@ -34,6 +34,12 @@ include <NopSCADlib/vitamins/screws.scad>; // M4_cap_screw type + screw()
 include <NopSCADlib/vitamins/ball_bearings.scad>; // BB608 type + bb_diameter()/bb_width()
 use <NopSCADlib/vitamins/shaft_coupling.scad>;
 
+// Preview only, and only for the joint. The frame derives the rod circle, the bore and the outer
+// face from its own allowances, and the assembly hands all three to head(); standalone there is
+// nobody to hand them over, so the preview runs the same accessors rather than quoting what they
+// came out as. use, not include, so none of the frame's geometry comes with them.
+use <frame.scad>;
+
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
@@ -298,9 +304,6 @@ module dummy() {
 
 // the assembly derives the joint from the frame and hands the same pattern to both sides; the
 // standalone preview reproduces it, see the interface TODO about the hardcoded vessel dimensions
-_preview_bolt_circle = 238.8; // the frame's rod circle for jar_10L_220x305
-_preview_post_pts = bolt_pattern_pts(bolt_post_count(4, 8, _preview_bolt_circle, 8, 0.5), _preview_bolt_circle);
-
 // The lid is one part in two sections: a flange landing on the vessel rim that carries the joint,
 // and a plug entering the mouth that carries the ports. Both sections are bored for the ports, so
 // the ring is set by how far out a bore can sit and still leave lid_holes_offset to the plug's
@@ -936,13 +939,28 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
 reactor_vessel = jar_10L_220x305; // [generic_vessel, jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x215, jar_1gal_155x251]
 
+// The two the assembly chooses rather than derives; everything below follows from them.
+_preview_flange_height = 8;
+_preview_wall_thickness = 37;
+_preview_n_rods = 4;
+_preview_bolt = M8_hex_screw;
+
+_preview_bolt_circle = frame_bolt_circle_diameter(vessel_diameter(reactor_vessel));
+_preview_post_pts = bolt_pattern_pts(
+  bolt_post_count(
+    _preview_n_rods, screw_radius(_preview_bolt) * 2, _preview_bolt_circle,
+    _preview_flange_height, head_gasket_factor()
+  ),
+  _preview_bolt_circle
+);
+
 head(
-  lid_flange_height=8,
+  lid_flange_height=_preview_flange_height,
   vessel_outer_diameter=vessel_diameter(reactor_vessel),
   vessel_opening_diameter=vessel_opening_diameter(reactor_vessel),
   vessel_wall_thickness=vessel_thickness(reactor_vessel),
   vessel_internal_height=vessel_internal_height(reactor_vessel),
-  joint_outer_diameter=257.4, // frame_outer_diameter(220, 37); see the interface TODO
+  joint_outer_diameter=frame_outer_diameter(vessel_diameter(reactor_vessel), _preview_wall_thickness),
   post_pts=_preview_post_pts,
-  post_hole_diameter=9.2
+  post_hole_diameter=frame_rod_hole_diameter()
 );

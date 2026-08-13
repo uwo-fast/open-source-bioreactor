@@ -7,6 +7,7 @@
 */
 
 include <purchased/strip_lights.scad>;
+include <purchased/vessels.scad>; // the preview builds against a registered jar, not copied numbers
 
 use <utils/bolt_pattern.scad>;
 
@@ -31,9 +32,14 @@ render_lights = false;
 // -------
 
 frame(
-  vessel_height=305, vessel_outer_diameter=220, light=_preview_light, wall_thickness=37,
-  lid_flange_height=8, n_rods=4, bolt_screw=M8_hex_screw,
-  bolt_pts=bolt_pattern_pts(_preview_posts, _preview_bolt_circle, 4),
+  vessel_height=vessel_height(_preview_vessel),
+  vessel_outer_diameter=vessel_diameter(_preview_vessel),
+  light=_preview_light,
+  wall_thickness=_preview_wall_thickness,
+  lid_flange_height=_preview_flange_height,
+  n_rods=_preview_n_rods,
+  bolt_screw=_preview_bolt,
+  bolt_pts=bolt_pattern_pts(_preview_posts, _preview_bolt_circle, _preview_n_rods),
   collapse_spacer_z_allow=false
 );
 
@@ -115,12 +121,24 @@ function frame_bolt_circle_diameter(vessel_outer_diameter) =
 function frame_outer_diameter(vessel_outer_diameter, wall_thickness) =
   (vessel_outer_diameter + base_jar_fit_allow) + wall_thickness;
 
-// the assembly derives the joint once and hands the same pattern to the frame and the lid; the
-// standalone preview above reproduces it, see the interface TODO about the hardcoded vessel dimensions
-_preview_bolt_circle = frame_bolt_circle_diameter(220);
-_preview_posts = bolt_post_count(4, threaded_rod_diameter, _preview_bolt_circle, 8, 0.5);
-// the light is the assembly's to choose, same as the vessel; this is only what the preview builds
+// What the assembly would hand this frame. The vessel, the light, the wall and the flange are its
+// choices, so the preview picks them; everything after that is derived here the same way the
+// assembly derives it, rather than quoting the numbers it comes out as.
+_preview_vessel = jar_10L_220x305;
 _preview_light = rwntao_13in;
+_preview_wall_thickness = 37;
+_preview_flange_height = 8;
+_preview_n_rods = 4;
+_preview_bolt = M8_hex_screw;
+// the head owns the gasket and hence the factor; standalone there is nobody to ask, so this is the
+// soft-sheet value the registered EPDM gives
+_preview_gasket_factor = 0.5;
+
+_preview_bolt_circle = frame_bolt_circle_diameter(vessel_diameter(_preview_vessel));
+_preview_posts = bolt_post_count(
+  _preview_n_rods, screw_radius(_preview_bolt) * 2, _preview_bolt_circle,
+  _preview_flange_height, _preview_gasket_factor
+);
 
 module lights(quadrants, vessel_outer_diameter, light, lights_per_quadrant, occupy_angle, allowance_cutout = undef) {
   for (q = quadrants) {
