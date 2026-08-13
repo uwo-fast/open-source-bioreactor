@@ -159,6 +159,19 @@ assert(
 
 echo("joint: ", joint_posts, " posts at ", bolt_post_spacing(joint_posts, joint_bolt_circle), " mm on a ", joint_bolt_circle, " mm circle");
 
+// The assembled reactor's envelope, for anything that has to make room for one - cart.scad is the
+// only such thing today. Composed here because the reactor is what this file assembles: the frame
+// sets the width and the depth below the jar, the head's drive stack sets the top. Measured
+// against a mesh export of the whole assembly at 257.400 x 543.750 mm.
+function reactor_envelope_diameter() =
+  frame_outer_diameter(vessel_diameter(reactor_vessel), frame_wall_thickness);
+function reactor_envelope_height() =
+  frame_floor_depth(vessel_height(reactor_vessel), reactor_lights)
+  + vessel_height(reactor_vessel) + lid_flange_height
+  + head_stack_height(vessel_internal_height(reactor_vessel));
+
+echo("reactor envelope: ", reactor_envelope_diameter(), " mm dia x ", reactor_envelope_height(), " mm tall");
+
 // The vessel sections itself by revolving through 180 degrees, which keeps the +y half. Cut the
 // head to that same half so the two read as one section: almost everything the head seals with
 // is buried - the o-ring glands, the bayonet channels, the gasket recess - and a section is the

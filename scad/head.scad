@@ -332,6 +332,19 @@ function head_gasket_depth() = gasket_sheet_thickness(lid_gasket_sheet) * (1 - l
 // over. The joint's bolt count is derived from it, and the assembly reads it back from here
 // because the sheet is the head's to choose - same shape as the frame exporting its bolt circle.
 function head_gasket_factor() = gasket_sheet_shore_a(lid_gasket_sheet) < 75 ? 0.5 : 1.0;
+
+// The drive stack, from the lid's outer face up. head() builds against these rather than
+// recomputing them, and anything that has to make room for an assembled reactor reads them back
+// out - the cart is the one that does.
+function head_shaft_protrusion(vessel_internal_height) =
+  shaft_length - (vessel_internal_height - shaft_jar_punt_clearance);
+function head_motor_mount_height(vessel_internal_height) =
+  gearbox_output_shaft_length(dc_motor_gearbox(head_motor))
+  + head_shaft_protrusion(vessel_internal_height) + shaft_shaft_coupling_offset;
+// top of the motor, which is the highest thing on the reactor
+function head_stack_height(vessel_internal_height) =
+  head_motor_mount_height(vessel_internal_height)
+  + dc_motor_length(head_motor) + gearbox_length(dc_motor_gearbox(head_motor));
 function head_plug_groove_width() = oring_gland_width(oring_cross_section(lid_plug_oring));
 
 // A piston gland: cut relative to the bore it seals against, not to the plug it is cut into, so
@@ -524,7 +537,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   );
 
   // Motor and shaft driven parameters
-  shaft_protrusion = shaft_length - (vessel_internal_height - shaft_jar_punt_clearance);
+  shaft_protrusion = head_shaft_protrusion(vessel_internal_height);
 
   // What the shaft leaves above the lid for the coupling to grip. At or below zero the shaft ends
   // inside the vessel and there is nothing for the motor to couple to.
@@ -546,7 +559,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   );
 
   // the height that the motor coupling assembly requires
-  motor_mount_height = gearbox_output_shaft_length(head_gearbox) + shaft_protrusion + shaft_shaft_coupling_offset;
+  motor_mount_height = head_motor_mount_height(vessel_internal_height);
   echo("motor mount height: ", motor_mount_height / 10, " cm");
 
   // --- motor mount joint ---

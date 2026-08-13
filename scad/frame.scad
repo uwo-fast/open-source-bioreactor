@@ -121,6 +121,15 @@ function frame_bolt_circle_diameter(vessel_outer_diameter) =
 function frame_outer_diameter(vessel_outer_diameter, wall_thickness) =
   (vessel_outer_diameter + base_jar_fit_allow) + wall_thickness;
 
+// How far the frame reaches below the vessel's bottom. The lights set it: the base floor is
+// whatever is left once a light, a nut and a half for the radial bolt heads, and the top base have
+// been stacked against the vessel's height. Read back out by anything that has to make room for an
+// assembled reactor, since it is the bottom of the envelope.
+_base_floor_height_min = 2; // minimum height of the base floor
+function frame_floor_depth(vessel_height, light) =
+  let (delta = (strip_light_length(light) + nut_height * 1.5 + upper_base_height) - vessel_height)
+    delta > _base_floor_height_min ? delta : _base_floor_height_min;
+
 // What the assembly would hand this frame. The vessel, the light, the wall and the flange are its
 // choices, so the preview picks them; everything after that is derived here the same way the
 // assembly derives it, rather than quoting the numbers it comes out as.
@@ -168,10 +177,7 @@ module lights(quadrants, vessel_outer_diameter, light, lights_per_quadrant, occu
 
 module frame(vessel_height, vessel_outer_diameter, light, wall_thickness, lid_flange_height, n_rods, bolt_pts, bolt_screw, collapse_spacer_z_allow=true) {
 
-  _base_floor_height_min = 2; // minimum height of the base floor
-
-  height_delta = (strip_light_length(light) + nut_height * 1.5 + upper_base_height) - vessel_height; // 150% nut thickness added so radial bolt heads have clearance
-  base_floor_height = height_delta > _base_floor_height_min ? height_delta : _base_floor_height_min;
+  base_floor_height = frame_floor_depth(vessel_height, light);
 
   // total height of the assembly
   total_height = vessel_height + base_floor_height;

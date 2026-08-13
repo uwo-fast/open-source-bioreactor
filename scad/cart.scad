@@ -28,6 +28,11 @@ include <NopSCADlib/vitamins/extrusion_brackets.scad>; // 3D corner bracket + sc
 
 include <purchased/castors.scad>; // swivel plate castor vitamin
 
+// The cart has to hold assembled bioreactors, so it reads their envelope back out of the assembly
+// the same way the assembly reads the frame's outer diameter. use, not include, so assembling a
+// reactor is not a side effect of drawing the cart.
+use <assembly.scad>;
+
 $fn = $preview ? 48 : 96;
 
 /* [Part Render Selection] */
@@ -39,10 +44,6 @@ show_bioreactors = true;
 
 /* [Bioreactor Envelope] */
 
-// outer diameter of one bioreactor (matches vessel_outer_diameter)
-bioreactor_diameter = 220;
-// full height of one bioreactor unit (vessel + head + frame)
-bioreactor_height = 450;
 // clearance around a bioreactor on every side
 side_clearance = 20;
 // vertical gap above a bioreactor before the next tier
@@ -59,6 +60,13 @@ module dummy() {
 }
 
 // --- derived geometry -------------------------------------------------------
+
+// What one assembled bioreactor actually occupies, read back from the assembly rather than
+// restated here. The diameter is the frame's, not the jar's: the frame stands outboard of the
+// glass and is the widest thing on the unit. The height runs from the frame's floor, below the
+// jar, to the top of the motor.
+bioreactor_diameter = reactor_envelope_diameter();
+bioreactor_height = reactor_envelope_height();
 
 ew = extrusion_width(cart_extrusion);
 
