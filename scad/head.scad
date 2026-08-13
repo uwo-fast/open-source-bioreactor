@@ -79,7 +79,8 @@ lid_plug_height = 10;
 lid_radial_allowance = 0.4;
 // height allowance for the lid to fit on the jar
 lid_vertical_allowance = 0.2;
-// minimum wall the lid keeps around a port bore, both to the plug's edge and to its neighbours
+// minimum wall the lid keeps around a bore: to the plug's edge, to a neighbouring port, and to the
+// flange's outer edge for the joint posts
 lid_holes_offset = 2.0;
 // allowance for the bearing and shaft holes
 bearing_hole_allowance = 0.2;
@@ -631,6 +632,19 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   assert(
     _port_gap >= lid_holes_offset,
     str(lid_holes_n, " ports leave ", _port_gap, " mm between flanges on a ", port_circle_radius * 2, " mm circle; ", lid_holes_offset, " mm is the least this lid keeps.")
+  );
+
+  // The joint posts are bored through the flange, and where its edge falls is the assembly's to
+  // set, so nothing here stops a bore running off it. Caught only incidentally today, and by the
+  // frame complaining about its own wall, in another file.
+  _post_reach = max([for (p = post_pts) norm(p)]) + post_hole_diameter / 2;
+
+  assert(
+    joint_outer_diameter / 2 >= _post_reach + lid_holes_offset,
+    str(
+      "Joint bores reach r ", _post_reach, " on a flange of r ", joint_outer_diameter / 2,
+      "; ", lid_holes_offset, " mm is the least this lid keeps."
+    )
   );
 
   // --- lid seal ---
