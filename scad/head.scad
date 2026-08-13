@@ -626,11 +626,16 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     _ring_id / 1.05, " mm / ", _ring_id / 1.05 / 25.4, " in (0-5% stretch)"
   ));
 
+  // One ring is registered for the whole vessel registry while the groove is cut from each jar's
+  // own bore, so what this catches is the ring being wrong for the jar, not the jar being wrong.
+  // Closing it properly means carrying a plug ring per vessel row - see the audit.
   assert(
     _plug_stretch >= 0 && _plug_stretch <= 0.05,
     str(
-      oring_name(lid_plug_oring), " sits at ", _plug_stretch * 100, "% stretch on a ", _ring_id,
-      " mm groove; under 0 it sags out of the groove and over 5 it thins the cord it seals with."
+      oring_name(lid_plug_oring), " is the wrong ring for this bore: its ",
+      oring_inner_diameter(lid_plug_oring), " mm ID sits at ", _plug_stretch * 100,
+      "% stretch on the ", _ring_id, " mm groove, which takes a ring of ", _ring_id / 1.05,
+      " to ", _ring_id, " mm. Under 0 it sags out of the groove and over 5 it thins the cord."
     )
   );
 

@@ -123,12 +123,25 @@ module dummy() {
 // the joint is derived once here, since the top base and the lid flange have to be bored from the
 // same pattern or the holes will not line up; the lid flange is the thinner of the two, so it governs
 joint_bolt_circle = frame_bolt_circle_diameter(vessel_diameter(reactor_vessel));
+// Every post is bored to the rod's clearance, bolts included. The rods are what needs it - four of
+// them thread through three plates at once - and the plug locates the lid radially, not the bolts,
+// so the bolt positions are deliberately loose rather than fitted to the screw.
 joint_hole_diameter = frame_rod_hole_diameter();
 joint_posts = bolt_post_count(n_rods, screw_radius(joint_bolt) * 2, joint_bolt_circle, lid_flange_height, lid_gasket_factor);
 
 assert(
   bolt_post_spacing(joint_posts, joint_bolt_circle) >= screw_radius(joint_bolt) * 5, // 2.5x nominal, enough to get a wrench in
   str("Bolt spacing of ", bolt_post_spacing(joint_posts, joint_bolt_circle), " mm is too tight to get a wrench on.")
+);
+
+// Loose is a choice; too small is not. The bore never reads the screw, so tightening the rod's
+// allowance or thinning the rod takes the bolt holes down with it, silently.
+assert(
+  joint_hole_diameter >= screw_clearance_radius(joint_bolt) * 2,
+  str(
+    "The joint is bored ", joint_hole_diameter, " mm from the rod's allowance, but an M",
+    screw_radius(joint_bolt) * 2, " bolt needs ", screw_clearance_radius(joint_bolt) * 2, " mm to pass."
+  )
 );
 
 echo("joint: ", joint_posts, " posts at ", bolt_post_spacing(joint_posts, joint_bolt_circle), " mm on a ", joint_bolt_circle, " mm circle");
