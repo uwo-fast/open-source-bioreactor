@@ -71,8 +71,6 @@ lid_plug_height = 10;
 lid_radial_allowance = 0.4;
 // height allowance for the lid to fit on the jar
 lid_vertical_allowance = 0.2;
-// number of holes for the first holes set
-lid_holes_n = 12;
 // minimum wall the lid keeps around a port bore, both to the plug's edge and to its neighbours
 lid_holes_offset = 2.0;
 // allowance for the bearing and shaft holes
@@ -238,6 +236,10 @@ head_ports = [
   ["tube", 1.5],
   ["baffle", 0],
 ];
+
+// how many bayonet locks the lid carries. The list above is the statement of it, so this counts
+// it rather than repeating it; the assert in head() still catches an override that disagrees
+lid_holes_n = len(head_ports);
 
 /* [Baffle Parameters] */
 
