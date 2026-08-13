@@ -30,16 +30,14 @@
 
 ## bill of materials
 
-- [ ] add the sealing parts the model now calls for
-  - AS568-160 EPDM o-ring, 5.237 in ID x 0.103 in cord, one per lid. It centres the plug in the neck and is stretched onto a groove sized from the jar's bore, so a substitute has to land in the range `head.scad` echoes at render: 132.098 to 138.703 mm ID, which is 0 to 5% stretch
-  - EPDM sheet stock, 1.5 mm, for the rim gasket. The cut is 145 x 151 mm and is echoed too, so the row can quote it rather than duplicate the arithmetic
-  - the existing "Silicone gasket ring, 142 mm ID" row is this same rim gasket under an older name, at a size that cannot pass over the 142.6 mm plug. Replace that row rather than adding beside it
-- [ ] add the motor mount joint fasteners
-  - 4 heat-set inserts and 4 M4 x 8 socket head screws per lid. The insert is registered in `scad/purchased/heat_set_inserts.scad` and picked out in `docs/procurement.md`; the screw length is derived from it, so the row can quote what `head.scad` echoes rather than repeat the arithmetic
-  - a soldering iron with a conical tip is the install tool, and stainless wants more heat and dwell than brass would. McMaster sell tips for it if we do not want to use a working iron's bit
-- [ ] the head-to-frame joint fasteners have no rows at all
-  - the model draws 8 M8 hex bolts clamping the lid flange to the top base, 8 nuts for them, and 3 nuts on each of the 4 tie rods - 20 M8 nuts in total. Only the rod itself is listed
-  - the bolt length is settled: the grip now counts the lid-to-top-base gap, so `frame.scad` sizes for 20.4 mm and picks M8x30. 8 of those and 20 M8 nuts
+- [x] add the sealing parts, the motor mount fasteners and the head-to-frame joint fasteners
+  - every part the model calls for now has a row in `purchased-parts.csv`: the AS568-160 plug o-ring, the EPDM rim gasket sheet, 4 heat-set inserts and 4 M4 x 8 screws per lid, and 8 M8x30 bolts with 20 M8 nuts for the joint
+  - the "Silicone gasket ring, 142 mm ID" row was this same rim gasket under an older name, at a size that cannot pass over the 142.6 mm plug. Replaced rather than added beside
+  - each row quotes what the model echoes at render rather than repeating the arithmetic, so a substitute is checked against the echo: the ring against the 132.098-138.703 mm ID window, the sheet against the 145 x 151 mm cut, the screws against the insert's 4.7 mm of thread
+  - a soldering iron with a conical tip is the install tool for the inserts, and stainless wants more heat and dwell than brass would. McMaster sell tips for it if we do not want to use a working iron's bit
+- [ ] pick McMaster part numbers for the four fastener rows
+  - the M8x30 bolt, the M8 nut, the M4x8 socket head screw and the AS568-160 EPDM o-ring are specified but carry `TODO` in the part_number column. Everything needed to select them is in the row; what is missing is a catalogue number and a price
+  - the rest of the sealing and mount hardware is already pinned: 8525T65 sheet, 97163A152 insert, 8785N383 port o-ring, 6153K71 bearing
 
 ## tooling / infrastructure / documentation
 
