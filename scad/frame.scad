@@ -57,6 +57,8 @@ light_allow = 0.4;
 
 // diameter of the threaded rod
 threaded_rod_diameter = 8.0; // M8
+// the nut that runs on it - every pocket, every drawn nut and every height reads this one
+rod_nut = M8_nut;
 // allowance for the nut pocket to fit the nut
 nut_pocket_allowance = 0.6;
 // allowance for the hole for the threaded rod
@@ -65,9 +67,9 @@ threaded_rod_hole_allowance = 1.2;
 rod_thread_proud = 2.5;
 
 // diameter of the nut
-nut_pocket_diameter = 2 * nut_radius(M8_nut) + nut_pocket_allowance;
+nut_pocket_diameter = 2 * nut_radius(rod_nut) + nut_pocket_allowance;
 // height of the nut
-nut_height = nut_thickness(M8_nut);
+nut_height = nut_thickness(rod_nut);
 
 /* [Base Parameters] */
 
@@ -204,6 +206,12 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
     )
   );
 
+  // The rod is a diameter and the nut is a registered part, and nothing else makes the two agree.
+  assert(
+    nut_size(rod_nut) == threaded_rod_diameter,
+    str("The rod is ", threaded_rod_diameter, " mm but its nut is an M", nut_size(rod_nut), ".")
+  );
+
   // The top base carries a nut pocket sunk into its underside, so it has to be deeper than the nut
   // or the pocket opens out the bottom and merges with the bolt bores into a slot.
   assert(
@@ -254,18 +262,18 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
             // within of base
             translate([0, 0, base_floor_height])
               rotate([0, 0, 30])
-                nut(M8_nut);
+                nut(rod_nut);
 
             // pocketed in the top base, holding it as the fixed face the lid bolts to
             translate([0, 0, total_height - stack_slack - nut_height - z_fight])
               rotate([0, 0, 30])
-                nut(M8_nut);
+                nut(rod_nut);
 
             // the rods are posts like the bolts, so they take a nut on top of the lid as well.
             // The lid sits on the rim, so this reads total_height, not the top base's face
             translate([0, 0, total_height + lid_flange_height])
               rotate([0, 0, 30])
-                nut(M8_nut);
+                nut(rod_nut);
           }
       }
 
