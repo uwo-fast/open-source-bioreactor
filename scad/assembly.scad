@@ -34,36 +34,46 @@
  * The _archive directory contains older versions of the components that are no longer in use, but are kept for reference and potential future use.
  * The _shelf directory contains components that are not currently in use, but may be used in the future or are kept for reference.
  *
- * Cross-coupling:
+ * Cross-coupling. Every row is something two components must agree on, and every one of them is
+ * derived once here and handed down, never derived twice:
  *
- * - vessel  <->  frame:     1) Outer diameter of vessel, and 
- *                           2) height of vessel.
+ * - vessel -> frame:   outer diameter, height.
  *
- * - vessel  <->  head:      1) Outer diameter of vessel, 
- *                           2) opening diameter of vessel, and 
- *                           3) internal height of vessel.
+ * - vessel -> head:    outer diameter, opening diameter, wall thickness, internal height.
+ *                      The wall thickness is what the rim gasket is cut to, so it arrived with
+ *                      the seals and is not optional.
  *
- * - head    <->  frame:     1) lid_flange_height, 
- *                              note: the frame assumes the head 
- *                              presents a flat circular face the 
- *                              same diameter as the vessel, with
- *                              an edge at least the thickness of 
- *                              the vessel wall.
+ * - light  -> frame:   the registered strip light itself, not its length. The frame pockets it,
+ *                      slots its cord and sizes its base floor from it, so it needs the row.
  *
- * From this we can determine which parameters much be passed from the top-level assembly:
- * - vessel:
- *   - vessel height
- *   - vessel diameter
- *   - vessel opening diameter
- * - head:
- *   - chosen lid flange height
- *   - vessel opening diameter
- *   - vessel outer diameter
- *   - vessel internal height
- * - frame:
- *   - vessel height
- *   - vessel diameter
- *   - lid flange height
+ * - head  <-> frame:   the joint, which is one thing in four parts:
+ *                        lid_flange_height        chosen here, both build to it
+ *                        joint bolt circle        frame_bolt_circle_diameter(), the rod circle
+ *                        joint bore               frame_rod_hole_diameter(), the rod's clearance,
+ *                                                 which the bolt positions share deliberately
+ *                        joint outer diameter     frame_outer_diameter(), the face the lid flange
+ *                                                 closes and the frame's bases close
+ *                      and the post pattern derived from the circle, which both are bored from.
+ *
+ * - head   -> here:    head_gasket_factor(). The head owns the registered gasket sheet, and the
+ *                      sheet's hardness is what sets the joint's bolt count, so the count is read
+ *                      back out of the head rather than entered here.
+ *
+ * The three frame_* accessors are read back out of frame.scad the same way the vessel's dimensions
+ * are read out of its registration. head.scad calls them too, but only in its standalone preview,
+ * which has nobody to hand it a joint.
+ *
+ * What each module is actually passed, which is the signatures in head.scad and frame.scad:
+ * - vessel(type, angle)
+ * - frame:  vessel_height, vessel_outer_diameter, light, wall_thickness, lid_flange_height,
+ *           n_rods, bolt_pts, bolt_screw, collapse_spacer_z_allow
+ * - head:   lid_flange_height, vessel_outer_diameter, vessel_opening_diameter,
+ *           vessel_wall_thickness, vessel_internal_height, joint_outer_diameter, post_pts,
+ *           post_hole_diameter
+ *
+ * The frame no longer assumes anything about the face the head presents: it is handed
+ * joint_outer_diameter and the head builds its flange to exactly that. That the bores land on the
+ * flange with wall left around them is checked in head(), not assumed.
  */
 
 include <purchased/vessels.scad>;
