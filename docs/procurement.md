@@ -37,6 +37,18 @@
     the dearer buy for a single lid. Worth revisiting for a batch build
   - https://www.mcmaster.com/94180A351/
 
+- rim gasket sheet selection
+  - McMaster-Carr 8525T65
+  - water- and steam-resistant EPDM, plain backing, black, ASTM D2000
+  - 1/16 in thick (1.5875 mm), 12 in x 12 in sheet
+  - Durometer 60A, 800 psi maximum, -20 to 220 F
+  - the lid's gasket is cut 145 x 151 mm, so one sheet yields four
+  - hardness is what sets the joint's bolt count, not just the material: under 75A the ASME
+    VIII-1 gasket factor m is 0.5 and the lid takes 12 posts, at or over it m is 1.0 and the
+    lid takes 16. `head_gasket_factor()` derives that from the registered row, so buying a
+    harder sheet changes the print rather than quietly under-bolting the joint
+  - https://www.mcmaster.com/8525T65/
+
 - current motors in lab
   - 36GP-3530 Planetary Gear DC Motor Torque 50KG (12V 1154 RPM)
   - https://electric-b2c.com/products/36gp-3530-planetary-gear-dc-motor-torque-50kg-12v-24v-reduce-speed-8pm-to-1154rpm-pwm-reverse-forward-electric-12-volt-motor?variant=47572164116673

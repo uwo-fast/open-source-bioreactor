@@ -24,6 +24,7 @@ include <purchased/atlas_probes.scad>;
 include <purchased/orings.scad>;
 include <purchased/heat_set_inserts.scad>;
 include <purchased/shaft_couplings.scad>;
+include <purchased/gasket_sheets.scad>;
 
 include <custom/bayonet_interfaces.scad>;
 
@@ -96,8 +97,10 @@ bearing_hole_allowance = 0.2;
  * cord. https://www.applerubber.com/src/pdf/section4-seal-types-and-gland-design-tables.pdf
  */
 
-// thickness of the EPDM sheet the rim gasket is cut from
-lid_gasket_thickness = 1.5;
+// the registered sheet the rim gasket is cut from. Its thickness sets the recess depth and its
+// hardness sets the gasket factor the joint's bolt count comes from, so both are read back rather
+// than entered - see head_gasket_factor() below
+lid_gasket_sheet = sheet_epdm_1p6_60a;
 // fraction of that the recess squeezes out; 25% is mid-band for a soft sheet
 lid_gasket_compression = 0.25;
 // land left between the gasket and each edge of the glass's flat top, for the flange to bear on
@@ -319,7 +322,12 @@ function head_gasket_inner_radius(vessel_opening_diameter) =
   vessel_opening_diameter / 2 + lid_gasket_land_margin;
 function head_gasket_outer_radius(vessel_opening_diameter, vessel_wall_thickness) =
   vessel_opening_diameter / 2 + vessel_wall_thickness - lid_gasket_land_margin;
-function head_gasket_depth() = lid_gasket_thickness * (1 - lid_gasket_compression);
+function head_gasket_depth() = gasket_sheet_thickness(lid_gasket_sheet) * (1 - lid_gasket_compression);
+
+// Gasket factor m, ASME VIII-1 Table 2-5.1: 0 for an o-ring, 0.5 for elastomer under 75A, 1.0
+// over. The joint's bolt count is derived from it, and the assembly reads it back from here
+// because the sheet is the head's to choose - same shape as the frame exporting its bolt circle.
+function head_gasket_factor() = gasket_sheet_shore_a(lid_gasket_sheet) < 75 ? 0.5 : 1.0;
 function head_plug_groove_width() = oring_gland_width(oring_cross_section(lid_plug_oring));
 
 // A piston gland: cut relative to the bore it seals against, not to the plug it is cut into, so
@@ -630,8 +638,9 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _ring_id = _groove_r * 2; // 0% stretch; anything down to this over 1.05 still hugs the groove
 
   echo(str(
-    "lid gasket: cut ", _gasket_ir * 2, " x ", _gasket_or * 2, " mm from ", lid_gasket_thickness,
-    " mm sheet, recess ", head_gasket_depth(), " mm deep (", lid_gasket_compression * 100, "% squeeze)"
+    "lid gasket: cut ", _gasket_ir * 2, " x ", _gasket_or * 2, " mm from ",
+    gasket_sheet_name(lid_gasket_sheet), " (", gasket_sheet_thickness(lid_gasket_sheet),
+    " mm), recess ", head_gasket_depth(), " mm deep (", lid_gasket_compression * 100, "% squeeze)"
   ));
   _plug_stretch = oring_stretch(oring_inner_diameter(lid_plug_oring), _ring_id);
 
@@ -779,8 +788,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // check. Kept behind their own flag so a part export never picks up a purchased ring.
   if (render_seals || render_all) {
     // rim gasket, standing proud of the flange by what the recess squeezes out of it
-    translate([0, 0, -lid_flange_height - (lid_gasket_thickness - head_gasket_depth())])
-      sheet_gasket(_gasket_ir * 2, _gasket_or * 2, lid_gasket_thickness);
+    translate([0, 0, -lid_flange_height - (gasket_sheet_thickness(lid_gasket_sheet) - head_gasket_depth())])
+      sheet_gasket(_gasket_ir * 2, _gasket_or * 2, gasket_sheet_thickness(lid_gasket_sheet));
 
     // plug o-ring, stretched onto its groove and reaching past the plug into the glass
     translate([0, 0, -lid_flange_height - lid_plug_height / 2])

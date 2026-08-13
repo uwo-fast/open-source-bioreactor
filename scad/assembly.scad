@@ -113,8 +113,9 @@ frame_wall_thickness = 37; // thickness of the frame walls, which is the distanc
 n_rods = 4;
 // the fastener clamping the lid flange to the top base, its nut and clearance following from the type
 joint_bolt = M8_hex_screw;
-// gasket factor m for the lid seal, ASME VIII-1 Table 2-5.1: 0 o-ring, 0.5 silicone under 75A, 1.0 over
-lid_gasket_factor = 0.5;
+// gasket factor m for the lid seal, read back from the registered sheet the head is built around
+// rather than entered here - a harder sheet wants more bolts and nothing else would say so
+lid_gasket_factor = head_gasket_factor();
 
 module dummy() {
   // stop the customizer detection from here onwards
