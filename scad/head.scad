@@ -342,7 +342,7 @@ module head_port_at(i, vessel_opening_diameter) {
       children();
 }
 
-module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, frame_wall_thickness, post_pts, post_hole_diameter) {
+module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter) {
 
   _thickness = head_lid_thickness(lid_flange_height);
 
@@ -358,7 +358,7 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
     difference() {
       // flange, then the plug that enters the vessel opening
       union() {
-        cylinder(d=vessel_outer_diameter + frame_wall_thickness, h=lid_flange_height);
+        cylinder(d=joint_outer_diameter, h=lid_flange_height);
         translate([0, 0, lid_flange_height])
           cylinder(d=head_lid_plug_diameter(vessel_opening_diameter), h=lid_plug_height);
       }
@@ -465,7 +465,7 @@ module head_port(port, panel_thickness) {
   }
 }
 
-module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, vessel_internal_height, frame_wall_thickness, post_pts, post_hole_diameter) {
+module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, vessel_internal_height, joint_outer_diameter, post_pts, post_hole_diameter) {
 
   // the gearbox carried by the selected motor - single source for gearbox dims
   head_gearbox = dc_motor_gearbox(head_motor);
@@ -772,7 +772,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     color(prints2_color)
       union() {
         rotate([0, 180, 0])
-          lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, frame_wall_thickness, post_pts, post_hole_diameter);
+          lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter);
         lid_locks();
       }
   }
@@ -942,7 +942,7 @@ head(
   vessel_opening_diameter=vessel_opening_diameter(reactor_vessel),
   vessel_wall_thickness=vessel_thickness(reactor_vessel),
   vessel_internal_height=vessel_internal_height(reactor_vessel),
-  frame_wall_thickness=37,
+  joint_outer_diameter=257.4, // frame_outer_diameter(220, 37); see the interface TODO
   post_pts=_preview_post_pts,
   post_hole_diameter=9.2
 );

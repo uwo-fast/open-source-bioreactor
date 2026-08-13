@@ -108,6 +108,13 @@ function frame_rod_hole_diameter() = threaded_rod_diameter + threaded_rod_hole_a
 function frame_bolt_circle_diameter(vessel_outer_diameter) =
   (vessel_outer_diameter + base_jar_fit_allow) + frame_rod_hole_diameter() * 2;
 
+// The joint's outer face. The wall is material between the jar pocket and the outside, and the
+// pocket carries the fit allowance, so the allowance grows the outside rather than thinning the
+// wall. The lid flange closes the same face, so it reads this rather than rebuilding it from the
+// vessel - which is what left it 0.4 mm short of the frame it lands on.
+function frame_outer_diameter(vessel_outer_diameter, wall_thickness) =
+  (vessel_outer_diameter + base_jar_fit_allow) + wall_thickness;
+
 // the assembly derives the joint once and hands the same pattern to the frame and the lid; the
 // standalone preview above reproduces it, see the interface TODO about the hardcoded vessel dimensions
 _preview_bolt_circle = frame_bolt_circle_diameter(220);
@@ -227,6 +234,9 @@ module frame(vessel_height, vessel_outer_diameter, light, wall_thickness, lid_fl
 
   _base_wall_thickness = wall_thickness;
 
+  // every base closes on this face, and so does the lid flange above them
+  _outer_diameter = frame_outer_diameter(vessel_outer_diameter, wall_thickness);
+
   echo("base wall thickness: ", _base_wall_thickness / 10, " cm");
 
   module frame_lights(local_quadrants = light_quadrants) {
@@ -294,7 +304,7 @@ module frame(vessel_height, vessel_outer_diameter, light, wall_thickness, lid_fl
         color(prints1_color)
           // create the base
           difference() {
-            cylinder(d=base_jar_cut_diameter + _base_wall_thickness, h=lower_base_height);
+            cylinder(d=_outer_diameter, h=lower_base_height);
 
             // jar cavity above the floor, and the bore that leaves the floor a ring
             translate([0, 0, base_floor_height])
@@ -328,7 +338,7 @@ module frame(vessel_height, vessel_outer_diameter, light, wall_thickness, lid_fl
             // the lid bolts down through these, the heads bearing on the face underneath
             bolt_pattern_bores(bolt_pts, threaded_rod_hole_diameter, upper_base_height + z_fight, -z_fight / 2)
             difference() {
-              cylinder(d=base_jar_cut_diameter + _base_wall_thickness, h=upper_base_height);
+              cylinder(d=_outer_diameter, h=upper_base_height);
 
               // hollow right through - the lid sits in it, so there is no floor
               translate([0, 0, f_height])
@@ -371,7 +381,7 @@ module frame(vessel_height, vessel_outer_diameter, light, wall_thickness, lid_fl
                   difference() {
                     union() {
                       rotate_extrude(angle=(n_rods_ribs - 1) * 90)
-                        square([(base_jar_cut_diameter + _base_wall_thickness) / 2, rib_base_height]);
+                        square([_outer_diameter / 2, rib_base_height]);
 
                       // a boss at each rod, so the arc's cut ends still enclose the hole
                       // TODO: make a clean semi circle end cap that matches instead of oversized

@@ -105,7 +105,9 @@ reactor_lights = rwntao_13in;
 // from the top of the vessel to the top of the lid
 lid_flange_height = 8;
 
-frame_wall_thickness = 37; // thickness of the frame walls, which is the distance from the outer edge of the vessel to the outer edge of the frame; also used in lid
+// wall the frame carries outboard of its jar pocket. The lid flange closes on the same outer face,
+// so it is handed frame_outer_diameter() rather than being given this and rebuilding it
+frame_wall_thickness = 37;
 
 /* [Head to Frame Joint] */
 
@@ -196,7 +198,7 @@ if (render_head || render_all) {
       vessel_opening_diameter=vessel_opening_diameter(reactor_vessel),
       vessel_wall_thickness=vessel_thickness(reactor_vessel),
       vessel_internal_height=vessel_internal_height(reactor_vessel),
-      frame_wall_thickness=frame_wall_thickness,
+      joint_outer_diameter=frame_outer_diameter(vessel_diameter(reactor_vessel), frame_wall_thickness),
       post_pts=bolt_pattern_pts(joint_posts, joint_bolt_circle),
       post_hole_diameter=joint_hole_diameter
     );
