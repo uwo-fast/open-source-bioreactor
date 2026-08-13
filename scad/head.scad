@@ -29,6 +29,7 @@ include <custom/bayonet_interfaces.scad>;
 include <NopSCADlib/core.scad>;
 include <NopSCADlib/vitamins/inserts.scad>; // F1BM4 type + insert()
 include <NopSCADlib/vitamins/screws.scad>; // M4_cap_screw type + screw()
+include <NopSCADlib/vitamins/ball_bearings.scad>; // BB608 type + bb_diameter()/bb_width()
 use <NopSCADlib/vitamins/shaft_coupling.scad>;
 
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
@@ -112,10 +113,9 @@ lid_plug_oring_squeeze = 0.18;
 
 /* [Bearing Parameters] */
 
-// diameter of the bearing (outer casing)
-bearing_diameter = 22.6;
-// height of the bearing
-bearing_height = 7.5;
+// The registered bearing, which is what the pocket is cut from. The trade number is the part:
+// a 608 is 22 x 7 on an 8 mm bore, and bearing_hole_allowance is the only allowance over it.
+shaft_bearing = BB608; // McMaster 6153K71, 440C stainless, sealed, trade no. 608-2RS
 
 /* [Motor & Gearbox Selection] */
 
@@ -359,7 +359,7 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
 
           // bearing pocket
           rotate([0, 0, 30])
-            cylinder(d=bearing_diameter + bearing_hole_allowance, h=bearing_height + z_fight);
+            cylinder(d=bb_diameter(shaft_bearing) + bearing_hole_allowance, h=bb_width(shaft_bearing) + z_fight);
         }
 
       // Insert holes for the motor mount, blind: this face carries the mount, the far side of
@@ -516,7 +516,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // The screw circle is set by the mount's body and the pocket by the bearing, and the two are
   // chosen independently, so nothing but this stops an insert being sunk into the bearing's wall.
   _insert_to_bearing =
-  head_motor_mount_screw_radius() - insert_outer_d(motor_mount_base_insert) / 2 - (bearing_diameter + bearing_hole_allowance) / 2;
+  head_motor_mount_screw_radius() - insert_outer_d(motor_mount_base_insert) / 2 - (bb_diameter(shaft_bearing) + bearing_hole_allowance) / 2;
   assert(
     _insert_to_bearing > 0,
     str(

@@ -1,12 +1,16 @@
 # Procurement
 
 - bearing selection
+  - McMaster-Carr 6153K71
   - shaft: 8mm
   - seal type: sealed
   - bearing type: ball
   - construction: single row
   - lubricant: grease
   - ball material: stainless steel
+  - trade no. 608-2RS: 22.000 mm OD (-0.008/0), 7.00 mm wide (-0.12/0), 8.000 mm bore (-0.007/0),
+    caliper-confirmed against the drawing. Registered as NopSCADlib's BB608, which carries those
+    same three numbers, so the pocket is cut from the part and not from a copy of it
   - https://www.mcmaster.com/6153K71/
 
 - thermocouple selection
