@@ -154,9 +154,10 @@ motor_mount_facets = 20;
 motor_mount_base_insert = insert_m4x4p7_ss;
 // the screw into that insert; its size must match what the insert takes
 motor_mount_base_screw = M4_cap_screw;
-// least lid left under an insert. The far side of the plug is the culture, so this is what keeps
-// a blind hole blind rather than a leak path
-motor_mount_insert_floor_min = 3.0;
+// least lid left under a blind pocket - the insert holes and the bearing both stop short of the
+// far side of the plug, which is the culture, so this is what keeps them blind rather than a leak
+// path. One number because it is one property of the lid, not of what happens to be sunk into it
+lid_blind_pocket_floor_min = 3.0;
 
 /* [Impeller Parameters] */
 
@@ -458,6 +459,13 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // the gearbox carried by the selected motor - single source for gearbox dims
   head_gearbox = dc_motor_gearbox(head_motor);
 
+  // Both state the port count. The bores loop over lid_holes_n, so a longer head_ports is silently
+  // truncated - a 13th port drops out with the model byte-identical.
+  assert(
+    len(head_ports) == lid_holes_n,
+    str(len(head_ports), " head_ports entries for ", lid_holes_n, " lid holes.")
+  );
+
   // Impeller Driven Parameters
   // diameter of the impeller (see TODO.md: scaled off the outer diameter, unguarded)
   impeller_diameter = vessel_outer_diameter * impeller_impeller_vessel_outer_diameter_factor;
@@ -483,8 +491,32 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     )
   );
 
+  // The impeller is scaled off the vessel's outer diameter but has to pass through its opening,
+  // and the ring joining the fin tops is what meets the neck first, not the blades.
+  assert(
+    impeller_diameter + 2 * impeller_fin_width <= vessel_opening_diameter,
+    str(
+      "Impeller spans ", impeller_diameter + 2 * impeller_fin_width, " mm across its top ring, past the ",
+      vessel_opening_diameter, " mm opening it has to pass through."
+    )
+  );
+
+  // Negative, the shaft is drawn below the jar's internal floor rather than clear of it, and the
+  // reach assert above is helped toward passing by it.
+  assert(
+    shaft_jar_punt_clearance >= 0,
+    str("Shaft is drawn ", -shaft_jar_punt_clearance, " mm into the jar's floor.")
+  );
+
   // Motor and shaft driven parameters
   shaft_protrusion = shaft_length - (vessel_internal_height - shaft_jar_punt_clearance);
+
+  // What the shaft leaves above the lid for the coupling to grip. At or below zero the shaft ends
+  // inside the vessel and there is nothing for the motor to couple to.
+  assert(
+    shaft_protrusion > 0,
+    str("Shaft ends ", -shaft_protrusion, " mm below the lid's outer face, so the coupling cannot reach it.")
+  );
 
   // the height that the motor coupling assembly requires
   motor_mount_height = gearbox_output_shaft_length(head_gearbox) + shaft_protrusion + shaft_shaft_coupling_offset;
@@ -506,11 +538,27 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // so a thinner lid or a longer insert breaks through without it.
   _insert_floor = head_lid_thickness(lid_flange_height) - insert_hole_length(motor_mount_base_insert);
   assert(
-    _insert_floor >= motor_mount_insert_floor_min,
+    _insert_floor >= lid_blind_pocket_floor_min,
     str(
       "A ", motor_mount_base_insert[0], " insert leaves ", _insert_floor, " mm of lid before the culture; ",
-      motor_mount_insert_floor_min, " mm is the least this lid keeps."
+      lid_blind_pocket_floor_min, " mm is the least this lid keeps."
     )
+  );
+
+  // The bearing pocket is the other blind hole in this face, and the deeper of the two.
+  _bearing_floor = head_lid_thickness(lid_flange_height) - bb_width(shaft_bearing);
+  assert(
+    _bearing_floor >= lid_blind_pocket_floor_min,
+    str(
+      "A ", bb_name(shaft_bearing), " bearing leaves ", _bearing_floor, " mm of lid before the culture; ",
+      lid_blind_pocket_floor_min, " mm is the least this lid keeps."
+    )
+  );
+
+  // Negative, it cuts interference instead of clearance and the pocket closes on the bearing.
+  assert(
+    bearing_hole_allowance >= 0,
+    str("Bearing hole allowance of ", bearing_hole_allowance, " mm is negative, so the pocket is cut under the bearing.")
   );
 
   // The screw circle is set by the mount's body and the pocket by the bearing, and the two are
@@ -597,6 +645,11 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   assert(
     head_gasket_depth() < lid_flange_height,
     str("Gasket recess is ", head_gasket_depth(), " mm deep in a ", lid_flange_height, " mm flange.")
+  );
+  // and bounded below, which the assert above trivially satisfies at a negative depth
+  assert(
+    head_gasket_depth() > 0,
+    str("Gasket recess is ", head_gasket_depth(), " mm deep at ", lid_gasket_compression * 100, "% squeeze.")
   );
 
   // the groove is cut from the bore, so a fatter cord walks inward toward the port bores; the

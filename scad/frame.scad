@@ -204,6 +204,21 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
     )
   );
 
+  // The top base carries a nut pocket sunk into its underside, so it has to be deeper than the nut
+  // or the pocket opens out the bottom and merges with the bolt bores into a slot.
+  assert(
+    upper_base_height > nut_height,
+    str("Top base is ", upper_base_height, " mm with a ", nut_height, " mm nut pocket sunk in it.")
+  );
+
+  // The gap the joint bolts pull the lid down through. Without it the top base's top face lands on
+  // the rim and the lid bottoms on the frame instead of seating on the glass. Conditional because
+  // this file's own preview passes collapse_spacer_z_allow=false, which sets it to 0 by design.
+  assert(
+    !collapse_spacer_z_allow || stack_slack > 0,
+    str("The lid-to-top-base gap is ", stack_slack, " mm; the bolts cannot clamp the lid into the vessel without it.")
+  );
+
   _base_wall_thickness = wall_thickness;
 
   echo("base wall thickness: ", _base_wall_thickness / 10, " cm");
