@@ -23,6 +23,7 @@ include <purchased/vessels.scad>;
 include <purchased/atlas_probes.scad>;
 include <purchased/orings.scad>;
 include <purchased/heat_set_inserts.scad>;
+include <purchased/shaft_couplings.scad>;
 
 include <custom/bayonet_interfaces.scad>;
 
@@ -132,8 +133,8 @@ shaft_length = 400;
 shaft_diameter = 8.0;
 // adjust distance between the motor and the shaft coupling
 shaft_shaft_coupling_offset = 0; // can be positive or negative
-// reference, length, diameter, input diameter, output diameter, flex?
-shaft_coupler_8x8_rigid = ["SC_8x8_rigid", 25, 12.5, 8, 8, false];
+// the registered coupling joining the gearbox output shaft to the impeller shaft
+shaft_coupler = shaft_coupler_8x8_rigid;
 
 /* [Motor Mount Parameters] */
 
@@ -520,6 +521,18 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     str("Shaft ends ", -shaft_protrusion, " mm below the lid's outer face, so the coupling cannot reach it.")
   );
 
+  // The coupling's two bores are catalogue facts and the shafts they go on are set elsewhere, so
+  // nothing but this stops a coupling that fits neither end.
+  assert(
+    sc_diameter1(shaft_coupler) == gearbox_output_shaft_dia(head_gearbox) &&
+    sc_diameter2(shaft_coupler) == shaft_diameter,
+    str(
+      "The ", shaft_coupler[0], " coupling bores ", sc_diameter1(shaft_coupler), " and ",
+      sc_diameter2(shaft_coupler), " mm, for a ", gearbox_output_shaft_dia(head_gearbox),
+      " mm gearbox shaft and a ", shaft_diameter, " mm impeller shaft."
+    )
+  );
+
   // the height that the motor coupling assembly requires
   motor_mount_height = gearbox_output_shaft_length(head_gearbox) + shaft_protrusion + shaft_shaft_coupling_offset;
   echo("motor mount height: ", motor_mount_height / 10, " cm");
@@ -863,7 +876,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       [0, 0, shaft_protrusion + shaft_shaft_coupling_offset / 2]
     )
 
-      shaft_coupling(type=shaft_coupler_8x8_rigid, colour="MediumBlue");
+      shaft_coupling(type=shaft_coupler, colour="MediumBlue");
   }
 
   // external shaft
