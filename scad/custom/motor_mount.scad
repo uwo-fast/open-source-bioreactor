@@ -219,7 +219,21 @@ module middle_pipe(
   }
 }
 
-// ----- hardware params -----
+// ----- example values, NOT the bioreactor's mount -----
+//
+// This module is generic - it fits any motor with a round faceplate on a square screw pattern -
+// so what follows is one worked example to preview against, and nothing more. It is not the mount
+// this project builds, and a part exported from this file will not bolt to the lid the assembly
+// drills: the example takes M3 screws throughout, where head.scad drives 4.2 mm gearbox screws
+// and an M4 clearance hole for the base. Measured, standalone against assembly-driven:
+//
+//   coupling screw holes   r 1.55  vs  r 2.15
+//   base screw holes       r 1.70  vs  r 2.20
+//
+// Export the bioreactor's mount from head.scad, which derives all of this from the registered
+// gearbox, insert and screw. Deliberately left as an example rather than wired to those
+// registries: doing that would make this generic part depend on the head that happens to use it,
+// and would restate head.scad's body diameter and wall thickness here as well.
 
 _mm_screws_diameter = 3;
 
