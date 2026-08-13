@@ -176,7 +176,7 @@ if (render_frame || render_all) {
   frame(
     vessel_height=vessel_height(reactor_vessel),
     vessel_outer_diameter=vessel_diameter(reactor_vessel),
-    lights_length=strip_light_length(reactor_lights),
+    light=reactor_lights,
     wall_thickness=frame_wall_thickness,
     lid_flange_height=lid_flange_height,
     n_rods=n_rods,

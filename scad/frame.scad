@@ -31,7 +31,7 @@ render_lights = false;
 // -------
 
 frame(
-  vessel_height=305, vessel_outer_diameter=220, lights_length=330, wall_thickness=37,
+  vessel_height=305, vessel_outer_diameter=220, light=_preview_light, wall_thickness=37,
   lid_flange_height=8, n_rods=4, bolt_screw=M8_hex_screw,
   bolt_pts=bolt_pattern_pts(_preview_posts, _preview_bolt_circle, 4),
   collapse_spacer_z_allow=false
@@ -41,9 +41,6 @@ frame(
 
 /* [Light Parameters] */
 
-// the registered strip light the base is pocketed for; every light dimension is read back
-// out of it via the accessor functions (see purchased/strip_light.scad)
-frame_light = rwntao_13in; // [generic_strip_light, rwntao_13in, grow_13in, grow_16in, grow_8p6in]
 // which quadrants to place lights in, 1-4 starting from positive x and going CCW
 light_quadrants = [1, 3];
 // number of lights to place in each quadrant
@@ -115,8 +112,10 @@ function frame_bolt_circle_diameter(vessel_outer_diameter) =
 // standalone preview above reproduces it, see the interface TODO about the hardcoded vessel dimensions
 _preview_bolt_circle = frame_bolt_circle_diameter(220);
 _preview_posts = bolt_post_count(4, threaded_rod_diameter, _preview_bolt_circle, 8, 0.5);
+// the light is the assembly's to choose, same as the vessel; this is only what the preview builds
+_preview_light = rwntao_13in;
 
-module lights(quadrants, vessel_outer_diameter, lights_per_quadrant, occupy_angle, allowance_cutout = undef) {
+module lights(quadrants, vessel_outer_diameter, light, lights_per_quadrant, occupy_angle, allowance_cutout = undef) {
   for (q = quadrants) {
     rotate([0, 0, (q - 1) * 90]) {
       for (i = [0:lights_per_quadrant - 1]) {
@@ -128,25 +127,25 @@ module lights(quadrants, vessel_outer_diameter, lights_per_quadrant, occupy_angl
 
         rotate([0, 0, light_angle])
           translate([0, vessel_outer_diameter / 2, 0]) if (is_undef(allowance_cutout)) {
-            strip_light(frame_light);
+            strip_light(light);
           } else {
-            translate([0, strip_light_depth(frame_light) / 2, strip_light_length(frame_light) / 2])
-              cube([strip_light_width(frame_light) + allowance_cutout, strip_light_depth(frame_light) + allowance_cutout, strip_light_length(frame_light)], center=true);
+            translate([0, strip_light_depth(light) / 2, strip_light_length(light) / 2])
+              cube([strip_light_width(light) + allowance_cutout, strip_light_depth(light) + allowance_cutout, strip_light_length(light)], center=true);
 
             // same profile on its side, cut radially thru the wall so the cord can escape
-            translate([0, vessel_outer_diameter / 2, (strip_light_depth(frame_light) + allowance_cutout) / 2 - z_fight/2])
-              cube([strip_light_width(frame_light) + allowance_cutout, vessel_outer_diameter, strip_light_depth(frame_light) + allowance_cutout], center=true);
+            translate([0, vessel_outer_diameter / 2, (strip_light_depth(light) + allowance_cutout) / 2 - z_fight/2])
+              cube([strip_light_width(light) + allowance_cutout, vessel_outer_diameter, strip_light_depth(light) + allowance_cutout], center=true);
           }
       }
     }
   }
 }
 
-module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness, lid_flange_height, n_rods, bolt_pts, bolt_screw, collapse_spacer_z_allow=true) {
+module frame(vessel_height, vessel_outer_diameter, light, wall_thickness, lid_flange_height, n_rods, bolt_pts, bolt_screw, collapse_spacer_z_allow=true) {
 
   _base_floor_height_min = 2; // minimum height of the base floor
 
-  height_delta = (lights_length + nut_height * 1.5 + upper_base_height) - vessel_height; // 150% nut thickness added so radial bolt heads have clearance
+  height_delta = (strip_light_length(light) + nut_height * 1.5 + upper_base_height) - vessel_height; // 150% nut thickness added so radial bolt heads have clearance
   base_floor_height = height_delta > _base_floor_height_min ? height_delta : _base_floor_height_min;
 
   // total height of the assembly
@@ -192,7 +191,7 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
   rod_length = vessel_height + lid_flange_height + nut_height + rod_thread_proud;
 
   // distance from the center of the jar to the threaded rod
-  base_wall_thickness_from_lights = (strip_light_depth(frame_light) * 1.5) * 2; // thinnest part is 50% thicker than the light depth
+  base_wall_thickness_from_lights = (strip_light_depth(light) * 1.5) * 2; // thinnest part is 50% thicker than the light depth
 
   base_wall_thickness_from_rod = threaded_rod_hole_diameter * 4; // thinnest part is 4x the rod diameter or approx x2 the nut diameter
 
@@ -231,13 +230,13 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
   echo("base wall thickness: ", _base_wall_thickness / 10, " cm");
 
   module frame_lights(local_quadrants = light_quadrants) {
-    lights(local_quadrants, vessel_outer_diameter, lights_per_quadrant, occupy_angle);
+    lights(local_quadrants, vessel_outer_diameter, light, lights_per_quadrant, occupy_angle);
   }
 
   module frame_lights_cutout(local_quadrants = [1, 2, 3, 4]) {
     difference() {
       children();
-      lights(local_quadrants, vessel_outer_diameter, lights_per_quadrant, occupy_angle, allowance_cutout=light_allow);
+      lights(local_quadrants, vessel_outer_diameter, light, lights_per_quadrant, occupy_angle, allowance_cutout=light_allow);
     }
   }
 
