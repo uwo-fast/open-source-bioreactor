@@ -39,7 +39,7 @@
   - a soldering iron with a conical tip is the install tool, and stainless wants more heat and dwell than brass would. McMaster sell tips for it if we do not want to use a working iron's bit
 - [ ] the head-to-frame joint fasteners have no rows at all
   - the model draws 8 M8 hex bolts clamping the lid flange to the top base, 8 nuts for them, and 3 nuts on each of the 4 tie rods - 20 M8 nuts in total. Only the rod itself is listed
-  - hold the bolt length until the lid-to-top-base gap is settled: `frame.scad` sizes them for an 18 mm grip and so picks M8x25, but the real span across the gap is 20.4 mm and wants M8x30. That gap is the first work package of the parameter audit, so buying against the current figure would be buying the wrong bolt
+  - the bolt length is settled: the grip now counts the lid-to-top-base gap, so `frame.scad` sizes for 20.4 mm and picks M8x30. 8 of those and 20 M8 nuts
 
 ## tooling / infrastructure / documentation
 

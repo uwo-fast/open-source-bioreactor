@@ -31,7 +31,7 @@ render_lights = false;
 // -------
 
 frame(
-  vessel_height=305, vessel_outer_diameter=220, lights_length=330, wall_thickness=37, rod_length=321,
+  vessel_height=305, vessel_outer_diameter=220, lights_length=330, wall_thickness=37,
   lid_flange_height=8, n_rods=4, bolt_screw=M8_hex_screw,
   bolt_pts=bolt_pattern_pts(_preview_posts, _preview_bolt_circle, 4),
   collapse_spacer_z_allow=false
@@ -61,6 +61,8 @@ threaded_rod_diameter = 8.0; // M8
 nut_pocket_allowance = 0.6;
 // allowance for the hole for the threaded rod
 threaded_rod_hole_allowance = 1.2;
+// thread left showing above the topmost rod nut; two coarse M8 pitches
+rod_thread_proud = 2.5;
 
 // diameter of the nut
 nut_pocket_diameter = 2 * nut_radius(M8_nut) + nut_pocket_allowance;
@@ -138,7 +140,7 @@ module lights(quadrants, vessel_outer_diameter, lights_per_quadrant, occupy_angl
   }
 }
 
-module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness, rod_length, lid_flange_height, n_rods, bolt_pts, bolt_screw, collapse_spacer_z_allow=true) {
+module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness, lid_flange_height, n_rods, bolt_pts, bolt_screw, collapse_spacer_z_allow=true) {
 
   _base_floor_height_min = 2; // minimum height of the base floor
 
@@ -159,9 +161,6 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
 
   f_height = 0 - z_fight;
 
-  // the bolts clamp the lid flange down onto the top base, so they grip both
-  bolt_length = screw_length(bolt_screw, upper_base_height + lid_flange_height, 0, nut=true);
-
   lower_base_height = base_floor_height + lower_base_wall_height;
 
   // ribs and spacers share one stack, so both read these rather than deriving them separately
@@ -179,6 +178,17 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
   spacer_pitch = collapse_spacer_z_allow ? spacer_height : spacer_slot_height;
   spacer_joint = collapse_spacer_z_allow ? 0 : spacer_z_allow / 2;
   stack_slack = (spacer_slot_height - spacer_pitch) * (n_rib_levels + 1); // what the collapsed stack gives up, so the top base drops with it
+
+  // The lid is located by the vessel rim, the top base by the collapsed stack below it, so the
+  // two faces do not meet - stack_slack is the clearance between them and that is what lets the
+  // bolts pull the lid down into the vessel rather than bottoming it on the frame. Every span
+  // that crosses the joint therefore has to count it: the bolt grips both parts and the gap.
+  bolt_length = screw_length(bolt_screw, upper_base_height + stack_slack + lid_flange_height, 0, nut=true);
+
+  // The rod runs from the base floor up to a nut sitting on top of the lid, which is on the rim
+  // datum, so it clears the gap too. Derived rather than passed in: the caller knows the vessel
+  // and the flange but not the stack, and this is the stack's business.
+  rod_length = vessel_height + lid_flange_height + nut_height + rod_thread_proud;
 
   // distance from the center of the jar to the threaded rod
   base_wall_thickness_from_lights = (strip_light_depth(frame_light) * 1.5) * 2; // thinnest part is 50% thicker than the light depth
@@ -236,8 +246,9 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
               rotate([0, 0, 30])
                 nut(M8_nut);
 
-            // the rods are posts like the bolts, so they take a nut on top of the lid as well
-            translate([0, 0, total_height - stack_slack + lid_flange_height])
+            // the rods are posts like the bolts, so they take a nut on top of the lid as well.
+            // The lid sits on the rim, so this reads total_height, not the top base's face
+            translate([0, 0, total_height + lid_flange_height])
               rotate([0, 0, 30])
                 nut(M8_nut);
           }
@@ -247,9 +258,10 @@ module frame(vessel_height, vessel_outer_diameter, lights_length, wall_thickness
       translate([0, 0, total_height - stack_slack - upper_base_height]) {
         bolt_pattern_bolts(bolt_pts, bolt_screw, bolt_length);
 
-        // their nuts land on the far side of the grip, on top of the lid flange
+        // their nuts land on the far side of the grip, on top of the lid flange, which is the
+        // gap above this base plus the flange itself
         for (p = bolt_pts)
-          translate([p[0], p[1], upper_base_height + lid_flange_height])
+          translate([p[0], p[1], upper_base_height + stack_slack + lid_flange_height])
             rotate([0, 0, 30])
               nut(screw_nut(bolt_screw));
       }
