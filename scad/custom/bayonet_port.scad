@@ -156,19 +156,11 @@ module bayonet_port(
     )
   );
 
-  assert(
-    is_undef(bayonet_oring_id(type)) ||
-    oring_gland_fill(oring_cs_diameter, bayonet_gland_width(type), bayonet_gland_depth(type)) <= 0.90,
-    str(
-      "bayonet_port: the o-ring fills ",
-      oring_gland_fill(oring_cs_diameter, bayonet_gland_width(type), bayonet_gland_depth(type)) * 100,
-      "% of its groove; over 90 leaves the squeeze nowhere to go"
-    )
-  );
-
-  // Not checked here: oring_containment. This gland's depth is always 0.75 of the cord, so the
-  // fraction held in the groove is 80.4% whatever ring is fitted - an assert on it could never
-  // fire. The lid plug takes its squeeze as a parameter, so it does check (see head.scad).
+  // Not checked here: oring_containment, or gland fill. Both this gland's width and its depth are
+  // derived from the cord, so the cord cancels out of either fraction - containment is 80.4% and
+  // fill is between 69.8% and 82.3% depending only on which of Table A's five ratio bands the
+  // cord lands in. Neither can reach its limit, whatever ring is fitted. The lid plug takes its
+  // squeeze as a parameter, so its depth moves independently and it does check (see head.scad).
 
   // Without the keying helpers pin_angles reaches the library as undef and the coupling renders
   // with no pins or channels at all, on warnings alone. Fail here instead.

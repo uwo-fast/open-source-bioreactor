@@ -56,7 +56,13 @@ bayonet_baffle_port(
  * @return Plate width
  */
 function bayonet_baffle_width(type, thickness, bore_clearance) =
-  2 * sqrt(pow(bayonet_lock_bore_radius(type) - bore_clearance, 2) - pow(thickness / 2, 2));
+  let (_bore = bayonet_lock_bore_radius(type) - bore_clearance)
+    assert(
+      thickness < _bore * 2,
+      str("bayonet_baffle_width: a ", thickness, " mm plate will not pass a bore of ", _bore, " mm radius")
+    ) // checked here, not at the call sites: a thicker plate makes the radicand negative and nan
+    // propagates silently into whatever the caller measures next
+    2 * sqrt(pow(_bore, 2) - pow(thickness / 2, 2));
 
 /**
  * @brief Swirl baffle on a bayonet pin half.
@@ -76,14 +82,7 @@ module bayonet_baffle_port(
   transition_height,
   bore_clearance
 ) {
-  _bore = bayonet_lock_bore_radius(type) - bore_clearance;
-
-  assert(
-    thickness < _bore * 2,
-    str("bayonet_baffle_port: a ", thickness, " mm plate will not pass a bore of ", _bore, " mm radius")
-  );
-
-  _width = bayonet_baffle_width(type, thickness, bore_clearance);
+  _width = bayonet_baffle_width(type, thickness, bore_clearance); // asserts the plate passes the bore
   _round = thickness / 2; // the most the bottom can round without thinning the plate
   _face_radius = bayonet_pin_face_radius(type);
   _seat = 0.01; // a real, if tiny, slice at that face so the hull has something to span from

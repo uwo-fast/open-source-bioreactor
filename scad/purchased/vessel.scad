@@ -178,11 +178,10 @@ module vessel(
     [[0, 0], [thickness, 0]]
   );
 
-  // guard: the registered opening must be reproduced by the neck geometry it drives
-  assert(
-    abs(opening_diameter - abs(neck_flat_nx[1][0]) * 2) < 1e-6,
-    str("vessel(): ", type[0], " registered opening_diameter disagrees with the neck geometry")
-  );
+  // Not checked: that the neck flat reproduces the registered opening. The flat lands at
+  // -(diameter/2) + corner_radius + neck_corner_radius, and neck_corner_radius is solved from the
+  // opening, so it reduces to -opening_diameter/2 for every input - thickness cancels too. What
+  // can actually go wrong is the solve running out of room, which is the assert above.
 
   if (show_pts) {
     color("purple") showPoints(neck_flat_nx, r=pts_r, $fn=16);

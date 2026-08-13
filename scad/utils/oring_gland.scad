@@ -36,7 +36,8 @@ function oring_gland_od(id, cs) = id + 2 * cs;
 // Table A's groove width, stepped at the cords it tabulates. The ratio is 1.5 for everything at
 // or under 0.070 in and tapers as the cord grows, because a fat cord spreads proportionally less
 // than a thin one. Real cords are the tabulated ones; anything in between takes the ratio of the
-// next size up, and oring_gland_fill is what catches a groove that cannot hold its ring.
+// next size up. Note oring_gland_fill only catches such a groove where the depth is chosen
+// independently; where it too is derived from the cord, the cord cancels and the fill is fixed.
 function oring_gland_width(cs) =
   cs <= 1.78 ? cs * 1.500  // .020 through .070 in
   : cs <= 2.62 ? cs * 1.417 // .103 in
