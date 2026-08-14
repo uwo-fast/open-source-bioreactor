@@ -51,4 +51,19 @@
 
 - current motors in lab
   - 36GP-3530 Planetary Gear DC Motor Torque 50KG (12V 1154 RPM)
+  - the listing offers ten 12 V speeds — 8 / 12 / 16 / 28 / 43 / 73 / 120 / 222 / 429 / 1154 rpm —
+    and gives no ratio against any of them. 1154 is the top of that list and is unqualified, so it
+    is registered as a no-load speed; no rated figure is published for this motor
   - https://electric-b2c.com/products/36gp-3530-planetary-gear-dc-motor-torque-50kg-12v-24v-reduce-speed-8pm-to-1154rpm-pwm-reverse-forward-electric-12-volt-motor?variant=47572164116673
+
+- drive motor for the next build
+  - E-S Motor 36D planetary gearmotor, RobotShop SKU RM-ESMO-16Q, mfr 36PG-3429-5.2 12V
+  - 12 V DC, gear ratio 1/5.2, **no-load 1400 rpm, rated 950 rpm** at 0.65 kg·cm, rated current
+    < 1.5 A, no-load current < 300 mA, stall 2 kg·cm / 4.3 A, 350 g
+  - motor 34 x 29.4 mm, gearbox 36 x 26.5 mm, shaft 8 x 20 mm D-shaped, SM2P-2.54 connector
+  - the datasheet confirms every dimension already registered, and is the reason the registry can
+    now separate no-load from rated: the vendor names each variant by its **no-load** speed, so an
+    unqualified catalogue speed anywhere in this family is a no-load speed
+  - the family shares one motor at ~7280 rpm and varies only the ratio, so the sibling SKUs are
+    the same part at a different speed: 16R 1950, 16Q 1400, 16P 520, 16N 385, 16K 140, 16J 72,
+    16G 28, 16F 14 rpm at 12 V

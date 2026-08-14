@@ -23,6 +23,7 @@ function gearbox_faceplate_bolt_circle_dia(type) = type[4]; // bolt circle the f
 function gearbox_screw_diameter(type) = type[5]; // diameter of the faceplate screws
 function gearbox_out_boss(type) = type[6]; // [boss_d, boss_l] pilot boss on the output face, optional
 function gearbox_in_boss(type) = type[7]; // [boss_d, boss_l] recess in the input face, optional
+function gearbox_ratio(type) = type[8]; // reduction, input turns per output turn, optional
 
 // The input pockets are registered at the motor's own boss and shaft dimensions, because that
 // is what they receive, so a motor seats in them face to face and CGAL will not call the union

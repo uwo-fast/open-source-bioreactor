@@ -17,6 +17,12 @@ function dc_motor_shaft(type) = type[2]; // [shaft_d, shaft_l] of the bare shaft
 function dc_motor_gearbox(type) = type[3]; // gearbox type mounted to the face, optional
 function dc_motor_boss(type) = type[4]; // [boss_d, boss_l] raised boss around the shaft exit, optional
 function dc_motor_face_screws(type) = type[5]; // [cdist, screw_d] of the motor's own face screws, optional
+function dc_motor_output_speeds(type) = type[6]; // [no_load_rpm, rated_rpm] at the output, optional
+
+// Split out so a caller asks for the one it means. Either half can be undef on its own - the 36GP
+// publishes a no-load speed and no rated one - so callers check the half they use, not the pair.
+function dc_motor_no_load_output_rpm(type) = is_undef(type[6]) ? undef : type[6][0];
+function dc_motor_rated_output_rpm(type) = is_undef(type[6]) ? undef : type[6][1];
 
 /**
  * @brief Create a DC motor from a registered type

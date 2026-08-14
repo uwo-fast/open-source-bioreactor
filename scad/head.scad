@@ -248,6 +248,10 @@ impeller_shaft_allow = 0.4;
 impeller_shaft_radius_interference = 0.2;
 // centre to centre spacing of the two impellers, in impeller diameters
 impeller_spacing_factor = 1.0;
+// Culture depth as a fraction of the vessel's internal height. An operating choice, not geometry -
+// nothing in this model sets a fill line - but the mean dissipation echo needs a volume, and the
+// full internal volume would understate it. 0.8 leaves the usual headspace for foam and gas.
+culture_fill_fraction = 0.8;
 
 /* [Thermocouple Mount Parameters] */
 
@@ -579,6 +583,41 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       _spacing_band[0], "-", _spacing_band[1], " D band; too close costs up to 35% of the power ",
       "imparted to the fluid, too far mixes the two zones poorly."
     ));
+
+  // What the drive does to the culture. Reported, never asserted: the margin against damage runs
+  // to orders of magnitude, and why there is no tip-speed limit anywhere here is in
+  // utils/stirred_tank.scad's header. What is worth seeing at render is where the operating point
+  // lands, because the band that earns its power turns out to be narrow.
+  //
+  // Re and tip speed are as good as the speed they are handed. Everything past Po is an estimate:
+  // the power number is measured on a folded axial blade rather than this twisted one, and P is
+  // one impeller's, where the stacked pair draws more - though less than double, being closer
+  // than the spacing at which two impellers stop interacting. See docs/agitation.md.
+  _culture_volume = stirred_tank_volume(_vessel_bore, vessel_internal_height * culture_fill_fraction);
+  _impeller_po = stirred_tank_power_number_folded_axial_4();
+  _impeller_x = stirred_tank_dissipation_factor_pitched_blade();
+
+  // no-load and rated are different facts and either may be unpublished, so each is reported as
+  // itself and a motor missing both says so rather than echoing a silent undef
+  _drive_speeds = [
+    for (s = [
+      ["no-load", dc_motor_no_load_output_rpm(head_motor)],
+      ["rated", dc_motor_rated_output_rpm(head_motor)],
+    ]) if (!is_undef(s[1])) s
+  ];
+
+  if (len(_drive_speeds) == 0)
+    echo(str("drive: ", head_motor[0], " registers no output speed, so no Re or dissipation follows"));
+
+  for (s = _drive_speeds)
+    let (_rpm = s[1], _power = stirred_tank_power(impeller_diameter, _rpm, _impeller_po))
+      echo(str(
+        "drive ", s[0], " ", _rpm, " rpm: Re ", stirred_tank_reynolds(impeller_diameter, _rpm),
+        ", tip ", stirred_tank_tip_speed(impeller_diameter, _rpm), " m/s, ", _power, " W into ",
+        _culture_volume, " L = ", stirred_tank_mean_dissipation(_power, _culture_volume),
+        " W/m3 mean, ", stirred_tank_max_dissipation(impeller_diameter, _rpm, _impeller_po, _impeller_x),
+        " W/kg peak"
+      ));
 
   // this impeller is tall for its diameter, so the pair collide before they reach the 0.5 diameter
   // spacing at which they would stop behaving as two impellers

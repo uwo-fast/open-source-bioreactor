@@ -63,8 +63,24 @@ stirred tank puts aeration at 29.4–49.1 W/m³ against stirring at 0.65–1.30 
 The drive is open-loop PWM with **no speed feedback**, so shaft speed is inferred from duty cycle
 rather than measured. At the recorded duty the inferred speed is ~450 rpm, which is **past the
 2.03 m/s point where stirring stops paying** for Chlorella. Not damaging — but not earning its
-power either. Picking a motor whose *rated* output is the target speed would replace the inference
-with a datasheet figure.
+power either.
+
+On the 94.5 mm impeller the band worth aiming at is narrow:
+
+| target | tip speed | shaft speed |
+| --- | --- | --- |
+| Chlorella growth optimum | 1.26 m/s | **255 rpm** |
+| break-even, stirring stops paying | 2.03 m/s | **410 rpm** |
+
+The motor and gearbox registries now carry output speed and reduction ratio, so `head()` computes
+Re, tip speed, power and both dissipation figures at render rather than leaving them to be worked
+out by hand. **No-load and rated speed are registered separately**: they differ by a factor of 1.47
+on the one motor with both published, so treating a catalogue speed as an operating point
+overstates it badly. An unqualified vendor figure is a no-load figure.
+
+Worth knowing: the replacement motor already registered does not reach this band. The
+36PG-3429-5.2 is rated 950 rpm, or 4.70 m/s at the tip. It is the right motor family at the wrong
+ratio — a sibling at roughly 19:1 lands near 257 rpm.
 
 ---
 
