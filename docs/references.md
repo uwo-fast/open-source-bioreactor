@@ -61,9 +61,13 @@ rises with angle about 4.4× faster than pumping does. Blade-count series 3/4/6 
 Reproduces the above and adds the folded-blade series, including **Np = 0.99 ± 0.04** for a 4-blade
 folded axial impeller — the closest measured analogue to this project's blade.
 
-**Guo, B., Langrish, T. & Fletcher, D. (2003).** 3rd Int. Conf. on CFD in the Minerals and Process
-Industries, CSIRO — <https://www.cfd.com.au/cfd_conf03/papers/002Guo.pdf> **[PR]** · **read**
+**Zhou, G., Shi, L. & Yu, P. (2003).** "CFD Study of Mixing Process in Rushton Turbine Stirred
+Tanks." 3rd Int. Conf. on CFD in the Minerals and Process Industries, CSIRO, Melbourne —
+<https://www.cfd.com.au/cfd_conf03/papers/002Guo.pdf> **[PR]** · **read**
 The classic standard tank configuration: H = T, D = T/3, C = T/3, four baffles at T/10.
+Cited here as "Guo, Langrish & Fletcher" until 2026-08-13 — an attribution reconstructed from the
+filename, in which `Guo` is the first author's *given* name. The claim was re-checked against the
+PDF and stands; only the authors were wrong.
 
 **Grenville, R., Giacomelli, J., Padron, G. & Brown, D. (2017).** "Impeller Performance in Stirred
 Tanks." *Chemical Engineering*, August 2017, pp. 46-54 —
