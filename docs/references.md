@@ -87,9 +87,18 @@ real weight in this design.
 Axial impellers at D/T 0.35-0.55, preferred 0.40-0.48, "most preferred" 0.44-0.46. Self-contradictory
 on its own upper bound; superseded as the D/T citation by Nienow 2006 and Rotondi 2021.
 
-**Davis, D.A. (2009).** MSc thesis, Utah State University **[TH]** · **read**
-Spacing penalty below 1.0 d; top impeller ≥ 1.5 d below the surface; baffles 0.08-0.10 T, four at
-90°.
+**Davis, R.Z. (2010).** "Design and Scale-Up of Production Scale Stirred Tank Fermentors." MS
+thesis, Mechanical and Aerospace Engineering, Utah State University —
+<https://digitalcommons.usu.edu/etd/537> **[TH]** · **read**
+Spacing 1.0-2.0 d with the bottom impeller 1.0 d off the floor, and power falling to about 80 % of
+the properly-spaced value below 1.0 d; top impeller ≥ 1.5 d below the liquid surface; baffles
+0.08-0.10 T, four on 90° centres.
+**Davis relays these rather than measuring them.** The spacing figures and the 80 % penalty are
+his refs [15] and [17] — Kenty, Li, Lee & Xing (2009), *Biotechnol Bioeng* 103(4) — and the baffle
+geometry is [15], Oldshue's *Fermentation and Biochemical Engineering Handbook* 2nd ed.,
+pp. 181-241. Neither primary has been retrieved, so on these numbers the citation is weaker than
+the **read** against the thesis implies.
+Cited as "Davis, D.A. (2009)" with no title until 2026-08-13; both initials and year were wrong.
 
 **Eng. Life Sci. 2017, 17:500-511.** [doi:10.1002/elsc.201600096](https://doi.org/10.1002/elsc.201600096) **[PR]** · **read**
 The power-number definition `Np = P/(ρN³d⁵)` and measured Rushton Np 4.17 ± 0.14.
