@@ -951,7 +951,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         screws_diameter=gearbox_screw_diameter(head_gearbox),
         base_screw_hole_diameter=head_motor_mount_screw_hole_diameter(),
         shaft_diameter=shaft_diameter,
-        motor_faceplate_screws_separation=gearbox_faceplate_screws_cdist(head_gearbox),
+        motor_faceplate_bolt_circle_dia=gearbox_faceplate_bolt_circle_dia(head_gearbox),
         motor_boss_diameter=gearbox_out_boss(head_gearbox)[0],
         coupling_allowance=motor_mount_coupling_allowance,
         facets=motor_mount_facets,

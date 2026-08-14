@@ -29,7 +29,7 @@ module motor_mount(
   screws_diameter,
   base_screw_hole_diameter,
   shaft_diameter,
-  motor_faceplate_screws_separation,
+  motor_faceplate_bolt_circle_dia,
   motor_boss_diameter,
   coupling_allowance,
   vertical_hole_allowance = 1.1,
@@ -80,9 +80,9 @@ module motor_mount(
   // The body is a free choice and the bolt circle comes with the gearbox, so nothing but this
   // makes the mount wide enough for the motor it was picked to carry.
   assert(
-    motor_faceplate_screws_separation / 2 + motor_screw_diameter <= body_diameter / 2,
+    motor_faceplate_bolt_circle_dia / 2 + motor_screw_diameter <= body_diameter / 2,
     str(
-      "The gearbox's screws counterbore out to r ", motor_faceplate_screws_separation / 2 + motor_screw_diameter,
+      "The gearbox's screws counterbore out to r ", motor_faceplate_bolt_circle_dia / 2 + motor_screw_diameter,
       " on a ", body_diameter, " mm body."
     )
   );
@@ -110,7 +110,7 @@ module motor_mount(
       rotate([0, 180, 0])
         male_end(
           center_hole_diameter=motor_boss_hole_diameter,
-          vertical_hole_separation_radius=motor_faceplate_screws_separation / 2,
+          vertical_hole_separation_radius=motor_faceplate_bolt_circle_dia / 2,
           vertical_hole_diameter=motor_screw_diameter,
           flange_height=flange_height,
           raised_face_height=raised_face_height,
@@ -242,7 +242,7 @@ _mm_base_screw_hole_diameter = 3.4;
 
 _mm_shaft_diameter = 8.0;
 
-_mm_motor_faceplate_screws_separation = 27.6;
+_mm_motor_faceplate_bolt_circle_dia = 27.6;
 
 _mm_motor_boss_diameter = 22.0;
 
@@ -265,7 +265,7 @@ motor_mount(
   screws_diameter=_mm_screws_diameter,
   base_screw_hole_diameter=_mm_base_screw_hole_diameter,
   shaft_diameter=_mm_shaft_diameter,
-  motor_faceplate_screws_separation=_mm_motor_faceplate_screws_separation,
+  motor_faceplate_bolt_circle_dia=_mm_motor_faceplate_bolt_circle_dia,
   motor_boss_diameter=_mm_motor_boss_diameter,
   coupling_allowance=_mm_allowance_fit,
   part_render=_mm_part_to_render

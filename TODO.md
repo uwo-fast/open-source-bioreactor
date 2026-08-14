@@ -27,8 +27,10 @@
 
 Follows from the agitation work; the reasoning and citations are in `docs/agitation.md`.
 
-- [ ] rename `gearbox_faceplate_screws_cdist` to say bolt circle
-  - it is documented as "centre distance" but consumed as `separation / 2`, i.e. as a bolt circle diameter. For a 4-screw square pattern "centre distance" reads naturally as the square's side, and a 20 mm square is a Ø28.3 bolt circle — wrong by 40%. Do this before registering any new motor, since candidate bolt circles span Ø27.6 to Ø35
+- [x] rename `gearbox_faceplate_screws_cdist` to say bolt circle
+  - it was documented as "centre distance" but consumed as `separation / 2`, i.e. as a bolt circle diameter. For a 4-screw square pattern "centre distance" reads naturally as the square's side, and a 20 mm square is a Ø28.3 bolt circle — wrong by 40%
+  - now `gearbox_faceplate_bolt_circle_dia`, and `motor_mount()`'s parameter renamed to match, so the quantity keeps one name from the registry row through to the hole it places. The `_dia` suffix settles diameter-versus-radius too, which retires the warning comment `gearboxes.scad` was carrying to compensate for the name
+  - `peri_pump_frame_mount.scad`'s `flange_screw_distance` was checked and left alone: two screws mirrored at `± d / 2`, so it really is a centre-to-centre span
 - [ ] register the drive's output speed and the gearbox ratio
   - `dc_motors.scad` carries no speed and `gearboxes.scad` carries the ratio only inside a name string, so the model cannot compute tip speed, Reynolds number or power draw. Register `rated_output_rpm` on the motor row — vendors publish output-side figures for assembled gearmotors, so that is the catalogue fact — and the ratio as a number on the gearbox row. Name it unambiguously: the motor-vs-output distinction has already caused one error here
   - then echo Re, mean and peak dissipation at render. **No tip-speed assert** — see `docs/agitation.md` for why

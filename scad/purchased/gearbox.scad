@@ -19,7 +19,7 @@ function gearbox_output_shaft_dia(type) = type[2][0]; // diameter of the output 
 function gearbox_output_shaft_length(type) = type[2][1]; // length of the output shaft
 function gearbox_input_shaft_dia(type) = type[3][0]; // diameter of the input shaft bore, optional
 function gearbox_input_shaft_length(type) = type[3][1]; // depth of the input shaft bore, optional
-function gearbox_faceplate_screws_cdist(type) = type[4]; // centre distance of the faceplate screws
+function gearbox_faceplate_bolt_circle_dia(type) = type[4]; // bolt circle the faceplate screws sit on
 function gearbox_screw_diameter(type) = type[5]; // diameter of the faceplate screws
 function gearbox_out_boss(type) = type[6]; // [boss_d, boss_l] pilot boss on the output face, optional
 function gearbox_in_boss(type) = type[7]; // [boss_d, boss_l] recess in the input face, optional
@@ -41,7 +41,7 @@ module gearbox(type) {
   output_shaft_length = gearbox_output_shaft_length(type);
   input_shaft_diameter = gearbox_input_shaft_dia(type);
   input_shaft_length = gearbox_input_shaft_length(type);
-  faceplate_screws_cdist = gearbox_faceplate_screws_cdist(type);
+  faceplate_bolt_circle_dia = gearbox_faceplate_bolt_circle_dia(type);
   screw_diameter = gearbox_screw_diameter(type);
   out_boss = gearbox_out_boss(type);
   in_boss = gearbox_in_boss(type);
@@ -98,7 +98,7 @@ module gearbox(type) {
     // remove spot where faceplate screw holes
     for (i = [0:3]) {
       rotate([0, 0, i * 90])
-        translate([faceplate_screws_cdist / 2, 0, length - screw_diameter / 2 + z_fight])
+        translate([faceplate_bolt_circle_dia / 2, 0, length - screw_diameter / 2 + z_fight])
           cylinder(d=screw_diameter, h=screw_diameter * 2, center=true);
     }
   }
