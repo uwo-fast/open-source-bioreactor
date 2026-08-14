@@ -4,12 +4,16 @@
 
 - [ ] finish modelling peri pumps and integrating with a motor then into the assembly using the peri pump motor mount that has been modified to take the registered parameters for the motor and pump
 - [ ] replace as many of the "generic" parameter registrations as possible with specific ones for the actual hardware (i.e. mcmaster carr part numbers or best effort for other parts)
-- [ ] rethink how the impeller diameter is driven, and guard it
-  - `head()` scales it off `vessel_outer_diameter`, but what it has to pass through is the vessel *opening*; nothing asserts the impeller is smaller than the opening, so an out-of-range `impeller_impeller_vessel_outer_diameter_factor` silently models an impeller that cannot be installed
+- [x] rethink how the impeller diameter is driven, and guard it
+  - the guard landed first: `head()` now refuses an impeller whose top ring cannot pass the vessel's opening, which caught `jar_6p5gal_305x470` building a 145 mm impeller for a 137 mm mouth
+  - the driver was wrong in its reference, not its value. It multiplied `vessel_outer_diameter`, but D/T everywhere in the literature is against the vessel's wetted bore, so the real ratio drifted with the glass — 0.468 to 0.489 across the registry for one nominal 0.45. It now reads the bore and is constant
+  - `impeller_bore_ratio = 0.45` sits mid-band on every citation and is what lets every registered vessel build. `jar_6p5gal_305x470` is the binding one: its 137 mm mouth caps the ratio at 0.4594 with the impeller exactly filling the neck, so 0.45 leaves 2.64 mm to pass it through. The relations and their citations are in `scad/utils/stirred_tank.scad`, the reasoning in `docs/agitation.md`
+  - the twist angle and the blade height are the parameters with no support — nothing citable exists for 55 degrees, or for the W/D of a twisted extrusion at all. Both are left alone and marked; `twist` turns out to be a pitch specifier rather than a blade angle, so the honest treatment is the derivation recorded in `docs/agitation.md`. A bench power-number measurement would settle it
 - [ ] caliper the real jar rim against the registered profile
   - the lid's gasket recess is cut to the flat land on top of the glass, which the model puts at 5.00 mm wide (r 71.5 out to 76.5) with a 2 mm bead rolled outboard below it. That land comes from the registered `rim_radius` and wall thickness rather than from a measurement, and the recess width follows from it, so it is worth confirming before cutting a gasket to it
-- [ ] align the assembly -> subassembly -> part parameter interfaces
-  - `head.scad` and `frame.scad` hardcode the vessel dimensions in their standalone preview calls (`220 / 143 / 295` and `305 / 220`), which reproduce `jar_10L_220x305` — 295 being a hand-copy of the derived `vessel_internal_height()`. Deliberate for now so each subassembly previews standalone; fold into the interface pass rather than patching piecemeal
+- [x] align the assembly -> subassembly -> part parameter interfaces
+  - both previews now derive rather than quote: `frame.scad` builds against a registered vessel row, and `head.scad` runs the frame's own accessors for the joint instead of copying their results. Verified by perturbing a driver — `-D threaded_rod_hole_allowance=3` used to leave `head.scad` standalone boring the old 9.2, and now tracks the assembly
+  - the interface contract in `assembly.scad` was rewritten to describe the actual signatures, which it had never matched
 - [x] carry the probe tail and connector dimensions in `atlas_probes.scad` and read them back
   - first attempt added a four-number tail group, which was wrong: tracing the geometry showed it held one dead number, two collet-shape numbers, and one derived hex size — no probe facts at all. `tail_maj_d` was provably inert (8.7 → 6 and 8.7 → 9.1 both render an identical part, because the port's hex cut is 9.18 across flats and removes strictly more), and it duplicated `neck`, which already described the same strain relief boot
   - settled shape: the registry holds one group per physical feature — `neck` the boot, `body` the cap, `tip` the shaft, `conn_d` the connector — and `bayonet_probe_port` derives the rest. The collet's neck section houses the boot, so `neck` sizes it; the hex is derived as `(conn_d + allowance) / cos(30)` so a round Ø8 connector clears the flats, instead of the magic 10 that silently encoded the same sum
@@ -18,6 +22,26 @@
 - [x] put the pH and DO caps on their datasheet values
   - they carried caliper readings of 15.6/16.0 and 36.0/35.6 where all six of those sheets say 16.0 x 36.2. Every row in the registry is now the product as its sheet describes it, with no exceptions, and the collet's allowances do the compensating
   - the `15.9` soft-backed / `16.3` hard-backed numbers are dropped. No datasheet mentions a backing variant, so it is not tracked; `cylindrical_flex_collet.scad` is a generic module and its preview values are just example hardware. If a backing variant turns out to be a real product it gets its own registered row
+
+## drive and aeration
+
+Follows from the agitation work; the reasoning and citations are in `docs/agitation.md`.
+
+- [ ] rename `gearbox_faceplate_screws_cdist` to say bolt circle
+  - it is documented as "centre distance" but consumed as `separation / 2`, i.e. as a bolt circle diameter. For a 4-screw square pattern "centre distance" reads naturally as the square's side, and a 20 mm square is a Ø28.3 bolt circle — wrong by 40%. Do this before registering any new motor, since candidate bolt circles span Ø27.6 to Ø35
+- [ ] register the drive's output speed and the gearbox ratio
+  - `dc_motors.scad` carries no speed and `gearboxes.scad` carries the ratio only inside a name string, so the model cannot compute tip speed, Reynolds number or power draw. Register `rated_output_rpm` on the motor row — vendors publish output-side figures for assembled gearmotors, so that is the catalogue fact — and the ratio as a number on the gearbox row. Name it unambiguously: the motor-vs-output distinction has already caused one error here
+  - then echo Re, mean and peak dissipation at render. **No tip-speed assert** — see `docs/agitation.md` for why
+  - note this puts a non-geometric field in registries that are otherwise all dimensions, which is a departure from how `purchased/` has worked so far
+- [ ] decide the drive motor
+  - the current 36GP-3530 runs 1154 rpm at the output and is driven at ~39% PWM duty with no speed feedback, which is outside every published operating point. The same platform is sold at 19:1 giving 257 rpm rated, which would put the reactor near Chlorella's measured optimum while running the motor at its rated point
+  - verify the bolt circle against the printed mount first; the GA36Y is Ø29.2 against the registered 36GP's Ø27.6
+- [ ] design the sparger
+  - the largest open item in the reactor's fluid design. Bubble rupture rather than impeller shear dominates cell damage, and there is no sparger in the model at all — air enters through a bayonet tube port. `ports-layout.md` already reasons about a "primary sparger sector" that does not exist
+  - needs its own research pass: bubble size, orifice velocity against the 30-50 m/s critical range, sparger geometry, whether Pluronic F-68 belongs in the medium, and Nienow's requirement that the sparger sit below the lower impeller
+- [ ] characterise the impeller's blade twist and height
+  - both are uncharacterised design parameters with no citable basis; `twist` is a pitch specifier rather than a blade angle. A bench measurement would settle it: `Po = P/(rho*N^3*D^5)` from shaft power at three or four known speeds in water, across printed variants
+  - one paywalled source might yet say something — Kumaresan & Joshi 2006, doi:10.1016/j.cej.2005.10.002, worth an interlibrary request
 
 ## nice to haves
 

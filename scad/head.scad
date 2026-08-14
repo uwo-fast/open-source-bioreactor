@@ -8,6 +8,7 @@
 
 use <utils/bolt_pattern.scad>;
 use <utils/oring_gland.scad>;
+use <utils/stirred_tank.scad>;
 use <custom/sheet_gasket.scad>;
 
 use <custom/motor_mount.scad>;
@@ -171,7 +172,12 @@ lid_blind_pocket_floor_min = 3.0;
 /* [Impeller Parameters] */
 
 /** Design guidelines for impeller:
- * - The impeller radius (radius) should be 1/3 to 1/2 of the tank radius for bioreactors
+ * - The impeller should be 0.3 to 0.5 of the tank diameter, and 0.4 to 0.5 for an axial-flow
+ *   impeller in cell culture. The tank diameter meant here is the vessel's wetted bore, not the
+ *   outside of the glass - see impeller_bore_ratio and utils/stirred_tank.scad, which carries the
+ *   bands and their citations. Nienow 2006 also specifies, for a stacked pair, clearance between
+ *   them of 0.33 to 0.5 of the tank diameter and the sparger below the lower impeller; this lid
+ *   has no sparger, so that last part is unmet and is tracked in the agitation design basis.
  * - The number of fins (fins) and their twist angle (twist) influence mixing efficiency, flow patterns, and shear
  *   forces.
  *   - More fins generally increase turbulence and mixing but may require higher power input.
@@ -187,13 +193,50 @@ lid_blind_pocket_floor_min = 3.0;
  *   high velocity zone between the impellers, which mixes hard but shears hard with it.
  */
 
-// impeller diameter to tank diameter ratio
-impeller_impeller_vessel_outer_diameter_factor = 0.45;
-// impeller height
+// Impeller diameter as a fraction of the vessel's BORE - the wetted internal diameter, which is
+// what D/T means everywhere in the literature. This used to multiply the outer diameter, which
+// let the real ratio drift with the glass: 0.468 to 0.489 across the registry for one nominal
+// 0.45. The value was never wrong, only the dimension it was measured against.
+//
+// 0.45 is kept, now against the bore. It sits mid-band on every citation - Fitschen's 0.3-0.5,
+// Nienow's 0.4-0.5 for axial impellers, and Lonza's "most preferred" 0.44-0.46 - and it is what
+// lets every registered vessel build. jar_6p5gal_305x470 is the binding one: a 137 mm mouth on a
+// 280.8 mm bore caps the ratio at 0.4594 with the impeller exactly filling the neck, so 0.45
+// leaves 2.64 mm to actually pass it through. Every other jar tolerates 0.59 to 0.82.
+//
+// Consequence worth knowing: this makes the impeller 94.5 mm where the first build ran 99 mm,
+// which was 0.4714 of the bore. Both are in band; 0.45 is the one that fits every vessel.
+// utils/stirred_tank.scad carries the relations and the citations.
+impeller_bore_ratio = 0.45;
+// Impeller height, i.e. the axial span of the blade. UNCHARACTERISED, in the same way the twist
+// angle below is: no citable W/D or blade-height ratio was found for an axial impeller, and none
+// at all for a twisted extrusion. The classic ratios (w = D/4 or D/5) are for flat Rushton blades
+// and do not describe this shape.
 impeller_height = 60;
-// number of fins
+// Number of fins. 4 is mid-range and measured: on otherwise identical folded-blade axial
+// impellers, Po runs 0.79 / 0.99 / 1.34 for 3 / 4 / 6 blades, so going to 6 costs about 35% more
+// power at the same speed and diameter. Fort et al. 2002, doi:10.14311/380 (see docs/references.md)
 impeller_n_fins = 4;
-// twist angle of each fin
+// Twist angle of each fin. UNCHARACTERISED - no citable source recommends any twist value for a
+// blade of this kind, and a search of the indexed literature turned up almost nothing on twisted
+// impeller blades at all. Rather than borrow a number from work on a different geometry, what can
+// honestly be said is derived from this geometry itself:
+//
+// linear_extrude(twist=) sweeps a constant-pitch helicoid, so this is a PITCH specifier, not a
+// blade angle. The blade angle b, measured from the plane of rotation, therefore varies with
+// radius as tan b = P / (2*pi*r), where the pitch P is the axial advance per full turn:
+//
+//   at 55 deg over a 60 mm impeller, P = 393 mm, P/D = 4.2
+//   b runs 83 deg at the hub, 73 at 0.4R, 62 at 0.7R, 53 at the tip
+//
+// A flat pitched blade sits at one angle everywhere; the classic turbines are tested at 24, 35
+// and 45. This blade is steeper than 45 at every radius, so it is a twisted paddle biased toward
+// radial pumping rather than the axial impeller the D/T guidance above is written about. Getting
+// a 45 deg tip would take roughly 73 deg of twist, not 55.
+//
+// What would settle it is a bench measurement, not a reference: Po = P/(rho*N^3*D^5) from shaft
+// power at three or four known speeds in water, repeated across printed variants, gives a real
+// power-number curve for this exact blade. See docs/agitation.md.
 impeller_twist_ang = 55;
 // width of each fin blade
 impeller_fin_width = 4;
@@ -495,14 +538,47 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   );
 
   // Impeller Driven Parameters
-  // diameter of the impeller (see TODO.md: scaled off the outer diameter, unguarded)
-  impeller_diameter = vessel_outer_diameter * impeller_impeller_vessel_outer_diameter_factor;
+  // The bore is what the impeller mixes and what D/T is measured against; the glass wall is not
+  // part of the tank. Both the diameter and the spacing come from utils/stirred_tank.scad so the
+  // relations and their citations live in one place.
+  _vessel_bore = vessel_outer_diameter - 2 * vessel_wall_thickness;
+  impeller_diameter = stirred_tank_impeller_diameter(_vessel_bore, impeller_bore_ratio);
   impeller_radius = impeller_diameter / 2; // radius of the impeller
 
   // radius of the shaft hole in the impeller
   impeller_shaft_hole_radius = (shaft_diameter + impeller_shaft_allow) / 2;
 
-  impeller_spacing = impeller_diameter * impeller_spacing_factor;
+  impeller_spacing = stirred_tank_impeller_spacing(impeller_diameter, impeller_spacing_factor);
+
+  // Where this build sits against the literature. Reported rather than asserted: a ratio outside
+  // the band may be the thing being studied, and refusing to draw it would make the model less
+  // useful, not safer. What is asserted is only what cannot physically work - the span check
+  // below, which stops an impeller too wide to pass the vessel's mouth.
+  _impeller_ratio = stirred_tank_ratio(impeller_diameter, _vessel_bore);
+  _ratio_band = stirred_tank_ratio_band();
+  _ratio_band_axial = stirred_tank_ratio_band_axial();
+  _spacing_band = stirred_tank_spacing_band();
+
+  echo(str(
+    "impeller: ", impeller_diameter, " mm in a ", _vessel_bore, " mm bore, D/T ", _impeller_ratio,
+    " (band ", _ratio_band[0], "-", _ratio_band[1], ", axial ", _ratio_band_axial[0], "-",
+    _ratio_band_axial[1], "); spacing ", impeller_spacing_factor, " D (band ", _spacing_band[0],
+    "-", _spacing_band[1], ")"
+  ));
+
+  if (!stirred_tank_in_band(_impeller_ratio, _ratio_band))
+    echo(str(
+      "WARNING impeller: D/T of ", _impeller_ratio, " is outside the ", _ratio_band[0], "-",
+      _ratio_band[1], " band bioreactor practice works in. Below it the impeller does not move ",
+      "enough fluid; above it an axial impeller loses its axial motion."
+    ));
+
+  if (!stirred_tank_in_band(impeller_spacing_factor, _spacing_band))
+    echo(str(
+      "WARNING impeller: spacing of ", impeller_spacing_factor, " D is outside the ",
+      _spacing_band[0], "-", _spacing_band[1], " D band; too close costs up to 35% of the power ",
+      "imparted to the fluid, too far mixes the two zones poorly."
+    ));
 
   // this impeller is tall for its diameter, so the pair collide before they reach the 0.5 diameter
   // spacing at which they would stop behaving as two impellers
