@@ -47,10 +47,13 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
   - **the stack grew 35.5 mm** (motor 30 → 57, gearbox 26 → 34.5), so the reactor envelope goes 543.75 → 579.25 mm and the cart 1312.5 → 1383.5 mm — the cart stacks two tiers, so every millimetre counts twice
   - confirm before ordering: the encoder sheet tabulates no gearbox length, so 34.5 is inferred from the 3429 sheet at 14:1, and it does not dimension the encoder past the can. Both feed the envelope
   - still worth a caliper: the bolt circle on the printed mount. Ø28 with M4 should clear holes cut for the 36GP's Ø27.6 / 4.2, so it may take the new motor without a reprint
-- [ ] register the encoder and report what it resolves
-  - the motor is registered, the encoder is not. It wants `[ppr, channels]` on the row, an accessor, and a `head()` echo of counts per output revolution and the speed that resolves — the same shape as the hydrodynamics echo. 12 PPR x 2 channels x 14:1 is 672 quadrature counts per output rev, about 0.9 rpm over a 100 ms window
-  - **no geometry involved.** The encoder sits at the far end of the motor in open air above the mount, already inside `dc_motor()`'s cylinder. Nothing has to make room for it, so there is no housing module to write
-  - the wiring belongs in the BOM: six flying leads and no connector, against the `Slice_DCMT` rows that would read them
+- [x] register the encoder and report what it resolves
+  - `dc_motors.scad` carries `[ppr, channels]` and `dc_motor.scad` derives counts per turn of the output: ppr x 2 edges x channels, taken through the reduction. 12 x 2 x 2 x 14 = **672 counts per output turn**, resolving 0.89 rpm over a 100 ms window against a band 155 rpm wide
+  - most of that resolution is the gearbox rather than the encoder, which is why the ppr is registered as what it is — per channel at the motor shaft, ahead of the reduction
+  - `head()` echoes it, and says plainly when a motor carries no encoder rather than echoing an undef. Exercised on all four registered rows, including the one with no gearbox to take a ratio from
+  - `encoder_speed_window` is the one new parameter, an operating choice like `culture_fill_fraction`: the controller owns the real window and nothing is built from it
+  - **no geometry, as expected.** The encoder sits inside the motor's own envelope, so nothing new is drawn and the render is untouched
+  - the BOM's `Slice_DCMT` row now carries the wiring the motor actually needs — 2 motor leads and 4 encoder, no connector — flagged to confirm the board exposes the encoder inputs
 - [ ] design the sparger
   - the largest open item in the reactor's fluid design. Bubble rupture rather than impeller shear dominates cell damage, and there is no sparger in the model at all — air enters through a bayonet tube port. `ports-layout.md` already reasons about a "primary sparger sector" that does not exist
   - needs its own research pass: bubble size, orifice velocity against the 30-50 m/s critical range, sparger geometry, whether Pluronic F-68 belongs in the medium, and Nienow's requirement that the sparger sit below the lower impeller

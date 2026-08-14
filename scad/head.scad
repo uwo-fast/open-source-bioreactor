@@ -252,6 +252,9 @@ impeller_spacing_factor = 1.0;
 // nothing in this model sets a fill line - but the mean dissipation echo needs a volume, and the
 // full internal volume would understate it. 0.8 leaves the usual headspace for foam and gas.
 culture_fill_fraction = 0.8;
+// Window a shaft speed measurement is averaged over, in seconds. Another operating choice with no
+// geometry behind it: it sets what a fitted encoder resolves, and the controller owns the real one.
+encoder_speed_window = 0.1;
 
 /* [Thermocouple Mount Parameters] */
 
@@ -623,6 +626,21 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
           ", pair under ", 2 * stirred_tank_torque(_power, _rpm), " Nm of ", _rated_torque, " Nm rated"
         )
       ));
+
+  // Whether the speed above can be measured or only commanded. Worth reporting next to it because
+  // the band the drive aims at is narrow, so what resolves it decides whether the model's numbers
+  // describe the shaft or only the request.
+  _encoder = dc_motor_encoder(head_motor);
+  _encoder_counts = dc_motor_encoder_counts_per_output_rev(head_motor);
+
+  if (is_undef(_encoder))
+    echo(str("drive: ", head_motor[0], " carries no encoder, so shaft speed is commanded, not measured"));
+  else
+    echo(str(
+      "drive encoder: ", _encoder[0], " ppr x ", _encoder[1], " channels through ",
+      gearbox_ratio(head_gearbox), ":1 = ", _encoder_counts, " counts per output turn, resolving ",
+      60 / (_encoder_counts * encoder_speed_window), " rpm over ", encoder_speed_window * 1000, " ms"
+    ));
 
   // this impeller is tall for its diameter, so the pair collide before they reach the 0.5 diameter
   // spacing at which they would stop behaving as two impellers

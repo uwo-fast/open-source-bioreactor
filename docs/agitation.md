@@ -192,7 +192,8 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
 - **No energy dissipation rate limit exists for any microalga.** The parameter the physics says
   governs has no citable number for these organisms.
 - **Speed feedback is specified but not yet wired.** The registered drive carries a magnetic
-  encoder, but nothing in the model or the control code reads it, so tip speed and Re are still
-  computed from a commanded speed rather than a measured one.
+  encoder and the model reports what it resolves — 672 counts per output turn, 0.89 rpm over a
+  100 ms window — but nothing reads it yet, so tip speed and Re are still computed from a commanded
+  speed rather than a measured one.
 - **Partial inboard baffles are characterised in the literature but not recommended.** The relevant
   papers are paywalled and unread; this design's three inboard baffles rest on that gap.

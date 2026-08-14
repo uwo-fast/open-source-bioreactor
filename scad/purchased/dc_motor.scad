@@ -27,6 +27,15 @@ function dc_motor_rated_output_rpm(type) = is_undef(type[6]) ? undef : type[6][1
 // The torque rated speed is quoted at. Stored in N m; this family's sheets publish kg.cm.
 function dc_motor_rated_output_torque(type) = type[7];
 
+function dc_motor_encoder(type) = type[8]; // [ppr, channels] of a fitted encoder, optional
+
+// Counts per turn of the OUTPUT shaft, decoding every edge of every channel and taken through the
+// reduction - which is where most of the resolution comes from, the encoder itself sitting on the
+// motor shaft ahead of the gearbox.
+function dc_motor_encoder_counts_per_output_rev(type) =
+  let (e = dc_motor_encoder(type), g = dc_motor_gearbox(type))
+    is_undef(e) || is_undef(g) ? undef : e[0] * 2 * e[1] * gearbox_ratio(g);
+
 /**
  * @brief Create a DC motor from a registered type
  * @param type Registered parameter set (see dc_motors.scad)
