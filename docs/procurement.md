@@ -57,13 +57,44 @@
   - https://electric-b2c.com/products/36gp-3530-planetary-gear-dc-motor-torque-50kg-12v-24v-reduce-speed-8pm-to-1154rpm-pwm-reverse-forward-electric-12-volt-motor?variant=47572164116673
 
 - drive motor for the next build
-  - E-S Motor 36D planetary gearmotor, RobotShop SKU RM-ESMO-16Q, mfr 36PG-3429-5.2 12V
-  - 12 V DC, gear ratio 1/5.2, **no-load 1400 rpm, rated 950 rpm** at 0.65 kg·cm, rated current
-    < 1.5 A, no-load current < 300 mA, stall 2 kg·cm / 4.3 A, 350 g
-  - motor 34 x 29.4 mm, gearbox 36 x 26.5 mm, shaft 8 x 20 mm D-shaped, SM2P-2.54 connector
-  - the datasheet confirms every dimension already registered, and is the reason the registry can
-    now separate no-load from rated: the vendor names each variant by its **no-load** speed, so an
-    unqualified catalogue speed anywhere in this family is a no-load speed
-  - the family shares one motor at ~7280 rpm and varies only the ratio, so the sibling SKUs are
-    the same part at a different speed: 16R 1950, 16Q 1400, 16P 520, 16N 385, 16K 140, 16J 72,
-    16G 28, 16F 14 rpm at 12 V
+  - **E-S Motor 36D gearmotor with encoder, RobotShop SKU RM-ESMO-071, mfr 36PG-555PM-14-EN 12V**
+  - 12 V DC, gear ratio 1/14, **no-load 420 rpm, rated 320 rpm** at 5 kg·cm (0.490 N·m), rated
+    current < 2 A, no-load current 400 mA, stall > 15 kg·cm / < 10 A, 30 W maximum
+  - motor 36 x 57 mm, gearbox 36 x 34.5 mm, shaft 8 x 20 mm D-shaped with 15 mm of flat at 7 mm
+  - faceplate 4-M4 tapped 5 mm deep on a 28 mm bolt circle, 22 mm pilot register standing 2 mm proud
+  - encoder is magnetic, 2 channels, 12 PPR at the motor shaft, which past the 14:1 is 672
+    quadrature counts per output revolution — around 0.9 rpm resolved over a 100 ms window, against
+    an operating band 155 rpm wide
+  - six flying leads (motor M1/M2, Hall GND, Hall A, Hall B, Hall Vcc); no connector fitted, unlike
+    the 3429 SKUs which ship an SM2P-2.54 on 90 mm cables
+  - chosen because 320–420 rpm spans the whole band `agitation.md` sets and is the only candidate
+    reaching the 410 rpm break-even, and because the encoder retires the no-speed-feedback gap that
+    band containment was working around
+  - https://ca.robotshop.com/products/e-s-motor-36d-dc-planetary-gearmotor-w-encoder-12v-420rpm
+  - **two numbers here are inferred, not published.** The encoder sheet tabulates no gearbox length,
+    so 34.5 mm is the 36PG-3429 sheet's figure at 14:1; and its drawing's 57 mm spans the whole
+    motor block without dimensioning the encoder separately, which is the same 57 mm the plain 555
+    can gets with no encoder on it. Both feed the reactor envelope and so the cart, where a
+    millimetre counts twice over two tiers — confirm with the vendor before ordering
+  - superseded **RM-ESMO-16Q** (36PG-3429-5.2), which this document previously named: rated 950 rpm
+    is 4.70 m/s at the tip, more than twice the break-even. Right family, wrong ratio. Still
+    registered as a product
+  - passed over **RM-ESMO-16N** (36PG-3429-19, 42.15 CAD), no-load 385 / rated 265 rpm at 2.4 kg·cm.
+    Both ends sit inside the band and it is 27.6 mm shorter in the stack, but it cannot reach the
+    410 rpm break-even and carries no encoder. The fallback if stack height turns out to bind
+  - passed over **RM-ESMO-0MX** (36PG-555K-1260-19, 34.50 CAD), no-load 315 / rated 240 rpm at
+    7 kg·cm. Its rated point falls below the growth optimum, and the torque it sells on is worth
+    nothing here — the impeller pair asks under 5 % of it. Bare copper tabs, no connector
+
+- 36PG gearbox family, from the E-S outline drawings and ratio tables
+  - one faceplate across the range: 4 screws on a **28 mm bolt circle**, a 22 mm pilot register
+    standing **2 mm** proud, and an 8 x 20 mm D-cut output shaft. The 3429 and 555K are tapped M3,
+    the 555PM-EN M4. This is what lets the printed mount stay common across the range
+  - **gearbox length goes with the ratio group, not with the motor**: 26.5 mm at 3.71 and 5.2,
+    34.5 mm at 14, 19 and 27, 42.5 mm at 51, 100 and 139, 50.5 mm at 264 and 515
+  - rated speed runs 0.68–0.71 of no-load across all ten ratios, so an unqualified catalogue speed
+    is a no-load speed and the operating point is roughly 0.7 of it. This is why the registry keeps
+    the two apart
+  - the 36PG-3429 at 12 V, by ratio, as no-load rpm / rated rpm / rated kg·cm: 3.71 1950/1350/0.45,
+    5.2 1400/950/0.65, 14 520/360/1.8, 19 385/265/2.4, 27 270/190/3.5, 51 140/100/6.5,
+    100 72/50/13.5, 139 52/36/18.5, 264 28/19/34, 515 14/10/50

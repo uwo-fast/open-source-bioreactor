@@ -132,7 +132,7 @@ shaft_bearing = BB608; // McMaster 6153K71, 440C stainless, sealed, trade no. 60
 // the registered motor type; the gearbox is taken from the motor's registration
 // (dc_motor_gearbox), and all motor/gearbox dimensions are derived from these via
 // the accessor functions rather than re-entered here
-head_motor = motor_36gp_3530_5p18;
+head_motor = motor_36pg_555pm_14_en;
 
 /* [Shaft Parameters] */
 
@@ -596,6 +596,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _culture_volume = stirred_tank_volume(_vessel_bore, vessel_internal_height * culture_fill_fraction);
   _impeller_po = stirred_tank_power_number_folded_axial_4();
   _impeller_x = stirred_tank_dissipation_factor_pitched_blade();
+  _rated_torque = dc_motor_rated_output_torque(head_motor); // undef on a motor that publishes none
 
   // no-load and rated are different facts and either may be unpublished, so each is reported as
   // itself and a motor missing both says so rather than echoing a silent undef
@@ -616,7 +617,11 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         ", tip ", stirred_tank_tip_speed(impeller_diameter, _rpm), " m/s, ", _power, " W into ",
         _culture_volume, " L = ", stirred_tank_mean_dissipation(_power, _culture_volume),
         " W/m3 mean, ", stirred_tank_max_dissipation(impeller_diameter, _rpm, _impeller_po, _impeller_x),
-        " W/kg peak"
+        " W/kg peak",
+        // twice one impeller's torque: an upper bound on the pair, as P above is a lower one
+        is_undef(_rated_torque) ? "" : str(
+          ", pair under ", 2 * stirred_tank_torque(_power, _rpm), " Nm of ", _rated_torque, " Nm rated"
+        )
       ));
 
   // this impeller is tall for its diameter, so the pair collide before they reach the 0.5 diameter

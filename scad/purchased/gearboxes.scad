@@ -16,14 +16,18 @@ gearbox_36gp_5p18       = ["36GP-5.18",     [36,  26  ], [8,           20       
 // Carried by motor_36pg_3429_5p2. From the vendor outline drawing: 4-M3 tapped 5 mm deep on a
 // 28 mm bolt circle, with a 22 mm pilot register around the output shaft. That shaft is D-cut,
 // 15 mm of flat at 7 mm across; the schema carries no flat, so only the 8 x 20 round is here.
-gearbox_36pg_3429_5p2   = ["36PG-3429-5.2", [36,  26.5], [8,           20         ], [2,         8         ],   28,                        3,       [22,         3         ], [8,         3        ], 5.2  ];
+gearbox_36pg_3429_5p2   = ["36PG-3429-5.2", [36,  26.5], [8,           20         ], [2,         8         ],   28,                        3,       [22,         2         ], [8,         3        ], 5.2  ];
 
-// Both bosses are the 36GP's: the 22 out_boss is the pilot register the drawing gives for the
-// 36PG and the same feature on the 36GP, and the 8 x 3 in_boss is taken from
-// motor_36gp_3530_5p18's boss. The 36PG ships assembled and publishes neither, so its pair is
-// carried over rather than measured.
+// Carried by motor_36pg_555pm_14_en. Same Ø28 faceplate as the 3429 but tapped M4, not M3. The
+// encoder sheet dimensions gearbox length as a variable and tabulates no value for it; 34.5 is
+// the 36PG-3429 sheet's figure at 14:1, so it is inferred across the range rather than published.
+gearbox_36pg_555pm_14   = ["36PG-555PM-14", [36,  34.5], [8,           20         ], [2,         8         ],   28,                        4,       [22,         2         ], [8,         3        ], 14   ];
 
-gearboxes = [gearbox_36gp_5p18, gearbox_36pg_3429_5p2];
+// The 22 x 2 out_boss is off the E-S outline drawings, which give one pilot register across the
+// whole 36PG range. The 36GP's 3 mm is unmeasured and left alone. Both in_bosses are taken from
+// motor_36gp_3530_5p18's own boss - the 36PG ships assembled and publishes none.
+
+gearboxes = [gearbox_36gp_5p18, gearbox_36pg_3429_5p2, gearbox_36pg_555pm_14];
 
 use <gearbox.scad>
 

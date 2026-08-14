@@ -101,6 +101,10 @@ function stirred_tank_power(impeller_diameter, rpm, power_number) =
   power_number * stirred_tank_medium_density() * pow(rpm / 60, 3)
   * pow(impeller_diameter / 1000, 5);
 
+// Shaft torque from power, N m. The same fact as the power above said another way, P = 2 pi N T,
+// and worth having because motors are rated in torque rather than power.
+function stirred_tank_torque(power, rpm) = power / (2 * PI * (rpm / 60));
+
 // Culture volume of a plain cylindrical tank, litres, from bore and liquid depth in mm. A
 // cylinder ignores the shoulder taper and the punt, so it runs a few percent high.
 function stirred_tank_volume(bore, depth) = PI / 4 * pow(bore, 2) * depth / 1e6;

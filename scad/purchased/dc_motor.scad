@@ -24,6 +24,9 @@ function dc_motor_output_speeds(type) = type[6]; // [no_load_rpm, rated_rpm] at 
 function dc_motor_no_load_output_rpm(type) = is_undef(type[6]) ? undef : type[6][0];
 function dc_motor_rated_output_rpm(type) = is_undef(type[6]) ? undef : type[6][1];
 
+// The torque rated speed is quoted at. Stored in N m; this family's sheets publish kg.cm.
+function dc_motor_rated_output_torque(type) = type[7];
+
 /**
  * @brief Create a DC motor from a registered type
  * @param type Registered parameter set (see dc_motors.scad)

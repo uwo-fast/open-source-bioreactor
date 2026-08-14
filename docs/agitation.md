@@ -39,31 +39,29 @@ is a rigid-walled green alga, the most shear-tolerant class.
 
 ## 2. This reactor, in the units that matter
 
-Computed for the 10 L jar with Np = 0.99 (4-blade folded axial, the closest measured analogue) and
-x = 16:
+Computed on the 94.5 mm impeller in the 10 L jar, with Np = 0.99 (4-blade folded axial, the closest
+measured analogue) and x = 16. Mean dissipation is over the **8.17 L** the jar holds at
+`culture_fill_fraction`, not over the full jar; `head()` echoes every figure below at render.
 
-| impeller | rpm | Re | ε̄ (W/m³) | ε_max (W/kg) |
+| shaft speed | tip speed | Re | ε̄ (W/m³) | ε_max (W/kg) |
 | --- | --- | --- | --- | --- |
-| 94.5 mm | 100 | 14,900 | 3.5 | 0.68 |
-| 94.5 mm | 257 | 38,300 | 58.6 | 11.6 |
-| 94.5 mm | 1154 (full motor speed) | 171,800 | 5,308 | 1,049 |
+| 255 rpm — Chlorella optimum | 1.26 m/s | 37,800 | 70 | 11.3 |
+| 320 rpm — registered drive, rated | 1.58 m/s | 47,400 | 138 | 22.4 |
+| 410 rpm — break-even | 2.03 m/s | 60,800 | 291 | 47.1 |
+| 420 rpm — registered drive, no-load | 2.08 m/s | 62,300 | 313 | 50.6 |
+| 1154 rpm — 36GP-3530 at full speed | 5.71 m/s | 171,100 | 6,482 | 1,049 |
 
-**The vessel is fully turbulent at every speed** (Re > 10⁴ by the textbook threshold, > 2×10⁴ by
-Nienow's stricter one at all but the lowest speed).
+**The vessel is fully turbulent throughout the band.** Every speed above clears both the textbook
+Re > 10⁴ threshold and Nienow's stricter 2×10⁴.
 
-**The margin against damage is large.** At 257 rpm the impeller's peak dissipation is ~1.2×10⁴ W/m³
-against bubble rupture at 10⁷–10⁹ W/m³ and a CHO lethal range of 10⁶–10⁸ W/m³ — two to five orders
-of magnitude. Agitation is not what threatens this culture.
+**The margin against damage is large.** At the rated 320 rpm the impeller's peak dissipation is
+~2.2×10⁴ W/m³ against bubble rupture at 10⁷–10⁹ W/m³ and a CHO lethal range of 10⁶–10⁸ W/m³ — two
+to five orders of magnitude. Agitation is not what threatens this culture.
 
 **Aeration dominates the power budget too.** The one peer-reviewed worked example for a microalgal
 stirred tank puts aeration at 29.4–49.1 W/m³ against stirring at 0.65–1.30 W/m³.
 
 ### The operating point
-
-The drive is open-loop PWM with **no speed feedback**, so shaft speed is inferred from duty cycle
-rather than measured. At the recorded duty the inferred speed is ~450 rpm, which is **past the
-2.03 m/s point where stirring stops paying** for Chlorella. Not damaging — but not earning its
-power either.
 
 On the 94.5 mm impeller the band worth aiming at is narrow:
 
@@ -72,15 +70,32 @@ On the 94.5 mm impeller the band worth aiming at is narrow:
 | Chlorella growth optimum | 1.26 m/s | **255 rpm** |
 | break-even, stirring stops paying | 2.03 m/s | **410 rpm** |
 
-The motor and gearbox registries now carry output speed and reduction ratio, so `head()` computes
-Re, tip speed, power and both dissipation figures at render rather than leaving them to be worked
-out by hand. **No-load and rated speed are registered separately**: they differ by a factor of 1.47
-on the one motor with both published, so treating a catalogue speed as an operating point
-overstates it badly. An unqualified vendor figure is a no-load figure.
+**The registered drive is the 36PG-555PM-14-EN**, 14:1, rated 320 rpm and no-load 420 rpm — 1.58 to
+2.08 m/s. Of the motors examined it is the only one that reaches the break-even end of the band,
+which matters because the comparison between optimum and break-even is one this instrument exists
+to make.
 
-Worth knowing: the replacement motor already registered does not reach this band. The
-36PG-3429-5.2 is rated 950 rpm, or 4.70 m/s at the tip. It is the right motor family at the wrong
-ratio — a sibling at roughly 19:1 lands near 257 rpm.
+It was taken over a 19:1 sibling whose entire rated-to-no-load span, 265–385 rpm, sits inside the
+band. That containment is a workaround for having no speed feedback: with nothing measuring the
+shaft, where it settles between rated and no-load is set by load, so both ends have to be safe.
+**This motor carries a magnetic encoder instead** — 2 channels, 12 PPR at the motor shaft, which
+past the 14:1 is 672 quadrature counts per output revolution and resolves about 0.9 rpm over a
+100 ms window, against a band 155 rpm wide. Commanding a speed and measuring it beats choosing a
+motor that cannot miss.
+
+Torque is not what limits the choice. The impeller pair draws under 0.067 N·m at rated and under
+0.116 N·m at no-load against a 0.490 N·m rating — **14 to 24 % of it** — so the shaft runs nearer
+the no-load end than the rated one. That is why the registry carries rated torque and `head()`
+reports the comparison at each speed: it is the fact that says where an unmeasured shaft settles.
+
+The registries carry output speed, reduction ratio and rated torque, so `head()` computes Re, tip
+speed, power, torque and both dissipation figures at render rather than leaving them to be worked
+out by hand. **No-load and rated speed are registered separately**: across the ten ratios of the
+36PG-3429 table, rated runs 0.68–0.71 of no-load, so treating a catalogue speed as an operating
+point overstates it by about half. An unqualified vendor figure is a no-load figure.
+
+The drive it replaces was open-loop PWM at ~39 % duty on a 1154 rpm motor, with the shaft speed
+inferred rather than measured and no published operating point anywhere near the band.
 
 ---
 
@@ -176,6 +191,8 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
   model cannot currently express.
 - **No energy dissipation rate limit exists for any microalga.** The parameter the physics says
   governs has no citable number for these organisms.
-- **No speed feedback.** Tip speed and Re are computed from an inferred shaft speed.
+- **Speed feedback is specified but not yet wired.** The registered drive carries a magnetic
+  encoder, but nothing in the model or the control code reads it, so tip speed and Re are still
+  computed from a commanded speed rather than a measured one.
 - **Partial inboard baffles are characterised in the literature but not recommended.** The relevant
   papers are paywalled and unread; this design's three inboard baffles rest on that gap.
