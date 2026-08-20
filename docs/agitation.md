@@ -205,7 +205,7 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
   (Barbosa 2003), but **no critical entrance velocity is established** in anything read here — the
   "30–50 m/s" this document carried until 2026-08-13 was not supported by its source, which reports
   0.4–5.4 m/s in its own runs and says the parameter needs more work.
-  **The geometry, though, is now citable.** Oldshue 1996 p. 214: *"A sparge ring about 80 % of the
+  **The geometry, though, is now citable.** Oldshue 1997 p. 214: *"A sparge ring about 80 % of the
   impeller diameter is more effective than an open pipe beneath the impeller or sparge rings larger
   than the impeller,"* because the gas should enter where it passes straight through the impeller's
   high-shear zone. On the 94.5 mm impeller that is a **~75.6 mm ring**, and it agrees with Nienow's
@@ -220,7 +220,7 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
   speed rather than a measured one.
 - **Partial inboard baffles are characterised in the literature but not recommended.** The relevant
   papers are paywalled and unread. The **count**, at least, is no longer resting on a gap: Oldshue
-  1996 p. 202 gives four baffles at 1/12 T as the reference case and states that *"either 3, 6 or 8
+  1997 p. 202 gives four baffles at 1/12 T as the reference case and states that *"either 3, 6 or 8
   baffles can be used if preferred"* provided the total projected area matches. So three baffles
   are permissible by area, not by exception. Their being **partial and inboard** is still the
   uncited part.

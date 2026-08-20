@@ -15,7 +15,7 @@ turned out to be wrong. The status says how far each source was actually checked
 Grades: **[PR]** peer-reviewed · **[TH]** thesis · **[PAT]** patent · **[TX]** textbook ·
 **[TP]** trade press · **[VN]** vendor.
 
-Every literature source below is also in [`references.bib`](references.bib) — 34 entries carrying
+Every literature source below is also in [`references.bib`](references.bib) — 33 entries carrying
 the grade and verification status in their `note` fields, so the whole set imports into a reference
 manager in one go rather than one DOI at a time. Vendor pages, part numbers and software libraries
 are deliberately not in it: they are cited inline on the registry row or file that uses them.
@@ -104,7 +104,7 @@ now been retrieved and read, and **four of the five relayed claims are not in ei
 | top impeller ≥ 1.5 d below the surface | no | no |
 | baffles 0.08-0.10 T, four on 90° centres | **partly** — four at 1/12 T | no |
 
-- **[15] = Oldshue (1996)**, chapter 5 of the handbook — retrieved and read, see its own entry
+- **[15] = Oldshue (1997)**, chapter 5 of the handbook — retrieved and read, see its own entry
   below. The one thing that matches is p. 192: *"If the impeller can be placed **one to two impeller
   diameters off bottom**…"* — an **off-bottom clearance** for fluidfoil impellers, stated as a
   conditional trade-off. Davis appears to have read that as an impeller-**to-impeller** spacing
@@ -125,9 +125,9 @@ trace to a handbook nobody here has opened, relayed through a thesis. Treat them
 design targets; the **read** against the thesis says only that Davis says them.
 Cited as "Davis, D.A. (2009)" with no title until 2026-08-13; both initials and year were wrong.
 
-**Oldshue, J.Y. (1996).** "Agitation," chapter 5 of Vogel, H.C. & Todaro, C.L. (eds.),
+**Oldshue, J.Y. (1997).** "Agitation," chapter 5 of Vogel, H.C. & Todaro, C.L. (eds.),
 *Fermentation and Biochemical Engineering Handbook: Principles, Process Design, and Equipment*,
-2nd ed., Noyes Publications, pp. 181-241. **[TX]** · **read**
+2nd ed., Noyes Publications, Westwood NJ, 1997, pp. 181-241. ISBN 0-8155-1407-7. **[TX]** · **read**
 The primary behind the numbers `Davis (2010)` relays, retrieved 2026-08-20. What it actually says:
 
 - **Baffles, p. 202.** Four baffles, *"each 1/12 the tank diameter in width"* — a single value,
@@ -190,10 +190,11 @@ reaches 30° twist at 83° hub angle, so this is a direction, not a correction f
   numbers found (30-45° twist, 18-30° tip chord angle). They describe a cambered foil with a
   tangential chord; this project's blade is a thick radial fin, so they do not transfer.
 - Helical-ribbon and screw-impeller work is **creeping-flow, Re < 20**, four orders from this
-  reactor's duty, and does not apply: Rieger 1981, [doi:10.1135/cccc19812007](https://doi.org/10.1135/cccc19812007);
-  [doi:10.3390/chemengineering2020026](https://doi.org/10.3390/chemengineering2020026) **[PR]** —
-  Ameur 2018 **read**, its simulations run at Re = 10; Seichter 1981 remains **abstract**, still
-  behind a paywall.
+  reactor's duty, and does not apply: Ameur et al. 2018,
+  [doi:10.3390/chemengineering2020026](https://doi.org/10.3390/chemengineering2020026) **[PR]** ·
+  **read** — its simulations run at Re = 10. A second example, Seichter 1981
+  (doi:10.1135/cccc19812007), was dropped on 2026-08-20: it stayed paywalled, Ameur carries the
+  dismissal on its own, and it was the only source here never read.
 
 ---
 
