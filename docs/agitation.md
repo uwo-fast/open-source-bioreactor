@@ -204,9 +204,14 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
   design. Damage originates at the sparger during bubble *formation* rather than at bursting
   (Barbosa 2003), but **no critical entrance velocity is established** in anything read here — the
   "30–50 m/s" this document carried until 2026-08-13 was not supported by its source, which reports
-  0.4–5.4 m/s in its own runs and says the parameter needs more work. Nienow's guidance places the
-  sparger below the lower impeller — a requirement the model cannot currently express, and one the
-  current geometry leaves only 5 mm of room for.
+  0.4–5.4 m/s in its own runs and says the parameter needs more work.
+  **The geometry, though, is now citable.** Oldshue 1996 p. 214: *"A sparge ring about 80 % of the
+  impeller diameter is more effective than an open pipe beneath the impeller or sparge rings larger
+  than the impeller,"* because the gas should enter where it passes straight through the impeller's
+  high-shear zone. On the 94.5 mm impeller that is a **~75.6 mm ring**, and it agrees with Nienow's
+  requirement that the sparger sit below the lower impeller. **The binding problem is vertical
+  room**: the lower impeller sits 0.37 D off the floor, leaving 5 mm of clear space beneath it, so
+  the off-bottom clearance has to be settled before a sparger can be drawn at all.
 - **No energy dissipation rate limit exists for any microalga.** The parameter the physics says
   governs has no citable number for these organisms.
 - **Speed feedback is specified but not yet wired.** The registered drive carries a magnetic
@@ -214,4 +219,8 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
   100 ms window — but nothing reads it yet, so tip speed and Re are still computed from a commanded
   speed rather than a measured one.
 - **Partial inboard baffles are characterised in the literature but not recommended.** The relevant
-  papers are paywalled and unread; this design's three inboard baffles rest on that gap.
+  papers are paywalled and unread. The **count**, at least, is no longer resting on a gap: Oldshue
+  1996 p. 202 gives four baffles at 1/12 T as the reference case and states that *"either 3, 6 or 8
+  baffles can be used if preferred"* provided the total projected area matches. So three baffles
+  are permissible by area, not by exception. Their being **partial and inboard** is still the
+  uncited part.

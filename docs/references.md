@@ -15,7 +15,7 @@ turned out to be wrong. The status says how far each source was actually checked
 Grades: **[PR]** peer-reviewed · **[TH]** thesis · **[PAT]** patent · **[TX]** textbook ·
 **[TP]** trade press · **[VN]** vendor.
 
-Every literature source below is also in [`references.bib`](references.bib) — 33 entries carrying
+Every literature source below is also in [`references.bib`](references.bib) — 34 entries carrying
 the grade and verification status in their `note` fields, so the whole set imports into a reference
 manager in one go rather than one DOI at a time. Vendor pages, part numbers and software libraries
 are deliberately not in it: they are cited inline on the registry row or file that uses them.
@@ -93,21 +93,66 @@ thesis, Mechanical and Aerospace Engineering, Utah State University —
 Spacing 1.0-2.0 d with the bottom impeller 1.0 d off the floor, and power falling to about 80 % of
 the properly-spaced value below 1.0 d; top impeller ≥ 1.5 d below the liquid surface; baffles
 0.08-0.10 T, four on 90° centres.
-**Davis relays these rather than measuring them**, from his refs [15] and [17]. Both were chased
-on 2026-08-13 and the result is worse than it looked:
+**Davis relays these rather than measuring them**, from his refs [15] and [17]. Both primaries have
+now been retrieved and read, and **four of the five relayed claims are not in either of them.**
+
+| Davis's claim | In Oldshue [15]? | In Xing [17]? |
+| --- | --- | --- |
+| spacing 1.0-2.0 d **between impellers** | no | no |
+| bottom impeller 1.0 d off the floor | **partly** — see below | no |
+| power falls to ~80 % below 1.0 d | no | no |
+| top impeller ≥ 1.5 d below the surface | no | no |
+| baffles 0.08-0.10 T, four on 90° centres | **partly** — four at 1/12 T | no |
+
+- **[15] = Oldshue (1996)**, chapter 5 of the handbook — retrieved and read, see its own entry
+  below. The one thing that matches is p. 192: *"If the impeller can be placed **one to two impeller
+  diameters off bottom**…"* — an **off-bottom clearance** for fluidfoil impellers, stated as a
+  conditional trade-off. Davis appears to have read that as an impeller-**to-impeller** spacing
+  rule; the numbers 1-2 d are the same, the quantity is not. Nothing in the chapter gives an
+  impeller separation, an 80 % penalty, or a submergence depth.
 - **[17] = Xing, Z., Kenty, B.M., Li, Z.J. & Lee, S.S. (2009)**, *Biotechnol Bioeng* 103(4),
-  [doi:10.1002/bit.22287](https://doi.org/10.1002/bit.22287). Retrieved and read. It is a mixing-time,
-  kLa and CO₂-removal scale-up study on 5,000 L CHO bioreactors and **contains no impeller-spacing
+  [doi:10.1002/bit.22287](https://doi.org/10.1002/bit.22287). Retrieved and read. A mixing-time,
+  kLa and CO₂-removal scale-up study on 5,000 L CHO bioreactors that **contains no impeller-spacing
   guideline at all** — "impeller distance" and "off-bottom clearance" appear only as nomenclature
-  symbols for its own vessel. It does not support the claim Davis hangs on it. (Davis also cites it
-  Kenty-first; Xing is the first author.)
-- **[15] = Oldshue, J.Y.**, *Fermentation and Biochemical Engineering Handbook* 2nd ed.,
-  pp. 181-241. **Not retrieved** — a book, no DOI.
+  symbols for its own vessel. (Davis also cites it Kenty-first; Xing is the first author.)
+
+**Treat this entry as unreliable for numbers.** It is kept because it is where the numbers entered
+this project and the correction has to stay visible, not because it supports them. Cite Oldshue
+directly for the off-bottom clearance and the baffles.
 
 So the spacing band, the 1.0 d off-bottom clearance, the 80 % penalty and the baffle geometry all
 trace to a handbook nobody here has opened, relayed through a thesis. Treat them as leads, not as
 design targets; the **read** against the thesis says only that Davis says them.
 Cited as "Davis, D.A. (2009)" with no title until 2026-08-13; both initials and year were wrong.
+
+**Oldshue, J.Y. (1996).** "Agitation," chapter 5 of Vogel, H.C. & Todaro, C.L. (eds.),
+*Fermentation and Biochemical Engineering Handbook: Principles, Process Design, and Equipment*,
+2nd ed., Noyes Publications, pp. 181-241. **[TX]** · **read**
+The primary behind the numbers `Davis (2010)` relays, retrieved 2026-08-20. What it actually says:
+
+- **Baffles, p. 202.** Four baffles, *"each 1/12 the tank diameter in width"* — a single value,
+  0.0833 T, not the 0.08-0.10 band Davis reports. And explicitly: *"Either 3, 6 or 8 baffles can be
+  used if preferred. The general principle is to use the same total projected area as exists with
+  four baffles, each 1/12 the tank diameter in width."* **This is a citable basis for this
+  project's three baffles**, which previously rested on a gap — the constraint is total projected
+  area, not the count.
+- **Off-bottom clearance, p. 192.** *"If the impeller can be placed one to two impeller diameters
+  off bottom, which means that mixing is not provided at low levels during draw off, these
+  impellers offer an excellent flow pattern as well as considerable economies in shaft design."*
+  A conditional trade-off for **fluidfoil** impellers with a stated cost, not a design rule, and a
+  1-2 d range rather than a 1.0 d target.
+- **Sparger, p. 214.** *"A sparge ring about 80 % of the impeller diameter is more effective than
+  an open pipe beneath the impeller or sparge rings larger than the impeller… the desired entry
+  point for the gas is where it can pass initially through the high shear zone around the
+  impeller."* On this project's 94.5 mm impeller that is a **~75.6 mm ring**. This is the first
+  citable sparger geometry the project has, and it agrees with Nienow 2006 on placing the sparger
+  where the impeller immediately works the gas.
+- **Gas dispersion.** The lower impeller does most of the gas-dispersing work, and a common
+  three-impeller power split is 40 % lower / 30 % each upper.
+
+**Not in it**, despite being attributed to it: any impeller-to-impeller spacing rule, the 80 %
+power penalty below 1.0 d, and any top-impeller submergence depth.
+→ `docs/agitation.md` baffles and sparger sections
 
 **Eng. Life Sci. 2017, 17:500-511.** [doi:10.1002/elsc.201600096](https://doi.org/10.1002/elsc.201600096) **[PR]** · **read**
 The power-number definition `Np = P/(ρN³d⁵)` and measured Rushton Np 4.17 ± 0.14.

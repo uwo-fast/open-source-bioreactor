@@ -86,7 +86,7 @@
   number = {537},
   series = {All Graduate Theses and Dissertations},
   url = {https://digitalcommons.usu.edu/etd/537},
-  note = {Grade [TH]. Verification status: read. PDF at https://digitalcommons.usu.edu/cgi/viewcontent.cgi?article=1533&context=etd . Source of impeller spacing 1.0-2.0 d with the bottom impeller 1.0 d off the floor, power falling to about 80 percent of the properly-spaced value below 1.0 d, the top impeller at least 1.5 d below the liquid surface, and four baffles on 90 degree centres at 0.08-0.10 T. Davis relays these rather than measuring them, from his refs [15] and [17]. [17] is Xing, Kenty, Li and Lee (2009), Biotechnol Bioeng 103(4), doi:10.1002/bit.22287 - retrieved and read 2026-08-13, and it contains no impeller-spacing guideline at all, being a mixing-time and kLa scale-up study on 5000 L CHO bioreactors. [15] is Oldshue's Fermentation and Biochemical Engineering Handbook 2nd ed. pp. 181-241, a book, not retrieved. So these numbers trace to an unread handbook relayed through a thesis. Cited in docs/references.md as Davis, D.A. (2009) with no title until 2026-08-13; both initials and year were wrong.}
+  note = {Grade [TH]. Verification status: read. PDF at https://digitalcommons.usu.edu/cgi/viewcontent.cgi?article=1533&context=etd . Source of impeller spacing 1.0-2.0 d with the bottom impeller 1.0 d off the floor, power falling to about 80 percent of the properly-spaced value below 1.0 d, the top impeller at least 1.5 d below the liquid surface, and four baffles on 90 degree centres at 0.08-0.10 T. Davis relays these rather than measuring them, from his refs [15] and [17]. [17] is Xing, Kenty, Li and Lee (2009), Biotechnol Bioeng 103(4), doi:10.1002/bit.22287 - retrieved and read 2026-08-13, and it contains no impeller-spacing guideline at all, being a mixing-time and kLa scale-up study on 5000 L CHO bioreactors. [15] is Oldshue (1996), chapter 5 of the handbook - retrieved and read 2026-08-20, see Oldshue_1996. Four of the five relayed claims are in neither primary: no impeller-to-impeller spacing rule, no 80 percent penalty, no submergence depth. Only the off-bottom clearance partly matches, as a conditional 1-2 d range for fluidfoil impellers, and the baffles as four at 1/12 T. Treat this entry as unreliable for numbers; cite Oldshue_1996 directly. Cited in docs/references.md as Davis, D.A. (2009) with no title until 2026-08-13; both initials and year were wrong.}
 }
 
 @misc{Jirout_Rieger_CTU,
@@ -155,4 +155,18 @@
   month = aug,
   url = {https://patents.google.com/patent/US4468130A/en},
   note = {Grade [PAT]. Verification status: read. Companion to US5158434A; same caveat, a cambered foil rather than this project's radial fin.}
+}
+
+@incollection{Oldshue_1996,
+  author = {Oldshue, James Y.},
+  title = {Agitation},
+  booktitle = {Fermentation and Biochemical Engineering Handbook: Principles, Process Design, and Equipment},
+  editor = {Vogel, Henry C. and Todaro, Celeste L.},
+  edition = {2},
+  publisher = {Noyes Publications},
+  address = {Westwood, New Jersey},
+  year = {1996},
+  chapter = {5},
+  pages = {181--241},
+  note = {Grade [TX]. Verification status: read. The primary behind the numbers Davis_2010 relays. Baffles p. 202: four baffles each 1/12 the tank diameter in width, and explicitly "either 3, 6 or 8 baffles can be used if preferred" provided the total projected area matches - a citable basis for this project's three baffles. Off-bottom clearance p. 192: "if the impeller can be placed one to two impeller diameters off bottom, which means that mixing is not provided at low levels during draw off" - a conditional trade-off for fluidfoil impellers, not a rule. Sparger p. 214: "a sparge ring about 80 percent of the impeller diameter is more effective than an open pipe beneath the impeller or sparge rings larger than the impeller", the gas entering where it passes through the impeller's high shear zone; on this project's 94.5 mm impeller that is a 75.6 mm ring. NOT in it despite being attributed to it: any impeller-to-impeller spacing rule, the 80 percent power penalty, any top-impeller submergence depth.}
 }
