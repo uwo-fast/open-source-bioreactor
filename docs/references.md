@@ -93,34 +93,62 @@ thesis, Mechanical and Aerospace Engineering, Utah State University —
 Spacing 1.0-2.0 d with the bottom impeller 1.0 d off the floor, and power falling to about 80 % of
 the properly-spaced value below 1.0 d; top impeller ≥ 1.5 d below the liquid surface; baffles
 0.08-0.10 T, four on 90° centres.
-**Davis relays these rather than measuring them.** The spacing figures and the 80 % penalty are
-his refs [15] and [17] — Kenty, Li, Lee & Xing (2009), *Biotechnol Bioeng* 103(4) — and the baffle
-geometry is [15], Oldshue's *Fermentation and Biochemical Engineering Handbook* 2nd ed.,
-pp. 181-241. Neither primary has been retrieved, so on these numbers the citation is weaker than
-the **read** against the thesis implies.
+**Davis relays these rather than measuring them**, from his refs [15] and [17]. Both were chased
+on 2026-08-13 and the result is worse than it looked:
+- **[17] = Xing, Z., Kenty, B.M., Li, Z.J. & Lee, S.S. (2009)**, *Biotechnol Bioeng* 103(4),
+  [doi:10.1002/bit.22287](https://doi.org/10.1002/bit.22287). Retrieved and read. It is a mixing-time,
+  kLa and CO₂-removal scale-up study on 5,000 L CHO bioreactors and **contains no impeller-spacing
+  guideline at all** — "impeller distance" and "off-bottom clearance" appear only as nomenclature
+  symbols for its own vessel. It does not support the claim Davis hangs on it. (Davis also cites it
+  Kenty-first; Xing is the first author.)
+- **[15] = Oldshue, J.Y.**, *Fermentation and Biochemical Engineering Handbook* 2nd ed.,
+  pp. 181-241. **Not retrieved** — a book, no DOI.
+
+So the spacing band, the 1.0 d off-bottom clearance, the 80 % penalty and the baffle geometry all
+trace to a handbook nobody here has opened, relayed through a thesis. Treat them as leads, not as
+design targets; the **read** against the thesis says only that Davis says them.
 Cited as "Davis, D.A. (2009)" with no title until 2026-08-13; both initials and year were wrong.
 
 **Eng. Life Sci. 2017, 17:500-511.** [doi:10.1002/elsc.201600096](https://doi.org/10.1002/elsc.201600096) **[PR]** · **read**
 The power-number definition `Np = P/(ρN³d⁵)` and measured Rushton Np 4.17 ± 0.14.
 
-### Blade twist — searched, and nothing exists
+### Blade twist — measured in the literature, but out of this blade's range
 
-Recorded because the absence is itself a finding. `impeller_twist_ang` and `impeller_height` are
-**uncharacterised design parameters**, documented by derivation in `scad/head.scad` rather than by
-citation.
+Both twist papers were obtained on 2026-08-13 and read. The earlier note that "nothing exists" was
+wrong: twist *is* characterised, with a consistent direction of effect. What is missing is coverage
+of this blade's range, which is a different and narrower gap.
+
+Both define **blade twist as the hub angle minus the tip angle**. On that definition this project's
+blade is a **30° twist** — `agitation.md` derives 83° at the hub falling to 53° at the tip — which
+is 1.5× the largest twist either paper tested, at hub angles 23° steeper than either explored.
+`impeller_twist_ang` and `impeller_height` therefore remain **uncharacterised design parameters**,
+documented by derivation in `scad/head.scad` rather than by citation.
 
 - **Patwardhan, A.W. & Joshi, J.B. (1999).** *Ind Eng Chem Res*. [doi:10.1021/ie980772s](https://doi.org/10.1021/ie980772s) **[PR]** ·
-  **abstract** — twist is one of six co-varied parameters across ~40 axial impellers; no twist value
-  appears in the abstract.
-- **Kumaresan, T. & Joshi, J.B. (2006).** *Chem Eng J*. [doi:10.1016/j.cej.2005.10.002](https://doi.org/10.1016/j.cej.2005.10.002) **[PR]** ·
-  **unread** — explicitly varies blade twist, paywalled. **The one genuine outstanding gap.**
+  **read** — §3.4.3 tests 10° and 20° twist on 30°, 45° and 60° blades: *"For a particular blade
+  angle, an increase in the twist decreases the values of N_P and N_QP. However, the values of
+  N_QS are affected to a much smaller extent. As a result of these, the mixing time decreases with
+  an increase in the blade twist."*
+- **Kumaresan, T. & Joshi, J.B. (2006).** *Chem Eng J* 115:173-193. [doi:10.1016/j.cej.2005.10.002](https://doi.org/10.1016/j.cej.2005.10.002) **[PR]** ·
+  **read** — §3.1.3.3, 10° twist on a six-blade 30° pitched turbine lowers the power number, cuts
+  secondary flow number 3 % and averaged shear rate 1 %. Small in magnitude, same direction as
+  Patwardhan. Was recorded here as the one outstanding paywalled gap; it is neither paywalled to us
+  now nor the gap it was assumed to be.
+
+**Consequence for the model.** Two independent studies agree that twist *reduces* the power number.
+This project borrows Po = 0.99 from an **untwisted** 4-blade folded axial impeller, so that figure
+is most likely an over-estimate for this blade, and every quantity derived from it — shaft power,
+mean and peak dissipation, torque demand — is conservative in the safe direction. Neither paper
+reaches 30° twist at 83° hub angle, so this is a direction, not a correction factor.
 - **Lightnin / General Signal patents** — <https://patents.google.com/patent/US5158434A/en>,
   <https://patents.google.com/patent/US4468130A/en> **[PAT]** · **read** — the only published twist
   numbers found (30-45° twist, 18-30° tip chord angle). They describe a cambered foil with a
   tangential chord; this project's blade is a thick radial fin, so they do not transfer.
 - Helical-ribbon and screw-impeller work is **creeping-flow, Re < 20**, four orders from this
   reactor's duty, and does not apply: Rieger 1981, [doi:10.1135/cccc19812007](https://doi.org/10.1135/cccc19812007);
-  [doi:10.3390/chemengineering2020026](https://doi.org/10.3390/chemengineering2020026) **[PR]** · **abstract**.
+  [doi:10.3390/chemengineering2020026](https://doi.org/10.3390/chemengineering2020026) **[PR]** —
+  Ameur 2018 **read**, its simulations run at Re = 10; Seichter 1981 remains **abstract**, still
+  behind a paywall.
 
 ---
 
@@ -148,13 +176,24 @@ With no gas-liquid interface, cells are unaffected at 100-450 rpm, 600 rpm in a 
 restated from Zhang & Thomas 1993 and Kunas & Papoutsakis 1990.
 
 **Ma, N., Koelling, K.W. & Chalmers, J.J. (2002).** *Biotechnol Bioeng* 80(4):428-437.
-[doi:10.1002/bit.10387](https://doi.org/10.1002/bit.10387) **[PR]** · **unread**
-Bubble-rupture dissipation orders of magnitude above impeller dissipation.
+[doi:10.1002/bit.10387](https://doi.org/10.1002/bit.10387) **[PR]** · **read**
+Bubble-rupture dissipation orders of magnitude above impeller dissipation: rupture reaches
+1.66e4-4e5 kW/m3 against no detected damage below 1e4 kW/m3, and the peak falls two orders as
+bubble diameter grows 1.7 to 6.32 mm.
 
 **Barbosa, M.J., Albrecht, M. & Wijffels, R.H. (2003).** *Biotechnol Bioeng* 83(1):112-120.
-[doi:10.1002/bit.10657](https://doi.org/10.1002/bit.10657) **[PR]** · **abstract**
-Damage occurs at bubble **formation**, not rise or burst; critical gas entrance velocities
-~30-50 m/s. The design constraint for any future sparger.
+[doi:10.1002/bit.10657](https://doi.org/10.1002/bit.10657) **[PR]** · **read**
+Damage originates at the **sparger**, during bubble formation, rather than at bursting:
+*"Superficial gas velocity alone cannot be used to estimate cell damage in sparged microalgal
+cultures, which means that bubble bursting is not the only factor, and might not even be the most
+important factor, leading to cell death."* Gas entrance velocity is named as the parameter to
+watch, damage is strain-dependent, and the cell wall is confirmed protective.
+**No critical velocity is established, and this entry used to claim one.** It read "critical gas
+entrance velocities ~30-50 m/s", which the paper does not support: Barbosa's own runs were
+0.4-5.4 m/s, and the larger figures quoted in it (13.3 m/s lab, 47.8 m/s pilot) are two comparison
+reactors from Camacho et al. 2001, discussed to explain a lab-versus-pilot discrepancy. The paper
+closes "more work remains to be done to clarify the influence of this parameter". Corrected
+2026-08-13; the sparger design constraint this was carrying is weaker than it looked.
 
 **Michels, M.H.A. et al. (2010, 2016).** *Bioprocess Biosyst Eng* 33:921-927,
 [doi:10.1007/s00449-010-0415-9](https://doi.org/10.1007/s00449-010-0415-9); *J Appl Phycol* 28:53-62, [doi:10.1007/s10811-015-0559-8](https://doi.org/10.1007/s10811-015-0559-8) **[PR]** ·
@@ -164,7 +203,7 @@ rigid-cell-wall rule; measured shear in real photobioreactors (circulation tube 
 pressure side 1.82 Pa, centrifugal impeller tip 26 Pa).
 
 **Wang, C. & Lan, C.Q. (2018).** *Biotechnology Advances* 36(4):986-1002.
-[doi:10.1016/j.biotechadv.2018.03.001](https://doi.org/10.1016/j.biotechadv.2018.03.001) **[PR]** · **abstract**
+[doi:10.1016/j.biotechadv.2018.03.001](https://doi.org/10.1016/j.biotechadv.2018.03.001) **[PR]** · **read**
 Taxonomic shear-tolerance ranking: greens > cyanobacteria > haptophytes > reds > diatoms >
 dinoflagellates. *Chlorella* is a rigid-walled green alga, the most tolerant class.
 
@@ -185,8 +224,8 @@ ones at equal power input. **Cited here as a caution, not as a design input.**
 shear mechanism.*
 
 **Godoy-Silva, R. et al. (2009).** *Biotechnol Bioeng* 103(6):1103-1117. [doi:10.1002/bit.22339](https://doi.org/10.1002/bit.22339)
-**[PR]** · **abstract** — CHO resistant to 6.4e6 W/m³; sub-lethal glycosylation shifts two orders
-lower.
+**[PR]** · **read** — CHO resistant to the highest EDR tested, 6.4e6 W/m³, with most product
+quality attributes unaffected; the glycosylation shift begins at 6.0e4 W/m³, two orders lower.
 
 **Walls, P.L.L. et al. (2017).** *Sci Rep* 7:15102. [doi:10.1038/s41598-017-14531-5](https://doi.org/10.1038/s41598-017-14531-5) **[PR]** ·
 **read** — bubble-rupture energy simulation; repeated exposure lowers the lethal threshold.

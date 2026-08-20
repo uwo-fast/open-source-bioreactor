@@ -117,12 +117,27 @@ at 0.4594 with the impeller exactly filling the neck; 0.45 leaves 2.64 mm to pas
 other registered jar tolerates 0.59 to 0.82. The model asserts that the impeller — measured across
 its fin-top ring, which is what meets the neck first — can pass the vessel's opening.
 
-### Blade twist and height — uncharacterised
+### Blade twist and height — out of the literature's tested range
 
-`impeller_twist_ang` and `impeller_height` have **no citable basis**. A dedicated literature search
-found three stirred-tank hits in total for "impeller blade twist", none giving a value, and nothing
-at all for W/D or blade height of a twisted extrusion. The classic `w = D/4` ratios describe flat
-Rushton blades and do not apply.
+`impeller_twist_ang` and `impeller_height` remain **uncharacterised for this blade**, but not for
+the reason recorded here until 2026-08-13. That entry said twist had "no citable basis" and that a
+search found nothing giving a value. Both twist papers were obtained and read on that date, and
+both give values.
+
+Patwardhan & Joshi 1999 §3.4.3 and Kumaresan & Joshi 2006 §3.1.3.3 define **blade twist as the hub
+angle minus the tip angle**, and agree on the direction: increasing twist **lowers** the power
+number and the primary flow number, while secondary flow and shear move much less. Patwardhan
+tested 10° and 20° twist on 30°, 45° and 60° blades; Kumaresan tested 10° on a 30° six-blade
+turbine and measured a 3 % drop in secondary flow number and 1 % in averaged shear.
+
+On their definition **this blade is a 30° twist**, 83° at the hub to 53° at the tip — 1.5× the
+largest twist either tested, at hub angles 23° beyond either's range. So the numbers do not
+transfer, but the direction does, and it matters: **Po = 0.99 is borrowed from an untwisted blade,
+so it is likely an over-estimate here**, making the power, dissipation and torque figures above
+conservative rather than optimistic.
+
+Nothing citable was found for W/D or blade height of a twisted extrusion. The classic `w = D/4`
+ratios describe flat Rushton blades and do not apply.
 
 What can honestly be said is derived from the geometry itself. `linear_extrude(twist=)` sweeps a
 **constant-pitch helicoid**, so the parameter is a *pitch* specifier and the blade angle β measured
@@ -186,9 +201,12 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
 - **There is no sparger in the model.** `ports-layout.md` reasons about a sparger sector and bubble
   trajectories, but air enters through a bayonet tube port and nothing else. Given that bubble
   rupture is the dominant damage mechanism, this is the largest open item in the reactor's fluid
-  design. Damage occurs at bubble *formation*, with critical gas entrance velocities around
-  30–50 m/s, and Nienow's guidance places the sparger below the lower impeller — a requirement the
-  model cannot currently express.
+  design. Damage originates at the sparger during bubble *formation* rather than at bursting
+  (Barbosa 2003), but **no critical entrance velocity is established** in anything read here — the
+  "30–50 m/s" this document carried until 2026-08-13 was not supported by its source, which reports
+  0.4–5.4 m/s in its own runs and says the parameter needs more work. Nienow's guidance places the
+  sparger below the lower impeller — a requirement the model cannot currently express, and one the
+  current geometry leaves only 5 mm of room for.
 - **No energy dissipation rate limit exists for any microalga.** The parameter the physics says
   governs has no citable number for these organisms.
 - **Speed feedback is specified but not yet wired.** The registered drive carries a magnetic

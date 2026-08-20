@@ -56,7 +56,9 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
   - the BOM's `Slice_DCMT` row now carries the wiring the motor actually needs — 2 motor leads and 4 encoder, no connector — flagged to confirm the board exposes the encoder inputs
 - [ ] design the sparger
   - the largest open item in the reactor's fluid design. Bubble rupture rather than impeller shear dominates cell damage, and there is no sparger in the model at all — air enters through a bayonet tube port. `ports-layout.md` already reasons about a "primary sparger sector" that does not exist
-  - needs its own research pass: bubble size, orifice velocity against the 30-50 m/s critical range, sparger geometry, whether Pluronic F-68 belongs in the medium, and Nienow's requirement that the sparger sit below the lower impeller
+  - needs its own research pass: bubble size, orifice velocity, sparger geometry, whether Pluronic F-68 belongs in the medium, and Nienow's requirement that the sparger sit below the lower impeller
+  - **there is no citable critical entrance velocity.** The 30-50 m/s this item used to name was not supported by Barbosa 2003 once read: its own runs were 0.4-5.4 m/s, the larger figures are two comparison reactors from another study, and it closes by saying the parameter needs more work
+  - the geometry constrains this before the fluid dynamics do: the lower impeller sits 0.37 D off the floor, leaving **5 mm of clear space** under it for a sparger that Nienow says must go there
 - [ ] characterise the impeller's blade twist and height
   - both are uncharacterised design parameters with no citable basis; `twist` is a pitch specifier rather than a blade angle. A bench measurement would settle it: `Po = P/(rho*N^3*D^5)` from shaft power at three or four known speeds in water, across printed variants
   - one paywalled source might yet say something — Kumaresan & Joshi 2006, doi:10.1016/j.cej.2005.10.002, worth an interlibrary request
