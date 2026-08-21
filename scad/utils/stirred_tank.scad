@@ -63,6 +63,54 @@ function stirred_tank_spacing_band() = [1.0, 2.0]; // Fitschen 2019, in impeller
 // as "between" in the sources, and a value sitting exactly on one is not a departure.
 function stirred_tank_in_band(value, band) = value >= band[0] && value <= band[1];
 
+// ----- off-bottom clearance -----
+//
+// How high the lowest impeller rides above the vessel floor, in impeller diameters. Oldshue 1997
+// p. 192 offers 1 to 2 d for fluidfoil impellers, and states the cost in the same breath:
+// "mixing is not provided at low levels during draw off". It is a trade-off, not a rule, and it
+// is the parameter that decides how much room a sparger has underneath.
+//
+// Nothing here gives a clearance for a twisted paddle, and the 1.0 d figure this project carried
+// until 2026-08-21 came from a thesis misreading that sentence as an impeller-to-impeller
+// spacing. See docs/references.md, Davis 2010.
+
+function stirred_tank_clearance(impeller_diameter, factor) = impeller_diameter * factor;
+function stirred_tank_clearance_ratio(clearance, impeller_diameter) = clearance / impeller_diameter;
+function stirred_tank_clearance_band_fluidfoil() = [1.0, 2.0]; // Oldshue 1997 p. 192, conditional
+
+// ----- sparge ring -----
+//
+// Ring diameter in impeller diameters. Two independent experimental studies find rings LARGER
+// than the impeller better, which is the opposite of the handbook sentence this project sized
+// against until 2026-08-21:
+//
+//   Birch & Ahmed 1997 tested a ring at 1.4 D and found improved power draw and delayed flooding
+//        with "little or no penalty in terms of the gas holdup". 1.4 is not arbitrary - the
+//        annulus from R out to 1.41 R encloses the same volume the impeller sweeps.
+//   Rewatkar & Joshi 1993 recommend a large ring outright, and report the critical speed for gas
+//        dispersion lowest at a ring twice the impeller diameter.
+//
+// Both also find sparger LOCATION relative to the impeller matters more than its diameter, and
+// both studied single impellers - neither settles a counter-pumping pair. Gas belongs in the
+// impeller's discharge stream; which side that is depends on pumping direction.
+
+function stirred_tank_sparge_ring_diameter(impeller_diameter, ratio) = impeller_diameter * ratio;
+function stirred_tank_sparge_ring_ratio(ring_diameter, impeller_diameter) = ring_diameter / impeller_diameter;
+function stirred_tank_sparge_ring_band() = [1.0, 2.0]; // Birch & Ahmed 1997 tested 1.4; Rewatkar & Joshi 1993 optimum 2.0
+
+// ----- baffles -----
+//
+// Oldshue 1997 p. 202: four baffles "each 1/12 the tank diameter in width", and explicitly
+// "either 3, 6 or 8 baffles can be used if preferred. The general principle is to use the same
+// total projected area as exists with four baffles". So the count is a free choice and the
+// constraint is total projected area - which is why width is derived from count here rather than
+// registered beside it.
+
+function stirred_tank_baffle_reference_area(tank_diameter) = 4 * tank_diameter / 12; // Oldshue's four at T/12
+function stirred_tank_baffle_width(tank_diameter, count) = stirred_tank_baffle_reference_area(tank_diameter) / count;
+function stirred_tank_baffle_area_ratio(tank_diameter, count, width) =
+  count * width / stirred_tank_baffle_reference_area(tank_diameter);
+
 // ----- hydrodynamics -----
 //
 // Everything below takes millimetres and rpm, because that is what the model and the motor
@@ -83,6 +131,44 @@ function stirred_tank_power_number_folded_axial_4() = 0.99;
 // hydrofoil 17. Grenville 2017. This blade is a twisted paddle, so the pitched-blade value is the
 // nearest of the three.
 function stirred_tank_dissipation_factor_pitched_blade() = 16;
+
+// Medek's correlations for a pitched blade impeller, from Fort et al. 2002, Acta Polytechnica
+// 42(4), doi:10.14311/380. These give the power number and the pumping-capacity number as
+// functions of the geometry rather than as one constant per shape, which is what lets a design
+// move without silently carrying a Po measured on a different tank.
+//
+//   Po   = 1.507 nB^0.701 (C/D)^-0.165 (T/D)^-0.365 (H/T)^0.140 (sin a)^2.077
+//   N_Qp = 0.745 nB^0.233 (C/D)^0.254  (T/D)^0.023  (H/T)^0.251 (sin a)^0.468
+//
+// The exponents say something the model should not lose: power climbs with blade angle about
+// 4.4x faster than pumping does, so angle buys throughput expensively.
+//
+// blade_angle is degrees from the plane of rotation, clearance_ratio is C/D, tank_ratio is T/D
+// (not D/T), height_ratio is liquid height over tank diameter.
+function stirred_tank_medek_power_number(n_blades, clearance_ratio, tank_ratio, height_ratio, blade_angle) =
+  1.507 * pow(n_blades, 0.701) * pow(clearance_ratio, -0.165) * pow(tank_ratio, -0.365)
+  * pow(height_ratio, 0.140) * pow(sin(blade_angle), 2.077);
+
+function stirred_tank_medek_flow_number(n_blades, clearance_ratio, tank_ratio, height_ratio, blade_angle) =
+  0.745 * pow(n_blades, 0.233) * pow(clearance_ratio, 0.254) * pow(tank_ratio, 0.023)
+  * pow(height_ratio, 0.251) * pow(sin(blade_angle), 0.468);
+
+// The envelope the correlations were fitted in. Returned as a list of the names that fall outside
+// it, so a consumer can echo exactly which ones rather than a bare true/false - an extrapolation
+// that is out on one count is a different thing from one that is out on four.
+//
+// Fort 2002 gives: nB 2-8, C/D 0.2-1.0, T/D 2.45-5.93, H/T 0.55-1.0, blade angle 15-60 degrees,
+// four baffles at b/T = 0.1, and Re > 1e4.
+function stirred_tank_medek_departures(n_blades, clearance_ratio, tank_ratio, height_ratio, blade_angle, baffles, reynolds) =
+  [
+    if (!(n_blades >= 2 && n_blades <= 8)) "blade count",
+    if (!(clearance_ratio >= 0.2 && clearance_ratio <= 1.0)) "C/D",
+    if (!(tank_ratio >= 2.45 && tank_ratio <= 5.93)) "T/D",
+    if (!(height_ratio >= 0.55 && height_ratio <= 1.0)) "H/T",
+    if (!(blade_angle >= 15 && blade_angle <= 60)) "blade angle",
+    if (baffles != 4) "baffle count",
+    if (reynolds <= 1e4) "Reynolds",
+  ];
 
 // Impeller Reynolds number, rho*N*D^2/mu. Turbulent above 1e4 on the textbook threshold; Nienow
 // 2021 uses a stricter ~2e4.
