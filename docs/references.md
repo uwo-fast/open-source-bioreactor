@@ -59,12 +59,13 @@ of Pitched Blade Impellers." *Acta Polytechnica* 42(4). [doi:10.14311/380](https
 Power number against blade angle and blade count, and the Medek correlations
 `Po ∝ (sin α)^2.077` and `N_Qp ∝ (sin α)^0.468` (valid α 15-60°, Re > 1e4, four baffles) — power
 rises with angle about 4.4× faster than pumping does. Blade-count series 3/4/6 → 0.79/0.99/1.34.
-→ `scad/head.scad` `impeller_n_fins`
+→ `scad/custom/impellers.scad` `impeller_folded_axial_3/4/6`, `scad/head.scad` `impeller_n_fins`
 
 **Jirout, T. & Rieger, F.** "Impeller design for mixing of suspensions." CTU Prague —
 <https://users.fs.cvut.cz/tomas.jirout/vyuka/p2_hmp/chep_vyuka.pdf> **[PR]** · **read**
 Reproduces the above and adds the folded-blade series, including **Np = 0.99 ± 0.04** for a 4-blade
 folded axial impeller — the closest measured analogue to this project's blade.
+→ `scad/custom/impellers.scad` `impeller_folded_axial_4`
 
 **Zhou, G., Shi, L. & Yu, P. (2003).** "CFD Study of Mixing Process in Rushton Turbine Stirred
 Tanks." 3rd Int. Conf. on CFD in the Minerals and Process Industries, CSIRO, Melbourne —
@@ -72,7 +73,9 @@ Tanks." 3rd Int. Conf. on CFD in the Minerals and Process Industries, CSIRO, Mel
 The classic standard tank configuration: H = T, D = T/3, C = T/3, four baffles at T/10.
 Cited here as "Guo, Langrish & Fletcher" until 2026-08-13 — an attribution reconstructed from the
 filename, in which `Guo` is the first author's *given* name. The claim was re-checked against the
-PDF and stands; only the authors were wrong.
+PDF and stands; only the authors were wrong. Also gives the reference Rushton: six blades with
+width and height both D/4.
+→ `scad/custom/impellers.scad` `impeller_rushton_6`
 
 **Grenville, R., Giacomelli, J., Padron, G. & Brown, D. (2017).** "Impeller Performance in Stirred
 Tanks." *Chemical Engineering*, August 2017, pp. 46-54 —
@@ -80,7 +83,9 @@ Tanks." *Chemical Engineering*, August 2017, pp. 46-54 —
 **[TP]** · **read**
 The peak-dissipation correlation `ε_max = 1.04·x·Po^(3/4)·N³·D²` (±15 %) and the peak-to-mean form
 `0.82·(x/Po^(1/4))·(T/D)³`. **Trade press, not peer-reviewed** — the weakest-graded source carrying
-real weight in this design.
+real weight in this design. The impeller constant x — Rushton 12, pitched blade 16, hydrofoil 17
+— is a property of the shape, so it is carried per type.
+→ `scad/custom/impellers.scad` x column, `scad/utils/stirred_tank.scad`
 
 **Lonza Biologics, US10883076B2** — <https://patents.google.com/patent/US10883076B2/en> **[PAT]**
 · **read**
@@ -156,6 +161,7 @@ power penalty below 1.0 d, and any top-impeller submergence depth.
 
 **Eng. Life Sci. 2017, 17:500-511.** [doi:10.1002/elsc.201600096](https://doi.org/10.1002/elsc.201600096) **[PR]** · **read**
 The power-number definition `Np = P/(ρN³d⁵)` and measured Rushton Np 4.17 ± 0.14.
+→ `scad/custom/impellers.scad` `impeller_rushton_6`
 
 ### Blade twist — measured in the literature, but out of this blade's range
 

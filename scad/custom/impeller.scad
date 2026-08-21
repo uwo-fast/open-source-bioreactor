@@ -10,6 +10,29 @@
  *
  */
 
+// ----- registry accessors -----
+//
+// One impeller TYPE from impellers.scad. The registry holds what defines the shape and what a
+// stirred-tank calculation needs; the module below draws whatever it is handed.
+
+function impeller_name(type) = type[0];
+function impeller_blades(type) = type[1][0]; // number of blades
+function impeller_blade_angle(type) = type[1][1]; // degrees from the plane of rotation, undef when twisted
+function impeller_width_ratio(type) = type[1][2]; // blade dimension / impeller diameter, undef when unsourced
+function impeller_twist(type) = type[1][3]; // linear_extrude pitch specifier, undef on a flat blade
+function impeller_pumping(type) = type[2]; // "radial" or "axial"
+function impeller_power_number(type) = type[3][0]; // turbulent Po, undef when unmeasured
+function impeller_power_number_tol(type) = type[3][1]; // reported uncertainty, undef when the source gives none
+function impeller_dissipation_factor(type) = type[4]; // x in Grenville's peak-dissipation correlation
+
+// A twisted blade has no single angle, so callers that need one ask whether the type is twisted
+// rather than testing the angle field for undef.
+function impeller_is_twisted(type) = !is_undef(impeller_twist(type));
+
+// Po is the one number a caller is most likely to need and most likely to be missing. Reporting
+// the substitute rather than silently borrowing is the whole point of registering the type.
+function impeller_has_power_number(type) = !is_undef(impeller_power_number(type));
+
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
