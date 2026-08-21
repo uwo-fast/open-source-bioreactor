@@ -51,7 +51,7 @@ impeller_folded_axial_6    = ["folded_axial_6",   [6,        undef,       undef,
 // measured analogue, and Patwardhan and Kumaresan both find twist LOWERS Po, so that borrowing is
 // an over-estimate and everything derived from it is conservative. A bench power-number
 // measurement would settle it; see TODO.md.
-impeller_twisted_paddle_4  = ["twisted_paddle_4", [4,        undef,       0.635,       55   ], "axial",  [undef, undef], 16];
+impeller_twisted_paddle_4  = ["twisted_paddle_4", [4,        undef,       0.634921,    55   ], "axial",  [undef, undef], 16];
 
 impellers = [impeller_rushton_6, impeller_pbt_45_4,
              impeller_folded_axial_3, impeller_folded_axial_4, impeller_folded_axial_6,

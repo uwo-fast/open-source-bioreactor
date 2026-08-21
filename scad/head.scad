@@ -28,6 +28,7 @@ include <purchased/shaft_couplings.scad>;
 include <purchased/gasket_sheets.scad>;
 
 include <custom/bayonet_interfaces.scad>;
+include <custom/impellers.scad>;
 
 include <NopSCADlib/core.scad>;
 include <NopSCADlib/vitamins/inserts.scad>; // F1BM4 type + insert()
@@ -208,36 +209,23 @@ lid_blind_pocket_floor_min = 3.0;
 // which was 0.4714 of the bore. Both are in band; 0.45 is the one that fits every vessel.
 // utils/stirred_tank.scad carries the relations and the citations.
 impeller_bore_ratio = 0.45;
-// Impeller height, i.e. the axial span of the blade. UNCHARACTERISED, in the same way the twist
-// angle below is: no citable W/D or blade-height ratio was found for an axial impeller, and none
-// at all for a twisted extrusion. The classic ratios (w = D/4 or D/5) are for flat Rushton blades
-// and do not describe this shape.
-impeller_height = 60;
-// Number of fins. 4 is mid-range and measured: on otherwise identical folded-blade axial
-// impellers, Po runs 0.79 / 0.99 / 1.34 for 3 / 4 / 6 blades, so going to 6 costs about 35% more
-// power at the same speed and diameter. Fort et al. 2002, doi:10.14311/380 (see docs/references.md)
-impeller_n_fins = 4;
-// Twist angle of each fin. UNCHARACTERISED - no citable source recommends any twist value for a
-// blade of this kind, and a search of the indexed literature turned up almost nothing on twisted
-// impeller blades at all. Rather than borrow a number from work on a different geometry, what can
-// honestly be said is derived from this geometry itself:
+// The registered impeller type. Blade count, twist and the blade's own span come from the row,
+// as do the two process numbers a stirred-tank calculation needs - see custom/impellers.scad.
+// Everything below this line is a printed-fit allowance rather than a property of the type.
 //
-// linear_extrude(twist=) sweeps a constant-pitch helicoid, so this is a PITCH specifier, not a
-// blade angle. The blade angle b, measured from the plane of rotation, therefore varies with
-// radius as tan b = P / (2*pi*r), where the pitch P is the axial advance per full turn:
-//
-//   at 55 deg over a 60 mm impeller, P = 393 mm, P/D = 4.2
-//   b runs 83 deg at the hub, 73 at 0.4R, 62 at 0.7R, 53 at the tip
-//
-// A flat pitched blade sits at one angle everywhere; the classic turbines are tested at 24, 35
-// and 45. This blade is steeper than 45 at every radius, so it is a twisted paddle biased toward
-// radial pumping rather than the axial impeller the D/T guidance above is written about. Getting
-// a 45 deg tip would take roughly 73 deg of twist, not 55.
-//
-// What would settle it is a bench measurement, not a reference: Po = P/(rho*N^3*D^5) from shaft
-// power at three or four known speeds in water, repeated across printed variants, gives a real
-// power-number curve for this exact blade. See docs/agitation.md.
-impeller_twist_ang = 55;
+// twisted_paddle_4 is what this project actually builds and its power number is UNMEASURED:
+// nothing in the literature covers a constant-pitch helicoid at 53-83 degrees of blade angle, and
+// Medek's correlation stops at 60. head() borrows the closest measured analogue below and says so
+// at render rather than letting the substitution pass silently. docs/agitation.md carries the
+// derivation of why twist is a pitch specifier and not a blade angle.
+head_impeller_type = impeller_twisted_paddle_4;
+
+// Where a borrowed power number comes from when the chosen type has none of its own. The
+// folded-blade axial series is the nearest measured shape - same blade count, untwisted - and
+// both Patwardhan and Kumaresan find twist LOWERS Po, so this over-estimates and everything
+// derived from it is conservative. Fort et al. 2002 and Jirout & Rieger; docs/references.md.
+head_impeller_po_fallback = impeller_folded_axial_4;
+
 // width of each fin blade
 impeller_fin_width = 4;
 // size of the center hub
@@ -248,6 +236,13 @@ impeller_shaft_allow = 0.4;
 impeller_shaft_radius_interference = 0.2;
 // centre to centre spacing of the two impellers, in impeller diameters
 impeller_spacing_factor = 1.0;
+
+// Derived from the registered type, not entered here. impeller_height is the blade's axial span:
+// the row carries it as a fraction of diameter so it scales with the impeller rather than staying
+// at whatever this build happened to use. Still UNCHARACTERISED - no citable blade-height ratio
+// exists for a twisted extrusion, and the classic w = D/4 describes flat Rushton blades.
+impeller_n_fins = impeller_blades(head_impeller_type);
+impeller_twist_ang = impeller_twist(head_impeller_type);
 // Culture depth as a fraction of the vessel's internal height. An operating choice, not geometry -
 // nothing in this model sets a fill line - but the mean dissipation echo needs a volume, and the
 // full internal volume would understate it. 0.8 leaves the usual headspace for foam and gas.
@@ -552,6 +547,20 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   impeller_diameter = stirred_tank_impeller_diameter(_vessel_bore, impeller_bore_ratio);
   impeller_radius = impeller_diameter / 2; // radius of the impeller
 
+  // The blade's axial span, from the type's own width ratio so it scales with the impeller rather
+  // than staying at whatever this build happened to use. Still uncharacterised: nothing citable
+  // gives a blade-height ratio for a twisted extrusion, and the classic w = D/4 is a flat Rushton
+  // blade. A type that registers no ratio has no height to derive, which head() refuses below.
+  assert(
+    !is_undef(impeller_width_ratio(head_impeller_type)),
+    str(
+      "head: impeller type \"", impeller_name(head_impeller_type),
+      "\" registers no width ratio, so the blade has no axial span to derive. Register one on the ",
+      "row, or choose a type that carries it."
+    )
+  );
+  impeller_height = impeller_width_ratio(head_impeller_type) * impeller_diameter;
+
   // radius of the shaft hole in the impeller
   impeller_shaft_hole_radius = (shaft_diameter + impeller_shaft_allow) / 2;
 
@@ -597,8 +606,21 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // one impeller's, where the stacked pair draws more - though less than double, being closer
   // than the spacing at which two impellers stop interacting. See docs/agitation.md.
   _culture_volume = stirred_tank_volume(_vessel_bore, vessel_internal_height * culture_fill_fraction);
-  _impeller_po = stirred_tank_power_number_folded_axial_4();
-  _impeller_x = stirred_tank_dissipation_factor_pitched_blade();
+  // Po and x are properties of the blade, so they come off the registered type. A type with no
+  // measured Po borrows one, and the borrowing is echoed rather than silently absorbed - it is the
+  // largest single uncertainty in every power, dissipation and torque figure below.
+  _po_borrowed = !impeller_has_power_number(head_impeller_type);
+  _impeller_po = _po_borrowed
+    ? impeller_power_number(head_impeller_po_fallback)
+    : impeller_power_number(head_impeller_type);
+  _impeller_x = impeller_dissipation_factor(head_impeller_type);
+
+  if (_po_borrowed)
+    echo(str(
+      "impeller: ", impeller_name(head_impeller_type), " has no measured power number; borrowing ",
+      _impeller_po, " from ", impeller_name(head_impeller_po_fallback),
+      ". Twist lowers Po, so this over-estimates and every figure derived from it is conservative."
+    ));
   _rated_torque = dc_motor_rated_output_torque(head_motor); // undef on a motor that publishes none
 
   // no-load and rated are different facts and either may be unpublished, so each is reported as

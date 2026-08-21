@@ -122,16 +122,6 @@ function stirred_tank_baffle_area_ratio(tank_diameter, count, width) =
 function stirred_tank_medium_density() = 998.2; // kg/m^3
 function stirred_tank_medium_viscosity() = 1.002e-3; // Pa s
 
-// Power number for a 4-blade folded axial impeller, Np = 0.99 +/- 0.04. Jirout & Rieger, CTU
-// Prague. The closest MEASURED analogue to this project's blade, not a measurement of it: the
-// twist makes this a different shape, so every power figure derived from it inherits that gap.
-function stirred_tank_power_number_folded_axial_4() = 0.99;
-
-// Impeller-type constant in the peak-dissipation correlation: Rushton 12, pitched blade 16,
-// hydrofoil 17. Grenville 2017. This blade is a twisted paddle, so the pitched-blade value is the
-// nearest of the three.
-function stirred_tank_dissipation_factor_pitched_blade() = 16;
-
 // Medek's correlations for a pitched blade impeller, from Fort et al. 2002, Acta Polytechnica
 // 42(4), doi:10.14311/380. These give the power number and the pumping-capacity number as
 // functions of the geometry rather than as one constant per shape, which is what lets a design
@@ -169,6 +159,10 @@ function stirred_tank_medek_departures(n_blades, clearance_ratio, tank_ratio, he
     if (baffles != 4) "baffle count",
     if (reynolds <= 1e4) "Reynolds",
   ];
+
+// Po and the dissipation constant x used to live here as free functions named after the
+// impellers they described - which was the tell that they are properties of a shape, not of a
+// tank. They are now columns in custom/impellers.scad and arrive as arguments below.
 
 // Impeller Reynolds number, rho*N*D^2/mu. Turbulent above 1e4 on the textbook threshold; Nienow
 // 2021 uses a stricter ~2e4.
