@@ -68,8 +68,8 @@
  * - frame:  vessel_height, vessel_outer_diameter, light, wall_thickness, lid_flange_height,
  *           n_rods, bolt_pts, bolt_screw, collapse_spacer_z_allow
  * - head:   lid_flange_height, vessel_outer_diameter, vessel_opening_diameter,
- *           vessel_wall_thickness, vessel_internal_height, joint_outer_diameter, post_pts,
- *           post_hole_diameter
+ *           vessel_wall_thickness, vessel_internal_height, vessel_punt_height,
+ *           joint_outer_diameter, post_pts, post_hole_diameter
  *
  * The frame no longer assumes anything about the face the head presents: it is handed
  * joint_outer_diameter and the head builds its flange to exactly that. That the bores land on the
@@ -221,6 +221,7 @@ if (render_head || render_all) {
       vessel_opening_diameter=vessel_opening_diameter(reactor_vessel),
       vessel_wall_thickness=vessel_thickness(reactor_vessel),
       vessel_internal_height=vessel_internal_height(reactor_vessel),
+      vessel_punt_height=vessel_punt_height(reactor_vessel),
       joint_outer_diameter=frame_outer_diameter(vessel_diameter(reactor_vessel), frame_wall_thickness),
       post_pts=bolt_pattern_pts(joint_posts, joint_bolt_circle),
       post_hole_diameter=joint_hole_diameter

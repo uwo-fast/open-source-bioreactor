@@ -527,7 +527,7 @@ module head_port(port, panel_thickness) {
   }
 }
 
-module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, vessel_internal_height, joint_outer_diameter, post_pts, post_hole_diameter) {
+module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, vessel_internal_height, vessel_punt_height, joint_outer_diameter, post_pts, post_hole_diameter) {
 
   // the gearbox carried by the selected motor - single source for gearbox dims
   head_gearbox = dc_motor_gearbox(head_motor);
@@ -575,12 +575,35 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _ratio_band_axial = stirred_tank_ratio_band_axial();
   _spacing_band = stirred_tank_spacing_band();
 
+  // Off-bottom clearance, measured the way the literature measures it: impeller CENTRELINE to the
+  // vessel FLOOR. Two different clearances are in play and they are not the same number.
+  // shaft_jar_punt_clearance is the shaft's gap over the punt - a collision dimension, and the
+  // punt stands proud of the floor around it. The mixing quantity is measured to that lower floor,
+  // which the impeller sweeps almost entirely over: the punt is 30 mm across on a 210 mm bore,
+  // about 2 % of the floor area.
+  _impeller_clearance = vessel_punt_height + shaft_jar_punt_clearance + impeller_height / 2;
+  _clearance_ratio = stirred_tank_clearance_ratio(_impeller_clearance, impeller_diameter);
+  _clearance_band = stirred_tank_clearance_band_fluidfoil();
+
   echo(str(
     "impeller: ", impeller_diameter, " mm in a ", _vessel_bore, " mm bore, D/T ", _impeller_ratio,
     " (band ", _ratio_band[0], "-", _ratio_band[1], ", axial ", _ratio_band_axial[0], "-",
     _ratio_band_axial[1], "); spacing ", impeller_spacing_factor, " D (band ", _spacing_band[0],
     "-", _spacing_band[1], ")"
   ));
+
+  echo(str(
+    "impeller clearance: centreline ", _impeller_clearance, " mm off the floor = ",
+    _clearance_ratio, " D (band ", _clearance_band[0], "-", _clearance_band[1], ")"
+  ));
+
+  if (!stirred_tank_in_band(_clearance_ratio, _clearance_band))
+    echo(str(
+      "WARNING impeller clearance: ", _clearance_ratio, " D is outside the ",
+      _clearance_band[0], "-", _clearance_band[1],
+      " D Oldshue gives for fluidfoils. Sitting low leaves less room for a sparger beneath and is ",
+      "coupled to shaft_length - see docs/agitation.md."
+    ));
 
   if (!stirred_tank_in_band(_impeller_ratio, _ratio_band))
     echo(str(
@@ -1166,6 +1189,7 @@ head(
   vessel_opening_diameter=vessel_opening_diameter(reactor_vessel),
   vessel_wall_thickness=vessel_thickness(reactor_vessel),
   vessel_internal_height=vessel_internal_height(reactor_vessel),
+  vessel_punt_height=vessel_punt_height(reactor_vessel),
   joint_outer_diameter=frame_outer_diameter(vessel_diameter(reactor_vessel), _preview_wall_thickness),
   post_pts=_preview_post_pts,
   post_hole_diameter=frame_rod_hole_diameter()
