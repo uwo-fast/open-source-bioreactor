@@ -773,7 +773,26 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // the plate's width is settled by the lock it hangs from, so it is read back, not chosen here
   _baffle_width = bayonet_baffle_width(head_bayonet, baffle_thickness, baffle_bore_clearance);
 
-  echo("baffles: ", len(_baffle_at), " x ", _baffle_width, " mm wide, up to ", baffle_max_length, " mm long");
+  // Oldshue 1997 p. 202 sizes baffling by TOTAL PROJECTED AREA, not by count: four at T/12 is the
+  // reference, and "either 3, 6 or 8 baffles can be used if preferred" at the same total. So the
+  // count is a configuration choice and this reports where the chosen one lands. The width is not
+  // free to compensate - bayonet_baffle_width() returns the widest plate that will pass its own
+  // lock bore - so the only lever is the count.
+  _baffle_area_ratio = stirred_tank_baffle_area_ratio(_vessel_bore, len(_baffle_at), _baffle_width);
+
+  echo(str(
+    "baffles: ", len(_baffle_at), " x ", _baffle_width, " mm wide, up to ", baffle_max_length,
+    " mm long; ", _baffle_area_ratio, " of Oldshue's four-at-T/12 reference area (",
+    stirred_tank_baffle_reference_area(_vessel_bore), " mm total)"
+  ));
+
+  if (_baffle_area_ratio < 0.9)
+    echo(str(
+      "WARNING baffles: ", len(_baffle_at), " x ", _baffle_width, " mm is ", _baffle_area_ratio,
+      " of the reference projected area. Adding one more of the same plate gives ",
+      stirred_tank_baffle_area_ratio(_vessel_bore, len(_baffle_at) + 1, _baffle_width),
+      ". Under-baffling lets the vessel swirl rather than mix; see docs/agitation.md."
+    ));
 
   // the port circle is sized against the plug's edge, so what it does not settle is whether
   // that many ports clear each other on it. The flange is the widest thing a port has, and it
