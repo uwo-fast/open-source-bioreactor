@@ -59,6 +59,17 @@
   - the hub was grown from 7.5 to 10 mm radius for this: 5.8 mm of thread stands between socket and
     shaft, and a 6 mm screw arrives at the shaft surface sitting flush. Two of them carry 1458 N
     against the 817 N the motor's rated torque asks of one impeller, and against 1225 N at stall
+  - **they thread into a collar above the blades, not into the hub beside them.** Placed in the hub
+    the hole fouled a fin: measured at the hub surface the fins occupy 58.0-86.3 degrees and every
+    90 after, while a 3.3 mm hole at 10 mm radius spans 19 degrees, so a screw at 0 overlapped the
+    fin ending at 356.3 by 5.8 degrees. That nicks the fin root, where bending stress is highest,
+    and worse it puts blade in front of the socket so a hex key cannot reach it
+  - indexing the screws into the gaps was rejected as too fragile to rely on. Each fin is
+    `resize()`d individually, which scales its y by 1.107 against its x and so moves the angle it
+    lands at, and the twist moves it again - across six registered impeller types at three fin
+    counts there is no formula that stays right. Above the blades there is no fin at any angle,
+    which is one answer for every row. Confirmed by intersecting the part with a ring just outside
+    the hub: four arcs of fin at blade height, and an empty result at collar height
   - https://www.mcmaster.com/92029A142/
   - also registered, not bought: **92029A144** (M4 x 8) for a 12 mm hub radius, and **92029A103**
     (M3 x 6) as the fallback if M4 cannot be tapped. M3 is not the safer choice for being smaller -

@@ -236,8 +236,11 @@ impeller_fin_width = 4;
 impeller_hub_radius = 10;
 // the set screw holding each impeller to the shaft
 impeller_set_screw = set_screw_m4x6_316;
-// where they land around the hub
+// where they land around the collar
 impeller_set_screw_at = [0, 120];
+// hub collar standing above the blades. The set screws thread into this rather than into the hub
+// alongside the fins, which is what keeps them clear of a fin at any count, twist or phase
+impeller_collar_height = 8;
 // added to the tap hole for print calibration; printed holes come out undersize
 impeller_set_screw_allow = 0;
 // allowance for the shaft hole
@@ -667,12 +670,31 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _set_screw_reach =
   impeller_hub_radius - shaft_diameter(head_shaft) / 2 - set_screw_length(impeller_set_screw);
 
+  _set_screw_hole = (set_screw_tap_radius(impeller_set_screw) + impeller_set_screw_allow) * 2;
+
   echo(str(
     "impeller set screws: ", len(impeller_set_screw_at), " x ", set_screw_name(impeller_set_screw),
     " (", set_screw_part_number(impeller_set_screw), ") at ", impeller_set_screw_at, " deg, ",
-    _set_screw_engagement, " mm of thread in a ",
-    (set_screw_tap_radius(impeller_set_screw) + impeller_set_screw_allow) * 2, " mm tap hole"
+    _set_screw_engagement, " mm of thread in a ", _set_screw_hole,
+    " mm tap hole, through a ", impeller_collar_height, " mm collar above the blades"
   ));
+
+  // The collar stands in the gap between the impellers, so it is the lower one's that runs out of
+  // room first.
+  assert(
+    impeller_collar_height < impeller_spacing - impeller_height,
+    str(
+      "The lower impeller's ", impeller_collar_height, " mm collar reaches into the ",
+      impeller_spacing - impeller_height, " mm gap above it."
+    )
+  );
+
+  if (impeller_collar_height < _set_screw_hole + 2 * impeller_fin_width / 2)
+    echo(str(
+      "WARNING impeller set screws: a ", impeller_collar_height, " mm collar leaves ",
+      (impeller_collar_height - _set_screw_hole) / 2, " mm of wall each side of a ", _set_screw_hole,
+      " mm hole. Raise impeller_collar_height."
+    ));
 
   assert(
     _set_screw_reach <= 0,
@@ -1271,14 +1293,21 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         cylinder(h=shaft_length(head_shaft), d=shaft_diameter(head_shaft), center=false);
   }
 
-  // Radial tap holes at the hub's mid height. Plain cylinders at the screw's tap radius - no
-  // thread is modelled, the screw cuts its own. They start on the axis so they open into the bore.
+  // Radial tap holes through the collar. Plain cylinders at the screw's tap radius - no thread is
+  // modelled, the screw cuts its own. They start on the axis so they open into the bore.
+  //
+  // In the collar and not in the hub, because the fins pass through the hub. Each fin is resize()d
+  // individually, which scales its y by a different factor than its x and so distorts the angle it
+  // ends up at, and it is then twisted on top of that - so where the gaps between fins fall is not
+  // something a formula gets right across the registry. Above the blades there are no fins at any
+  // angle, which is the same answer for every row in impellers.scad.
   module head_impeller_set_screw_holes() {
     _r = set_screw_tap_radius(impeller_set_screw) + impeller_set_screw_allow;
-    for (a = impeller_set_screw_at)
-      rotate([0, 0, a])
-        rotate([0, 90, 0])
-          cylinder(r=_r, h=impeller_hub_radius + z_fight, $fn=32);
+    translate([0, 0, impeller_height / 2 + impeller_collar_height / 2])
+      for (a = impeller_set_screw_at)
+        rotate([0, 0, a])
+          rotate([0, 90, 0])
+            cylinder(r=_r, h=impeller_hub_radius + z_fight, $fn=32);
   }
 
   module head_impeller() {
@@ -1303,6 +1332,13 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
               circle(r=impeller_radius + impeller_fin_width, $fn=64);
               circle(r=impeller_radius, $fn=64);
             }
+        // collar for the set screws, standing clear of the blades
+        translate([0, 0, impeller_height / 2 - z_fight])
+          difference() {
+            cylinder(r=impeller_hub_radius, h=impeller_collar_height + z_fight, $fn=64);
+            translate([0, 0, -z_fight])
+              cylinder(r=impeller_shaft_hole_radius, h=impeller_collar_height + 3 * z_fight, $fn=64);
+          }
       }
         head_impeller_set_screw_holes();
       }
