@@ -9,6 +9,28 @@
   - the driver was wrong in its reference, not its value. It multiplied `vessel_outer_diameter`, but D/T everywhere in the literature is against the vessel's wetted bore, so the real ratio drifted with the glass — 0.468 to 0.489 across the registry for one nominal 0.45. It now reads the bore and is constant
   - `impeller_bore_ratio = 0.45` sits mid-band on every citation and is what lets every registered vessel build. `jar_6p5gal_305x470` is the binding one: its 137 mm mouth caps the ratio at 0.4594 with the impeller exactly filling the neck, so 0.45 leaves 2.64 mm to pass it through. The relations and their citations are in `scad/utils/stirred_tank.scad`, the reasoning in `docs/agitation.md`
   - the twist angle and the blade height are the parameters with no support — nothing citable exists for 55 degrees, or for the W/D of a twisted extrusion at all. Both are left alone and marked; `twist` turns out to be a pitch specifier rather than a blade angle, so the honest treatment is the derivation recorded in `docs/agitation.md`. A bench power-number measurement would settle it
+- [ ] **the gas supply, which is now the reactor's binding constraint**
+  - the sparger is specified and drawn; what goes into it is not. This outranks any remaining
+    geometry work, because no sparger geometry can fix either problem below
+  - **air alone cannot feed this reactor.** Algal biomass is ~50 % carbon, so 1 g/L/day needs
+    1.74 mmol C/L/h. Air at 425 ppm supplies 1.043 mmol/L/h per vvm before absorption; at a 30 %
+    absorption efficiency 0.5 vvm sustains **0.09 g/L/day**. For 1 g/L/day the feed gas needs
+    **~0.47 % CO₂**, eleven times atmospheric. There is no CO₂ source in the BOM
+  - **the flow cannot be set.** The registered ReSun pump is 65–70 L/min at 27 kPa against a
+    reactor demand of 0.82–4.09 L/min at 1.12 kPa — **16–80× the flow and 24× the pressure**, so
+    the reactor runs it at **1.3–6.3 % of rating**. The CSV row already says "heavily throttled in
+    use — measured reactor flow TBD". With no flowmeter and no regulator there is no way to know
+    where in the band a run sits, or to repeat it next week or on someone else's build. Every vvm
+    figure in `docs/agitation.md` is therefore *unmeasurable with the registered parts*
+  - **no check valve.** 1.03 kPa of culture head sits over the ring. A stopped pump has nothing
+    stopping that back-flowing down a 2.5 mm bore
+  - what the chain wants, none of it yet an orderable row: a **needle valve or rotameter** covering
+    0.8–4 L/min, a **CO₂ source and blender** or a premixed cylinder, a **check valve**, and the
+    0.22 µm filter that is already registered. The filter's own ΔP has never been counted against
+    the 1121 Pa the model reports
+  - the honest framing for a paper: this is a **CO₂ inventory problem**, and the enrichment fraction
+    is a bigger lever on productivity than the entire sparger study was
+
 - [ ] register the sparge riser as a real purchased part
   - `head.scad` draws it at 4 x 2.5 mm and 166.7 mm long, and those numbers are **chosen, not
     bought**. It wants a 316 stainless tube row of the same shape as `purchased/shafts.scad` —
