@@ -49,17 +49,22 @@ is a rigid-walled green alga, the most shear-tolerant class.
 
 ## 2. This reactor, in the units that matter
 
-Computed on the 94.5 mm impeller in the 10 L jar, with Np = 0.99 (4-blade folded axial, the closest
-measured analogue) and x = 16. Mean dissipation is over the **8.17 L** the jar holds at
+Computed on the 94.5 mm impeller in the 10 L jar, with **Np = 1.602 from Medek's correlation** for
+the registered 45° four-blade pitched turbine, and x = 16. Mean dissipation is over the **8.17 L** the jar holds at
 `culture_fill_fraction`, not over the full jar; `head()` echoes every figure below at render.
 
 | shaft speed | tip speed | Re | ε̄ (W/m³) | ε_max (W/kg) |
 | --- | --- | --- | --- | --- |
-| 255 rpm — Chlorella optimum | 1.26 m/s | 37,800 | 70 | 11.3 |
-| 320 rpm — registered drive, rated | 1.58 m/s | 47,400 | 138 | 22.4 |
-| 410 rpm — break-even | 2.03 m/s | 60,800 | 291 | 47.1 |
-| 420 rpm — registered drive, no-load | 2.08 m/s | 62,300 | 313 | 50.6 |
-| 1154 rpm — 36GP-3530 at full speed | 5.71 m/s | 171,100 | 6,482 | 1,049 |
+| 255 rpm — Chlorella optimum | 1.26 m/s | 37,800 | 113 | 16.2 |
+| 320 rpm — registered drive, rated | 1.58 m/s | 47,400 | 224 | 32.1 |
+| 410 rpm — break-even | 2.03 m/s | 60,800 | 470 | 67.5 |
+| 420 rpm — registered drive, no-load | 2.08 m/s | 62,300 | 506 | 72.6 |
+| 1154 rpm — 36GP-3530 at full speed | 5.71 m/s | 171,100 | 10,490 | 1,505 |
+
+Every figure in that column rose about 62 % when the blade changed, and none of it is the impeller
+getting worse. The old numbers used **Np = 0.99 borrowed from a differently shaped blade**, with a
+note calling them conservative; they were optimistic. 1.602 is computed from this impeller's own
+geometry by a correlation that states where it is being extrapolated.
 
 **The vessel is fully turbulent throughout the band.** Every speed above clears both the textbook
 Re > 10⁴ threshold and Nienow's stricter 2×10⁴.
@@ -241,6 +246,30 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
   shaft no longer reaches the impeller's bore, above it the upper impeller breaks the surface and
   pumps air. Oldshue's 1.0–2.0 for fluidfoils is therefore reachable up to 1.233, and what buys the
   clearance is submersion, not stack height.
+- **The blade is a 45° four-blade pitched turbine, and it was chosen for what can be said about
+  it.** The alternative was the constant-pitch helicoid this project drew by hand, whose power
+  number is not merely unmeasured but **uncorrelatable**: Medek's envelope stops at 60° of blade
+  angle and that blade runs 83° at the hub to 53° at the tip, so no source reaches it. Ameur's
+  helical-screw work is viscous and laminar where this vessel is Re 47,000 in water. Its blade
+  width had no source either — after Fořt supplied h/D 0.2 for the pitched and folded families, the
+  helicoid's 0.634921 is the only geometric ratio left in the registry with nothing behind it.
+  A pitched blade is also the easiest thing in the registry to draw and to print, where the
+  helicoid was the hardest.
+- **The switch is not free and the direction may read backwards.** Po goes 0.99 → 1.602 and every
+  power, dissipation and torque figure rises about 62 %. That is a borrowed number being replaced
+  by a correlated one, not the impeller getting worse; the old figures carried a note calling them
+  conservative, and they were optimistic. It also loaded the baffles 62 % harder — they react the
+  impeller's torque — which took the plates from 8 mm to 9 to stay inside their deflection limit.
+- **What it bought back is vertical room.** At h/D 0.2 the blade projects `h·sin 45°` = 13.4 mm onto
+  the shaft against the helicoid's 60 mm, so the pair spans 107.9 mm of the 241 mm column instead of
+  154.5. At the same 0.6 D clearance the sparger's room goes **26.7 → 50.0 mm** and coverage over
+  the upper impeller **0.63 → 0.88 D**. The two quantities that were competing all afternoon both
+  improved, and the clearance could now be raised to about 0.95 D before coverage binds.
+- **Axial was kept over radial deliberately.** A Rushton would disperse gas better — Oldshue's
+  3× against 8–10× — but a photobioreactor's criterion is Molina Grima's *"frequency of switch"*
+  between light and dark, which is pumping, not power. On circulation bought per watt (`N_Q/Po`)
+  an axial blade beats a Rushton **4.3×**. And the gas criterion turns out not to bind: the axial
+  pair covers 0.5 vvm at 332 rpm and 1.0 vvm at 418, both inside the drive's band.
 - **The clearance is 0.6 D. Oldshue's 1–2 D is an allowance this vessel cannot reach, which is not
   the same as a target it misses.** Read the sentence as written: *"**If** the impeller **can** be
   placed one to two impeller diameters off bottom … these impellers **offer** an excellent flow

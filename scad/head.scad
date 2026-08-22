@@ -217,12 +217,17 @@ impeller_bore_ratio = 0.45;
 // as do the two process numbers a stirred-tank calculation needs - see custom/impellers.scad.
 // Everything below this line is a printed-fit allowance rather than a property of the type.
 //
-// twisted_paddle_4 is what this project actually builds and its power number is UNMEASURED:
-// nothing in the literature covers a constant-pitch helicoid at 53-83 degrees of blade angle, and
-// Medek's correlation stops at 60. head() borrows the closest measured analogue below and says so
-// at render rather than letting the substitution pass silently. docs/agitation.md carries the
-// derivation of why twist is a pitch specifier and not a blade angle.
-head_impeller_type = impeller_twisted_paddle_4;
+// pbt_45_4 is a four-blade 45 degree pitched blade turbine on the Czech Standard CVS 691020
+// geometry - blade width h/D 0.2 from Fort et al. 2002 - and it is chosen for what can be said
+// about it. Po and the flow number come from Medek's correlation, which reports which of its
+// validity conditions this vessel breaks; this one breaks T/D and H/T and head() names them.
+//
+// It replaced impeller_twisted_paddle_4, the blade this project drew by hand, whose power number
+// is UNMEASURED and uncorrelatable: nothing in the literature covers a constant-pitch helicoid at
+// 53-83 degrees of blade angle, Medek's envelope stops at 60, and Ameur's helical-screw work is
+// viscous and laminar where this vessel runs Re 47,000 in water. Its blade width had no source
+// either. The twisted row stays registered and head() still draws it if selected.
+head_impeller_type = impeller_pbt_45_4;
 
 // Where a borrowed power number comes from when the chosen type has none of its own. The
 // folded-blade axial series is the nearest measured shape - same blade count, untwisted - and
@@ -343,10 +348,12 @@ baffle_bore_clearance = 0.2;
 // how far the plate hangs below the port's bottom face. 280 is the floor limit for the registered
 // jar, and head() reports what the plate does under load at it rather than leaving it to a print
 baffle_length = 280;
-// Thickness of the plate. 8 rather than 4 is a DYNAMIC choice, not a strength one: root stress at
-// full depth is 1.4 % of yield either way, but a 4 mm plate this long has its first bending mode
-// at 5.4 Hz, which is shaft rotation at the rated 320 rpm. See docs/agitation.md.
-baffle_thickness = 8;
+// Thickness of the plate. Not a strength choice - root stress at full depth is about 1 % of yield
+// at any of these - but a dynamic and a stiffness one. A 4 mm plate this long has its first
+// bending mode at 5.4 Hz, which is shaft rotation at the rated 320 rpm. 8 cleared that; 9 is what
+// the pitched blade's higher power number then asked for, since the plates react the impeller's
+// torque and Po went 0.99 borrowed to 1.602 correlated. See docs/agitation.md.
+baffle_thickness = 9;
 // printed PETG, for the plate's stiffness. REASONED, NOT CITED - derated from ~2.0 GPa bulk
 baffle_modulus = 1800; // MPa
 baffle_density = 1270; // kg/m^3
@@ -611,7 +618,12 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       "row, or choose a type that carries it."
     )
   );
-  impeller_height = impeller_width_ratio(head_impeller_type) * impeller_diameter;
+  // What the blade occupies along the shaft. Not the registered width on a pitched blade - a plate
+  // set at an angle projects only sin(angle) of itself onto the axis - so this goes through the
+  // accessor rather than multiplying the ratio here. Everything downstream is a vertical budget:
+  // clearance, coverage, the collar's room, the baffle gap.
+  impeller_height = impeller_axial_span(head_impeller_type, impeller_diameter);
+  impeller_blade_width = impeller_width_ratio(head_impeller_type) * impeller_diameter;
 
   // radius of the shaft hole in the impeller
   impeller_shaft_hole_radius = (shaft_diameter(head_shaft) + impeller_shaft_allow) / 2;
@@ -1445,7 +1457,9 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
           fin_width=impeller_fin_width,
           center_hub_radius=impeller_hub_radius,
           center_hole_radius=impeller_shaft_hole_radius,
-          center_hole_radius_lower=impeller_shaft_hole_radius - impeller_shaft_radius_interference
+          center_hole_radius_lower=impeller_shaft_hole_radius - impeller_shaft_radius_interference,
+          blade_pitch=impeller_is_twisted(head_impeller_type) ? undef : impeller_blade_angle(head_impeller_type),
+          blade_width=impeller_blade_width
         );
         // top ring to connect the fin tops for mechanical stability
         translate([0, 0, impeller_height / 2 - impeller_fin_width / 2])
