@@ -11,7 +11,9 @@
 // type never carries both; see docs/agitation.md for why twist is a pitch and not an angle.
 
 // width_ratio is the blade's own dimension over the impeller diameter - blade height for a flat
-// turbine, extrusion height for a twisted one. Registered only where a source gives it.
+// turbine, extrusion height for a twisted one. Registered only where a source gives it. Both of
+// Fort's families are Czech Standards and both carry h/D = 0.2, which is where every 0.2 below
+// comes from; the twisted row's 0.634921 is this project's own blade and has no source.
 
 // Po is the turbulent power number P/(rho N^3 D^5). Measured unless the row comment says
 // otherwise, and undef rather than guessed where no measurement exists: stirred_tank.scad carries
@@ -34,15 +36,19 @@ impeller_rushton_6         = ["rushton_6",        [6,        90,          0.25, 
 // Four-blade 45 degree pitched blade turbine, the reference axial type. Po is deliberately undef:
 // Medek's correlation in stirred_tank.scad gives it as a function of n_B, C/D, T/D, H/T and blade
 // angle, which is more useful than a single number and reports when the geometry leaves its
-// envelope. No source here fixes width_ratio, so it stays undef rather than inheriting Rushton's.
-impeller_pbt_45_4          = ["pbt_45_4",         [4,        45,          undef,       undef], "axial",  [undef, undef], 16];
+// envelope. Blade width is h/D = 0.2, from the Czech Standard CVS 691020 geometry Fort et al.
+// tested; his simple PBTs are drawn at 3 and 6 blades and Medek's correlation spans nB 2-8, so a
+// four-blade row sits inside the correlation without being literally one of his sketches.
+impeller_pbt_45_4          = ["pbt_45_4",         [4,        45,          0.2,         undef], "axial",  [undef, undef], 16];
 
 // Folded-blade axial series, measured at constant geometry with only blade count varied, so the
 // three rows are comparable to each other: 3/4/6 blades give 0.79/0.99/1.34. Jirout & Rieger, CTU
-// Prague, reproducing Fořt et al. 2002. Only the 4-blade row carries a reported tolerance.
-impeller_folded_axial_3    = ["folded_axial_3",   [3,        undef,       undef,       undef], "axial",  [0.79, undef ], 16];
-impeller_folded_axial_4    = ["folded_axial_4",   [4,        undef,       undef,       undef], "axial",  [0.99, 0.04  ], 16];
-impeller_folded_axial_6    = ["folded_axial_6",   [6,        undef,       undef,       undef], "axial",  [1.34, undef ], 16];
+// Prague, reproducing Fořt et al. 2002. Only the 4-blade row carries a reported tolerance. Blade
+// width h/D = 0.2 as above, but note the blade is FOLDED - Czech Standard CVS 691010 puts it at
+// s/D 1.5 with three angles, 67/25/48 degrees - so drawing one is not a flat plate at a pitch.
+impeller_folded_axial_3    = ["folded_axial_3",   [3,        undef,       0.2,         undef], "axial",  [0.79, undef ], 16];
+impeller_folded_axial_4    = ["folded_axial_4",   [4,        undef,       0.2,         undef], "axial",  [0.99, 0.04  ], 16];
+impeller_folded_axial_6    = ["folded_axial_6",   [6,        undef,       0.2,         undef], "axial",  [1.34, undef ], 16];
 
 // This project's printed blade: a constant-pitch helicoid, 55 degrees of twist over its height,
 // so the blade angle runs 83 degrees at the hub to 53 at the tip. Po is UNCHARACTERISED - no

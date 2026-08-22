@@ -59,7 +59,16 @@ of Pitched Blade Impellers." *Acta Polytechnica* 42(4). [doi:10.14311/380](https
 Power number against blade angle and blade count, and the Medek correlations
 `Po ∝ (sin α)^2.077` and `N_Qp ∝ (sin α)^0.468` (valid α 15-60°, Re > 1e4, four baffles) — power
 rises with angle about 4.4× faster than pumping does. Blade-count series 3/4/6 → 0.79/0.99/1.34.
-→ `scad/custom/impellers.scad` `impeller_folded_axial_3/4/6`, `scad/head.scad` `impeller_n_fins`
+
+**Also fixes the blade width this project had recorded as unsourced.** Both impeller families are
+Czech Standards and both are drawn at **h/D = 0.2** — the simple PBT is ČVS 691020 (nB 3 at α 24°,
+35°, 45°; nB 6 at α 45°), the folded-blade impeller ČVS 691010 (nB 3, s/D 1.5, α 67°, β 25°, γ 48°).
+Measured in a T = 400 mm vessel with four wall baffles at H = T, D/T 0.36. Two caveats for
+transferring it: **H/T = 1.0 there against 1.124 here**, which is the one Medek departure this
+vessel cannot remove; and the folded blade is a three-angle fold, not a flat plate at a pitch, so
+its measured Po does not transfer to a plate drawn at 45°.
+→ `scad/custom/impellers.scad` `impeller_folded_axial_3/4/6` and `impeller_pbt_45_4` width_ratio,
+`scad/head.scad` `impeller_n_fins`
 
 **Jirout, T. & Rieger, F.** "Impeller design for mixing of suspensions." CTU Prague —
 <https://users.fs.cvut.cz/tomas.jirout/vyuka/p2_hmp/chep_vyuka.pdf> **[PR]** · **read**
