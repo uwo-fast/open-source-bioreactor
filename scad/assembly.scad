@@ -162,7 +162,7 @@ echo("joint: ", joint_posts, " posts at ", bolt_post_spacing(joint_posts, joint_
 // The assembled reactor's envelope, for anything that has to make room for one - cart.scad is the
 // only such thing today. Composed here because the reactor is what this file assembles: the frame
 // sets the width and the depth below the jar, the head's drive stack sets the top. Measured
-// against a mesh export of the whole assembly at 257.400 x 543.750 mm.
+// against a mesh export of the whole assembly at 257.400 x 571.250 mm.
 function reactor_envelope_diameter() =
   frame_outer_diameter(vessel_diameter(reactor_vessel), frame_wall_thickness);
 function reactor_envelope_height() =
