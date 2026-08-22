@@ -65,6 +65,108 @@ library row is used directly rather than copied.
 
 ---
 
+## A number is a claim, and it carries how good a claim it is
+
+Parametric CAD makes numbers adjustable. It does not make them *true*, and adjustable-but-unfounded
+is the more dangerous state, because the model looks equally confident either way.
+
+So every quantity in this model is one of four kinds, and which kind it is travels with it:
+
+- **measured** — a source states it for this exact thing. `impeller_rushton_6`'s `Po 4.17 ± 0.14`.
+- **correlated** — a published correlation computes it from this geometry, and can say where that
+  geometry leaves the correlation's validity. `pbt_45_4` takes `Po` from Medek this way.
+- **borrowed** — no source reaches this shape, so a nearby one's number stands in. Always echoed,
+  never silent.
+- **reasoned, not cited** — nothing in the literature held here supports it and the model needs a
+  value anyway. Marked in the source with that exact phrase: the 0.5 D coverage floor, the baffle
+  load, the mount slenderness limits, a diaphragm pump's curve taken as linear.
+
+The failure this prevents is a borrowed number acquiring the authority of a measured one by sitting
+in the same table. This model ran for months on `Po = 0.99` borrowed from a differently shaped
+blade, annotated *conservative*; when the correlated value arrived it was **1.602**, so every power,
+torque and dissipation figure had been 62 % optimistic while carrying a note saying the opposite.
+
+**A registry row states what a source says, not what the design wants.** Where a source gives a
+band, register the band. Where it gives nothing, register `undef` rather than a plausible number —
+`undef` propagates and gets noticed, a plausible number does not.
+
+---
+
+## Report the departure, not just the number
+
+Every correlation has a validity envelope, and this vessel is outside several of them. That is
+normal for an instrument built from jars rather than from a vendor's catalogue. What is not
+acceptable is *not knowing* which ones.
+
+So a check returns the **names** of what it violates, not a boolean:
+
+```
+impeller: pbt_45_4 Po 1.49833 and flow number 0.893455 from Medek's correlation
+at 45 deg, extrapolated on ["T/D", "H/T"]
+```
+
+`stirred_tank_medek_departures()` returns a list because an extrapolation that is out on one count
+is a different thing from one that is out on four, and a caller that only learns `false` cannot tell
+them apart or say which to fix. Two of those three departures were removable — a fourth baffle
+retired one, D/T would retire another — and that was only visible because they were named.
+
+The same shape applies to bands the design is measured against: echo the value, the band, and the
+source's own framing. Oldshue's `1–2 d` is an **allowance** — *"if the impeller can be placed…
+these impellers offer"* — so falling outside it is reported, not warned. And it is an allowance for
+**fluidfoil** impellers, which this pitched blade is not, so the model says that too rather than
+quietly grading one impeller class against another's guidance.
+
+---
+
+## Report a fit before you build the part
+
+Register the geometry and its clearances, render, and read them — then draw. The reporting is
+cheaper than the part and it is what catches the arithmetic.
+
+The case that made this a rule: a sparge ring was planned at 1.4 D with **1.60 mm** of clearance to
+the baffles. That figure was ring *centreline* to baffle edge; the ring has a 6 mm section, so its
+inner face is 3 mm further in and the true clearance is **−1.40 mm**. The ring overlapped. Nothing
+about the plan looked wrong — the number was plausible, stated with a unit, and derived from real
+dimensions. The assert caught it on the first render, before any geometry existed.
+
+Working it properly then changed the design rather than the number: the radial band available is
+6.95 mm, no round section of 6 mm fits it at any diameter, and the squeeze is entirely radial while
+73 mm of height sits unused. The ring's section became 4 × 10 mm, which is also the reason it is
+printed rather than bent — **a tube is round, and round does not fit**.
+
+A model whose checks only run after the geometry exists will confirm whatever was built.
+
+---
+
+## The model should be able to catch its author
+
+The point of the three sections above is not documentation. It is that the model disagrees with the
+person editing it, in the same session, before anything is committed.
+
+Every one of these was found by a check rather than by re-reading:
+
+- `head()`'s `z = 0` is the lid's **outer** face, which the assembly seats `lid_flange_height` above
+  the rim — so every vessel-referenced depth was **8 mm** out, and the drivetrain was drawn higher
+  than the model reported it.
+- The baffle area ratio compared plate **width** against a reference **area**, reporting 0.83 for
+  baffling that was actually at 0.14.
+- Medek's four-baffle condition was evaluated against `len(undef)`, because `_baffle_at` was
+  assigned 230 lines below its first consumer — so it reported a departure on a lid that has four.
+- A pitched blade run out to `radius` sweeps **past** the diameter its power number is defined on,
+  because a tilted rectangle's outermost points are its corners. 1.5 % on diameter is 7 % on power.
+- A round feed boss on the sparge ring was wider than the ring's own section and fouled the baffles
+  and the jar's mouth simultaneously, at 0.29 and 0.26 mm.
+
+None of these were subtle once seen and none were visible while writing the code that caused them.
+
+**What this costs.** It is verbose, and it is only as good as the checks someone bothered to write —
+a number can be wrong in a way nothing checks, and a reported band is not a promise the value is
+right. `reasoned, not cited` is still a guess; it is only a *labelled* guess. The claim here is
+narrow: that labelling which numbers are weak, and naming which conditions are violated, converts a
+class of silent drift into a line of render output.
+
+---
+
 ## Asserts versus echoes
 
 This reactor is a research instrument. A parameter outside the usual range may be exactly what
