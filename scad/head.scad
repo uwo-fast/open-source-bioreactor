@@ -25,6 +25,7 @@ include <purchased/atlas_probes.scad>;
 include <purchased/orings.scad>;
 include <purchased/heat_set_inserts.scad>;
 include <purchased/shaft_couplings.scad>;
+include <purchased/shafts.scad>;
 include <purchased/gasket_sheets.scad>;
 
 include <custom/bayonet_interfaces.scad>;
@@ -137,12 +138,14 @@ head_motor = motor_36pg_555pm_14_en;
 
 /* [Shaft Parameters] */
 
-// The distance between the bottom of the jar (punt) and the bottom of the shaft
+// The distance between the bottom of the jar (punt) and the bottom of the shaft. A collision
+// clearance, not the mixing one - head() derives the impeller's off-bottom clearance from this
+// and reports it against Oldshue's band, which is measured to the floor the punt stands proud of.
 shaft_jar_punt_clearance = 5;
-// length of the shaft for the impeller
-shaft_length = 400;
-// diameter of the shaft
-shaft_diameter = 8.0;
+// The registered impeller shaft. Diameter and length both come off the row; nothing here restates
+// them. Length is not a free number - it sets how far the shaft protrudes above the lid and so how
+// tall the motor mount has to be, which head() checks below.
+head_shaft = shaft_8x400_316;
 // adjust distance between the motor and the shaft coupling
 shaft_shaft_coupling_offset = 0; // can be positive or negative
 // the registered coupling joining the gearbox output shaft to the impeller shaft
@@ -382,7 +385,7 @@ function head_gasket_factor() = gasket_sheet_shore_a(lid_gasket_sheet) < 75 ? 0.
 // recomputing them, and anything that has to make room for an assembled reactor reads them back
 // out - the cart is the one that does.
 function head_shaft_protrusion(vessel_internal_height) =
-  shaft_length - (vessel_internal_height - shaft_jar_punt_clearance);
+  shaft_length(head_shaft) - (vessel_internal_height - shaft_jar_punt_clearance);
 function head_motor_mount_height(vessel_internal_height) =
   gearbox_output_shaft_length(dc_motor_gearbox(head_motor))
   + head_shaft_protrusion(vessel_internal_height) + shaft_shaft_coupling_offset;
@@ -429,7 +432,7 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
       translate([0, 0, -z_fight / 2])
         union() {
           // shaft hole
-          cylinder(d=shaft_diameter + bearing_hole_allowance, h=_thickness + z_fight);
+          cylinder(d=shaft_diameter(head_shaft) + bearing_hole_allowance, h=_thickness + z_fight);
 
           // bearing pocket
           rotate([0, 0, 30])
@@ -562,7 +565,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   impeller_height = impeller_width_ratio(head_impeller_type) * impeller_diameter;
 
   // radius of the shaft hole in the impeller
-  impeller_shaft_hole_radius = (shaft_diameter + impeller_shaft_allow) / 2;
+  impeller_shaft_hole_radius = (shaft_diameter(head_shaft) + impeller_shaft_allow) / 2;
 
   impeller_spacing = stirred_tank_impeller_spacing(impeller_diameter, impeller_spacing_factor);
 
@@ -602,7 +605,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       "WARNING impeller clearance: ", _clearance_ratio, " D is outside the ",
       _clearance_band[0], "-", _clearance_band[1],
       " D Oldshue gives for fluidfoils. Sitting low leaves less room for a sparger beneath and is ",
-      "coupled to shaft_length - see docs/agitation.md."
+      "coupled to shaft length - see docs/agitation.md."
     ));
 
   if (!stirred_tank_in_band(_impeller_ratio, _ratio_band))
@@ -730,19 +733,54 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   );
 
   // The coupling's two bores are catalogue facts and the shafts they go on are set elsewhere, so
+  // The shaft runs directly in the bearing's inner race, so the fit is two tolerances meeting.
+  // Both are registered, so this is checked rather than assumed - a plain rod at h9 would nominally
+  // be "8 mm" and still rattle. Reported, not asserted: a transition fit is what a rotating inner
+  // ring wants, and which side of line-to-line a given pair lands on is not ours to refuse.
+  _fit_loosest = bb_bore(shaft_bearing) - shaft_diameter_min(head_shaft);
+  _fit_tightest = (bb_bore(shaft_bearing) - 0.007) - shaft_diameter_max(head_shaft);
+  echo(str(
+    "shaft: ", shaft_name(head_shaft), " (", shaft_part_number(head_shaft), ") ",
+    shaft_diameter_min(head_shaft), "-", shaft_diameter_max(head_shaft), " mm in a ",
+    bb_bore(shaft_bearing), " mm bore: ", _fit_tightest, " to ", _fit_loosest, " mm"
+  ));
+
   // nothing but this stops a coupling that fits neither end.
   assert(
     sc_diameter1(shaft_coupler) == gearbox_output_shaft_dia(head_gearbox) &&
-    sc_diameter2(shaft_coupler) == shaft_diameter,
+    sc_diameter2(shaft_coupler) == shaft_diameter(head_shaft),
     str(
       "The ", shaft_coupler[0], " coupling bores ", sc_diameter1(shaft_coupler), " and ",
       sc_diameter2(shaft_coupler), " mm, for a ", gearbox_output_shaft_dia(head_gearbox),
-      " mm gearbox shaft and a ", shaft_diameter, " mm impeller shaft."
+      " mm gearbox shaft and a ", shaft_diameter(head_shaft), " mm impeller shaft."
     )
   );
 
   // the height that the motor coupling assembly requires
   motor_mount_height = head_motor_mount_height(vessel_internal_height);
+
+  // Mount slenderness. REASONED, NOT CITED - no source stands behind these two numbers. The
+  // coupling is rigid, so it transmits misalignment rather than absorbing it, and any deflection
+  // of the mount is reacted by this bearing and the gearbox's. Lateral deflection of a thin tube
+  // goes as the cube of its slenderness, so height over diameter is the measure. Calibrated
+  // against the build in hand, which sits at 2.3 and works.
+  _mount_slenderness = motor_mount_height / motor_mount_body_diameter;
+
+  if (_mount_slenderness > 3)
+    echo(str(
+      "WARNING motor mount: ", _mount_slenderness, " diameters tall. A shorter registered shaft ",
+      "lowers it - shaft length sets the protrusion, and the protrusion is the mount."
+    ));
+
+  assert(
+    _mount_slenderness <= 5,
+    str(
+      "Motor mount is ", motor_mount_height, " mm on a ", motor_mount_body_diameter, " mm body, ",
+      _mount_slenderness, " diameters. A printed telescoping tube that slender will not hold a ",
+      "rigid coupling in alignment. Choose a shorter registered shaft."
+    )
+  );
+
   echo("motor mount height: ", motor_mount_height / 10, " cm");
 
   // --- motor mount joint ---
@@ -1076,7 +1114,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         wall_thickness=motor_mount_wall_thickness,
         screws_diameter=gearbox_screw_diameter(head_gearbox),
         base_screw_hole_diameter=head_motor_mount_screw_hole_diameter(),
-        shaft_diameter=shaft_diameter,
+        shaft_diameter=shaft_diameter(head_shaft),
         motor_faceplate_bolt_circle_dia=gearbox_faceplate_bolt_circle_dia(head_gearbox),
         motor_boss_diameter=gearbox_out_boss(head_gearbox)[0],
         coupling_allowance=motor_mount_coupling_allowance,
@@ -1125,7 +1163,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
     color("grey")
       translate([0, 0, -vessel_internal_height + shaft_jar_punt_clearance])
-        cylinder(h=shaft_length, d=shaft_diameter, center=false);
+        cylinder(h=shaft_length(head_shaft), d=shaft_diameter(head_shaft), center=false);
   }
 
   module head_impeller() {
@@ -1154,7 +1192,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   // impellers
   if (render_impeller || render_all) {
-    translate([0, 0, -shaft_length + shaft_protrusion + impeller_height / 2]) {
+    translate([0, 0, -shaft_length(head_shaft) + shaft_protrusion + impeller_height / 2]) {
       head_impeller();
 
       // mirrored, not turned over: handedness sets which way a blade pumps and no rotation changes
