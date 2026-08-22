@@ -592,6 +592,10 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // relations and their citations live in one place.
   _vessel_bore = vessel_outer_diameter - 2 * vessel_wall_thickness;
   _liquid_height = vessel_internal_height * culture_fill_fraction;
+
+  // Read off the port table, so it depends on nothing else and can sit this early. It has to:
+  // Medek's envelope is conditioned on four baffles and the Po block below is the first consumer.
+  _baffle_at = [for (i = [0:lid_holes_n - 1]) if (head_ports[i][0] == "baffle") i];
   impeller_diameter = stirred_tank_impeller_diameter(_vessel_bore, impeller_bore_ratio);
   impeller_radius = impeller_diameter / 2; // radius of the impeller
 
@@ -764,20 +768,54 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // one impeller's, where the stacked pair draws more - though less than double, being closer
   // than the spacing at which two impellers stop interacting. See docs/agitation.md.
   _culture_volume = stirred_tank_volume(_vessel_bore, _liquid_height);
-  // Po and x are properties of the blade, so they come off the registered type. A type with no
-  // measured Po borrows one, and the borrowing is echoed rather than silently absorbed - it is the
-  // largest single uncertainty in every power, dissipation and torque figure below.
-  _po_borrowed = !impeller_has_power_number(head_impeller_type);
-  _impeller_po = _po_borrowed
-    ? impeller_power_number(head_impeller_po_fallback)
-    : impeller_power_number(head_impeller_type);
+  // Po and x are properties of the blade, so they come off the registered type. Three ways to get
+  // one, in descending order of what it is worth:
+  //
+  //   MEASURED   the row carries it, with a tolerance where the source gave one
+  //   CORRELATED the row carries a blade angle instead, so Medek's correlation computes it from
+  //              the geometry - and reports which of its validity conditions this vessel breaks,
+  //              which a single borrowed number can never do
+  //   BORROWED   neither, so a fallback row's number stands in. The blade this project drew by
+  //              hand is the only row that lands here
+  //
+  // Whichever applies is echoed. Po is the largest single uncertainty in every power, dissipation
+  // and torque figure below, so which kind of number it is has to travel with it.
+  _po_measured = impeller_has_power_number(head_impeller_type);
+  _po_correlated = !_po_measured && !is_undef(impeller_blade_angle(head_impeller_type));
+  _po_borrowed = !_po_measured && !_po_correlated;
+
+  _medek_departures = stirred_tank_medek_departures(
+    impeller_blades(head_impeller_type), _clearance_ratio, _vessel_bore / impeller_diameter,
+    _liquid_height / _vessel_bore, impeller_blade_angle(head_impeller_type),
+    len(_baffle_at), stirred_tank_reynolds(impeller_diameter, dc_motor_rated_output_rpm(head_motor))
+  );
+
+  _impeller_po =
+  _po_measured ? impeller_power_number(head_impeller_type)
+  : _po_correlated ? stirred_tank_medek_power_number(
+      impeller_blades(head_impeller_type), _clearance_ratio, _vessel_bore / impeller_diameter,
+      _liquid_height / _vessel_bore, impeller_blade_angle(head_impeller_type))
+  : impeller_power_number(head_impeller_po_fallback);
   _impeller_x = impeller_dissipation_factor(head_impeller_type);
 
   if (_po_borrowed)
     echo(str(
-      "impeller: ", impeller_name(head_impeller_type), " has no measured power number; borrowing ",
-      _impeller_po, " from ", impeller_name(head_impeller_po_fallback),
+      "impeller: ", impeller_name(head_impeller_type), " has no measured power number and no blade ",
+      "angle for a correlation to work from; borrowing ", _impeller_po, " from ",
+      impeller_name(head_impeller_po_fallback),
       ". Twist lowers Po, so this over-estimates and every figure derived from it is conservative."
+    ));
+
+  if (_po_correlated)
+    echo(str(
+      "impeller: ", impeller_name(head_impeller_type), " Po ", _impeller_po,
+      " and flow number ", stirred_tank_medek_flow_number(
+        impeller_blades(head_impeller_type), _clearance_ratio, _vessel_bore / impeller_diameter,
+        _liquid_height / _vessel_bore, impeller_blade_angle(head_impeller_type)),
+      " from Medek's correlation at ", impeller_blade_angle(head_impeller_type), " deg, ",
+      len(_medek_departures) == 0
+        ? "inside its validity envelope"
+        : str("extrapolated on ", _medek_departures)
     ));
   _rated_torque = dc_motor_rated_output_torque(head_motor); // undef on a motor that publishes none
 
@@ -997,8 +1035,6 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   baffle_max_length =
   head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height)
   - lid_thickness - baffle_floor_clearance;
-
-  _baffle_at = [for (i = [0:lid_holes_n - 1]) if (head_ports[i][0] == "baffle") i];
 
   // the plate's width is settled by the lock it hangs from and the impellers it passes, so it is
   // read back, not chosen here
