@@ -76,7 +76,11 @@ function stirred_tank_in_band(value, band) = value >= band[0] && value <= band[1
 
 function stirred_tank_clearance(impeller_diameter, factor) = impeller_diameter * factor;
 function stirred_tank_clearance_ratio(clearance, impeller_diameter) = clearance / impeller_diameter;
-function stirred_tank_clearance_band_fluidfoil() = [1.0, 2.0]; // Oldshue 1997 p. 192, conditional
+// PERMISSIVE, not prescriptive. The sentence is "if the impeller CAN be placed one to two impeller
+// diameters off bottom ... these impellers OFFER an excellent flow pattern as well as considerable
+// economies in shaft design" - a reward for being able to sit high, not an instruction to. Sitting
+// below it is a property of the vessel, so head() reports rather than warns on it.
+function stirred_tank_clearance_band_fluidfoil() = [1.0, 2.0]; // Oldshue 1997 p. 192
 
 // Oldshue states the condition in the sentence BEFORE the band, and it pulls the other way:
 // fluidfoils "short-circuit the fluid to a relatively low distance above the impeller. Very

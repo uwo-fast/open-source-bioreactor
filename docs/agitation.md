@@ -231,8 +231,12 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
   shaft no longer reaches the impeller's bore, above it the upper impeller breaks the surface and
   pumps air. Oldshue's 1.0–2.0 for fluidfoils is therefore reachable up to 1.233, and what buys the
   clearance is submersion, not stack height.
-- **The clearance is 0.6 D, and Oldshue's band is unreachable in this vessel.** The sentence the
-  band comes from has a second half that pulls the other way, in the same paragraph: fluidfoils
+- **The clearance is 0.6 D. Oldshue's 1–2 D is an allowance this vessel cannot reach, which is not
+  the same as a target it misses.** Read the sentence as written: *"**If** the impeller **can** be
+  placed one to two impeller diameters off bottom … these impellers **offer** an excellent flow
+  pattern as well as considerable economies in shaft design."* It rewards being able to sit high;
+  it does not instruct you to. `head()` therefore reports the departure rather than warning on it.
+  And the sentence has a second half that pulls the other way, in the same paragraph: fluidfoils
   *"short-circuit the fluid to a relatively low distance above the impeller. Very careful
   consideration of the coverage over the impeller is important."* Both requirements are Oldshue's,
   and here they do not overlap — the band needs C ≥ 94.5 mm, and keeping half a diameter of liquid
@@ -249,11 +253,13 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
   the least defensible number in the model — but even at 0.4 D instead of 0.635 the ceiling only
   moves to 0.85 D. **The cause is that the vessel is short for two impellers**: they span 154.5 mm
   of a 241 mm column, and H/T is 1.124 where convention adds a second impeller above about 1.2.
-- **0.6 D was chosen against a second, independent scale.** Off-bottom clearance is more often
-  written C/T, and the conventional quarter-to-third of tank diameter for an axial impeller maps to
-  **C/D 0.556–0.741** in this bore. That window and the coverage limit agree, which is why the
-  chosen value is reported both ways: 0.6 D is **C/T 0.27**, mid-band on the convention and below
-  the coverage ceiling with margin. It roughly triples the room under the lower impeller, from
+- **0.6 D was chosen against a second, independent scale — an uncited one.** Off-bottom clearance
+  is more often written C/T, and the quarter-to-third of tank diameter usual for an axial impeller
+  maps to **C/D 0.556–0.741** in this bore. *No source held here states that convention* — it is
+  not in Oldshue, and it is recorded as convention rather than citation, which is why no band
+  function encodes it and nothing warns against it. It is corroboration, not authority: that window
+  and the coverage limit agree independently, so the chosen value is reported both ways. 0.6 D is
+  **C/T 0.27**, mid that window and below the coverage ceiling with margin. It roughly triples the room under the lower impeller, from
   10 mm — which fits no sparger at all — to 26.7 mm.
 - **The 0.5 D coverage floor is reasoned, not cited.** Oldshue names the concern and gives no
   number. It is the depth below which a down-pumping impeller starts drawing its own discharge back

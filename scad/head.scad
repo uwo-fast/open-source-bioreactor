@@ -648,7 +648,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   echo(str(
     "impeller clearance: centreline ", _impeller_clearance, " mm off the floor = ",
-    _clearance_ratio, " D (band ", _clearance_band[0], "-", _clearance_band[1], "), C/T ",
+    _clearance_ratio, " D (Oldshue allows ", _clearance_band[0], "-", _clearance_band[1], "), C/T ",
     _impeller_clearance / _vessel_bore, "; ", _sparger_room, " mm under the lower impeller and ",
     _impeller_coverage, " mm (", _coverage_ratio, " D) of culture over the upper"
   ));
@@ -661,14 +661,18 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       "shallow draws its own discharge off the surface. Lower impeller_clearance_factor."
     ));
 
+  // Reported, not warned. Oldshue's 1-2 d is an ALLOWANCE and not a target - "if the impeller can
+  // be placed one to two impeller diameters off bottom ... these impellers offer an excellent flow
+  // pattern as well as considerable economies in shaft design" - so falling outside it is a
+  // property of the vessel rather than a defect in the design. What is worth saying is why this
+  // vessel cannot reach it, since that is not obvious from the number.
   if (!stirred_tank_in_band(_clearance_ratio, _clearance_band))
     echo(str(
-      "WARNING impeller clearance: ", _clearance_ratio, " D is outside the ",
-      _clearance_band[0], "-", _clearance_band[1],
-      " D Oldshue gives for fluidfoils, and in this vessel it cannot reach it: two impellers ",
-      "spanning ", _upper_impeller_top - (_impeller_clearance - impeller_height / 2),
+      "impeller clearance: ", _clearance_ratio, " D is below the ", _clearance_band[0], "-",
+      _clearance_band[1], " D Oldshue allows for fluidfoils, which this vessel cannot reach: two ",
+      "impellers spanning ", _upper_impeller_top - (_impeller_clearance - impeller_height / 2),
       " mm of a ", vessel_punt_height + _liquid_height,
-      " mm column leave the band and his own coverage caveat with no overlap. Raising it further ",
+      " mm column leave that allowance and his own coverage caveat with no overlap. Raising it ",
       "costs no mount height, only coverage; see docs/agitation.md."
     ));
 
