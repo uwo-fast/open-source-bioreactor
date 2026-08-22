@@ -181,7 +181,7 @@ function stirred_tank_blade_frequency(rpm, n_blades) = rpm * n_blades / 60;
 function stirred_tank_medium_density() = 998.2; // kg/m^3
 function stirred_tank_medium_viscosity() = 1.002e-3; // Pa s
 
-// Medek's correlations for a pitched blade impeller, from Fort et al. 2002, Acta Polytechnica
+// Medek's correlations for a pitched blade impeller, from Fořt et al. 2002, Acta Polytechnica
 // 42(4), doi:10.14311/380. These give the power number and the pumping-capacity number as
 // functions of the geometry rather than as one constant per shape, which is what lets a design
 // move without silently carrying a Po measured on a different tank.
@@ -206,7 +206,7 @@ function stirred_tank_medek_flow_number(n_blades, clearance_ratio, tank_ratio, h
 // it, so a consumer can echo exactly which ones rather than a bare true/false - an extrapolation
 // that is out on one count is a different thing from one that is out on four.
 //
-// Fort 2002 gives: nB 2-8, C/D 0.2-1.0, T/D 2.45-5.93, H/T 0.55-1.0, blade angle 15-60 degrees,
+// Fořt 2002 gives: nB 2-8, C/D 0.2-1.0, T/D 2.45-5.93, H/T 0.55-1.0, blade angle 15-60 degrees,
 // four baffles at b/T = 0.1, and Re > 1e4.
 function stirred_tank_medek_departures(n_blades, clearance_ratio, tank_ratio, height_ratio, blade_angle, baffles, reynolds) =
   [

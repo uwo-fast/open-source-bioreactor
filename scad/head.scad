@@ -227,7 +227,7 @@ head_impeller_type = impeller_twisted_paddle_4;
 // Where a borrowed power number comes from when the chosen type has none of its own. The
 // folded-blade axial series is the nearest measured shape - same blade count, untwisted - and
 // both Patwardhan and Kumaresan find twist LOWERS Po, so this over-estimates and everything
-// derived from it is conservative. Fort et al. 2002 and Jirout & Rieger; docs/references.md.
+// derived from it is conservative. Fořt et al. 2002 and Jirout & Rieger; docs/references.md.
 head_impeller_po_fallback = impeller_folded_axial_4;
 
 // width of each fin blade

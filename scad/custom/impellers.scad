@@ -39,7 +39,7 @@ impeller_pbt_45_4          = ["pbt_45_4",         [4,        45,          undef,
 
 // Folded-blade axial series, measured at constant geometry with only blade count varied, so the
 // three rows are comparable to each other: 3/4/6 blades give 0.79/0.99/1.34. Jirout & Rieger, CTU
-// Prague, reproducing Fort et al. 2002. Only the 4-blade row carries a reported tolerance.
+// Prague, reproducing Fořt et al. 2002. Only the 4-blade row carries a reported tolerance.
 impeller_folded_axial_3    = ["folded_axial_3",   [3,        undef,       undef,       undef], "axial",  [0.79, undef ], 16];
 impeller_folded_axial_4    = ["folded_axial_4",   [4,        undef,       undef,       undef], "axial",  [0.99, 0.04  ], 16];
 impeller_folded_axial_6    = ["folded_axial_6",   [6,        undef,       undef,       undef], "axial",  [1.34, undef ], 16];

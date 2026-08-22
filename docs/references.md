@@ -138,30 +138,82 @@ The primary behind the numbers `Davis (2010)` relays, retrieved 2026-08-20. What
 - **Baffles, p. 202.** Four baffles, *"each 1/12 the tank diameter in width"* — a single value,
   0.0833 T, not the 0.08-0.10 band Davis reports. And explicitly: *"Either 3, 6 or 8 baffles can be
   used if preferred. The general principle is to use the same total projected area as exists with
-  four baffles, each 1/12 the tank diameter in width."* **This is a citable basis for this
-  project's three baffles**, which previously rested on a gap — the constraint is total projected
-  area, not the count.
+  four baffles, each 1/12 the tank diameter in width."* The project now runs **four**, which is his
+  reference case outright; the passage had been carrying three, permitted by the same sentence.
+  Either way the constraint is total projected area, not the count.
 - **Off-bottom clearance, p. 192.** *"If the impeller can be placed one to two impeller diameters
   off bottom, which means that mixing is not provided at low levels during draw off, these
   impellers offer an excellent flow pattern as well as considerable economies in shaft design."*
-  A conditional trade-off for **fluidfoil** impellers with a stated cost, not a design rule, and a
-  1-2 d range rather than a 1.0 d target.
+  Read the grammar: **"if … can … offer"** makes this an allowance for **fluidfoil** impellers with
+  a stated cost, not a rule to meet. `head()` reports a departure from it rather than warning.
+- **Coverage over the impeller, p. 191-192** — the sentence immediately *before* the band, and the
+  one that decides this reactor's clearance. *"However, there is a tendency for these impellers to
+  short-circuit the fluid to a relatively low distance above the impeller. Very careful
+  consideration of the coverage over the impeller is important."* He gives **no number**. The two
+  requirements do not overlap in this vessel: the band needs C ≥ 94.5 mm and half a diameter of
+  coverage allows C ≤ 69.2, because two impellers span 154.5 mm of a 241 mm column.
+- **Axial impellers in a gassed system, p. 228.** *"the upward flow of gas tends to negate the
+  downward action of the pumping capacity of the axial flow turbine. A radial flow turbine must
+  have **three times** more power than the power in the gas stream for the mixer power level to be
+  fully effective. On the other hand, the axial flow impeller must have **eight to ten times** more
+  power than in the gas stream for it to establish the axial flow pattern."* Evaluated against this
+  reactor: the axial pair holds its flow pattern only to **0.45 vvm at the rated 320 rpm**, where a
+  radial impeller at the same power would take 1.20.
 - **Sparger, p. 214.** *"A sparge ring about 80 % of the impeller diameter is more effective than
   an open pipe beneath the impeller or sparge rings larger than the impeller… the desired entry
   point for the gas is where it can pass initially through the high shear zone around the
-  impeller."* On this project's 94.5 mm impeller that is a **~75.6 mm ring**. This is the first
-  citable sparger geometry the project has, and it agrees with Nienow 2006 on placing the sparger
-  where the impeller immediately works the gas.
+  impeller."* **Superseded, and recorded here only because the project sized against it.** Two
+  experimental studies find the opposite — Birch & Ahmed 1997 and Rewatkar & Joshi 1993, both above
+  — and both recommend rings *larger* than the impeller. What survives is the second half: gas
+  should enter where the impeller immediately works it, which agrees with Nienow 2006.
 - **Gas dispersion.** The lower impeller does most of the gas-dispersing work, and a common
   three-impeller power split is 40 % lower / 30 % each upper.
+- **kLa by gassing out, p. 226.** *"an unsteady state reaeration test in which the tank is stripped
+  of oxygen; air is started with the mixer running and the dissolved oxygen level increase is
+  monitored until the tank is saturated"* — the method this project needs, since Van't Riet's
+  correlation does not reach its P/V. He warns the endpoint sits between top and bottom saturation
+  values, so the driving force used to reduce it is not the log-mean one.
 
 **Not in it**, despite being attributed to it: any impeller-to-impeller spacing rule, the 80 %
 power penalty below 1.0 d, and any top-impeller submergence depth.
 → `docs/agitation.md` baffles and sparger sections
 
-**Eng. Life Sci. 2017, 17:500-511.** [doi:10.1002/elsc.201600096](https://doi.org/10.1002/elsc.201600096) **[PR]** · **read**
-The power-number definition `Np = P/(ρN³d⁵)` and measured Rushton Np 4.17 ± 0.14.
+**Kaiser, S.C., Werner, S., Jossen, V., Kraume, M. & Eibl, D. (2017).** "Development of a method
+for reliable power input measurements in conventional and single-use stirred bioreactors at
+laboratory scale." *Engineering in Life Sciences* 17(5):500-511.
+[doi:10.1002/elsc.201600096](https://doi.org/10.1002/elsc.201600096) **[PR]** · **read**
+The power-number definition `Np = P/(ρN³d⁵)` and measured Rushton Np 4.17 ± 0.14. Cited in the SCAD
+as "Kaiser 2016", which is the online publication date; the issue is 2017.
 → `scad/custom/impellers.scad` `impeller_rushton_6`
+
+### Sparger geometry and location
+
+Both were obtained and read on 2026-08-21. Together they overturn the 80 %-of-impeller ring
+Oldshue gives on p. 214, which this project sized against until then — see that entry.
+
+**Birch, D. & Ahmed, N. (1997).** "The Influence of Sparger Design and Location on Gas Dispersion
+in Stirred Vessels." *Chemical Engineering Research and Design* (Trans IChemE Part A) 75(A5):487-496.
+[doi:10.1205/026387697523994](https://doi.org/10.1205/026387697523994) **[PR]** · **read**
+From the abstract: *"Significant performance improvements, in terms of improved power draw and
+delayed onset of flooding on aeration, are achieved through the use of **'larger than impeller'
+ring spargers**, positioned within the discharge stream from the impeller. There is little or no
+penalty in terms of the gas holdup generated."* They tested a ring at **1.4 D**, which is not
+arbitrary — the annulus from R out to 1.41 R encloses the same volume the impeller sweeps, a
+physical rationale Oldshue's 80 % has never had. Gas belongs in the impeller's **discharge** stream,
+so above an up-pumping impeller and below a down-pumping one.
+→ `scad/utils/stirred_tank.scad` `stirred_tank_sparge_ring_band()` lower bound
+
+**Rewatkar, V.B. & Joshi, J.B. (1993).** "Role of Sparger Design on Gas Dispersion in Mechanically
+Agitated Gas-Liquid Contactors." *The Canadian Journal of Chemical Engineering* 71(2):278-291.
+[doi:10.1002/cjce.5450710215](https://doi.org/10.1002/cjce.5450710215) **[PR]** · **read**
+*"The use of a large ring is recommended"*, with the critical speed for gas dispersion **lowest at
+a ring twice the impeller diameter**. Also, and this is what retired an entire hole-sizing study
+here: *"Hole size and number of holes on the ring sparger have **negligible effect when the sparger
+is located near the impeller**. However, these variables become important when the sparger is
+located away from the impeller."* They used 2, 3 and 6 mm holes. **Scale caveat**: vessels of 0.57,
+1.0 and 1.5 m diameter against this project's 0.21 m, and a pitched-blade **downflow** turbine,
+where this reactor's lower impeller pumps up.
+→ `scad/utils/stirred_tank.scad` `stirred_tank_sparge_ring_band()` upper bound
 
 ### Blade twist — measured in the literature, but out of this blade's range
 
