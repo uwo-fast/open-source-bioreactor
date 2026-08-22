@@ -98,16 +98,41 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
   - `encoder_speed_window` is the one new parameter, an operating choice like `culture_fill_fraction`: the controller owns the real window and nothing is built from it
   - **no geometry, as expected.** The encoder sits inside the motor's own envelope, so nothing new is drawn and the render is untouched
   - the BOM's `Slice_DCMT` row now carries the wiring the motor actually needs — 2 motor leads and 4 encoder, no connector — flagged to confirm the board exposes the encoder inputs
-- [ ] design the sparger
-  - the largest open item in the reactor's fluid design. Bubble rupture rather than impeller shear dominates cell damage, and there is no sparger in the model at all — air enters through a bayonet tube port. `ports-layout.md` already reasons about a "primary sparger sector" that does not exist
-  - needs its own research pass: bubble size, orifice velocity, sparger geometry, whether Pluronic F-68 belongs in the medium, and Nienow's requirement that the sparger sit below the lower impeller
-  - **there is no citable critical entrance velocity.** The 30-50 m/s this item used to name was not supported by Barbosa 2003 once read: its own runs were 0.4-5.4 m/s, the larger figures are two comparison reactors from another study, and it closes by saying the parameter needs more work
-  - the geometry no longer constrains this the way it did. Off-bottom clearance is a parameter now rather than a consequence of shaft length, and at 0.6 D the lower impeller leaves **26.7 mm** under it rather than the 10 mm it had. The new constraint is radial: the baffles hang full depth to r 64.55, and a 1.4 D ring sits at r 66.15 — **1.6 mm apart**
-  - **the ring geometry is now citable.** Oldshue 1997 p. 214: a sparge ring at about 80 % of the impeller diameter beats both an open pipe beneath the impeller and a ring larger than it, because the gas should enter where it passes straight through the impeller's high-shear zone. On the 94.5 mm impeller that is a **~75.6 mm ring**. So S5's first two questions are settled — ring diameter, and that it sits under the impeller — and the open one is the vertical room to put it in
-  - Oldshue's **1-2 d for fluidfoil impellers** turns out to be an allowance rather than a target ("if the impeller *can* be placed..."), and it is unreachable here anyway: his own coverage caveat in the sentence before it and the band do not overlap in a 241 mm column holding two impellers. Clearance is set at 0.6 D against C/T instead; see `docs/agitation.md`
-- [ ] characterise the impeller's blade twist and height
-  - both are uncharacterised design parameters with no citable basis; `twist` is a pitch specifier rather than a blade angle. A bench measurement would settle it: `Po = P/(rho*N^3*D^5)` from shaft power at three or four known speeds in water, across printed variants
-  - one paywalled source might yet say something — Kumaresan & Joshi 2006, doi:10.1016/j.cej.2005.10.002, worth an interlibrary request
+- [x] design the sparger
+  - **done, and its position is derived rather than chosen.** Birch & Ahmed 1997 - the paper whose
+    stated aim is that "there seems to be no available information on the influence of sparger
+    location on the gas dispersion performance of upward pumping mixed flow turbines" - conclude
+    that the sparger goes above an up-pumping impeller and below a down-pumping one. This pair
+    converges, so one ring in the gap sits in both discharges. `head_shaft_rotation` is what makes
+    that true and `head()` warns if it is reversed
+  - ring **1.44 D**, section **[4, 10] mm and not round**: the radial band between the baffles and
+    the mouth is 6.95 mm and a round 6 mm section has no solution in it at any ratio, while the gap
+    gives 73 mm of height. That is also what settled printed over bent - a tube is round
+  - the feed does not attach at the ring's radius, where a round boss fouls the baffles and the
+    mouth at 0.29 and 0.26 mm. An arm runs inboard along the air inlet's own baffle-free sector to
+    a socket under the lid port, so the riser is straight and the junction is printed in
+  - holes are 8 x 3 mm, for spacing and against fouling and **not** for even flow: capillary is
+    96 Pa against 2.4 Pa of orifice, so they will not share equally at any count, and Rewatkar &
+    Joshi find that near an impeller it does not matter
+  - **superseded here:** Oldshue p. 214's 80 %-of-impeller ring, which two experimental studies
+    contradict; and the claim that the sparger sits under the lower impeller
+  - what is left is not geometry - see the gas supply item above
+
+- [ ] bench-measure the twisted paddle's power number, IF it is wanted back
+  - **demoted, not done.** The build no longer selects `impeller_twisted_paddle_4`; it runs
+    `impeller_pbt_45_4`, whose Po and flow number come from Medek's correlation and whose blade
+    width is Fořt's h/D 0.2. So nothing in the model now depends on an unmeasured number
+  - the twisted row stays registered and `head()` still draws it. What it still lacks is a Po - no
+    correlation reaches a constant-pitch helicoid at 83 degrees of blade angle at the hub falling to
+    53 at the tip, Medek's envelope stops at 60, and Ameur's helical-screw work is viscous and
+    laminar where this vessel is Re 47,000. Its 0.634921 width ratio is now the only geometric ratio
+    in `impellers.scad` with no source behind it
+  - a bench measurement would settle both: `Po = P/(rho*N^3*D^5)` from shaft power at three or four
+    known speeds in water, across printed variants. Worth doing to publish the blade, not to build
+    the reactor
+  - one paywalled source might yet say something - Kumaresan & Joshi 2006,
+    doi:10.1016/j.cej.2005.10.002, worth an interlibrary request
+
 
 ## nice to haves
 
@@ -137,6 +162,19 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
 
 ## second hardware revision
 
-- [ ] use a less expensive shaft for the impeller and try and get in 300mm instead of oversized 400mm thats being compensated by the parameteric printed motor mount
-  - might not need to be linear motion surface rated and all that
+- [x] use a less expensive shaft for the impeller, and try for 300 mm instead of 400
+  - **300 mm does not exist.** McMaster cut 8 mm stainless rotary shafts at 100, 200, 400, 600, 800
+    and 1000; the part-number gap that suggested a 1265K65 is not a 300 mm shaft
+  - 200 mm cannot reach either. The shaft spans a 295 mm vessel, so at 200 its top ends 98 mm
+    *below* the lid with nothing to couple to, and reclaiming the impeller hub does not close a
+    170 mm gap
+  - **400 mm is right, and it costs nothing it used to.** The mount was only oversized because the
+    lower impeller was pinned to the shaft's end, so raising the impeller raised the shaft and the
+    mount with it. `10b49bc` decoupled them: the shaft runs to the punt whatever clearance is asked
+    for, and the mount holds at **122 mm across the whole usable range** - it does not grow at 0.9 D
+    any more than at 0.42
+  - the surface rating is not incidental either. It is a **rotary** shaft, turned, ground and
+    polished, and it runs directly in the 608 bearing's inner race - the -0.005/0 against the
+    bearing's -0.007/0 is a transition fit. Plain rod at h9 would allow 0.043 mm and fret the bore.
+    See `purchased/shafts.scad`, which states this at length
 - [ ] swap out the threaded rods with printed parts
