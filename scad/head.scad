@@ -381,17 +381,24 @@ function head_gasket_depth() = gasket_sheet_thickness(lid_gasket_sheet) * (1 - l
 // because the sheet is the head's to choose - same shape as the frame exporting its bolt circle.
 function head_gasket_factor() = gasket_sheet_shore_a(lid_gasket_sheet) < 75 ? 0.5 : 1.0;
 
+// z = 0 is the lid's OUTER face, and the assembly seats the flange on the rim, so the lid's own
+// flange height stands between that face and the glass. Every vessel-referenced depth in this file
+// goes through here rather than off vessel_internal_height directly, which is what dropped 8 mm
+// out of the shaft, the impellers and the mount.
+function head_punt_top_depth(lid_flange_height, vessel_internal_height) =
+  lid_flange_height + vessel_internal_height;
+
 // The drive stack, from the lid's outer face up. head() builds against these rather than
 // recomputing them, and anything that has to make room for an assembled reactor reads them back
 // out - the cart is the one that does.
-function head_shaft_protrusion(vessel_internal_height) =
-  shaft_length(head_shaft) - (vessel_internal_height - shaft_jar_punt_clearance);
-function head_motor_mount_height(vessel_internal_height) =
+function head_shaft_protrusion(lid_flange_height, vessel_internal_height) =
+  shaft_length(head_shaft) - (head_punt_top_depth(lid_flange_height, vessel_internal_height) - shaft_jar_punt_clearance);
+function head_motor_mount_height(lid_flange_height, vessel_internal_height) =
   gearbox_output_shaft_length(dc_motor_gearbox(head_motor))
-  + head_shaft_protrusion(vessel_internal_height) + shaft_shaft_coupling_offset;
+  + head_shaft_protrusion(lid_flange_height, vessel_internal_height) + shaft_shaft_coupling_offset;
 // top of the motor, which is the highest thing on the reactor
-function head_stack_height(vessel_internal_height) =
-  head_motor_mount_height(vessel_internal_height)
+function head_stack_height(lid_flange_height, vessel_internal_height) =
+  head_motor_mount_height(lid_flange_height, vessel_internal_height)
   + dc_motor_length(head_motor) + gearbox_length(dc_motor_gearbox(head_motor));
 function head_plug_groove_width() = oring_gland_width(oring_cross_section(lid_plug_oring));
 
@@ -723,7 +730,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   );
 
   // Motor and shaft driven parameters
-  shaft_protrusion = head_shaft_protrusion(vessel_internal_height);
+  shaft_protrusion = head_shaft_protrusion(lid_flange_height, vessel_internal_height);
 
   // What the shaft leaves above the lid for the coupling to grip. At or below zero the shaft ends
   // inside the vessel and there is nothing for the motor to couple to.
@@ -757,7 +764,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   );
 
   // the height that the motor coupling assembly requires
-  motor_mount_height = head_motor_mount_height(vessel_internal_height);
+  motor_mount_height = head_motor_mount_height(lid_flange_height, vessel_internal_height);
 
   // Mount slenderness. REASONED, NOT CITED - no source stands behind these two numbers. The
   // coupling is rigid, so it transmits misalignment rather than absorbing it, and any deflection
@@ -849,7 +856,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   // centred on its port the plate crosses the circle the impellers sweep, so it stops above them
   baffle_max_length =
-  vessel_internal_height - shaft_jar_punt_clearance - impeller_height - impeller_spacing - baffle_impeller_clearance - lid_thickness;
+  head_punt_top_depth(lid_flange_height, vessel_internal_height)
+  - shaft_jar_punt_clearance - impeller_height - impeller_spacing - baffle_impeller_clearance - lid_thickness;
 
   _baffle_at = [for (i = [0:lid_holes_n - 1]) if (head_ports[i][0] == "baffle") i];
 
@@ -1162,7 +1170,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   if (render_ext_shaft || render_all) {
 
     color("grey")
-      translate([0, 0, -vessel_internal_height + shaft_jar_punt_clearance])
+      translate([0, 0, -head_punt_top_depth(lid_flange_height, vessel_internal_height) + shaft_jar_punt_clearance])
         cylinder(h=shaft_length(head_shaft), d=shaft_diameter(head_shaft), center=false);
   }
 

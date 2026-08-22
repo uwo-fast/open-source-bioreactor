@@ -168,7 +168,7 @@ function reactor_envelope_diameter() =
 function reactor_envelope_height() =
   frame_floor_depth(vessel_height(reactor_vessel), reactor_lights)
   + vessel_height(reactor_vessel) + lid_flange_height
-  + head_stack_height(vessel_internal_height(reactor_vessel));
+  + head_stack_height(lid_flange_height, vessel_internal_height(reactor_vessel));
 
 echo("reactor envelope: ", reactor_envelope_diameter(), " mm dia x ", reactor_envelope_height(), " mm tall");
 

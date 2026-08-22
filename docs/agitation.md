@@ -210,7 +210,7 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
   than the impeller,"* because the gas should enter where it passes straight through the impeller's
   high-shear zone. On the 94.5 mm impeller that is a **~75.6 mm ring**, and it agrees with Nienow's
   requirement that the sparger sit below the lower impeller. **The binding problem is vertical
-  room**: the lower impeller sits 0.37 D off the floor, leaving 5 mm of clear space beneath it, so
+  room**: the lower impeller sits 0.42 D off the floor, leaving 10 mm of clear space beneath it, so
   the off-bottom clearance has to be settled before a sparger can be drawn at all.
 - **No energy dissipation rate limit exists for any microalga.** The parameter the physics says
   governs has no citable number for these organisms.
