@@ -265,6 +265,14 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
   ring instead runs an arm inboard along the air inlet's own angular sector, which has no baffle in
   it, ending in a vertical socket under the lid port. The riser is then straight, and there is no
   hollow tee to build because the junction is printed into the ring.
+- **The riser is structure, not just plumbing.** Nothing else in the vessel touches the ring, so
+  the tube that feeds it is also what holds it — which is why it is a rigid 316 tube rather than
+  flexible tubing. Stiffness is not what sizes it: under a deliberately conservative 0.36 N the tip
+  deflects 0.164 mm at 4 × 2.5 mm and 0.034 at 6 × 4, so anything orderable is stiff enough. What
+  sizes it is the port bore it passes through and how that gap seals, which is still open.
+- **The gas supply has to beat 1121 Pa before anything bubbles** — 104.7 mm of culture over the ring
+  is 1025 Pa of head, plus 96 Pa of capillary at a 3 mm hole. That is about 11 mbar, well inside an
+  aquarium pump, but it is the number a pump has to be chosen against and nothing recorded it before.
 - **Hole geometry is for spacing and against fouling, not for even flow.** Rewatkar & Joshi:
   *"hole size and number of holes have negligible effect when the sparger is located near the
   impeller."* Worked through, even flow is not achievable anyway — capillary pressure to launch a

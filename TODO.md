@@ -9,6 +9,18 @@
   - the driver was wrong in its reference, not its value. It multiplied `vessel_outer_diameter`, but D/T everywhere in the literature is against the vessel's wetted bore, so the real ratio drifted with the glass — 0.468 to 0.489 across the registry for one nominal 0.45. It now reads the bore and is constant
   - `impeller_bore_ratio = 0.45` sits mid-band on every citation and is what lets every registered vessel build. `jar_6p5gal_305x470` is the binding one: its 137 mm mouth caps the ratio at 0.4594 with the impeller exactly filling the neck, so 0.45 leaves 2.64 mm to pass it through. The relations and their citations are in `scad/utils/stirred_tank.scad`, the reasoning in `docs/agitation.md`
   - the twist angle and the blade height are the parameters with no support — nothing citable exists for 55 degrees, or for the W/D of a twisted extrusion at all. Both are left alone and marked; `twist` turns out to be a pitch specifier rather than a blade angle, so the honest treatment is the derivation recorded in `docs/agitation.md`. A bench power-number measurement would settle it
+- [ ] register the sparge riser as a real purchased part
+  - `head.scad` draws it at 4 x 2.5 mm and 166.7 mm long, and those numbers are **chosen, not
+    bought**. It wants a 316 stainless tube row of the same shape as `purchased/shafts.scad` —
+    part number, OD and ID with tolerances, length, and the same REACH/RoHS note the shaft carries
+  - 316 for the reason the shaft is: wetted, and the reactor is chemically sterilised rather than
+    autoclaved. Rigid rather than flexible tubing because **it is the only thing holding the ring** —
+    nothing else in the vessel touches it — so it is structure as much as gas path
+  - stiffness is not what picks the size. At a deliberately conservative 0.36 N the tip deflects
+    0.164 mm at 4 x 2.5 and 0.034 at 6 x 4, so anything orderable works. What picks it is the
+    **2 mm of slack it currently has through the port's 6 mm bore**, and how that gap is sealed —
+    which is the tube port's business and is not yet answered
+
 - [ ] draw the vitamins that are registered but never rendered
   - the **ball bearing** is registered as `BB608` and its numbers cut the lid's pocket, but
     `ball_bearing()` is never called, so the part it is cut for does not appear. A pocket drawn

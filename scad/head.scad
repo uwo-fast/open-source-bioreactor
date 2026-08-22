@@ -417,6 +417,14 @@ sparge_hole_count = 8;
 sparge_feed_port = 8;
 // bore of the socket the riser drops into
 sparge_feed_bore = 4;
+// The riser: a straight rigid tube from the lid port down into that socket. Rigid and not flexible
+// tubing because it is the only thing holding the ring - nothing else in the vessel touches it -
+// so it is structure as much as gas path. 316 for the same reason as the shaft: this is wetted and
+// the reactor is chemically sterilised. NOT YET A REGISTERED PART; see TODO.md.
+sparge_riser_od = 4;
+sparge_riser_id = 2.5;
+// how far it lands inside the socket
+sparge_riser_insertion = 8;
 // the aeration rate the holes are reported against, volumes of gas per volume of liquid per minute
 sparge_design_vvm = 0.5;
 
@@ -1308,6 +1316,40 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       stirred_tank_sparge_ring_band()[0], "-", stirred_tank_sparge_ring_band()[1],
       " D two experimental studies support."
     ));
+
+  // What the riser has to span, and what it costs to push gas down it. The socket's top face is
+  // the ring's own top plus the boss standing on it.
+  _sparge_socket_top =
+  -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height)
+  + _sparge_ring_height + sparge_ring_section[1] / 2 + 8;
+  _sparge_riser_length = 0 - (_sparge_socket_top - sparge_riser_insertion);
+  _sparge_submergence = vessel_punt_height + _liquid_height - _sparge_ring_height;
+
+  echo(str(
+    "sparge riser: ", sparge_riser_od, " x ", sparge_riser_id, " mm tube, ", _sparge_riser_length,
+    " mm from the lid's outer face to ", sparge_riser_insertion, " mm inside the socket; ",
+    head_ports[sparge_feed_port][1] * 2 - sparge_riser_od,
+    " mm of slack through the port's bore"
+  ));
+
+  echo(str(
+    "sparge back-pressure: ", _sparge_submergence, " mm of culture over the ring is ",
+    _sparge_submergence / 1000 * stirred_tank_medium_density() * 9.81,
+    " Pa, plus ", stirred_tank_capillary_pressure(sparge_hole_diameter),
+    " Pa of capillary = ", _sparge_submergence / 1000 * stirred_tank_medium_density() * 9.81
+    + stirred_tank_capillary_pressure(sparge_hole_diameter),
+    " Pa the gas supply has to beat before anything bubbles"
+  ));
+
+  if (render_sparger || render_all)
+    color("grey")
+      rotate([0, 0, _sparge_feed_angle])
+        translate([port_circle_radius, 0, _sparge_socket_top - sparge_riser_insertion])
+          difference() {
+            cylinder(h=_sparge_riser_length, d=sparge_riser_od);
+            translate([0, 0, -z_fight])
+              cylinder(h=_sparge_riser_length + 2 * z_fight, d=sparge_riser_id);
+          }
 
   if (render_sparger || render_all)
     color(prints2_color)
