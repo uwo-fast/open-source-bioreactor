@@ -13,6 +13,7 @@
 
 use <FunctionalOpenSCAD/functional.scad>;
 
+function vessel_name(type) = type[0]; // the row's own name, unique within the registry
 function vessel_height(type) = type[1][0]; // overall height, base to rim
 function vessel_diameter(type) = type[1][1]; // outer diameter of the body
 function vessel_thickness(type) = type[1][2]; // wall thickness

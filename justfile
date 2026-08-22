@@ -6,7 +6,7 @@ default:
     @just --list
 
 # Everything CI runs.
-check: check-scad
+check: check-scad check-vessels
 
 # Evaluate every SCAD file and report anything that does not build.
 check-scad:
@@ -63,6 +63,53 @@ check-scad:
             printf 'ok    %-46s %s\n' "$f" "$([ "$renders" = 1 ] && echo "$size bytes" || echo 'no geometry')"
         fi
     done < <(find scad -name '*.scad' -not -path '*/_archive/*' -not -path '*/_shelf/*' | sort)
+    exit $failed
+
+# Render head.scad against every registered vessel, not just the selected one.
+check-vessels:
+    #!/usr/bin/env bash
+    # check-scad renders each file once, at its defaults, and head.scad defaults to the one jar
+    # that works. So five of six registered vessels were unbuildable for months while check-scad
+    # stayed green - nothing ever built the others. This recipe builds them all.
+    #
+    # `broken` below is the record of what does not build, the same way `entry` above is the record
+    # of what renders. It fails BOTH ways on purpose: an unlisted vessel that breaks is a
+    # regression, and a listed vessel that builds means the list has gone stale and the fix went
+    # unnoticed. Shrinking this list is the work.
+    set -uo pipefail
+    broken=(
+        "generic"             # sparge ring overlaps the baffles (mouth-vs-bore coupling)
+        "jar_1gal_180x197"    # sparge ring overlaps the baffles (mouth-vs-bore coupling)
+        "jar_1p5L_109x215"    # sparge ring overlaps the baffles (mouth-vs-bore coupling)
+        "jar_1gal_155x251"    # impeller leaves no room for a baffle on the port circle
+        "jar_6p5gal_305x470"  # 400 mm shaft cannot reach; the 600 mm row is registered
+    )
+    tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
+    # The registry is the source of the list, so adding a jar adds it to the sweep.
+    printf 'include <%s/scad/purchased/vessels.scad>\nfor (v = vessels) echo(str("V|", vessel_name(v), "|", v));\n' "$PWD" > "$tmp/rows.scad"
+    {{OPENSCAD}} -o "$tmp/rows.csg" "$tmp/rows.scad" 2>"$tmp/rows.err" >/dev/null
+    rows=$(grep '^ECHO: "V|' "$tmp/rows.err" | sed 's/^ECHO: "V|//; s/"$//')
+    if [ -z "$rows" ]; then echo "FAIL  could not read the vessel registry"; exit 1; fi
+    failed=0
+    while IFS='|' read -r name row; do
+        listed=0
+        for b in "${broken[@]}"; do [ "$b" = "$name" ] && listed=1; done
+        {{OPENSCAD}} -D "reactor_vessel=$row" -o "$tmp/v.csg" scad/head.scad 2>"$tmp/err" >/dev/null
+        if grep -q '^ERROR' "$tmp/err"; then
+            if [ "$listed" = 1 ]; then
+                printf 'ok    %-22s known broken: %s\n' "$name" "$(grep -m1 '^ERROR' "$tmp/err" | sed 's/.*failed: //; s/ in file.*//' | cut -c1-70)"
+            else
+                echo "FAIL  $name  builds no longer"
+                grep -m1 '^ERROR' "$tmp/err" | sed 's/^/        /'
+                failed=1
+            fi
+        elif [ "$listed" = 1 ]; then
+            echo "FAIL  $name  now builds, but is still listed as broken - remove it from check-vessels"
+            failed=1
+        else
+            printf 'ok    %-22s builds\n' "$name"
+        fi
+    done <<< "$rows"
     exit $failed
 
 # Create the analysis virtualenv from analysis/pyproject.toml.
