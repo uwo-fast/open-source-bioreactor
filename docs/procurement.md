@@ -30,6 +30,41 @@
     cannot be autoclaved, alongside the soda-lime jar and PETG's ~80 C glass transition.
   - https://www.mcmaster.com/6153K71/
 
+- impeller set screw selection
+  - McMaster-Carr 92029A142
+  - 316 stainless cup-tip set screw, M4 x 0.7 x 6 mm, 2 mm hex socket, Rockwell B80, pack of 50
+  - four needed: two per impeller at 120 degrees, into the printed PETG hub
+  - **the fit it replaces was never an interference fit.** The hub bore tapers from 4.2 mm radius
+    at the top to 4.0 at the bottom, and the shaft is supplied at 3.9975-4.0000 mm radius, so at
+    the tightest point the joint is 0 to 0.0025 mm of *clearance*. The parameter is named
+    `impeller_shaft_radius_interference` but geometrically it is draft. Grip was zero by design,
+    which is what was observed on the bench
+  - a real interference fit would have worked on paper - 0.02 mm radial gives 8 N-m against the
+    0.034 N-m one impeller asks - but it fails on everything else. 8 MPa of sustained hoop stress
+    in PETG at 30-37 C, wet, for weeks will creep and relax; a printed 8 mm bore is not repeatable
+    to 0.02 mm; and a fit tight enough to hold cannot be taken apart for cleaning or to swap
+    impeller types, which is the point of the typed registry
+  - **cup tip, not flat or cone.** The tip has to bite the shaft, which at Rockwell B83 is soft
+    enough to take a dimple. A cone tip would need a matching feature and would fix the impeller's
+    height to it; a cup tip makes its own and lets the impeller sit anywhere on the shaft
+  - **316 rather than 18-8.** These are wetted, and the reactor is chemically sterilised rather
+    than autoclaved. The lid's heat-set inserts are 18-8, but those stay dry - a wetted 18-8 insert
+    would repeat the conflict recorded against the 440C bearing above. Tapping the PETG directly
+    keeps every wetted metal at 316
+  - **no thread is modelled.** The hole is printed at the 3.3 mm tap size and the screw cuts its
+    own. M4 x 0.7 has 0.43 mm of thread depth, about one perimeter, and 0.7 mm of pitch is 3.5
+    layers at 0.2 mm, so a modelled thread prints as a staircase and gives the screw a ramp to ride
+    rather than material to engage. Self-tapping displaces and compacts instead. Printed holes come
+    out 0.1-0.3 mm undersize, so a modelled 3.3 lands near the 3.242 mm minor diameter as printed
+  - the hub was grown from 7.5 to 10 mm radius for this: 5.8 mm of thread stands between socket and
+    shaft, and a 6 mm screw arrives at the shaft surface sitting flush. Two of them carry 1458 N
+    against the 817 N the motor's rated torque asks of one impeller, and against 1225 N at stall
+  - https://www.mcmaster.com/92029A142/
+  - also registered, not bought: **92029A144** (M4 x 8) for a 12 mm hub radius, and **92029A103**
+    (M3 x 6) as the fallback if M4 cannot be tapped. M3 is not the safer choice for being smaller -
+    thread shear area goes with circumference, so it needs 8.7 mm of engagement to carry what the
+    M4 carries in 6.5
+
 - thermocouple selection
   - McMaster-Carr 3872K117
   - Type K threaded thermocouple probe for liquids and gases
