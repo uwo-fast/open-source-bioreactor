@@ -136,6 +136,13 @@ transfer, but the direction does, and it matters: **Po = 0.99 is borrowed from a
 so it is likely an over-estimate here**, making the power, dissipation and torque figures above
 conservative rather than optimistic.
 
+A second, smaller departure was added deliberately. The hub carries the set screws that hold the
+impeller to the shaft, and sizing it for thread engagement grew it from 7.5 to 10 mm radius — from
+0.159 D to 0.212 D, burying 6.3 % more of each blade's span. That is within the 0.2–0.33 D hubs
+carry in practice, and it is a real trade: the alternative was a local boss that left the blade
+alone, at the cost of geometry that prints with an overhang and has to be indexed against the
+blades. The joint was the binding problem, and a slipping impeller costs the whole run.
+
 Nothing citable was found for W/D or blade height of a twisted extrusion. The classic `w = D/4`
 ratios describe flat Rushton blades and do not apply.
 

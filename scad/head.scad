@@ -34,6 +34,7 @@ include <custom/impellers.scad>;
 include <NopSCADlib/core.scad>;
 include <NopSCADlib/vitamins/inserts.scad>; // F1BM4 type + insert()
 include <NopSCADlib/vitamins/screws.scad>; // M4_cap_screw type + screw()
+include <purchased/set_screws.scad>; // after screws.scad - the rows bind M4_grub_screw
 include <NopSCADlib/vitamins/ball_bearings.scad>; // BB608 type + bb_diameter()/bb_width()
 use <NopSCADlib/vitamins/shaft_coupling.scad>;
 
@@ -231,8 +232,14 @@ head_impeller_po_fallback = impeller_folded_axial_4;
 
 // width of each fin blade
 impeller_fin_width = 4;
-// size of the center hub
-impeller_hub_radius = 7.5;
+// size of the center hub; the set screw threads through it, so it sets the thread engagement
+impeller_hub_radius = 10;
+// the set screw holding each impeller to the shaft
+impeller_set_screw = set_screw_m4x6_316;
+// where they land around the hub
+impeller_set_screw_at = [0, 120];
+// added to the tap hole for print calibration; printed holes come out undersize
+impeller_set_screw_allow = 0;
 // allowance for the shaft hole
 impeller_shaft_allow = 0.4;
 // the amount the radius decreases from top to bottom to create a draft for the shaft hole
@@ -640,6 +647,42 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       "WARNING impeller: spacing of ", impeller_spacing_factor, " D is outside the ",
       _spacing_band[0], "-", _spacing_band[1], " D band; too close costs up to 35% of the power ",
       "imparted to the fluid, too far mixes the two zones poorly."
+    ));
+
+  // Set screws hold the impeller to the shaft; nothing else does. The bore tapers to the shaft's
+  // nominal radius, so the fit is a slip fit whatever its parameter is called. Engagement is what
+  // the hub wall leaves between socket and shaft, and reach is whether the tip gets there at all.
+  _set_screw_engagement = impeller_hub_radius - impeller_shaft_hole_radius;
+  _set_screw_reach =
+  impeller_hub_radius - shaft_diameter(head_shaft) / 2 - set_screw_length(impeller_set_screw);
+
+  echo(str(
+    "impeller set screws: ", len(impeller_set_screw_at), " x ", set_screw_name(impeller_set_screw),
+    " (", set_screw_part_number(impeller_set_screw), ") at ", impeller_set_screw_at, " deg, ",
+    _set_screw_engagement, " mm of thread in a ",
+    (set_screw_tap_radius(impeller_set_screw) + impeller_set_screw_allow) * 2, " mm tap hole"
+  ));
+
+  assert(
+    _set_screw_reach <= 0,
+    str(
+      "A ", set_screw_length(impeller_set_screw), " mm set screw in a ", impeller_hub_radius,
+      " mm hub stops ", _set_screw_reach, " mm short of the shaft and holds nothing."
+    )
+  );
+
+  if (_set_screw_reach < -1)
+    echo(str(
+      "WARNING impeller set screws: the screw stands ", -_set_screw_reach,
+      " mm proud of the hub. A shorter row, or a hub of ",
+      shaft_diameter(head_shaft) / 2 + set_screw_length(impeller_set_screw), " mm, sits flush."
+    ));
+
+  if (_set_screw_engagement < set_screw_diameter(impeller_set_screw))
+    echo(str(
+      "WARNING impeller set screws: ", _set_screw_engagement, " mm of thread is under one ",
+      set_screw_diameter(impeller_set_screw), " mm diameter. In PETG the thread strips before the ",
+      "joint slips; grow impeller_hub_radius. See docs/procurement.md."
     ));
 
   // What the drive does to the culture. Reported, never asserted: the margin against damage runs
@@ -1204,8 +1247,19 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         cylinder(h=shaft_length(head_shaft), d=shaft_diameter(head_shaft), center=false);
   }
 
+  // Radial tap holes at the hub's mid height. Plain cylinders at the screw's tap radius - no
+  // thread is modelled, the screw cuts its own. They start on the axis so they open into the bore.
+  module head_impeller_set_screw_holes() {
+    _r = set_screw_tap_radius(impeller_set_screw) + impeller_set_screw_allow;
+    for (a = impeller_set_screw_at)
+      rotate([0, 0, a])
+        rotate([0, 90, 0])
+          cylinder(r=_r, h=impeller_hub_radius + z_fight, $fn=32);
+  }
+
   module head_impeller() {
     color(prints2_color)
+      difference() {
       union() {
         // main impeller body
         impeller(
@@ -1225,6 +1279,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
               circle(r=impeller_radius + impeller_fin_width, $fn=64);
               circle(r=impeller_radius, $fn=64);
             }
+      }
+        head_impeller_set_screw_holes();
       }
   }
 
