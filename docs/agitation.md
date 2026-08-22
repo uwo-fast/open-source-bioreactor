@@ -222,8 +222,24 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
   baffles at 1/12 T as the reference case and states that *"either 3, 6 or 8 baffles can be used if
   preferred"* provided the total projected area matches — so a count of three is permissible in
   principle. It is the **area** that does not match. Oldshue's baffles run the liquid depth; these
-  hang from the lid and stop above the upper impeller, and at an 8 L fill in a 10 L jar the liquid
-  line sits 49 mm below the plate's own top, so 49 of each plate's 100 mm never touches the culture.
-  The wetted area is **0.18 of the reference**, and a fourth identical plate would only reach 0.24.
-  Depth, not count, is the lever. Their being **partial and inboard** is separately uncited: the
-  relevant papers are paywalled and unread.
+  hang from the lid, and at an 8 L fill in a 10 L jar the liquid line sits 49 mm below a plate's own
+  top. At the 100 mm length carried since the first print that leaves 51 mm wetted, and the wetted
+  area is **0.14 of the reference**. A fourth identical plate reaches only 0.19. Depth, not count,
+  is the lever.
+- **What used to cap the depth was an interference of 46 microns.** The plates hang on the port
+  circle at r 56.9 mm, and at the widest the lock bore would pass — 19.39 mm — the inner edge fell
+  at r 47.204 against an impeller sweeping r 47.25. That overlap, and nothing else, is why the
+  plates had to stop above the upper impeller and forfeit the whole lower half of the vessel. The
+  width is now derived from the impeller rather than from the bore alone, whichever binds: at a
+  2 mm radial clearance the plate is 15.3 mm, it passes the impellers instead of stopping above
+  them, and the cap becomes the floor at 280 mm rather than 123.5 mm. The port circle itself is not
+  a lever — it already sits as far out as the lid plug allows. The coupling runs the other way too:
+  at **D/T ≤ 0.4305** the impeller stops binding and the plate returns to the full 19.39 mm the bore
+  allows, and past D/T 0.54 there is no plate left at all and the model refuses to build.
+- **The plate has not actually been lengthened yet.** Deflection of a cantilever goes as the fourth
+  power of its length, and the plate's inner edge is now 2 mm from a turning impeller, so how much
+  of that 280 mm can be used is a stiffness question rather than a geometric one.
+- Their being **partial and inboard** is separately uncited: the relevant papers are paywalled and
+  unread. Note that these plates span r 49.3–64.6 mm in a 210 mm bore, so the annulus outboard of
+  them is 40 mm wide and unobstructed — a consequence of having to pass every part through a 143 mm
+  mouth, and a difference from the wall-mounted reference case that no source here quantifies.

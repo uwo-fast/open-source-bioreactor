@@ -73,6 +73,9 @@ function bayonet_baffle_width(type, thickness, bore_clearance) =
  * @param thickness         Plate thickness; also sets how far the bottom rounds off
  * @param transition_height Height the port's round face blends out into the plate over
  * @param bore_clearance    Clearance to the lock's bore as the plate drops through it
+ * @param width             Plate width; defaults to the widest the bore will pass. Narrower is
+ *                          allowed because what the plate has to clear inside the vessel is not
+ *                          this module's business, and wider cannot be assembled.
  */
 module bayonet_baffle_port(
   type,
@@ -80,9 +83,16 @@ module bayonet_baffle_port(
   length,
   thickness,
   transition_height,
-  bore_clearance
+  bore_clearance,
+  width = undef
 ) {
-  _width = bayonet_baffle_width(type, thickness, bore_clearance); // asserts the plate passes the bore
+  _bore_width = bayonet_baffle_width(type, thickness, bore_clearance); // asserts the plate passes the bore
+  _width = is_undef(width) ? _bore_width : width;
+
+  assert(
+    _width <= _bore_width,
+    str("bayonet_baffle_port: a ", _width, " mm plate will not pass its lock; ", _bore_width, " mm is the widest that does")
+  );
   _round = thickness / 2; // the most the bottom can round without thinning the plate
   _face_radius = bayonet_pin_face_radius(type);
   _seat = 0.01; // a real, if tiny, slice at that face so the hull has something to span from

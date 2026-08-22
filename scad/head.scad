@@ -314,8 +314,10 @@ lid_holes_n = len(head_ports);
  *   That is the trade for the width: depth is capped, and the assert below says where.
  */
 
-// clearance between the top of the upper impeller and the bottom of the baffle
+// clearance between the baffle and the impellers it passes, radially at the plate's inner edge
 baffle_impeller_clearance = 2;
+// clearance between the bottom of the baffle and the jar's floor
+baffle_floor_clearance = 10;
 // clearance between the jar's neck bore and the baffle's outer corner
 baffle_neck_clearance = 1.5;
 // clearance between the lock's bore and the plate dropping through it on assembly
@@ -387,6 +389,16 @@ function head_gasket_factor() = gasket_sheet_shore_a(lid_gasket_sheet) < 75 ? 0.
 // out of the shaft, the impellers and the mount.
 function head_punt_top_depth(lid_flange_height, vessel_internal_height) =
   lid_flange_height + vessel_internal_height;
+function head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height) =
+  head_punt_top_depth(lid_flange_height, vessel_internal_height) + vessel_punt_height;
+
+// The plate is capped twice over: by the lock bore it drops through, and by the circle the
+// impellers sweep, which it now passes alongside rather than stopping above. Whichever binds.
+function head_baffle_width(vessel_opening_diameter, impeller_diameter) =
+  min(
+    bayonet_baffle_width(head_bayonet, baffle_thickness, baffle_bore_clearance),
+    2 * (head_port_circle_radius(vessel_opening_diameter) - impeller_diameter / 2 - baffle_impeller_clearance)
+  );
 
 // The drive stack, from the lid's outer face up. head() builds against these rather than
 // recomputing them, and anything that has to make room for an assembled reactor reads them back
@@ -486,7 +498,7 @@ function head_port_is_oriented(type) = type == "baffle" || type == "probe";
 
 // One port pin half, dispatched on its registered type. All share the same bayonet
 // interface, so they are interchangeable across the lid's locks.
-module head_port(port, panel_thickness) {
+module head_port(port, panel_thickness, baffle_width) {
   _type = port[0];
   _bore = port[1];
   _probe = port[2];
@@ -523,7 +535,8 @@ module head_port(port, panel_thickness) {
       length=baffle_length,
       thickness=baffle_thickness,
       transition_height=baffle_transition_height,
-      bore_clearance=baffle_bore_clearance
+      bore_clearance=baffle_bore_clearance,
+      width=baffle_width
     );
   } else if (_type == "thermocouple") {
     bayonet_thermocouple_port(
@@ -854,21 +867,31 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   port_circle_radius = head_port_circle_radius(vessel_opening_diameter);
 
-  // centred on its port the plate crosses the circle the impellers sweep, so it stops above them
+  // the plate clears the impellers radially, so what stops it is the floor
   baffle_max_length =
-  head_punt_top_depth(lid_flange_height, vessel_internal_height)
-  - shaft_jar_punt_clearance - impeller_height - impeller_spacing - baffle_impeller_clearance - lid_thickness;
+  head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height)
+  - lid_thickness - baffle_floor_clearance;
 
   _baffle_at = [for (i = [0:lid_holes_n - 1]) if (head_ports[i][0] == "baffle") i];
 
-  // the plate's width is settled by the lock it hangs from, so it is read back, not chosen here
-  _baffle_width = bayonet_baffle_width(head_bayonet, baffle_thickness, baffle_bore_clearance);
+  // the plate's width is settled by the lock it hangs from and the impellers it passes, so it is
+  // read back, not chosen here
+  _baffle_width = head_baffle_width(vessel_opening_diameter, impeller_diameter);
+
+  assert(
+    _baffle_width > 0,
+    str(
+      "A ", impeller_diameter, " mm impeller leaves no room for a baffle on a ",
+      head_port_circle_radius(vessel_opening_diameter) * 2, " mm port circle at ",
+      baffle_impeller_clearance, " mm clearance."
+    )
+  );
 
   // Oldshue 1997 p. 202 sizes baffling by TOTAL PROJECTED AREA, not by count: four at T/12 is the
   // reference, and "either 3, 6 or 8 baffles can be used if preferred" at the same total. So the
   // count is a configuration choice and this reports where the chosen one lands. The width is not
-  // free to compensate - bayonet_baffle_width() returns the widest plate that will pass its own
-  // lock bore - so the levers are the count and how much plate ends up under the liquid.
+  // free to compensate - head_baffle_width() returns whichever of the lock bore and the impeller
+  // binds - so the levers are the count and how much plate ends up under the liquid.
   _liquid_height = vessel_internal_height * culture_fill_fraction;
   _baffle_freeboard =
   head_punt_top_depth(lid_flange_height, vessel_internal_height) - _liquid_height - lid_thickness;
@@ -878,7 +901,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   echo(str(
     "baffles: ", len(_baffle_at), " x ", _baffle_width, " x ", baffle_length, " mm (",
-    baffle_max_length, " mm clears the upper impeller), ", _baffle_wetted, " mm of that submerged; ",
+    baffle_max_length, " mm clears the floor), ", _baffle_wetted, " mm of that submerged; ",
     _baffle_area_ratio, " of Oldshue's four-at-T/12 full-depth reference area"
   ));
 
@@ -888,7 +911,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       "would give ", stirred_tank_baffle_area_ratio(
         _vessel_bore, _liquid_height, len(_baffle_at) + 1, _baffle_width, _baffle_wetted),
       ", but depth is the bigger lever - ", _baffle_freeboard,
-      " mm of each plate is headspace and the rest stops above the upper impeller. ",
+      " mm of each plate is headspace and it may hang to ", baffle_max_length, " mm. ",
       "Under-baffling lets the vessel swirl rather than mix; see docs/agitation.md."
     ));
 
@@ -1034,7 +1057,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   assert(
     baffle_length <= baffle_max_length,
-    str("Baffle is ", baffle_length, " mm long and would reach the upper impeller; ", baffle_max_length, " mm is the most that clears it.")
+    str("Baffle is ", baffle_length, " mm long and would reach the jar's floor; ", baffle_max_length, " mm is the most that clears it.")
   );
 
   assert(
@@ -1104,7 +1127,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         color(prints1_color)
           head_port_at(i, vessel_opening_diameter)
             rotate([0, 0, _port_turn])
-              head_port(_port, lid_thickness);
+              head_port(_port, lid_thickness, _baffle_width);
     }
   }
 
