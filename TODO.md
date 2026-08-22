@@ -36,8 +36,13 @@
     of 1 g/L/day, which would need ~0.47 % CO₂. Three independent derivations agree on those
     numbers. What none of them settle is this reactor's actual CO₂ utilisation efficiency, which is
     measurable here and is the assumption the whole estimate turns on
-  - the nutrient feed does not change it: at 0.2–0.5 g/L, Miracle-Gro's urea carbon is worth
-    0.035–0.088 g/L of biomass *in total*, not a per-day rate. This is not a mixotrophic culture
+  - the nutrient feed does not change it. The medium is **0.2 g/L Miracle-Gro in DI water,
+    unbuffered** — the figure is not a range, it is what `analysis/runs/2026-07-23-chlorella-ccpc90`
+    records — and its urea carbon is worth about 0.035 g/L of biomass *in total*, not a per-day
+    rate. This is not a mixotrophic culture
+  - **and the empirical answer already exists.** That run grew *Chlorella vulgaris* CCPC 90 for
+    8.7 days on air alone with no pH control. Against a target of growing Chlorella reproducibly,
+    the CO₂ question is answered by the run, not by a calculation
 
     geometry work, because no sparger geometry can fix either problem below
   - **air alone cannot feed this reactor.** Algal biomass is ~50 % carbon, so 1 g/L/day needs
