@@ -106,6 +106,32 @@
   - buying for **more than one vessel** is the point rather than a side effect: the paper's claim is
     a parametric family, and a second vessel realised from the same source is the evidence for it
 
+- [ ] **register plug o-rings for the other mouths** — blocked on catalogue data, not on design
+  - `head_plug_oring_selected()` picks any registered ring whose free ID lands the groove between
+    0 and 5 % stretch. The mechanism is in and works; the registry holds **one** plug ring, so it
+    resolves for one jar
+  - what each registered mouth wants, computed by the model and printed in its own assert:
+
+    | vessel | mouth | free ID it needs (2.62 mm cord) |
+    | --- | --- | --- |
+    | `jar_6p5gal_305x470` | 137.0 | 126.38 – 132.70 |
+    | `jar_10L_220x305` | 143.0 | 132.10 – 138.70 — **AS568-160, registered** |
+    | `jar_1gal_180x197` | 148.0 | 136.86 – 143.70 |
+    | `generic_vessel` | 150.0 | 138.77 – 145.70 |
+    | `jar_1gal_155x251` | 95.8 | 87.15 – 91.50 |
+    | `jar_1p5L_109x215` | 87.5 | 79.24 – 83.20 |
+
+  - **I did not add these rows.** AS568 is a published standard and the sizes are not secret, but no
+    table exists anywhere on this machine — NopSCADlib's `o_ring` is a drawing module taking bare
+    dimensions — so adding them means transcribing from memory. That is the failure
+    `scad/purchased/` exists to prevent, and the existing row cites its source (`AS568-160, 5.237 in
+    ID x 0.103 in cord`) precisely so it can be checked
+  - what is needed: the AS568 1xx-series IDs covering 79–146 mm, from a catalogue, with the same
+    provenance note the existing row carries. Then the rows go in and five vessels resolve
+  - worth checking while doing it whether a **metric** series is a better fit than AS568 — the port
+    ring is already metric (23 x 1.5), and a metric series may land closer to these ranges than an
+    imperial one stepping in eighths of an inch
+
 - [ ] register the sparge riser as a real purchased part
   - `head.scad` draws it at 4 x 2.5 mm and 166.7 mm long, and those numbers are **chosen, not
     bought**. It wants a 316 stainless tube row of the same shape as `purchased/shafts.scad` —
