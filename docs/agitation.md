@@ -270,7 +270,33 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
   between light and dark, which is pumping, not power. On circulation bought per watt (`N_Q/Po`)
   an axial blade beats a Rushton **4.3×**. And the gas criterion turns out not to bind: the axial
   pair covers 0.5 vvm at 332 rpm and 1.0 vvm at 418, both inside the drive's band.
-- **The clearance is 0.6 D. Oldshue's 1–2 D is an allowance this vessel cannot reach, which is not
+- **The clearance is 0.9 D, set from the source the power number comes from.** Fořt tested pitched
+  blade impellers at C/D 0.5 and 1.0 and concluded that *"the impeller hydraulic efficiency exhibits
+  higher values for impeller off bottom clearance equal to the impeller diameter than for half of
+  this distance, when interference between the bottom and the impeller takes place"* — and his
+  abstract ties low clearances to solids suspension and higher ones to blending miscible liquids,
+  which is this reactor's duty. Medek's correlation reproduces it from the other side, since
+  `Po ∝ (C/D)^−0.165` and `N_Q ∝ (C/D)^0.254`:
+
+  | C/D | Po | N_Q | N_Q/Po | vs 0.6 |
+  | --- | --- | --- | --- | --- |
+  | 0.6 | 1.602 | 0.806 | 0.503 | — |
+  | 0.8 | 1.528 | 0.867 | 0.568 | +12.8 % |
+  | **0.9** | **1.498** | **0.893** | **0.596** | **+18.5 %** |
+  | 1.0 | 1.473 | 0.918 | 0.623 | +23.9 % |
+
+  `N_Q/Po` is circulation bought per watt — the light/dark switching criterion again. **0.9 rather
+  than 1.0** because 1.0 is the correlation's own C/D limit, leaving no margin on the number the
+  whole design now rests on, and because it drops coverage over the upper impeller to 0.48 D. The
+  last 4.5 % of efficiency is not worth spending both margins on.
+- **Oldshue's 1–2 D no longer applies at all, and that is a class distinction rather than a
+  reinterpretation.** His passage is about *"these fluidfoil impellers"* — the hydrofoil class —
+  and a pitched blade turbine is a different, older one. Both halves of it, the allowance and the
+  coverage caveat about short-circuiting, are fluidfoil statements. `head()` now reports the number
+  as context and names Fořt's as the guidance that fits the blade. The 0.5 D coverage floor is kept,
+  but on its own footing: a down-pumping impeller near the free surface entrains air, which is true
+  of any blade and not Oldshue's to authorise.
+- *(Superseded — kept for the record.)* **The clearance was 0.6 D. Oldshue's 1–2 D is an allowance this vessel cannot reach, which is not
   the same as a target it misses.** Read the sentence as written: *"**If** the impeller **can** be
   placed one to two impeller diameters off bottom … these impellers **offer** an excellent flow
   pattern as well as considerable economies in shaft design."* It rewards being able to sit high;

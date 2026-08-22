@@ -254,11 +254,14 @@ impeller_shaft_allow = 0.4;
 impeller_shaft_radius_interference = 0.2;
 // centre to centre spacing of the two impellers, in impeller diameters
 impeller_spacing_factor = 1.0;
-// Lower impeller centreline off the vessel floor, in impeller diameters. 0.6 D is C/T 0.27, mid
-// the conventional quarter-to-third of tank diameter for an axial impeller, and it is as high as
-// this vessel goes while keeping half a diameter of liquid over the upper impeller - see
-// docs/agitation.md for why Oldshue's own 1-2 D is unreachable with two of them in a 236 mm column
-impeller_clearance_factor = 0.6;
+// Lower impeller centreline off the vessel floor, in impeller diameters. Set from Fořt, who tested
+// this impeller class at C/D 0.5 and 1.0 and found hydraulic efficiency higher at 1.0 - bottom
+// interference costs it at the low setting - and who ties low clearances to solids suspension and
+// higher ones to the blending duty this reactor actually has. Medek's correlation reproduces it
+// from the other side: Po falls and the flow number rises with C/D, so circulation per watt is
+// 18.5 % better at 0.9 than at 0.6. Not 1.0, which is the correlation's own C/D limit and leaves
+// no margin, and which drops coverage over the upper impeller below half a diameter.
+impeller_clearance_factor = 0.9;
 
 // Derived from the registered type, not entered here. impeller_height is the blade's axial span:
 // the row carries it as a fraction of diameter so it scales with the impeller rather than staying
@@ -686,19 +689,25 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       "shallow draws its own discharge off the surface. Lower impeller_clearance_factor."
     ));
 
-  // Reported, not warned. Oldshue's 1-2 d is an ALLOWANCE and not a target - "if the impeller can
-  // be placed one to two impeller diameters off bottom ... these impellers offer an excellent flow
-  // pattern as well as considerable economies in shaft design" - so falling outside it is a
-  // property of the vessel rather than a defect in the design. What is worth saying is why this
-  // vessel cannot reach it, since that is not obvious from the number.
+  // Reported against the guidance that fits the blade, which is not always Oldshue's. His 1-2 d is
+  // about "these FLUIDFOIL impellers" - the hydrofoil class - and it is permissive even there:
+  // "if the impeller CAN be placed ... these impellers OFFER". A pitched blade turbine is a
+  // different and older class, so quoting the number is context rather than a target it misses.
+  //
+  // What does fit a pitched blade is Fořt, the same source the power number comes from: he tested
+  // C/D 0.5 and 1.0 and found hydraulic efficiency higher at 1.0, bottom interference costing it
+  // at the low setting. Whether C/D is inside his correlation's envelope is already checked - it
+  // appears in the departures list above if not.
   if (!stirred_tank_in_band(_clearance_ratio, _clearance_band))
     echo(str(
-      "impeller clearance: ", _clearance_ratio, " D is below the ", _clearance_band[0], "-",
-      _clearance_band[1], " D Oldshue allows for fluidfoils, which this vessel cannot reach: two ",
-      "impellers spanning ", _upper_impeller_top - (_impeller_clearance - impeller_height / 2),
-      " mm of a ", vessel_punt_height + _liquid_height,
-      " mm column leave that allowance and his own coverage caveat with no overlap. Raising it ",
-      "costs no mount height, only coverage; see docs/agitation.md."
+      "impeller clearance: ", _clearance_ratio, " D sits below the ", _clearance_band[0], "-",
+      _clearance_band[1], " D Oldshue allows, but that allowance is for fluidfoils and this is a ",
+      impeller_name(head_impeller_type),
+      ". The guidance that fits it is Fořt's, who measured better hydraulic efficiency at C/D 1.0 ",
+      "than 0.5; his correlation's own C/D limit is 1.0 and coverage over the upper impeller binds ",
+      "at ", (vessel_punt_height + _liquid_height - impeller_spacing - impeller_height / 2
+              - stirred_tank_coverage_minimum() * impeller_diameter) / impeller_diameter,
+      " D. See docs/agitation.md."
     ));
 
   if (!stirred_tank_in_band(_impeller_ratio, _ratio_band))
