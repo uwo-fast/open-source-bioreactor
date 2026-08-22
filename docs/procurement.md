@@ -11,6 +11,23 @@
   - trade no. 608-2RS: 22.000 mm OD (-0.008/0), 7.00 mm wide (-0.12/0), 8.000 mm bore (-0.007/0),
     caliper-confirmed against the drawing. Registered as NopSCADlib's BB608, which carries those
     same three numbers, so the pocket is cut from the part and not from a copy of it
+  - **Shaft Mount Type: Press Fit** is what McMaster specify, so heating the race and chilling the
+    shaft is the intended method rather than a workaround for a wrong fit. Radial clearance is
+    0.002-0.013 mm (MC3), and a press fit expands the inner ring and eats into that: at the
+    tightest end of the stack - a 8.000 mm shaft in a 7.993 mm bore - roughly 0.006 mm of the
+    clearance goes, which leaves the bearing very slightly preloaded. At 320-420 rpm against a
+    34,000 rpm rating and 590 lb dynamic capacity that is a little friction, not a life problem,
+    and it is why the joint feels tight on assembly.
+  - **Materials caution: 440C is not bleach-resistant.** McMaster's own note says these bearings
+    "will weaken when exposed to salt water and harsh chemicals, such as bleach", and the seals are
+    Buna-N, which is likewise poor against oxidisers. This reactor cannot be autoclaved, so it is
+    chemically sterilised - and the shaft was deliberately specified in 316 for exactly that
+    reason. The bearing is the weaker half of that pair. It sits in a blind pocket in the lid
+    rather than submerged, so it meets vapour and splash rather than the culture, but a soak or a
+    flood-through of hypochlorite would reach it. Worth resolving when the sterilisation protocol
+    is written; a full-ceramic or plastic-raced bearing is the usual answer if it becomes a problem.
+  - Temperature range -40 to 240 F, i.e. up to 116 C - a **third** independent reason this assembly
+    cannot be autoclaved, alongside the soda-lime jar and PETG's ~80 C glass transition.
   - https://www.mcmaster.com/6153K71/
 
 - thermocouple selection
