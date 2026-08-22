@@ -9,8 +9,36 @@
   - the driver was wrong in its reference, not its value. It multiplied `vessel_outer_diameter`, but D/T everywhere in the literature is against the vessel's wetted bore, so the real ratio drifted with the glass — 0.468 to 0.489 across the registry for one nominal 0.45. It now reads the bore and is constant
   - `impeller_bore_ratio = 0.45` sits mid-band on every citation and is what lets every registered vessel build. `jar_6p5gal_305x470` is the binding one: its 137 mm mouth caps the ratio at 0.4594 with the impeller exactly filling the neck, so 0.45 leaves 2.64 mm to pass it through. The relations and their citations are in `scad/utils/stirred_tank.scad`, the reasoning in `docs/agitation.md`
   - the twist angle and the blade height are the parameters with no support — nothing citable exists for 55 degrees, or for the W/D of a twisted extrusion at all. Both are left alone and marked; `twist` turns out to be a pitch specifier rather than a blade angle, so the honest treatment is the derivation recorded in `docs/agitation.md`. A bench power-number measurement would settle it
-- [ ] **the gas supply, which is now the reactor's binding constraint**
-  - the sparger is specified and drawn; what goes into it is not. This outranks any remaining
+- [ ] **measured gas flow** — a reproducibility gap, not a geometry one
+  - **Correction to how this was first filed.** It was written as "the reactor's binding
+    constraint", outranking the geometry. That is wrong for a design and right only for a
+    *productivity target*, which this project does not have. `sparge_design_vvm` appears only inside
+    echo strings: **0.1 vvm and 2.0 vvm render byte-identical geometry.** Nothing in the SCAD moves
+    with the gas rate or its CO₂ fraction
+  - **The reactor is already CO₂-ready and that is the composable answer.** Enrichment happens
+    upstream of the sterile inlet filter, so feeding air or air+CO₂ is a bench change, not a design
+    change. There is nothing to add to the model to permit it
+  - the drawn holes are indifferent too: the same 8 × 3 mm cover **0.25–2 vvm** inside the only
+    orifice-velocity range anyone has tested (Barbosa's own 0.4–5.4 m/s). An 8× range, no change
+  - **What does not go away** is that the model states a vvm and no builder can set one. The
+    registered pump is 65–70 L/min at 27 kPa against 0.82–4.09 L/min at 1.12 kPa — 16–80× the flow,
+    24× the pressure, running at 1.3–6.3 % of rating with nothing metering it. So the gas-flow
+    boundary condition is unestablished, unrepeatable between runs, and unreproducible between
+    builders. **That** is a design gap, because reproducibility is what this project claims. A
+    rotameter or needle valve covering ~0.8–4 L/min closes it, and costs little
+  - also cheap and unrelated to any target: a **check valve**. 1.03 kPa of culture head sits over
+    the ring with nothing stopping it back-flowing down a 2.5 mm bore into a stopped pump
+  - the 0.22 µm filter is registered but **its own ΔP has never been counted** against the 1121 Pa
+    the model reports, and it could be the largest term in the chain
+  - **the CO₂ question is downstream of a target nobody has set**, and it is the right question to
+    put to a biochem engineer rather than to answer here: air at 0.5 vvm supports about
+    0.09 g/L/day on a 30 % utilisation assumption, which is fine for growing *Chlorella* and short
+    of 1 g/L/day, which would need ~0.47 % CO₂. Three independent derivations agree on those
+    numbers. What none of them settle is this reactor's actual CO₂ utilisation efficiency, which is
+    measurable here and is the assumption the whole estimate turns on
+  - the nutrient feed does not change it: at 0.2–0.5 g/L, Miracle-Gro's urea carbon is worth
+    0.035–0.088 g/L of biomass *in total*, not a per-day rate. This is not a mixotrophic culture
+
     geometry work, because no sparger geometry can fix either problem below
   - **air alone cannot feed this reactor.** Algal biomass is ~50 % carbon, so 1 g/L/day needs
     1.74 mmol C/L/h. Air at 425 ppm supplies 1.043 mmol/L/h per vvm before absorption; at a 30 %
