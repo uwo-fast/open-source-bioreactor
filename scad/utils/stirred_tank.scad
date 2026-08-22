@@ -125,6 +125,29 @@ function stirred_tank_sparge_ring_diameter(impeller_diameter, ratio) = impeller_
 function stirred_tank_sparge_ring_ratio(ring_diameter, impeller_diameter) = ring_diameter / impeller_diameter;
 function stirred_tank_sparge_ring_band() = [1.0, 2.0]; // Birch & Ahmed 1997 tested 1.4; Rewatkar & Joshi 1993 optimum 2.0
 
+// 1.4 is not a compromise between those two. Birch & Ahmed justify it: the volume the impeller
+// sweeps, between the axis and its own radius, equals the volume of the annulus from that radius
+// out to 1.41 times it. A ring there sits on the boundary of the impeller's own working volume.
+function stirred_tank_sparge_ring_equal_volume_ratio() = sqrt(2);
+
+// ----- gas flow -----
+//
+// vvm is volumes of gas per volume of liquid per minute, the unit every aeration figure in the
+// microalgae literature uses. Returned in m^3/s because the orifice calculation wants SI.
+function stirred_tank_gas_flow(vvm, volume_litres) = vvm * volume_litres / 1000 / 60;
+
+// Barbosa 2003 eq. 4. Note his own runs were 0.4-5.4 m/s and he establishes NO critical velocity -
+// the "30-50 m/s" this project once cited from him was unsupported. So this is reported, not bounded.
+function stirred_tank_orifice_velocity(gas_flow, count, hole_diameter) =
+  gas_flow / (count * PI / 4 * pow(hole_diameter / 1000, 2));
+
+// What it costs to launch a bubble from a hole, against what it costs to push gas through it. The
+// first is 1-3 orders larger, which is why hole-to-hole TOLERANCE and not channel area decides
+// whether every hole flows - and why bigger holes are less sensitive, since 4 sigma / d falls as d
+// rises while a fixed tolerance does not.
+function stirred_tank_capillary_pressure(hole_diameter) = 4 * 0.072 / (hole_diameter / 1000);
+function stirred_tank_orifice_pressure(velocity) = 0.5 * 1.2 * pow(velocity, 2) / pow(0.6, 2);
+
 // ----- baffles -----
 //
 // Oldshue 1997 p. 202: four baffles "each 1/12 the tank diameter in width", and explicitly

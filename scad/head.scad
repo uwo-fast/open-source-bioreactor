@@ -377,6 +377,42 @@ baffle_density = 1270; // kg/m^3
 // height over which the port's round bottom face blends out into the plate
 baffle_transition_height = 10;
 
+/* [Sparger Parameters] */
+
+/** Where the gas enters, and why there.
+ *  - The ring goes in the gap BETWEEN the impellers, not under the lower one. Birch & Ahmed 1997
+ *    place a ring in the impeller's discharge - above an up-pumping blade, below a down-pumping
+ *    one - and a converging pair puts both discharges in the same place. head_shaft_rotation is
+ *    what makes the pair converge; reverse it and this position stops being right.
+ *  - 1.4 D is the ring they tested, the equal-swept-volume radius, and the largest that passes the
+ *    jar's mouth. Three reasons landing on one number.
+ *  - Hole size and count are for spacing and against fouling, NOT for even flow. Rewatkar & Joshi
+ *    1993: "hole size and number of holes have negligible effect when the sparger is located near
+ *    the impeller", which this one is. Even flow is unreachable at the low end of the range anyway.
+ */
+
+// Ring diameter in impeller diameters. 1.44 rather than the 1.4 Birch & Ahmed tested because the
+// fit decides it, not the fluid dynamics: the radial band between the baffles and the jar's mouth
+// is 6.95 mm wide and the ring has to sit in the middle of it. Still inside the 1-2 D both studies
+// support, and just outside the equal-swept-volume sqrt(2).
+sparge_ring_ratio = 1.44;
+// where the ring sits in the gap: 0 at the lower impeller's collar, 1 at the upper impeller
+sparge_ring_gap_fraction = 0.5;
+// The ring's own section, [radial, axial]. NOT round, and that is the point: the squeeze here is
+// entirely radial - 6.95 mm between the baffles and the mouth - while the gap gives 73 mm of
+// height. A round tube of any bore worth having will not fit that band at any ratio. A tall narrow
+// section spends the dimension that is free, and it is the one thing a printed ring can do that a
+// bent tube cannot.
+sparge_ring_section = [4, 10];
+// wall around the bore
+sparge_ring_wall = 1.2;
+// Gas holes, drilled radially inward - Birch & Ahmed: "all spargers discharged gas towards the
+// turbine". 3 mm is mid Rewatkar's tested 2-6 and the least tolerance-sensitive that still spaces.
+sparge_hole_diameter = 3;
+sparge_hole_count = 8;
+// the aeration rate the holes are reported against, volumes of gas per volume of liquid per minute
+sparge_design_vvm = 0.5;
+
 /* [Probe Port Parameters] */
 
 // Design choices for the collet. Every hardware dimension comes from the registered probe
@@ -1179,6 +1215,80 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       "WARNING baffle plate: its first mode at ", _baffle_frequency,
       " Hz is within 30% of a drive excitation. Thickness raises it as t^1.5 and length lowers it ",
       "as 1/L^2, so a thicker plate is the cheaper fix."
+    ));
+
+  // ----- sparge ring -----
+  //
+  // Reported before it is drawn, the same way clearance and coverage were, because the fits are
+  // tight enough that they should be visible in the model rather than in a plan document.
+  _sparge_ring_diameter = stirred_tank_sparge_ring_diameter(impeller_diameter, sparge_ring_ratio);
+  _sparge_ring_radius = _sparge_ring_diameter / 2;
+
+  // The gap the ring lives in, measured between the parts that actually bound it: the lower
+  // impeller's set-screw collar, not its blades, and the upper impeller's blades.
+  _gap_bottom = _impeller_clearance + impeller_height / 2 + impeller_collar_height;
+  _gap_top = _impeller_clearance + impeller_spacing - impeller_height / 2;
+  _sparge_ring_height = _gap_bottom + sparge_ring_gap_fraction * (_gap_top - _gap_bottom);
+
+  _sparge_baffle_gap = (_sparge_ring_radius - sparge_ring_section[0] / 2) - (port_circle_radius + _baffle_width / 2);
+  _sparge_mouth_gap = vessel_opening_diameter / 2 - (_sparge_ring_radius + sparge_ring_section[0] / 2);
+  _sparge_bore = [sparge_ring_section[0] - 2 * sparge_ring_wall, sparge_ring_section[1] - 2 * sparge_ring_wall];
+
+  _sparge_flow = stirred_tank_gas_flow(sparge_design_vvm, _culture_volume);
+  _sparge_velocity = stirred_tank_orifice_velocity(_sparge_flow, sparge_hole_count, sparge_hole_diameter);
+
+  echo(str(
+    "sparge ring: ", _sparge_ring_diameter, " mm = ", sparge_ring_ratio, " D (band ",
+    stirred_tank_sparge_ring_band()[0], "-", stirred_tank_sparge_ring_band()[1],
+    ", equal-swept-volume ", stirred_tank_sparge_ring_equal_volume_ratio(), "), ",
+    _sparge_ring_height, " mm off the floor - ",
+    _sparge_ring_height - _impeller_clearance, " above the lower impeller and ",
+    _impeller_clearance + impeller_spacing - _sparge_ring_height, " below the upper"
+  ));
+
+  echo(str(
+    "sparge ring fits: ", _sparge_baffle_gap, " mm to the baffles, ", _sparge_mouth_gap,
+    " mm to the jar's mouth on the way in. Section ", sparge_ring_section,
+    " mm gives a ", _sparge_bore, " mm bore, ", _sparge_bore[0] * _sparge_bore[1], " mm2"
+  ));
+
+  echo(str(
+    "sparge holes: ", sparge_hole_count, " x ", sparge_hole_diameter, " mm at ",
+    PI * _sparge_ring_diameter / sparge_hole_count, " mm spacing; at ", sparge_design_vvm,
+    " vvm that is ", _sparge_flow * 60000, " L/min through them at ", _sparge_velocity, " m/s"
+  ));
+
+  // Reported rather than bounded: Barbosa establishes no critical orifice velocity, and Rewatkar
+  // finds hole geometry barely matters this close to an impeller. What is worth seeing is the
+  // ratio, because it is why even flow is not a design target here.
+  echo(str(
+    "sparge holes: capillary ", stirred_tank_capillary_pressure(sparge_hole_diameter),
+    " Pa to launch a bubble against ", stirred_tank_orifice_pressure(_sparge_velocity),
+    " Pa to push gas through, so the holes will not all flow evenly - which Rewatkar & Joshi find ",
+    "does not matter near the impeller."
+  ));
+
+  assert(
+    _sparge_baffle_gap > 0,
+    str(
+      "Sparge ring at ", sparge_ring_ratio, " D overlaps the baffles by ", -_sparge_baffle_gap,
+      " mm. Narrow the baffles, or move the ring."
+    )
+  );
+
+  assert(
+    _sparge_mouth_gap > 0,
+    str(
+      "Sparge ring at ", sparge_ring_ratio, " D is ", -_sparge_mouth_gap,
+      " mm too wide to pass the jar's ", vessel_opening_diameter, " mm mouth."
+    )
+  );
+
+  if (!stirred_tank_in_band(sparge_ring_ratio, stirred_tank_sparge_ring_band()))
+    echo(str(
+      "WARNING sparge ring: ", sparge_ring_ratio, " D is outside the ",
+      stirred_tank_sparge_ring_band()[0], "-", stirred_tank_sparge_ring_band()[1],
+      " D two experimental studies support."
     ));
 
   // the port circle is sized against the plug's edge, so what it does not settle is whether
