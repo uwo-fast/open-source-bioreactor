@@ -33,6 +33,15 @@ function impeller_is_twisted(type) = !is_undef(impeller_twist(type));
 // the substitute rather than silently borrowing is the whole point of registering the type.
 function impeller_has_power_number(type) = !is_undef(impeller_power_number(type));
 
+// What the blade occupies ALONG THE SHAFT, which is not its registered width. width_ratio is the
+// blade's own dimension; a flat blade set at an angle projects only sin(angle) of it onto the axis,
+// a vertical one (90 degrees) projects all of it, and a twisted blade's extrusion height IS the
+// axial span already. So the same registry field means the same physical thing on every row and
+// this is where it gets turned into a height.
+function impeller_axial_span(type, impeller_diameter) =
+  impeller_width_ratio(type) * impeller_diameter
+  * (is_undef(impeller_blade_angle(type)) ? 1 : sin(impeller_blade_angle(type)));
+
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
@@ -81,8 +90,17 @@ module impeller(
   hub_scale = [1, 1, 1],
   round = false,
   hub_fn = 64,
-  twist_slices = 90
+  twist_slices = 90,
+  blade_pitch = undef,
+  blade_width = undef
 ) {
+
+  // A flat blade set at blade_pitch degrees from the plane of rotation - a pitched blade turbine.
+  // Drawn rather than extruded because the extrude path below sweeps a profile up the axis, which
+  // makes paddles and helicoids and cannot tilt a plate; and because resize() would then distort
+  // the angle, which is the one number the correlations are keyed on.
+  _pitched = !is_undef(blade_pitch);
+  _blade_w = is_undef(blade_width) ? height : blade_width;
 
   center_hole_radius_lower_eff = (center_hole_radius_lower < 0) ? center_hole_radius : center_hole_radius_lower;
 
@@ -94,6 +112,23 @@ module impeller(
       // Loop through each fin
       for (i = [1:fins]) {
         rotate([0, 0, (360 / fins) * i])
+        if (_pitched)
+          // Flat plate, hinged about its own radius so the pitch stays exact - resize() would
+          // distort it, and the angle is the one number the correlations are keyed on.
+          //
+          // Length is solved, not (radius - hub). A tilted rectangle's outermost points are its
+          // OUTER CORNERS, and impeller diameter is the circle the blade tips sweep, so running the
+          // plate out to radius would sweep wider than the diameter the power number is defined on.
+          translate([center_hub_radius, 0, 0])
+            rotate([blade_pitch, 0, 0])
+              translate([0, -_blade_w / 2, -fin_width / 2])
+                cube([
+                    sqrt(pow(radius, 2) - pow(_blade_w / 2 * cos(blade_pitch) + fin_width / 2 * sin(blade_pitch), 2))
+                    - center_hub_radius,
+                    _blade_w,
+                    fin_width,
+                  ]);
+        else
           // Scale and extrude the fin blade
           scale(fin_scale) resize([radius, radius, height]) intersection() {
                 translate([0, 0, -radius / 2]) linear_extrude(radius, twist=twist, slices=twist_slices, convexity=10)
