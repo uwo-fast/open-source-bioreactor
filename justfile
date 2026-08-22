@@ -78,9 +78,9 @@ check-vessels:
     # unnoticed. Shrinking this list is the work.
     set -uo pipefail
     broken=(
-        "generic"             # sparge ring overlaps the baffles (mouth-vs-bore coupling)
-        "jar_1gal_180x197"    # sparge ring overlaps the baffles (mouth-vs-bore coupling)
-        "jar_1p5L_109x215"    # sparge ring overlaps the baffles (mouth-vs-bore coupling)
+        "generic"             # plug o-ring: one ring is registered and it suits one mouth
+        "jar_1gal_180x197"    # plug o-ring: one ring is registered and it suits one mouth
+        "jar_1p5L_109x215"    # 12 ports do not fit a 58.3 mm port circle
         "jar_1gal_155x251"    # impeller leaves no room for a baffle on the port circle
         "jar_6p5gal_305x470"  # 400 mm shaft cannot reach; the 600 mm row is registered
     )

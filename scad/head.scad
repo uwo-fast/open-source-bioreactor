@@ -395,11 +395,10 @@ baffle_transition_height = 10;
  *    the impeller", which this one is. Even flow is unreachable at the low end of the range anyway.
  */
 
-// Ring diameter in impeller diameters. 1.44 rather than the 1.4 Birch & Ahmed tested because the
-// fit decides it, not the fluid dynamics: the radial band between the baffles and the jar's mouth
-// is 6.95 mm wide and the ring has to sit in the middle of it. Still inside the 1-2 D both studies
-// support, and just outside the equal-swept-volume sqrt(2).
-sparge_ring_ratio = 1.44;
+// Clearance the ring keeps to the baffles inboard of it and to the jar's mouth it passes through.
+// Both are static fits between rigid parts, so this is a print-and-assembly tolerance rather than a
+// running clearance.
+sparge_ring_clearance = 1.25;
 // where the ring sits in the gap: 0 at the lower impeller's collar, 1 at the upper impeller
 sparge_ring_gap_fraction = 0.5;
 // The ring's own section, [radial, axial]. NOT round, and that is the point: the squeeze here is
@@ -502,8 +501,33 @@ function head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt
 function head_baffle_width(vessel_opening_diameter, impeller_diameter) =
   min(
     bayonet_baffle_width(head_bayonet, baffle_thickness, baffle_bore_clearance),
-    2 * (head_port_circle_radius(vessel_opening_diameter) - impeller_diameter / 2 - baffle_impeller_clearance)
+    2 * (head_port_circle_radius(vessel_opening_diameter) - impeller_diameter / 2 - baffle_impeller_clearance),
+    head_baffle_ring_limit(vessel_opening_diameter)
   );
+
+// ----- the sparge ring's radius, and what it costs the baffles -----
+//
+// The ring is placed by the MOUTH, not by the impeller. It has to pass through the mouth, and both
+// experimental sources want it as large as it can be - Birch & Ahmed tested 1.4 D, Rewatkar & Joshi
+// found the critical speed lowest at 2 D - so the outermost position the mouth allows is also the
+// best one available. The ratio then falls out and is reported against their band rather than
+// chosen against it.
+//
+// That inverts what used to give way. The room outside a baffle is
+//
+//     mouth/2 - (port circle + w/2)
+//
+// and since the port circle is itself mouth/2 minus a constant of the bayonet and the lid, that
+// room is a CONSTANT - it does not grow with the mouth. A full-width baffle leaves 5.78 mm, and a
+// 4 mm ring with a clearance each side needs more. So the ring cannot fit outside a full-width
+// baffle on ANY jar; it cannot fit inside them either, since that gap is baffle_impeller_clearance
+// wide by construction. The baffle has to yield, and head_baffle_width() takes a third bound.
+function head_sparge_ring_radius(mouth) =
+  mouth / 2 - sparge_ring_clearance - sparge_ring_section[0] / 2;
+
+// The widest plate that still leaves the ring its section and a clearance either side.
+function head_baffle_ring_limit(mouth) =
+  2 * (mouth / 2 - head_port_circle_radius(mouth) - 2 * sparge_ring_clearance - sparge_ring_section[0]);
 
 // ----- where the mouth and the bore have to agree -----
 //
@@ -518,12 +542,11 @@ function head_baffle_width(vessel_opening_diameter, impeller_diameter) =
 // Each returns a clearance: positive is feasible, and the magnitude is what the assert reports.
 
 function head_ring_baffle_gap(mouth, impeller_diameter) =
-  (stirred_tank_sparge_ring_diameter(impeller_diameter, sparge_ring_ratio) / 2 - sparge_ring_section[0] / 2)
+  (head_sparge_ring_radius(mouth) - sparge_ring_section[0] / 2)
   - (head_port_circle_radius(mouth) + head_baffle_width(mouth, impeller_diameter) / 2);
 
 function head_ring_mouth_gap(mouth, impeller_diameter) =
-  mouth / 2
-  - (stirred_tank_sparge_ring_diameter(impeller_diameter, sparge_ring_ratio) / 2 + sparge_ring_section[0] / 2);
+  mouth / 2 - (head_sparge_ring_radius(mouth) + sparge_ring_section[0] / 2);
 
 // Two of the three only bind if the lid carries baffles at all. A baffle-free lid still has to
 // pass its ring through its own mouth, but has nothing for the ring to foul.
@@ -1325,8 +1348,9 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   //
   // Reported before it is drawn, the same way clearance and coverage were, because the fits are
   // tight enough that they should be visible in the model rather than in a plan document.
-  _sparge_ring_diameter = stirred_tank_sparge_ring_diameter(impeller_diameter, sparge_ring_ratio);
-  _sparge_ring_radius = _sparge_ring_diameter / 2;
+  _sparge_ring_radius = head_sparge_ring_radius(vessel_opening_diameter);
+  _sparge_ring_diameter = _sparge_ring_radius * 2;
+  _sparge_ring_ratio = stirred_tank_sparge_ring_ratio(_sparge_ring_diameter, impeller_diameter);
 
   // The gap the ring lives in, measured between the parts that actually bound it: the lower
   // impeller's set-screw collar, not its blades, and the upper impeller's blades.
@@ -1342,7 +1366,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _sparge_velocity = stirred_tank_orifice_velocity(_sparge_flow, sparge_hole_count, sparge_hole_diameter);
 
   echo(str(
-    "sparge ring: ", _sparge_ring_diameter, " mm = ", sparge_ring_ratio, " D (band ",
+    "sparge ring: ", _sparge_ring_diameter, " mm = ", _sparge_ring_ratio, " D (band ",
     stirred_tank_sparge_ring_band()[0], "-", stirred_tank_sparge_ring_band()[1],
     ", equal-swept-volume ", stirred_tank_sparge_ring_equal_volume_ratio(), "), ",
     _sparge_ring_height, " mm off the floor - ",
@@ -1372,27 +1396,27 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     "does not matter near the impeller."
   ));
 
-  assert(
-    !_has_baffles || _sparge_baffle_gap > 0,
-    str(
-      "Sparge ring at ", sparge_ring_ratio, " D overlaps the baffles by ", -_sparge_baffle_gap,
-      " mm. Narrow the baffles, or move the ring."
-    )
-  );
-
-  assert(
-    _sparge_mouth_gap > 0,
-    str(
-      "Sparge ring at ", sparge_ring_ratio, " D is ", -_sparge_mouth_gap,
-      " mm too wide to pass the jar's ", vessel_opening_diameter, " mm mouth."
-    )
-  );
-
-  if (!stirred_tank_in_band(sparge_ring_ratio, stirred_tank_sparge_ring_band()))
+  // No assert on either gap any more. The ring is PLACED to satisfy both - its radius is the
+  // outermost the mouth allows, and head_baffle_width() gives way to it - so an assert here would
+  // be derived from the thing it checks and could never fire, which docs/design-conventions.md
+  // calls a dead assert. What is worth reporting is what the placement cost.
+  if (_has_baffles && head_baffle_ring_limit(vessel_opening_diameter) < 2 * (port_circle_radius - impeller_diameter / 2 - baffle_impeller_clearance)
+    && head_baffle_ring_limit(vessel_opening_diameter) < bayonet_baffle_width(head_bayonet, baffle_thickness, baffle_bore_clearance))
     echo(str(
-      "WARNING sparge ring: ", sparge_ring_ratio, " D is outside the ",
+      "sparge ring: the ring is what caps the baffles here, at ",
+      head_baffle_ring_limit(vessel_opening_diameter),
+      " mm - they would otherwise be ",
+      min(bayonet_baffle_width(head_bayonet, baffle_thickness, baffle_bore_clearance),
+        2 * (port_circle_radius - impeller_diameter / 2 - baffle_impeller_clearance)),
+      " mm. Room outside a baffle does not grow with the mouth, so this is the trade on every jar."
+    ));
+
+  if (!stirred_tank_in_band(_sparge_ring_ratio, stirred_tank_sparge_ring_band()))
+    echo(str(
+      "WARNING sparge ring: ", _sparge_ring_ratio, " D is outside the ",
       stirred_tank_sparge_ring_band()[0], "-", stirred_tank_sparge_ring_band()[1],
-      " D two experimental studies support."
+      " D two experimental studies support. The mouth places it, so this jar's mouth and bore are ",
+      "too far apart for a ring that suits both."
     ));
 
   // What the riser has to span, and what it costs to push gas down it. The socket's top face is
