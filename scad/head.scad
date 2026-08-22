@@ -868,21 +868,28 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // reference, and "either 3, 6 or 8 baffles can be used if preferred" at the same total. So the
   // count is a configuration choice and this reports where the chosen one lands. The width is not
   // free to compensate - bayonet_baffle_width() returns the widest plate that will pass its own
-  // lock bore - so the only lever is the count.
-  _baffle_area_ratio = stirred_tank_baffle_area_ratio(_vessel_bore, len(_baffle_at), _baffle_width);
+  // lock bore - so the levers are the count and how much plate ends up under the liquid.
+  _liquid_height = vessel_internal_height * culture_fill_fraction;
+  _baffle_freeboard =
+  head_punt_top_depth(lid_flange_height, vessel_internal_height) - _liquid_height - lid_thickness;
+  _baffle_wetted = stirred_tank_baffle_wetted_length(baffle_length, _baffle_freeboard, _liquid_height);
+  _baffle_area_ratio =
+  stirred_tank_baffle_area_ratio(_vessel_bore, _liquid_height, len(_baffle_at), _baffle_width, _baffle_wetted);
 
   echo(str(
-    "baffles: ", len(_baffle_at), " x ", _baffle_width, " mm wide, up to ", baffle_max_length,
-    " mm long; ", _baffle_area_ratio, " of Oldshue's four-at-T/12 reference area (",
-    stirred_tank_baffle_reference_area(_vessel_bore), " mm total)"
+    "baffles: ", len(_baffle_at), " x ", _baffle_width, " x ", baffle_length, " mm (",
+    baffle_max_length, " mm clears the upper impeller), ", _baffle_wetted, " mm of that submerged; ",
+    _baffle_area_ratio, " of Oldshue's four-at-T/12 full-depth reference area"
   ));
 
   if (_baffle_area_ratio < 0.9)
     echo(str(
-      "WARNING baffles: ", len(_baffle_at), " x ", _baffle_width, " mm is ", _baffle_area_ratio,
-      " of the reference projected area. Adding one more of the same plate gives ",
-      stirred_tank_baffle_area_ratio(_vessel_bore, len(_baffle_at) + 1, _baffle_width),
-      ". Under-baffling lets the vessel swirl rather than mix; see docs/agitation.md."
+      "WARNING baffles: ", _baffle_area_ratio, " of the reference projected area. A fourth plate ",
+      "would give ", stirred_tank_baffle_area_ratio(
+        _vessel_bore, _liquid_height, len(_baffle_at) + 1, _baffle_width, _baffle_wetted),
+      ", but depth is the bigger lever - ", _baffle_freeboard,
+      " mm of each plate is headspace and the rest stops above the upper impeller. ",
+      "Under-baffling lets the vessel swirl rather than mix; see docs/agitation.md."
     ));
 
   // the port circle is sized against the plug's edge, so what it does not settle is whether

@@ -218,9 +218,12 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
   encoder and the model reports what it resolves — 672 counts per output turn, 0.89 rpm over a
   100 ms window — but nothing reads it yet, so tip speed and Re are still computed from a commanded
   speed rather than a measured one.
-- **Partial inboard baffles are characterised in the literature but not recommended.** The relevant
-  papers are paywalled and unread. The **count**, at least, is no longer resting on a gap: Oldshue
-  1997 p. 202 gives four baffles at 1/12 T as the reference case and states that *"either 3, 6 or 8
-  baffles can be used if preferred"* provided the total projected area matches. So three baffles
-  are permissible by area, not by exception. Their being **partial and inboard** is still the
-  uncited part.
+- **The vessel is badly under-baffled, and the count is not why.** Oldshue 1997 p. 202 gives four
+  baffles at 1/12 T as the reference case and states that *"either 3, 6 or 8 baffles can be used if
+  preferred"* provided the total projected area matches — so a count of three is permissible in
+  principle. It is the **area** that does not match. Oldshue's baffles run the liquid depth; these
+  hang from the lid and stop above the upper impeller, and at an 8 L fill in a 10 L jar the liquid
+  line sits 49 mm below the plate's own top, so 49 of each plate's 100 mm never touches the culture.
+  The wetted area is **0.18 of the reference**, and a fourth identical plate would only reach 0.24.
+  Depth, not count, is the lever. Their being **partial and inboard** is separately uncited: the
+  relevant papers are paywalled and unread.

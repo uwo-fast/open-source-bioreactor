@@ -106,10 +106,18 @@ function stirred_tank_sparge_ring_band() = [1.0, 2.0]; // Birch & Ahmed 1997 tes
 // constraint is total projected area - which is why width is derived from count here rather than
 // registered beside it.
 
-function stirred_tank_baffle_reference_area(tank_diameter) = 4 * tank_diameter / 12; // Oldshue's four at T/12
-function stirred_tank_baffle_width(tank_diameter, count) = stirred_tank_baffle_reference_area(tank_diameter) / count;
-function stirred_tank_baffle_area_ratio(tank_diameter, count, width) =
-  count * width / stirred_tank_baffle_reference_area(tank_diameter);
+// Oldshue's baffles run the liquid depth, so the reference is an area and the comparison has to be
+// made against area. A plate is only worth its wetted span: dry plate in the headspace does
+// nothing, and a lid-hung plate loses the freeboard off the top before it starts.
+
+function stirred_tank_baffle_reference_width(tank_diameter) = 4 * tank_diameter / 12; // four at T/12
+function stirred_tank_baffle_reference_area(tank_diameter, liquid_height) =
+  stirred_tank_baffle_reference_width(tank_diameter) * liquid_height;
+function stirred_tank_baffle_width(tank_diameter, count) = stirred_tank_baffle_reference_width(tank_diameter) / count;
+function stirred_tank_baffle_wetted_length(length, freeboard, liquid_height) =
+  max(0, min(length - freeboard, liquid_height)); // freeboard is how far the plate's top sits dry
+function stirred_tank_baffle_area_ratio(tank_diameter, liquid_height, count, width, wetted_length) =
+  count * width * wetted_length / stirred_tank_baffle_reference_area(tank_diameter, liquid_height);
 
 // ----- hydrodynamics -----
 //
