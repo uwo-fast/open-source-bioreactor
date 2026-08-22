@@ -9,6 +9,16 @@
   - the driver was wrong in its reference, not its value. It multiplied `vessel_outer_diameter`, but D/T everywhere in the literature is against the vessel's wetted bore, so the real ratio drifted with the glass — 0.468 to 0.489 across the registry for one nominal 0.45. It now reads the bore and is constant
   - `impeller_bore_ratio = 0.45` sits mid-band on every citation and is what lets every registered vessel build. `jar_6p5gal_305x470` is the binding one: its 137 mm mouth caps the ratio at 0.4594 with the impeller exactly filling the neck, so 0.45 leaves 2.64 mm to pass it through. The relations and their citations are in `scad/utils/stirred_tank.scad`, the reasoning in `docs/agitation.md`
   - the twist angle and the blade height are the parameters with no support — nothing citable exists for 55 degrees, or for the W/D of a twisted extrusion at all. Both are left alone and marked; `twist` turns out to be a pitch specifier rather than a blade angle, so the honest treatment is the derivation recorded in `docs/agitation.md`. A bench power-number measurement would settle it
+- [ ] draw the vitamins that are registered but never rendered
+  - the **ball bearing** is registered as `BB608` and its numbers cut the lid's pocket, but
+    `ball_bearing()` is never called, so the part it is cut for does not appear. A pocket drawn
+    from a row nobody can see is the sort of thing that stays wrong quietly
+  - the **impeller set screws** are the same: `impeller_set_screw` sizes and places the tap holes,
+    but `screw()` is never called on it. NopSCADlib draws grub screws as `hs_grub`, so both are a
+    render toggle and a call, not new geometry
+  - wants its own `render_bearing` / `render_set_screws` flags alongside the existing ones, and
+    both belong in `render_all`. Non-urgent: nothing derives from them and no fit depends on it
+
 - [ ] caliper the real jar rim against the registered profile
   - the lid's gasket recess is cut to the flat land on top of the glass, which the model puts at 5.00 mm wide (r 71.5 out to 76.5) with a 2 mm bead rolled outboard below it. That land comes from the registered `rim_radius` and wall thickness rather than from a measurement, and the recess width follows from it, so it is worth confirming before cutting a gasket to it
 - [x] align the assembly -> subassembly -> part parameter interfaces
