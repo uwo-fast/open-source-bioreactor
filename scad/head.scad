@@ -525,16 +525,21 @@ function head_ring_mouth_gap(mouth, impeller_diameter) =
   mouth / 2
   - (stirred_tank_sparge_ring_diameter(impeller_diameter, sparge_ring_ratio) / 2 + sparge_ring_section[0] / 2);
 
-function head_mouth_is_feasible(mouth, impeller_diameter) =
-  head_baffle_width(mouth, impeller_diameter) > 0
-  && head_ring_baffle_gap(mouth, impeller_diameter) > 0
+// Two of the three only bind if the lid carries baffles at all. A baffle-free lid still has to
+// pass its ring through its own mouth, but has nothing for the ring to foul.
+function head_mouth_is_feasible(mouth, impeller_diameter, has_baffles = true) =
+  (!has_baffles
+    || (head_baffle_width(mouth, impeller_diameter) > 0
+      && head_ring_baffle_gap(mouth, impeller_diameter) > 0))
   && head_ring_mouth_gap(mouth, impeller_diameter) > 0;
 
 // Solved by sweeping the predicate rather than inverted in closed form. A closed form would be a
 // second expression of the same three couplings and would go wrong the first time an allowance
 // moved - which is the defect docs/design-conventions.md names as this repo's recurring one.
-function head_feasible_mouths(impeller_diameter, lo = 40, hi = 400, step = 0.25) =
-  [for (m = [lo:step:hi]) if (head_mouth_is_feasible(m, impeller_diameter)) m];
+function head_feasible_mouth_sweep() = [40, 400, 0.25]; // [lo, hi, step] - the range searched
+function head_feasible_mouths(impeller_diameter, has_baffles = true) =
+  let (_s = head_feasible_mouth_sweep())
+    [for (m = [_s[0]:_s[2]:_s[1]]) if (head_mouth_is_feasible(m, impeller_diameter, has_baffles)) m];
 
 // The drive stack, from the lid's outer face up. head() builds against these rather than
 // recomputing them, and anything that has to make room for an assembled reactor reads them back
@@ -708,6 +713,11 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // Read off the port table, so it depends on nothing else and can sit this early. It has to:
   // Medek's envelope is conditioned on four baffles and the Po block below is the first consumer.
   _baffle_at = [for (i = [0:lid_holes_n - 1]) if (head_ports[i][0] == "baffle") i];
+
+  // A lid need not carry baffles. Everything below that measures, checks or loads a plate has to
+  // ask first - a lid with none was reporting a plate width, warning about its area, and dividing
+  // the impeller's torque by a count of zero.
+  _has_baffles = len(_baffle_at) > 0;
   impeller_diameter = stirred_tank_impeller_diameter(_vessel_bore, impeller_bore_ratio);
 
   // The window this jar had to land in, reported whether or not it did. The three couplings above
@@ -715,7 +725,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // circle carries the baffles out until the ring fouls them. Nothing chooses a jar's mouth to suit
   // its bore, so where a given jar falls in here is luck, and worth seeing rather than inferring
   // from an assert that only speaks when it fails.
-  _feasible = head_feasible_mouths(impeller_diameter);
+  _feasible = head_feasible_mouths(impeller_diameter, _has_baffles);
 
   echo(
     len(_feasible) == 0
@@ -725,9 +735,13 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       )
       : str(
         "vessel fit: a ", impeller_diameter, " mm impeller is feasible in mouths ", _feasible[0],
-        " to ", _feasible[len(_feasible) - 1], " mm, a window ",
-        _feasible[len(_feasible) - 1] - _feasible[0], " mm wide; this jar's is ",
-        vessel_opening_diameter
+        " to ",
+        // an upper bound equal to the search ceiling is the search running out, not a constraint
+        _feasible[len(_feasible) - 1] >= head_feasible_mouth_sweep()[1]
+          ? "anything wider (nothing bounds it above)"
+          : str(_feasible[len(_feasible) - 1], " mm, a window ",
+                _feasible[len(_feasible) - 1] - _feasible[0], " mm wide"),
+        "; this jar's is ", vessel_opening_diameter
       )
   );
   impeller_radius = impeller_diameter / 2; // radius of the impeller
@@ -1205,7 +1219,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _baffle_width = head_baffle_width(vessel_opening_diameter, impeller_diameter);
 
   assert(
-    _baffle_width > 0,
+    !_has_baffles || _baffle_width > 0,
     str(
       "A ", impeller_diameter, " mm impeller leaves no room for a baffle on a ",
       head_port_circle_radius(vessel_opening_diameter) * 2, " mm port circle at ",
@@ -1224,11 +1238,15 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _baffle_area_ratio =
   stirred_tank_baffle_area_ratio(_vessel_bore, _liquid_height, len(_baffle_at), _baffle_width, _baffle_wetted);
 
-  echo(str(
-    "baffles: ", len(_baffle_at), " x ", _baffle_width, " x ", baffle_length, " mm (",
-    baffle_max_length, " mm clears the floor), ", _baffle_wetted, " mm of that submerged; ",
-    _baffle_area_ratio, " of Oldshue's four-at-T/12 full-depth reference area"
-  ));
+  echo(
+    !_has_baffles
+      ? "baffles: none on this lid, so the vessel is unbaffled and will swirl rather than mix"
+      : str(
+        "baffles: ", len(_baffle_at), " x ", _baffle_width, " x ", baffle_length, " mm (",
+        baffle_max_length, " mm clears the floor), ", _baffle_wetted, " mm of that submerged; ",
+        _baffle_area_ratio, " of Oldshue's four-at-T/12 full-depth reference area"
+      )
+  );
 
   // Both levers, with the numbers, because "add another" stops being available: an equally spaced
   // count has to divide the port circle, so on twelve ports the counts are 2, 3, 4, 6, 12 and the
@@ -1238,7 +1256,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     _vessel_bore, _liquid_height, len(_baffle_at), _baffle_width,
     stirred_tank_baffle_wetted_length(baffle_max_length, _baffle_freeboard, _liquid_height));
 
-  if (_baffle_area_ratio < 0.9)
+  if (_has_baffles && _baffle_area_ratio < 0.9)
     echo(str(
       "WARNING baffles: ", _baffle_area_ratio, " of the reference projected area. ",
       baffle_length < baffle_max_length
@@ -1267,13 +1285,14 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _baffle_frequency = stirred_tank_baffle_frequency(
     baffle_length, _baffle_width, baffle_thickness, baffle_modulus, baffle_density);
 
-  echo(str(
-    "baffle plate: ", _baffle_load, " N each, deflecting ", _baffle_deflection, " mm at the tip; ",
-    "first mode ", _baffle_frequency, " Hz against ", stirred_tank_shaft_frequency(_baffle_rpm),
-    " Hz shaft and ", stirred_tank_blade_frequency(_baffle_rpm, impeller_n_fins), " Hz blade passing"
-  ));
+  if (_has_baffles)
+    echo(str(
+      "baffle plate: ", _baffle_load, " N each, deflecting ", _baffle_deflection, " mm at the tip; ",
+      "first mode ", _baffle_frequency, " Hz against ", stirred_tank_shaft_frequency(_baffle_rpm),
+      " Hz shaft and ", stirred_tank_blade_frequency(_baffle_rpm, impeller_n_fins), " Hz blade passing"
+    ));
 
-  if (_baffle_deflection > _baffle_width / 10)
+  if (_has_baffles && _baffle_deflection > _baffle_width / 10)
     echo(str(
       "WARNING baffle plate: ", _baffle_deflection, " mm of tip deflection is over a tenth of the ",
       _baffle_width, " mm plate. It is bending away from the swirl rather than blocking it; ",
@@ -1282,7 +1301,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         ? "more" : "no more", "."
     ));
 
-  if (abs(_baffle_frequency - stirred_tank_shaft_frequency(_baffle_rpm)) < 0.3 * stirred_tank_shaft_frequency(_baffle_rpm)
+  if (_has_baffles
+   && abs(_baffle_frequency - stirred_tank_shaft_frequency(_baffle_rpm)) < 0.3 * stirred_tank_shaft_frequency(_baffle_rpm)
    || abs(_baffle_frequency - stirred_tank_blade_frequency(_baffle_rpm, impeller_n_fins)) < 0.3 * stirred_tank_blade_frequency(_baffle_rpm, impeller_n_fins))
     echo(str(
       "WARNING baffle plate: its first mode at ", _baffle_frequency,
@@ -1353,7 +1373,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   ));
 
   assert(
-    _sparge_baffle_gap > 0,
+    !_has_baffles || _sparge_baffle_gap > 0,
     str(
       "Sparge ring at ", sparge_ring_ratio, " D overlaps the baffles by ", -_sparge_baffle_gap,
       " mm. Narrow the baffles, or move the ring."
@@ -1647,7 +1667,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   );
 
   assert(
-    port_circle_radius + _baffle_width / 2 <= vessel_opening_diameter / 2 - baffle_neck_clearance,
+    !_has_baffles
+    || port_circle_radius + _baffle_width / 2 <= vessel_opening_diameter / 2 - baffle_neck_clearance,
     str("Baffle reaches ", port_circle_radius + _baffle_width / 2, " mm out, past the ", vessel_opening_diameter / 2 - baffle_neck_clearance, " mm the jar's neck allows.")
   );
 
