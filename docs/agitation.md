@@ -35,6 +35,16 @@ higher growth against unstirred — with activity falling back to the unstirred 
 (0.9 Pa)** and 7–8 % below it by 5.89 m/s. No lethal limit was found at any speed tested. Chlorella
 is a rigid-walled green alga, the most shear-tolerant class.
 
+> **Assumption, stated once and carried everywhere below.** Leupold's apparatus is a Gust microcosm
+> — 1.75 L, mixed by a **spinning plate with skirt** 5 cm off the bottom — not a stirred tank with
+> an impeller. Their tip speed is that plate's rim speed, and the shear it makes lives in a
+> plate-to-wall gap rather than an impeller's discharge jet. **Reading 1.26 and 2.03 m/s as impeller
+> tip speeds is this project's transfer, not their result.** It is the only *Chlorella*-specific
+> agitation measurement available, so the band below is built on it anyway — but every speed, every
+> D/T argument and the motor selection itself inherit that assumption. See `docs/references.md` for
+> what the paper actually reports, including that its calibration is direct only to 250 rpm and that
+> the quoted Pa figures are the stress the authors call secondary in their own experiment.
+
 ---
 
 ## 2. This reactor, in the units that matter

@@ -272,6 +272,33 @@ Optimum tip speed **1.26 m/s = 0.45 Pa** (+48 % growth for *C. vulgaris*, +71 % 
 at **2.03 m/s = 0.9 Pa** photosynthetic activity falls back to the unstirred control; at 5.89 m/s it
 is 7-8 % below control. *C. reinhardtii* does not benefit (−2.3 % PA at the optimum).
 
+**Read the apparatus before transferring the tip speed.** This is not a stirred tank with an
+impeller. It is a **Gust (1989) microcosm** — 1.75 L of culture in PMMA, *"mixing was created by the
+tip speed of a **spinning plate with skirt**"* sitting 5 cm above the bottom, with metered fluid
+recirculated through the centre axis. Their `u_tip = r·ω` is that **plate's** rim speed.
+
+Three consequences for how this project uses the numbers:
+
+- **The shear is generated in a plate-to-wall gap, not an impeller discharge.** The paper puts the
+  main force at *"a surface of 644 cm² at the wall and spinning plate"*, as a Reynolds stress in the
+  water head between the two. An impeller of the same tip speed produces a discharge jet, which is a
+  different mechanism. Equal tip speed does not imply equal shear between the two devices, and the
+  paper does not claim it does.
+- **The Pa figures are the *bottom* stress, which the authors call the secondary force.** Calibrated
+  friction velocity *"occurs at 314 cm² of the bottom of the microcosm and is the secondary, minor
+  shear force in present study"*. So the 0.45 and 0.9 Pa quoted above are not the dominant stress in
+  their own experiment.
+- **Direct calibration stops at 250 rpm.** Rates above that *"are calculated by means of an empirical
+  model based on hydrodynamics of a boundary layer theory (Schlichting 1968)"*.
+
+None of this makes the measurement wrong, and it remains the only *Chlorella*-specific agitation
+figure this project has. What it means is that **treating 1.26 and 2.03 m/s as impeller tip speeds is
+an assumption this project makes, not a result the paper reports** — and it is the assumption that
+sets the operating band and, through it, D/T. The physically transferable quantity the authors
+themselves emphasise is friction velocity; converting that to an impeller would require estimating
+the shear our own impeller produces, which has not been done.
+→ `docs/agitation.md` operating point
+
 **Hu, W., Berdugo, C. & Chalmers, J.J. (2011).** "The potential of hydrodynamic damage to animal
 cells of industrial relevance." *Cytotechnology* 63(5):445-460. [doi:10.1007/s10616-011-9368-3](https://doi.org/10.1007/s10616-011-9368-3)
 **[PR]** · **read**
