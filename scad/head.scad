@@ -123,7 +123,13 @@ lid_gasket_land_margin = 1.0;
 // the o-ring centring the plug in the neck. Its groove is cut from the jar's bore rather than
 // from the ring, so the ring is stretched onto it and head() checks that stretch rather than
 // deriving from it. A 3.53 cord digs too deep for this plug and trips the wall assert below
-lid_plug_oring = oring_as568_160_epdm;
+// Which ring centres the lid plug. undef derives it: any registered ring whose free ID lands this
+// jar's groove between zero and five percent stretch. Set a row to pin one.
+//
+// It has to vary with the jar. The groove is cut from the mouth, so its diameter follows the mouth
+// directly, and no gland depth can absorb that - closing a 7 mm difference in mouth would want a
+// gland several times the cord's own diameter. One registered ring therefore seals one mouth.
+lid_plug_oring = undef;
 // radial squeeze; low in the 14-25% band because a ring stretched onto the groove thins by
 // roughly half its stretch, landing this nearer 16%
 lid_plug_oring_squeeze = 0.18;
@@ -602,12 +608,35 @@ function head_motor_mount_height(lid_flange_height, vessel_internal_height) =
 function head_stack_height(lid_flange_height, vessel_internal_height) =
   head_motor_mount_height(lid_flange_height, vessel_internal_height)
   + dc_motor_length(head_motor) + gearbox_length(dc_motor_gearbox(head_motor));
-function head_plug_groove_width() = oring_gland_width(oring_cross_section(lid_plug_oring));
+// The groove a given ring would get in a given mouth, and how far that stretches it. Written
+// per-candidate because the groove's depth follows the ring's own cord, so choosing a ring and
+// cutting its groove are one question rather than two.
+function head_plug_groove_diameter(vessel_opening_diameter, ring) =
+  vessel_opening_diameter - 2 * oring_gland_depth(oring_cross_section(ring), lid_plug_oring_squeeze);
+
+function head_plug_oring_stretch(vessel_opening_diameter, ring) =
+  oring_stretch(oring_inner_diameter(ring), head_plug_groove_diameter(vessel_opening_diameter, ring));
+
+// Under zero the ring sags out of its groove; over five percent it thins the cord.
+function head_plug_oring_fits(vessel_opening_diameter, ring) =
+  let (_s = head_plug_oring_stretch(vessel_opening_diameter, ring)) _s >= 0 && _s <= 0.05;
+
+function head_plug_oring_for(vessel_opening_diameter) =
+  let (_fits = [for (r = orings) if (head_plug_oring_fits(vessel_opening_diameter, r)) r])
+    len(_fits) == 0 ? undef : _fits[0];
+
+function head_plug_oring_selected(vessel_opening_diameter) =
+  is_undef(lid_plug_oring) ? head_plug_oring_for(vessel_opening_diameter) : lid_plug_oring;
+
+function head_plug_groove_width(vessel_opening_diameter) =
+  oring_gland_width(oring_cross_section(head_plug_oring_selected(vessel_opening_diameter)));
 
 // A piston gland: cut relative to the bore it seals against, not to the plug it is cut into, so
 // the ring's squeeze is what the glass leaves it.
 function head_plug_oring_groove_radius(vessel_opening_diameter) =
-  vessel_opening_diameter / 2 - oring_gland_depth(oring_cross_section(lid_plug_oring), lid_plug_oring_squeeze);
+  head_plug_groove_diameter(
+    vessel_opening_diameter, head_plug_oring_selected(vessel_opening_diameter)
+  ) / 2;
 
 // Place children at port i, on the ring and turned to face out.
 module head_port_at(i, vessel_opening_diameter) {
@@ -623,7 +652,7 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
   // z = 0 is the lid's outer face here and the part is flipped by the caller, so the flange's
   // glass-facing side is its far face, at z = lid_flange_height, where the plug starts.
   _gasket_depth = head_gasket_depth();
-  _plug_groove_w = head_plug_groove_width();
+  _plug_groove_w = head_plug_groove_width(vessel_opening_diameter);
   _plug_groove_z = lid_flange_height + lid_plug_height / 2; // mid plug: most land either side,
   // and clear of the bayonet channels, which sit in the half of the coupling nearest this face
 
@@ -1617,19 +1646,30 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _gasket_ir = head_gasket_inner_radius(vessel_opening_diameter);
   _gasket_or = head_gasket_outer_radius(vessel_opening_diameter, vessel_wall_thickness);
   _groove_r = head_plug_oring_groove_radius(vessel_opening_diameter);
-  _groove_w = head_plug_groove_width();
-  _ring_id = _groove_r * 2; // 0% stretch; anything down to this over 1.05 still hugs the groove
+  _groove_w = head_plug_groove_width(vessel_opening_diameter);
+  // 0% stretch; anything down to this over 1.05 still hugs the groove. With no ring selected there
+  // is no cord to cut a groove from, so the range is quoted against the largest cord registered -
+  // which is the family a plug ring comes from, the small ones being port face seals.
+  _plug_cord_nominal = max([for (r = orings) oring_cross_section(r)]);
+  _ring_id =
+  is_undef(_plug_ring)
+    ? vessel_opening_diameter - 2 * oring_gland_depth(_plug_cord_nominal, lid_plug_oring_squeeze)
+    : _groove_r * 2;
 
   echo(str(
     "lid gasket: cut ", _gasket_ir * 2, " x ", _gasket_or * 2, " mm from ",
     gasket_sheet_name(lid_gasket_sheet), " (", gasket_sheet_thickness(lid_gasket_sheet),
     " mm), recess ", head_gasket_depth(), " mm deep (", lid_gasket_compression * 100, "% squeeze)"
   ));
-  _plug_stretch = oring_stretch(oring_inner_diameter(lid_plug_oring), _ring_id);
+  _plug_ring = head_plug_oring_selected(vessel_opening_diameter);
+  _plug_stretch =
+  is_undef(_plug_ring) ? undef : oring_stretch(oring_inner_diameter(_plug_ring), _ring_id);
 
   echo(str(
-    "plug o-ring: ", oring_name(lid_plug_oring), " at ", _plug_stretch * 100, "% stretch. Groove takes ",
-    "ID ", _ring_id, " mm / ", _ring_id / 25.4, " in down to ",
+    is_undef(_plug_ring)
+      ? str("plug o-ring: NO registered ring suits this mouth. ")
+      : str("plug o-ring: ", oring_name(_plug_ring), " at ", _plug_stretch * 100, "% stretch. "),
+    "Groove takes ID ", _ring_id, " mm / ", _ring_id / 25.4, " in down to ",
     _ring_id / 1.05, " mm / ", _ring_id / 1.05 / 25.4, " in (0-5% stretch)"
   ));
 
@@ -1637,12 +1677,13 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // own bore, so what this catches is the ring being wrong for the jar, not the jar being wrong.
   // Closing it properly means carrying a plug ring per vessel row - see the audit.
   assert(
-    _plug_stretch >= 0 && _plug_stretch <= 0.05,
+    !is_undef(_plug_ring),
     str(
-      oring_name(lid_plug_oring), " is the wrong ring for this bore: its ",
-      oring_inner_diameter(lid_plug_oring), " mm ID sits at ", _plug_stretch * 100,
-      "% stretch on the ", _ring_id, " mm groove, which takes a ring of ", _ring_id / 1.05,
-      " to ", _ring_id, " mm. Under 0 it sags out of the groove and over 5 it thins the cord."
+      "No registered o-ring suits a ", vessel_opening_diameter, " mm mouth. Its groove wants a ring ",
+      "of ", _ring_id / 1.05, " to ", _ring_id, " mm free ID on a ",
+      _plug_cord_nominal, " mm cord - under that it sags out of the ",
+      "groove, over it the cord thins. Register one and it will be picked up; see ",
+      "scad/purchased/orings.scad."
     )
   );
 
@@ -1669,7 +1710,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   assert(
     _groove_r - (port_circle_radius + bayonet_lock_bore_radius(head_bayonet)) >= lid_holes_offset,
     str(
-      "A ", oring_cross_section(lid_plug_oring), " mm cord puts the plug groove at r ", _groove_r, ", leaving ",
+      "A ", oring_cross_section(_plug_ring), " mm cord puts the plug groove at r ", _groove_r, ", leaving ",
       _groove_r - (port_circle_radius + bayonet_lock_bore_radius(head_bayonet)),
       " mm to the port bores; ", lid_holes_offset, " mm is the least this lid keeps."
     )
@@ -1682,9 +1723,9 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // the gland a radial seal actually lives in is the groove's width by the distance from its
   // bottom out to the bore, which is what the cord has to fit inside once it is squeezed
   _plug_fill = oring_gland_fill(
-    oring_cross_section(lid_plug_oring),
+    oring_cross_section(_plug_ring),
     _groove_w,
-    oring_gland_depth(oring_cross_section(lid_plug_oring), lid_plug_oring_squeeze)
+    oring_gland_depth(oring_cross_section(_plug_ring), lid_plug_oring_squeeze)
   );
 
   assert(
@@ -1695,7 +1736,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // how much of the cord the groove is actually holding onto, which is the check against it
   // rolling out. Measured from the plug's own face, not from the bore it seals against.
   _plug_containment = oring_containment(
-    oring_cross_section(lid_plug_oring),
+    oring_cross_section(_plug_ring),
     head_lid_plug_diameter(vessel_opening_diameter) / 2 - _groove_r
   );
 
@@ -1777,7 +1818,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
     // plug o-ring, stretched onto its groove and reaching past the plug into the glass
     translate([0, 0, -lid_flange_height - lid_plug_height / 2])
-      oring(lid_plug_oring, id=_ring_id);
+      oring(_plug_ring, id=_ring_id);
 
     // port o-rings, each seated against the outer wall of its gland
     for (i = [0:lid_holes_n - 1])
