@@ -91,6 +91,20 @@ function stirred_tank_coverage(liquid_surface, impeller_top) = liquid_surface - 
 function stirred_tank_coverage_ratio(coverage, impeller_diameter) = coverage / impeller_diameter;
 function stirred_tank_coverage_minimum() = 0.5;
 
+// ----- pumping direction -----
+//
+// A pitched blade deflects fluid along its own normal, so reversing the shaft reverses the
+// pumping. Birch & Ahmed state it outright: "the pumping orientation of this turbine was reversed
+// by changing the direction of rotation of the stirrer". A mirrored pair therefore always opposes
+// itself, and the rotation picks which of the two is the up-pumper.
+//
+// Converging is the arrangement where the flows meet BETWEEN the impellers. It matters because
+// Birch & Ahmed put the sparge ring in the impeller's discharge - above an up-pumping blade, below
+// a down-pumping one - and only a converging pair puts both discharges in the same place.
+
+function stirred_tank_lower_pumps_up(rotation) = rotation > 0;
+function stirred_tank_pair_converges(rotation) = stirred_tank_lower_pumps_up(rotation);
+
 // ----- sparge ring -----
 //
 // Ring diameter in impeller diameters. Two independent experimental studies find rings LARGER

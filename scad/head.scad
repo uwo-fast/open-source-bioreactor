@@ -254,6 +254,20 @@ impeller_shaft_allow = 0.4;
 impeller_shaft_radius_interference = 0.2;
 // centre to centre spacing of the two impellers, in impeller diameters
 impeller_spacing_factor = 1.0;
+
+// Which way the shaft turns, right-handed about +Z: +1 is counter-clockwise seen from above, from
+// the motor end. A DESIGN DECLARATION rather than a property of any part - a pitched blade
+// reverses its pumping when the shaft reverses, which is how Birch & Ahmed reversed theirs, "by
+// changing the direction of rotation of the stirrer". The motor will turn either way, so the
+// direction has to be written down somewhere, and everything downstream reads it from here.
+//
+// It is not arbitrary in its consequences. The two impellers are mirror images, so they always
+// oppose each other; what the rotation picks is WHICH WAY. At +1 the lower pumps up and the upper
+// pumps down and their flows CONVERGE on the gap between them, which is the one arrangement where
+// a single sparge ring sits in both impellers' discharge - Birch & Ahmed put a ring above an
+// up-pumping blade and below a down-pumping one. Reverse it and the flows diverge, and that same
+// rule would demand two rings.
+head_shaft_rotation = 1;
 // Lower impeller centreline off the vessel floor, in impeller diameters. Set from Fořt, who tested
 // this impeller class at C/D 0.5 and 1.0 and found hydraulic efficiency higher at 1.0 - bottom
 // interference costs it at the low setting - and who ties low clearances to solids suspension and
@@ -722,6 +736,26 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       "WARNING impeller: spacing of ", impeller_spacing_factor, " D is outside the ",
       _spacing_band[0], "-", _spacing_band[1], " D band; too close costs up to 35% of the power ",
       "imparted to the fluid, too far mixes the two zones poorly."
+    ));
+
+  // Which way the pair pumps, and therefore where gas belongs. Reported because nothing about the
+  // drawn parts shows it - they are mirror images either way - and the sparger's position is
+  // downstream of it.
+  echo(str(
+    "impeller pumping: shaft turns ", head_shaft_rotation > 0 ? "counter-clockwise" : "clockwise",
+    " seen from above, so the lower impeller pumps ",
+    stirred_tank_lower_pumps_up(head_shaft_rotation) ? "UP and the upper DOWN" : "DOWN and the upper UP",
+    " and the pair ", stirred_tank_pair_converges(head_shaft_rotation) ? "CONVERGES on" : "DIVERGES from",
+    " the ", impeller_spacing - impeller_height - impeller_collar_height,
+    " mm gap between them"
+  ));
+
+  if (!stirred_tank_pair_converges(head_shaft_rotation))
+    echo(str(
+      "WARNING impeller pumping: a diverging pair puts the two discharge streams at opposite ends ",
+      "of the vessel, so no single sparge ring sits in both. Birch & Ahmed place a ring above an ",
+      "up-pumping blade and below a down-pumping one; reverse head_shaft_rotation or accept that ",
+      "the gas enters only one impeller's discharge. See docs/agitation.md."
     ));
 
   // Set screws hold the impeller to the shaft; nothing else does. The bore tapers to the shaft's
@@ -1494,8 +1528,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     translate([0, 0, -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height) + _impeller_clearance]) {
       head_impeller();
 
-      // mirrored, not turned over: handedness sets which way a blade pumps and no rotation changes
-      // it, so this is what makes the upper impeller push down against the lower one pushing up
+      // Mirrored, not turned over: that is what makes the pair oppose each other at all. Which of
+      // them pumps up is then set by head_shaft_rotation, not by the part.
       translate([0, 0, impeller_spacing])
         mirror([0, 1, 0])
           head_impeller();
