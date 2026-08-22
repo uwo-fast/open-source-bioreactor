@@ -296,19 +296,22 @@ port_position = "locked"; // [locked, entry]
 //   "baffle"       -> blind port carrying a swirl baffle, bore 0 since nothing passes through it.
 //                     However many are listed, they have to come out equally spaced, so their
 //                     count has to divide lid_holes_n; the assert in head() enforces it.
+// Four baffles at 90 degrees, which on twelve ports means every third one. That leaves the other
+// eight as four adjacent PAIRS, one between each baffle, and the pairs are what the functional
+// grouping below is built on. Derivation and the checks against it: docs/ports-layout.md.
 head_ports = [
-  ["thermocouple", 3],
-  ["probe", 0, ph_lab_g2],
-  ["probe", 0, do_lab_g2],
-  ["baffle", 0],
-  ["tube", 3],
-  ["tube", 3],
-  ["tube", 2.4],
-  ["baffle", 0],
-  ["tube", 2.4],
-  ["tube", 1.5],
-  ["tube", 1.5],
-  ["baffle", 0],
+  ["tube", 3],               //   0 deg  air out
+  ["baffle", 0],             //  30
+  ["probe", 0, do_lab_g2],   //  60      DO, opposite the air inlet
+  ["thermocouple", 3],       //  90      beside DO, which compensates from it
+  ["baffle", 0],             // 120
+  ["probe", 0, ph_lab_g2],   // 150      pH, away from both dosing lines
+  ["tube", 1.5],             // 180      media / spare
+  ["baffle", 0],             // 210
+  ["tube", 3],               // 240      air in
+  ["tube", 2.4],             // 270      acid
+  ["baffle", 0],             // 300
+  ["tube", 2.4],             // 330      base
 ];
 
 // how many bayonet locks the lid carries. The list above is the statement of it, so this counts
@@ -1021,14 +1024,24 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     _baffle_area_ratio, " of Oldshue's four-at-T/12 full-depth reference area"
   ));
 
+  // Both levers, with the numbers, because "add another" stops being available: an equally spaced
+  // count has to divide the port circle, so on twelve ports the counts are 2, 3, 4, 6, 12 and the
+  // assert below enforces it. Depth is the lever that is still wide open.
+  _next_baffle_count = [for (n = [len(_baffle_at) + 1:lid_holes_n]) if (lid_holes_n % n == 0) n];
+  _baffle_ratio_at_depth = stirred_tank_baffle_area_ratio(
+    _vessel_bore, _liquid_height, len(_baffle_at), _baffle_width,
+    stirred_tank_baffle_wetted_length(baffle_max_length, _baffle_freeboard, _liquid_height));
+
   if (_baffle_area_ratio < 0.9)
     echo(str(
-      "WARNING baffles: ", _baffle_area_ratio, " of the reference projected area. A fourth plate ",
-      "would give ", stirred_tank_baffle_area_ratio(
-        _vessel_bore, _liquid_height, len(_baffle_at) + 1, _baffle_width, _baffle_wetted),
-      ", but depth is the bigger lever - ", _baffle_freeboard,
-      " mm of each plate is headspace and it may hang to ", baffle_max_length, " mm. ",
-      "Under-baffling lets the vessel swirl rather than mix; see docs/agitation.md."
+      "WARNING baffles: ", _baffle_area_ratio, " of the reference projected area. Hanging these ",
+      len(_baffle_at), " to the full ", baffle_max_length, " mm would give ", _baffle_ratio_at_depth,
+      len(_next_baffle_count) > 0
+        ? str("; going to ", _next_baffle_count[0], " plates, the next count that spaces equally on ",
+              lid_holes_n, " ports, would give ", stirred_tank_baffle_area_ratio(
+                _vessel_bore, _liquid_height, _next_baffle_count[0], _baffle_width, _baffle_wetted))
+        : str("; ", len(_baffle_at), " is the most this port circle spaces equally"),
+      ". Under-baffling lets the vessel swirl rather than mix; see docs/agitation.md."
     ));
 
   // the port circle is sized against the plug's edge, so what it does not settle is whether

@@ -1,15 +1,61 @@
 # Port layout
 
-The reactor lid layout was developed using a set of engineering heuristics intended to reduce interference between sensing, aeration, dosing, and exhaust functions while maintaining an evenly distributed and manufacturable arrangement.
+The lid carries twelve bayonet locks on one circle, 30° apart. They are identical, so what a port
+*is* comes entirely from `head_ports` in `scad/head.scad` — this document is the derivation behind
+that table, and the table is the statement of record.
 
-- Three baffles are used and equally spaced at 120° to provide symmetric baffling while accommodating the remaining internal components.
+## Why four baffles, and why they set everything else
 
-- The air-input port is positioned as far as practical from the dissolved-oxygen probe and, secondarily, the pH probe. This reduces the likelihood of bubbles collecting on or directly passing over the probe sensing surfaces and interfering with their measurements.
+An equally spaced count has to divide the port circle. On twelve ports that allows 2, 3, 4, 6 or
+12 baffles, and `head()` asserts it rather than trusting the table. Four at 90° is Oldshue's
+reference case (1997 p. 202), so the count is no longer a departure to explain.
 
-- The air-output port is separated from the air-input and primary sparger sector. Where practical, it is also placed away from the expected primary bubble, splash, and foam region. The anticipated direction of impeller circulation is used as a secondary placement preference rather than as a strict prediction of bubble trajectory.
+Four baffles must sit every third port. That is not a free choice, and it has one useful
+consequence: the remaining eight ports fall into **four adjacent pairs, one between each baffle**.
+The functional grouping below is built on those pairs rather than assigned port by port.
 
-- The acid and base dosing inputs are grouped near the air-input and impeller-mixing sector to promote rapid dispersion of the dosing solutions and reduce localized pH excursions. They are positioned away from the pH probe to prevent freshly dosed acid or base from directly biasing its measurement.
+Going from three baffles to four costs one port, and the one dropped is a 1.5 mm tube — the
+smaller of the two media/spare lines, and the least committed function on the lid.
 
-- The temperature and dissolved-oxygen probes are located adjacent to one another so that the temperature measurement used for dissolved-oxygen compensation represents approximately the same region of the reactor liquid.
+## The layout
 
-- Remaining media-addition and spare ports are distributed through the available space while maintaining clearance from the baffles, probes, dosing ports, impeller shaft, and other fittings.
+| # | angle | port | function |
+| --- | --- | --- | --- |
+| 0 | 0° | tube 3 mm | air out |
+| 1 | 30° | **baffle** | |
+| 2 | 60° | probe | dissolved oxygen |
+| 3 | 90° | thermocouple | temperature |
+| 4 | 120° | **baffle** | |
+| 5 | 150° | probe | pH |
+| 6 | 180° | tube 1.5 mm | media / spare |
+| 7 | 210° | **baffle** | |
+| 8 | 240° | tube 3 mm | air in |
+| 9 | 270° | tube 2.4 mm | acid |
+| 10 | 300° | **baffle** | |
+| 11 | 330° | tube 2.4 mm | base |
+
+## The heuristics, and where this layout lands against them
+
+These reduce interference between sensing, aeration, dosing and exhaust while keeping the
+arrangement symmetric and manufacturable. Each is checked against the table above.
+
+- **Air in as far as practical from the dissolved-oxygen probe**, so bubbles do not collect on or
+  pass over the sensing surface. Air in at 240°, DO at 60° — **180°, the maximum the circle
+  allows**. Secondarily from pH, at 90°.
+- **Air out separated from air in and the sparger sector**, and away from the expected splash and
+  foam region. Air out at 0°, 120° from air in. Impeller circulation direction is a secondary
+  preference here, not a prediction.
+- **Acid and base grouped near air in and the mixing sector**, so dosed solution disperses quickly,
+  and **away from the pH probe** so fresh acid or base does not bias it. Acid at 270° and base at
+  330° sit 30° and 90° from air in; they are 120° and 180° from pH.
+- **Thermocouple adjacent to the DO probe**, so the temperature used for DO compensation comes from
+  the same region of liquid. They are at 90° and 60° — **adjacent**. The three-baffle layout this
+  replaced put the pH probe between them, 60° apart, which did not meet this rule.
+- **Remaining media and spare ports distributed through the space** with clearance from baffles,
+  probes, dosing, and the shaft. One 1.5 mm line at 180°.
+
+## What is not settled here
+
+The **sparger** is not on this circle. It enters through the air-in port at 240°, but where its
+ring sits in the vessel — and whether gas belongs below the lower impeller or in the gap between
+the pair — is open; see `docs/agitation.md`.

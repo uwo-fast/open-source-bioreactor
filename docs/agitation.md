@@ -270,14 +270,18 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
   encoder and the model reports what it resolves — 672 counts per output turn, 0.89 rpm over a
   100 ms window — but nothing reads it yet, so tip speed and Re are still computed from a commanded
   speed rather than a measured one.
-- **The vessel is badly under-baffled, and the count is not why.** Oldshue 1997 p. 202 gives four
-  baffles at 1/12 T as the reference case and states that *"either 3, 6 or 8 baffles can be used if
-  preferred"* provided the total projected area matches — so a count of three is permissible in
-  principle. It is the **area** that does not match. Oldshue's baffles run the liquid depth; these
-  hang from the lid, and at an 8 L fill in a 10 L jar the liquid line sits 49 mm below a plate's own
-  top. At the 100 mm length carried since the first print that leaves 51 mm wetted, and the wetted
-  area is **0.14 of the reference**. A fourth identical plate reaches only 0.19. Depth, not count,
-  is the lever.
+- **The count is now Oldshue's reference case, and the vessel is still under-baffled.** There are
+  **four baffles at 90°**, which is the four-at-T/12 arrangement Oldshue 1997 p. 202 gives as the
+  reference, so the count is no longer a departure to explain. It is the **area** that does not
+  match: his baffles run the liquid depth, and these hang from the lid, so at an 8 L fill in a 10 L
+  jar the liquid line sits 49 mm below a plate's own top. At the 100 mm length carried since the
+  first print that leaves 51 mm wetted, and the wetted area is **0.19 of the reference**, up from
+  0.14 on three plates.
+- **Count is now spent as a lever; depth is not.** An equally spaced count has to divide the port
+  circle, so on twelve ports the choices are 2, 3, 4, 6 or 12 — `head()` asserts it. Going to six
+  plates would reach only **0.28**. Hanging the four already fitted to the 280 mm the floor allows
+  would reach **0.86**. Depth is worth roughly four and a half times what the next step in count is,
+  which is why `head()` now reports both numbers rather than suggesting another plate.
 - **What used to cap the depth was an interference of 46 microns.** The plates hang on the port
   circle at r 56.9 mm, and at the widest the lock bore would pass — 19.39 mm — the inner edge fell
   at r 47.204 against an impeller sweeping r 47.25. That overlap, and nothing else, is why the
