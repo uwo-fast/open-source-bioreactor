@@ -246,6 +246,9 @@ impeller_shaft_allow = 0.4;
 impeller_shaft_radius_interference = 0.2;
 // centre to centre spacing of the two impellers, in impeller diameters
 impeller_spacing_factor = 1.0;
+// lower impeller centreline off the vessel floor, in impeller diameters. 0.4233 is what the old
+// shaft-driven construction happened to give, not a chosen number; see the band head() reports
+impeller_clearance_factor = 0.4233;
 
 // Derived from the registered type, not entered here. impeller_height is the blade's axial span:
 // the row carries it as a fraction of diameter so it scales with the impeller rather than staying
@@ -574,6 +577,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // part of the tank. Both the diameter and the spacing come from utils/stirred_tank.scad so the
   // relations and their citations live in one place.
   _vessel_bore = vessel_outer_diameter - 2 * vessel_wall_thickness;
+  _liquid_height = vessel_internal_height * culture_fill_fraction;
   impeller_diameter = stirred_tank_impeller_diameter(_vessel_bore, impeller_bore_ratio);
   impeller_radius = impeller_diameter / 2; // radius of the impeller
 
@@ -611,7 +615,13 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // punt stands proud of the floor around it. The mixing quantity is measured to that lower floor,
   // which the impeller sweeps almost entirely over: the punt is 30 mm across on a 210 mm bore,
   // about 2 % of the floor area.
-  _impeller_clearance = vessel_punt_height + shaft_jar_punt_clearance + impeller_height / 2;
+  //
+  // Chosen, not inherited. This used to be vessel_punt_height + shaft_jar_punt_clearance +
+  // impeller_height / 2 - where the impeller landed if its bottom sat flush with a shaft bottoming
+  // out over the punt - which made a mixing quantity a consequence of how long the shaft was. That
+  // sum is now the LOWER BOUND asserted below rather than the definition, and the shaft runs past
+  // the impeller to the punt whatever clearance is asked for, so raising it costs no mount height.
+  _impeller_clearance = stirred_tank_clearance(impeller_diameter, impeller_clearance_factor);
   _clearance_ratio = stirred_tank_clearance_ratio(_impeller_clearance, impeller_diameter);
   _clearance_band = stirred_tank_clearance_band_fluidfoil();
 
@@ -631,8 +641,9 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     echo(str(
       "WARNING impeller clearance: ", _clearance_ratio, " D is outside the ",
       _clearance_band[0], "-", _clearance_band[1],
-      " D Oldshue gives for fluidfoils. Sitting low leaves less room for a sparger beneath and is ",
-      "coupled to shaft length - see docs/agitation.md."
+      " D Oldshue gives for fluidfoils. Sitting low leaves less room for a sparger beneath. It is ",
+      "free of the shaft now, so raising impeller_clearance_factor costs no mount height - what it ",
+      "spends is submersion at the top; see docs/agitation.md."
     ));
 
   if (!stirred_tank_in_band(_impeller_ratio, _ratio_band))
@@ -694,7 +705,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // the power number is measured on a folded axial blade rather than this twisted one, and P is
   // one impeller's, where the stacked pair draws more - though less than double, being closer
   // than the spacing at which two impellers stop interacting. See docs/agitation.md.
-  _culture_volume = stirred_tank_volume(_vessel_bore, vessel_internal_height * culture_fill_fraction);
+  _culture_volume = stirred_tank_volume(_vessel_bore, _liquid_height);
   // Po and x are properties of the blade, so they come off the registered type. A type with no
   // measured Po borrows one, and the borrowing is echoed rather than silently absorbed - it is the
   // largest single uncertainty in every power, dissipation and torque figure below.
@@ -760,11 +771,25 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     str("Impellers overlap: ", impeller_spacing, " mm apart but ", impeller_height, " mm tall.")
   );
 
+  // The shaft bottoms out over the punt and the impeller is placed off the floor, so nothing makes
+  // them meet any more. Below this the lower impeller hangs off the end of its own shaft.
   assert(
-    shaft_jar_punt_clearance + impeller_height + impeller_spacing <= vessel_internal_height,
+    _impeller_clearance - impeller_height / 2 >= vessel_punt_height + shaft_jar_punt_clearance,
     str(
-      "Upper impeller reaches ", shaft_jar_punt_clearance + impeller_height + impeller_spacing,
-      " mm above the punt, past the ", vessel_internal_height, " mm the vessel has."
+      "Lower impeller reaches ", _impeller_clearance - impeller_height / 2,
+      " mm off the floor but the shaft stops at ", vessel_punt_height + shaft_jar_punt_clearance,
+      " mm; raise impeller_clearance_factor above ",
+      (vessel_punt_height + shaft_jar_punt_clearance + impeller_height / 2) / impeller_diameter, "."
+    )
+  );
+
+  // An impeller in the headspace pumps air, so this is submersion rather than fit.
+  assert(
+    _impeller_clearance + impeller_spacing + impeller_height / 2 <= vessel_punt_height + _liquid_height,
+    str(
+      "Upper impeller reaches ", _impeller_clearance + impeller_spacing + impeller_height / 2,
+      " mm off the floor, past the ", vessel_punt_height + _liquid_height,
+      " mm of culture there is to cover it."
     )
   );
 
@@ -935,7 +960,6 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // count is a configuration choice and this reports where the chosen one lands. The width is not
   // free to compensate - head_baffle_width() returns whichever of the lock bore and the impeller
   // binds - so the levers are the count and how much plate ends up under the liquid.
-  _liquid_height = vessel_internal_height * culture_fill_fraction;
   _baffle_freeboard =
   head_punt_top_depth(lid_flange_height, vessel_internal_height) - _liquid_height - lid_thickness;
   _baffle_wetted = stirred_tank_baffle_wetted_length(baffle_length, _baffle_freeboard, _liquid_height);
@@ -1286,7 +1310,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   // impellers
   if (render_impeller || render_all) {
-    translate([0, 0, -shaft_length(head_shaft) + shaft_protrusion + impeller_height / 2]) {
+    translate([0, 0, -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height) + _impeller_clearance]) {
       head_impeller();
 
       // mirrored, not turned over: handedness sets which way a blade pumps and no rotation changes

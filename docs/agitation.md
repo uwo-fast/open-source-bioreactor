@@ -219,6 +219,18 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
   requirement that the sparger sit below the lower impeller. **The binding problem is vertical
   room**: the lower impeller sits 0.42 D off the floor, leaving 10 mm of clear space beneath it, so
   the off-bottom clearance has to be settled before a sparger can be drawn at all.
+- **Off-bottom clearance used to be a consequence of shaft length, and is now a design parameter.**
+  The impeller was placed with its bottom flush against a shaft that bottomed out 5 mm over the
+  punt, so `C = punt + shaft clearance + height/2` — a *mixing* quantity falling out of *how long
+  the shaft was*. Raising it therefore meant raising the shaft, which pushed the motor mount up with
+  it, and at 400 mm — the only length McMaster cut that reaches this vessel, since there is no
+  300 mm — that took the mount past three diameters of slenderness. The impeller is now placed off
+  the floor by `impeller_clearance_factor` and the shaft runs past it down to the punt regardless,
+  so **the mount stays at 122 mm across the whole usable range** and that sum is asserted as the
+  lower bound instead of being the definition. The band is **0.4233 to 1.2328 D**: below it the
+  shaft no longer reaches the impeller's bore, above it the upper impeller breaks the surface and
+  pumps air. Oldshue's 1.0–2.0 for fluidfoils is therefore reachable up to 1.233, and what buys the
+  clearance is submersion, not stack height.
 - **No energy dissipation rate limit exists for any microalga.** The parameter the physics says
   governs has no citable number for these organisms.
 - **Speed feedback is specified but not yet wired.** The registered drive carries a magnetic
