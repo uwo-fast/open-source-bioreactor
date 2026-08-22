@@ -1406,6 +1406,21 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       * 60000 / _culture_volume, " vvm at the same power."
     ));
 
+  // Echoed above and asserted here: a riser wider than the bore it passes is not a tight fit, it
+  // is an assembly that does not exist. design-conventions.md puts that on the assert side.
+  assert(
+    sparge_riser_od <= head_ports[sparge_feed_port][1] * 2,
+    str(
+      "Sparge riser is ", sparge_riser_od, " mm across but port ", sparge_feed_port, " bores ",
+      head_ports[sparge_feed_port][1] * 2, " mm, so it cannot pass through the lid."
+    )
+  );
+
+  assert(
+    sparge_riser_id < sparge_riser_od,
+    str("Sparge riser bore ", sparge_riser_id, " mm is not inside a ", sparge_riser_od, " mm tube.")
+  );
+
   if (render_sparger || render_all)
     color("grey")
       rotate([0, 0, _sparge_feed_angle])
