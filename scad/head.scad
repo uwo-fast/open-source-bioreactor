@@ -505,6 +505,37 @@ function head_baffle_width(vessel_opening_diameter, impeller_diameter) =
     2 * (head_port_circle_radius(vessel_opening_diameter) - impeller_diameter / 2 - baffle_impeller_clearance)
   );
 
+// ----- where the mouth and the bore have to agree -----
+//
+// Nothing couples a jar's MOUTH to its BORE. The mouth sets the port circle, and through it where
+// the baffles hang; the bore sets the impeller, and through it the baffle's inner edge and the
+// sparge ring's diameter. So a jar can have a mouth too small to pass its own ring, or too large -
+// which pushes the baffles outward until they foul it. The window between those is narrow, and
+// nothing in the model said so until it was asked to.
+//
+// These are the three couplings, written as functions of (mouth, impeller diameter) so that the
+// asserts in head() and the feasibility report below are the SAME expression and cannot drift.
+// Each returns a clearance: positive is feasible, and the magnitude is what the assert reports.
+
+function head_ring_baffle_gap(mouth, impeller_diameter) =
+  (stirred_tank_sparge_ring_diameter(impeller_diameter, sparge_ring_ratio) / 2 - sparge_ring_section[0] / 2)
+  - (head_port_circle_radius(mouth) + head_baffle_width(mouth, impeller_diameter) / 2);
+
+function head_ring_mouth_gap(mouth, impeller_diameter) =
+  mouth / 2
+  - (stirred_tank_sparge_ring_diameter(impeller_diameter, sparge_ring_ratio) / 2 + sparge_ring_section[0] / 2);
+
+function head_mouth_is_feasible(mouth, impeller_diameter) =
+  head_baffle_width(mouth, impeller_diameter) > 0
+  && head_ring_baffle_gap(mouth, impeller_diameter) > 0
+  && head_ring_mouth_gap(mouth, impeller_diameter) > 0;
+
+// Solved by sweeping the predicate rather than inverted in closed form. A closed form would be a
+// second expression of the same three couplings and would go wrong the first time an allowance
+// moved - which is the defect docs/design-conventions.md names as this repo's recurring one.
+function head_feasible_mouths(impeller_diameter, lo = 40, hi = 400, step = 0.25) =
+  [for (m = [lo:step:hi]) if (head_mouth_is_feasible(m, impeller_diameter)) m];
+
 // The drive stack, from the lid's outer face up. head() builds against these rather than
 // recomputing them, and anything that has to make room for an assembled reactor reads them back
 // out - the cart is the one that does.
@@ -678,6 +709,27 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // Medek's envelope is conditioned on four baffles and the Po block below is the first consumer.
   _baffle_at = [for (i = [0:lid_holes_n - 1]) if (head_ports[i][0] == "baffle") i];
   impeller_diameter = stirred_tank_impeller_diameter(_vessel_bore, impeller_bore_ratio);
+
+  // The window this jar had to land in, reported whether or not it did. The three couplings above
+  // squeeze from both sides: too small a mouth and the ring will not pass, too large and the port
+  // circle carries the baffles out until the ring fouls them. Nothing chooses a jar's mouth to suit
+  // its bore, so where a given jar falls in here is luck, and worth seeing rather than inferring
+  // from an assert that only speaks when it fails.
+  _feasible = head_feasible_mouths(impeller_diameter);
+
+  echo(
+    len(_feasible) == 0
+      ? str(
+        "vessel fit: NO mouth is feasible for a ", impeller_diameter,
+        " mm impeller at these allowances - the couplings have closed on each other."
+      )
+      : str(
+        "vessel fit: a ", impeller_diameter, " mm impeller is feasible in mouths ", _feasible[0],
+        " to ", _feasible[len(_feasible) - 1], " mm, a window ",
+        _feasible[len(_feasible) - 1] - _feasible[0], " mm wide; this jar's is ",
+        vessel_opening_diameter
+      )
+  );
   impeller_radius = impeller_diameter / 2; // radius of the impeller
 
   // The blade's axial span, from the type's own width ratio so it scales with the impeller rather
@@ -1262,8 +1314,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _gap_top = _impeller_clearance + impeller_spacing - impeller_height / 2;
   _sparge_ring_height = _gap_bottom + sparge_ring_gap_fraction * (_gap_top - _gap_bottom);
 
-  _sparge_baffle_gap = (_sparge_ring_radius - sparge_ring_section[0] / 2) - (port_circle_radius + _baffle_width / 2);
-  _sparge_mouth_gap = vessel_opening_diameter / 2 - (_sparge_ring_radius + sparge_ring_section[0] / 2);
+  _sparge_baffle_gap = head_ring_baffle_gap(vessel_opening_diameter, impeller_diameter);
+  _sparge_mouth_gap = head_ring_mouth_gap(vessel_opening_diameter, impeller_diameter);
   _sparge_bore = [sparge_ring_section[0] - 2 * sparge_ring_wall, sparge_ring_section[1] - 2 * sparge_ring_wall];
 
   _sparge_flow = stirred_tank_gas_flow(sparge_design_vvm, _culture_volume);
