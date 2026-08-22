@@ -39,6 +39,7 @@ check-scad:
         scad/custom/motor_mount.scad
         scad/custom/peri_pump_frame_mount.scad
         scad/custom/sheet_gasket.scad
+        scad/custom/sparge_ring.scad
     )
     tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
     failed=0

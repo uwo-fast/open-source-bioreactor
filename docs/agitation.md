@@ -246,6 +246,31 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
   shaft no longer reaches the impeller's bore, above it the upper impeller breaks the surface and
   pumps air. Oldshue's 1.0–2.0 for fluidfoils is therefore reachable up to 1.233, and what buys the
   clearance is submersion, not stack height.
+- **The gas enters between the impellers, and that position is derived rather than chosen.** Birch
+  & Ahmed 1997 set out to fill exactly this gap — their introduction says *"there seems to be no
+  available information on the influence of sparger location on the gas dispersion performance of
+  upward pumping mixed flow turbines"* — and conclude that *"the direction of flow from these
+  impellers dictates that the sparger be placed **above the impeller for the PDU**, and **below for
+  the PDD**"*. This pair converges: the lower pumps up, the upper pumps down, so the gap between
+  them is above one and below the other. **One ring satisfies both.** A diverging pair would need
+  two, which is what `head_shaft_rotation` is for and why `head()` warns if it is reversed.
+- **The ring is 1.44 D and its section is not round.** The radial band between the baffles at
+  r 64.55 and the jar's mouth at r 71.50 is **6.95 mm**, and a round section of 6 mm has no solution
+  in it at any ratio — 4.95 mm is the largest that fits with a millimetre each side. But the squeeze
+  is *entirely* radial: the gap gives 73 mm of height. So the section is **4 mm radial × 10 mm
+  axial**, a 1.6 × 7.6 mm bore of 12.16 mm², about a 6 mm tube's, spending the dimension that is
+  free. **This is why the ring is printed and not bent**: a tube is round, and round does not fit.
+- **The feed does not attach at the ring's radius.** A round boss there is wider than the section
+  and fouls the baffles on one side and the mouth on the other — measured at 0.29 and 0.26 mm. The
+  ring instead runs an arm inboard along the air inlet's own angular sector, which has no baffle in
+  it, ending in a vertical socket under the lid port. The riser is then straight, and there is no
+  hollow tee to build because the junction is printed into the ring.
+- **Hole geometry is for spacing and against fouling, not for even flow.** Rewatkar & Joshi:
+  *"hole size and number of holes have negligible effect when the sparger is located near the
+  impeller."* Worked through, even flow is not achievable anyway — capillary pressure to launch a
+  bubble is 96 Pa against 2.4 Pa to push gas through the hole, so the holes will not share equally
+  at any count, and a fixed tolerance hurts *small* holes most (±0.1 mm is 58 Pa of spread at 1 mm
+  and 1.6 Pa at 6 mm). Eight at 3 mm.
 - **The blade is a 45° four-blade pitched turbine, and it was chosen for what can be said about
   it.** The alternative was the constant-pitch helicoid this project drew by hand, whose power
   number is not merely unmeasured but **uncorrelatable**: Medek's envelope stops at 60° of blade

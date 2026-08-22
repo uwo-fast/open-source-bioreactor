@@ -54,8 +54,14 @@ arrangement symmetric and manufacturable. Each is checked against the table abov
 - **Remaining media and spare ports distributed through the space** with clearance from baffles,
   probes, dosing, and the shaft. One 1.5 mm line at 180°.
 
-## What is not settled here
+## What the air-in port now carries
 
-The **sparger** is not on this circle. It enters through the air-in port at 240°, but where its
-ring sits in the vessel — and whether gas belongs below the lower impeller or in the gap between
-the pair — is open; see `docs/agitation.md`.
+The **sparger** is not on this circle, but it hangs from it. `sparge_feed_port = 8` names the port
+at 240° as the air inlet, and the ring's feed arm runs inboard along that sector to a socket
+directly beneath it, so the riser is a straight tube with no bend.
+
+That the arm can run inboard at all is a property of this layout: 240° sits **between** the baffles
+at 210° and 300°, so the whole radial band is clear there. It is the only reason a feed can cross
+from the port circle out to a ring at 1.44 D without fouling a plate. Move the air inlet to a
+baffle port and the arm has nowhere to go — which is why `head()` asserts the named port is a tube
+and this document records which one it is. The port table itself carries types, not functions.

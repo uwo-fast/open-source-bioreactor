@@ -17,6 +17,7 @@ use <custom/bayonet_probe_port.scad>;
 use <custom/bayonet_thermocouple_port.scad>;
 use <custom/bayonet_baffle_port.scad>;
 use <custom/impeller.scad>;
+use <custom/sparge_ring.scad>;
 
 include <purchased/dc_motors.scad>;
 include <purchased/gearboxes.scad>;
@@ -67,6 +68,7 @@ render_thermocouple_pinlock = false;
 render_probe_pinlock = false;
 render_baffle_pinlock = false;
 render_seals = false; // the EPDM parts: rim gasket, plug o-ring, port o-rings
+render_sparger = false; // the ring in the inter-impeller gap and its feed arm
 
 // Draw the lid's 24 bayonet halves as bare shells while previewing; their pins and channels
 // are boolean-heavy and only the coupling positions read on screen. Renders are unaffected.
@@ -410,6 +412,11 @@ sparge_ring_wall = 1.2;
 // turbine". 3 mm is mid Rewatkar's tested 2-6 and the least tolerance-sensitive that still spaces.
 sparge_hole_diameter = 3;
 sparge_hole_count = 8;
+// Which port the gas comes down. The port table carries types, not functions, so which tube is the
+// air inlet cannot be derived - it is named here and docs/ports-layout.md says why it is that one.
+sparge_feed_port = 8;
+// bore of the socket the riser drops into
+sparge_feed_bore = 4;
 // the aeration rate the holes are reported against, volumes of gas per volume of liquid per minute
 sparge_design_vvm = 0.5;
 
@@ -1219,6 +1226,17 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   // ----- sparge ring -----
   //
+  // The feed comes down whichever port is the air inlet, so the arm has to run along that port's
+  // angular sector - which must be one with no baffle in it, or the arm crosses a plate.
+  assert(
+    head_ports[sparge_feed_port][0] == "tube",
+    str("sparge_feed_port ", sparge_feed_port, " is a \"", head_ports[sparge_feed_port][0],
+        "\", not a tube.")
+  );
+
+  _sparge_feed_angle = sparge_feed_port * 360 / lid_holes_n;
+
+  //
   // Reported before it is drawn, the same way clearance and coverage were, because the fits are
   // tight enough that they should be visible in the model rather than in a plan document.
   _sparge_ring_diameter = stirred_tank_sparge_ring_diameter(impeller_diameter, sparge_ring_ratio);
@@ -1290,6 +1308,24 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       stirred_tank_sparge_ring_band()[0], "-", stirred_tank_sparge_ring_band()[1],
       " D two experimental studies support."
     ));
+
+  if (render_sparger || render_all)
+    color(prints2_color)
+      translate([
+          0, 0,
+          -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height)
+          + _sparge_ring_height,
+        ])
+        sparge_ring(
+          radius=_sparge_ring_radius,
+          section=sparge_ring_section,
+          wall=sparge_ring_wall,
+          hole_diameter=sparge_hole_diameter,
+          hole_count=sparge_hole_count,
+          feed_angle=_sparge_feed_angle,
+          feed_radius=port_circle_radius,
+          feed_bore=sparge_feed_bore
+        );
 
   // the port circle is sized against the plug's edge, so what it does not settle is whether
   // that many ports clear each other on it. The flange is the widest thing a port has, and it
