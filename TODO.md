@@ -64,6 +64,33 @@
   - the honest framing for a paper: this is a **CO₂ inventory problem**, and the enrichment fraction
     is a bigger lever on productivity than the entire sparger study was
 
+- [ ] **only one registered vessel actually builds** — the parametric claim is not yet true
+  - `head()` renders `jar_10L_220x305`. **The other five registered vessels all fail an assert**,
+    and they failed at the start of this session too, on different asserts — so this is a standing
+    condition rather than a regression, and it has never been visible because only one vessel is
+    ever rendered:
+
+    | vessel | fails on |
+    | --- | --- |
+    | `generic_vessel` | sparge ring overlaps the baffles by 9.66 mm |
+    | `jar_1gal_180x197` | sparge ring overlaps by 15.14 mm |
+    | `jar_1p5L_109x215` | sparge ring overlaps by 2.73 mm |
+    | `jar_1gal_155x251` | a 67.185 mm impeller leaves no room for a baffle on a 66.6 mm port circle |
+    | `jar_6p5gal_305x470` | shaft ends 45.9 mm below the lid — wants the registered 600 mm row |
+
+  - the root cause is one relationship, not five bugs: **the port circle scales with the vessel's
+    MOUTH and the impeller with its BORE**, and those two do not keep step. On a jar with a
+    relatively small mouth the baffles are forced inboard onto the impeller, and the annulus a
+    sparge ring needs disappears. The 10 L jar happens to have a mouth generous enough for both
+  - the 6.5 gal one is separate and easy: `head_shaft` is a fixed row, and a taller vessel wants a
+    longer one. Deriving the shaft from the vessel rather than naming it would fix that vessel alone
+  - **this matters more than any remaining geometry.** The paper's claim is a parametric family, and
+    a second vessel realised from the same source is the evidence for it — so this is the item
+    standing between the repo and the claim, and it should be settled before hardware is bought for
+    a second vessel
+  - a cheap first step: make CI render every registered vessel rather than only the selected one.
+    None of this was visible because nothing ever built the others
+
 - [ ] **BOM completeness, before the rebuild purchase**
   - hardware is being bought for the revised design and for further vessels, so the BOM has to be
     orderable end to end rather than mostly orderable. Known holes:
