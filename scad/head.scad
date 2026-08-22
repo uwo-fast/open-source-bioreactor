@@ -340,10 +340,16 @@ baffle_floor_clearance = 10;
 baffle_neck_clearance = 1.5;
 // clearance between the lock's bore and the plate dropping through it on assembly
 baffle_bore_clearance = 0.2;
-// how far the plate hangs below the port's bottom face; raise it until the print goes floppy
-baffle_length = 100;
-// thickness of the plate
-baffle_thickness = 4;
+// how far the plate hangs below the port's bottom face. 280 is the floor limit for the registered
+// jar, and head() reports what the plate does under load at it rather than leaving it to a print
+baffle_length = 280;
+// Thickness of the plate. 8 rather than 4 is a DYNAMIC choice, not a strength one: root stress at
+// full depth is 1.4 % of yield either way, but a 4 mm plate this long has its first bending mode
+// at 5.4 Hz, which is shaft rotation at the rated 320 rpm. See docs/agitation.md.
+baffle_thickness = 8;
+// printed PETG, for the plate's stiffness. REASONED, NOT CITED - derated from ~2.0 GPa bulk
+baffle_modulus = 1800; // MPa
+baffle_density = 1270; // kg/m^3
 // height over which the port's round bottom face blends out into the plate
 baffle_transition_height = 10;
 
@@ -1034,14 +1040,54 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   if (_baffle_area_ratio < 0.9)
     echo(str(
-      "WARNING baffles: ", _baffle_area_ratio, " of the reference projected area. Hanging these ",
-      len(_baffle_at), " to the full ", baffle_max_length, " mm would give ", _baffle_ratio_at_depth,
+      "WARNING baffles: ", _baffle_area_ratio, " of the reference projected area. ",
+      baffle_length < baffle_max_length
+        ? str("Hanging these ", len(_baffle_at), " to the full ", baffle_max_length,
+              " mm would give ", _baffle_ratio_at_depth, "; ")
+        : "Depth is spent - these already hang to the floor limit. ",
       len(_next_baffle_count) > 0
-        ? str("; going to ", _next_baffle_count[0], " plates, the next count that spaces equally on ",
+        ? str("Going to ", _next_baffle_count[0], " plates, the next count that spaces equally on ",
               lid_holes_n, " ports, would give ", stirred_tank_baffle_area_ratio(
                 _vessel_bore, _liquid_height, _next_baffle_count[0], _baffle_width, _baffle_wetted))
-        : str("; ", len(_baffle_at), " is the most this port circle spaces equally"),
+        : str(len(_baffle_at), " is the most this port circle spaces equally"),
       ". Under-baffling lets the vessel swirl rather than mix; see docs/agitation.md."
+    ));
+
+  // What the plate does under load. Not a collision check - the plate bends tangentially and the
+  // impeller sweeps a circle, so this does not close the radial gap. It is whether the plate still
+  // blocks the swirl, and whether it sits on something the drive excites.
+  // Worst case is the fastest the drive runs, which is its no-load speed, so this takes the top of
+  // the registered speeds rather than the rated point the drive block reports against.
+  _baffle_rpm = max([for (s = _drive_speeds) s[1]]);
+  _baffle_torque = 2 * stirred_tank_torque(
+    stirred_tank_power(impeller_diameter, _baffle_rpm, _impeller_po), _baffle_rpm);
+  _baffle_load = stirred_tank_baffle_load(_baffle_torque, len(_baffle_at), port_circle_radius);
+  _baffle_deflection = stirred_tank_baffle_deflection(
+    _baffle_load, baffle_length, _baffle_freeboard, _baffle_width, baffle_thickness, baffle_modulus);
+  _baffle_frequency = stirred_tank_baffle_frequency(
+    baffle_length, _baffle_width, baffle_thickness, baffle_modulus, baffle_density);
+
+  echo(str(
+    "baffle plate: ", _baffle_load, " N each, deflecting ", _baffle_deflection, " mm at the tip; ",
+    "first mode ", _baffle_frequency, " Hz against ", stirred_tank_shaft_frequency(_baffle_rpm),
+    " Hz shaft and ", stirred_tank_blade_frequency(_baffle_rpm, impeller_n_fins), " Hz blade passing"
+  ));
+
+  if (_baffle_deflection > _baffle_width / 10)
+    echo(str(
+      "WARNING baffle plate: ", _baffle_deflection, " mm of tip deflection is over a tenth of the ",
+      _baffle_width, " mm plate. It is bending away from the swirl rather than blocking it; ",
+      "thicken it - stiffness goes as the cube of thickness and the lock bore allows ",
+      bayonet_baffle_width(head_bayonet, baffle_thickness, baffle_bore_clearance) > _baffle_width
+        ? "more" : "no more", "."
+    ));
+
+  if (abs(_baffle_frequency - stirred_tank_shaft_frequency(_baffle_rpm)) < 0.3 * stirred_tank_shaft_frequency(_baffle_rpm)
+   || abs(_baffle_frequency - stirred_tank_blade_frequency(_baffle_rpm, impeller_n_fins)) < 0.3 * stirred_tank_blade_frequency(_baffle_rpm, impeller_n_fins))
+    echo(str(
+      "WARNING baffle plate: its first mode at ", _baffle_frequency,
+      " Hz is within 30% of a drive excitation. Thickness raises it as t^1.5 and length lowers it ",
+      "as 1/L^2, so a thicker plate is the cheaper fix."
     ));
 
   // the port circle is sized against the plug's edge, so what it does not settle is whether

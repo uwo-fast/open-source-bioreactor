@@ -277,11 +277,37 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
   jar the liquid line sits 49 mm below a plate's own top. At the 100 mm length carried since the
   first print that leaves 51 mm wetted, and the wetted area is **0.19 of the reference**, up from
   0.14 on three plates.
-- **Count is now spent as a lever; depth is not.** An equally spaced count has to divide the port
-  circle, so on twelve ports the choices are 2, 3, 4, 6 or 12 — `head()` asserts it. Going to six
-  plates would reach only **0.28**. Hanging the four already fitted to the 280 mm the floor allows
-  would reach **0.86**. Depth is worth roughly four and a half times what the next step in count is,
-  which is why `head()` now reports both numbers rather than suggesting another plate.
+- **The plates now hang the full 280 mm, and the area is 0.86 of the reference.** Depth was worth
+  roughly four and a half times what the next step in count is — an equally spaced count has to
+  divide the port circle, so on twelve ports the choices are 2, 3, 4, 6 or 12, and six plates would
+  have reached only 0.28. Both levers are now spent: the plates reach the floor limit, and going to
+  six would need the port circle re-derived again.
+- **What limited the depth was dynamics, not strength, and not collision.** Three candidate limits
+  were worked and only one binds:
+  - *Collision* does not. The plate bends **tangentially** and the impeller sweeps a circle, so
+    deflection does not close the 2 mm radial gap to it. This was the constraint assumed at first
+    and it is simply the wrong geometry.
+  - *Strength* does not. Root bending stress at full depth is **0.69 MPa against ~50 MPa yield**,
+    1.4 % — so creep is not a factor either.
+  - *The first bending mode* does. It falls as 1/L², so going from 100 to 280 mm divides it by 7.8.
+    A 4 mm plate at full depth lands at **5.4 Hz**, which is shaft rotation at the rated 320 rpm —
+    a resonance at the steady operating point, not one passed through on the way up. It also
+    deflects 8.9 mm, over half the plate's own width, so it would bend away from the swirl rather
+    than block it.
+- **So the plate is 8 mm thick rather than 4.** That puts the first mode at **13.3 Hz**, between
+  shaft rotation (7 Hz at no load) and blade passing (28 Hz) and clear of both by more than 30 %
+  even allowing ±30 % on the modulus and the added mass. Tip deflection falls to 1.1 mm. Thickness
+  is free here: the lock bore would pass 18.1 mm at 8 mm thick and the impeller caps the plate at
+  15.3 either way, so the extra thickness costs no width.
+- **The load is reasoned from two directions and neither is cited.** Each plate reacts its share of
+  the torque the impeller puts into the fluid, `T / (n · r)`, giving 0.51 N at no-load speed. The
+  dynamic pressure of a tangential stream at 0.3 of tip speed gives 0.69 N over the same area. They
+  agree within 26 %, which is the only corroboration available — no source held here loads a baffle.
+  `head()` reports the load, the deflection and the first mode, and warns on deflection past a tenth
+  of the plate width or a mode within 30 % of either excitation.
+- **Added mass is not optional in that calculation.** For a plate this slender the entrained water
+  is over twice the PETG's own mass, so leaving it out would overstate the first mode by about 80 %
+  and hide exactly the resonance that drove the thickness.
 - **What used to cap the depth was an interference of 46 microns.** The plates hang on the port
   circle at r 56.9 mm, and at the widest the lock bore would pass — 19.39 mm — the inner edge fell
   at r 47.204 against an impeller sweeping r 47.25. That overlap, and nothing else, is why the

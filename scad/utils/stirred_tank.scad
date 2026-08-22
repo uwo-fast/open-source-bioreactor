@@ -132,6 +132,44 @@ function stirred_tank_baffle_wetted_length(length, freeboard, liquid_height) =
 function stirred_tank_baffle_area_ratio(tank_diameter, liquid_height, count, width, wetted_length) =
   count * width * wetted_length / stirred_tank_baffle_reference_area(tank_diameter, liquid_height);
 
+// ----- baffle loading -----
+//
+// The plates react the torque the impeller puts into the fluid. Sharing it equally, each sees
+// torque / (count * centroid radius). Cross-checked against the dynamic pressure of a tangential
+// stream at 0.3 of tip speed, which agrees within 26 % - REASONED, NOT CITED either way, since no
+// source held here loads a baffle.
+//
+// What that load decides is NOT a collision. The plate bends tangentially and the impeller sweeps
+// a circle, so deflection does not close the radial gap to it. It decides two other things: at
+// what point the plate bends away from the swirl instead of blocking it, and whether it sits on
+// a frequency the drive excites.
+
+function stirred_tank_baffle_load(torque, count, centroid_radius) =
+  torque / (count * centroid_radius / 1000); // N, from N m and mm
+
+function stirred_tank_baffle_second_moment(width, thickness) = width * pow(thickness, 3) / 12;
+
+// Tip deflection of a cantilever under a UDL running from freeboard to length. mm in, mm out -
+// N, mm and MPa are a consistent set, so nothing is converted.
+function stirred_tank_baffle_deflection(load, length, freeboard, width, thickness, modulus) =
+  let (a = freeboard, L = length, q = load / (L - a))
+    q * ((pow(L, 4) - pow(a, 4)) / 8 - a * (pow(L, 3) - pow(a, 3)) / 6)
+    / (modulus * stirred_tank_baffle_second_moment(width, thickness));
+
+// First bending mode of the plate as a cantilever in liquid, Hz. The entrained water dominates the
+// mass - for a plate this slender it is over twice the PETG's own - so added mass is not optional.
+// Everything inside is SI; the caller works in mm, MPa and kg/m^3.
+function stirred_tank_baffle_frequency(length, width, thickness, modulus, solid_density) =
+  let (
+    _L = length / 1000, _w = width / 1000, _t = thickness / 1000,
+    _I = _w * pow(_t, 3) / 12,
+    _m = solid_density * _w * _t + stirred_tank_medium_density() * PI * pow(_w / 2, 2)
+  ) pow(1.875, 2) / (2 * PI) * sqrt(modulus * 1e6 * _I / (_m * pow(_L, 4)));
+
+// The drive's two excitations: once per shaft turn from runout and imbalance, and once per blade.
+function stirred_tank_shaft_frequency(rpm) = rpm / 60;
+function stirred_tank_blade_frequency(rpm, n_blades) = rpm * n_blades / 60;
+
 // ----- hydrodynamics -----
 //
 // Everything below takes millimetres and rpm, because that is what the model and the motor
