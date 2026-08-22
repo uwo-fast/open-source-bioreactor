@@ -76,6 +76,47 @@
     thread shear area goes with circumference, so it needs 8.7 mm of engagement to carry what the
     M4 carries in 6.5
 
+- gas metering selection — **sized by calculation, not by a flow test**
+  - the question was which rotameter range to buy without first running the reactor and measuring.
+    It is answerable from the pump's own specification and the vessel geometry
+  - **the pump's two numbers are not simultaneous.** The ReSun is quoted at ~65-70 L/min and
+    ~0.027 MPa; delivering both at once is 30.4 W of pneumatic power against a 35 W input, which
+    would be 87 % efficient and is impossible for a diaphragm pump. They are the ends of its curve:
+    free flow ~67 L/min at zero back-pressure, dead-head 27 kPa at zero flow
+  - taking the curve as linear between them and the system's static back-pressure as the culture
+    head over the sparge ring plus the capillary pressure at a hole, the operating point is:
+
+    | vessel | culture | 0.5 vvm | head over ring | pump would give |
+    | --- | --- | --- | --- | --- |
+    | jar_1p5L_109x215 | 1.31 L | 0.66 L/min | 1099 Pa | 64.8 L/min |
+    | jar_1gal_155x251 | 3.39 | 1.69 | 1090 | 64.8 |
+    | jar_10L_220x305 | 8.17 | 4.09 | 1121 | 64.7 |
+    | jar_6p5gal_305x470 | 21.94 | 10.97 | 1941 | 62.6 |
+
+  - **so the pump is nowhere near the constraint** — it delivers 60+ L/min into every registered
+    vessel, because their back-pressure is 4-7 % of its dead-head. Holding 4.09 L/min by resistance
+    alone would need 25.4 kPa, and the vessel supplies 1.1. **The other 24.3 kPa has to come from a
+    metering valve**, which is what actually sets the rate; the meter only reads it
+  - that also means the flow is *not* sensitive to the things we cannot yet quantify. The sterile
+    filter's own pressure drop, the tubing losses and the orifice term all sit against a valve
+    dropping 24 kPa, so none of them move the operating point materially
+  - **range: a rotameter reads 10-100 % of full scale**, so for 0.1-0.5 vvm:
+
+    | vessel | needs | scale |
+    | --- | --- | --- |
+    | jar_1p5L_109x215 | 0.13-0.66 L/min | 0-1 L/min |
+    | jar_1gal_×2 | 0.34-1.69 | 0-2 L/min |
+    | jar_10L_220x305 | 0.82-4.09 | **0-5 L/min** |
+    | jar_6p5gal_305x470 | 2.19-10.97 | 0-15 L/min |
+
+  - **buy 0-5 L/min for the 10 L jar**, where 0.82-4.09 sits at 16-82 % of scale. No single range
+    covers the family — that is a property of an 84:1 spread in culture volume, not a bad choice
+  - enriching with CO₂ later does not invalidate the meter. A rotameter reads by gas density, and
+    0.5 % CO₂ in air changes density by 0.26 %
+  - wanted alongside it: a **needle/metering valve** rated to drop ~24 kPa at these flows, and a
+    **check valve** — 1.0-1.9 kPa of culture head sits over the ring with nothing otherwise stopping
+    back-flow into a stopped pump
+
 - thermocouple selection
   - McMaster-Carr 3872K117
   - Type K threaded thermocouple probe for liquids and gases

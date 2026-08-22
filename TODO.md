@@ -9,7 +9,7 @@
   - the driver was wrong in its reference, not its value. It multiplied `vessel_outer_diameter`, but D/T everywhere in the literature is against the vessel's wetted bore, so the real ratio drifted with the glass — 0.468 to 0.489 across the registry for one nominal 0.45. It now reads the bore and is constant
   - `impeller_bore_ratio = 0.45` sits mid-band on every citation and is what lets every registered vessel build. `jar_6p5gal_305x470` is the binding one: its 137 mm mouth caps the ratio at 0.4594 with the impeller exactly filling the neck, so 0.45 leaves 2.64 mm to pass it through. The relations and their citations are in `scad/utils/stirred_tank.scad`, the reasoning in `docs/agitation.md`
   - the twist angle and the blade height are the parameters with no support — nothing citable exists for 55 degrees, or for the W/D of a twisted extrusion at all. Both are left alone and marked; `twist` turns out to be a pitch specifier rather than a blade angle, so the honest treatment is the derivation recorded in `docs/agitation.md`. A bench power-number measurement would settle it
-- [ ] **measured gas flow** — a reproducibility gap, not a geometry one
+- [ ] **measured gas flow** — a reproducibility gap, not a geometry one. **Range now calculated; see `docs/procurement.md`, gas metering selection. Buy a 0-5 L/min rotameter and a metering valve.**
   - **Correction to how this was first filed.** It was written as "the reactor's binding
     constraint", outranking the geometry. That is wrong for a design and right only for a
     *productivity target*, which this project does not have. `sparge_design_vvm` appears only inside
@@ -63,6 +63,21 @@
     the 1121 Pa the model reports
   - the honest framing for a paper: this is a **CO₂ inventory problem**, and the enrichment fraction
     is a bigger lever on productivity than the entire sparger study was
+
+- [ ] **BOM completeness, before the rebuild purchase**
+  - hardware is being bought for the revised design and for further vessels, so the BOM has to be
+    orderable end to end rather than mostly orderable. Known holes:
+  - **gas chain** — rotameter (0-5 L/min for the 10 L jar), metering valve dropping ~24 kPa at
+    4 L/min, check valve. Sizing is done; part numbers are not
+  - **sparge riser** — 316 tube, 4 x 2.5 mm x 166.7 mm as drawn. See its own item below
+  - **four fastener rows have no McMaster part numbers** — see the nice-to-haves item
+  - **the sparge ring itself is printed**, so it needs no row, but it does need to appear in
+    whatever print list the build instructions carry
+  - worth doing in the same pass: check every registered row still matches what the model draws
+    after this revision. The impeller, baffles, clearance and sparger all changed, and the BOM was
+    written against the previous geometry
+  - buying for **more than one vessel** is the point rather than a side effect: the paper's claim is
+    a parametric family, and a second vessel realised from the same source is the evidence for it
 
 - [ ] register the sparge riser as a real purchased part
   - `head.scad` draws it at 4 x 2.5 mm and 166.7 mm long, and those numbers are **chosen, not
