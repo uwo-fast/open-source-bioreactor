@@ -169,6 +169,26 @@ function stirred_tank_baffle_wetted_length(length, freeboard, liquid_height) =
 function stirred_tank_baffle_area_ratio(tank_diameter, liquid_height, count, width, wetted_length) =
   count * width * wetted_length / stirred_tank_baffle_reference_area(tank_diameter, liquid_height);
 
+// ----- gas against the impeller -----
+//
+// Oldshue 1997 p. 228, on axial impellers in a gassed system: "the upward flow of gas tends to
+// negate the downward action of the pumping capacity of the axial flow turbine. A radial flow
+// turbine must have three times more power than the power in the gas stream for the mixer power
+// level to be fully effective. On the other hand, the axial flow impeller must have eight to ten
+// times more power than in the gas stream for it to establish the axial flow pattern."
+//
+// The gas stream's power is what the rising gas does to the liquid: its volumetric rate times the
+// head it rises through. So this is a ceiling on aeration rate for a given impeller power, and it
+// is the reason the impeller's TYPE and the sparger's rate are not independent choices.
+
+function stirred_tank_gas_stream_power(gas_flow, liquid_height) =
+  gas_flow * stirred_tank_medium_density() * 9.81 * liquid_height / 1000; // W, from m^3/s and mm
+
+function stirred_tank_gas_power_ratio(pumping) = pumping == "radial" ? 3 : 8; // Oldshue's lower bound
+function stirred_tank_gas_flow_ceiling(impeller_power, pumping, liquid_height) =
+  impeller_power / stirred_tank_gas_power_ratio(pumping)
+  / (stirred_tank_medium_density() * 9.81 * liquid_height / 1000);
+
 // ----- baffle loading -----
 //
 // The plates react the torque the impeller puts into the fluid. Sharing it equally, each sees

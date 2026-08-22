@@ -9,6 +9,7 @@
 use <utils/bolt_pattern.scad>;
 use <utils/oring_gland.scad>;
 use <utils/stirred_tank.scad>;
+use <utils/gas_supply.scad>;
 use <custom/sheet_gasket.scad>;
 
 use <custom/motor_mount.scad>;
@@ -36,6 +37,7 @@ include <NopSCADlib/core.scad>;
 include <NopSCADlib/vitamins/inserts.scad>; // F1BM4 type + insert()
 include <NopSCADlib/vitamins/screws.scad>; // M4_cap_screw type + screw()
 include <purchased/set_screws.scad>; // after screws.scad - the rows bind M4_grub_screw
+include <purchased/air_pumps.scad>;
 include <NopSCADlib/vitamins/ball_bearings.scad>; // BB608 type + bb_diameter()/bb_width()
 use <NopSCADlib/vitamins/shaft_coupling.scad>;
 
@@ -427,6 +429,10 @@ sparge_riser_id = 2.5;
 sparge_riser_insertion = 8;
 // the aeration rate the holes are reported against, volumes of gas per volume of liquid per minute
 sparge_design_vvm = 0.5;
+// the band the gas metering has to cover, in vvm
+sparge_vvm_band = [0.1, 0.5];
+// what pushes the gas
+head_air_pump = air_pump_resun_35w;
 
 /* [Probe Port Parameters] */
 
@@ -1340,6 +1346,65 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     + stirred_tank_capillary_pressure(sparge_hole_diameter),
     " Pa the gas supply has to beat before anything bubbles"
   ));
+
+  // ----- gas supply -----
+  //
+  // What the pump does against this vessel, what a throttle has to take out, and which meter reads
+  // it. All of it derives from the registered pump and the vessel, so it re-answers itself for
+  // another jar rather than being a table someone has to recompute.
+  _gas_back_pressure = _sparge_submergence / 1000 * stirred_tank_medium_density() * 9.81
+  + stirred_tank_capillary_pressure(sparge_hole_diameter);
+  _gas_band = [sparge_vvm_band[0] * _culture_volume, sparge_vvm_band[1] * _culture_volume];
+  _gas_free_flow = air_pump_free_flow_min(head_air_pump);
+  _gas_dead_head = air_pump_dead_head(head_air_pump);
+
+  echo(str(
+    "gas supply: ", air_pump_name(head_air_pump), " would give ",
+    gas_pump_flow(_gas_free_flow, _gas_dead_head, _gas_back_pressure),
+    " L/min against this vessel's ", _gas_back_pressure, " Pa, where ", _gas_band[1],
+    " L/min is wanted - so a throttle has to drop ",
+    gas_throttle_pressure(_gas_free_flow, _gas_dead_head, _gas_band[1], _gas_back_pressure),
+    " Pa on top of the vessel's own"
+  ));
+
+  echo(str(
+    "gas metering: ", sparge_vvm_band[0], "-", sparge_vvm_band[1], " vvm on ", _culture_volume,
+    " L is ", _gas_band[0], "-", _gas_band[1], " L/min, ",
+    is_undef(gas_meter_full_scale(_gas_band[0], _gas_band[1]))
+      ? "which no single rotameter scale covers at 10% readability"
+      : str("so a 0-", gas_meter_full_scale(_gas_band[0], _gas_band[1]), " L/min rotameter")
+  ));
+
+  // The pump's own numbers, checked against each other rather than believed
+  if (gas_pump_implied_efficiency(_gas_free_flow, _gas_dead_head, air_pump_power(head_air_pump)) > 0.5)
+    echo(str(
+      "gas supply: ", air_pump_name(head_air_pump), "'s free flow and dead head cannot be ",
+      "simultaneous - together they are ",
+      gas_pump_implied_efficiency(_gas_free_flow, _gas_dead_head, air_pump_power(head_air_pump)) * 100,
+      "% of its electrical input. They are the ends of its curve, which is how this reads them."
+    ));
+
+  // Oldshue p.228: gas rising through an axial impeller fights its pumping, and it takes 8-10x the
+  // gas stream's power to hold the flow pattern. A radial impeller needs only 3x.
+  _gas_ceiling = stirred_tank_gas_flow_ceiling(
+    stirred_tank_power(impeller_diameter, _baffle_rpm, _impeller_po),
+    impeller_pumping(head_impeller_type), _liquid_height);
+
+  echo(str(
+    "gas against the impeller: ", impeller_pumping(head_impeller_type), " pumping needs ",
+    stirred_tank_gas_power_ratio(impeller_pumping(head_impeller_type)),
+    "x the gas stream's power to hold its flow pattern, which at ", _baffle_rpm,
+    " rpm caps aeration at ", _gas_ceiling * 60000 / _culture_volume, " vvm"
+  ));
+
+  if (sparge_design_vvm > _gas_ceiling * 60000 / _culture_volume)
+    echo(str(
+      "WARNING gas: ", sparge_design_vvm, " vvm is above the ", _gas_ceiling * 60000 / _culture_volume,
+      " vvm at which the gas stream starts to negate this impeller's pumping. Run faster, or a ",
+      "radial impeller would take ", stirred_tank_gas_flow_ceiling(
+        stirred_tank_power(impeller_diameter, _baffle_rpm, _impeller_po), "radial", _liquid_height)
+      * 60000 / _culture_volume, " vvm at the same power."
+    ));
 
   if (render_sparger || render_all)
     color("grey")
