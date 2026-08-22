@@ -82,7 +82,7 @@ check-vessels:
         "jar_1gal_180x197"    # plug o-ring: one ring is registered and it suits one mouth
         "jar_1p5L_109x215"    # 12 ports do not fit a 58.3 mm port circle
         "jar_1gal_155x251"    # impeller leaves no room for a baffle on the port circle
-        "jar_6p5gal_305x470"  # 400 mm shaft cannot reach; the 600 mm row is registered
+        "jar_6p5gal_305x470"  # impeller leaves no room for a baffle on the port circle
     )
     tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
     # The registry is the source of the list, so adding a jar adds it to the sweep.

@@ -150,7 +150,10 @@ shaft_jar_punt_clearance = 5;
 // The registered impeller shaft. Diameter and length both come off the row; nothing here restates
 // them. Length is not a free number - it sets how far the shaft protrudes above the lid and so how
 // tall the motor mount has to be, which head() checks below.
-head_shaft = shaft_8x400_316;
+// Which impeller shaft. undef derives it: the shortest registered row that still leaves the
+// coupling something to grip on this vessel. Set a row to pin one instead - the registry carries
+// 200/400/600/800 mm of the same part, and a taller jar simply wants a longer cut.
+head_shaft = undef;
 // adjust distance between the motor and the shaft coupling
 shaft_shaft_coupling_offset = 0; // can be positive or negative
 // the registered coupling joining the gearbox output shaft to the impeller shaft
@@ -567,8 +570,31 @@ function head_feasible_mouths(impeller_diameter, has_baffles = true) =
 // The drive stack, from the lid's outer face up. head() builds against these rather than
 // recomputing them, and anything that has to make room for an assembled reactor reads them back
 // out - the cart is the one that does.
+// What the shaft has to clear the lid by. The coupling joins two 8 mm shafts over its own length,
+// so half of it is the impeller side's share - anything less and the joint is gripping air. The
+// old rule was protrusion > 0, which would have accepted a tenth of a millimetre.
+function head_shaft_min_protrusion() = sc_length(shaft_coupler) / 2;
+
+// How long a shaft this vessel needs: down to the punt, back up through the lid, plus that grip.
+function head_shaft_length_needed(lid_flange_height, vessel_internal_height) =
+  head_punt_top_depth(lid_flange_height, vessel_internal_height) - shaft_jar_punt_clearance
+  + head_shaft_min_protrusion();
+
+// The shortest registered row that reaches. Shortest because every millimetre over is a millimetre
+// the motor mount grows by - the shaft does not get deeper, it sticks out further.
+function head_shaft_for(lid_flange_height, vessel_internal_height) =
+  let (
+    _need = head_shaft_length_needed(lid_flange_height, vessel_internal_height),
+    _fits = [for (t = shafts) if (shaft_length(t) >= _need) shaft_length(t)]
+  )
+    len(_fits) == 0 ? undef : [for (t = shafts) if (shaft_length(t) == min(_fits)) t][0];
+
+function head_shaft_selected(lid_flange_height, vessel_internal_height) =
+  is_undef(head_shaft) ? head_shaft_for(lid_flange_height, vessel_internal_height) : head_shaft;
+
 function head_shaft_protrusion(lid_flange_height, vessel_internal_height) =
-  shaft_length(head_shaft) - (head_punt_top_depth(lid_flange_height, vessel_internal_height) - shaft_jar_punt_clearance);
+  shaft_length(head_shaft_selected(lid_flange_height, vessel_internal_height))
+  - (head_punt_top_depth(lid_flange_height, vessel_internal_height) - shaft_jar_punt_clearance);
 function head_motor_mount_height(lid_flange_height, vessel_internal_height) =
   gearbox_output_shaft_length(dc_motor_gearbox(head_motor))
   + head_shaft_protrusion(lid_flange_height, vessel_internal_height) + shaft_shaft_coupling_offset;
@@ -590,7 +616,7 @@ module head_port_at(i, vessel_opening_diameter) {
       children();
 }
 
-module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter) {
+module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter) {
 
   _thickness = head_lid_thickness(lid_flange_height);
 
@@ -615,7 +641,7 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
       translate([0, 0, -z_fight / 2])
         union() {
           // shaft hole
-          cylinder(d=shaft_diameter(head_shaft) + bearing_hole_allowance, h=_thickness + z_fight);
+          cylinder(d=shaft_diameter + bearing_hole_allowance, h=_thickness + z_fight);
 
           // bearing pocket
           rotate([0, 0, 30])
@@ -731,6 +757,9 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // part of the tank. Both the diameter and the spacing come from utils/stirred_tank.scad so the
   // relations and their citations live in one place.
   _vessel_bore = vessel_outer_diameter - 2 * vessel_wall_thickness;
+
+  // Resolved once. head_shaft may pin a row; otherwise the shortest that reaches this vessel.
+  _shaft = head_shaft_selected(lid_flange_height, vessel_internal_height);
   _liquid_height = vessel_internal_height * culture_fill_fraction;
 
   // Read off the port table, so it depends on nothing else and can sit this early. It has to:
@@ -789,7 +818,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   impeller_blade_width = impeller_width_ratio(head_impeller_type) * impeller_diameter;
 
   // radius of the shaft hole in the impeller
-  impeller_shaft_hole_radius = (shaft_diameter(head_shaft) + impeller_shaft_allow) / 2;
+  impeller_shaft_hole_radius = (shaft_diameter(_shaft) + impeller_shaft_allow) / 2;
 
   impeller_spacing = stirred_tank_impeller_spacing(impeller_diameter, impeller_spacing_factor);
 
@@ -909,7 +938,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // the hub wall leaves between socket and shaft, and reach is whether the tip gets there at all.
   _set_screw_engagement = impeller_hub_radius - impeller_shaft_hole_radius;
   _set_screw_reach =
-  impeller_hub_radius - shaft_diameter(head_shaft) / 2 - set_screw_length(impeller_set_screw);
+  impeller_hub_radius - shaft_diameter(_shaft) / 2 - set_screw_length(impeller_set_screw);
 
   _set_screw_hole = (set_screw_tap_radius(impeller_set_screw) + impeller_set_screw_allow) * 2;
 
@@ -949,7 +978,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     echo(str(
       "WARNING impeller set screws: the screw stands ", -_set_screw_reach,
       " mm proud of the hub. A shorter row, or a hub of ",
-      shaft_diameter(head_shaft) / 2 + set_screw_length(impeller_set_screw), " mm, sits flush."
+      shaft_diameter(_shaft) / 2 + set_screw_length(impeller_set_screw), " mm, sits flush."
     ));
 
   if (_set_screw_engagement < set_screw_diameter(impeller_set_screw))
@@ -1113,8 +1142,13 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // What the shaft leaves above the lid for the coupling to grip. At or below zero the shaft ends
   // inside the vessel and there is nothing for the motor to couple to.
   assert(
-    shaft_protrusion > 0,
-    str("Shaft ends ", -shaft_protrusion, " mm below the lid's outer face, so the coupling cannot reach it.")
+    shaft_protrusion >= head_shaft_min_protrusion(),
+    str(
+      "Shaft leaves ", shaft_protrusion, " mm above the lid's outer face and the ",
+      sc_length(shaft_coupler), " mm coupling wants ", head_shaft_min_protrusion(),
+      " to grip. No registered shaft is long enough for a ", vessel_internal_height,
+      " mm vessel; the registry runs to ", max([for (t = shafts) shaft_length(t)]), " mm."
+    )
   );
 
   // The coupling's two bores are catalogue facts and the shafts they go on are set elsewhere, so
@@ -1122,22 +1156,22 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // Both are registered, so this is checked rather than assumed - a plain rod at h9 would nominally
   // be "8 mm" and still rattle. Reported, not asserted: a transition fit is what a rotating inner
   // ring wants, and which side of line-to-line a given pair lands on is not ours to refuse.
-  _fit_loosest = bb_bore(shaft_bearing) - shaft_diameter_min(head_shaft);
-  _fit_tightest = (bb_bore(shaft_bearing) - 0.007) - shaft_diameter_max(head_shaft);
+  _fit_loosest = bb_bore(shaft_bearing) - shaft_diameter_min(_shaft);
+  _fit_tightest = (bb_bore(shaft_bearing) - 0.007) - shaft_diameter_max(_shaft);
   echo(str(
-    "shaft: ", shaft_name(head_shaft), " (", shaft_part_number(head_shaft), ") ",
-    shaft_diameter_min(head_shaft), "-", shaft_diameter_max(head_shaft), " mm in a ",
+    "shaft: ", shaft_name(_shaft), " (", shaft_part_number(_shaft), ") ",
+    shaft_diameter_min(_shaft), "-", shaft_diameter_max(_shaft), " mm in a ",
     bb_bore(shaft_bearing), " mm bore: ", _fit_tightest, " to ", _fit_loosest, " mm"
   ));
 
   // nothing but this stops a coupling that fits neither end.
   assert(
     sc_diameter1(shaft_coupler) == gearbox_output_shaft_dia(head_gearbox) &&
-    sc_diameter2(shaft_coupler) == shaft_diameter(head_shaft),
+    sc_diameter2(shaft_coupler) == shaft_diameter(_shaft),
     str(
       "The ", shaft_coupler[0], " coupling bores ", sc_diameter1(shaft_coupler), " and ",
       sc_diameter2(shaft_coupler), " mm, for a ", gearbox_output_shaft_dia(head_gearbox),
-      " mm gearbox shaft and a ", shaft_diameter(head_shaft), " mm impeller shaft."
+      " mm gearbox shaft and a ", shaft_diameter(_shaft), " mm impeller shaft."
     )
   );
 
@@ -1153,8 +1187,19 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   if (_mount_slenderness > 3)
     echo(str(
-      "WARNING motor mount: ", _mount_slenderness, " diameters tall. A shorter registered shaft ",
-      "lowers it - shaft length sets the protrusion, and the protrusion is the mount."
+      "WARNING motor mount: ", _mount_slenderness, " diameters tall. ",
+      is_undef(head_shaft)
+        ? str(
+          "The shaft is already the shortest registered row that reaches - ", shaft_length(_shaft),
+          " mm against the ", head_shaft_length_needed(lid_flange_height, vessel_internal_height),
+          " this vessel needs. The registry steps 200/400/600/800, so the excess is the step, not a ",
+          "choice; a cut between them would take it out."
+        )
+        : str(
+          "head_shaft pins ", shaft_name(_shaft), "; leaving it undef would pick the shortest row ",
+          "that reaches, which is ",
+          shaft_name(head_shaft_for(lid_flange_height, vessel_internal_height)), "."
+        )
     ));
 
   assert(
@@ -1711,7 +1756,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     color(prints2_color)
       union() {
         rotate([0, 180, 0])
-          lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter);
+          lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter(_shaft));
         lid_locks();
       }
   }
@@ -1783,7 +1828,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         wall_thickness=motor_mount_wall_thickness,
         screws_diameter=gearbox_screw_diameter(head_gearbox),
         base_screw_hole_diameter=head_motor_mount_screw_hole_diameter(),
-        shaft_diameter=shaft_diameter(head_shaft),
+        shaft_diameter=shaft_diameter(_shaft),
         motor_faceplate_bolt_circle_dia=gearbox_faceplate_bolt_circle_dia(head_gearbox),
         motor_boss_diameter=gearbox_out_boss(head_gearbox)[0],
         coupling_allowance=motor_mount_coupling_allowance,
@@ -1832,7 +1877,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
     color("grey")
       translate([0, 0, -head_punt_top_depth(lid_flange_height, vessel_internal_height) + shaft_jar_punt_clearance])
-        cylinder(h=shaft_length(head_shaft), d=shaft_diameter(head_shaft), center=false);
+        cylinder(h=shaft_length(_shaft), d=shaft_diameter(_shaft), center=false);
   }
 
   // Radial tap holes through the collar. Plain cylinders at the screw's tap radius - no thread is
