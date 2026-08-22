@@ -249,9 +249,11 @@ impeller_shaft_allow = 0.4;
 impeller_shaft_radius_interference = 0.2;
 // centre to centre spacing of the two impellers, in impeller diameters
 impeller_spacing_factor = 1.0;
-// lower impeller centreline off the vessel floor, in impeller diameters. 0.4233 is what the old
-// shaft-driven construction happened to give, not a chosen number; see the band head() reports
-impeller_clearance_factor = 0.4233;
+// Lower impeller centreline off the vessel floor, in impeller diameters. 0.6 D is C/T 0.27, mid
+// the conventional quarter-to-third of tank diameter for an axial impeller, and it is as high as
+// this vessel goes while keeping half a diameter of liquid over the upper impeller - see
+// docs/agitation.md for why Oldshue's own 1-2 D is unreachable with two of them in a 236 mm column
+impeller_clearance_factor = 0.6;
 
 // Derived from the registered type, not entered here. impeller_height is the blade's axial span:
 // the row carries it as a fraction of diameter so it scales with the impeller rather than staying
@@ -635,18 +637,39 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     "-", _spacing_band[1], ")"
   ));
 
+  // What the clearance spends and what it buys, neither of which was visible before. Coverage is
+  // over the UPPER impeller because that is the one nearest the surface, and the room is under the
+  // LOWER one because that is where a sparger has to go.
+  _upper_impeller_top = _impeller_clearance + impeller_spacing + impeller_height / 2;
+  _impeller_coverage =
+  stirred_tank_coverage(vessel_punt_height + _liquid_height, _upper_impeller_top);
+  _coverage_ratio = stirred_tank_coverage_ratio(_impeller_coverage, impeller_diameter);
+  _sparger_room = _impeller_clearance - impeller_height / 2;
+
   echo(str(
     "impeller clearance: centreline ", _impeller_clearance, " mm off the floor = ",
-    _clearance_ratio, " D (band ", _clearance_band[0], "-", _clearance_band[1], ")"
+    _clearance_ratio, " D (band ", _clearance_band[0], "-", _clearance_band[1], "), C/T ",
+    _impeller_clearance / _vessel_bore, "; ", _sparger_room, " mm under the lower impeller and ",
+    _impeller_coverage, " mm (", _coverage_ratio, " D) of culture over the upper"
   ));
+
+  if (_coverage_ratio < stirred_tank_coverage_minimum())
+    echo(str(
+      "WARNING impeller coverage: ", _coverage_ratio, " D of liquid over the upper impeller is ",
+      "under the ", stirred_tank_coverage_minimum(), " D this project holds. Oldshue warns ",
+      "fluidfoils short-circuit to a low distance above themselves; a down-pumping one this ",
+      "shallow draws its own discharge off the surface. Lower impeller_clearance_factor."
+    ));
 
   if (!stirred_tank_in_band(_clearance_ratio, _clearance_band))
     echo(str(
       "WARNING impeller clearance: ", _clearance_ratio, " D is outside the ",
       _clearance_band[0], "-", _clearance_band[1],
-      " D Oldshue gives for fluidfoils. Sitting low leaves less room for a sparger beneath. It is ",
-      "free of the shaft now, so raising impeller_clearance_factor costs no mount height - what it ",
-      "spends is submersion at the top; see docs/agitation.md."
+      " D Oldshue gives for fluidfoils, and in this vessel it cannot reach it: two impellers ",
+      "spanning ", _upper_impeller_top - (_impeller_clearance - impeller_height / 2),
+      " mm of a ", vessel_punt_height + _liquid_height,
+      " mm column leave the band and his own coverage caveat with no overlap. Raising it further ",
+      "costs no mount height, only coverage; see docs/agitation.md."
     ));
 
   if (!stirred_tank_in_band(_impeller_ratio, _ratio_band))

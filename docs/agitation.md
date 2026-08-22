@@ -231,6 +231,33 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
   shaft no longer reaches the impeller's bore, above it the upper impeller breaks the surface and
   pumps air. Oldshue's 1.0–2.0 for fluidfoils is therefore reachable up to 1.233, and what buys the
   clearance is submersion, not stack height.
+- **The clearance is 0.6 D, and Oldshue's band is unreachable in this vessel.** The sentence the
+  band comes from has a second half that pulls the other way, in the same paragraph: fluidfoils
+  *"short-circuit the fluid to a relatively low distance above the impeller. Very careful
+  consideration of the coverage over the impeller is important."* Both requirements are Oldshue's,
+  and here they do not overlap — the band needs C ≥ 94.5 mm, and keeping half a diameter of liquid
+  over the upper impeller needs C ≤ 69.2 mm:
+
+  | C/D | C | under lower | cover over upper |
+  | --- | --- | --- | --- |
+  | 0.423 (as inherited) | 40.0 | 10.0 mm | 76.5 (0.81 D) |
+  | **0.600 (chosen)** | **56.7** | **26.7 mm** | **59.8 (0.63 D)** |
+  | 0.700 | 66.1 | 36.1 mm | 50.4 (0.53 D) |
+  | 1.000 (band floor) | 94.5 | 64.5 mm | 22.0 (0.23 D) |
+
+  This is structural, not a near miss. Blade height is the only other term in the span, and it is
+  the least defensible number in the model — but even at 0.4 D instead of 0.635 the ceiling only
+  moves to 0.85 D. **The cause is that the vessel is short for two impellers**: they span 154.5 mm
+  of a 241 mm column, and H/T is 1.124 where convention adds a second impeller above about 1.2.
+- **0.6 D was chosen against a second, independent scale.** Off-bottom clearance is more often
+  written C/T, and the conventional quarter-to-third of tank diameter for an axial impeller maps to
+  **C/D 0.556–0.741** in this bore. That window and the coverage limit agree, which is why the
+  chosen value is reported both ways: 0.6 D is **C/T 0.27**, mid-band on the convention and below
+  the coverage ceiling with margin. It roughly triples the room under the lower impeller, from
+  10 mm — which fits no sparger at all — to 26.7 mm.
+- **The 0.5 D coverage floor is reasoned, not cited.** Oldshue names the concern and gives no
+  number. It is the depth below which a down-pumping impeller starts drawing its own discharge back
+  off the surface instead of turning the vessel over, and `head()` warns rather than asserts on it.
 - **No energy dissipation rate limit exists for any microalga.** The parameter the physics says
   governs has no citable number for these organisms.
 - **Speed feedback is specified but not yet wired.** The registered drive carries a magnetic

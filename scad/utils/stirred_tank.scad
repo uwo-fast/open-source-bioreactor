@@ -78,6 +78,15 @@ function stirred_tank_clearance(impeller_diameter, factor) = impeller_diameter *
 function stirred_tank_clearance_ratio(clearance, impeller_diameter) = clearance / impeller_diameter;
 function stirred_tank_clearance_band_fluidfoil() = [1.0, 2.0]; // Oldshue 1997 p. 192, conditional
 
+// Oldshue states the condition in the sentence BEFORE the band, and it pulls the other way:
+// fluidfoils "short-circuit the fluid to a relatively low distance above the impeller. Very
+// careful consideration of the coverage over the impeller is important." He gives no number for
+// it, so 0.5 d is REASONED, NOT CITED - it is the depth below which a down-pumping impeller starts
+// drawing its own discharge back off the surface rather than turning the vessel over.
+function stirred_tank_coverage(liquid_surface, impeller_top) = liquid_surface - impeller_top;
+function stirred_tank_coverage_ratio(coverage, impeller_diameter) = coverage / impeller_diameter;
+function stirred_tank_coverage_minimum() = 0.5;
+
 // ----- sparge ring -----
 //
 // Ring diameter in impeller diameters. Two independent experimental studies find rings LARGER
