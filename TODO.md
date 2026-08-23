@@ -64,33 +64,25 @@
   - the honest framing for a paper: this is a **CO₂ inventory problem**, and the enrichment fraction
     is a bigger lever on productivity than the entire sparger study was
 
-- [ ] **only one registered vessel actually builds** — the parametric claim is not yet true
-  - `head()` renders `jar_10L_220x305`. **The other five registered vessels all fail an assert**,
-    and they failed at the start of this session too, on different asserts — so this is a standing
-    condition rather than a regression, and it has never been visible because only one vessel is
-    ever rendered:
+- [ ] **four of six registered vessels do not build** — the parametric claim is half true
+  - was "only one builds". `jar_6p5gal_305x470` joined `jar_10L_220x305` when the port table became
+    a property of the vessel: its 137 mm mouth misses the twelve-port set by 1.30 mm and takes the
+    reduced six instead
+  - every original failure cause is gone. The plug o-ring is registered across 77-217 mm, the port
+    spacing is per-vessel, the sparge ring no longer fouls the baffles. What is left are two causes,
+    both with owners:
 
-    | vessel | fails on |
-    | --- | --- |
-    | `generic_vessel` | sparge ring overlaps the baffles by 9.66 mm |
-    | `jar_1gal_180x197` | sparge ring overlaps by 15.14 mm |
-    | `jar_1p5L_109x215` | sparge ring overlaps by 2.73 mm |
-    | `jar_1gal_155x251` | a 67.185 mm impeller leaves no room for a baffle on a 66.6 mm port circle |
-    | `jar_6p5gal_305x470` | shaft ends 45.9 mm below the lid — wants the registered 600 mm row |
+    | vessel | fails on | owned by |
+    | --- | --- | --- |
+    | `generic` | baffle 280 mm long in a 275 mm jar | baffle length is a global, not per-vessel |
+    | `jar_1gal_180x197` | baffle 280 mm long in a 172 mm jar | same |
+    | `jar_1p5L_109x215` | motor mount overlaps the port flanges by 12.45 mm | the narrow-jar agitation question |
+    | `jar_1gal_155x251` | motor mount overlaps the port flanges by 8.30 mm | same |
 
-  - the root cause is one relationship, not five bugs: **the port circle scales with the vessel's
-    MOUTH and the impeller with its BORE**, and those two do not keep step. On a jar with a
-    relatively small mouth the baffles are forced inboard onto the impeller, and the annulus a
-    sparge ring needs disappears. The 10 L jar happens to have a mouth generous enough for both
-  - the 6.5 gal one is separate and easy: `head_shaft` is a fixed row, and a taller vessel wants a
-    longer one. Deriving the shaft from the vessel rather than naming it would fix that vessel alone
-  - **this matters more than any remaining geometry.** The paper's claim is a parametric family, and
-    a second vessel realised from the same source is the evidence for it — so this is the item
-    standing between the repo and the claim, and it should be settled before hardware is bought for
-    a second vessel
-  - a cheap first step: make CI render every registered vessel rather than only the selected one.
-    None of this was visible because nothing ever built the others
-
+  - so this is now two items rather than six problems: **baffle length should derive from the jar**
+    the way the port table does, and the two narrow jars need a different agitation mode entirely
+  - the baffle one looks small and has not been tried. `baffle_length = 280` is a global; the model
+    already knows the liquid height and the floor clearance it needs
 - [ ] **BOM completeness, before the rebuild purchase**
   - hardware is being bought for the revised design and for further vessels, so the BOM has to be
     orderable end to end rather than mostly orderable. Known holes:
@@ -106,32 +98,13 @@
   - buying for **more than one vessel** is the point rather than a side effect: the paper's claim is
     a parametric family, and a second vessel realised from the same source is the evidence for it
 
-- [ ] **register plug o-rings for the other mouths** — blocked on catalogue data, not on design
-  - `head_plug_oring_selected()` picks any registered ring whose free ID lands the groove between
-    0 and 5 % stretch. The mechanism is in and works; the registry holds **one** plug ring, so it
-    resolves for one jar
-  - what each registered mouth wants, computed by the model and printed in its own assert:
-
-    | vessel | mouth | free ID it needs (2.62 mm cord) |
-    | --- | --- | --- |
-    | `jar_6p5gal_305x470` | 137.0 | 126.38 – 132.70 |
-    | `jar_10L_220x305` | 143.0 | 132.10 – 138.70 — **AS568-160, registered** |
-    | `jar_1gal_180x197` | 148.0 | 136.86 – 143.70 |
-    | `generic_vessel` | 150.0 | 138.77 – 145.70 |
-    | `jar_1gal_155x251` | 95.8 | 87.15 – 91.50 |
-    | `jar_1p5L_109x215` | 87.5 | 79.24 – 83.20 |
-
-  - **I did not add these rows.** AS568 is a published standard and the sizes are not secret, but no
-    table exists anywhere on this machine — NopSCADlib's `o_ring` is a drawing module taking bare
-    dimensions — so adding them means transcribing from memory. That is the failure
-    `scad/purchased/` exists to prevent, and the existing row cites its source (`AS568-160, 5.237 in
-    ID x 0.103 in cord`) precisely so it can be checked
-  - what is needed: the AS568 1xx-series IDs covering 79–146 mm, from a catalogue, with the same
-    provenance note the existing row carries. Then the rows go in and five vessels resolve
-  - worth checking while doing it whether a **metric** series is a better fit than AS568 — the port
-    ring is already metric (23 x 1.5), and a metric series may land closer to these ranges than an
-    imperial one stepping in eighths of an inch
-
+- [x] ~~**register plug o-rings for the other mouths**~~ — **done**
+  - 22 rings registered, AS568 dash 150 to 171, all 3/32 in cord from McMaster's water- and
+    steam-resistant line with part numbers. They seal a mouth from 77 to 217 mm continuously, so
+    every registered vessel resolves one and most substitutions would too
+  - the cord is 3/32 in and not 1/8 in because `head_plug_oring_cord_limit()` caps it at 3.05 mm:
+    the groove and the port bores are cut into the same wall of the plug, and the mouth cancels out
+    of that algebra, so a fatter cord fouls the bores on every vessel rather than just a tight one
 - [ ] register the sparge riser as a real purchased part
   - `head.scad` draws it at 4 x 2.5 mm and 166.7 mm long, and those numbers are **chosen, not
     bought**. It wants a 316 stainless tube row of the same shape as `purchased/shafts.scad` —
