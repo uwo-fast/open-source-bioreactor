@@ -191,10 +191,10 @@
   - the two narrow jars stop failing on port spacing and start failing on the motor mount overlapping their flanges, which is the item below and the real blocker
   - `docs/ports-layout.md` carries the numbers. jar_10L is byte-identical; it still takes the full twelve
 
-- [ ] revisit the motor mount diameter
-  - Ø56 was never chosen against the lid. It is now known to be the binding constraint on two separate things: it overlaps the port flanges on both narrow jars (`head()` asserts this since the eccentricity work), and it is what leaves no room to move the shaft off-centre
-  - its floor is set by the gearbox faceplate, `bolt_circle/2 + screw_d` = 18 mm radius, so Ø36 is reachable. That would roughly double the available eccentricity on the wide jars - 0.060 to 0.129 e/T on `jar_10L`, which Karcz's correlation puts at 24% to 37% off the centred mixing time
-  - it does not rescue the narrow jars. Nothing does; see `docs/references.md`
+- [x] ~~revisit the motor mount diameter~~ — **asked and answered: it stays at 56**
+  - it can go to 42. Below that the mount's own base inserts run into the bearing pocket, which `head()` already asserts, at 0.15 mm of clearance at 42. The earlier note here said 36 from the gearbox faceplate; that floor is real but not the binding one
+  - shrinking is not worth it. Deflection goes as the cube of height over diameter, and that ratio is calibrated against the build in hand at 2.3; 42 takes `jar_10L` to 2.9 against a warning that starts at 3. The one thing it would buy is eccentricity headroom - 0.060 to 0.092 e/T, not the 0.129 claimed here before - and that only matters on an unbaffled vessel, which the wide jars are not
+  - **it was never the narrow jars' problem.** Their port flanges leave 35.4 mm on `jar_1gal_155` and 27.1 on `jar_1p5L`, so they are 6.6 and 14.9 mm of diameter short of the floor. Neither can carry a top-entry drive on its lid at any mount size, and no lid change reaches it. That is answered below by changing the agitation instead
 
 - [x] report a mixing time
   - the reactor reports power, dissipation, Re and tip speed but never says how long it takes to blend, which is the number a fermentation paper leads with. Two standard correlations and this model already holds every input: Cooke's `t90 = 3.3 (1/N) Po^-0.33 (T/D)^0.33` and Ruszkowski's `t95 = 5.9 T^0.67 eps_T^-0.33 (T/D)^0.33`, both given in Hall 2004 (`docs/references.md`)
@@ -276,6 +276,11 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
   - one paywalled source might yet say something - Kumaresan & Joshi 2006,
     doi:10.1016/j.cej.2005.10.002, worth an interlibrary request
 
+- [ ] settle how the narrow jars are agitated — **the family question these two items answer**
+  - `jar_1p5L` and `jar_1gal_155` cannot carry a top-entry drive on their lids at any mount size, and they cannot hold baffles beside two Ø16 probes at any port count. A stirred version of either would be a centred shaft in an unbaffled vessel, which Montante measured at a flow number 65% below the same impeller baffled - swirl, not mixing
+  - so the answer is not a smaller mount, it is a different mode. Two are on the table below and they are **separate design items, neither scheduled**. Nothing about the current build waits on them
+  - what makes this worth doing rather than dropping the two jars: a family that spans three agitation modes off one lid and one sparger is a stronger claim than one mode across six jars, and it is the claim the paper would actually be making
+
 - [ ] explore an airlift variant of the sparger, with no impeller at all
   - falls out of the port work: mouths under about 98 mm cannot hold four baffles beside two Ø16
     Atlas probes at any port count, so the small jars are unbaffled whatever else is decided. See
@@ -298,6 +303,15 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     existing mixing reports. The sparge ring may or may not survive - an airlift usually wants the
     gas inside the draft tube, not in a ring at 1.44 D
   - explicitly parked, not scheduled. Nothing here blocks the current build
+
+- [ ] explore a magnetic drive: a DC fan under the jar turning a rotor inside it
+  - a square DC fan below the vessel, a printed hub on its centre boss carrying two magnets facing up, and a magnet inside the vessel - either a stir bar or, better here, a magnet potted into a printed rotor. Nothing crosses the boundary, so it retires the shaft, the coupling, the bearing, the plug seal around the shaft AND the motor mount in one move. The lid becomes ports and a seal
+  - it is the obvious answer at this scale - it is what a lab does - and it is the one mode that removes the constraint rather than working around it
+  - **the punt is what decides it, and no jar here has a flat centre.** The registry: `jar_1p5L` a 15 mm dimple 7 tall on a 4 mm base, `jar_1gal_155` a 73 mm dome 6 tall on 3 mm, `jar_10L` 30 mm and 5 on 5 mm, `jar_6p5gal` a 160 mm dome 15 tall on a 12 mm base. A conventional bar straddles all of them
+  - which is why the rotor is the interesting part rather than the magnets: a printed impeller with a central recess that sits OVER the punt and pivots on it, magnets in its rim. The punt stops being an obstacle and becomes the bearing
+  - the number that has to be run before any of it: coupling torque across the gap, which is base wall plus punt height plus clearance. That is about 11 mm on `jar_1p5L` and about 27 on `jar_6p5gal`, against the 5-10 mm a lab stir plate typically works through. **Magnetic is most viable exactly where it is most needed** - thin base, small punt - and probably not viable at all on the big jars
+  - also unsettled: a DC fan runs 1000-3000 rpm where this design wants 320-420, so it needs PWM and a way to know the actual speed. Fan torque is low, which is fine for a 1.5 L jar and likely not for anything larger
+  - separate design item, not scheduled
 
 
 ## nice to haves
