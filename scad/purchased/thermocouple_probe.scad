@@ -12,16 +12,22 @@ use <threads-scad/threads.scad>;
 
 $fn = $preview ? 64 : 128;
 
-function thermocouple_probe_neck_dia(type) = type[1][0]; // diameter of the neck
-function thermocouple_probe_neck_height(type) = type[1][1]; // height of the neck
-function thermocouple_probe_flats_dia(type) = type[1][2]; // across-flats diameter of the hex
-function thermocouple_probe_flats_height(type) = type[1][3]; // height of the hex flats
-function thermocouple_probe_body_dia(type) = type[1][4]; // diameter of the body
-function thermocouple_probe_body_height(type) = type[1][5]; // height of the body
-function thermocouple_probe_tip_dia(type) = type[1][6]; // diameter of the sensing tip
-function thermocouple_probe_tip_height(type) = type[1][7]; // height of the sensing tip
-function thermocouple_probe_wire_dia(type) = type[1][8]; // diameter of the wire
-function thermocouple_probe_wire_height(type) = type[1][9]; // height of the wire stub
+include <../utils/npt_threads.scad>
+
+function thermocouple_probe_part_number(type) = type[1]; // what to order it by
+function thermocouple_probe_thread(type) = type[2]; // registered NPT thread it screws in on
+function thermocouple_probe_neck_dia(type) = type[3][0]; // diameter of the neck
+function thermocouple_probe_neck_height(type) = type[3][1]; // height of the neck
+function thermocouple_probe_flats_height(type) = type[3][2]; // height of the hex flats
+function thermocouple_probe_body_height(type) = type[3][3]; // height of the body
+function thermocouple_probe_tip_dia(type) = type[3][4]; // diameter of the sensing tip
+function thermocouple_probe_tip_height(type) = type[3][5]; // immersion depth
+function thermocouple_probe_wire_dia(type) = type[3][6]; // diameter of the wire
+function thermocouple_probe_wire_height(type) = type[3][7]; // height of the wire stub
+
+// Both follow from the thread, so they are read off it rather than registered twice.
+function thermocouple_probe_flats_dia(type) = npt_thread_hex_across_flats(thermocouple_probe_thread(type));
+function thermocouple_probe_body_dia(type) = npt_thread_major_diameter(thermocouple_probe_thread(type));
 
 // Creates a probe from a registered type (see thermocouple_probes.scad)
 module thermocouple_probe(

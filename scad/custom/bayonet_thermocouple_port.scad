@@ -8,6 +8,7 @@
 use <bayonet_port.scad>
 use <threads-scad/threads.scad>
 include <bayonet_interfaces.scad>
+include <../utils/npt_threads.scad>
 
 $fn = $preview ? 32 : 128;
 
@@ -16,12 +17,14 @@ _bt_panel_thickness = 18; // Lid thickness at the port, for standalone preview
 
 // ----- Thermocouple-specific parameters -----
 _bt_mount_height = 20; // Height of NPT thread mount
+_bt_thread = npt_1_2; // which taper thread the mount cuts
 
 bayonet_thermocouple_port(
   type=bayonet_std,
   panel_thickness=_bt_panel_thickness,
   center_bore_radius=_bt_center_bore_radius,
-  mount_height=_bt_mount_height
+  mount_height=_bt_mount_height,
+  thread=_bt_thread
 );
 
 /**
@@ -34,12 +37,14 @@ bayonet_thermocouple_port(
  * @param type            Registered bayonet interface (see bayonet_interfaces.scad)
  * @param panel_thickness Thickness of the lid the port passes through
  * @param mount_height    Height of NPT thread mount
+ * @param thread          Registered NPT thread the mount cuts (see utils/npt_threads.scad)
  */
 module bayonet_thermocouple_port(
   type,
   panel_thickness,
   center_bore_radius,
-  mount_height
+  mount_height,
+  thread = npt_1_2
 ) {
   // Bayonet connector. text_labels stays off: the mount below lands on the flange's outer
   // face at very nearly the flange diameter, so anything engraved there would be buried.
@@ -54,10 +59,11 @@ module bayonet_thermocouple_port(
   // NPT thread mount the thermocouple screws into, standing on the flange's outer face
   translate([0, 0, bayonet_flange_height(type)])
     npt_thread_mount(
+      thread=thread,
       height=mount_height,
       lower_diameter=bayonet_flange_radius(type) * 2,
       marks=[
-        "1/2NPT", // what screws in
+        npt_thread_name(thread), // what screws in
         str("Ø", center_bore_radius * 2), // bore the probe tip passes down
         str("B", bayonet_interface_radius(type) * 2, "-", bayonet_pin_radius(type)) // coupling
       ]
@@ -79,22 +85,24 @@ module wrapped_text(s, radius, size, depth, angle = 0) {
             text(s[i], size=size, halign="center", valign="center", font="sans");
 }
 
-module npt_thread_mount(height, wall_thickness = 2, lower_diameter = undef, marks = []) {
-  half_npt_diameter = 21.34;
+module npt_thread_mount(thread, height, wall_thickness = 2, lower_diameter = undef, marks = []) {
+  major_diameter = npt_thread_major_diameter(thread);
   allowance = 0.6;
-  diameter = half_npt_diameter + wall_thickness * 2;
+  diameter = major_diameter + wall_thickness * 2;
   lower_diameter_eff = is_undef(lower_diameter) ? diameter : lower_diameter;
 
   difference() {
     ScrewHole(
-      outer_diam=half_npt_diameter - allowance, // Major diameter of 1/2" NPT
+      outer_diam=major_diameter - allowance, // Major diameter at the hand-tight plane
       height=height * 1.1, // Depth of threading
       position=[0, 0, 0], // Center of hole
       rotation=[0, 0, 0], // Orientation
-      pitch=1.814, // Pitch based on 14 TPI
+      pitch=npt_thread_pitch(thread), // from the row's TPI
       tooth_angle=60, // NPT standard thread angle
       tolerance=0.4, // Small clearance for fitting
-      tooth_height=1.0 // Adjust as needed for proper fit
+      // Has to scale with the pitch, not sit at a constant: a tooth taller than the pitch is
+      // self-intersecting, and on 1/8 NPT (0.94 mm pitch) a fixed 1.0 mm crashes CGAL outright.
+      tooth_height=npt_thread_pitch(thread) * 0.55
     ) cylinder(d1=lower_diameter_eff, d2=diameter, h=height);
 
     // Marks spaced around the outer wall, set in its upper half where the taper has put the
