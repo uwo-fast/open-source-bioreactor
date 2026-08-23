@@ -86,11 +86,10 @@ check-vessels:
     # unnoticed. Shrinking this list is the work.
     set -uo pipefail
     broken=(
-        "generic"             # plug o-ring: one ring is registered and it suits one mouth
-        "jar_1gal_180x197"    # plug o-ring: one ring is registered and it suits one mouth
-        "jar_1p5L_109x215"    # 12 ports do not fit a 58.3 mm port circle
-        "jar_1gal_155x251"    # impeller leaves no room for a baffle on the port circle
-        "jar_6p5gal_305x470"  # impeller leaves no room for a baffle on the port circle
+        "generic"             # baffle reaches the floor: 280 mm plate in a 275 mm jar
+        "jar_1gal_180x197"    # baffle reaches the floor: 280 mm plate in a 172 mm jar
+        "jar_1p5L_109x215"    # motor mount overlaps the port flanges by 12.45 mm
+        "jar_1gal_155x251"    # motor mount overlaps the port flanges by 8.30 mm
     )
     tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
     # The registry is the source of the list, so adding a jar adds it to the sweep.
