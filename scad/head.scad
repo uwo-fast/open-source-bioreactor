@@ -10,6 +10,7 @@ use <utils/bolt_pattern.scad>;
 use <utils/oring_gland.scad>;
 use <utils/stirred_tank.scad>;
 use <utils/gas_supply.scad>;
+use <utils/gasket_load.scad>;
 use <custom/sheet_gasket.scad>;
 
 use <custom/motor_mount.scad>;
@@ -120,6 +121,15 @@ lid_gasket_sheet = sheet_epdm_1p6_60a;
 lid_gasket_compression = 0.25;
 // land left between the gasket and each edge of the glass's flat top, for the flange to bear on
 lid_gasket_land_margin = 1.0;
+// The gasket's width is capped rather than simply taken from the rim. Squeezing a wide gasket costs
+// far more than squeezing a narrow one - the area grows with the width and the stiffness with its
+// square, approaching a cube law once the gasket is much wider than it is thick - and all of it
+// lands on glass. Six millimetres seals; the 12 mm wall on jar_6p5gal would otherwise ask for ten,
+// which is 4.4x the force (87.9 kN against 20.1) at 1.7x the width.
+lid_gasket_width_max = 6;
+// Below this a gasket is fiddly to cut and will not stay in its recess. Reported, not enforced:
+// what is available is the jar's rim, and this file does not get to choose how thick the glass is.
+lid_gasket_width_min = 3;
 // the o-ring centring the plug in the neck. Its groove is cut from the jar's bore rather than
 // from the ring, so the ring is stretched onto it and head() checks that stretch rather than
 // deriving from it. A 3.53 cord digs too deep for this plug and trips the wall assert below
@@ -502,12 +512,33 @@ function head_motor_mount_screw_hole_diameter() = screw_clearance_radius(motor_m
 function head_motor_mount_screw_radius() =
   get_base_screw_separation_radius(motor_mount_body_diameter, head_motor_mount_screw_hole_diameter());
 
-// The gasket sits on the flat top of the glass, which runs from the bore out by the wall
-// thickness, inset by a land at each edge for the flange to bottom on.
+// The gasket sits on the flat top of the glass, which runs from the bore out by the wall thickness,
+// inset by a land at each edge for the flange to bottom on. That rim is what is AVAILABLE; the
+// gasket takes the lesser of it and lid_gasket_width_max, and sits against its inner edge, which
+// keeps the seal as near the bore as the land allows.
+function head_gasket_rim_width(vessel_wall_thickness) =
+  vessel_wall_thickness - 2 * lid_gasket_land_margin;
+function head_gasket_width(vessel_wall_thickness) =
+  min(head_gasket_rim_width(vessel_wall_thickness), lid_gasket_width_max);
 function head_gasket_inner_radius(vessel_opening_diameter) =
   vessel_opening_diameter / 2 + lid_gasket_land_margin;
 function head_gasket_outer_radius(vessel_opening_diameter, vessel_wall_thickness) =
-  vessel_opening_diameter / 2 + vessel_wall_thickness - lid_gasket_land_margin;
+  head_gasket_inner_radius(vessel_opening_diameter) + head_gasket_width(vessel_wall_thickness);
+
+// What the joint has to hold. Exported because the gasket is the head's to choose and the bolt
+// count is the assembly's, so the force crosses that boundary as one number - see
+// utils/gasket_load.scad on why it is reported rather than asserted on.
+function head_gasket_mean_diameter(vessel_opening_diameter, vessel_wall_thickness) =
+  head_gasket_inner_radius(vessel_opening_diameter)
+  + head_gasket_outer_radius(vessel_opening_diameter, vessel_wall_thickness);
+function head_gasket_seating_force(vessel_opening_diameter, vessel_wall_thickness) =
+  gasket_seating_force(
+    gasket_sheet_shore_a(lid_gasket_sheet),
+    head_gasket_width(vessel_wall_thickness),
+    gasket_sheet_thickness(lid_gasket_sheet),
+    head_gasket_mean_diameter(vessel_opening_diameter, vessel_wall_thickness),
+    lid_gasket_compression
+  );
 function head_gasket_depth() = gasket_sheet_thickness(lid_gasket_sheet) * (1 - lid_gasket_compression);
 
 // Gasket factor m, ASME VIII-1 Table 2-5.1: 0 for an o-ring, 0.5 for elastomer under 75A, 1.0
@@ -1703,11 +1734,45 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     ? vessel_opening_diameter - 2 * oring_gland_depth(_plug_cord_nominal, lid_plug_oring_squeeze)
     : _groove_r * 2;
 
+  _gasket_w = head_gasket_width(vessel_wall_thickness);
+  _gasket_rim = head_gasket_rim_width(vessel_wall_thickness);
+  _gasket_force = head_gasket_seating_force(vessel_opening_diameter, vessel_wall_thickness);
+
   echo(str(
     "lid gasket: cut ", _gasket_ir * 2, " x ", _gasket_or * 2, " mm from ",
     gasket_sheet_name(lid_gasket_sheet), " (", gasket_sheet_thickness(lid_gasket_sheet),
     " mm), recess ", head_gasket_depth(), " mm deep (", lid_gasket_compression * 100, "% squeeze)"
   ));
+
+  // The only load in the reactor, so it is worth saying out loud. Reported and never asserted on:
+  // the modulus is correlated from the sheet's hardness rather than measured. See
+  // utils/gasket_load.scad.
+  echo(str(
+    "lid gasket load: ", _gasket_w, " mm wide on a ", _gasket_rim, " mm rim, ",
+    _gasket_force, " N to hold ", lid_gasket_compression * 100, "% squeeze, ",
+    gasket_seat_stress(
+      gasket_sheet_shore_a(lid_gasket_sheet), _gasket_w,
+      gasket_sheet_thickness(lid_gasket_sheet), lid_gasket_compression
+    ), " MPa on the glass"
+  ));
+
+  if (_gasket_w < lid_gasket_width_min)
+    echo(str(
+      "WARNING lid gasket: ", _gasket_w, " mm wide, under the ", lid_gasket_width_min,
+      " mm this lid wants. The jar's ", vessel_wall_thickness, " mm wall leaves only ", _gasket_rim,
+      " mm of rim once both lands are taken. It will be fiddly to cut and may not stay in its recess."
+    ));
+
+  if (_gasket_rim > lid_gasket_width_max)
+    echo(str(
+      "lid gasket: rim offers ", _gasket_rim, " mm but the gasket is held to ", lid_gasket_width_max,
+      " mm. Taking the whole rim would cost ",
+      gasket_seating_force(
+        gasket_sheet_shore_a(lid_gasket_sheet), _gasket_rim,
+        gasket_sheet_thickness(lid_gasket_sheet), 2 * _gasket_ir + _gasket_rim,
+        lid_gasket_compression
+      ), " N instead of ", _gasket_force, "."
+    ));
   _plug_ring = head_plug_oring_selected(vessel_opening_diameter);
   _plug_stretch =
   is_undef(_plug_ring) ? undef : oring_stretch(oring_inner_diameter(_plug_ring), _ring_id);

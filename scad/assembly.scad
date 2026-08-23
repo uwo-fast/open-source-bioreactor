@@ -159,6 +159,33 @@ assert(
 
 echo("joint: ", joint_posts, " posts at ", bolt_post_spacing(joint_posts, joint_bolt_circle), " mm on a ", joint_bolt_circle, " mm circle");
 
+// The rod and the bolt are set in different files and neither reads the other, yet every post is
+// bored to the ROD's clearance - so moving the rod up a size leaves the bolts rattling in their own
+// holes, and moving it down is caught only by the assert above. Same size for both is the sane
+// default; this says so rather than enforcing it, because a deliberately loose bolt in a rod-sized
+// bore is what this joint already does on purpose.
+_rod_d = frame_rod_diameter();
+_bolt_d = screw_radius(joint_bolt) * 2;
+if (_rod_d != _bolt_d)
+  echo(str(
+    "WARNING joint: M", _rod_d, " rod but M", _bolt_d, " bolts, and every post is bored ",
+    joint_hole_diameter, " mm from the rod. That leaves the bolts ",
+    joint_hole_diameter - screw_clearance_radius(joint_bolt) * 2,
+    " mm of slop where a matching bolt would have ",
+    joint_hole_diameter - _rod_d - (screw_clearance_radius(joint_bolt) * 2 - _bolt_d),
+    " mm. Suggest running the bolts at M", _rod_d, " to match."
+  ));
+
+// What the bolts are actually holding. The head owns the gasket so it owns the force; the count is
+// this file's, so the division happens here. Reported only - see utils/gasket_load.scad.
+_seating_force = head_gasket_seating_force(
+  vessel_opening_diameter(reactor_vessel), vessel_thickness(reactor_vessel)
+);
+echo(str(
+  "joint load: ", _seating_force, " N of gasket seating over ", joint_posts, " posts = ",
+  _seating_force / joint_posts, " N each, on M", _bolt_d, " bolts and M", _rod_d, " rods"
+));
+
 // The assembled reactor's envelope, for anything that has to make room for one - cart.scad is the
 // only such thing today. Composed here because the reactor is what this file assembles: the frame
 // sets the width and the depth below the jar, the head's drive stack sets the top. Measured

@@ -110,6 +110,7 @@ module dummy() {
 
 // The rod circle is where the frame puts its tie rods, and the lid has to bolt to the same circle,
 // so the assembly reads these back out rather than rebuilding them from the frame's own allowances.
+function frame_rod_diameter() = threaded_rod_diameter; // exported so the joint can check its bolts against it
 function frame_rod_hole_diameter() = threaded_rod_diameter + threaded_rod_hole_allowance;
 function frame_bolt_circle_diameter(vessel_outer_diameter) =
   (vessel_outer_diameter + base_jar_fit_allow) + frame_rod_hole_diameter() * 2;
