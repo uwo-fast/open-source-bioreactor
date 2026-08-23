@@ -168,16 +168,19 @@
   - they carried caliper readings of 15.6/16.0 and 36.0/35.6 where all six of those sheets say 16.0 x 36.2. Every row in the registry is now the product as its sheet describes it, with no exceptions, and the collet's allowances do the compensating
   - the `15.9` soft-backed / `16.3` hard-backed numbers are dropped. No datasheet mentions a backing variant, so it is not tracked; `cylindrical_flex_collet.scad` is a generic module and its preview values are just example hardware. If a backing variant turns out to be a real product it gets its own registered row
 
-- [ ] spread the big ports so no two are adjacent
-  - what binds the port circle is the worst *adjacent pair*, not the port count, and today's table puts a baffle next to a probe twice. Both are the 13.6 mm flange, so the binding pair is 13.6 + 13.6 while half the ports are 1.5-3 mm tubes
-  - worth **19.3 mm of smallest mouth** (142.0 to 122.7) and needs no new parts once a small interface exists. It takes `jar_6p5gal` from failing to fitting, and `jar_10L` from 0.25 mm of slack to 3.25
-  - only pays off together with mixed port sizes: twelve identical flanges are the same in any order
+- [x] ~~spread the big ports so no two are adjacent~~ — **not achievable, closed**
+  - four baffles equally spaced on twelve ports sit every third port, which leaves no port that is not adjacent to one. A probe must touch a baffle, both are std, and the worst pair is 27.2 mm whatever the tubes do
+  - `jar_10L`'s binding gap is 2.254 mm with mixed port sizes and 2.254 without. The 19.3 mm this item claimed was arithmetic on an arrangement the baffle spacing forbids
+  - it becomes possible with three baffles rather than four, which is a trade against baffle area and is recorded against `jar_6p5gal` in `docs/ports-layout.md` rather than assumed here
 
-- [ ] register a mini and a midi bayonet interface
+- [x] register a mini and a midi bayonet interface
   - `bayonet_std` is sized for the Ø16 Atlas probe body and nothing else needs it. A 2.4 mm dosing line carries the same 13.6 mm flange as a probe
   - the flange follows the face seal, not the bore: `oring_ID = 2*(lock_bore_r + land + cs/2)`, which returns exactly the registered 23 for std. Mini at iface_r 5 gives an 8.60 mm flange, midi at 7 gives 10.60. Small metric EPDM rings are orderable down to Ø9, so the seal is not the blocker
   - **check the bayonet's own pin geometry at iface_r 5 before trusting the number** - 3 pins at r 1.2 with a 30 deg sweep and 25 deg key have not been tried on a Ø10 circle
   - baffles cannot use either: the plate drops through the lock bore, so a mini gives a 3.6 mm baffle. Baffles stay std
+  - **done.** Both registered and both render, pin and lock. The key margin was the flagged unknown and it holds: mini leaves 25 degrees against the 14.6 it needs
+  - the thermocouple went further than midi. Its NPT mount stands ON the flange rather than passing through the bore, so 1/8 NPT needs 7.14 mm of flange and mini has 8.60 - the whole lid is now six std and six mini
+  - it does not help the twelve-port lid at all, for the reason in the item above. It is what makes `jar_1p5L` buildable: six ports all std wants 87.6 mm and that jar has 87.5
   - the thermocouple's thread decides whether it is midi or std. 1/2 NPT needs std; 1/8 NPT fits midi. On twelve ports that is seven big ports versus six, and 142 mm versus 130 mm of smallest mouth. Threads and probes for both are already registered
 
 - [ ] make the port table a property of the vessel
