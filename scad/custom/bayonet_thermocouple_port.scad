@@ -85,7 +85,12 @@ module wrapped_text(s, radius, size, depth, angle = 0) {
             text(s[i], size=size, halign="center", valign="center", font="sans");
 }
 
-module npt_thread_mount(thread, height, wall_thickness = 2, lower_diameter = undef, marks = []) {
+// Wall the mount keeps outside its thread. A function rather than a variable so a consumer reaching
+// this file through `use` can still read it - which head.scad does, to work out which interface has
+// flange enough to carry a given thread.
+function npt_mount_wall() = 2;
+
+module npt_thread_mount(thread, height, wall_thickness = npt_mount_wall(), lower_diameter = undef, marks = []) {
   major_diameter = npt_thread_major_diameter(thread);
   allowance = 0.6;
   diameter = major_diameter + wall_thickness * 2;

@@ -25,6 +25,7 @@ include <purchased/dc_motors.scad>;
 include <purchased/gearboxes.scad>;
 include <purchased/vessels.scad>;
 include <purchased/atlas_probes.scad>;
+include <purchased/thermocouple_probes.scad>;
 include <purchased/orings.scad>;
 include <purchased/heat_set_inserts.scad>;
 include <purchased/shaft_couplings.scad>;
@@ -352,7 +353,7 @@ head_ports = [
   ["air_out",     "tube",         3           ], //   0 deg
   ["baffle",      "baffle",       0           ], //  30
   ["do_probe",    "probe",        0, do_lab_g2], //  60      opposite the air inlet
-  ["temperature", "thermocouple", 3           ], //  90      beside DO, which compensates from it
+  ["temperature", "thermocouple", 3, mcmaster_3872K131_thermocouple_probe], //  90  beside DO, which compensates from it
   ["baffle",      "baffle",       0           ], // 120
   ["ph_probe",    "probe",        0, ph_lab_g2], // 150      away from both dosing lines
   ["media",       "tube",         1.5         ], // 180      also the spare
@@ -371,9 +372,40 @@ lid_holes_n = len(head_ports);
 // for a 16 mm Atlas probe body, and what limits a port circle is the worst ADJACENT PAIR of
 // flanges, so putting a 2.4 mm dosing line on a probe-sized flange cost the whole lid. Derived
 // rather than registered - what a port has to pass is already in its row.
-function head_interface_for(type, bore) = head_bayonet;
+// Material the pin half keeps around its own bore.
+port_bore_wall = 2;
+
+// Smallest first, so the search below returns the least interface that will do.
+function head_interfaces_by_size() = [bayonet_mini, bayonet_midi, bayonet_std];
+
+// Two ways a port can be too big for an interface, and they are not the same test. What passes
+// THROUGH has to clear the bore; what stands ON TOP has to fit the flange - an NPT mount is bolted
+// to the flange's outer face and never enters the coupling, so a 1/8 NPT thermocouple sits happily
+// on a mini while a 1/2 NPT one needs a std flange to stand on.
+function head_interface_fits(iface, bore, thread) =
+  bayonet_interface_radius(iface) - bore >= port_bore_wall
+  && (
+    is_undef(thread)
+    || bayonet_flange_radius(iface) >= npt_thread_major_diameter(thread) / 2 + npt_mount_wall()
+  );
+
+// probe and baffle are fixed by what they carry: a 16 mm Atlas body with its collet, and a plate
+// that has to drop through the lock bore. Everything else takes the smallest that fits, so a 2.4 mm
+// dosing line stops carrying a probe's flange.
+function head_interface_for(type, bore, thread = undef) =
+  type == "probe" || type == "baffle"
+    ? bayonet_std
+    : let (_fit = [for (i = head_interfaces_by_size()) if (head_interface_fits(i, bore, thread)) i])
+      len(_fit) == 0 ? undef : _fit[0];
+
 function head_port_interface(port) =
-  head_interface_for(head_port_type(port), head_port_bore_radius(port));
+  head_interface_for(
+    head_port_type(port),
+    head_port_bore_radius(port),
+    head_port_type(port) == "thermocouple" && !is_undef(head_port_probe(port))
+      ? thermocouple_probe_thread(head_port_probe(port))
+      : undef
+  );
 
 // The biggest interface in use. The port circle has to clear the widest through-bore and the plug
 // groove the widest lock, so both derive from this rather than from whichever port is handy.
