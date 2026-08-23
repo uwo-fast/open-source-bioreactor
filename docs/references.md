@@ -494,14 +494,88 @@ viscosity effects on gas-liquid mass transfer rates in unbaffled stirred tanks."
 Engineering Research and Design* 132:584-592.
 [doi:10.1016/j.cherd.2018.01.051](https://doi.org/10.1016/j.cherd.2018.01.051) **[PR]** · **unread**
 
-**What the geometry says regardless of the papers.** Eccentric mounting is not currently available in
-this architecture. The motor mount is a Ø56 body centred on the lid, and the port flanges reach
-inward to `head_port_circle_radius(mouth) − 13.6`. On `jar_1p5L` the mount overlaps that band by
-12.45 mm and on `jar_1gal_155` by 8.30 mm — **an unasserted collision**, masked only because the
-port-spacing assert fires first. Where there is room at all it is small: e/T ≤ 0.070 on `jar_10L` and
-≤ 0.099 on `jar_1gal_180`, against the 0.1-0.4 the literature works in. Moving the shaft off-centre
-would mean shrinking the mount or moving the ports, and on the two jars that need it there is no
-headroom at all.
+**Hall, J.F.; Barigou, M.; Simmons, M.J.H.; Stitt, E.H. (2004).** "Mixing in Unbaffled High-Throughput
+Experimentation Reactors." *Industrial & Engineering Chemistry Research* 43:4149-4158.
+[doi:10.1021/ie049872q](https://doi.org/10.1021/ie049872q) **[PR]** · **read**
+The source Montante was pointing at, and a much closer match to this design than Montante itself:
+**six-bladed 45 deg pitched blade turbines**, up-pumping, in vessels of **T = 60 and 88 mm** — the
+scale of the small jars in this family. All configurations compared at a constant 168 W/m3, which is
+what makes the comparison fair. Table 2, mixing time to 95% homogeneity:
+baffled 1.98 s, unbaffled centred 2.80 s, **unbaffled eccentric 1.78 s**. Off-centre is 36% faster
+than unbaffled centred and, at equal power per volume, indistinguishable from baffled — the paper
+puts it at "no discernible difference (<=0.1 s)". Bulk-fluid energy dissipation improved about 200%.
+The eccentric position tested was **e = 0.2 T**, and it was the only one tested.
+
+**Karcz, J.; Cudak, M.; Szoplik, J. (2005).** "Stirring of a liquid in a stirred tank with an
+eccentrically located impeller." *Chemical Engineering Science* 60:2369-2380.
+[doi:10.1016/j.ces.2004.11.018](https://doi.org/10.1016/j.ces.2004.11.018) **[PR]** · **read**
+What Hall does not give: the shape of the curve between centred and 0.2 T. Eq. (6) correlates
+dimensionless mixing time against eccentricity continuously over e/R in [0, 0.57], unbaffled, Re
+2e4-8e4 — this design sits at 4.7e4, inside the range. Propeller at D = 0.33 T, mean error +/-10%.
+**The response is exponential, not linear**, so most of the benefit arrives early: half of it by
+e/T = 0.05, and 26% of the centred mixing time gone by e/T = 0.07.
+Cross-checked against Hall at the one point they share, e/T = 0.2: Karcz's equation predicts 42%
+faster than centred, Hall measured 36%. Different impellers, tanks 12x apart in size, agreeing
+within six points — which is why the correlation is used below rather than Hall's single point.
+
+**Cabaret, F.; Fradette, L.; Tanguy, P.A. (2008).** "Gas-liquid mass transfer in unbaffled
+dual-impeller mixers." *Chemical Engineering Science* 63:1636-1647.
+[doi:10.1016/j.ces.2007.11.028](https://doi.org/10.1016/j.ces.2007.11.028) **[PR]** · **abstract**
+The sparged unbaffled case, which is the one this reactor would actually be in. Its literature review
+states the consensus plainly — "shaft eccentricity is equivalent to baffling" in turbulent single-phase
+mixing — and adds two things the others do not: **power consumption rises with eccentricity**, and an
+off-centred impeller **produces smaller bubbles**, so the gain is not only in blending. Dual Rushton,
+not a PBT. The kLa range of 0.01-0.06 1/s quoted above is Scargiali's characterisation of this paper,
+not read off it here.
+
+**Scarsella, M.; Torzillo, G.; Cicci, A.; Belotti, G.; De Filippis, P.; Bravi, M. (2012).**
+"Mechanical stress tolerance of two microalgae." *Process Biochemistry* 47:1603-1611.
+[doi:10.1016/j.procbio.2011.07.002](https://doi.org/10.1016/j.procbio.2011.07.002) **[PR]** · **read**
+Settles the species question, and **not in the direction assumed here**. Its two test organisms are
+*Chlorella vulgaris* and *Scenedesmus dimorphus*, and the conclusion is that "**C. vulgaris cells
+appear to be weaker than S. dimorphus cells**". The earlier note in this repo that Chlorella is
+"generally robust" was an assumption and is withdrawn.
+What damaged it was a centrifugal pump, at 262 W/kg and 18e3 Pa s of accumulated stress per hour of
+operation. What did **not** damage it was an air-lift at **31 W/kg** and 90-450 Pa s/h. This design's
+peak dissipation is **30.5 W/kg at its rated 320 rpm and 69.0 W/kg at no-load 420 rpm** — the rated
+figure sits on top of the non-damaging air-lift and roughly 8x under the damaging pump.
+Read the caution with it: the paper shows the **Kolmogorov criterion mispredicted its own results**
+(both rigs had eddies larger than the cells, yet only one caused damage), and that accumulated stress
+in Pa s was the better descriptor. Nothing in this model computes that.
+
+**Michels, M.H.A.; van der Goot, A.J.; Vermue, M.H.; Wijffels, R.H. (2015).** "Cultivation of shear
+stress sensitive and tolerant microalgal species in a tubular photobioreactor equipped with a
+centrifugal pump." *Journal of Applied Phycology* 28:53-62.
+[doi:10.1007/s10811-015-0559-8](https://doi.org/10.1007/s10811-015-0559-8) **[PR]** · **abstract**
+Context only — it tests four marine aquaculture species and **not Chlorella**. Useful for scale:
+severe damage to *I. galbana*, *S. costatum* and *C. muelleri* between 1.2 and 5.4 Pa, while
+*T. suecica* tolerates 80 Pa. Shear tolerance spans more than an order of magnitude between species,
+which is why a number borrowed from one alga says little about another.
+
+**What the geometry says, with Karcz's correlation applied to it.** Eccentric mounting is real and
+well supported, and this architecture can barely use it. The motor mount is a Ø56 body centred on the
+lid and the port flanges reach inward to `head_port_circle_radius(mouth) − 13.6`, so the room for an
+offset is `Rpc − flange − lid_holes_offset − mount_radius`. On `jar_1p5L` that is already **−12.45 mm**
+and on `jar_1gal_155` **−8.30 mm** — an unasserted collision until `head()` gained the check for it,
+masked before that because the port-spacing assert fires first.
+
+The deeper problem is that **eccentricity is referenced to the tank diameter while the room for it is
+set by the mouth.** Hall's e = 0.2 T needs 21.8 mm on `jar_1p5L` and 44.0 mm on `jar_10L`; the widest
+offset any of these lids can give, with the mount shrunk to the Ø36 floor its own gearbox faceplate
+allows and every port on a mini flange, is 0.5 mm and 28.4 mm respectively. **e/T = 0.2 is out of
+reach on every registered vessel.** What is reachable, by Karcz's equation:
+
+| vessel | mouth/T | e/T today | gain | e/T at best | gain |
+| --- | --- | --- | --- | --- | --- |
+| `jar_1p5L` | 0.80 | 0 | 0% | 0.005 | 3% |
+| `jar_1gal_155` | 0.62 | 0 | 0% | 0.030 | 14% |
+| `jar_6p5gal` | 0.45 | 0.034 | 15% | 0.083 | 29% |
+| `jar_10L` | 0.65 | 0.060 | 24% | 0.129 | 37% |
+| `jar_1gal_180` | 0.82 | 0.088 | 30% | 0.171 | 41% |
+
+The result is the wrong way round: **the vessels with room for eccentricity are the ones already wide
+enough to carry baffles, and the two that need it have none.** Off-centring is not a rescue for the
+small jars. It is, separately, a cheap 24-30% on the large ones if they ever run unbaffled.
 → `working.tmp/PORTS-options.md`, `TODO.md` airlift item
 
 ---
