@@ -336,7 +336,11 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
 
 ## tooling / infrastructure / documentation
 
-- [ ] add PowerShell and shell scripts to export a chosen assembly parameter set (eventually JSON, once the assembly is fully parameterized) as individual STL files, together with a print list, BOM, and other relevant build outputs
+- [ ] add PowerShell and shell scripts to export a chosen assembly parameter set as individual STL files, together with a print list, BOM, and other relevant build outputs
+  - **the JSON half is done.** `just json` writes `scad/assembly.json` and `scad/head.json` from the vessel registry, one set per jar, and `openscad -p scad/assembly.json -P <vessel>` selects one. `check-json` fails if either file is stale or its dropdown has drifted
+  - what closed it was not the format but being able to CHOOSE: `reactor_vessel` was a reference to a registry variable, and a parameter file carries values, so under `-p` OpenSCAD dropped it and every set built the same jar. It selects by name now
+  - what is left is the scripting: walk the sets, export each part to STL, and emit the print list and BOM beside them. Two of six vessels build today, so four of the six sets would fail - which is worth REPORTING rather than hiding, the same way `check-vessels` records what does not build
+  - only `reactor_vessel_name` is name-selectable so far. The other fourteen registry choices - motor, gearbox, impeller, bayonet, gasket sheet, bearing, fasteners - are still variable references and would need the same treatment before a set could vary them. Not needed for a per-vessel export, and not worth doing until something wants to vary them
 - [ ] run `tokei` in CI to report lines of code and other codebase statistics
 - [ ] adopt the Just the Docs OpenSCAD setup for this project, including its web-based OpenSCAD preview
 
