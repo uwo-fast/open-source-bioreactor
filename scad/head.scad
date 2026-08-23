@@ -869,11 +869,16 @@ module head_port(port, panel_thickness, baffle_width) {
       width=baffle_width
     );
   } else if (_type == "thermocouple") {
+    assert(
+      !is_undef(_probe),
+      "head_port: a \"thermocouple\" entry needs a registered probe in slot 4, which is what names its thread"
+    );
     bayonet_thermocouple_port(
       type=_iface,
       panel_thickness=panel_thickness,
       center_bore_radius=_bore,
-      mount_height=thermocouple_mount_height
+      mount_height=thermocouple_mount_height,
+      thread=thermocouple_probe_thread(_probe)
     );
   } else {
     assert(false, str("head_port: unknown port type '", _type, "'"));
@@ -1974,14 +1979,22 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     for (i = _oriented_at) if (!bayonet_is_keyed(head_port_interface(head_ports[i]))) i,
   ];
 
+  // Built by comprehension rather than by indexing _unkeyed_at[0]: OpenSCAD evaluates an assert's
+  // MESSAGE whether or not the assert fires, so reaching into this list when it is empty - which is
+  // the passing case - reads head_ports[undef] and warns six times on every render.
+  _unkeyed_detail = [
+    for (i = _unkeyed_at) str(
+      head_port_function(head_ports[i]), " on ", bayonet_name(head_port_interface(head_ports[i])),
+      " (", bayonet_seating_count(head_port_interface(head_ports[i])), " seatings, ",
+      360 / bayonet_seating_count(head_port_interface(head_ports[i])), " deg apart)"
+    ),
+  ];
+
   assert(
     len(_unkeyed_at) == 0,
     str(
-      "Ports at ", _unkeyed_at, " carry an orientation on an unkeyed interface, which locks in ",
-      bayonet_seating_count(head_port_interface(head_ports[_unkeyed_at[0]])),
-      " indistinguishable seatings - each would come to rest ",
-      360 / bayonet_seating_count(head_port_interface(head_ports[_unkeyed_at[0]])),
-      " degrees from where it is drawn. Key the interface."
+      "These ports carry an orientation on an unkeyed interface, so each would come to rest at one ",
+      "of its seatings rather than where it is drawn: ", _unkeyed_detail, ". Key the interface."
     )
   );
 

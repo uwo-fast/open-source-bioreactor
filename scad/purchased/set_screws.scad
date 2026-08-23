@@ -9,6 +9,11 @@
 // length is exactly what distinguishes one catalogue row from the next. That is what these rows
 // are - a purchasable part bound to a NopSCADlib type.
 
+// The rows name NopSCADlib's grub screw types, so this has to be included here rather than left to
+// whoever includes this file - a consumer reaching it through `use` would leave every screw undef.
+include <NopSCADlib/core.scad>;
+include <NopSCADlib/vitamins/screws.scad>;
+
 // 316 rather than 18-8, on the same reasoning as the shaft: these sit in the culture, the reactor
 // is chemically sterilised and never autoclaved, and McMaster rate 316 against bleach where the
 // cheaper grades weaken. The lid's heat-set inserts are 18-8, but those are dry - a wetted 18-8

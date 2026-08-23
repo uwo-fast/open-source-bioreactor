@@ -53,6 +53,14 @@ check-scad:
             echo "FAIL  $f"
             grep '^ERROR' "$tmp/err" | sed 's/^/        /'
             failed=1
+        elif grep -q '^WARNING' "$tmp/err"; then
+            # Warnings are how OpenSCAD reports an undef reaching arithmetic, and a parse error in
+            # a use'd file shows up as nothing else - ninety of them once rode in on a missing
+            # comma between two string literals, which silently stopped head.scad exporting any of
+            # its functions while it still rendered on its own. Nothing here may be warning-noisy.
+            echo "FAIL  $f"
+            grep '^WARNING' "$tmp/err" | sort | uniq -c | sort -rn | head -5 | sed 's/^/        /'
+            failed=1
         elif [ "$renders" = 1 ] && [ "$size" -le 1 ]; then
             echo "FAIL  $f  renders nothing"
             failed=1

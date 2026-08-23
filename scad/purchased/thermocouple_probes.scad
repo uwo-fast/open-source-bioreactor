@@ -22,6 +22,11 @@
 // Lengths are the nominal inch immersion depths, 76.2 / 152.4 / 228.6 / 304.8 mm. Pick one that
 // reaches the culture without fouling the impeller; nothing here checks that for you yet.
 
+// The rows name a registered NPT thread rather than transcribing its diameter, so this has to be
+// included here and not left to whoever includes this file - a consumer reaching it through `use`
+// would leave every thread undef and every port sized as if it had none.
+include <../utils/npt_threads.scad>;
+
 //                                     ["name"               part_no      thread     [neck_d, neck_h, flats_h, body_h, tip_d,  tip_h,  wire_d, wire_h]]
 generic_thermocouple_probe =           ["generic",           "",          npt_1_2,   [10,     12,     5,       20,     3.5,    115,    2.5,    10    ]];
 

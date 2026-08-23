@@ -44,6 +44,7 @@ $fs = $preview ? 1.2 : 0.6;
 
 // Accessors for the registered bayonet interface (see bayonet_interfaces.scad).
 //   ["name" [iface_r, shell_t, pin_r, allow], [flange_h, flange_lip], [oring_id, oring_cs], [n_pins, sweep, pin_dir, turn_dir, key]]
+function bayonet_name(type)                = type[0]; // registered name, e.g. "std"
 function bayonet_interface_radius(type)   = type[1][0]; // mating surface radius
 function bayonet_shell_thickness(type)    = type[1][1]; // annulus thickness either side of the interface
 function bayonet_pin_radius(type)         = type[1][2]; // locking pin radius
