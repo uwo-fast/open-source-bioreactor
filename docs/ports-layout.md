@@ -56,12 +56,16 @@ arrangement symmetric and manufacturable. Each is checked against the table abov
 
 ## What the air-in port now carries
 
-The **sparger** is not on this circle, but it hangs from it. `sparge_feed_port = 8` names the port
-at 240° as the air inlet, and the ring's feed arm runs inboard along that sector to a socket
-directly beneath it, so the riser is a straight tube with no bend.
+The **sparger** is not on this circle, but it hangs from it. The port at 240° carries the function
+`air_in`, and the ring's feed arm runs inboard along that sector to a socket directly beneath it, so
+the riser is a straight tube with no bend.
 
 That the arm can run inboard at all is a property of this layout: 240° sits **between** the baffles
 at 210° and 300°, so the whole radial band is clear there. It is the only reason a feed can cross
-from the port circle out to a ring at 1.44 D without fouling a plate. Move the air inlet to a
-baffle port and the arm has nowhere to go — which is why `head()` asserts the named port is a tube
-and this document records which one it is. The port table itself carries types, not functions.
+from the port circle out to a ring at 1.44 D without fouling a plate. Move the air inlet to a baffle
+port and the arm has nowhere to go — which is why `head()` asserts the `air_in` port is a tube.
+
+Nothing names the index 8. `head_sparge_feed_port()` asks the table which port is `air_in` and gets
+back wherever it currently sits, so reordering the lid carries the sparger with it. The lookup
+insists on exactly one match, so a table with two air inlets or none fails loudly rather than
+silently taking the first.

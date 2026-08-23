@@ -323,7 +323,11 @@ port_position = "locked"; // [locked, entry]
 /* [Port Assignment] */
 
 // What sits at each of the lid_holes_n bayonet locks, going around the lid.
-// Each entry is [type, bore_radius], plus a third slot for "probe":
+// Each entry is [function, type, bore_radius], plus a fourth slot for "probe". The FUNCTION is what
+// the port is for and is this table's identity, the same way a name leads every other registered
+// row; the type is only how it is built. Two ports can share a type and never a purpose, so the
+// function is what the rest of the file looks a port up by - see head_port_index(). Baffles are the
+// exception and all carry the same "baffle", because being a baffle is the whole of their purpose.
 //   "tube"         -> generic bayonet port, bore_radius sets the tube through-hole
 //   "probe"        -> atlas probe holder (flex collet); bore is swallowed by the connector cut,
 //                     so 0, and the third slot is the registered probe it is cut for
@@ -335,23 +339,41 @@ port_position = "locked"; // [locked, entry]
 // eight as four adjacent PAIRS, one between each baffle, and the pairs are what the functional
 // grouping below is built on. Derivation and the checks against it: docs/ports-layout.md.
 head_ports = [
-  ["tube", 3],               //   0 deg  air out
-  ["baffle", 0],             //  30
-  ["probe", 0, do_lab_g2],   //  60      DO, opposite the air inlet
-  ["thermocouple", 3],       //  90      beside DO, which compensates from it
-  ["baffle", 0],             // 120
-  ["probe", 0, ph_lab_g2],   // 150      pH, away from both dosing lines
-  ["tube", 1.5],             // 180      media / spare
-  ["baffle", 0],             // 210
-  ["tube", 3],               // 240      air in
-  ["tube", 2.4],             // 270      acid
-  ["baffle", 0],             // 300
-  ["tube", 2.4],             // 330      base
+  ["air_out",     "tube",         3           ], //   0 deg
+  ["baffle",      "baffle",       0           ], //  30
+  ["do_probe",    "probe",        0, do_lab_g2], //  60      opposite the air inlet
+  ["temperature", "thermocouple", 3           ], //  90      beside DO, which compensates from it
+  ["baffle",      "baffle",       0           ], // 120
+  ["ph_probe",    "probe",        0, ph_lab_g2], // 150      away from both dosing lines
+  ["media",       "tube",         1.5         ], // 180      also the spare
+  ["baffle",      "baffle",       0           ], // 210
+  ["air_in",      "tube",         3           ], // 240      the sparger hangs from this one
+  ["acid",        "tube",         2.4         ], // 270
+  ["baffle",      "baffle",       0           ], // 300
+  ["base",        "tube",         2.4         ], // 330
 ];
 
 // how many bayonet locks the lid carries. The list above is the statement of it, so this counts
 // it rather than repeating it; the assert in head() still catches an override that disagrees
 lid_holes_n = len(head_ports);
+
+function head_port_function(port) = port[0]; // what it is for, and this table's identity
+function head_port_type(port) = port[1]; // how it is built
+function head_port_bore_radius(port) = port[2]; // through-hole, 0 where nothing passes
+function head_port_probe(port) = port[3]; // registered probe, "probe" entries only
+
+// Where the port with this purpose sits. Anything that needs a particular port asks for it by what
+// it does rather than by a number, so moving a port around the lid moves everything bound to it and
+// nothing else. Exactly one, because a purpose two ports both claim is a table that cannot be read.
+function head_port_index(fn) =
+  let (_at = [for (i = [0:len(head_ports) - 1]) if (head_port_function(head_ports[i]) == fn) i])
+    assert(
+      len(_at) == 1,
+      str("head_ports has ", len(_at), " ports for \"", fn, "\"; looking one up by function needs exactly one.")
+    ) _at[0];
+
+// The gas comes down whichever port is the air inlet, wherever that ends up sitting.
+function head_sparge_feed_port() = head_port_index("air_in");
 
 /* [Baffle Parameters] */
 
@@ -422,9 +444,6 @@ sparge_ring_wall = 1.2;
 // turbine". 3 mm is mid Rewatkar's tested 2-6 and the least tolerance-sensitive that still spaces.
 sparge_hole_diameter = 3;
 sparge_hole_count = 8;
-// Which port the gas comes down. The port table carries types, not functions, so which tube is the
-// air inlet cannot be derived - it is named here and docs/ports-layout.md says why it is that one.
-sparge_feed_port = 8;
 // bore of the socket the riser drops into
 sparge_feed_bore = 4;
 // The riser: a straight rigid tube from the lid port down into that socket. Rigid and not flexible
@@ -730,9 +749,9 @@ function head_port_is_oriented(type) = type == "baffle" || type == "probe";
 // One port pin half, dispatched on its registered type. All share the same bayonet
 // interface, so they are interchangeable across the lid's locks.
 module head_port(port, panel_thickness, baffle_width) {
-  _type = port[0];
-  _bore = port[1];
-  _probe = port[2];
+  _type = head_port_type(port);
+  _bore = head_port_bore_radius(port);
+  _probe = head_port_probe(port);
 
   if (_type == "tube") {
     // The tube interface is just the generic port with its bore set, and the bore printed
@@ -745,7 +764,7 @@ module head_port(port, panel_thickness, baffle_width) {
       text_labels=true
     );
   } else if (_type == "probe") {
-    assert(!is_undef(_probe), "head_port: a \"probe\" entry needs a registered atlas probe in slot 3");
+    assert(!is_undef(_probe), "head_port: a \"probe\" entry needs a registered atlas probe in slot 4");
     bayonet_probe_port(
       type=head_bayonet,
       probe=_probe,
@@ -805,7 +824,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   // Read off the port table, so it depends on nothing else and can sit this early. It has to:
   // Medek's envelope is conditioned on four baffles and the Po block below is the first consumer.
-  _baffle_at = [for (i = [0:lid_holes_n - 1]) if (head_ports[i][0] == "baffle") i];
+  _baffle_at = [for (i = [0:lid_holes_n - 1]) if (head_port_type(head_ports[i]) == "baffle") i];
 
   // A lid need not carry baffles. Everything below that measures, checks or loads a plate has to
   // ask first - a lid with none was reporting a plate width, warning about its area, and dividing
@@ -1424,12 +1443,12 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // The feed comes down whichever port is the air inlet, so the arm has to run along that port's
   // angular sector - which must be one with no baffle in it, or the arm crosses a plate.
   assert(
-    head_ports[sparge_feed_port][0] == "tube",
-    str("sparge_feed_port ", sparge_feed_port, " is a \"", head_ports[sparge_feed_port][0],
+    head_port_type(head_ports[head_sparge_feed_port()]) == "tube",
+    str("the air_in port, ", head_sparge_feed_port(), ", is a \"", head_port_type(head_ports[head_sparge_feed_port()]),
         "\", not a tube.")
   );
 
-  _sparge_feed_angle = sparge_feed_port * 360 / lid_holes_n;
+  _sparge_feed_angle = head_sparge_feed_port() * 360 / lid_holes_n;
 
   //
   // Reported before it is drawn, the same way clearance and coverage were, because the fits are
@@ -1516,7 +1535,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   echo(str(
     "sparge riser: ", sparge_riser_od, " x ", sparge_riser_id, " mm tube, ", _sparge_riser_length,
     " mm from the lid's outer face to ", sparge_riser_insertion, " mm inside the socket; ",
-    head_ports[sparge_feed_port][1] * 2 - sparge_riser_od,
+    head_port_bore_radius(head_ports[head_sparge_feed_port()]) * 2 - sparge_riser_od,
     " mm of slack through the port's bore"
   ));
 
@@ -1591,10 +1610,10 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // Echoed above and asserted here: a riser wider than the bore it passes is not a tight fit, it
   // is an assembly that does not exist. design-conventions.md puts that on the assert side.
   assert(
-    sparge_riser_od <= head_ports[sparge_feed_port][1] * 2,
+    sparge_riser_od <= head_port_bore_radius(head_ports[head_sparge_feed_port()]) * 2,
     str(
-      "Sparge riser is ", sparge_riser_od, " mm across but port ", sparge_feed_port, " bores ",
-      head_ports[sparge_feed_port][1] * 2, " mm, so it cannot pass through the lid."
+      "Sparge riser is ", sparge_riser_od, " mm across but the air_in port bores ",
+      head_port_bore_radius(head_ports[head_sparge_feed_port()]) * 2, " mm, so it cannot pass through the lid."
     )
   );
 
@@ -1760,7 +1779,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // The coupling decides where a port comes to rest, so a port carrying an orientation is only
   // as true as the coupling is keyed. Unkeyed, each of these locks just as willingly in any of
   // its seatings and the plate or the lean ends up somewhere the model never showed.
-  _oriented_at = [for (i = [0:lid_holes_n - 1]) if (head_port_is_oriented(head_ports[i][0])) i];
+  _oriented_at = [for (i = [0:lid_holes_n - 1]) if (head_port_is_oriented(head_port_type(head_ports[i]))) i];
 
   // checked before the keying assert below, which would otherwise report the missing helpers as
   // an undef seating count and send you looking in the wrong place
@@ -1849,8 +1868,9 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
     for (i = [0:lid_holes_n - 1]) {
       _port = head_ports[i];
+      _type = head_port_type(_port);
       _show =
-      render_all || (_port[0] == "tube" && render_tube_pinlock) || (_port[0] == "probe" && render_probe_pinlock) || (_port[0] == "thermocouple" && render_thermocouple_pinlock) || (_port[0] == "baffle" && render_baffle_pinlock);
+      render_all || (_type == "tube" && render_tube_pinlock) || (_type == "probe" && render_probe_pinlock) || (_type == "thermocouple" && render_thermocouple_pinlock) || (_type == "baffle" && render_baffle_pinlock);
 
       if (_show)
         color(prints1_color)
