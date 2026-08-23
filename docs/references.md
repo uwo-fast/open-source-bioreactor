@@ -425,6 +425,62 @@ unresolved citation.
 
 ---
 
+## Unbaffled vessels and eccentric agitation
+
+Opened because mouths under about 98 mm cannot hold four baffles beside two Ø16 probes at any port
+count (`working.tmp/PORTS-options.md`), so the small jars in the family are unbaffled whatever else
+is decided. Everything here is **unread** — obtained as citations and secondary summaries, not as
+full text. The quantitative claims below are exactly the ones that need the papers before they can
+be leaned on.
+
+**Montante, G.; Bakker, A.; Paglianti, A.; Magelli, F. (2006).** "Effect of the shaft eccentricity
+on the hydrodynamics of unbaffled stirred tanks." *Chemical Engineering Science* 61:2807-2814.
+[doi:10.1016/j.ces.2005.09.021](https://doi.org/10.1016/j.ces.2005.09.021) **[PR]** · **unread**
+The reference for eccentric mounting as a swirl fix: off-centre placement breaks the axisymmetric
+rotating column that forms around a centred shaft in an unbaffled vessel. Reported second-hand as
+giving mixing times similar to or lower than a baffled vessel with a centred shaft, **with a pitched
+blade turbine** — which is this design's impeller, so it is the closest match in the literature and
+the one worth retrieving first.
+
+**Galletti, C.; Pintus, S.; Brunazzi, E. (2009).** "Effect of shaft eccentricity and impeller blade
+thickness on the vortices features in an unbaffled vessel." *Chemical Engineering Research and
+Design* 87:391-400. [doi:10.1016/j.cherd.2008.11.013](https://doi.org/10.1016/j.cherd.2008.11.013)
+**[PR]** · **unread**
+Two vortices, above and below the impeller, with the upper one dominating and its inclination set by
+the eccentricity. Notes the vortex oscillates slowly rather than sitting steady, which is a caution
+rather than a recommendation: it means macro-mixing in an eccentric unbaffled vessel is unsteady.
+
+**Scargiali, F.; Busciglio, A.; Grisafi, F.; Brucato, A. (2014).** "Mass transfer and hydrodynamic
+characteristics of unbaffled stirred bio-reactors: Influence of impeller design." *Biochemical
+Engineering Journal* 82:41-47. [doi:10.1016/j.bej.2013.11.009](https://doi.org/10.1016/j.bej.2013.11.009)
+**[PR]** · **unread**
+The reason unbaffled is a design choice and not only a fallback. In an uncovered unbaffled vessel the
+free-surface vortex transfers gas without sparging, so bubble bursting and the cell damage that goes
+with it are avoided entirely — attractive for shear-sensitive and foaming systems. **Note this is the
+opposite strategy to the one above**: eccentric mounting suppresses the vortex, this uses it. They
+are two different vessels, not one recommendation.
+
+**Busciglio, A.; Scargiali, F.; Grisafi, F.; Brucato, A. (2016).** "Oscillation dynamics of free
+vortex surface in uncovered unbaffled stirred vessels." *Chemical Engineering Journal* 285:477-486.
+[doi:10.1016/j.cej.2015.10.015](https://doi.org/10.1016/j.cej.2015.10.015) **[PR]** · **unread**
+
+**Labík, L.; Petříček, R.; Moucha, T.; Brucato, A.; Caputo, G.; Grisafi, F. (2018).** "Scale-up and
+viscosity effects on gas-liquid mass transfer rates in unbaffled stirred tanks." *Chemical
+Engineering Research and Design* 132:584-592.
+[doi:10.1016/j.cherd.2018.01.051](https://doi.org/10.1016/j.cherd.2018.01.051) **[PR]** · **unread**
+
+**What the geometry says regardless of the papers.** Eccentric mounting is not currently available in
+this architecture. The motor mount is a Ø56 body centred on the lid, and the port flanges reach
+inward to `head_port_circle_radius(mouth) − 13.6`. On `jar_1p5L` the mount overlaps that band by
+12.45 mm and on `jar_1gal_155` by 8.30 mm — **an unasserted collision**, masked only because the
+port-spacing assert fires first. Where there is room at all it is small: e/T ≤ 0.070 on `jar_10L` and
+≤ 0.099 on `jar_1gal_180`, against the 0.1-0.4 the literature works in. Moving the shaft off-centre
+would mean shrinking the mount or moving the ports, and on the two jars that need it there is no
+headroom at all.
+→ `working.tmp/PORTS-options.md`, `TODO.md` airlift item
+
+---
+
 ## Purchased parts
 
 Vendor pages and datasheets are cited inline on the registry row that uses them, since the row is
