@@ -24,7 +24,23 @@ include <../purchased/orings.scad>;
 //                ["name" [iface_r, shell_t, pin_r, allow], [flange_h, flange_lip], oring,             [n_pins, sweep, pin_dir, turn_dir, key]]
 bayonet_std     = ["std", [10,      2.5,     1.2,   0.2  ], [5,        0.6       ], oring_23x1p5_epdm, [3,      30,    "outer", "CW",     25 ]];
 
-bayonet_interfaces = [bayonet_std];
+// std is sized for what has to pass through it: a 16 mm Atlas probe body with 2 mm of collet wall
+// either side. Nothing else on the lid needs that. A 2.4 mm dosing line carried the same 13.6 mm
+// flange as a probe, and since what limits a port circle is the worst ADJACENT PAIR of flanges, that
+// was the whole family's smallest mouth - see docs/ports-layout.md.
+//
+// The flange follows the seal rather than the bore, so a smaller interface is only worth having if
+// a smaller ring can still stand outboard of its lock bore. These two can:
+//   mini  passes a 3 mm bore tube with 2 mm of wall, flange r 8.60
+//   midi  passes a 1/8 NPT thermocouple mount, flange r 10.60
+// against std's 13.60. Both were checked at their own radius rather than assumed - the key margin
+// is the constraint that tightens as the circle shrinks, and mini leaves 25 degrees against the
+// 14.6 it needs. Baffles cannot use either: the plate drops through the lock bore, so a mini gives
+// a 3.6 mm baffle. Baffles stay std.
+bayonet_mini    = ["mini",[5,       2.5,     1.2,   0.2  ], [5,        0.6       ], oring_13x1p5_epdm, [3,      30,    "outer", "CW",     25 ]];
+bayonet_midi    = ["midi",[7,       2.5,     1.2,   0.2  ], [5,        0.6       ], oring_17x1p5_epdm, [3,      30,    "outer", "CW",     25 ]];
+
+bayonet_interfaces = [bayonet_std, bayonet_midi, bayonet_mini];
 
 // example usage (see bayonet_port.scad, which previews bayonet_std directly)
 // bayonet_port(bayonet_std, part="pin", panel_thickness=18, center_bore_radius=3);

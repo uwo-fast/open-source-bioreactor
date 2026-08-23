@@ -12,8 +12,12 @@
 
 //                        ["name"           part_no      [id,     cs  ], material, shore, colour ]
 
-// McMaster 8785N383, water- and steam-resistant EPDM, -65 to 300 F, ASTM D2000 / SAE J200.
-// Port face seals, one per bayonet port; the gland in bayonet_port.scad is cut for it.
+// Port face seals, one per bayonet port; the gland in bayonet_port.scad is cut for whichever the
+// interface names. All 70A, -65 to 300 F, ASTM D2000. Each has to encircle its coupling's opening
+// and still stand on the land outboard of the lock bore, which is what sets the ID: the rule is
+// ID >= 2*(lock_bore_r + land + cs/2), and bayonet_port() asserts it rather than trusting the row.
+oring_13x1p5_epdm      = ["13x1.5 EPDM",   "1289N323",  [13,      1.5 ], "EPDM",   70,    "Black"];
+oring_17x1p5_epdm      = ["17x1.5 EPDM",   "8785N378",  [17,      1.5 ], "EPDM",   70,    "Black"];
 oring_23x1p5_epdm      = ["23x1.5 EPDM",   "8785N383",  [23,      1.5 ], "EPDM",   70,    "Black"];
 
 // The lid plug's radial seal, AS568 dash 150 to 171, all 3/32 in (2.62 mm) cord. That width is not
@@ -54,7 +58,7 @@ oring_as568_169_epdm   = ["AS568-169",     "8785N647",  [190.170, 2.62], "EPDM",
 oring_as568_170_epdm   = ["AS568-170",     "8785N648",  [196.520, 2.62], "EPDM",   70,    "Black"];
 oring_as568_171_epdm   = ["AS568-171",     "8785N649",  [202.870, 2.62], "EPDM",   70,    "Black"];
 
-orings = [oring_23x1p5_epdm, oring_as568_150_epdm, oring_as568_151_epdm, oring_as568_152_epdm,
+orings = [oring_13x1p5_epdm, oring_17x1p5_epdm, oring_23x1p5_epdm, oring_as568_150_epdm, oring_as568_151_epdm, oring_as568_152_epdm,
            oring_as568_153_epdm, oring_as568_154_epdm, oring_as568_155_epdm, oring_as568_156_epdm,
            oring_as568_157_epdm, oring_as568_158_epdm, oring_as568_159_epdm, oring_as568_160_epdm,
            oring_as568_161_epdm, oring_as568_162_epdm, oring_as568_163_epdm, oring_as568_164_epdm,
