@@ -429,18 +429,31 @@ unresolved citation.
 
 Opened because mouths under about 98 mm cannot hold four baffles beside two Ø16 probes at any port
 count (`working.tmp/PORTS-options.md`), so the small jars in the family are unbaffled whatever else
-is decided. Everything here is **unread** — obtained as citations and secondary summaries, not as
-full text. The quantitative claims below are exactly the ones that need the papers before they can
-be leaned on.
+is decided.
+
+**Two claims in the first draft of this section came from search summaries and were wrong.** Montante
+was recorded as using a pitched blade turbine — it uses a Rushton — and as reporting mixing times
+comparable to baffled, which it does not report at all. Both are corrected below now the papers have
+been read. The mixing-time claim traces to Hall et al. (2004), which is still unread.
 
 **Montante, G.; Bakker, A.; Paglianti, A.; Magelli, F. (2006).** "Effect of the shaft eccentricity
 on the hydrodynamics of unbaffled stirred tanks." *Chemical Engineering Science* 61:2807-2814.
-[doi:10.1016/j.ces.2005.09.021](https://doi.org/10.1016/j.ces.2005.09.021) **[PR]** · **unread**
-The reference for eccentric mounting as a swirl fix: off-centre placement breaks the axisymmetric
-rotating column that forms around a centred shaft in an unbaffled vessel. Reported second-hand as
-giving mixing times similar to or lower than a baffled vessel with a centred shaft, **with a pitched
-blade turbine** — which is this design's impeller, so it is the closest match in the literature and
-the one worth retrieving first.
+[doi:10.1016/j.ces.2005.09.021](https://doi.org/10.1016/j.ces.2005.09.021) **[PR]** · **read**
+PIV plus RANS CFD in a T = 23.6 cm closed vessel, **Rushton turbine** D = T/3 at C = T/2, 400 rpm,
+Re 4.1e4 — within 15% of this design's rated Re of 4.7e4. The vessel carried a lid deliberately, "in
+order to avoid uncertainties in the velocity measurements due to air bubbles entrainment", so this is
+a closed vessel with no free-surface vortex, like ours.
+The number that matters: with the shaft **centred** and no baffles, the measured impeller flow number
+is **0.25, about 65% below the same impeller in a baffled vessel** (p. 2811, agreeing with Brunazzi
+2003 by LDA). That is the cost of leaving a vessel unbaffled with a centred shaft, and it is large.
+Moving the shaft to **E = T/4** destroys the double-loop structure and the solid-body swirl, replacing
+it with two vortices — one inclined about 10 deg from vertical toward the bottom, one about 30 deg
+toward the top. The paper is a CFD-validation study and **reports no mixing times and no flow number
+for the eccentric case**, so it establishes that eccentricity changes the flow, not by how much it
+improves mixing. It attributes that improvement to Hall et al. (2004), unread here.
+Also useful as a modelling caution: k-epsilon predicts unphysical rigid-body rotation in this
+geometry and steady-state RANS misses the vortices entirely; the Reynolds stress model with a
+transient sliding mesh was needed.
 
 **Galletti, C.; Pintus, S.; Brunazzi, E. (2009).** "Effect of shaft eccentricity and impeller blade
 thickness on the vortices features in an unbaffled vessel." *Chemical Engineering Research and
@@ -453,12 +466,24 @@ rather than a recommendation: it means macro-mixing in an eccentric unbaffled ve
 **Scargiali, F.; Busciglio, A.; Grisafi, F.; Brucato, A. (2014).** "Mass transfer and hydrodynamic
 characteristics of unbaffled stirred bio-reactors: Influence of impeller design." *Biochemical
 Engineering Journal* 82:41-47. [doi:10.1016/j.bej.2013.11.009](https://doi.org/10.1016/j.bej.2013.11.009)
-**[PR]** · **unread**
-The reason unbaffled is a design choice and not only a fallback. In an uncovered unbaffled vessel the
-free-surface vortex transfers gas without sparging, so bubble bursting and the cell damage that goes
-with it are avoided entirely — attractive for shear-sensitive and foaming systems. **Note this is the
-opposite strategy to the one above**: eccentric mounting suppresses the vortex, this uses it. They
-are two different vessels, not one recommendation.
+**[PR]** · **read**
+T = 190 mm closed vessel with a mechanical shaft seal, six impellers compared including **a PBT at
+D = T/3**, 100-1300 rpm. Splits the behaviour at a critical speed N_crit where the surface vortex
+reaches the impeller and starts ingesting gas.
+Sub-critical (no bubbles at all, transfer through the vortex surface): kLa tops out at 1.3e-3 to
+3.5e-3 1/s depending on impeller, against the 2.8e-4 1/s minimum for animal cell culture — so about
+ten times what such a culture needs, with no bubble bursting anywhere in the vessel. **The PBT is
+recommended by name**: "consistently more efficient in terms of power requirements for achieving a
+given kLa" and "may be recommended as a best choice for growing shear sensitive cells". Its critical
+point is N_crit 650 rpm, P/V 126 W/m3, Np 0.52, kLa 2.34e-3 1/s (Table 1).
+Super-critical: unbaffled becomes comparable to standard sparged baffled reactors, but only above
+about **500 W/m3** — this design runs 209 W/m3 at its rated 320 rpm and 473 W/m3 at no-load 420 rpm,
+so it sits below that crossover.
+Both regimes here are **unsparged**. For a vessel that is both unbaffled and sparged, as ours would
+be, the paper points to Cabaret et al. (2008), *Chem Eng Sci* 63:1636-1647, who measured kLa of
+0.01-0.06 1/s — an order above the vortex route and in the normal range for a stirred bioreactor.
+**Note this is the opposite strategy to the one above**: eccentric mounting suppresses the vortex,
+this uses it. They are two different vessels, not one recommendation.
 
 **Busciglio, A.; Scargiali, F.; Grisafi, F.; Brucato, A. (2016).** "Oscillation dynamics of free
 vortex surface in uncovered unbaffled stirred vessels." *Chemical Engineering Journal* 285:477-486.
