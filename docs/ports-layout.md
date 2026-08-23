@@ -69,3 +69,87 @@ Nothing names the index 8. `head_sparge_feed_port()` asks the table which port i
 back wherever it currently sits, so reordering the lid carries the sparger with it. The lookup
 insists on exactly one match, so a table with two air inlets or none fails loudly rather than
 silently taking the first.
+
+## One table does not serve the family
+
+The layout above is a 143 mm mouth's layout. It does not fit the two narrow jars, and no amount of
+rearranging makes it fit: two Ø16 Atlas probe bodies force a 13.6 mm flange, four baffles force four
+more of them, and six flanges of that size do not go onto a Ø58 port circle in any order. That is
+geometry, not tuning.
+
+What sets the limit is the **worst adjacent pair**, not the port count:
+
+```
+2·Rpc·sin(180/n)  ≥  flange_r(i) + flange_r(i+1) + lid_holes_offset
+```
+
+Three consequences, all invisible while every port was the same size:
+
+1. **Order matters.** The layout above puts a baffle beside a probe twice, so the binding pair is
+   13.6 + 13.6 even though half the ports are 1.5–3 mm tubes.
+2. **Big ports must be at most half the count**, or two are forced adjacent and every saving
+   elsewhere is wasted.
+3. **A middle size can be worse than a small one**, because what binds is the pair, not the port.
+
+A flange is as big as it is because of its face seal, not its bore:
+
+```
+flange_r = (oring_ID + 2·cs)/2 + lip        oring_ID = 2·(lock_bore_r + land + cs/2)
+```
+
+That returns 23 mm for the standard interface, which is exactly the registered ring — so it is the
+rule the design already used. Ø16 probe body, 2 mm collet wall each side, Ø20 opening, Ø23 ring,
+13.6 mm flange. **Nothing in that chain has slack**, which is why every limit below traces back to
+the two probes.
+
+| interface | iface_r | flange_r | baffle width, 9 mm plate |
+| --- | --- | --- | --- |
+| std | 10 | 13.60 | 17.5 mm |
+| midi | 7 | 10.60 | 10.3 mm |
+| mini | 5 | 8.60 | 3.6 mm — useless |
+
+Baffles cannot be small: the plate drops through the lock bore, so `width = 2·√(bore² − (t/2)²)`.
+
+## The two port sets
+
+| set | ports | functions | min mouth |
+| --- | --- | --- | --- |
+| **full** | 12 | 4 baffle, do_probe, ph_probe, temperature, air_in, air_out, media, acid, base | 130.4 mm |
+| **reduced** | 6 | do_probe, ph_probe, temperature, air_in, air_out, media | 81.6 mm |
+
+The reduced set keeps both probes, temperature, the gas path in and out, and one liquid line. It
+drops the four baffles and the acid/base pair — pH control is what a narrow jar gives up, not
+measurement. Which functions a given experiment wants is the operator's call; this is the default.
+
+| vessel | mouth | full 12 | reduced 6 | assigned |
+| --- | --- | --- | --- | --- |
+| `jar_1p5L_109x215` | 87.5 | −11.11 | **+2.95** | reduced |
+| `jar_1gal_155x251` | 95.8 | −8.96 | **+7.10** | reduced |
+| `jar_6p5gal_305x470` | 137.0 | **+1.70** | +27.70 | full |
+| `jar_10L_220x305` | 143.0 | **+3.25** | +30.70 | full |
+| `jar_1gal_180x197` | 148.0 | **+4.55** | +33.20 | full |
+| `generic` | 150.0 | **+5.07** | +34.20 | full |
+
+Figures are millimetres of slack in the worst adjacent pair, against the 2 mm the lid keeps.
+
+Two notes on the full set. It assumes the thermocouple moves off 1/2 NPT onto a midi flange — on
+twelve ports that is the difference between seven big ports and six, and so between a 142 mm and a
+130 mm smallest mouth, because seven of twelve forces two big ones adjacent. And it assumes the big
+ports are **spread so no two touch**; that reordering alone is worth 19.3 mm of smallest mouth and
+takes `jar_6p5gal` from failing to fitting. `jar_10L` today has 0.25 mm of slack and would have 3.25.
+
+## Baffles on a narrow jar
+
+The small jars are unbaffled, and an unbaffled vessel with a centred shaft swirls: Montante measured
+a flow number of 0.25 for a centred unbaffled impeller, **65% below the same impeller baffled**.
+
+Off-centring the shaft is the established fix and is well supported — Hall measured 45° PBTs in
+60 and 88 mm vessels and found eccentric agitation indistinguishable from baffled at equal power, and
+36% faster than unbaffled centred. **It is not available here.** Eccentricity is referenced to the
+tank diameter while the room for it is set by the mouth, and the motor mount sits in that room:
+Hall's e = 0.2 T wants 21.8 mm on `jar_1p5L`, where the best any lid can offer is 0.5 mm. See
+`docs/references.md` for the numbers on every vessel.
+
+So the narrow jars trade baffles for a real change of agitation, not for a shrug. That is the airlift
+variant in `TODO.md`, and it is the same change that removes the motor mount — the part that blocks
+the ports and the eccentricity both.
