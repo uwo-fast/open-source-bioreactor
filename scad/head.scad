@@ -367,6 +367,22 @@ head_ports = [
 // it rather than repeating it; the assert in head() still catches an override that disagrees
 lid_holes_n = len(head_ports);
 
+// Which bayonet a port mates to. Every port shared one until the family outgrew it: std is sized
+// for a 16 mm Atlas probe body, and what limits a port circle is the worst ADJACENT PAIR of
+// flanges, so putting a 2.4 mm dosing line on a probe-sized flange cost the whole lid. Derived
+// rather than registered - what a port has to pass is already in its row.
+function head_interface_for(type, bore) = head_bayonet;
+function head_port_interface(port) =
+  head_interface_for(head_port_type(port), head_port_bore_radius(port));
+
+// The biggest interface in use. The port circle has to clear the widest through-bore and the plug
+// groove the widest lock, so both derive from this rather than from whichever port is handy.
+function head_widest_interface() =
+  let (
+    _used = [for (p = head_ports) head_port_interface(p)],
+    _holes = [for (i = _used) bayonet_port_hole_radius(i)]
+  ) _used[search(max(_holes), _holes)[0]];
+
 function head_port_function(port) = port[0]; // what it is for, and this table's identity
 function head_port_type(port) = port[1]; // how it is built
 function head_port_bore_radius(port) = port[2]; // through-hole, 0 where nothing passes
@@ -504,7 +520,7 @@ module dummy() {
 function head_lid_thickness(lid_flange_height) = lid_flange_height + lid_plug_height;
 function head_lid_plug_diameter(vessel_opening_diameter) = vessel_opening_diameter - lid_radial_allowance;
 function head_port_circle_radius(vessel_opening_diameter) =
-  head_lid_plug_diameter(vessel_opening_diameter) / 2 - bayonet_port_hole_radius(head_bayonet) - lid_holes_offset;
+  head_lid_plug_diameter(vessel_opening_diameter) / 2 - bayonet_port_hole_radius(head_widest_interface()) - lid_holes_offset;
 
 // The mount's base screws land on one circle in two parts: clearance holes through the mount's
 // flange, insert holes into the lid. Both read this, so the pattern cannot drift between them.
@@ -559,7 +575,7 @@ function head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt
 // impellers sweep, which it now passes alongside rather than stopping above. Whichever binds.
 function head_baffle_width(vessel_opening_diameter, impeller_diameter) =
   min(
-    bayonet_baffle_width(head_bayonet, baffle_thickness, baffle_bore_clearance),
+    bayonet_baffle_width(head_interface_for("baffle", 0), baffle_thickness, baffle_bore_clearance),
     2 * (head_port_circle_radius(vessel_opening_diameter) - impeller_diameter / 2 - baffle_impeller_clearance),
     head_baffle_ring_limit(vessel_opening_diameter)
   );
@@ -674,7 +690,7 @@ function head_plug_oring_stretch(vessel_opening_diameter, ring) =
 // bore. So this is a property of the bayonet and the lid, not of any jar: a cord over it fouls the
 // bores on every vessel in the family, and a cord under it fits on all of them.
 function head_plug_oring_cord_limit() =
-  (lid_radial_allowance / 2 + bayonet_port_hole_radius(head_bayonet) - bayonet_lock_bore_radius(head_bayonet))
+  (lid_radial_allowance / 2 + bayonet_port_hole_radius(head_widest_interface()) - bayonet_lock_bore_radius(head_widest_interface()))
   / (1 - lid_plug_oring_squeeze);
 
 // Under zero the ring sags out of its groove; over five percent it thins the cord; over the cord
@@ -751,7 +767,7 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
       for (i = [0:lid_holes_n - 1])
         head_port_at(i, vessel_opening_diameter)
           translate([0, 0, _thickness / 2])
-            cylinder(r=bayonet_port_hole_radius(head_bayonet), h=_thickness + z_fight, center=true);
+            cylinder(r=bayonet_port_hole_radius(head_port_interface(head_ports[i])), h=_thickness + z_fight, center=true);
 
       // rim gasket recess, sunk into the flange's glass-facing face
       translate([0, 0, lid_flange_height - _gasket_depth])
@@ -783,12 +799,13 @@ module head_port(port, panel_thickness, baffle_width) {
   _type = head_port_type(port);
   _bore = head_port_bore_radius(port);
   _probe = head_port_probe(port);
+  _iface = head_port_interface(port);
 
   if (_type == "tube") {
     // The tube interface is just the generic port with its bore set, and the bore printed
     // on the flange.
     bayonet_port(
-      type=head_bayonet,
+      type=_iface,
       part="pin",
       panel_thickness=panel_thickness,
       center_bore_radius=_bore,
@@ -797,7 +814,7 @@ module head_port(port, panel_thickness, baffle_width) {
   } else if (_type == "probe") {
     assert(!is_undef(_probe), "head_port: a \"probe\" entry needs a registered atlas probe in slot 4");
     bayonet_probe_port(
-      type=head_bayonet,
+      type=_iface,
       probe=_probe,
       panel_thickness=panel_thickness,
       center_bore_radius=_bore,
@@ -811,7 +828,7 @@ module head_port(port, panel_thickness, baffle_width) {
     );
   } else if (_type == "baffle") {
     bayonet_baffle_port(
-      type=head_bayonet,
+      type=_iface,
       panel_thickness=panel_thickness,
       length=baffle_length,
       thickness=baffle_thickness,
@@ -821,7 +838,7 @@ module head_port(port, panel_thickness, baffle_width) {
     );
   } else if (_type == "thermocouple") {
     bayonet_thermocouple_port(
-      type=head_bayonet,
+      type=_iface,
       panel_thickness=panel_thickness,
       center_bore_radius=_bore,
       mount_height=thermocouple_mount_height
@@ -1498,7 +1515,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       "WARNING baffle plate: ", _baffle_deflection, " mm of tip deflection is over a tenth of the ",
       _baffle_width, " mm plate. It is bending away from the swirl rather than blocking it; ",
       "thicken it - stiffness goes as the cube of thickness and the lock bore allows ",
-      bayonet_baffle_width(head_bayonet, baffle_thickness, baffle_bore_clearance) > _baffle_width
+      bayonet_baffle_width(head_interface_for("baffle", 0), baffle_thickness, baffle_bore_clearance) > _baffle_width
         ? "more" : "no more", "."
     ));
 
@@ -1579,12 +1596,12 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // be derived from the thing it checks and could never fire, which docs/design-conventions.md
   // calls a dead assert. What is worth reporting is what the placement cost.
   if (_has_baffles && head_baffle_ring_limit(vessel_opening_diameter) < 2 * (port_circle_radius - impeller_diameter / 2 - baffle_impeller_clearance)
-    && head_baffle_ring_limit(vessel_opening_diameter) < bayonet_baffle_width(head_bayonet, baffle_thickness, baffle_bore_clearance))
+    && head_baffle_ring_limit(vessel_opening_diameter) < bayonet_baffle_width(head_interface_for("baffle", 0), baffle_thickness, baffle_bore_clearance))
     echo(str(
       "sparge ring: the ring is what caps the baffles here, at ",
       head_baffle_ring_limit(vessel_opening_diameter),
       " mm - they would otherwise be ",
-      min(bayonet_baffle_width(head_bayonet, baffle_thickness, baffle_bore_clearance),
+      min(bayonet_baffle_width(head_interface_for("baffle", 0), baffle_thickness, baffle_bore_clearance),
         2 * (port_circle_radius - impeller_diameter / 2 - baffle_impeller_clearance)),
       " mm. Room outside a baffle does not grow with the mouth, so this is the trade on every jar."
     ));
@@ -1726,7 +1743,15 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // the port circle is sized against the plug's edge, so what it does not settle is whether
   // that many ports clear each other on it. The flange is the widest thing a port has, and it
   // carries the o-ring groove outboard of the bore, so it is what meets the neighbour first.
-  _port_gap = 2 * port_circle_radius * sin(180 / lid_holes_n) - bayonet_flange_radius(head_bayonet) * 2;
+  // The chord is the same between every pair, but the flanges are not, so what limits the circle is
+  // the worst PAIR rather than twice any one port. Spreading the big ports so no two touch is worth
+  // more than any single size change - see docs/ports-layout.md.
+  _port_gap = min([
+    for (i = [0:lid_holes_n - 1])
+      2 * port_circle_radius * sin(180 / lid_holes_n)
+      - bayonet_flange_radius(head_port_interface(head_ports[i]))
+      - bayonet_flange_radius(head_port_interface(head_ports[(i + 1) % lid_holes_n]))
+  ]);
 
   assert(
     _port_gap >= lid_holes_offset,
@@ -1738,13 +1763,13 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // port circle comes in far enough that the mount lands on top of the flanges, and the spacing
   // assert above fires first only because such a mouth is crowded anyway. Both radii are measured
   // from the lid's centre, so the check is one subtraction.
-  _mount_to_ports = port_circle_radius - bayonet_flange_radius(head_bayonet) - motor_mount_body_diameter / 2;
+  _mount_to_ports = port_circle_radius - bayonet_flange_radius(head_widest_interface()) - motor_mount_body_diameter / 2;
 
   assert(
     _mount_to_ports >= lid_holes_offset,
     str(
       "Motor mount is ", motor_mount_body_diameter, " mm across and the port flanges reach in to r ",
-      port_circle_radius - bayonet_flange_radius(head_bayonet), ", leaving ", _mount_to_ports,
+      port_circle_radius - bayonet_flange_radius(head_widest_interface()), ", leaving ", _mount_to_ports,
       " mm between them; ", lid_holes_offset, " mm is the least this lid keeps."
     )
   );
@@ -1862,10 +1887,10 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // the groove is cut from the bore, so a fatter cord walks inward toward the port bores; the
   // wall it must leave them is the same one the lid keeps everywhere else
   assert(
-    _groove_r - (port_circle_radius + bayonet_lock_bore_radius(head_bayonet)) >= lid_holes_offset,
+    _groove_r - (port_circle_radius + bayonet_lock_bore_radius(head_widest_interface())) >= lid_holes_offset,
     str(
       "A ", oring_cross_section(_plug_ring), " mm cord puts the plug groove at r ", _groove_r, ", leaving ",
-      _groove_r - (port_circle_radius + bayonet_lock_bore_radius(head_bayonet)),
+      _groove_r - (port_circle_radius + bayonet_lock_bore_radius(head_widest_interface())),
       " mm to the port bores; ", lid_holes_offset, " mm is the least this lid keeps."
     )
   );
@@ -1907,16 +1932,24 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // checked before the keying assert below, which would otherwise report the missing helpers as
   // an undef seating count and send you looking in the wrong place
   assert(
-    !is_undef(bayonet_pin_angles(head_bayonet)),
+    !is_undef(bayonet_pin_angles(head_widest_interface())),
     "head: needs bayonet-lock-scad >= 0.11.0, for pin_angles and the keying functions"
   );
 
+  // Keying belongs to the interface, and ports no longer share one, so this asks each oriented port
+  // about its own rather than about a global that may not be the one it mates to.
+  _unkeyed_at = [
+    for (i = _oriented_at) if (!bayonet_is_keyed(head_port_interface(head_ports[i]))) i,
+  ];
+
   assert(
-    len(_oriented_at) == 0 || bayonet_is_keyed(head_bayonet),
+    len(_unkeyed_at) == 0,
     str(
-      "Ports at ", _oriented_at, " carry an orientation, but the bayonet locks in ",
-      bayonet_seating_count(head_bayonet), " indistinguishable seatings, so each would come to rest ",
-      360 / bayonet_seating_count(head_bayonet), " degrees from where it is drawn. Key the interface."
+      "Ports at ", _unkeyed_at, " carry an orientation on an unkeyed interface, which locks in ",
+      bayonet_seating_count(head_port_interface(head_ports[_unkeyed_at[0]])),
+      " indistinguishable seatings - each would come to rest ",
+      360 / bayonet_seating_count(head_port_interface(head_ports[_unkeyed_at[0]])),
+      " degrees from where it is drawn. Key the interface."
     )
   );
 
@@ -1941,7 +1974,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   module lid_locks() {
     for (i = [0:lid_holes_n - 1])
       head_port_at(i, vessel_opening_diameter)
-        bayonet_port(type=head_bayonet, part="lock", panel_thickness=lid_thickness);
+        bayonet_port(type=head_port_interface(head_ports[i]), part="lock", panel_thickness=lid_thickness);
   }
 
   // The lid part: the blank, pocketed for the bearing and shaft and bored for the ports, with
@@ -1976,22 +2009,24 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
     // port o-rings, each seated against the outer wall of its gland
     for (i = [0:lid_holes_n - 1])
-      head_port_at(i, vessel_opening_diameter)
-        translate([0, 0, bayonet_gland_depth(head_bayonet) / 2])
-          oring(
-            bayonet_oring(head_bayonet),
-            id=(bayonet_gland_outer_radius(head_bayonet) - bayonet_oring_cs_diameter(head_bayonet)) * 2
-          );
+      let (_pi = head_port_interface(head_ports[i]))
+        head_port_at(i, vessel_opening_diameter)
+          translate([0, 0, bayonet_gland_depth(_pi) / 2])
+            oring(
+              bayonet_oring(_pi),
+              id=(bayonet_gland_outer_radius(_pi) - bayonet_oring_cs_diameter(_pi)) * 2
+            );
   }
 
   // Port pin halves. Each shares the lock's datum, so it needs no placement beyond its hole
   // centre; port_position only turns it about its own axis, between locked and entry.
   if (render_tube_pinlock || render_probe_pinlock || render_thermocouple_pinlock || render_baffle_pinlock || render_all) {
-    _port_turn = (port_position == "entry") ? bayonet_entry_rotation(head_bayonet) : 0;
-
     for (i = [0:lid_holes_n - 1]) {
       _port = head_ports[i];
       _type = head_port_type(_port);
+      _port_turn = (port_position == "entry")
+        ? bayonet_entry_rotation(head_port_interface(_port))
+        : 0;
       _show =
       render_all || (_type == "tube" && render_tube_pinlock) || (_type == "probe" && render_probe_pinlock) || (_type == "thermocouple" && render_thermocouple_pinlock) || (_type == "baffle" && render_baffle_pinlock);
 
