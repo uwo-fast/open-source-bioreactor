@@ -190,6 +190,21 @@
   - its floor is set by the gearbox faceplate, `bolt_circle/2 + screw_d` = 18 mm radius, so Ø36 is reachable. That would roughly double the available eccentricity on the wide jars - 0.060 to 0.129 e/T on `jar_10L`, which Karcz's correlation puts at 24% to 37% off the centred mixing time
   - it does not rescue the narrow jars. Nothing does; see `docs/references.md`
 
+- [ ] report a mixing time
+  - the reactor reports power, dissipation, Re and tip speed but never says how long it takes to blend, which is the number a fermentation paper leads with. Two standard correlations and this model already holds every input: Cooke's `t90 = 3.3 (1/N) Po^-0.33 (T/D)^0.33` and Ruszkowski's `t95 = 5.9 T^0.67 eps_T^-0.33 (T/D)^0.33`, both given in Hall 2004 (`docs/references.md`)
+  - report both and the departure, do not assert. Hall is explicit that these were developed for fully baffled vessels of 1e-2 to 10 m3 and uses them at 60 mm "merely for comparative purposes"; this vessel is 8 L, so the same caveat applies and belongs in the echo
+  - it also makes the unbaffled small jars sayable: Hall measured baffled 1.98 s against unbaffled centred 2.80 s at equal power, so a reported figure gives the reduced-port vessels something to be judged against
+
+- [ ] report kLa
+  - the other headline number, and the one a reviewer will ask for first on a photobioreactor. Van't Riet's `kLa = C (P/V)^0.4 (u_s)^0.5` needs specific power, which is already computed, and superficial gas velocity, which follows from the sparge flow and the vessel bore
+  - it is an air-water correlation and this is Miracle-Gro at 0.2 g/L, so it is an estimate of the right order and not a measurement - report it as such. Cabaret 2008 has measured values for unbaffled sparged tanks to sanity-check against
+  - worth doing before the rebuild, since it is what says whether 0.5 vvm is the right set point rather than a guess
+
+- [ ] decide whether light penetration belongs in the model
+  - the largest piece of physics this reactor runs on and the only one with nothing in `scad/` at all. For a photobioreactor the light path is what sets the useful diameter, and every vessel in the family has a different one - `jar_6p5gal` is 305 mm across, so its centre is 150 mm from any lamp
+  - Beer-Lambert needs an extinction coefficient for the culture at its working density. `analysis/methods/light-irradiance/` already holds spectroscopy runs, so the input may exist rather than needing measurement
+  - genuinely open whether it belongs here or in `analysis/`: it is not geometry, but it is the constraint that would rule a vessel diameter in or out, which is exactly what the vessel-family work is for
+
 ## drive and aeration
 
 Follows from the agitation work; the reasoning and citations are in `docs/agitation.md`.

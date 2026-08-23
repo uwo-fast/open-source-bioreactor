@@ -123,7 +123,13 @@ frame_wall_thickness = 37;
 
 // tie rods running the assembly; they are also posts on the bolt circle, so the lid is bored for them
 n_rods = 4;
-// the fastener clamping the lid flange to the top base, its nut and clearance following from the type
+// The fastener clamping the lid flange to the top base, its nut and clearance following from the
+// type. M8 is the CAP, not just the current pick: NopSCADlib stops there, and nothing in this design
+// asks for more. The joint's only load is seating the lid gasket, which the echo below reports - a
+// few hundred newtons a post on the jars that build, about 1.7 kN on the widest gasket in the
+// family. An M8 in the softest common class carries that many times over, so going bigger would mean
+// hand-writing screw and nut rows for a size no vessel needs. If a jar ever does need more, the
+// gasket width is the first thing to look at, not the bolt - see head.scad's lid_gasket_width_max.
 joint_bolt = M8_hex_screw;
 // gasket factor m for the lid seal, read back from the registered sheet the head is built around
 // rather than entered here - a harder sheet wants more bolts and nothing else would say so
