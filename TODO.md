@@ -234,6 +234,29 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
   - one paywalled source might yet say something - Kumaresan & Joshi 2006,
     doi:10.1016/j.cej.2005.10.002, worth an interlibrary request
 
+- [ ] explore an airlift variant of the sparger, with no impeller at all
+  - falls out of the port work: mouths under about 98 mm cannot hold four baffles beside two Ø16
+    Atlas probes at any port count, so the small jars are unbaffled whatever else is decided. See
+    `working.tmp/PORTS-options.md` for where that number comes from
+  - the small jars visibly *do* mix on the air alone. That is not a reason to rely on it. Aeration
+    that mixes as a side effect is an uncontrolled variable: the gas rate is then setting both kLa
+    and the mixing time, they cannot be varied independently, and nothing in the model would say
+    what the vessel is actually doing. Leaning on it would be sloppy in exactly the way this design
+    is trying not to be
+  - the honest version is to *design* for it: a real airlift, so the circulation is a geometry we
+    chose and can report. A draft tube gives a defined riser and downcomer, so the circulation
+    velocity follows from the gas holdup difference between them rather than from luck
+  - it is also the more interesting variant for the paper. An impeller-free vessel drops the motor,
+    the gearbox, the shaft, the coupling, the bearing and the seal - most of the cost and nearly all
+    of the contamination risk - and photobioreactors are one of the few applications where that is
+    a normal choice rather than a compromise. It would make the family span two agitation modes off
+    one lid and one sparger, which is a stronger claim than one mode across six jars
+  - what it would need in the model: a draft tube as a part, riser and downcomer areas as derived
+    quantities, superficial gas velocity, and a reported circulation time to sit beside the
+    existing mixing reports. The sparge ring may or may not survive - an airlift usually wants the
+    gas inside the draft tube, not in a ring at 1.44 D
+  - explicitly parked, not scheduled. Nothing here blocks the current build
+
 
 ## nice to haves
 
