@@ -1166,6 +1166,48 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         )
       ));
 
+  // How long it takes to blend, and how fast oxygen crosses in. Both follow from the specific power
+  // already echoed above, so they sit here rather than with the sparger; both are reported and
+  // neither is asserted on - see utils/stirred_tank.scad for what each correlation is worth.
+  for (s = _drive_speeds)
+    let (
+      _rpm = s[1],
+      _power = stirred_tank_power(impeller_diameter, _rpm, _impeller_po),
+      _pv = stirred_tank_mean_dissipation(_power, _culture_volume),
+      _us = stirred_tank_superficial_gas_velocity(_sparge_flow, _vessel_bore)
+    )
+      echo(str(
+        "transfer ", s[0], " ", _rpm, " rpm: blend to 95% in ",
+        stirred_tank_blend_time(_vessel_bore, impeller_diameter, _pv), " s; kLa ",
+        stirred_tank_kla_coalescing(_pv, _us), " 1/s coalescing, ",
+        stirred_tank_kla_non_coalescing(_pv, _us), " 1/s not, at ", _us * 1000,
+        " mm/s superficial gas"
+      ));
+
+  // Both correlations are used outside the range they were fitted in, which is worth saying every
+  // render rather than leaving for someone to find in the source.
+  _kla_band = stirred_tank_kla_power_band();
+  _blend_band = stirred_tank_blend_time_volume_band();
+  _pv_rated = len(_drive_speeds) == 0 ? undef
+    : stirred_tank_mean_dissipation(
+      stirred_tank_power(impeller_diameter, _drive_speeds[len(_drive_speeds) - 1][1], _impeller_po),
+      _culture_volume
+    );
+
+  if (!is_undef(_pv_rated) && _pv_rated < _kla_band[0])
+    echo(str(
+      "transfer: kLa is van't Riet's air-water correlation, fitted over ", _kla_band[0], "-",
+      _kla_band[1], " W/m3, and this vessel runs ", _pv_rated,
+      ". Read it as an order of magnitude, not a number."
+    ));
+
+  if (_culture_volume / 1000 < _blend_band[0])
+    echo(str(
+      "transfer: blend time is Ruszkowski's, fitted on ", _blend_band[0], "-", _blend_band[1],
+      " m3 fully baffled, and this is ", _culture_volume / 1000,
+      " m3. It reproduces Hall's published table at a tenth of that, so the extrapolation is a short one."
+    ));
+
   // Whether the speed above can be measured or only commanded. Worth reporting next to it because
   // the band the drive aims at is narrow, so what resolves it decides whether the model's numbers
   // describe the shaft or only the request.

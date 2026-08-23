@@ -552,6 +552,32 @@ severe damage to *I. galbana*, *S. costatum* and *C. muelleri* between 1.2 and 5
 *T. suecica* tolerates 80 Pa. Shear tolerance spans more than an order of magnitude between species,
 which is why a number borrowed from one alga says little about another.
 
+**Ruszkowski, S. (1994).** "A rational method for measuring blending performance, and comparison of
+different impeller types." *Proc. 8th European Conference on Mixing*, IChemE, p. 283. **[PR]** ·
+**unread**, but **validated**
+The blend-time correlation the model reports, `t95 = 5.9 T^(2/3) eps^(-1/3) (T/D)^(1/3)`. Taken from
+Hall 2004 eq. (13) rather than from the proceedings, which were not obtained — so the source is
+unread, but the equation is not unchecked: it reproduces Hall's own published table, 1.96 s against
+his 1.9 for a 60 mm vessel and 2.59 against 2.6 for an 88 mm one. Fitted on 0.01-10 m3 fully baffled;
+this reactor is 0.0082 m3, so the model echoes the extrapolation every render.
+Hall prints a second correlation beside it, Cooke's `t90 = 3.3 (1/N) Po^(-1/3) (T/D)^(1/3)`. **That
+one is deliberately not encoded** - it could not be made to reproduce the figures Hall prints for it,
+and a correlation that fails its own published check is not one to build a report on.
+→ `scad/utils/stirred_tank.scad`, `scad/head.scad` transfer block
+
+**Van't Riet, K. (1979).** "Review of Measuring Methods and Results in Nonviscous Gas-Liquid Mass
+Transfer in Stirred Vessels." *Industrial & Engineering Chemistry Process Design and Development*
+18:357-364. [doi:10.1021/i260071a001](https://doi.org/10.1021/i260071a001) **[PR]** · **unread**
+The standard first estimate for kLa, in two forms because coalescence sets the bubble size and so
+the interfacial area: `0.026 (P/V)^0.4 us^0.5` coalescing, `0.002 (P/V)^0.7 us^0.2` not. Miracle-Gro
+at 0.2 g/L is dilute enough to be the coalescing case, which gives 0.0098 1/s at the rated 320 rpm -
+inside the 0.01-0.06 1/s Cabaret measured for sparged unbaffled tanks, which is the only independent
+check available here.
+Cited second-hand and used outside its range: the correlation is fitted over 500-10000 W/m3 and this
+vessel runs 209. Air-water, besides. The model echoes both caveats rather than presenting the number
+bare.
+→ `scad/utils/stirred_tank.scad`, `scad/head.scad` transfer block
+
 **What the geometry says, with Karcz's correlation applied to it.** Eccentric mounting is real and
 well supported, and this architecture can barely use it. The motor mount is a Ø56 body centred on the
 lid and the port flanges reach inward to `head_port_circle_radius(mouth) − 13.6`, so the room for an

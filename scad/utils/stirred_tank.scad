@@ -313,3 +313,53 @@ function stirred_tank_mean_dissipation(power, volume) = power / (volume / 1000);
 // weakest-graded source this design leans on for anything.
 function stirred_tank_max_dissipation(impeller_diameter, rpm, power_number, x) =
   1.04 * x * pow(power_number, 0.75) * pow(rpm / 60, 3) * pow(impeller_diameter / 1000, 2);
+
+// ----- blend time -----
+//
+// How long the vessel takes to homogenise, which is the number a fermentation paper leads with and
+// the one this model never reported. Ruszkowski's correlation, as given in Hall 2004 eq. (13):
+//
+//   t95 = 5.9 * T^(2/3) * eps^(-1/3) * (T/D)^(1/3)
+//
+// with T in metres, eps the tank-mean dissipation in W/kg, and the result in seconds. Encoded rather
+// than the Cooke form Hall prints beside it because this one reproduces Hall's own table - 1.96 s
+// against a published 1.9 for his 60 mm vessel, 2.59 against 2.6 for his 88 mm - and the Cooke
+// figures could not be reproduced from the form as printed.
+//
+// Note what it does NOT depend on: impeller type. Blend time at a given specific power is close to
+// impeller-independent, which is the whole point of stating it per unit power.
+function stirred_tank_blend_time(bore, impeller_diameter, mean_dissipation) =
+  5.9
+  * pow(bore / 1000, 2 / 3)
+  * pow(mean_dissipation / stirred_tank_medium_density(), -1 / 3)
+  * pow(bore / impeller_diameter, 1 / 3);
+
+// Ruszkowski's vessels, in m^3. Reported as a departure, not asserted: below the range the
+// correlation is extrapolation, which is exactly what Hall does at 1.7e-4 and says so.
+function stirred_tank_blend_time_volume_band() = [0.01, 10];
+
+// ----- gas-liquid mass transfer -----
+//
+// Superficial gas velocity: the sparge flow spread over the vessel's cross section, m/s from m^3/s
+// and mm. The velocity a bubble would rise at if the gas filled the bore, which is the form every
+// kLa correlation is written in.
+function stirred_tank_superficial_gas_velocity(gas_flow, bore) =
+  gas_flow / (PI / 4 * pow(bore / 1000, 2));
+
+// Van't Riet 1979, the standard first estimate. Two forms, because coalescence dominates the
+// bubble size and so the interfacial area: a clean water-like broth lets bubbles merge, a salty one
+// does not. Miracle-Gro at 0.2 g/L is dilute enough to be the coalescing case.
+//
+//   coalescing      kLa = 0.026 * (P/V)^0.4 * us^0.5
+//   non-coalescing  kLa = 0.002 * (P/V)^0.7 * us^0.2
+//
+// P/V in W/m^3, us in m/s, kLa in 1/s. AIR-WATER correlations: this is an order-of-magnitude
+// estimate for a real broth, not a measurement, and is reported rather than asserted on.
+function stirred_tank_kla_coalescing(specific_power, superficial_velocity) =
+  0.026 * pow(specific_power, 0.4) * pow(superficial_velocity, 0.5);
+function stirred_tank_kla_non_coalescing(specific_power, superficial_velocity) =
+  0.002 * pow(specific_power, 0.7) * pow(superficial_velocity, 0.2);
+
+// Van't Riet's stated validity in specific power, W/m^3. This reactor runs under it, which is worth
+// saying every render rather than discovering later.
+function stirred_tank_kla_power_band() = [500, 10000];
