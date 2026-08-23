@@ -749,8 +749,19 @@ function head_plug_oring_groove_radius(vessel_opening_diameter) =
   ) / 2;
 
 // Place children at port i, on the ring and turned to face out.
-module head_port_at(i, vessel_opening_diameter) {
-  rotate([0, 0, i * 360 / lid_holes_n])
+//
+// `flipped` is for callers drawing inside lid_pocketed, which head() turns over with
+// rotate([0, 180, 0]). That flip sends a port at angle t to 180 - t, so a bore cut at port i's own
+// angle does not land on port i - it lands on whichever port sits opposite. That was harmless for
+// as long as every port was the same size, since mirroring a ring of identical holes changes
+// nothing, and it stopped being harmless the moment they differed: two ports came out with a std
+// bore around a mini lock, leaving an annular gap right through the lid.
+//
+// Placing at the mirrored angle rather than mirroring the index also drops a requirement nobody
+// had written down - that lid_holes_n be even, without which 180 - t is not a port angle at all.
+module head_port_at(i, vessel_opening_diameter, flipped = false) {
+  _angle = i * 360 / lid_holes_n;
+  rotate([0, 0, flipped ? 180 - _angle : _angle])
     translate([head_port_circle_radius(vessel_opening_diameter), 0, 0])
       children();
 }
@@ -797,7 +808,7 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
       // cut out the entry holes for the probes and tubes; the port sizes its own hole so the
       // lock keeps a bearing land against the lid's underside
       for (i = [0:lid_holes_n - 1])
-        head_port_at(i, vessel_opening_diameter)
+        head_port_at(i, vessel_opening_diameter, flipped=true)
           translate([0, 0, _thickness / 2])
             cylinder(r=bayonet_port_hole_radius(head_port_interface(head_ports[i])), h=_thickness + z_fight, center=true);
 
