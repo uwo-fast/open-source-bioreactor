@@ -16,12 +16,13 @@
 
 $fn = $preview ? 64 : 128;
 
-function oring_name(type) = type[0]; // catalogue name, e.g. "AS568-160"
-function oring_inner_diameter(type) = type[1][0]; // free inside diameter
-function oring_cross_section(type) = type[1][1]; // cord diameter
-function oring_material(type) = type[2]; // elastomer, e.g. "EPDM"
-function oring_hardness(type) = type[3]; // shore A
-function oring_colour(type) = type[4]; // as supplied
+function oring_name(type) = type[0]; // catalogue name, e.g. "AS568-252"
+function oring_part_number(type) = type[1]; // what to order it by
+function oring_inner_diameter(type) = type[2][0]; // free inside diameter
+function oring_cross_section(type) = type[2][1]; // cord diameter
+function oring_material(type) = type[3]; // elastomer, e.g. "EPDM"
+function oring_hardness(type) = type[4]; // shore A
+function oring_colour(type) = type[5]; // as supplied
 
 /**
  * @brief Draw a registered o-ring.
