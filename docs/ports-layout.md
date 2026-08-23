@@ -141,21 +141,27 @@ baffle are free, so the probes can sit off them and the worst pair becomes std a
 baffle area - the four-plate layout is already at 0.856 of Oldshue's reference, and three would be
 0.64 - so it is a trade, not an improvement.
 
+**Both sets are registered and the mouth picks between them** — `head_port_set_full` and
+`head_port_set_reduced` in `head.scad`, chosen by `head_port_set_for()`, which asks whether the
+flanges clear each other rather than being told. `head_ports` is the override: undef derives, and
+setting it pins a table for an operator who wants a different function in a port.
+
 | vessel | mouth | full 12 | 3-baffle 12 | reduced 6 | assigned |
 | --- | --- | --- | --- | --- | --- |
 | `jar_1p5L_109x215` | 87.5 | −14.11 | −9.11 | **+4.95** | reduced |
 | `jar_1gal_155x251` | 95.8 | −11.96 | −6.96 | **+9.10** | reduced |
-| `jar_6p5gal_305x470` | 137.0 | −1.30 | **+3.70** | +29.70 | *open — see below* |
+| `jar_6p5gal_305x470` | 137.0 | −1.30 | +3.70 | **+29.70** | reduced |
 | `jar_10L_220x305` | 143.0 | **+0.25** | +5.25 | +32.70 | full |
 | `jar_1gal_180x197` | 148.0 | **+1.55** | +6.55 | +35.20 | full |
 | `generic` | 150.0 | **+2.07** | +7.07 | +36.20 | full |
 
 Millimetres of slack in the worst adjacent pair, against the 2 mm the lid keeps.
 
-`jar_6p5gal` is the open one. Its 137 mm mouth misses the four-baffle set by 1.30 mm and clears the
-three-baffle set by 3.70, so it is a choice between a baffle and the full instrument set rather than
-a geometric dead end. It has other problems first - its impeller currently leaves no room for a
-baffle at all - so the decision can wait for those.
+`jar_6p5gal` takes the reduced set today and **builds** because of it. Its 137 mm mouth misses the
+four-baffle set by 1.30 mm, so the alternative is the three-baffle row, which it would clear by 3.70.
+That is a choice between a baffle and the full instrument set rather than a geometric dead end, and
+it stays open: the three-baffle set is not registered, because dropping to three costs baffle area on
+a layout already at 0.856 of the reference.
 
 The reduced set keeps both probes, temperature, the gas path in and out, and one liquid line. It
 drops the four baffles and the acid/base pair. What a narrow jar gives up is pH *control*, not pH

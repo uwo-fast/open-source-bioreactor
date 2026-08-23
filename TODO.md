@@ -183,10 +183,13 @@
   - it does not help the twelve-port lid at all, for the reason in the item above. It is what makes `jar_1p5L` buildable: six ports all std wants 87.6 mm and that jar has 87.5
   - the thermocouple's thread decides whether it is midi or std. 1/2 NPT needs std; 1/8 NPT fits midi. On twelve ports that is seven big ports versus six, and 142 mm versus 130 mm of smallest mouth. Threads and probes for both are already registered
 
-- [ ] make the port table a property of the vessel
+- [x] make the port table a property of the vessel
   - two sets, recorded in `docs/ports-layout.md`: the full 12 for mouths over 130.4 mm, the reduced 6 for mouths over 81.6. Four registered vessels take the first, `jar_1p5L` and `jar_1gal_155` the second
   - `head_ports` is global today, so every vessel gets the 143 mm jar's lid. This is what item 10's JSON export is waiting on, and it needs the function names that landed in `head_port_index()`
   - the reduced set drops the four baffles and the acid/base pair. What a narrow jar gives up is pH *control*, not pH measurement
+  - **done.** `head_ports` is the override now - undef derives the set from the mouth, setting it pins one. `jar_6p5gal` builds as a result, so two of six registered vessels build rather than one
+  - the two narrow jars stop failing on port spacing and start failing on the motor mount overlapping their flanges, which is the item below and the real blocker
+  - `docs/ports-layout.md` carries the numbers. jar_10L is byte-identical; it still takes the full twelve
 
 - [ ] revisit the motor mount diameter
   - Ø56 was never chosen against the lid. It is now known to be the binding constraint on two separate things: it overlaps the port flanges on both narrow jars (`head()` asserts this since the eccentricity work), and it is what leaves no room to move the shaft off-centre
