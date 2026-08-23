@@ -168,6 +168,28 @@
   - they carried caliper readings of 15.6/16.0 and 36.0/35.6 where all six of those sheets say 16.0 x 36.2. Every row in the registry is now the product as its sheet describes it, with no exceptions, and the collet's allowances do the compensating
   - the `15.9` soft-backed / `16.3` hard-backed numbers are dropped. No datasheet mentions a backing variant, so it is not tracked; `cylindrical_flex_collet.scad` is a generic module and its preview values are just example hardware. If a backing variant turns out to be a real product it gets its own registered row
 
+- [ ] spread the big ports so no two are adjacent
+  - what binds the port circle is the worst *adjacent pair*, not the port count, and today's table puts a baffle next to a probe twice. Both are the 13.6 mm flange, so the binding pair is 13.6 + 13.6 while half the ports are 1.5-3 mm tubes
+  - worth **19.3 mm of smallest mouth** (142.0 to 122.7) and needs no new parts once a small interface exists. It takes `jar_6p5gal` from failing to fitting, and `jar_10L` from 0.25 mm of slack to 3.25
+  - only pays off together with mixed port sizes: twelve identical flanges are the same in any order
+
+- [ ] register a mini and a midi bayonet interface
+  - `bayonet_std` is sized for the Ø16 Atlas probe body and nothing else needs it. A 2.4 mm dosing line carries the same 13.6 mm flange as a probe
+  - the flange follows the face seal, not the bore: `oring_ID = 2*(lock_bore_r + land + cs/2)`, which returns exactly the registered 23 for std. Mini at iface_r 5 gives an 8.60 mm flange, midi at 7 gives 10.60. Small metric EPDM rings are orderable down to Ø9, so the seal is not the blocker
+  - **check the bayonet's own pin geometry at iface_r 5 before trusting the number** - 3 pins at r 1.2 with a 30 deg sweep and 25 deg key have not been tried on a Ø10 circle
+  - baffles cannot use either: the plate drops through the lock bore, so a mini gives a 3.6 mm baffle. Baffles stay std
+  - the thermocouple's thread decides whether it is midi or std. 1/2 NPT needs std; 1/8 NPT fits midi. On twelve ports that is seven big ports versus six, and 142 mm versus 130 mm of smallest mouth. Threads and probes for both are already registered
+
+- [ ] make the port table a property of the vessel
+  - two sets, recorded in `docs/ports-layout.md`: the full 12 for mouths over 130.4 mm, the reduced 6 for mouths over 81.6. Four registered vessels take the first, `jar_1p5L` and `jar_1gal_155` the second
+  - `head_ports` is global today, so every vessel gets the 143 mm jar's lid. This is what item 10's JSON export is waiting on, and it needs the function names that landed in `head_port_index()`
+  - the reduced set drops the four baffles and the acid/base pair. What a narrow jar gives up is pH *control*, not pH measurement
+
+- [ ] revisit the motor mount diameter
+  - Ø56 was never chosen against the lid. It is now known to be the binding constraint on two separate things: it overlaps the port flanges on both narrow jars (`head()` asserts this since the eccentricity work), and it is what leaves no room to move the shaft off-centre
+  - its floor is set by the gearbox faceplate, `bolt_circle/2 + screw_d` = 18 mm radius, so Ø36 is reachable. That would roughly double the available eccentricity on the wide jars - 0.060 to 0.129 e/T on `jar_10L`, which Karcz's correlation puts at 24% to 37% off the centred mixing time
+  - it does not rescue the narrow jars. Nothing does; see `docs/references.md`
+
 ## drive and aeration
 
 Follows from the agitation work; the reasoning and citations are in `docs/agitation.md`.
