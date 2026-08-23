@@ -1660,6 +1660,22 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     str(lid_holes_n, " ports leave ", _port_gap, " mm between flanges on a ", port_circle_radius * 2, " mm circle; ", lid_holes_offset, " mm is the least this lid keeps.")
   );
 
+  // The motor mount stands on the same face as those flanges, so the ports have to clear it going
+  // inward as well as clearing each other going around. Nothing checked this: on a narrow mouth the
+  // port circle comes in far enough that the mount lands on top of the flanges, and the spacing
+  // assert above fires first only because such a mouth is crowded anyway. Both radii are measured
+  // from the lid's centre, so the check is one subtraction.
+  _mount_to_ports = port_circle_radius - bayonet_flange_radius(head_bayonet) - motor_mount_body_diameter / 2;
+
+  assert(
+    _mount_to_ports >= lid_holes_offset,
+    str(
+      "Motor mount is ", motor_mount_body_diameter, " mm across and the port flanges reach in to r ",
+      port_circle_radius - bayonet_flange_radius(head_bayonet), ", leaving ", _mount_to_ports,
+      " mm between them; ", lid_holes_offset, " mm is the least this lid keeps."
+    )
+  );
+
   // The joint posts are bored through the flange, and where its edge falls is the assembly's to
   // set, so nothing here stops a bore running off it. Caught only incidentally today, and by the
   // frame complaining about its own wall, in another file.
