@@ -2320,7 +2320,16 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   }
 }
 
-reactor_vessel = jar_10L_220x305; // [generic_vessel, jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x215, jar_1gal_155x251]
+// Which jar this build is for, chosen BY NAME so a customizer parameter set can carry it - a .json
+// holds values, not references, so it cannot name the variable. `just json` writes one set per
+// registered vessel from this same registry.
+reactor_vessel_name = "jar_10L_220x305"; // [generic, jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x215, jar_1gal_155x251]
+reactor_vessel = vessel_by_name(reactor_vessel_name);
+
+assert(
+  !is_undef(reactor_vessel),
+  str("No registered vessel is named \"", reactor_vessel_name, "\". See scad/purchased/vessels.scad.")
+);
 
 // The two the assembly chooses rather than derives; everything below follows from them.
 _preview_flange_height = 8;

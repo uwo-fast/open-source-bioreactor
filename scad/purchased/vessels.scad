@@ -33,6 +33,16 @@ jar_1gal_155x251     = ["jar_1gal_155x251",     [251,       155.3,      3       
 
 vessels = [generic_vessel, jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x215, jar_1gal_155x251];
 
+// A row from its name. It lives here rather than with the other accessors in vessel.scad because a
+// function resolves globals from its OWN file, and `vessels` is only in scope in this one.
+//
+// It exists because a customizer parameter set carries VALUES, not references: a .json can say
+// "jar_10L_220x305" but it cannot say the variable of that name, and under -p OpenSCAD drops the
+// reference with nothing but an "unknown variable" warning. Selecting by name is what lets one
+// parameter set per vessel drive a build - see the json recipes in the justfile.
+function vessel_by_name(name) =
+  let (_m = [for (v = vessels) if (v[0] == name) v]) len(_m) == 1 ? _m[0] : undef;
+
 use <vessel.scad>;
 
 // example usage (open this file directly to preview)

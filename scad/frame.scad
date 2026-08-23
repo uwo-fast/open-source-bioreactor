@@ -134,7 +134,7 @@ function frame_floor_depth(vessel_height, light) =
 // What the assembly would hand this frame. The vessel, the light, the wall and the flange are its
 // choices, so the preview picks them; everything after that is derived here the same way the
 // assembly derives it, rather than quoting the numbers it comes out as.
-_preview_vessel = jar_10L_220x305;
+_preview_vessel = vessel_by_name("jar_10L_220x305"); // by name, for the same reason assembly.scad is
 _preview_light = rwntao_13in;
 _preview_wall_thickness = 37;
 _preview_flange_height = 8;

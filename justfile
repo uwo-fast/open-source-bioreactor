@@ -6,7 +6,7 @@ default:
     @just --list
 
 # Everything CI runs.
-check: check-scad check-vessels
+check: check-scad check-vessels check-json
 
 # Evaluate every SCAD file and report anything that does not build.
 check-scad:
@@ -142,3 +142,57 @@ analysis-run name:
 # Rebuild one method, e.g. `just analysis-method light-irradiance`.
 analysis-method name:
     {{PY}} analysis/methods/{{name}}/pipeline.py --verify
+
+# Fail if the generated parameter files are stale or the dropdowns have drifted from the registry.
+# Regenerating is cheap and the files are committed, so a diff means someone added a jar without
+# running `just json` - which would leave the customizer offering a vessel that no longer exists,
+# or hiding one that does.
+check-json:
+    #!/usr/bin/env bash
+    set -uo pipefail
+    before=$(cat scad/assembly.json scad/head.json 2>/dev/null || true)
+    just json > /dev/null || { echo "FAIL  the dropdowns have drifted - run just json"; exit 1; }
+    if [ "$before" != "$(cat scad/assembly.json scad/head.json)" ]; then
+        echo "FAIL  parameter files were stale - run just json and commit the result"; exit 1
+    fi
+    echo "ok    parameter files match the registry"
+
+# Write one customizer parameter set per registered vessel, beside each entry file that takes one.
+# OpenSCAD picks up <file>.json automatically, so the presets appear in the customizer's dropdown,
+# and `openscad -p <file>.json -P <vessel> ...` selects one from a script.
+#
+# Generated from the registry rather than written by hand, for the same reason check-vessels sweeps
+# it: adding a jar should add it everywhere it belongs and nowhere should have to be remembered.
+# The recipe also checks the dropdown annotation in each file against the registry, which is the one
+# place the names are still duplicated - a comment cannot be derived, but it can be verified.
+json:
+    #!/usr/bin/env bash
+    set -uo pipefail
+    tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
+    printf 'include <%s/scad/purchased/vessels.scad>\nfor (v = vessels) echo(str("N|", vessel_name(v)));\n' "$PWD" > "$tmp/n.scad"
+    {{OPENSCAD}} -o "$tmp/n.csg" "$tmp/n.scad" 2>"$tmp/err" >/dev/null
+    names=$(grep '^ECHO: "N|' "$tmp/err" | sed 's/^ECHO: "N|//; s/"$//')
+    if [ -z "$names" ]; then echo "FAIL  could not read the vessel registry"; exit 1; fi
+    failed=0
+    for f in scad/assembly.scad scad/head.scad; do
+        # the dropdown is a comment, so it cannot derive - check it instead
+        listed=$(grep -m1 '^reactor_vessel_name' "$f" | sed 's/.*\[\(.*\)\].*/\1/' | tr -d ' ' | tr ',' '\n')
+        if [ "$(echo "$names" | sort)" != "$(echo "$listed" | sort)" ]; then
+            echo "FAIL  $f dropdown does not match the registry"
+            diff <(echo "$names" | sort) <(echo "$listed" | sort) | sed 's/^/        /'
+            failed=1
+        fi
+        out="${f%.scad}.json"
+        { echo '{'; echo '  "parameterSets": {'
+          first=1
+          while read -r n; do
+              [ -z "$n" ] && continue
+              [ $first -eq 0 ] && echo ','
+              printf '    "%s": { "reactor_vessel_name": "%s" }' "$n" "$n"
+              first=0
+          done <<< "$names"
+          echo; echo '  },'; echo '  "fileFormatVersion": "1"'; echo '}'
+        } > "$out"
+        echo "ok    $out  ($(echo "$names" | grep -c .) sets)"
+    done
+    exit $failed
