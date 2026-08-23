@@ -178,7 +178,18 @@ shaft_coupler = shaft_coupler_8x8_rigid;
 
 /* [Motor Mount Parameters] */
 
-// outer diameter of the mount body
+// Outer diameter of the mount body. Left at 56 deliberately after being asked what it could be.
+//
+// It can go to 42 - below that the mount's own base inserts run into the bearing pocket, which the
+// assert in head() catches at 0.15 mm of clearance. But shrinking buys nothing worth having.
+// Deflection goes as the cube of height over diameter, and that ratio is calibrated against the
+// build in hand at 2.3; 42 would take jar_10L to 2.9, against a warning that starts at 3.
+//
+// It does not rescue the narrow jars either, which is what the question was really about. Their
+// port flanges leave 35.4 mm on jar_1gal_155 and 27.1 on jar_1p5L, so they are 6.6 and 14.9 mm of
+// diameter short of the floor, not a millimetre. Neither can carry a top-entry drive on its lid at
+// any mount size - see TODO.md, where that is answered by changing the agitation rather than the
+// mount.
 motor_mount_body_diameter = 56;
 // wall thickness of the mount body; also sets the flange and raised face heights
 motor_mount_wall_thickness = 10;
