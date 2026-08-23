@@ -85,10 +85,12 @@ What sets the limit is the **worst adjacent pair**, not the port count:
 
 Three consequences, all invisible while every port was the same size:
 
-1. **Order matters.** The layout above puts a baffle beside a probe twice, so the binding pair is
-   13.6 + 13.6 even though half the ports are 1.5–3 mm tubes.
+1. **Order matters, where there is a choice.** The layout above puts a baffle beside a probe twice,
+   so the binding pair is 13.6 + 13.6 even though half the ports are 1.5–3 mm tubes. On this lid
+   there is no choice — see the correction below — but on a lid with fewer baffles there is.
 2. **Big ports must be at most half the count**, or two are forced adjacent and every saving
-   elsewhere is wasted.
+   elsewhere is wasted. Necessary, not sufficient: equally-spaced baffles can force the adjacency
+   anyway.
 3. **A middle size can be worse than a small one**, because what binds is the pair, not the port.
 
 A flange is as big as it is because of its face seal, not its bore:
@@ -112,34 +114,54 @@ Baffles cannot be small: the plate drops through the lock bore, so `width = 2·�
 
 ## The two port sets
 
-| set | ports | functions | min mouth |
-| --- | --- | --- | --- |
-| **full** | 12 | 4 baffle, do_probe, ph_probe, temperature, air_in, air_out, media, acid, base | 130.4 mm |
-| **reduced** | 6 | do_probe, ph_probe, temperature, air_in, air_out, media | 81.6 mm |
+**Corrected.** An earlier draft of this section put the full set's smallest mouth at 130.4 mm and the
+reduced set's at 81.6, and claimed that spreading the big ports was worth 19.3 mm. All three were
+wrong: they assumed the ports could be arranged freely. They cannot, and the reason is the baffles.
+
+**Four baffles equally spaced on twelve ports sit every third port, which leaves no port that is not
+adjacent to one.** A probe therefore *must* touch a baffle, both are std, and the worst pair is
+13.6 + 13.6 whatever size the tubes are. Mixed port sizes do not move the twelve-port lid at all -
+`jar_10L`'s binding gap is 2.254 mm before and after - and **spreading the big ports so no two touch
+is not achievable at this port count and baffle spacing.** It is not a thing left to do; it is a
+thing that does not exist.
+
+Where mixed sizing does pay is the reduced set, which has no baffles at all. Six ports all on std
+wants an 87.6 mm mouth; `jar_1p5L` has 87.5, and would miss by a tenth of a millimetre. With the
+tubes on mini it wants 77.6 and clears by ten. **The smallest jar in the family is buildable because
+of the mini interface and not otherwise.**
+
+| set | ports | functions | worst pair | min mouth |
+| --- | --- | --- | --- | --- |
+| **full** | 12 | 4 baffle, do_probe, ph_probe, temperature, air_in, air_out, media, acid, base | std\|std 27.2 | 142.0 mm |
+| **three-baffle** | 12 | as above with three baffles at 120° | std\|mini 22.2 | 122.7 mm |
+| **reduced** | 6 | do_probe, ph_probe, temperature, air_in, air_out, media | std\|mini 22.2 | 77.6 mm |
+
+Dropping to three baffles is what buys the middle row: with three, the ports two steps from each
+baffle are free, so the probes can sit off them and the worst pair becomes std against mini. It costs
+baffle area - the four-plate layout is already at 0.856 of Oldshue's reference, and three would be
+0.64 - so it is a trade, not an improvement.
+
+| vessel | mouth | full 12 | 3-baffle 12 | reduced 6 | assigned |
+| --- | --- | --- | --- | --- | --- |
+| `jar_1p5L_109x215` | 87.5 | −14.11 | −9.11 | **+4.95** | reduced |
+| `jar_1gal_155x251` | 95.8 | −11.96 | −6.96 | **+9.10** | reduced |
+| `jar_6p5gal_305x470` | 137.0 | −1.30 | **+3.70** | +29.70 | *open — see below* |
+| `jar_10L_220x305` | 143.0 | **+0.25** | +5.25 | +32.70 | full |
+| `jar_1gal_180x197` | 148.0 | **+1.55** | +6.55 | +35.20 | full |
+| `generic` | 150.0 | **+2.07** | +7.07 | +36.20 | full |
+
+Millimetres of slack in the worst adjacent pair, against the 2 mm the lid keeps.
+
+`jar_6p5gal` is the open one. Its 137 mm mouth misses the four-baffle set by 1.30 mm and clears the
+three-baffle set by 3.70, so it is a choice between a baffle and the full instrument set rather than
+a geometric dead end. It has other problems first - its impeller currently leaves no room for a
+baffle at all - so the decision can wait for those.
 
 The reduced set keeps both probes, temperature, the gas path in and out, and one liquid line. It
-drops the four baffles and the acid/base pair — pH control is what a narrow jar gives up, not
+drops the four baffles and the acid/base pair. What a narrow jar gives up is pH *control*, not pH
 measurement. Which functions a given experiment wants is the operator's call; this is the default.
 
-| vessel | mouth | full 12 | reduced 6 | assigned |
-| --- | --- | --- | --- | --- |
-| `jar_1p5L_109x215` | 87.5 | −11.11 | **+2.95** | reduced |
-| `jar_1gal_155x251` | 95.8 | −8.96 | **+7.10** | reduced |
-| `jar_6p5gal_305x470` | 137.0 | **+1.70** | +27.70 | full |
-| `jar_10L_220x305` | 143.0 | **+3.25** | +30.70 | full |
-| `jar_1gal_180x197` | 148.0 | **+4.55** | +33.20 | full |
-| `generic` | 150.0 | **+5.07** | +34.20 | full |
-
-Figures are millimetres of slack in the worst adjacent pair, against the 2 mm the lid keeps.
-
-Two notes on the full set. It assumes the thermocouple moves off 1/2 NPT onto a midi flange — on
-twelve ports that is the difference between seven big ports and six, and so between a 142 mm and a
-130 mm smallest mouth, because seven of twelve forces two big ones adjacent. And it assumes the big
-ports are **spread so no two touch**; that reordering alone is worth 19.3 mm of smallest mouth and
-takes `jar_6p5gal` from failing to fitting. `jar_10L` today has 0.25 mm of slack and would have 3.25.
-
 ## Baffles on a narrow jar
-
 The small jars are unbaffled, and an unbaffled vessel with a centred shaft swirls: Montante measured
 a flow number of 0.25 for a centred unbaffled impeller, **65% below the same impeller baffled**.
 
