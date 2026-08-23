@@ -617,9 +617,21 @@ function head_plug_groove_diameter(vessel_opening_diameter, ring) =
 function head_plug_oring_stretch(vessel_opening_diameter, ring) =
   oring_stretch(oring_inner_diameter(ring), head_plug_groove_diameter(vessel_opening_diameter, ring));
 
-// Under zero the ring sags out of its groove; over five percent it thins the cord.
+// The groove and the port bores are cut into the same wall of the plug, and the same
+// lid_holes_offset stands on either side of the web between them, so it cancels; the mouth cancels
+// too, since both radii are measured from it. What is left is the entire budget for the groove's
+// depth - the plug's own fit clearance, plus the step from the bayonet's port hole down to its lock
+// bore. So this is a property of the bayonet and the lid, not of any jar: a cord over it fouls the
+// bores on every vessel in the family, and a cord under it fits on all of them.
+function head_plug_oring_cord_limit() =
+  (lid_radial_allowance / 2 + bayonet_port_hole_radius(head_bayonet) - bayonet_lock_bore_radius(head_bayonet))
+  / (1 - lid_plug_oring_squeeze);
+
+// Under zero the ring sags out of its groove; over five percent it thins the cord; over the cord
+// limit the groove eats the wall the port bores need.
 function head_plug_oring_fits(vessel_opening_diameter, ring) =
-  let (_s = head_plug_oring_stretch(vessel_opening_diameter, ring)) _s >= 0 && _s <= 0.05;
+  let (_s = head_plug_oring_stretch(vessel_opening_diameter, ring))
+    _s >= 0 && _s <= 0.05 && oring_cross_section(ring) <= head_plug_oring_cord_limit();
 
 function head_plug_oring_for(vessel_opening_diameter) =
   let (_fits = [for (r = orings) if (head_plug_oring_fits(vessel_opening_diameter, r)) r])

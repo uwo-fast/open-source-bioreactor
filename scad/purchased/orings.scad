@@ -16,8 +16,12 @@
 // Port face seals, one per bayonet port; the gland in bayonet_port.scad is cut for it.
 oring_23x1p5_epdm      = ["23x1.5 EPDM",   "8785N383",  [23,      1.5 ], "EPDM",   70,    "Black"];
 
-// The lid plug's radial seal. NOT YET ORDERABLE - this row is written from the AS568 standard rather
-// than from a listing, which is why it has no part number to carry.
+// The lid plug's radial seal. NOT YET ORDERABLE - this row is written from the AS568 standard, which
+// is why it has no part number. head_plug_oring_cord_limit() caps the cord at 3.05 mm, so the ring
+// wanted is 3/32 in (2.62 mm) cord, EPDM 70A, free ID 130.7-137.2 mm for the 143 mm jar and roughly
+// 78-176 mm to cover the registered family. McMaster's water- and steam-resistant line (8785N) lists
+// its 3/32 in width empty and its 3 mm metric stops at ID 80 mm, so the family that supplies the
+// port seal above cannot supply this one; it has to come from another line or another supplier.
 oring_as568_160_epdm   = ["AS568-160",     "",          [133.02,  2.62], "EPDM",   70,    "Black"];
 
 orings = [oring_23x1p5_epdm, oring_as568_160_epdm];
