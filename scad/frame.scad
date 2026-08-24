@@ -135,7 +135,10 @@ function frame_floor_depth(vessel_height, light) =
 // choices, so the preview picks them; everything after that is derived here the same way the
 // assembly derives it, rather than quoting the numbers it comes out as.
 _preview_vessel = vessel_by_name("jar_10L_220x305"); // by name, for the same reason assembly.scad is
-_preview_light = rwntao_13in;
+// Derived the same way the assembly derives it, rather than naming a row: the shortest registered
+// light that covers this jar's culture. 0.8 is head.scad's culture_fill_fraction, quoted rather
+// than read because frame.scad does not depend on head.scad and should not start to for this.
+_preview_light = strip_light_for(vessel_internal_height(_preview_vessel) * 0.8);
 _preview_wall_thickness = 37;
 _preview_flange_height = 8;
 _preview_n_rods = 4;

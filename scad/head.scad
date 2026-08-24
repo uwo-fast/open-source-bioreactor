@@ -676,6 +676,12 @@ function head_gasket_factor() = gasket_sheet_shore_a(lid_gasket_sheet) < 75 ? 0.
 // out of the shaft, the impellers and the mount.
 function head_punt_top_depth(lid_flange_height, vessel_internal_height) =
   lid_flange_height + vessel_internal_height;
+// How deep the culture stands. head() has always computed this inline; it is exported because the
+// frame needs it too - the lights are chosen to cover the liquid, and nothing else in the model
+// knows how much liquid there is.
+function head_liquid_height(vessel_internal_height) =
+  vessel_internal_height * culture_fill_fraction;
+
 function head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height) =
   head_punt_top_depth(lid_flange_height, vessel_internal_height) + vessel_punt_height;
 
@@ -1030,7 +1036,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   // Resolved once. head_shaft may pin a row; otherwise the shortest that reaches this vessel.
   _shaft = head_shaft_selected(lid_flange_height, vessel_internal_height);
-  _liquid_height = vessel_internal_height * culture_fill_fraction;
+  _liquid_height = head_liquid_height(vessel_internal_height);
 
   // Read off the port table, so it depends on nothing else and can sit this early. It has to:
   // Medek's envelope is conditioned on four baffles and the Po block below is the first consumer.

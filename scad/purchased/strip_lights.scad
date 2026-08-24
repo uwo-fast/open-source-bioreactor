@@ -27,6 +27,21 @@ grow_8p6in          = ["grow 8.6in",  [14.15, 7.6,   217,    0.5   ]];
 
 strip_lights = [rwntao_13in, grow_13in, grow_16in, grow_8p6in];
 
+// The shortest registered light that still covers the culture, falling back to the longest if none
+// does. Shortest-that-covers rather than longest-available because a light taller than the vessel
+// is not free: frame_floor_depth() drops the base by whatever the light overhangs, and a 330 mm
+// strip on a 197 mm jar bought 152 mm of empty base. Covering the LIQUID rather than the jar is the
+// point - the light is what the reactor is for, so under-covering is the one thing not to trade.
+//
+// Lives here rather than with the accessors in strip_light.scad because a function resolves globals
+// from its own file, and `strip_lights` is only in scope in this one.
+function strip_light_for(liquid_height) =
+  let (
+    _covering = [for (l = strip_lights) if (l[1][2] >= liquid_height) l[1][2]],
+    _target = len(_covering) > 0 ? min(_covering) : max([for (l = strip_lights) l[1][2]]),
+    _match = [for (l = strip_lights) if (l[1][2] == _target) l]
+  ) _match[0];
+
 use <strip_light.scad>
 
 // example usage - keep commented, this file is include'd and would emit the lights into

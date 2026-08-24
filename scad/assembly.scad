@@ -116,7 +116,10 @@ assert(
 /* [Light Strip Selection] */
 // This should be made to be driven by the vessel for whatever is optimal; future TODO.
 
-reactor_lights = rwntao_13in;
+// Which strip light this build carries. undef derives it from the culture the vessel holds: the
+// shortest registered light that still covers the liquid. A longer one is not free - the base drops
+// by whatever the light overhangs the jar, which put 152 mm of empty base under a 197 mm vessel.
+reactor_lights = undef;
 
 /* [Head Parameters - Coupling] */
 
@@ -143,6 +146,15 @@ joint_bolt = M8_hex_screw;
 // gasket factor m for the lid seal, read back from the registered sheet the head is built around
 // rather than entered here - a harder sheet wants more bolts and nothing else would say so
 lid_gasket_factor = head_gasket_factor();
+
+_reactor_light = is_undef(reactor_lights)
+  ? strip_light_for(head_liquid_height(vessel_internal_height(reactor_vessel)))
+  : reactor_lights;
+
+assert(
+  !is_undef(_reactor_light),
+  "No strip light is registered, so nothing can light the vessel. See scad/purchased/strip_lights.scad."
+);
 
 module dummy() {
   // stop the customizer detection from here onwards
@@ -208,7 +220,7 @@ echo(str(
 function reactor_envelope_diameter() =
   frame_outer_diameter(vessel_diameter(reactor_vessel), frame_wall_thickness);
 function reactor_envelope_height() =
-  frame_floor_depth(vessel_height(reactor_vessel), reactor_lights)
+  frame_floor_depth(vessel_height(reactor_vessel), _reactor_light)
   + vessel_height(reactor_vessel) + lid_flange_height
   + head_stack_height(lid_flange_height, vessel_internal_height(reactor_vessel));
 
@@ -244,7 +256,7 @@ if (render_frame || render_all) {
   frame(
     vessel_height=vessel_height(reactor_vessel),
     vessel_outer_diameter=vessel_diameter(reactor_vessel),
-    light=reactor_lights,
+    light=_reactor_light,
     wall_thickness=frame_wall_thickness,
     lid_flange_height=lid_flange_height,
     n_rods=n_rods,
