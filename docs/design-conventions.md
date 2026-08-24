@@ -212,6 +212,23 @@ So:
 
 This also rules out STL hashing as a regression check for any future export tooling.
 
+**A CSG diff is blind to whatever the preview drops.** `head.scad` sets
+`$bayonet_shell_only = $preview && fast_bayonet_preview`, which makes the bayonet library emit bare
+shells and skip every pin, channel and notch. CSG export runs in preview, so a CSG comparison shows
+those features as unchanged **whatever was done to them** — a change to the pin angles came back
+byte-identical, twice, before this was understood.
+
+So a CSG diff proves nothing about a feature the preview is suppressing. Either render the affected
+part on its own, or pass `-D fast_bayonet_preview=false` and compare that. The general form: **check
+what the flags were before trusting what the diff says**, because a diff of two things that were
+never drawn is a clean diff.
+
+**`WARNING` is evidence too.** OpenSCAD reports an undef reaching arithmetic as a warning, not an
+error, and a parse error in a `use`d file shows up as nothing else at all — a missing comma between
+two string literals silently stopped `head.scad` exporting any of its functions while the file still
+rendered on its own, and ninety warnings rode along unnoticed because the gate only grepped `ERROR`.
+`check-scad` now fails on either.
+
 **`just check-scad`** evaluates every file in both directions: the ones meant to render standalone
 must emit geometry, and every other file must emit **none** — a registry that draws its own example
 draws it into every consumer, which has happened once already. A new entry file therefore fails
