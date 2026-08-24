@@ -64,25 +64,16 @@
   - the honest framing for a paper: this is a **CO₂ inventory problem**, and the enrichment fraction
     is a bigger lever on productivity than the entire sparger study was
 
-- [ ] **four of six registered vessels do not build** — the parametric claim is half true
-  - was "only one builds". `jar_6p5gal_305x470` joined `jar_10L_220x305` when the port table became
-    a property of the vessel: its 137 mm mouth misses the twelve-port set by 1.30 mm and takes the
-    reduced six instead
-  - every original failure cause is gone. The plug o-ring is registered across 77-217 mm, the port
-    spacing is per-vessel, the sparge ring no longer fouls the baffles. What is left are two causes,
-    both with owners:
-
-    | vessel | fails on | owned by |
-    | --- | --- | --- |
-    | `generic` | baffle 280 mm long in a 275 mm jar | baffle length is a global, not per-vessel |
-    | `jar_1gal_180x197` | baffle 280 mm long in a 172 mm jar | same |
-    | `jar_1p5L_109x215` | motor mount overlaps the port flanges by 12.45 mm | the narrow-jar agitation question |
-    | `jar_1gal_155x251` | motor mount overlaps the port flanges by 8.30 mm | same |
-
-  - so this is now two items rather than six problems: **baffle length should derive from the jar**
-    the way the port table does, and the two narrow jars need a different agitation mode entirely
-  - the baffle one looks small and has not been tried. `baffle_length = 280` is a global; the model
-    already knows the liquid height and the floor clearance it needs
+- [ ] **two of six registered vessels do not build** — one cause left, and it is parked
+  - was "only one builds", then four. `baffle_length` now hangs to each jar's own floor, which
+    unblocked `generic` and `jar_1gal_180x197`; the port table becoming a property of the vessel
+    unblocked `jar_6p5gal_305x470` before that
+  - what is left is a single cause with an owner: **`jar_1p5L_109x215` and `jar_1gal_155x251` cannot
+    carry a top-entry drive on their lids at all.** Their port flanges leave 27.1 and 35.4 mm where
+    the motor mount's own floor is 42, so they are 14.9 and 6.6 mm of diameter short. No lid or
+    mount change reaches it
+  - that is the narrow-jar agitation question, tracked under "drive and aeration". Nothing else in
+    the model is waiting on it
 - [ ] **BOM completeness, before the rebuild purchase**
   - hardware is being bought for the revised design and for further vessels, so the BOM has to be
     orderable end to end rather than mostly orderable. Known holes:
