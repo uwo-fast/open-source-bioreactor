@@ -364,7 +364,7 @@ head_port_set_full = [
   ["air_out",     "tube",         3           ], //   0 deg
   ["baffle",      "baffle",       0           ], //  30
   ["do_probe",    "probe",        0, do_lab_g2], //  60      opposite the air inlet
-  ["temperature", "thermocouple", 3, mcmaster_3872K131_thermocouple_probe], //  90  beside DO, which compensates from it
+  ["temperature", "thermocouple", 3, mcmaster_1245N31_thermocouple_probe], //  90  beside DO, which compensates from it
   ["baffle",      "baffle",       0           ], // 120
   ["ph_probe",    "probe",        0, ph_lab_g2], // 150      away from both dosing lines
   ["media",       "tube",         1.5         ], // 180      also the spare
@@ -384,13 +384,19 @@ head_port_set_full = [
 // opposite each other and never adjacent, which leaves every pair std-against-mini and buys 10 mm
 // of smallest mouth. DO still sits opposite the air inlet and the thermocouple still sits beside
 // DO, which are the two heuristics from the twelve-port layout that survive at six.
+//
+// Its thermocouple is 1/8 NPT where the full set's is 1/2, and that is what lets both survive. A
+// 1/2 NPT mount needs a std flange to stand on, which would make three std ports out of six; three
+// of six can only be kept apart by strict alternation, and alternating puts the thermocouple two
+// ports from DO instead of beside it. On twelve ports there is no such cost - the binding pair is
+// already baffle-against-probe - so the full set keeps the 1/2 NPT thread.
 head_port_set_reduced = [
   ["do_probe",    "probe",        0, do_lab_g2], //   0 deg  opposite the air inlet
   ["air_out",     "tube",         3           ], //  60
   ["media",       "tube",         1.5         ], // 120      also the spare
   ["air_in",      "tube",         3           ], // 180      the sparger hangs from this one
   ["ph_probe",    "probe",        0, ph_lab_g2], // 240
-  ["temperature", "thermocouple", 3, mcmaster_3872K131_thermocouple_probe], // 300  beside DO
+  ["temperature", "thermocouple", 3, mcmaster_3872K129_thermocouple_probe], // 300  beside DO
 ];
 
 // Which set this lid carries. undef derives it from the mouth, which is the honest default: what
@@ -1363,6 +1369,42 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
           ", pair under ", 2 * stirred_tank_torque(_power, _rpm), " Nm of ", _rated_torque, " Nm rated"
         )
       ));
+
+  // The thermocouple has to end up IN the culture and short of the floor, and nothing said so. A
+  // 9 in probe was registered against every vessel in the twelve-port set, which overshoots
+  // jar_1gal_180x197's floor by 28.6 mm - the tip would be through the glass. Asserted rather than
+  // reported because a probe below the floor is not a departure from a band, it is a part that does
+  // not fit.
+  _tc_port = [for (q = _ports) if (head_port_type(q) == "thermocouple") q];
+
+  if (len(_tc_port) > 0) {
+    _tc_reach = thermocouple_probe_tip_height(head_port_probe(_tc_port[0]));
+    _tc_floor = head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height);
+    _tc_surface = _tc_floor - vessel_punt_height - head_liquid_height(vessel_internal_height);
+
+    echo(str(
+      "thermocouple: ", thermocouple_probe_part_number(head_port_probe(_tc_port[0])), " on ",
+      npt_thread_name(thermocouple_probe_thread(head_port_probe(_tc_port[0]))),
+      ", ", _tc_reach, " mm reach, tip ", _tc_reach - _tc_surface,
+      " mm under the surface with ", _tc_floor - _tc_reach, " mm to the floor"
+    ));
+
+    assert(
+      _tc_reach < _tc_floor,
+      str(
+        "Thermocouple reaches ", _tc_reach, " mm but the floor is ", _tc_floor,
+        " mm below the lid, so the tip would be ", _tc_reach - _tc_floor, " mm through it."
+      )
+    );
+
+    assert(
+      _tc_reach > _tc_surface,
+      str(
+        "Thermocouple reaches ", _tc_reach, " mm and the culture starts ", _tc_surface,
+        " mm below the lid, so the tip sits in the headspace and reads gas, not broth."
+      )
+    );
+  }
 
   // How long it takes to blend, and how fast oxygen crosses in. Both follow from the specific power
   // already echoed above, so they sit here rather than with the sparger; both are reported and
