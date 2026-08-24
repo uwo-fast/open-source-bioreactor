@@ -240,6 +240,29 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
   - one paywalled source might yet say something - Kumaresan & Joshi 2006,
     doi:10.1016/j.cej.2005.10.002, worth an interlibrary request
 
+- [ ] **the sparger's tubes are not connectable, and its sockets are not tellable apart**
+  - three follow-ups from the support-tube work, none of which the model does today. The first is a
+    defect rather than an enhancement: the parts cannot be plumbed as drawn
+
+  - **the tubes end flush with the lid.** `_sparge_riser_length = 0 - (...)` measures to the lid's
+    OUTER face, so a tube runs up to the lid surface and stops - and the port's own flange stands
+    5 mm above that, so the tube actually finishes *inside* its port. There is nothing to push a
+    hose over, nothing to clamp, nothing for a fitting to grip. Wants a `proud` parameter measured
+    from the port's top face, the way `rod_thread_proud` is measured from its nut
+
+  - **nothing marks which socket feeds gas.** The feed socket opens into the ring's bore and a
+    support socket bottoms 6 mm short, but they differ only by 4.8 mm of depth - same diameter, same
+    height, same arm. Put the gas line in a blind socket and nothing tells you: the pump runs, the
+    rotameter reads flow, and the gas vents at that tube's own hole instead of the ring. The arm has
+    an 8.15 x 4 mm flat free, which takes "GAS" at 2.5 mm, and this repo already engraves its ports.
+    A height or shape difference would do as well and needs no text
+
+  - **nothing says where the drilled hole or filed slit goes.** A support tube is capped at the ring
+    and does its real job through a hole higher up - a vent in the headspace, a media line wherever
+    it should discharge. That is a hand operation and does not need modelling, but the HEIGHT does
+    need stating, and the model is the only thing that knows where the liquid surface is. It already
+    asserts exactly this for the thermocouple
+
 - [ ] settle how the narrow jars are agitated — **the family question these two items answer**
   - `jar_1p5L` and `jar_1gal_155` cannot carry a top-entry drive on their lids at any mount size, and they cannot hold baffles beside two Ø16 probes at any port count. A stirred version of either would be a centred shaft in an unbaffled vessel, which Montante measured at a flow number 65% below the same impeller baffled - swirl, not mixing
   - so the answer is not a smaller mount, it is a different mode. Two are on the table below and they are **separate design items, neither scheduled**. Nothing about the current build waits on them
