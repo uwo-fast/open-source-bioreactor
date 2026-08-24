@@ -517,9 +517,17 @@ baffle_floor_clearance = 10;
 baffle_neck_clearance = 1.5;
 // clearance between the lock's bore and the plate dropping through it on assembly
 baffle_bore_clearance = 0.2;
-// how far the plate hangs below the port's bottom face. 280 is the floor limit for the registered
-// jar, and head() reports what the plate does under load at it rather than leaving it to a print
-baffle_length = 280;
+// How far the plate hangs below the port's bottom face. undef hangs it to the floor limit for
+// whatever jar is being built, which is what the area report already asks for: depth is the only
+// lever left on baffle area once the count and the width are settled by the port circle.
+//
+// It was 280, the limit for the 143 mm jar, applied to every jar. That put a 280 mm plate in a
+// vessel with 172 mm of room. Derived, the same three vessels come out at 275, 280 and 172, and the
+// short jar ends up the best baffled of the family at 1.07 of the reference area against jar_10L's
+// 0.84 - a short wide jar gets proportionally more plate.
+//
+// Set it to a number to pin one; head() still checks it against the floor.
+baffle_length = undef;
 // Thickness of the plate. Not a strength choice - root stress at full depth is about 1 % of yield
 // at any of these - but a dynamic and a stiffness one. A 4 mm plate this long has its first
 // bending mode at 5.4 Hz, which is shaft rotation at the rated 320 rpm. 8 cleared that; 9 is what
@@ -673,6 +681,18 @@ function head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt
 
 // The plate is capped twice over: by the lock bore it drops through, and by the circle the
 // impellers sweep, which it now passes alongside rather than stopping above. Whichever binds.
+// The floor is what stops the plate - it clears the impellers radially by construction. lid_thickness
+// is subtracted because the plate hangs from the port's underside, not from the lid's outer face.
+function head_baffle_max_length(lid_flange_height, vessel_internal_height, vessel_punt_height) =
+  head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height)
+  - head_lid_thickness(lid_flange_height)
+  - baffle_floor_clearance;
+
+function head_baffle_length(lid_flange_height, vessel_internal_height, vessel_punt_height) =
+  is_undef(baffle_length)
+    ? head_baffle_max_length(lid_flange_height, vessel_internal_height, vessel_punt_height)
+    : baffle_length;
+
 function head_baffle_width(vessel_opening_diameter, impeller_diameter) =
   min(
     bayonet_baffle_width(head_interface_for("baffle", 0), baffle_thickness, baffle_bore_clearance),
@@ -914,7 +934,7 @@ function head_port_is_oriented(type) = type == "baffle" || type == "probe";
 
 // One port pin half, dispatched on its registered type. All share the same bayonet
 // interface, so they are interchangeable across the lid's locks.
-module head_port(port, panel_thickness, baffle_width) {
+module head_port(port, panel_thickness, baffle_width, baffle_length) {
   _type = head_port_type(port);
   _bore = head_port_bore_radius(port);
   _probe = head_port_probe(port);
@@ -1562,9 +1582,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   port_circle_radius = head_port_circle_radius(vessel_opening_diameter);
 
   // the plate clears the impellers radially, so what stops it is the floor
-  baffle_max_length =
-  head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height)
-  - lid_thickness - baffle_floor_clearance;
+  baffle_max_length = head_baffle_max_length(lid_flange_height, vessel_internal_height, vessel_punt_height);
+  _baffle_length = head_baffle_length(lid_flange_height, vessel_internal_height, vessel_punt_height);
 
   // the plate's width is settled by the lock it hangs from and the impellers it passes, so it is
   // read back, not chosen here
@@ -1586,7 +1605,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // binds - so the levers are the count and how much plate ends up under the liquid.
   _baffle_freeboard =
   head_punt_top_depth(lid_flange_height, vessel_internal_height) - _liquid_height - lid_thickness;
-  _baffle_wetted = stirred_tank_baffle_wetted_length(baffle_length, _baffle_freeboard, _liquid_height);
+  _baffle_wetted = stirred_tank_baffle_wetted_length(_baffle_length, _baffle_freeboard, _liquid_height);
   _baffle_area_ratio =
   stirred_tank_baffle_area_ratio(_vessel_bore, _liquid_height, len(_baffle_at), _baffle_width, _baffle_wetted);
 
@@ -1594,7 +1613,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     !_has_baffles
       ? "baffles: none on this lid, so the vessel is unbaffled and will swirl rather than mix"
       : str(
-        "baffles: ", len(_baffle_at), " x ", _baffle_width, " x ", baffle_length, " mm (",
+        "baffles: ", len(_baffle_at), " x ", _baffle_width, " x ", _baffle_length, " mm (",
         baffle_max_length, " mm clears the floor), ", _baffle_wetted, " mm of that submerged; ",
         _baffle_area_ratio, " of Oldshue's four-at-T/12 full-depth reference area"
       )
@@ -1611,7 +1630,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   if (_has_baffles && _baffle_area_ratio < 0.9)
     echo(str(
       "WARNING baffles: ", _baffle_area_ratio, " of the reference projected area. ",
-      baffle_length < baffle_max_length
+      _baffle_length < baffle_max_length
         ? str("Hanging these ", len(_baffle_at), " to the full ", baffle_max_length,
               " mm would give ", _baffle_ratio_at_depth, "; ")
         : "Depth is spent - these already hang to the floor limit. ",
@@ -1633,9 +1652,9 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     stirred_tank_power(impeller_diameter, _baffle_rpm, _impeller_po), _baffle_rpm);
   _baffle_load = stirred_tank_baffle_load(_baffle_torque, len(_baffle_at), port_circle_radius);
   _baffle_deflection = stirred_tank_baffle_deflection(
-    _baffle_load, baffle_length, _baffle_freeboard, _baffle_width, baffle_thickness, baffle_modulus);
+    _baffle_load, _baffle_length, _baffle_freeboard, _baffle_width, baffle_thickness, baffle_modulus);
   _baffle_frequency = stirred_tank_baffle_frequency(
-    baffle_length, _baffle_width, baffle_thickness, baffle_modulus, baffle_density);
+    _baffle_length, _baffle_width, baffle_thickness, baffle_modulus, baffle_density);
 
   if (_has_baffles)
     echo(str(
@@ -2101,8 +2120,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   );
 
   assert(
-    baffle_length <= baffle_max_length,
-    str("Baffle is ", baffle_length, " mm long and would reach the jar's floor; ", baffle_max_length, " mm is the most that clears it.")
+    _baffle_length <= baffle_max_length,
+    str("Baffle is ", _baffle_length, " mm long and would reach the jar's floor; ", baffle_max_length, " mm is the most that clears it.")
   );
 
   assert(
@@ -2176,7 +2195,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         color(prints1_color)
           head_port_at(i, vessel_opening_diameter)
             rotate([0, 0, _port_turn])
-              head_port(_port, lid_thickness, _baffle_width);
+              head_port(_port, lid_thickness, _baffle_width, _baffle_length);
     }
   }
 

@@ -86,8 +86,6 @@ check-vessels:
     # unnoticed. Shrinking this list is the work.
     set -uo pipefail
     broken=(
-        "generic"             # baffle reaches the floor: 280 mm plate in a 275 mm jar
-        "jar_1gal_180x197"    # baffle reaches the floor: 280 mm plate in a 172 mm jar
         "jar_1p5L_109x215"    # motor mount overlaps the port flanges by 12.45 mm
         "jar_1gal_155x251"    # motor mount overlaps the port flanges by 8.30 mm
     )
