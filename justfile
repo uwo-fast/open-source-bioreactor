@@ -6,7 +6,7 @@ default:
     @just --list
 
 # Everything CI runs.
-check: check-scad check-vessels check-json
+check: check-scad check-vessels check-json check-bom
 
 # Evaluate every SCAD file and report anything that does not build.
 check-scad:
@@ -140,6 +140,55 @@ analysis-run name:
 # Rebuild one method, e.g. `just analysis-method light-irradiance`.
 analysis-method name:
     {{PY}} analysis/methods/{{name}}/pipeline.py --verify
+
+# Fail when a part the model PRESCRIBES is not on the purchase list.
+#
+# Only the registries that carry a part number can be checked - orings, shafts, thermocouple probes
+# and set screws - so this is a floor, not a full audit. It is worth having anyway: the CSV has now
+# drifted behind the model twice in two days, once carrying a 9 in thermocouple the model had
+# replaced because it went through a jar's floor, and once missing the mini port seal entirely.
+#
+# What it checks is what the model SELECTS for the reference build, not everything registered.
+# Twenty-two plug o-rings are registered and one is bought.
+#
+# It compares the part_number FIELD, not the file. A plain grep passes on a number that survives
+# only in a stale URL, which is exactly what the first version did - it reported the purchase list
+# clean while the thermocouple row named a part the model had replaced.
+check-bom:
+    #!/usr/bin/env bash
+    set -uo pipefail
+    tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
+    cat > "$tmp/b.scad" <<SCAD
+    include <$PWD/scad/head.scad>
+    _v = reactor_vessel;
+    _m = vessel_opening_diameter(_v);
+    _p = head_ports_for(_m);
+    _ifaces = [for (i = bayonet_interfaces) if (len([for (q=_p) if (head_port_interface(q) == i) q]) > 0) i];
+    echo(str("BOM|", oring_part_number(head_plug_oring_selected(_m)), "|plug o-ring"));
+    for (i = _ifaces)
+      echo(str("BOM|", oring_part_number(bayonet_oring(i)), "|", bayonet_name(i), " port o-ring"));
+    for (q = _p) if (head_port_type(q) == "thermocouple")
+      echo(str("BOM|", thermocouple_probe_part_number(head_port_probe(q)), "|thermocouple"));
+    echo(str("BOM|", shaft_part_number(head_shaft_selected(8, vessel_internal_height(_v))), "|impeller shaft"));
+    echo(str("BOM|", set_screw_part_number(impeller_set_screw), "|impeller set screw"));
+    SCAD
+    {{OPENSCAD}} -o "$tmp/b.csg" "$tmp/b.scad" 2>"$tmp/err" >/dev/null
+    # the part_number COLUMN, so a match cannot come from a stale URL elsewhere in the row
+    {{PY}} -c 'import csv;print("\n".join(r["part_number"].strip() for r in csv.DictReader(open("purchased-parts.csv"))))' > "$tmp/pns"
+    lines=$(grep -oE 'BOM\|[^|]*\|[^"]*' "$tmp/err" || true)
+    if [ -z "$lines" ]; then echo "FAIL  could not read what the model prescribes"; exit 1; fi
+    failed=0
+    while IFS='|' read -r _ pn what; do
+        [ -z "$pn" ] && continue
+        if [ "$pn" = "undef" ]; then
+            echo "FAIL  the $what has no part number in its registry"; failed=1
+        elif ! grep -qxF "$pn" "$tmp/pns"; then
+            echo "FAIL  the model prescribes $pn for the $what, and purchased-parts.csv has no such row"
+            failed=1
+        fi
+    done <<< "$lines"
+    [ $failed -eq 0 ] && echo "ok    purchase list carries every part the model prescribes"
+    exit $failed
 
 # Fail if the generated parameter files are stale or the dropdowns have drifted from the registry.
 # Regenerating is cheap and the files are committed, so a diff means someone added a jar without
