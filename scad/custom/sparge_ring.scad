@@ -61,6 +61,24 @@ module sparge_ring(
     str("sparge_ring: a ", hole_diameter, " mm hole does not open into a ", _bore[1], " mm tall bore")
   );
 
+  // How far a hole has to travel inward from the section's centreline to break through the inner
+  // wall everywhere, not just where a facet vertex happens to land.
+  _inner_r = radius - section[0] / 2;
+  _facet_skin = _inner_r * (1 - cos(180 / $fn));
+  _hole_reach = section[0] / 2 + _facet_skin;
+
+  // Inward only. The hole starts at the section's centreline, inside the bore, so it never reaches
+  // the outer wall - and it must not, or the ring would vent away from the impeller as well as
+  // towards it. This is what stops the breakthrough allowance above from being extended the wrong
+  // way if the reach is ever rewritten.
+  assert(
+    _hole_reach < section[0],
+    str(
+      "sparge_ring: a hole reaching ", _hole_reach, " mm inward from the centreline of a ",
+      section[0], " mm section breaks through the outer wall as well as the inner one"
+    )
+  );
+
   module _torus(sect) {
     rotate_extrude(convexity = 4)
       translate([radius, 0])
@@ -94,12 +112,22 @@ module sparge_ring(
         cylinder(h = _bore[1] / 2 + section[1] / 2 + feed_height + z_fight, d = feed_bore);
     }
 
-    // gas holes, pointing radially inward - Birch & Ahmed discharged theirs towards the turbine
+    // Gas holes, pointing radially inward - Birch & Ahmed discharged theirs towards the turbine.
+    //
+    // The length is not section[0]/2, which is what the nominal geometry says and what this used to
+    // cut. rotate_extrude facets the ring, so between vertices the inner wall is a CHORD sitting at
+    // r*cos(180/$fn) rather than at r - closer to the axis, which leaves material where the nominal
+    // radius says there is none. A hole stopping at the nominal inner face therefore stops short of
+    // the real one and leaves a skin: 0.08 mm at r 66.25 and $fn 64, and 2.3 mm by $fn 12, which is
+    // more than the whole wall. Blind holes on a part whose entire job is to let gas out.
+    //
+    // So it is cut to the deepest the faceted wall can reach. Overshooting is free - past the inner
+    // wall the hole is cutting the void inside the ring - while stopping short is not.
     for (i = [0:hole_count - 1])
       rotate([0, 0, i * 360 / hole_count + feed_angle + 180 / hole_count])
         translate([radius, 0, 0])
           rotate([0, -90, 0])
-            cylinder(h = section[0] / 2 + z_fight, d = hole_diameter);
+            cylinder(h = _hole_reach + z_fight, d = hole_diameter);
   }
 }
 
