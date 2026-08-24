@@ -44,7 +44,8 @@ module sparge_ring(
   feed_radius = undef,
   feed_bore = 4,
   feed_height = 8,
-  feed_wall = 1.2
+  feed_wall = 1.2,
+  support_angles = []
 ) {
   _feed_r = is_undef(feed_radius) ? radius : feed_radius;
   _bore = [section[0] - 2 * wall, section[1] - 2 * wall];
@@ -98,6 +99,23 @@ module sparge_ring(
         translate([_feed_r, 0, -section[1] / 2])
           cylinder(h = section[1] + feed_height, d = feed_bore + 2 * feed_wall);
       }
+
+      // Support arms. Identical to the feed's, and BLIND - nothing is bored through them, so the
+      // tube that drops in carries no gas and is simply what stops the ring swinging. One riser
+      // holds it on a 1.33 N/mm cantilever, which is 0.75 mm of sway per newton against 1.7 mm of
+      // clearance to the baffles, so a couple of newtons of flow closes the gap.
+      //
+      // A tube landing here can still do its own job: capped at this end, it takes a drilled hole
+      // or a filed slit at whatever height that job wants - a vent up in the headspace, a media line
+      // wherever it should discharge. That is a hand operation and is not modelled.
+      for (a = support_angles)
+        rotate([0, 0, a]) {
+          translate([_feed_r, -section[0] / 2, -section[1] / 2])
+            cube([radius - _feed_r, section[0], section[1]]);
+
+          translate([_feed_r, 0, -section[1] / 2])
+            cylinder(h = section[1] + feed_height, d = feed_bore + 2 * feed_wall);
+        }
     }
 
     _torus(_bore);
@@ -111,6 +129,14 @@ module sparge_ring(
       translate([_feed_r, 0, -_bore[1] / 2])
         cylinder(h = _bore[1] / 2 + section[1] / 2 + feed_height + z_fight, d = feed_bore);
     }
+
+    // The support sockets take the same tube, but only as deep as it needs to seat: the pocket
+    // stops at the top of the ring's own section, so the arm below stays solid and the tube cannot
+    // vent into the bore.
+    for (a = support_angles)
+      rotate([0, 0, a])
+        translate([_feed_r, 0, section[1] / 2 - feed_height / 2])
+          cylinder(h = feed_height / 2 + feed_height + z_fight, d = feed_bore);
 
     // Gas holes, pointing radially inward - Birch & Ahmed discharged theirs towards the turbine.
     //

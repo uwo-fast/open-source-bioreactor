@@ -580,6 +580,14 @@ sparge_hole_diameter = 3;
 sparge_hole_count = 8;
 // bore of the socket the riser drops into
 sparge_feed_bore = 4;
+// Which ports carry a tube down to the ring purely to hold it steady, named by function the way the
+// feed is. One riser leaves the ring on a 1.33 N/mm cantilever - 0.75 mm of sway per newton against
+// 1.7 mm of clearance to the baffles - so two newtons of flow would have it touching.
+//
+// air_out is the second because it is the one tube port both the full and the reduced set place
+// 120 degrees from air_in, which is as far apart as either layout allows. Its socket is blind: the
+// tube is capped there and takes a drilled hole higher up, where a vent actually wants to be.
+sparge_support_functions = ["air_out"];
 // The riser: a straight rigid tube from the lid port down into that socket. Rigid and not flexible
 // tubing because it is the only thing holding the ring - nothing else in the vessel touches it -
 // so it is structure as much as gas path. 316 for the same reason as the shaft: this is wetted and
@@ -588,6 +596,14 @@ sparge_riser_od = 4;
 sparge_riser_id = 2.5;
 // how far it lands inside the socket
 sparge_riser_insertion = 8;
+// How far a tube stands above the top of its port, so something can be connected to it.
+//
+// It used to stand nowhere: the length was measured to the lid's OUTER face, which the port's own
+// flange stands 5 mm above, so every tube finished INSIDE its port with nothing to grip. Flexible
+// tubing pushed over 4 mm needs a few diameters of engagement and a worm clamp's band is about 9 mm
+// wide, so 15 mm carries the clamp with lead-in either side. It is shorter than the thermocouple's
+// own 20 mm NPT mount, which is the tallest thing already standing on this lid.
+sparge_riser_proud = 15;
 // the aeration rate the holes are reported against, volumes of gas per volume of liquid per minute
 sparge_design_vvm = 0.5;
 // the band the gas metering has to cover, in vvm
@@ -1780,6 +1796,9 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   );
 
   _sparge_feed_angle = head_sparge_feed_port(vessel_opening_diameter) * 360 / _n;
+  _sparge_support_angles = [
+    for (f = sparge_support_functions) head_port_index(vessel_opening_diameter, f) * 360 / _n,
+  ];
 
   //
   // Reported before it is drawn, the same way clearance and coverage were, because the fits are
@@ -1860,12 +1879,43 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _sparge_socket_top =
   -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height)
   + _sparge_ring_height + sparge_ring_section[1] / 2 + 8;
-  _sparge_riser_length = 0 - (_sparge_socket_top - sparge_riser_insertion);
+  // The tube runs from inside its socket to clear of its port. Measured to the PORT's top face and
+  // not the lid's, because the flange stands between the two and it is the flange a hose must clear.
+  _sparge_port_top = bayonet_flange_height(head_interface_for("tube", sparge_riser_od / 2));
+  _sparge_riser_length =
+    _sparge_port_top + sparge_riser_proud - (_sparge_socket_top - sparge_riser_insertion);
   _sparge_submergence = vessel_punt_height + _liquid_height - _sparge_ring_height;
+
+  // What holds the ring up, and how much it can still move. One tube is a cantilever; each extra
+  // one at a real angle from it is another. Reported rather than asserted - what the flow actually
+  // pushes the ring with is not something this model knows.
+  // The cantilever is NOT the whole tube. What holds the ring is the span between the lid's
+  // underside, where the port last touches the tube, and the socket - the stub standing proud above
+  // the lid carries no load and the length inside the lid is supported. Using the whole tube here
+  // understated the stiffness by the cube of the ratio.
+  _riser_I = PI / 64 * (pow(sparge_riser_od, 4) - pow(sparge_riser_id, 4));
+  _riser_free = -lid_thickness - _sparge_socket_top;
+  _riser_k = 3 * 193000 * _riser_I / pow(_riser_free, 3);
+
+  echo(str(
+    "sparge support: ", 1 + len(_sparge_support_angles), " tubes at ",
+    concat([_sparge_feed_angle], _sparge_support_angles), " deg; ", _riser_free,
+    " mm of free tube each, so one is ", _riser_k,
+    " N/mm, so ", 1 / _riser_k, " mm of sway per newton against ",
+    head_ring_baffle_gap(vessel_opening_diameter, impeller_diameter), " mm to the baffles"
+  ));
+
+  if (len(_sparge_support_angles) == 0)
+    echo(str(
+      "WARNING sparge support: the ring hangs on the feed riser alone. ",
+      head_ring_baffle_gap(vessel_opening_diameter, impeller_diameter) * _riser_k,
+      " N sideways closes its gap to the baffles."
+    ));
 
   echo(str(
     "sparge riser: ", sparge_riser_od, " x ", sparge_riser_id, " mm tube, ", _sparge_riser_length,
-    " mm from the lid's outer face to ", sparge_riser_insertion, " mm inside the socket; ",
+    " mm long - ", sparge_riser_proud, " mm proud of its port for a hose, down to ",
+    sparge_riser_insertion, " mm inside the socket; ",
     head_port_bore_radius(head_ports_for(vessel_opening_diameter)[head_sparge_feed_port(vessel_opening_diameter)]) * 2 - sparge_riser_od,
     " mm of slack through the port's bore"
   ));
@@ -1953,15 +2003,22 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     str("Sparge riser bore ", sparge_riser_id, " mm is not inside a ", sparge_riser_od, " mm tube.")
   );
 
+  // The feed riser and the support tubes are the same part in the same material, so they are drawn
+  // together - one tube down each of the sparger's ports, whether it carries gas or only load.
+  module _sparge_tube() {
+    translate([port_circle_radius, 0, _sparge_socket_top - sparge_riser_insertion])
+      difference() {
+        cylinder(h=_sparge_riser_length, d=sparge_riser_od);
+        translate([0, 0, -z_fight])
+          cylinder(h=_sparge_riser_length + 2 * z_fight, d=sparge_riser_id);
+      }
+  }
+
   if (render_sparger || render_all)
     color("grey")
-      rotate([0, 0, _sparge_feed_angle])
-        translate([port_circle_radius, 0, _sparge_socket_top - sparge_riser_insertion])
-          difference() {
-            cylinder(h=_sparge_riser_length, d=sparge_riser_od);
-            translate([0, 0, -z_fight])
-              cylinder(h=_sparge_riser_length + 2 * z_fight, d=sparge_riser_id);
-          }
+      for (a = concat([_sparge_feed_angle], _sparge_support_angles))
+        rotate([0, 0, a])
+          _sparge_tube();
 
   if (render_sparger || render_all)
     color(prints2_color)
@@ -1978,7 +2035,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
           hole_count=sparge_hole_count,
           feed_angle=_sparge_feed_angle,
           feed_radius=port_circle_radius,
-          feed_bore=sparge_feed_bore
+          feed_bore=sparge_feed_bore,
+          support_angles=_sparge_support_angles
         );
 
   // the port circle is sized against the plug's edge, so what it does not settle is whether
