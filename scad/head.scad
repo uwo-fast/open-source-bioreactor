@@ -693,10 +693,18 @@ function head_baffle_length(lid_flange_height, vessel_internal_height, vessel_pu
     ? head_baffle_max_length(lid_flange_height, vessel_internal_height, vessel_punt_height)
     : baffle_length;
 
+// What the impeller actually sweeps, as against the diameter the correlations are keyed on. They
+// should be equal - the blades solve so their corners land on the radius, and the tip ring is
+// inboard of it - and this exists so that stops being an assumption. Anything added outboard of the
+// blades shows up here, and the baffle width below is derived from it rather than from the nominal,
+// so a part that grows takes its clearance with it.
+function head_impeller_swept_radius(impeller_diameter) =
+  max(impeller_diameter / 2, impeller_hub_radius);
+
 function head_baffle_width(vessel_opening_diameter, impeller_diameter) =
   min(
     bayonet_baffle_width(head_interface_for("baffle", 0), baffle_thickness, baffle_bore_clearance),
-    2 * (head_port_circle_radius(vessel_opening_diameter) - impeller_diameter / 2 - baffle_impeller_clearance),
+    2 * (head_port_circle_radius(vessel_opening_diameter) - head_impeller_swept_radius(impeller_diameter) - baffle_impeller_clearance),
     head_baffle_ring_limit(vessel_opening_diameter)
   );
 
@@ -1115,6 +1123,19 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     _ratio_band_axial[1], "); spacing ", impeller_spacing_factor, " D (band ", _spacing_band[0],
     "-", _spacing_band[1], ")"
   ));
+
+  // The diameter the part sweeps against the one the correlations use. Equal by construction, and
+  // said out loud because they were not: a tip ring drawn outboard of the blades put 4 mm on the
+  // radius, and D/T, the power number and the baffle clearance were all computed on the nominal.
+  _swept = head_impeller_swept_radius(impeller_diameter) * 2;
+
+  if (_swept != impeller_diameter)
+    echo(str(
+      "WARNING impeller: sweeps ", _swept, " mm but Po, D/T and the baffle clearance are computed on ",
+      impeller_diameter, ". D/T is really ", stirred_tank_ratio(_swept, _vessel_bore),
+      " and power goes as the fifth power of diameter, so this is ",
+      pow(_swept / impeller_diameter, 5), "x on shaft power."
+    ));
 
   // What the clearance spends and what it buys, neither of which was visible before. Coverage is
   // over the UPPER impeller because that is the one nearest the surface, and the room is under the
@@ -1661,6 +1682,25 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       "baffle plate: ", _baffle_load, " N each, deflecting ", _baffle_deflection, " mm at the tip; ",
       "first mode ", _baffle_frequency, " Hz against ", stirred_tank_shaft_frequency(_baffle_rpm),
       " Hz shaft and ", stirred_tank_blade_frequency(_baffle_rpm, impeller_n_fins), " Hz blade passing"
+    ));
+
+  // The nominal gap is not the running one. The plate hangs from a coupling with its own fit
+  // allowance, so it can lean: allowance over engagement is the slope, and it costs that much per
+  // mm of depth. What matters is the lean at the impellers rather than at the tip, since that is
+  // where there is something to hit. Reported and not asserted - it is a tolerance stack, not an
+  // impossibility, and which way the play falls is the builder's luck rather than the model's.
+  _baffle_lean_slope = bayonet_allowance(head_interface_for("baffle", 0)) / lid_thickness;
+  _baffle_gap = port_circle_radius - _baffle_width / 2 - head_impeller_swept_radius(impeller_diameter);
+  _baffle_lean_at_lower =
+    (head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height)
+      - _impeller_clearance - lid_thickness) * _baffle_lean_slope;
+
+  if (_has_baffles)
+    echo(str(
+      "baffle clearance: ", _baffle_gap, " mm nominal to the impeller, less ", _baffle_lean_at_lower,
+      " mm the coupling's ", bayonet_allowance(head_interface_for("baffle", 0)),
+      " mm of play allows at the lower impeller = ", _baffle_gap - _baffle_lean_at_lower, " mm running",
+      _baffle_gap - _baffle_lean_at_lower < 0 ? " - THE PLATE CAN REACH THE BLADES" : ""
     ));
 
   if (_has_baffles && _baffle_deflection > _baffle_width / 10)
@@ -2306,12 +2346,21 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
           blade_pitch=impeller_is_twisted(head_impeller_type) ? undef : impeller_blade_angle(head_impeller_type),
           blade_width=impeller_blade_width
         );
-        // top ring to connect the fin tops for mechanical stability
+        // Top ring tying the blade tips together, INBOARD of the radius rather than outboard.
+        //
+        // It used to run from impeller_radius out to impeller_radius + fin_width, which put 4 mm of
+        // impeller outside the diameter every correlation is keyed on: the part swept 102.5 mm where
+        // the model said 94.5, D/T was 0.488 against a reported 0.45, and the blades overlapped the
+        // baffles by 1.98 mm. Nothing caught it because nothing compares what is drawn against what
+        // is claimed - the baffle width is derived from impeller_diameter, and the ring was not.
+        //
+        // Inboard it still does its job: the blade's far face reaches r 46.55 against the ring's
+        // inner edge at 43.25, so they overlap 3.3 mm radially and the full 4 mm axially.
         translate([0, 0, impeller_height / 2 - impeller_fin_width / 2])
           linear_extrude(impeller_fin_width, center=true)
             difference() {
-              circle(r=impeller_radius + impeller_fin_width, $fn=64);
               circle(r=impeller_radius, $fn=64);
+              circle(r=impeller_radius - impeller_fin_width, $fn=64);
             }
         // collar for the set screws, standing clear of the blades
         translate([0, 0, impeller_height / 2 - z_fight])
