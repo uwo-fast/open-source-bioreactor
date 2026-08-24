@@ -106,10 +106,15 @@ function bayonet_flange_radius(type) =
 function bayonet_pin_face_radius(type) = bayonet_interface_radius(type) - bayonet_allowance(type) / 2;
 function bayonet_lock_bore_radius(type) = bayonet_interface_radius(type) + bayonet_allowance(type) / 2;
 
-// Rotation that takes a pin half from the locked position to the entry position, i.e. pins at
-// the channel mouths before the turn.
+// Rotation that takes a pin half from the locked position to the entry position, i.e. pins at the
+// channel mouths before the turn. Undoing the turn, so it is opposite in sign to the turn itself:
+// a CW coupling locks by sweeping negative, so it comes back positive.
+//
+// This used to return the turn rather than its undo, which is the same magnitude and the wrong way
+// round. Nothing caught it because the only consumer is a preview toggle and both directions move
+// the part by the same amount.
 function bayonet_entry_rotation(type) =
-  (bayonet_turn_direction(type) == "CW") ? -bayonet_sweep_angle(type) : bayonet_sweep_angle(type);
+  (bayonet_turn_direction(type) == "CW") ? bayonet_sweep_angle(type) : -bayonet_sweep_angle(type);
 
 // Example usage (open this file directly to preview)
 bayonet_port(bayonet_std, part="pin", panel_thickness=18, center_bore_radius=3, text_labels=true);
@@ -133,7 +138,8 @@ module bayonet_port(
   entry_depth = undef,
   catch_pockets = true,
   text_labels = false,
-  label = undef
+  label = undef,
+  pins_at_locked = true
 ) {
 
   // Unpack the shared bayonet interface into the scalars the body works in.
@@ -187,8 +193,18 @@ module bayonet_port(
   difference() {
     union() {
 
-      // The coupling, sitting below the panel. Both halves are authored in one frame by the
-      // library, so this same placement puts them in the locked position.
+      // The coupling, sitting below the panel.
+      //
+      // The library authors both halves in one frame, but that frame is the ENTRY, not the lock: in
+      // the same loop it places the lock's vertical entry shaft and the pin sphere at exactly the
+      // same [r, 0, channel_depth]. So a pin half drawn as-is is the part as it goes IN, and it
+      // turns by the sweep on its way to locked. For a tube that is invisible. For anything with an
+      // orientation - a baffle plate, a tilted probe, an engraved face - it means the body is drawn
+      // where it never sits, and a printed part comes out that many degrees off.
+      //
+      // pins_at_locked moves the PINS back by the sweep instead, so the body's own frame is the one
+      // it occupies when locked. The lock half is untouched: its entry shaft has to stay where the
+      // pin goes in.
       translate([0, 0, -panel_thickness])
         bayonet(
           half=part,
@@ -197,7 +213,9 @@ module bayonet_port(
           allowance=allowance,
           part_height=panel_thickness,
           entry_depth=entry_depth,
-          pin_angles=bayonet_pin_angles(type),
+          pin_angles=(part == "pin" && pins_at_locked)
+            ? [for (a = bayonet_pin_angles(type)) a - bayonet_entry_rotation(type)]
+            : bayonet_pin_angles(type),
           pin_radius=pin_radius,
           sweep_angle=bayonet_sweep_angle(type),
           pin_direction=bayonet_pin_direction(type),
