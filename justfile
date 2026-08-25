@@ -143,10 +143,11 @@ analysis-method name:
 
 # Fail when a part the model PRESCRIBES is not on the purchase list.
 #
-# Only the registries that carry a part number can be checked - orings, shafts, thermocouple probes
-# and set screws - so this is a floor, not a full audit. It is worth having anyway: the CSV has now
-# drifted behind the model twice in two days, once carrying a 9 in thermocouple the model had
-# replaced because it went through a jar's floor, and once missing the mini port seal entirely.
+# Only the registries that carry a part number can be checked - orings, shafts, thermocouple
+# probes, set screws and steel tubes - so this is a floor, not a full audit. It is worth having
+# anyway: the CSV has now drifted behind the model twice in two days, once carrying a 9 in
+# thermocouple the model had replaced because it went through a jar's floor, and once missing the
+# mini port seal entirely.
 #
 # What it checks is what the model SELECTS for the reference build, not everything registered.
 # Twenty-two plug o-rings are registered and one is bought.
@@ -170,6 +171,7 @@ check-bom:
     for (q = _p) if (head_port_type(q) == "thermocouple")
       echo(str("BOM|", thermocouple_probe_part_number(head_port_probe(q)), "|thermocouple"));
     echo(str("BOM|", shaft_part_number(head_shaft_selected(8, vessel_internal_height(_v))), "|impeller shaft"));
+    echo(str("BOM|", steel_tube_part_number(sparge_riser_tube), "|sparge riser tube"));
     echo(str("BOM|", set_screw_part_number(impeller_set_screw), "|impeller set screw"));
     SCAD
     {{OPENSCAD}} -o "$tmp/b.csg" "$tmp/b.scad" 2>"$tmp/err" >/dev/null

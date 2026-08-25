@@ -28,6 +28,7 @@ include <purchased/atlas_probes.scad>;
 include <purchased/thermocouple_probes.scad>;
 include <purchased/orings.scad>;
 include <purchased/heat_set_inserts.scad>;
+include <purchased/steel_tubes.scad>;
 include <purchased/shaft_couplings.scad>;
 include <purchased/shafts.scad>;
 include <purchased/gasket_sheets.scad>;
@@ -611,8 +612,6 @@ sparge_ring_wall = 1.2;
 // turbine". 3 mm is mid Rewatkar's tested 2-6 and the least tolerance-sensitive that still spaces.
 sparge_hole_diameter = 3;
 sparge_hole_count = 8;
-// bore of the socket the riser drops into
-sparge_feed_bore = 4;
 // Which ports carry a tube down to the ring purely to hold it steady, named by function the way the
 // feed is. One riser leaves the ring on a 1.33 N/mm cantilever - 0.75 mm of sway per newton against
 // 1.7 mm of clearance to the baffles - so two newtons of flow would have it touching.
@@ -623,10 +622,16 @@ sparge_feed_bore = 4;
 sparge_support_functions = ["air_out"];
 // The riser: a straight rigid tube from the lid port down into that socket. Rigid and not flexible
 // tubing because it is the only thing holding the ring - nothing else in the vessel touches it -
-// so it is structure as much as gas path. 316 for the same reason as the shaft: this is wetted and
-// the reactor is chemically sterilised. NOT YET A REGISTERED PART; see TODO.md.
-sparge_riser_od = 4;
-sparge_riser_id = 2.5;
+// so it is structure as much as gas path.
+//
+// A registered row, so the OD, the bore and the part number all come off one part rather than
+// being three numbers that have to agree. It was 4 x 2.5 mm as two literals, which is a size
+// nobody sells: at 4 mm OD the catalogue offers 0.25, 0.4 and 0.5 mm walls and no 0.75. Wall is a
+// stiffness choice here rather than a pressure one - see the support report in head() - and 0.5 is
+// the thickest the 4 mm size comes in, so it keeps the most of it and survives cutting best.
+sparge_riser_tube = steel_tube_welded_4x0p5;
+// bore of the socket the riser drops into, off the tube itself so the two cannot drift
+sparge_feed_bore = steel_tube_od(sparge_riser_tube);
 // how far it lands inside the socket
 sparge_riser_insertion = 8;
 // How far a tube stands above the top of its port, so something can be connected to it.
@@ -1972,7 +1977,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   + _sparge_ring_height + sparge_ring_section[1] / 2 + 8;
   // The tube runs from inside its socket to clear of its port. Measured to the PORT's top face and
   // not the lid's, because the flange stands between the two and it is the flange a hose must clear.
-  _sparge_port_top = bayonet_flange_height(head_interface_for("tube", sparge_riser_od / 2));
+  _sparge_port_top = bayonet_flange_height(head_interface_for("tube", steel_tube_od(sparge_riser_tube) / 2));
   _sparge_riser_length =
     _sparge_port_top + sparge_riser_proud - (_sparge_socket_top - sparge_riser_insertion);
   _sparge_submergence = vessel_punt_height + _liquid_height - _sparge_ring_height;
@@ -1984,9 +1989,9 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // underside, where the port last touches the tube, and the socket - the stub standing proud above
   // the lid carries no load and the length inside the lid is supported. Using the whole tube here
   // understated the stiffness by the cube of the ratio.
-  _riser_I = PI / 64 * (pow(sparge_riser_od, 4) - pow(sparge_riser_id, 4));
+  _riser_I = steel_tube_second_moment(sparge_riser_tube);
   _riser_free = -lid_thickness - _sparge_socket_top;
-  _riser_k = 3 * 193000 * _riser_I / pow(_riser_free, 3);
+  _riser_k = 3 * steel_tube_modulus() * _riser_I / pow(_riser_free, 3);
 
   echo(str(
     "sparge support: ", 1 + len(_sparge_support_angles), " tubes at ",
@@ -2004,11 +2009,27 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     ));
 
   echo(str(
-    "sparge riser: ", sparge_riser_od, " x ", sparge_riser_id, " mm tube, ", _sparge_riser_length,
+    "sparge riser: ", steel_tube_od(sparge_riser_tube), " x ", steel_tube_id(sparge_riser_tube), " mm tube, ", _sparge_riser_length,
     " mm long - ", sparge_riser_proud, " mm proud of its port for a hose, down to ",
     sparge_riser_insertion, " mm inside the socket; ",
-    head_port_bore_radius(head_ports_for(vessel_opening_diameter)[head_sparge_feed_port(vessel_opening_diameter)]) * 2 - sparge_riser_od,
+    head_port_bore_radius(head_ports_for(vessel_opening_diameter)[head_sparge_feed_port(vessel_opening_diameter)]) * 2 - steel_tube_od(sparge_riser_tube),
     " mm of slack through the port's bore"
+  ));
+
+  // It is bought as a length of stock and cut, not as a part per tube, so the purchase list needs
+  // the stock and the cut list rather than a quantity - which is what this line gives it.
+  _riser_count = 1 + len(_sparge_support_angles);
+  _riser_stock = steel_tube_stock_for(_sparge_riser_length, _riser_count);
+
+  echo(str(
+    "sparge tube stock: ", steel_tube_part_number(sparge_riser_tube), ", ",
+    steel_tube_material(sparge_riser_tube), " ", steel_tube_construction(sparge_riser_tube),
+    ", ", steel_tube_temper(sparge_riser_tube), " temper; cut ", _riser_count, " x ",
+    _sparge_riser_length, " mm = ", _riser_count * _sparge_riser_length, " mm",
+    is_undef(_riser_stock)
+      ? " - LONGER THAN ANY STOCK LENGTH, so it needs joining or a different tube"
+      : str(" from a ", _riser_stock, " mm length, leaving ",
+            _riser_stock - _riser_count * _sparge_riser_length, " mm spare")
   ));
 
   echo(str(
@@ -2082,26 +2103,26 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // Echoed above and asserted here: a riser wider than the bore it passes is not a tight fit, it
   // is an assembly that does not exist. design-conventions.md puts that on the assert side.
   assert(
-    sparge_riser_od <= head_port_bore_radius(head_ports_for(vessel_opening_diameter)[head_sparge_feed_port(vessel_opening_diameter)]) * 2,
+    steel_tube_od(sparge_riser_tube) <= head_port_bore_radius(head_ports_for(vessel_opening_diameter)[head_sparge_feed_port(vessel_opening_diameter)]) * 2,
     str(
-      "Sparge riser is ", sparge_riser_od, " mm across but the air_in port bores ",
+      "Sparge riser is ", steel_tube_od(sparge_riser_tube), " mm across but the air_in port bores ",
       head_port_bore_radius(head_ports_for(vessel_opening_diameter)[head_sparge_feed_port(vessel_opening_diameter)]) * 2, " mm, so it cannot pass through the lid."
     )
   );
 
-  assert(
-    sparge_riser_id < sparge_riser_od,
-    str("Sparge riser bore ", sparge_riser_id, " mm is not inside a ", sparge_riser_od, " mm tube.")
-  );
+  // There was an assert here that the riser's bore was inside its outside diameter, from when the
+  // two were separate literals that could disagree. The row carries od and wall now and the bore
+  // is od - 2 * wall, so it could only compare a number with itself. Removed rather than left to
+  // look like it was guarding something; see docs/design-conventions.md on dead asserts.
 
   // The feed riser and the support tubes are the same part in the same material, so they are drawn
   // together - one tube down each of the sparger's ports, whether it carries gas or only load.
   module _sparge_tube() {
     translate([port_circle_radius, 0, _sparge_socket_top - sparge_riser_insertion])
       difference() {
-        cylinder(h=_sparge_riser_length, d=sparge_riser_od);
+        cylinder(h=_sparge_riser_length, d=steel_tube_od(sparge_riser_tube));
         translate([0, 0, -z_fight])
-          cylinder(h=_sparge_riser_length + 2 * z_fight, d=sparge_riser_id);
+          cylinder(h=_sparge_riser_length + 2 * z_fight, d=steel_tube_id(sparge_riser_tube));
       }
   }
 

@@ -79,7 +79,8 @@
     orderable end to end rather than mostly orderable. Known holes:
   - **gas chain** — rotameter (0-5 L/min for the 10 L jar), metering valve dropping ~24 kPa at
     4 L/min, check valve. Sizing is done; part numbers are not
-  - **sparge riser** — 316 tube, 4 x 2.5 mm x 166.7 mm as drawn. See its own item below
+  - ~~**sparge riser**~~ — done: 316 welded tube 4 x 0.5 mm, 50415K21, one 1 m length cut into two
+    186.7 mm tubes. See its own item below
   - **four fastener rows have no McMaster part numbers** — see the nice-to-haves item
   - **the sparge ring itself is printed**, so it needs no row, but it does need to appear in
     whatever print list the build instructions carry
@@ -96,17 +97,26 @@
   - the cord is 3/32 in and not 1/8 in because `head_plug_oring_cord_limit()` caps it at 3.05 mm:
     the groove and the port bores are cut into the same wall of the plug, and the mouth cancels out
     of that algebra, so a fatter cord fouls the bores on every vessel rather than just a tight one
-- [ ] register the sparge riser as a real purchased part
-  - `head.scad` draws it at 4 x 2.5 mm and 166.7 mm long, and those numbers are **chosen, not
-    bought**. It wants a 316 stainless tube row of the same shape as `purchased/shafts.scad` —
-    part number, OD and ID with tolerances, length, and the same REACH/RoHS note the shaft carries
-  - 316 for the reason the shaft is: wetted, and the reactor is chemically sterilised rather than
-    autoclaved. Rigid rather than flexible tubing because **it is the only thing holding the ring** —
-    nothing else in the vessel touches it — so it is structure as much as gas path
-  - stiffness is not what picks the size. At a deliberately conservative 0.36 N the tip deflects
-    0.164 mm at 4 x 2.5 and 0.034 at 6 x 4, so anything orderable works. What picks it is the
-    **2 mm of slack it currently has through the port's 6 mm bore**, and how that gap is sealed —
-    which is the tube port's business and is not yet answered
+- [x] register the sparge riser as a real purchased part
+  - it was drawn at 4 x 2.5 mm as two loose literals, and **that is not a size anyone sells.** At
+    4 mm OD the catalogue offers 0.25, 0.4 and 0.5 mm walls and no 0.75, so the part the model
+    prescribed could not be bought at all. Nothing caught it because nothing had to
+  - **done.** `purchased/steel_tubes.scad` registers the 316 welded metric family, 2 to 12 mm OD,
+    22 rows with part numbers, on the same schema as `shafts.scad`. `sparge_riser_tube` selects
+    one and the OD, the bore, the second moment and the part number all come off it
+  - **welded rather than seamless, and temper is what decides it.** These are hard temper where
+    the seamless metric straights are soft; temper does not move the modulus, so bending stiffness
+    is the same, but a support tube that stays where it is put is the whole point. The bore does
+    not decide it - the riser costs a few hundred Pa against the 24 kPa the metering valve burns -
+    and neither does the crevice, since the support tube is a dead leg by design, which is worse
+    than a bead and shared by both. It is also $22.72/m against $181.42
+  - wall is the stiffness lever: 0.5 mm keeps the support at 1.79 N/mm against 2.21 at the
+    unbuyable 0.75, where 0.25 would drop it to 1.08. 0.5 is the thickest the 4 mm size comes in
+  - `sparge_feed_bore` now derives from the tube's OD instead of being a second literal that
+    happened to agree, and `check-bom` gained a fifth registry
+  - still open, and unchanged by this: the **2 mm of slack the tube has through the port's 6 mm
+    bore**, and how that gap is sealed. That is the tube port's business - see the sparger
+    follow-ups below
 
 - [ ] draw the vitamins that are registered but never rendered
   - the **ball bearing** is registered as `BB608` and its numbers cut the lid's pocket, but
