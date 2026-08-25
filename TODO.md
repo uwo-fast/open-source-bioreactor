@@ -129,6 +129,17 @@
     bore**, and how that gap is sealed. That is the tube port's business - see the sparger
     follow-ups below
 
+- [ ] the sparge back-pressure leaves out the riser's own drop
+  - `head()` reports **1121 Pa** for the gas to beat - 1025 Pa of culture over the ring plus 96 Pa
+    of capillary - and the tube the gas arrives through is not in it. 187 mm of 3 mm bore at
+    4.09 L/min runs about 13 m/s at Re 2300, which is roughly **240-400 Pa**, so the real figure
+    is nearer 1400
+  - it changes nothing operationally: the metering valve is throwing away 24 kPa on top, so the
+    riser is inside the slack. It is a reported number being wrong by a quarter, which is the
+    reason to fix it rather than any consequence
+  - `utils/gas_supply.scad` is where it would go, and `steel_tube_id()` now makes the bore
+    available off the registered row
+
 - [ ] draw the vitamins that are registered but never rendered
   - the **ball bearing** is registered as `BB608` and its numbers cut the lid's pocket, but
     `ball_bearing()` is never called, so the part it is cut for does not appear. A pocket drawn
@@ -395,6 +406,20 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     8785N383 port o-ring, 6153K71 bearing
 
 ## tooling / infrastructure / documentation
+
+- [ ] **no assembly torque is specified anywhere, and the glass is what limits it**
+  - `head()` reports **291.8 N per post** to hold the gasket at 25 % squeeze, which on M8 is about
+    **0.6 N·m** - finger tight with a short wrench. A published M8 A2-70 figure is 20-24 N·m,
+    roughly **40x** that, and the design point already puts **2.51 MPa on the jar's rim**
+  - so the bolts are preload-limited by the SODA-LIME JAR, not by the fastener, and nothing
+    anywhere says so. Torquing them to fastener spec is how the jar gets cracked
+  - it is a build-instruction gap rather than a model one - the number is already computed and
+    echoed. What is missing is somewhere for a builder to read it, and a tightening pattern
+  - worth deciding at the same time whether the gasket recess is meant to bottom out as a stop.
+    It is 1.19 mm deep for a 1.5875 mm sheet, so at 25 % squeeze the gasket is flush and the
+    printed flange meets glass. That either is the stop or is the thing to avoid, and which one is
+    not recorded
+
 
 - [ ] add PowerShell and shell scripts to export a chosen assembly parameter set as individual STL files, together with a print list, BOM, and other relevant build outputs
   - **the JSON half is done.** `just json` writes `scad/assembly.json` and `scad/head.json` from the vessel registry, one set per jar, and `openscad -p scad/assembly.json -P <vessel>` selects one. `check-json` fails if either file is stale or its dropdown has drifted
