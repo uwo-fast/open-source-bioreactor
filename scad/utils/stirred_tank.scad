@@ -207,10 +207,13 @@ function stirred_tank_baffle_load(torque, count, centroid_radius) =
 function stirred_tank_baffle_second_moment(width, thickness) = width * pow(thickness, 3) / 12;
 
 // Tip deflection of a cantilever under a UDL running from freeboard to length. mm in, mm out -
-// N, mm and MPa are a consistent set, so nothing is converted.
+// N, mm and MPa are a consistent set, so nothing is converted. Integrating the point-load case
+// P x^2 (3L - x) / 6EI over the loaded span, which is where the earlier form here went wrong: it
+// understated a 280 mm plate at 49 mm of freeboard by 23 %, and it was checked only at a = 0,
+// where both forms give the same qL^4/8EI.
 function stirred_tank_baffle_deflection(load, length, freeboard, width, thickness, modulus) =
   let (a = freeboard, L = length, q = load / (L - a))
-    q * ((pow(L, 4) - pow(a, 4)) / 8 - a * (pow(L, 3) - pow(a, 3)) / 6)
+    q * (L * (pow(L, 3) - pow(a, 3)) / 6 - (pow(L, 4) - pow(a, 4)) / 24)
     / (modulus * stirred_tank_baffle_second_moment(width, thickness));
 
 // First bending mode of the plate as a cantilever in liquid, Hz. The entrained water dominates the

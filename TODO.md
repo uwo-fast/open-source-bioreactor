@@ -174,6 +174,13 @@
   - **done.** Both forms echoed; coalescing is the one that fits a 0.2 g/L broth, giving **0.0098 1/s at rated**, which lands inside the 0.01-0.06 1/s Cabaret measured for sparged unbaffled tanks
   - it is used below its fitted range - van't Riet is 500-10000 W/m3 and this vessel runs 209 - so the model says so every render. Still an air-water correlation for a real broth: an order of magnitude, not a measurement. A measured kLa would need a DO probe trace on a degassed vessel, which the rebuild could produce cheaply
 
+- [x] the baffle deflection formula was wrong
+  - `stirred_tank_baffle_deflection()` was checked only at zero freeboard, where it agrees with the
+    right answer at `qL^4/8EI`. At the plate's real 49 mm it was **23 % low**
+  - rebuilt from the point-load case integrated over the loaded span, cross-checked against a
+    numerical double integration of `M/EI`. `jar_10L`'s plate deflects **1.53 mm, not 1.18** - on
+    the tenth-of-width limit rather than comfortably inside it
+
 ## drive and aeration
 
 Follows from the agitation work; the reasoning and citations are in `docs/agitation.md`.

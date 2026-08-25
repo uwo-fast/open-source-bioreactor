@@ -406,6 +406,15 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
 - **Added mass is not optional in that calculation.** For a plate this slender the entrained water
   is over twice the PETG's own mass, so leaving it out would overstate the first mode by about 80 %
   and hide exactly the resonance that drove the thickness.
+- **The deflection all of those numbers came from was wrong, and is corrected.** The closed form in
+  `stirred_tank_baffle_deflection()` was only ever checked at zero freeboard, where it happens to
+  agree with the right answer at `qL⁴/8EI`; away from there it understated. At the plate's real
+  49 mm of freeboard it was **23 % low**. Rebuilt by integrating the point-load case `Px²(3L−x)/6EI`
+  over the loaded span and checked against a numerical double integration of `M/EI`, the 9 mm plate
+  in `jar_10L` deflects **1.53 mm** rather than 1.18. That is on the tenth-of-width limit `head()`
+  warns at rather than comfortably inside it. The older figures in this section — 8.9 mm at 4 mm
+  thick, 1.1 mm at 8 — are stale twice over: by that error and by the load, which went from the
+  no-load 0.51 N to 0.77 N at the rated speed when the pitched blade's power number landed.
 - **What used to cap the depth was an interference of 46 microns.** The plates hang on the port
   circle at r 56.9 mm, and at the widest the lock bore would pass — 19.39 mm — the inner edge fell
   at r 47.204 against an impeller sweeping r 47.25. That overlap, and nothing else, is why the
