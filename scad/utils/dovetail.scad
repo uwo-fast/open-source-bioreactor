@@ -30,6 +30,14 @@ function dovetail_pts(width, height, root_width = undef) =
   ];
 
 /**
+ * @brief Root width that gives a wanted flare, so a joint can be specified by its angle.
+ * @param width  Width across the crown
+ * @param height Root-to-crown height
+ * @param angle  Flare off vertical, degrees
+ */
+function dovetail_root_width(width, height, angle) = width - 2 * height * tan(angle);
+
+/**
  * @brief A dovetail prism, extruded along z from the origin.
  * @param length       Extrusion length
  * @param allowance    Grows the profile all round; 0 for the tail, the fit clearance for the socket

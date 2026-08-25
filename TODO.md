@@ -174,12 +174,48 @@
   - **done.** Both forms echoed; coalescing is the one that fits a 0.2 g/L broth, giving **0.0098 1/s at rated**, which lands inside the 0.01-0.06 1/s Cabaret measured for sparged unbaffled tanks
   - it is used below its fitted range - van't Riet is 500-10000 W/m3 and this vessel runs 209 - so the model says so every render. Still an air-water correlation for a real broth: an order of magnitude, not a measurement. A measured kLa would need a DO probe trace on a degassed vessel, which the rebuild could produce cheaply
 
+- [x] split the baffles so they can be printed
+  - a plate hanging to the floor is 172 to 280 mm across the vessels that carry baffles, plus 23 mm
+    of port on top. Nobody prints that well: it is the tallest, most slender part in the model and
+    it goes on the bed in the port's own axis, because the flange, the o-ring groove and the pins
+    all want that orientation
+  - **done.** `baffle_segment_height_max = 170` caps a piece, `baffle_segments = undef` derives the
+    count from it and a number pins it. Every registered vessel comes out in two pieces; a 470 mm
+    jar would take three. The cap targets 180 mm machines rather than the 250 mm ones, which costs
+    less than it looks: at a 250 mm cap jar_10L still takes two pieces, because its part is 303 mm
+    whole. What the choice actually costs is the short jar, which would otherwise print in one
+  - the slide is along the plate's **width** and that is a load choice, not a shape one: the swirl
+    pushes on the plate's face, so it bears on the flanks and the axis a sliding dovetail leaves
+    free carries nothing. Blind at the far end, so it registers in one place
+  - **measured, not reasoned.** The corner sweep in `dovetail()` was setting the tail back where it
+    meets the face - the section crossing the joint plane measured **2.65 mm of a nominal 4.2** -
+    so the root arc is now sunk below the plane and the plane cuts straight flank. Re-measured at
+    4.22. The two pieces intersect in a zero-volume face at 0.1 mm allowance and interfere at -0.05,
+    which is the fit being exactly what it says
+  - what it costs: 4.2 mm of 9 crossing each joint is a tenth of the plate's second moment, and one
+    joint adds 7 % to the tip deflection. Two things are not modelled - the first mode `head()`
+    reports is the solid plate's, and the joint leaves a 0.1 mm crevice in a vessel that is
+    chemically sterilised. See `docs/agitation.md`
 - [x] the baffle deflection formula was wrong
   - `stirred_tank_baffle_deflection()` was checked only at zero freeboard, where it agrees with the
     right answer at `qL^4/8EI`. At the plate's real 49 mm it was **23 % low**
   - rebuilt from the point-load case integrated over the loaded span, cross-checked against a
     numerical double integration of `M/EI`. `jar_10L`'s plate deflects **1.53 mm, not 1.18** - on
-    the tenth-of-width limit rather than comfortably inside it
+    the tenth-of-width limit rather than inside it, and over it once the print joints are counted
+  - **so the 15.3 mm plate now warns on every render of `jar_10L`.** Not chased here: it is the same
+    jar whose baffle running clearance is already -0.28 mm, and both want deciding together
+- [ ] **jar_10L's plate is against two limits at once**, both reported every render, neither
+  asserted, and nothing printed yet - so they can be decided together
+  - *deflection*: **1.64 mm** at the tip of a 15.3 mm plate, past the tenth-of-width warning
+  - *running clearance*: 2 mm nominal to the impeller, less the 2.28 mm of lean the coupling's
+    0.2 mm of play allows at the lower impeller, so **-0.28 mm running** - the plate can reach the
+    blades
+  - **thickness is the lever for the first and it is nearly free.** The impeller caps the width at
+    15.3 whatever happens, and the lock bore only starts cutting into that past **12.5 mm** of
+    thickness - it passes 15.36 there against 17.64 at the present 9. So the plate can go to 12 mm
+    with its width intact, and deflection falls as the cube of it
+  - it does **not** touch the second, which is a tolerance stack rather than a stiffness one. That
+    one wants either engagement in the lid or a tighter coupling fit, and both are their own change
 
 ## drive and aeration
 

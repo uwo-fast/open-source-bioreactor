@@ -216,6 +216,22 @@ function stirred_tank_baffle_deflection(load, length, freeboard, width, thicknes
     q * (L * (pow(L, 3) - pow(a, 3)) / 6 - (pow(L, 4) - pow(a, 4)) / 24)
     / (modulus * stirred_tank_baffle_second_moment(width, thickness));
 
+// What a joint in the plate adds to that. A dovetail neck is a local drop in second moment over
+// the tail's depth, so it turns into extra rotation there and the tip swings by that rotation
+// times what hangs below it. Per joint; a caller with several sums them. Conservative: it counts
+// only the material crossing the joint plane, and ignores what the flanks carry in bearing.
+function stirred_tank_baffle_joint_deflection(load, length, freeboard, width, thickness, modulus, joint, neck, depth) =
+  let (
+    a = freeboard, L = length, q = load / (L - a),
+    _moment = joint >= a
+      ? q * pow(L - joint, 2) / 2
+      : q * (pow(L - a, 2) / 2 + (L - a) * (a - joint))
+  )
+    _moment * depth * (
+      1 / stirred_tank_baffle_second_moment(width, neck)
+      - 1 / stirred_tank_baffle_second_moment(width, thickness)
+    ) / modulus * (L - joint);
+
 // First bending mode of the plate as a cantilever in liquid, Hz. The entrained water dominates the
 // mass - for a plate this slender it is over twice the PETG's own - so added mass is not optional.
 // Everything inside is SI; the caller works in mm, MPa and kg/m^3.

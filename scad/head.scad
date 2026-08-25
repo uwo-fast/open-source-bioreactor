@@ -546,6 +546,39 @@ baffle_density = 1270; // kg/m^3
 // height over which the port's round bottom face blends out into the plate
 baffle_transition_height = 10;
 
+/** Splitting the plate so it can be printed.
+ * - Hanging to the floor, a plate is 172 mm in the short jar and 280 in jar_10L, and a taller jar
+ *   with a wide enough mouth would ask for more. Standing that on a bed is the tallest, most
+ *   slender thing in the model by a wide margin, and it prints slowly, badly and unreliably.
+ * - The part stands in the port's own axis - the flange, the o-ring groove and the pins all want
+ *   that - so it is the printer's Z that bounds it, and the port's own 23 mm counts against the
+ *   first piece. 170 mm is the cap: 180 mm machines (Prusa MINI, Bambu A1 mini) are the small end
+ *   of what anyone building this owns, and 10 mm leaves room for a brim. It costs less than it
+ *   looks: at a 250 mm cap jar_10L still needs two pieces, since its part is 303 mm whole. What a
+ *   bigger machine buys is the SHORT jar, whose 195 mm part would go on the bed in one.
+ * - What it costs is the joint, which is a local drop in section, so a split plate deflects further
+ *   than a whole one. head() reports the difference rather than hiding it.
+ */
+
+// Tallest a printed piece may stand on the bed, the port's own stack included.
+baffle_segment_height_max = 170;
+// How many pieces each plate splits into. undef derives it from the cap above; a number pins it,
+// including 1, which is a plate printed whole on a machine that can take it.
+baffle_segments = undef;
+// The dovetail. It slides along the plate's width and is blind at the far end - see
+// custom/bayonet_baffle_port.scad for why that axis and not the other.
+//
+// The neck is the parameter rather than the tail's depth because the neck is the mechanics: it is
+// the only material crossing the joint plane. 4.2 of 9 mm leaves the joint a tenth of the plate's
+// second moment, which is a 7 % tip deflection penalty at one joint and the reason the cap above
+// is not lower. Depth follows from it and the flare, at 4.54 mm.
+baffle_joint_lip = 1.6; // socket wall each side, four perimeters at a 0.4 nozzle
+baffle_joint_neck = 4.2;
+baffle_joint_flare = 10; // degrees off vertical - shallow, so engagement is not bought from the neck
+// Slide fit between tail and socket. The butt faces meet with nothing between them, so this is
+// flank clearance only and the plate keeps its length.
+baffle_joint_allowance = 0.1;
+
 /* [Sparger Parameters] */
 
 /** Where the gas enters, and why there.
@@ -720,6 +753,19 @@ function head_baffle_length(lid_flange_height, vessel_internal_height, vessel_pu
   is_undef(baffle_length)
     ? head_baffle_max_length(lid_flange_height, vessel_internal_height, vessel_punt_height)
     : baffle_length;
+
+function head_baffle_segments(lid_flange_height, vessel_internal_height, vessel_punt_height) =
+  is_undef(baffle_segments)
+    ? bayonet_baffle_segments(
+      head_interface_for("baffle", 0),
+      head_lid_thickness(lid_flange_height),
+      head_baffle_length(lid_flange_height, vessel_internal_height, vessel_punt_height),
+      baffle_segment_height_max
+    )
+    : baffle_segments;
+
+// What the tail gives up at the joint plane, as a fraction of the solid plate's second moment.
+function head_baffle_joint_stiffness_ratio() = pow(baffle_joint_neck / baffle_thickness, 3);
 
 // What the impeller actually sweeps, as against the diameter the correlations are keyed on. They
 // should be equal - the blades solve so their corners land on the radius, and the tip ring is
@@ -970,7 +1016,7 @@ function head_port_is_oriented(type) = type == "baffle" || type == "probe";
 
 // One port pin half, dispatched on its registered type. All share the same bayonet
 // interface, so they are interchangeable across the lid's locks.
-module head_port(port, panel_thickness, baffle_width, baffle_length) {
+module head_port(port, panel_thickness, baffle_width, baffle_length, baffle_segments) {
   _type = head_port_type(port);
   _bore = head_port_bore_radius(port);
   _probe = head_port_probe(port);
@@ -1009,6 +1055,11 @@ module head_port(port, panel_thickness, baffle_width, baffle_length) {
       thickness=baffle_thickness,
       transition_height=baffle_transition_height,
       bore_clearance=baffle_bore_clearance,
+      joint_lip=baffle_joint_lip,
+      joint_neck=baffle_joint_neck,
+      joint_flare=baffle_joint_flare,
+      joint_allowance=baffle_joint_allowance,
+      segments=baffle_segments,
       width=baffle_width
     );
   } else if (_type == "thermocouple") {
@@ -1669,6 +1720,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // the plate clears the impellers radially, so what stops it is the floor
   baffle_max_length = head_baffle_max_length(lid_flange_height, vessel_internal_height, vessel_punt_height);
   _baffle_length = head_baffle_length(lid_flange_height, vessel_internal_height, vessel_punt_height);
+  _baffle_segments = head_baffle_segments(lid_flange_height, vessel_internal_height, vessel_punt_height);
+  _baffle_joint_at = [for (j = [1:1:_baffle_segments - 1]) j * _baffle_length / _baffle_segments];
 
   // the plate's width is settled by the lock it hangs from and the impellers it passes, so it is
   // read back, not chosen here
@@ -1736,16 +1789,54 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _baffle_torque = 2 * stirred_tank_torque(
     stirred_tank_power(impeller_diameter, _baffle_rpm, _impeller_po), _baffle_rpm);
   _baffle_load = stirred_tank_baffle_load(_baffle_torque, len(_baffle_at), port_circle_radius);
-  _baffle_deflection = stirred_tank_baffle_deflection(
+  _baffle_solid_deflection = stirred_tank_baffle_deflection(
     _baffle_load, _baffle_length, _baffle_freeboard, _baffle_width, baffle_thickness, baffle_modulus);
+  // The joints are in the headline number, not beside it: a split plate is what gets printed, so
+  // its deflection is the one the W/10 check below has to be made against.
+  _baffle_joint_depth = bayonet_baffle_joint_depth(
+    baffle_thickness, baffle_joint_lip, baffle_joint_neck, baffle_joint_flare);
+  _baffle_joint_each = [
+    for (j = _baffle_joint_at)
+      stirred_tank_baffle_joint_deflection(
+        _baffle_load, _baffle_length, _baffle_freeboard, _baffle_width, baffle_thickness,
+        baffle_modulus, j, baffle_joint_neck, _baffle_joint_depth)
+  ];
+  // dotted with ones, which is how a list gets summed here
+  _baffle_joint_deflection =
+    len(_baffle_joint_each) == 0 ? 0 : _baffle_joint_each * [for (d = _baffle_joint_each) 1];
+  _baffle_deflection = _baffle_solid_deflection + _baffle_joint_deflection;
   _baffle_frequency = stirred_tank_baffle_frequency(
     _baffle_length, _baffle_width, baffle_thickness, baffle_modulus, baffle_density);
 
   if (_has_baffles)
     echo(str(
-      "baffle plate: ", _baffle_load, " N each, deflecting ", _baffle_deflection, " mm at the tip; ",
-      "first mode ", _baffle_frequency, " Hz against ", stirred_tank_shaft_frequency(_baffle_rpm),
-      " Hz shaft and ", stirred_tank_blade_frequency(_baffle_rpm, impeller_n_fins), " Hz blade passing"
+      "baffle plate: ", _baffle_load, " N each, deflecting ", _baffle_deflection, " mm at the tip",
+      _baffle_segments < 2 ? "" : str(" (", _baffle_joint_deflection, " mm of it the joints)"),
+      "; first mode ", _baffle_frequency, " Hz against ", stirred_tank_shaft_frequency(_baffle_rpm),
+      " Hz shaft and ", stirred_tank_blade_frequency(_baffle_rpm, impeller_n_fins),
+      " Hz blade passing - that mode is the solid plate, the joints soften it"
+    ));
+
+  // What splitting costs and what it buys, both in one line, since neither is decidable alone. The
+  // cap only binds when the count is derived, so a pinned count that overruns it says so here
+  // rather than being asserted - a bigger printer is a good reason to pin one.
+  _baffle_piece_height =
+    _baffle_length / _baffle_segments
+    + bayonet_baffle_stack_height(head_interface_for("baffle", 0), lid_thickness);
+
+  if (_has_baffles)
+    echo(str(
+      "baffle print: ", _baffle_segments, " piece", _baffle_segments == 1 ? "" : "s",
+      " of ", _baffle_length / _baffle_segments, " mm, tallest standing ", _baffle_piece_height,
+      " mm against a ", baffle_segment_height_max, " mm bed",
+      _baffle_piece_height > baffle_segment_height_max
+        ? str(" - PINNED AT ", _baffle_segments, ", WHICH THE CAP WOULD NOT HAVE CHOSEN")
+        : "",
+      _baffle_segments < 2
+        ? ""
+        : str("; the dovetail leaves ", baffle_joint_neck, " mm of ", baffle_thickness,
+              " crossing each joint, ", head_baffle_joint_stiffness_ratio(),
+              " of the plate's second moment")
     ));
 
   // The nominal gap is not the running one. The plate hangs from a coupling with its own fit
@@ -2341,7 +2432,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         color(prints1_color)
           head_port_at(i, vessel_opening_diameter)
             rotate([0, 0, _port_turn])
-              head_port(_port, lid_thickness, _baffle_width, _baffle_length);
+              head_port(_port, lid_thickness, _baffle_width, _baffle_length, _baffle_segments);
     }
   }
 

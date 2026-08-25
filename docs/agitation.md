@@ -415,6 +415,36 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
   warns at rather than comfortably inside it. The older figures in this section — 8.9 mm at 4 mm
   thick, 1.1 mm at 8 — are stale twice over: by that error and by the load, which went from the
   no-load 0.51 N to 0.77 N at the rated speed when the pitched blade's power number landed.
+
+### Splitting the plate so it can be printed
+
+- **The plate is the tallest thing in the model and it does not fit on a printer.** Hanging to the
+  floor it is 172 mm in `jar_1gal_180`, 275 in `generic` and 280 in `jar_10L`, and the port's own
+  flange and lid section add 23 mm on top of that. The part stands on the bed in the port's axis —
+  the flange, the o-ring groove and the pins all want that orientation — so the printer's Z is what
+  bounds it. It splits into equal pieces joined by a **sliding dovetail**.
+- **The cap is 170 mm, and it is a reproducibility choice.** 180 mm machines (Prusa MINI, Bambu
+  A1 mini) are the small end of what anyone building this owns, and 10 mm leaves room for a brim.
+  `baffle_segment_height_max` is the parameter, and raising it costs less than it looks: at a
+  250 mm cap `jar_10L` still needs two pieces, because its part is 303 mm whole. What a bigger
+  machine buys is the *short* jar, whose 195 mm part would go on the bed in one. At 170 every
+  registered vessel comes out in **two pieces** — 140 mm each in `jar_10L`, standing 163 mm with
+  the port — and a 470 mm jar would take three.
+- **The slide runs along the plate's width, and that is a load choice.** The swirl pushes on the
+  plate's *face*, so with the slide across the width that load bears on the dovetail's flanks and
+  the one axis a sliding dovetail leaves free carries nothing but vibration. Sliding across the
+  thickness instead would put the working load directly in the free direction. A blind end stops
+  the slide and registers the two pieces in one place; the butt faces meet with nothing between
+  them, so the plate keeps its length and the 0.1 mm allowance is flank clearance only.
+- **What it costs is the neck.** Only the tail crosses the joint plane, so the joint has
+  **4.2 mm of the plate's 9**, a tenth of its second moment. One joint at mid-plate adds
+  **0.11 mm** to the tip deflection, 7 %, taking `jar_10L` from 1.53 to **1.64 mm** — which is what
+  now trips the tenth-of-width warning. The neck is the parameter rather than the tail's depth for
+  exactly that reason, and a shallow 10° flare is what buys engagement without eating it.
+- **Two things about the joint are not modelled.** The first bending mode `head()` reports is the
+  solid plate's; the joints soften it, and by how much is not computed. And a 0.1 mm crevice at the
+  joint sits in the culture, in a vessel that is chemically sterilised rather than autoclaved —
+  which is a cleaning liability a reviewer would reasonably raise and nothing here answers.
 - **What used to cap the depth was an interference of 46 microns.** The plates hang on the port
   circle at r 56.9 mm, and at the widest the lock bore would pass — 19.39 mm — the inner edge fell
   at r 47.204 against an impeller sweeping r 47.25. That overlap, and nothing else, is why the
