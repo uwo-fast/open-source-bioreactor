@@ -81,7 +81,18 @@
     4 L/min, check valve. Sizing is done; part numbers are not
   - ~~**sparge riser**~~ — done: 316 welded tube 4 x 0.5 mm, 50415K21, one 1 m length cut into two
     186.7 mm tubes. See its own item below
-  - **four fastener rows have no McMaster part numbers** — see the nice-to-haves item
+  - ~~**four fastener rows have no part numbers**~~ — done, and deliberately NOT with a supplier
+    code. A commodity fastener is fully specified by its standard, so `part_number` now carries
+    `ISO 4017 M8x30 A2-70`, `ISO 4032 M8 A2`, `ISO 4762 M4x8 A2-70` and `DIN 975 M8 A2`, which is
+    buyable anywhere and does not go stale. `source`/`url` name one place to get them
+  - all four are **18-8, not plated steel and not 316**, per procurement.md's wetted→316 / dry→18-8
+    rule. It is a free choice because strength is not a factor: 291.8 N per post against about
+    16.5 kN of proof load, **1.8 %**
+  - the **M8 rod is a stock length cut into four**, not four parts — 4 x 322 mm = 1288 mm, and the
+    322 is vessel-dependent. Same defect the tube row had
+  - **a tube cutter and a deburring tool** still want rows. 0.5 mm wall rolls inward at the cut and
+    that restriction lands where gas enters, so deburring the ID is a real assembly step, not a
+    nicety
   - **the sparge ring itself is printed**, so it needs no row, but it does need to appear in
     whatever print list the build instructions carry
   - worth doing in the same pass: check every registered row still matches what the model draws
@@ -370,9 +381,18 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
   - the "Silicone gasket ring, 142 mm ID" row was this same rim gasket under an older name, at a size that cannot pass over the 142.6 mm plug. Replaced rather than added beside
   - each row quotes what the model echoes at render rather than repeating the arithmetic, so a substitute is checked against the echo: the ring against the 132.098-138.703 mm ID window, the sheet against the 145 x 151 mm cut, the screws against the insert's 4.7 mm of thread
   - a soldering iron with a conical tip is the install tool for the inserts, and stainless wants more heat and dwell than brass would. McMaster sell tips for it if we do not want to use a working iron's bit
-- [ ] pick McMaster part numbers for the four fastener rows
-  - the M8x30 bolt, the M8 nut, the M4x8 socket head screw and the AS568-160 EPDM o-ring are specified but carry `TODO` in the part_number column. Everything needed to select them is in the row; what is missing is a catalogue number and a price
-  - the rest of the sealing and mount hardware is already pinned: 8525T65 sheet, 97163A152 insert, 8785N383 port o-ring, 6153K71 bearing
+- [x] ~~pick McMaster part numbers for the four fastener rows~~ — **answered by not doing it**
+  - the AS568-160 o-ring resolved separately to 8785N637, so what was left was three fasteners and
+    the threaded rod
+  - a commodity fastener needs a STANDARD, not a catalogue number. Nothing in the model reads a
+    property of these beyond nominal size and a derived length, both of which the standard carries,
+    and a supplier code is region-specific and perishable where `ISO 4017 M8x30 A2-70` is not. It
+    is also the direction the part-vs-supplier split wants to go rather than against it
+  - `check-bom` was never going to cover them either way: it compares what the SCAD REGISTRIES
+    prescribe, and there is no bolt registry. A number in that column would have bought nothing
+  - the rest of the sealing and mount hardware stays pinned by number, because each carries
+    something a spec does not: 8525T65 sheet, 97163A152 insert (its geometry cuts the lid pocket),
+    8785N383 port o-ring, 6153K71 bearing
 
 ## tooling / infrastructure / documentation
 
