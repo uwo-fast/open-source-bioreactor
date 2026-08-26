@@ -10,6 +10,7 @@ use <utils/bolt_pattern.scad>;
 use <utils/oring_gland.scad>;
 use <utils/stirred_tank.scad>;
 use <utils/gas_supply.scad>;
+use <utils/meridian.scad>;
 use <utils/gasket_load.scad>;
 use <custom/sheet_gasket.scad>;
 use <custom/gasket_cutter.scad>;
@@ -794,6 +795,46 @@ function head_punt_top_depth(lid_flange_height, vessel_internal_height) =
 // How deep the culture stands. head() has always computed this inline; it is exported because the
 // frame needs it too - the lights are chosen to cover the liquid, and nothing else in the model
 // knows how much liquid there is.
+// Where a probe's axis sits `length` down its own lean, in the meridional half-plane: radius out
+// from the shaft, height in head()'s frame. The lean is RADIAL - the port tilts the probe within
+// the plane its own axis lies in - so this stays a straight line, which is what turns a 3D
+// interference question into a 2D one. See utils/meridian.scad.
+function head_probe_axis_at(vessel_opening_diameter, lid_flange_height, length) =
+  [
+    head_port_circle_radius(vessel_opening_diameter) + length * sin(probe_port_tilt_degrees),
+    -head_lid_thickness(lid_flange_height) - length * cos(probe_port_tilt_degrees),
+  ];
+
+// The two runs a probe hangs into the vessel: the collet, with the probe's body inside it, and the
+// bare sensing tip below. One line broken where it narrows.
+function head_probe_runs(probe, vessel_opening_diameter, lid_flange_height) =
+  let (
+    _shoulder = bayonet_probe_port_collet_drop(probe, probe_port_transition_length)
+      + atlas_probe_body_height(probe),
+    _tip = _shoulder + atlas_probe_tip_height(probe)
+  )
+    [
+      [
+        head_probe_axis_at(vessel_opening_diameter, lid_flange_height, 0),
+        head_probe_axis_at(vessel_opening_diameter, lid_flange_height, _shoulder),
+        atlas_probe_body_dia(probe) / 2 + probe_port_collet_wall_thickness,
+      ],
+      [
+        head_probe_axis_at(vessel_opening_diameter, lid_flange_height, _shoulder),
+        head_probe_axis_at(vessel_opening_diameter, lid_flange_height, _tip),
+        atlas_probe_tip_dia(probe) / 2,
+      ],
+    ];
+
+// The thermocouple hangs straight, and the length that is in the vessel is all sensing tip - its
+// body is up in the NPT boss. So it is one run with no lean.
+function head_thermocouple_run(probe, vessel_opening_diameter, lid_flange_height) =
+  [
+    [head_port_circle_radius(vessel_opening_diameter), -head_lid_thickness(lid_flange_height)],
+    [head_port_circle_radius(vessel_opening_diameter), -thermocouple_probe_tip_height(probe)],
+    thermocouple_probe_tip_dia(probe) / 2,
+  ];
+
 // How far below the lid's OUTER face a probe's deepest point lands.
 //
 // Fixed by geometry rather than by how far someone pushes it in: the collet grips the probe's BODY
@@ -2147,6 +2188,83 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       " D two experimental studies support. The mouth places it, so this jar's mouth and bore are ",
       "too far apart for a ring that suits both."
     ));
+
+  // ----- does anything hanging from the lid run into anything already in the vessel? -----
+  //
+  // Nothing asked this until now, and the gap is a gap in KIND. The immersion asserts above measure
+  // DEPTH, and a probe leaning in over an impeller has exactly the right depth - tip in the broth,
+  // clear of the floor, both green, and through the blades. Every other port hangs straight, so its
+  // hardware never leaves the radius its flange sits on and the question never came up; the probes
+  // are the only ones that lean.
+  //
+  // It is a 2D question, not a solid intersection, because both obstacles are AXISYMMETRIC: the
+  // impellers sweep a full circle and the ring is one, so neither cares what angle a probe hangs
+  // at. utils/meridian.scad carries the argument and the arithmetic.
+  _floor_z = -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height);
+
+  _obstacles = [
+    [
+      "lower impeller",
+      [0, head_impeller_swept_radius(impeller_diameter),
+       _floor_z + _impeller_clearance - impeller_height / 2,
+       _floor_z + _impeller_clearance + impeller_height / 2],
+    ],
+    [
+      "upper impeller",
+      [0, head_impeller_swept_radius(impeller_diameter),
+       _floor_z + _impeller_clearance + impeller_spacing - impeller_height / 2,
+       _floor_z + _impeller_clearance + impeller_spacing + impeller_height / 2],
+    ],
+    [
+      "sparge ring",
+      [_sparge_ring_radius - sparge_ring_section[0] / 2,
+       _sparge_ring_radius + sparge_ring_section[0] / 2,
+       _floor_z + _sparge_ring_height - sparge_ring_section[1] / 2,
+       _floor_z + _sparge_ring_height + sparge_ring_section[1] / 2],
+    ],
+  ];
+
+  _hanging = concat(
+    [
+      for (i = [0:_n - 1])
+        if (head_port_type(_ports[i]) == "probe")
+          each let (
+            _runs = head_probe_runs(head_port_probe(_ports[i]), vessel_opening_diameter, lid_flange_height)
+          )
+            [
+              [str(head_port_function(_ports[i]), "'s collet"), _runs[0]],
+              [str(head_port_function(_ports[i]), "'s tip"), _runs[1]],
+            ]
+    ],
+    len(_tc_port) == 0
+      ? []
+      : [[
+        "the thermocouple",
+        head_thermocouple_run(head_port_probe(_tc_port[0]), vessel_opening_diameter, lid_flange_height),
+      ]]
+  );
+
+  // Only pairs that share a height are reported. A run that never reaches an obstacle's height has
+  // no radial clearance from it at all, and printing a large number for that would be a claim about
+  // a comparison that never happened.
+  for (h = _hanging)
+    for (o = _obstacles)
+      let (_gap = meridian_clearance(h[1], o[1]))
+        if (!is_undef(_gap)) {
+          echo(str(
+            "reach clearance: ", h[0], " passes the ", o[0], " with ", _gap,
+            " mm of radial room, over the ", o[1][2], " to ", o[1][3], " mm the two share"
+          ));
+
+          assert(
+            _gap > 0,
+            str(
+              h[0], " runs through the ", o[0], " by ", -_gap,
+              " mm radially, over the heights they share. Both are drawn, so this is parts in the ",
+              "same space rather than a margin being thin."
+            )
+          );
+        }
 
   // What the riser has to span, and what it costs to push gas down it. The socket's top face is
   // the ring's own top plus the boss standing on it.
