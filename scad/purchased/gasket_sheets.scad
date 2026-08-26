@@ -23,3 +23,12 @@ function gasket_sheet_material(type) = type[1];
 function gasket_sheet_thickness(type) = type[2];
 function gasket_sheet_shore_a(type) = type[3];
 function gasket_sheet_size(type) = type[4];
+
+// derived
+// How many blanks of a given cut diameter come off one sheet, laid out in a plain grid - which is
+// what repositioning a template gets you. Nesting would do better and this does not claim it. The
+// registry carried the sheet size for exactly this and nothing read it, so the "yields four" in the
+// note above was a hand figure rather than a derived one; now it is neither hand nor a comment.
+function gasket_sheet_yield(type, cut_diameter) =
+  floor(gasket_sheet_size(type)[0] / cut_diameter)
+  * floor(gasket_sheet_size(type)[1] / cut_diameter);

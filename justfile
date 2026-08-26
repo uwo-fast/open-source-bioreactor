@@ -35,6 +35,7 @@ check-scad:
         scad/custom/bayonet_probe_port.scad
         scad/custom/bayonet_thermocouple_port.scad
         scad/custom/cylindrical_flex_collet.scad
+        scad/custom/gasket_cutter.scad
         scad/custom/impeller.scad
         scad/custom/motor_mount.scad
         scad/custom/peri_pump_frame_mount.scad

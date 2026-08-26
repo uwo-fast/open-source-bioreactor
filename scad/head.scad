@@ -12,6 +12,7 @@ use <utils/stirred_tank.scad>;
 use <utils/gas_supply.scad>;
 use <utils/gasket_load.scad>;
 use <custom/sheet_gasket.scad>;
+use <custom/gasket_cutter.scad>;
 
 use <custom/motor_mount.scad>;
 use <custom/bayonet_port.scad>;
@@ -75,6 +76,9 @@ render_thermocouple_pinlock = false;
 render_probe_pinlock = false;
 render_baffle_pinlock = false;
 render_seals = false; // the EPDM parts: rim gasket, plug o-ring, port o-rings
+// The templates the rim gasket is cut with. Deliberately NOT in render_all: it is a tool, and the
+// assembly is the reactor. Turn it on beside render_seals to see the ring against what cuts it.
+render_gasket_cutter = false;
 render_sparger = false; // the ring in the inter-impeller gap and its feed arm
 
 // Draw the lid's 24 bayonet halves as bare shells while previewing; their pins and channels
@@ -2296,7 +2300,9 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   echo(str(
     "lid gasket: cut ", _gasket_ir * 2, " x ", _gasket_or * 2, " mm from ",
     gasket_sheet_name(lid_gasket_sheet), " (", gasket_sheet_thickness(lid_gasket_sheet),
-    " mm), recess ", head_gasket_depth(), " mm deep (", lid_gasket_compression * 100, "% squeeze)"
+    " mm), recess ", head_gasket_depth(), " mm deep (", lid_gasket_compression * 100, "% squeeze); ",
+    gasket_sheet_yield(lid_gasket_sheet, _gasket_or * 2), " per ",
+    gasket_sheet_size(lid_gasket_sheet)[0], " x ", gasket_sheet_size(lid_gasket_sheet)[1], " mm sheet"
   ));
 
   // The only load in the reactor, so it is worth saying out loud. Reported and never asserted on:
@@ -2490,6 +2496,13 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     color(prints2_color)
       lid_locks();
   }
+
+  // The templates the rim gasket is cut with, on the three numbers the gasket itself is drawn from
+  // - so the tool cannot describe a different ring than the model does. Concentric with the gasket
+  // and at its plane, which is where the two can be compared.
+  if (render_gasket_cutter)
+    translate([0, 0, -lid_flange_height - (gasket_sheet_thickness(lid_gasket_sheet) - head_gasket_depth())])
+      gasket_cutter(_gasket_ir * 2, _gasket_or * 2, gasket_sheet_thickness(lid_gasket_sheet));
 
   // The EPDM. Each is drawn at its free size on the diameter it is installed at, so it overlaps
   // what it seals against by exactly the squeeze its gland was cut for - that overlap is the

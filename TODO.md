@@ -178,6 +178,28 @@
     upper, each running r 4.00 to 10.20 - cup tip on the shaft surface, socket on the hub's outer
     face, which is what `set_screw_length` was picked against
 
+- [x] a fixture for cutting the rim gasket
+  - `scad/custom/gasket_cutter.scad`. It takes the same three numbers `sheet_gasket()` takes - the two
+    cut diameters and the stock thickness - and knows nothing else about what the ring seals, so
+    `head()` hands it the derived cut exactly as it hands it to the gasket
+  - **two stages, because one template cannot guide both cuts.** A template shaped like the gasket is
+    a wall as wide as the ring - 3 mm here - standing at Ø148, far too slack in its own plane to hold
+    a blade to a line. Bracing it needs material either inside the bore or outside the rim, and those
+    are the two places the blade has to be
+  - so the cuts are taken one at a time and the second locates off the first: cut round a solid disc
+    at the OUTER diameter for a blank, then drop the blank into a counterbore under a plate bored at
+    the INNER diameter and cut through the bore. Ordinary machinist practice, and it makes the ring's
+    concentricity a printed counterbore rather than the operator's hand
+  - both parts are discs with a pocket, so both print flat with no bridge and no support
+  - the bed edge of the outer disc is drawn UNDER size and flared up to the guide diameter rather than
+    chamfered off it. A first layer that squashes outward would otherwise stand proud of the very face
+    the blade is held against, and every blank would come out that much oversize
+  - `render_gasket_cutter` is deliberately not in `render_all`: it is a tool, and the assembly is the
+    reactor
+  - and the sheet's registered size finally does something. `gasket_sheet_yield()` derives the four
+    per 12 in square that the registry comment and `docs/procurement.md` had each been asserting by
+    hand
+
 - [ ] caliper the real jar rim against the registered profile
   - the lid's gasket recess is cut to the flat land on top of the glass, which the model puts at 5.00 mm wide (r 71.5 out to 76.5) with a 2 mm bead rolled outboard below it. That land comes from the registered `rim_radius` and wall thickness rather than from a measurement, and the recess width follows from it, so it is worth confirming before cutting a gasket to it
 - [x] align the assembly -> subassembly -> part parameter interfaces
@@ -520,6 +542,21 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     It is 1.19 mm deep for a 1.5875 mm sheet, so at 25 % squeeze the gasket is flush and the
     printed flange meets glass. That either is the stop or is the thing to avoid, and which one is
     not recorded
+  - **the arithmetic says it cannot be the stop.** The gasket's section is 3 x 1.5875 = 4.76 mm2 and
+    the recess's is 3 x 1.19 = 3.57 mm2, so the recess holds three quarters of the rubber that has to
+    fit in it. Elastomer is near enough incompressible - bulk modulus about 2 GPa against a shear
+    modulus of 1.2 MPa - so the flange cannot reach the glass until a quarter of the gasket has left
+    the recess, and the only way out is sideways across the 1 mm bearing lands. The flange would then
+    bottom on extruded rubber rather than on glass
+  - it also disagrees with the load model. `gasket_shape_factor()` is `width / (2 * thickness)`, the
+    FREE-bulge form: it assumes both edges of the pad can bulge, and the recess walls are exactly
+    where they cannot. So the 291.8 N per post and the 2.51 MPa on the glass describe a pad that is
+    not the one drawn - reported, not asserted, and `gasket_load.scad` already says its figures are
+    for judging a design rather than cutting a part to
+  - the usual rule for a confined flat gasket is groove section at or above gasket section, commonly
+    10-25 % over. Widening the recess is what buys that, and the 1 mm lands either side are what it
+    would come out of. Not chased here: it changes the lid, and the rim profile it is all measured
+    against is itself uncalipered - the item below
 
 
 - [ ] add PowerShell and shell scripts to export a chosen assembly parameter set as individual STL files, together with a print list, BOM, and other relevant build outputs
