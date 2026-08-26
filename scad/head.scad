@@ -542,7 +542,24 @@ baffle_length = undef;
 // bending mode at 5.4 Hz, which is shaft rotation at the rated 320 rpm. 8 cleared that; 9 is what
 // the pitched blade's higher power number then asked for, since the plates react the impeller's
 // torque and Po went 0.99 borrowed to 1.602 correlated. See docs/agitation.md.
-baffle_thickness = 9;
+//
+// 10 is where the two reported limits both clear, and the window is one millimetre wide in each
+// direction. At 9 the tip deflects 1.635 mm, past a tenth of the 15.3 mm plate. Thickening is the
+// obvious lever and it was written down as a nearly free one, on the grounds that the lock bore
+// does not cut into the width until 12.5 - but the bore is not what binds. THE MODE IS. Stiffness
+// goes as t^3 and frequency as t^1.5, so the plate's first mode climbs with the fix: 15.4 Hz at 9,
+// 17.6 at 10, 19.8 at 11, 22.0 at 12.
+//
+// Blade passing is four per revolution, so it sweeps 0 to 28 Hz as the drive runs up to its 420 rpm
+// no-load speed and CROSSES the mode at whatever speed makes the two equal. That crossing is at
+// 231 rpm on a 9 mm plate and 264 on a 10, both under the 320 rpm rated point, so it is passed
+// through on the way up. At 11 it is 297 and at 12 it is 330 - the second is inside the operating
+// band and the first is 23 rpm off it. 12 also fires the resonance echo below.
+//
+// 10 leaves 15 % under the deflection limit and puts the crossing 17 % under rated. Joints take a
+// larger share of a stiffer plate - 0.184 mm of 1.296 against 0.110 of 1.635 - because the
+// dovetail's 4.2 mm neck does not thicken with it.
+baffle_thickness = 10;
 // printed PETG, for the plate's stiffness. REASONED, NOT CITED - derated from ~2.0 GPa bulk
 baffle_modulus = 1800; // MPa
 baffle_density = 1270; // kg/m^3

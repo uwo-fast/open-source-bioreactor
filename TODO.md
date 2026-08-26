@@ -5,9 +5,9 @@
 - [ ] finish modelling peri pumps and integrating with a motor then into the assembly using the peri pump motor mount that has been modified to take the registered parameters for the motor and pump
 - [ ] replace as many of the "generic" parameter registrations as possible with specific ones for the actual hardware (i.e. mcmaster carr part numbers or best effort for other parts)
 - [x] rethink how the impeller diameter is driven, and guard it
-  - the guard landed first: `head()` now refuses an impeller whose top ring cannot pass the vessel's opening, which caught `jar_6p5gal_305x470` building a 145 mm impeller for a 137 mm mouth
+  - the guard landed first: `head()` now refuses an impeller that cannot pass the vessel's opening, which caught `jar_6p5gal_305x470` building a 145 mm impeller for a 137 mm mouth. It was written against a tip ring standing *outboard* of the blades and went on charging `2 * fin_width` for it after the ring moved inboard; it now asks `head_impeller_swept_radius()`, and the test lives in `head_mouth_is_feasible()` with the other three couplings rather than only inside `head()`
   - the driver was wrong in its reference, not its value. It multiplied `vessel_outer_diameter`, but D/T everywhere in the literature is against the vessel's wetted bore, so the real ratio drifted with the glass — 0.468 to 0.489 across the registry for one nominal 0.45. It now reads the bore and is constant
-  - `impeller_bore_ratio = 0.45` sits mid-band on every citation and is what lets every registered vessel build. `jar_6p5gal_305x470` is the binding one: its 137 mm mouth caps the ratio at 0.4594 with the impeller exactly filling the neck, so 0.45 leaves 2.64 mm to pass it through. The relations and their citations are in `scad/utils/stirred_tank.scad`, the reasoning in `docs/agitation.md`
+  - `impeller_bore_ratio = 0.45` sits mid-band on every citation and is what lets every registered vessel build. `jar_6p5gal_305x470` is the binding one: its 137 mm mouth caps the ratio at **0.4879**, so 0.45 leaves **10.64 mm** to pass it through, and every other jar tolerates 0.64 to 0.87. Those read 0.4594 / 2.64 mm / 0.59-0.82 while the mouth assert was still charging 8 mm for the moved ring. The relations and their citations are in `scad/utils/stirred_tank.scad`, the reasoning in `docs/agitation.md`
   - the twist angle and the blade height are the parameters with no support — nothing citable exists for 55 degrees, or for the W/D of a twisted extrusion at all. Both are left alone and marked; `twist` turns out to be a pitch specifier rather than a blade angle, so the honest treatment is the derivation recorded in `docs/agitation.md`. A bench power-number measurement would settle it
 - [ ] **measured gas flow** — a reproducibility gap, not a geometry one. **Range now calculated; see `docs/procurement.md`, gas metering selection. Buy a 0-5 L/min rotameter and a metering valve.**
   - **Correction to how this was first filed.** It was written as "the reactor's binding
@@ -255,16 +255,25 @@
     jar whose baffle running clearance is already -0.28 mm, and both want deciding together
 - [ ] **jar_10L's plate is against two limits at once**, both reported every render, neither
   asserted, and nothing printed yet - so they can be decided together
-  - *deflection*: **1.64 mm** at the tip of a 15.3 mm plate, past the tenth-of-width warning
-  - *running clearance*: 2 mm nominal to the impeller, less the 2.28 mm of lean the coupling's
-    0.2 mm of play allows at the lower impeller, so **-0.28 mm running** - the plate can reach the
-    blades
-  - **thickness is the lever for the first and it is nearly free.** The impeller caps the width at
-    15.3 whatever happens, and the lock bore only starts cutting into that past **12.5 mm** of
-    thickness - it passes 15.36 there against 17.64 at the present 9. So the plate can go to 12 mm
-    with its width intact, and deflection falls as the cube of it
-  - it does **not** touch the second, which is a tolerance stack rather than a stiffness one. That
-    one wants either engagement in the lid or a tighter coupling fit, and both are their own change
+  - *deflection*: **done.** `baffle_thickness` 9 -> 10 puts the tip at **1.296 mm** against the
+    1.53 mm tenth-of-width limit, and the warning is gone
+  - *running clearance*: **still open.** 2 mm nominal to the impeller, less the 2.28 mm of lean the
+    coupling's 0.2 mm of play allows at the lower impeller, so **-0.28 mm running** - the plate can
+    reach the blades. Thickness does not touch it: it is a tolerance stack rather than a stiffness
+    one, and it wants either engagement in the lid or a tighter coupling fit
+  - **the lever was not as free as this said.** It read that the lock bore does not cut into the
+    15.3 mm width until 12.5 mm of thickness, so the plate could go to 12. The bore is not what
+    binds. **The mode is.** Frequency goes as t^1.5, so thickening walks the plate's first mode up
+    - 15.4 Hz at 9, 17.6 at 10, 19.8 at 11, 22.0 at 12 - and blade passing is four per revolution,
+    sweeping 0 to 28 Hz on the way to the 420 rpm no-load speed. The crossing speed goes with it:
+    231 rpm at 9, 264 at 10, 297 at 11, **330 at 12, which is inside the 320-420 operating band**.
+    12 also fires the resonance echo. 10 is the whole window
+  - **and the resonance check only looks at one speed.** It tests the mode against the excitations
+    at the drive's *fastest* setting, on the grounds that fastest is worst. That is right for load
+    and wrong for resonance: a DC motor's speed is continuous, so blade passing sweeps every
+    frequency under 28 Hz and something is always crossed. What decides the plate is the *speed* at
+    which the crossing happens and whether that speed is one the reactor runs at - which is what
+    the numbers above are, and what the echo does not say
 
 ## drive and aeration
 
