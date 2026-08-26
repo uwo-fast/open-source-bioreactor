@@ -116,18 +116,24 @@ module impeller(
           // Flat plate, hinged about its own radius so the pitch stays exact - resize() would
           // distort it, and the angle is the one number the correlations are keyed on.
           //
-          // Length is solved, not (radius - hub). A tilted rectangle's outermost points are its
-          // OUTER CORNERS, and impeller diameter is the circle the blade tips sweep, so running the
-          // plate out to radius would sweep wider than the diameter the power number is defined on.
-          translate([center_hub_radius, 0, 0])
+          // BOTH ends are solved, not (radius - hub). A tilted rectangle's extreme points are its
+          // CORNERS, offset _half from the plane its faces lie on, so it is the corners that have
+          // to land on a circle. Outboard that is the diameter every power number is defined on:
+          // running the plate out to radius would sweep wider than the model claims. Inboard it is
+          // the hub, and there it decides whether the blade is ATTACHED. A plate whose inner face
+          // sits at center_hub_radius is tangent to the hub - they meet along a line of zero width,
+          // which is a non-manifold solid and a joint with no cross-section. _root buries the inner
+          // corners in the hub instead; it falls back to the axis where the hub is too narrow to
+          // bury them, which is a wide blade on a big jar.
+          let (
+            _half = _blade_w / 2 * cos(blade_pitch) + fin_width / 2 * sin(blade_pitch),
+            _tip = sqrt(pow(radius, 2) - pow(_half, 2)),
+            _root = center_hub_radius > _half ? sqrt(pow(center_hub_radius, 2) - pow(_half, 2)) : 0
+          )
+          translate([_root, 0, 0])
             rotate([blade_pitch, 0, 0])
               translate([0, -_blade_w / 2, -fin_width / 2])
-                cube([
-                    sqrt(pow(radius, 2) - pow(_blade_w / 2 * cos(blade_pitch) + fin_width / 2 * sin(blade_pitch), 2))
-                    - center_hub_radius,
-                    _blade_w,
-                    fin_width,
-                  ]);
+                cube([_tip - _root, _blade_w, fin_width]);
         else
           // Scale and extrude the fin blade
           scale(fin_scale) resize([radius, radius, height]) intersection() {
