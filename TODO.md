@@ -277,8 +277,8 @@
 
 - [ ] **the impeller's tip ring cannot print without support, and nothing has asked whether it earns it**
   - it is a 4 x 4 mm annulus tying the four blade tips, sitting inboard of `impeller_radius`. Measured
-    off the exported blade by sampling its underside all the way round: **88.9 % of the ring floats**,
-    and the longest unsupported span is **63.2 mm**, four times over. A 45 degree blade prints itself;
+    off the exported blade by sampling its underside all the way round: **86.7 % of the ring floats**,
+    and the longest unsupported span is **61.6 mm**, four times over. A 45 degree blade prints itself;
     the ring hanging between the blades does not
   - **the steady load does not need it.** One blade carries about 0.62 N at the 420 rpm no-load
     speed. Root bending is 15.8 N·mm on a section modulus of 50.4 mm3, so **0.31 MPa** - roughly one
