@@ -76,6 +76,9 @@ render_thermocouple_pinlock = false;
 render_probe_pinlock = false;
 render_baffle_pinlock = false;
 render_seals = false; // the EPDM parts: rim gasket, plug o-ring, port o-rings
+// The culture, at the fill line the volume is reported for. Not in render_all: it is not a part,
+// and translucent or not it stands over everything immersed in it.
+render_culture = false;
 // The templates the rim gasket is cut with. Deliberately NOT in render_all: it is a tool, and the
 // assembly is the reactor. Turn it on beside render_seals to see the ring against what cuts it.
 render_gasket_cutter = false;
@@ -2509,6 +2512,21 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     color(prints2_color)
       lid_locks();
   }
+
+  // The culture, revolved from the SAME clipped profile vessel_profile_litres() integrates, so what
+  // is drawn and what is echoed cannot disagree - the fill line is one statement, not two. The
+  // profile is in the jar's own frame, y up from the outside of its base, so it is dropped by the
+  // whole stack: internal height, punt, base and the lid flange standing on the rim.
+  if (render_culture)
+    color("DarkSeaGreen", 0.35)
+      translate([0, 0, -(vessel_internal_height + vessel_punt_height + vessel_wall_thickness + lid_flange_height)])
+        rotate_extrude($fn=64)
+          polygon(
+            concat(
+              vessel_profile_below(vessel_profile, _floor_y + _liquid_height),
+              [[0, _floor_y + _liquid_height]]
+            )
+          );
 
   // The templates the rim gasket is cut with, on the three numbers the gasket itself is drawn from
   // - so the tool cannot describe a different ring than the model does. Concentric with the gasket

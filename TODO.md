@@ -200,6 +200,40 @@
     per 12 in square that the registry comment and `docs/procurement.md` had each been asserting by
     hand
 
+- [x] give the culture a real volume and draw it
+  - it was a CYLINDER on the vessel's bore, and every process number the model reports is per unit
+    volume - mean dissipation, kLa, blend time, sparge flow, the vvm band, the aeration ceiling.
+    `vessel.scad` now exposes the wetted profile it already drew and the volume is integrated over
+    it: +1.31 % on `jar_10L`, +2.56 % on `generic`, +2.76 % on `jar_1p5L`, +0.52 % on `jar_6p5gal`
+    where the shoulder claws some back. `jar_10L` holds 9.573 L brim full, against a name saying 10
+  - the old note had the sign backwards - "runs a few percent high" - because it counted the
+    shoulder and forgot that the punt is a narrow pillar in a wide floor, so the liquid standing in
+    the annulus round it was dropped. It ran LOW
+  - a closed form was tried first and was wrong: cylinder plus punt annulus less base fillet
+    predicted +2.0 % on `jar_10L` against the profile's +1.31 %, because the floor DISHES - a
+    shallow cone from the punt plateau out to the base corner, not a flat floor with a pillar on it.
+    That is the argument for integrating the drawn profile rather than describing it twice
+  - `render_culture` revolves the SAME clipped profile the volume integrates, so the fill line is
+    one statement rather than two. The drawn solid measures 8.2675 L against an echoed 8.2808, which
+    is the 0.1607 % a 64-gon is inscribed by - not a disagreement
+
+- [ ] **set the fill line by WORKING VOLUME, not by a fraction of height**
+  - `culture_fill_fraction = 0.8` is a fraction of internal HEIGHT. Nobody fills a jar to 80 % of
+    its internal height; they pour in litres. And "we ran 8.0 L" transfers to another builder's jar
+    where "80 % of internal height" does not, which is the reproducibility this project claims
+  - the inversion is a bisection over `vessel_profile_litres()` - the profile is monotonic in height
+    above the floor, so it converges - and the override idiom fits: `undef` derives from the
+    fraction, a value in litres pins it
+  - it is also what unblocks the row refresh below, which is why that one is waiting
+
+- [ ] three BOM rows quote derived numbers that have since moved
+  - the sterile filter's `14.1 kPa`, the rotameter's `81.7 % of scale`, the metering valve's
+    `Cv 0.0296 at the 4.087 L/min design point`. Integrating the culture volume moved all of them by
+    about 1.3 %: 14.28 kPa, 82.8 %, and Cv 0.0303 at 4.140 L/min
+  - **no decision moves.** Still a 0-5 L/min rotameter, still `MNV-4K2` at 2.97x required and 34 %
+    of travel. So this is record-keeping, and it is deliberately held until the fill line above is
+    settled rather than done twice for the same reason
+
 - [ ] caliper the real jar rim against the registered profile
   - the lid's gasket recess is cut to the flat land on top of the glass, which the model puts at 5.00 mm wide (r 71.5 out to 76.5) with a 2 mm bead rolled outboard below it. That land comes from the registered `rim_radius` and wall thickness rather than from a measurement, and the recess width follows from it, so it is worth confirming before cutting a gasket to it
   - **and two jars are already provably inconsistent up there.** `vessel_neck_corner_radius()` is
