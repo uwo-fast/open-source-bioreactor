@@ -31,6 +31,61 @@ function gas_throttle_pressure(free_flow, dead_head, target_flow, system_pressur
 function gas_pump_implied_efficiency(free_flow, dead_head, power) =
   free_flow / 60000 * dead_head / power;
 
+// ----- what the line itself costs, between the pump and the sparge holes -----
+//
+// The vessel's own back-pressure is only part of what the pump has to beat. The membrane filter and
+// the riser take their share first, and until this landed head() reported the vessel's figure alone
+// as "what the gas supply has to beat", which understated it several times over.
+
+function gas_air_density() = 1.204; // kg/m^3, dry air at 20 C
+function gas_air_viscosity() = 1.81e-5; // Pa s, at 20 C
+
+/**
+ * @brief Drop across a membrane filter, Pa.
+ *
+ * Linear in flow, which is the right model rather than a convenience: flow through a membrane at
+ * these pressures is viscous, and Darcy's law makes it proportional. The slope is a property of one
+ * filter and belongs to the caller.
+ *
+ * @param flow  L/min
+ * @param slope kPa per L/min
+ */
+function gas_filter_pressure_drop(flow, slope) = slope * flow * 1000;
+
+/**
+ * @brief Drop along a length of tube, Pa. Darcy-Weisbach, laminar or Blasius as Reynolds decides.
+ * @param flow   L/min
+ * @param bore   mm
+ * @param length mm
+ */
+function gas_tube_pressure_drop(flow, bore, length) =
+  let (
+    _d = bore / 1000,
+    _area = PI * pow(_d, 2) / 4,
+    _v = flow / 60000 / _area,
+    _re = gas_air_density() * _v * _d / gas_air_viscosity(),
+    _f = _re < 2300 ? 64 / _re : 0.316 / pow(_re, 0.25)
+  ) _f * (length / 1000) / _d * gas_air_density() * pow(_v, 2) / 2;
+
+/**
+ * @brief Flow coefficient a throttle needs to pass a gas flow at a wanted drop.
+ *
+ * Cv is how valves are actually sold, so this is what turns "the throttle has to drop N Pa" into a
+ * part number. Subcritical compressible flow, in the imperial terms the coefficient is defined in -
+ * the conversions live here so no caller does them.
+ *
+ * @param flow          L/min
+ * @param drop          Pa across the valve
+ * @param downstream    Pa gauge downstream of it
+ * @return Cv
+ */
+function gas_valve_cv(flow, drop, downstream) =
+  let (
+    _scfm = flow / 28.3168,
+    _dp = drop / 6894.76,
+    _p2 = 14.7 + downstream / 6894.76
+  ) _scfm / (22.67 * sqrt(_dp * _p2 / 530));
+
 // Rotameters are read against a scale and are not trustworthy near its bottom; 10 % of full scale
 // is the usual limit quoted. So a range [lo, hi] needs a scale at or above hi whose tenth is at or
 // below lo, and a wide enough range has no single scale that covers it.

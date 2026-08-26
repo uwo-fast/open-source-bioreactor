@@ -129,16 +129,33 @@
     bore**, and how that gap is sealed. That is the tube port's business - see the sparger
     follow-ups below
 
-- [ ] the sparge back-pressure leaves out the riser's own drop
-  - `head()` reports **1121 Pa** for the gas to beat - 1025 Pa of culture over the ring plus 96 Pa
-    of capillary - and the tube the gas arrives through is not in it. 187 mm of 3 mm bore at
-    4.09 L/min runs about 13 m/s at Re 2300, which is roughly **240-400 Pa**, so the real figure
-    is nearer 1400
-  - it changes nothing operationally: the metering valve is throwing away 24 kPa on top, so the
-    riser is inside the slack. It is a reported number being wrong by a quarter, which is the
-    reason to fix it rather than any consequence
-  - `utils/gas_supply.scad` is where it would go, and `steel_tube_id()` now makes the bore
-    available off the registered row
+- [x] the sparge back-pressure left out the riser and the filter
+  - `head()` reported **1121 Pa** for the gas to beat and counted only the vessel. **The filter was
+    the big omission, not the riser:** at the design flow it is **14.1 kPa, twelve times the
+    vessel's own**, where the riser is 116 Pa
+  - **done.** `gas_filter_pressure_drop()` and `gas_tube_pressure_drop()` in `utils/gas_supply.scad`;
+    the riser is Darcy-Weisbach off the registered tube's bore, the filter is linear in flow, which
+    is the right shape because membrane flow at these pressures is viscous. The pump is now said to
+    beat **15.3 kPa**
+  - correcting my own earlier note here: it said the riser was "240-400 Pa". That was computed at
+    the unbuyable 2.5 mm bore. The tube we can actually buy is 3 mm, and drop goes as the fourth
+    power of it, so it is **116 Pa**
+  - it does have a consequence after all, which the old note said it did not: the filter takes over
+    half of what the throttle had, so the valve's drop falls from 24.2 kPa to **9.96** and the Cv it
+    needs rises from 0.021 to **0.030**. `head()` now reports that Cv, which is what actually picks
+    the part
+- [ ] **measure the sterile filter's pressure drop**
+  - `sparge_filter_drop_slope = 3.45` kPa per L/min is EXTRAPOLATED from an equivalent 0.2 um PTFE
+    disc, not measured, and Cole-Parmer publish no curve for 1594522. It is the largest single term
+    in the gas budget, so it is the largest thing in the model taken on an approximation
+  - a water manometer across it at the set flow settles it. Ten minutes, and it turns the whole gas
+    chain from estimated to measured
+  - it is corroborated, not invented: area-correcting Pall's Acro 50 from 19.6 to this filter's
+    16.2 cm2 gives 3.02 against the 3.45 used, so the figure sits 14 % conservative
+  - **the operational number that falls out: 1.65x of loading headroom.** The filter may rise to
+    23.3 kPa with the valve wide open before 0.5 vvm becomes unreachable. So "the valve is fully
+    open and it still will not hold 0.5 vvm" is the replace-the-filter signal, and that belongs in
+    the build notes
 
 - [ ] draw the vitamins that are registered but never rendered
   - the **ball bearing** is registered as `BB608` and its numbers cut the lid's pocket, but

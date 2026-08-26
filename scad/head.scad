@@ -642,6 +642,18 @@ sparge_riser_insertion = 8;
 // wide, so 15 mm carries the clamp with lead-in either side. It is shorter than the thermocouple's
 // own 20 mm NPT mount, which is the tallest thing already standing on this lid.
 sparge_riser_proud = 15;
+// What the sterile inlet filter costs, kPa per L/min. EXTRAPOLATED, NOT MEASURED: Cole-Parmer do
+// not publish a curve for 1594522, so this is a linear fit taken from an equivalent 0.2 um PTFE
+// disc of near-identical dimensions. Linear is the right shape - membrane flow at these pressures
+// is viscous, so Darcy makes it proportional to flow - and the slope is corroborated rather than
+// invented: area-correcting Pall's Acro 50 from 19.6 to this filter's 16.2 cm2 gives 3.02 against
+// the 3.45 used here, so it sits 14 % conservative of the best-documented comparable part.
+//
+// It matters more than its size suggests. At the design flow it is 14.1 kPa against the vessel's
+// own 1.1, so it takes over half of what the throttle would otherwise have had - see the gas
+// supply report, which sizes the metering valve from what is left. Worth replacing with a measured
+// number; a water manometer across it at the set flow is enough. See TODO.md.
+sparge_filter_drop_slope = 3.45;
 // the aeration rate the holes are reported against, volumes of gas per volume of liquid per minute
 sparge_design_vvm = 0.5;
 // the band the gas metering has to cover, in vvm
@@ -2041,24 +2053,53 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     " Pa the gas supply has to beat before anything bubbles"
   ));
 
+
   // ----- gas supply -----
   //
   // What the pump does against this vessel, what a throttle has to take out, and which meter reads
   // it. All of it derives from the registered pump and the vessel, so it re-answers itself for
   // another jar rather than being a table someone has to recompute.
-  _gas_back_pressure = _sparge_submergence / 1000 * stirred_tank_medium_density() * 9.81
+  _gas_vessel_pressure = _sparge_submergence / 1000 * stirred_tank_medium_density() * 9.81
   + stirred_tank_capillary_pressure(sparge_hole_diameter);
   _gas_band = [sparge_vvm_band[0] * _culture_volume, sparge_vvm_band[1] * _culture_volume];
+
+  // The line's own losses at the design flow. Both were missing from what the pump was said to have
+  // to beat: the filter is the larger by an order of magnitude and the riser is small but real.
+  _gas_filter_drop = gas_filter_pressure_drop(_gas_band[1], sparge_filter_drop_slope);
+  _gas_riser_drop = gas_tube_pressure_drop(
+    _gas_band[1], steel_tube_id(sparge_riser_tube), _sparge_riser_length);
+  _gas_back_pressure = _gas_vessel_pressure + _gas_filter_drop + _gas_riser_drop;
+
+  echo(str(
+    "gas line losses: filter ", _gas_filter_drop,
+    " Pa (EXTRAPOLATED, not measured) and riser ", _gas_riser_drop, " Pa at ", _gas_band[1],
+    " L/min, on top of the vessel's ", _gas_vessel_pressure, " - so the pump beats ",
+    _gas_back_pressure, " Pa, and the filter alone is ", _gas_filter_drop / _gas_vessel_pressure,
+    "x the vessel"
+  ));
   _gas_free_flow = air_pump_free_flow_min(head_air_pump);
   _gas_dead_head = air_pump_dead_head(head_air_pump);
 
   echo(str(
     "gas supply: ", air_pump_name(head_air_pump), " would give ",
     gas_pump_flow(_gas_free_flow, _gas_dead_head, _gas_back_pressure),
-    " L/min against this vessel's ", _gas_back_pressure, " Pa, where ", _gas_band[1],
+    " L/min against this line's ", _gas_back_pressure, " Pa, where ", _gas_band[1],
     " L/min is wanted - so a throttle has to drop ",
     gas_throttle_pressure(_gas_free_flow, _gas_dead_head, _gas_band[1], _gas_back_pressure),
-    " Pa on top of the vessel's own"
+    " Pa on top of the line's own"
+  ));
+
+  // What that throttle is, as a part rather than as a pressure. The filter takes more than half of
+  // what the valve would otherwise have had, so this number moved a long way when it landed.
+  _gas_valve_cv = gas_valve_cv(
+    _gas_band[1],
+    gas_throttle_pressure(_gas_free_flow, _gas_dead_head, _gas_band[1], _gas_back_pressure),
+    _gas_back_pressure);
+
+  echo(str(
+    "gas throttle: a valve of Cv ", _gas_valve_cv, " passes ", _gas_band[1],
+    " L/min at that drop. Sold Cv should be 2-4x it, so the setting sits mid-travel rather than ",
+    "at either stop"
   ));
 
   echo(str(
