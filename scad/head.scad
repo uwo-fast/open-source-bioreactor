@@ -1916,9 +1916,11 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         ? "more" : "no more", "."
     ));
 
+  // Parenthesised, because && binds tighter than ||: this read (has_baffles && shaft) || blade, so
+  // the blade-passing arm was asked about a lid with no baffles and no plate to have a mode.
   if (_has_baffles
-   && abs(_baffle_frequency - stirred_tank_shaft_frequency(_baffle_rpm)) < 0.3 * stirred_tank_shaft_frequency(_baffle_rpm)
-   || abs(_baffle_frequency - stirred_tank_blade_frequency(_baffle_rpm, impeller_n_fins)) < 0.3 * stirred_tank_blade_frequency(_baffle_rpm, impeller_n_fins))
+   && (abs(_baffle_frequency - stirred_tank_shaft_frequency(_baffle_rpm)) < 0.3 * stirred_tank_shaft_frequency(_baffle_rpm)
+    || abs(_baffle_frequency - stirred_tank_blade_frequency(_baffle_rpm, impeller_n_fins)) < 0.3 * stirred_tank_blade_frequency(_baffle_rpm, impeller_n_fins)))
     echo(str(
       "WARNING baffle plate: its first mode at ", _baffle_frequency,
       " Hz is within 30% of a drive excitation. Thickness raises it as t^1.5 and length lowers it ",
