@@ -9,7 +9,10 @@
   - the driver was wrong in its reference, not its value. It multiplied `vessel_outer_diameter`, but D/T everywhere in the literature is against the vessel's wetted bore, so the real ratio drifted with the glass — 0.468 to 0.489 across the registry for one nominal 0.45. It now reads the bore and is constant
   - `impeller_bore_ratio = 0.45` sits mid-band on every citation and is what lets every registered vessel build. `jar_6p5gal_305x470` is the binding one: its 137 mm mouth caps the ratio at **0.4879**, so 0.45 leaves **10.64 mm** to pass it through, and every other jar tolerates 0.64 to 0.87. Those read 0.4594 / 2.64 mm / 0.59-0.82 while the mouth assert was still charging 8 mm for the moved ring. The relations and their citations are in `scad/utils/stirred_tank.scad`, the reasoning in `docs/agitation.md`
   - the twist angle and the blade height are the parameters with no support — nothing citable exists for 55 degrees, or for the W/D of a twisted extrusion at all. Both are left alone and marked; `twist` turns out to be a pitch specifier rather than a blade angle, so the honest treatment is the derivation recorded in `docs/agitation.md`. A bench power-number measurement would settle it
-- [ ] **measured gas flow** — a reproducibility gap, not a geometry one. **Range now calculated; see `docs/procurement.md`, gas metering selection. Buy a 0-5 L/min rotameter and a metering valve.**
+- [ ] **measured gas flow** — a reproducibility gap, not a geometry one. **The parts are now chosen and in the BOM: Dwyer `VFA-23` bare meter, C$86.22, and a Clippard `MNV-4K2` needle valve, US$13.99, the valve upstream of the meter. What is left is buying them and taking a reading.**
+  - the `-BV` valved variant was the obvious buy and was dropped on principle: Dwyer do not publish its Cv, and unstated specs are what disqualified the medical and welding flowmeter channels here. Buying the bare meter and a valve that publishes both a Cv and a flow-vs-turns curve is cheaper *and* closes the row on numbers
+  - **the filter changed which valve.** At the old budget the throttle dropped 24.2 kPa for a required Cv of 0.020 and `MNV-2` (Cv 0.032) had the best resolution of anything found. Counting the sterile filter's 14.1 kPa cut the throttle's share to 9.96 kPa and raised required Cv to 0.0296, which puts `MNV-2` at 92 % of wide open with no authority left — the same failure the Ideal Valve 52-1-12 was rejected for. `MNV-4K2` at Cv 0.090 sits at 33 %, inside the 2–4× band
+  - still unpublished and worth one email: the meter's **graduation interval**. Not a blocker — over a 70 mm scale it resolves finer than the ±0.25 L/min its ±5 %-of-full-scale accuracy allows
   - **Correction to how this was first filed.** It was written as "the reactor's binding
     constraint", outranking the geometry. That is wrong for a design and right only for a
     *productivity target*, which this project does not have. `sparge_design_vvm` appears only inside
@@ -257,10 +260,35 @@
   asserted, and nothing printed yet - so they can be decided together
   - *deflection*: **done.** `baffle_thickness` 9 -> 10 puts the tip at **1.296 mm** against the
     1.53 mm tenth-of-width limit, and the warning is gone
-  - *running clearance*: **still open.** 2 mm nominal to the impeller, less the 2.28 mm of lean the
-    coupling's 0.2 mm of play allows at the lower impeller, so **-0.28 mm running** - the plate can
-    reach the blades. Thickness does not touch it: it is a tolerance stack rather than a stiffness
-    one, and it wants either engagement in the lid or a tighter coupling fit
+  - *running clearance*: **still open, and the next action is a MEASUREMENT, not an edit.** 2 mm
+    nominal to the impeller, less the 2.28 mm of lean the coupling's 0.2 mm of play allows at the
+    lower impeller, so **-0.28 mm running** - the plate can reach the blades. Thickness does not
+    touch it: it is a tolerance stack rather than a stiffness one
+  - **what the number actually is.** 0.2 mm of bayonet play over 18 mm of engagement, levered out
+    205 mm to the lower impeller: an **11.4x amplification**, which is why a fit clearance smaller
+    than a layer height ends up larger than the whole gap. Attacking the amplification is worth more
+    than widening the gap
+  - **but 2.28 mm is bore play ALONE.** The model tilts the plate as if the pin were free to cock
+    inside its bore. It is not: the baffle's flange seats on the lid face across a much larger
+    diameter, and a face contact resists tilt far harder than a bore does - the o-ring under it is
+    the only thing that lets it rock at all. So the real lean is somewhere between 2.28 mm and
+    almost nothing, and **nothing in the model can tell which**
+  - **do this first:** print the lid's baffle port and one baffle top segment, seat them, and measure
+    the tilt at a known distance below the lid. Twenty minutes, no parts, and it replaces a stacked
+    worst case with a number - which is how the rest of this model has been settled
+  - **the fixes, if the measurement confirms it**, in order of what they cost:
+    - *taper the plate's inner edge with depth* so it matches the lean, which is worst at the bottom
+      and zero at the lid. Buys the clearance for about half the area a uniform cut costs - roughly
+      0.79 of reference against 0.744. New geometry in `bayonet_baffle_port.scad`
+    - *`baffle_impeller_clearance` 2 -> 3*. One line, running clearance +0.72 mm, but width goes
+      15.3 -> 13.3 and area 0.856 -> 0.744, which deepens the under-baffling warning already firing.
+      Trades a warning for a warning
+    - *deepen the bayonet engagement to 36 mm*. Halves the lean, costs no area - but the stack height
+      grows, which pushes the plate from 2 printed pieces to 3 and adds a third dovetail joint, and
+      joints already take 14 % of the deflection
+    - *a baffle-only interface row at 0.1 mm allowance*. Free in the model, no area or print cost,
+      but 0.1 mm is a tight printed bayonet fit on the one port that gets twisted by hand at arm's
+      length inside a jar
   - **the lever was not as free as this said.** It read that the lock bore does not cut into the
     15.3 mm width until 12.5 mm of thickness, so the plate could go to 12. The bore is not what
     binds. **The mode is.** Frequency goes as t^1.5, so thickening walks the plate's first mode up
