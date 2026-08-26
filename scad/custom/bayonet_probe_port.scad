@@ -24,7 +24,10 @@ _bp_collet_body_allowance = 0.6; // grip fit; tune this, not the registry, if a 
 _bp_collet_connector_allowance = 0.6;
 _bp_collet_tab_gap = 1.0;
 _bp_collet_tab_internal_deflection = 0.5;
-_bp_tilt_degrees = 7; // Tilt to avoid bubbles on sensor face
+// Tilt to avoid bubbles on the sensor face. POSITIVE LEANS THE PROBE TOWARD +X, which is radially
+// OUTWARD once head_port_at() has put the port on its circle - out toward the vessel wall rather
+// than in over the shaft and the impellers.
+_bp_tilt_degrees = 7;
 _bp_transition_length = 25;
 
 bayonet_probe_port(
@@ -114,21 +117,28 @@ module bayonet_probe_port(
 
     translate([0, 0, -panel_thickness]) {
 
-    // Tilt transition wedge
+    // Tilt transition wedge, and it belongs on the side the probe leans AWAY from: tilting the
+    // holder lifts its rim above the flange on the leading side and drops it below on the trailing
+    // one, and it is the trailing gap that wants filling. So the wedge is the MIRROR of the lean
+    // rather than a copy of it, and the two have to be flipped together or the fill lands in the
+    // air on one side and inside the collet on the other. Only the wedge is mirrored, not the hex
+    // cut, which is a clearance bore and has no side.
     difference() {
-      rotate([-90, 0, 0]) {
-        rotate_extrude(angle=tilt_degrees, convexity=10)
-          difference() {
-            circle(d=_bayonet_diameter);
-            translate([-_bayonet_diameter / 2, 0, 0])
-              square([_bayonet_diameter, _bayonet_diameter * 2], center=true);
-          }
-      }
+      mirror([1, 0, 0])
+        rotate([-90, 0, 0]) {
+          rotate_extrude(angle=tilt_degrees, convexity=10)
+            difference() {
+              circle(d=_bayonet_diameter);
+              translate([-_bayonet_diameter / 2, 0, 0])
+                square([_bayonet_diameter, _bayonet_diameter * 2], center=true);
+            }
+        }
       cylinder(h=1000, d=_hex_diameter, center=true, $fn=6);
     }
 
-    // Probe holder with tilt
-    rotate([0, tilt_degrees, 0]) {
+    // Probe holder, leaning toward +X - see the note on tilt_degrees. A point hanging L below the
+    // pivot lands at +L*sin(tilt), so the rotation is NEGATIVE about Y to send it that way.
+    rotate([0, -tilt_degrees, 0]) {
       difference() {
         union() {
           // Transition segment with larger diameter to mate with bayonet bottom to collet tail

@@ -2700,7 +2700,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       let (_p = head_port_probe(_ports[i]))
         head_port_at(i, vessel_opening_diameter)
           translate([0, 0, -head_lid_thickness(lid_flange_height)])
-            rotate([0, probe_port_tilt_degrees, 0])
+            rotate([0, -probe_port_tilt_degrees, 0])
               translate([
                 0, 0,
                 atlas_probe_neck_height(_p)
