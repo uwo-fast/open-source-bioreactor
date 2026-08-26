@@ -38,9 +38,16 @@ function impeller_has_power_number(type) = !is_undef(impeller_power_number(type)
 // a vertical one (90 degrees) projects all of it, and a twisted blade's extrusion height IS the
 // axial span already. So the same registry field means the same physical thing on every row and
 // this is where it gets turned into a height.
-function impeller_axial_span(type, impeller_diameter) =
-  impeller_width_ratio(type) * impeller_diameter
-  * (is_undef(impeller_blade_angle(type)) ? 1 : sin(impeller_blade_angle(type)));
+//
+// A TILTED PLATE IS NOT A LINE. Its thickness leans too, adding thickness * cos(angle) - a fifth of
+// the span at 45 degrees, split evenly above and below - so a caller that omits it gets an envelope
+// the drawn blade breaks out of at both ends. thickness is a printed dimension rather than a
+// property of the type, which is why it arrives as an argument. It defaults to zero, which is the
+// bladeless-plate idealisation the correlations are written on. Twisted rows ignore it: their
+// extrusion height already bounds the solid.
+function impeller_axial_span(type, impeller_diameter, thickness = 0) =
+  let (_angle = impeller_blade_angle(type), _width = impeller_width_ratio(type) * impeller_diameter)
+    is_undef(_angle) ? _width : _width * sin(_angle) + thickness * cos(_angle);
 
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;

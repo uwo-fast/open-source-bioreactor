@@ -1177,10 +1177,12 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     )
   );
   // What the blade occupies along the shaft. Not the registered width on a pitched blade - a plate
-  // set at an angle projects only sin(angle) of itself onto the axis - so this goes through the
-  // accessor rather than multiplying the ratio here. Everything downstream is a vertical budget:
-  // clearance, coverage, the collar's room, the baffle gap.
-  impeller_height = impeller_axial_span(head_impeller_type, impeller_diameter);
+  // set at an angle projects only sin(angle) of itself onto the axis, plus cos(angle) of its own
+  // thickness, which is why the fin width goes in - so this goes through the accessor rather than
+  // multiplying the ratio here. Everything downstream is a vertical budget: clearance, coverage,
+  // the collar's room, the baffle gap, and each of them was 2.83 mm short while the thickness was
+  // left out.
+  impeller_height = impeller_axial_span(head_impeller_type, impeller_diameter, impeller_fin_width);
   impeller_blade_width = impeller_width_ratio(head_impeller_type) * impeller_diameter;
 
   // radius of the shaft hole in the impeller
