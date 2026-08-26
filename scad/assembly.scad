@@ -278,6 +278,7 @@ if (render_head || render_all) {
       vessel_punt_height=vessel_punt_height(reactor_vessel),
       joint_outer_diameter=frame_outer_diameter(vessel_diameter(reactor_vessel), frame_wall_thickness),
       post_pts=bolt_pattern_pts(joint_posts, joint_bolt_circle),
-      post_hole_diameter=joint_hole_diameter
+      post_hole_diameter=joint_hole_diameter,
+      vessel_profile=vessel_inner_profile(reactor_vessel)
     );
 }

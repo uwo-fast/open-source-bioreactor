@@ -320,9 +320,11 @@ function stirred_tank_power(impeller_diameter, rpm, power_number) =
 // and worth having because motors are rated in torque rather than power.
 function stirred_tank_torque(power, rpm) = power / (2 * PI * (rpm / 60));
 
-// Culture volume of a plain cylindrical tank, litres, from bore and liquid depth in mm. A
-// cylinder ignores the shoulder taper and the punt, so it runs a few percent high.
-function stirred_tank_volume(bore, depth) = PI / 4 * pow(bore, 2) * depth / 1e6;
+// Culture volume is NOT here any more. A cylinder on the bore was standing in for the jar, and its
+// own note had the sign backwards - it read a few percent HIGH when in fact it read low, because
+// the punt is a narrow pillar in a wide floor and the liquid in the annulus around it was simply
+// dropped. The jar's registered profile answers it exactly: purchased/vessel.scad,
+// vessel_profile_litres().
 
 // Mean dissipation over the whole culture, W/m^3, from shaft power in W and volume in litres.
 function stirred_tank_mean_dissipation(power, volume) = power / (volume / 1000);

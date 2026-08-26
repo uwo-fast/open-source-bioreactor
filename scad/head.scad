@@ -1128,7 +1128,7 @@ module head_port(port, panel_thickness, baffle_width, baffle_length, baffle_segm
   }
 }
 
-module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, vessel_internal_height, vessel_punt_height, joint_outer_diameter, post_pts, post_hole_diameter) {
+module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, vessel_internal_height, vessel_punt_height, joint_outer_diameter, post_pts, post_hole_diameter, vessel_profile) {
 
   // The table this lid carries, resolved once. head_ports pins it; undef derives it from the mouth.
   _ports = head_ports_for(vessel_opening_diameter);
@@ -1410,7 +1410,20 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // the power number is measured on a folded axial blade rather than this twisted one, and P is
   // one impeller's, where the stacked pair draws more - though less than double, being closer
   // than the spacing at which two impellers stop interacting. See docs/agitation.md.
-  _culture_volume = stirred_tank_volume(_vessel_bore, _liquid_height);
+  // Integrated over the jar's OWN wetted profile, not a cylinder on its bore. The profile arrives
+  // as a point list for the same reason post_pts does - head() is handed what it needs as data,
+  // never a registry row it could read a different jar out of than the one its scalars came from.
+  // The datum is the punt top, which is where vessel_internal_height() measures from too.
+  _floor_y = vessel_wall_thickness + vessel_punt_height;
+  _culture_volume = vessel_profile_litres(vessel_profile, _floor_y + _liquid_height);
+  _vessel_capacity = vessel_profile_litres(vessel_profile, _floor_y + vessel_internal_height);
+
+  echo(str(
+    "culture: ", _culture_volume, " L at ", culture_fill_fraction * 100, "% of ",
+    vessel_internal_height, " mm, in a jar that holds ", _vessel_capacity, " L brim full. A ",
+    "cylinder on the ", _vessel_bore, " mm bore would have said ",
+    PI / 4 * pow(_vessel_bore, 2) * _liquid_height / 1e6, " L"
+  ));
   // Po and x are properties of the blade, so they come off the registered type. Three ways to get
   // one, in descending order of what it is worth:
   //
@@ -2763,5 +2776,6 @@ head(
   vessel_punt_height=vessel_punt_height(reactor_vessel),
   joint_outer_diameter=frame_outer_diameter(vessel_diameter(reactor_vessel), _preview_wall_thickness),
   post_pts=_preview_post_pts,
-  post_hole_diameter=frame_rod_hole_diameter()
+  post_hole_diameter=frame_rod_hole_diameter(),
+  vessel_profile=vessel_inner_profile(reactor_vessel)
 );

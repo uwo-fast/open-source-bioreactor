@@ -123,6 +123,47 @@ function vessel_outer_profile(type, arcFn = 64) =
 function vessel_section(type, arcFn = 64) =
   concat(vessel_outer_profile(type, arcFn), reverse(vessel_inner_profile(type, arcFn)));
 
+// ----- what the jar holds -----
+
+// The run of a profile below a height, with the crossing point interpolated in rather than the
+// segment dropped - a free surface between two points still has to land on the wall.
+function vessel_profile_below(profile, y) =
+  [
+    for (i = [0:len(profile) - 1])
+      let (_p = profile[i], _q = profile[i + 1])
+        each concat(
+          _p[1] <= y ? [_p] : [],
+          is_undef(_q) || (_p[1] - y) * (_q[1] - y) >= 0
+            ? []
+            : [[_p[0] + (_q[0] - _p[0]) * (y - _p[1]) / (_q[1] - _p[1]), y]]
+        )
+  ];
+
+// The volume a profile sweeps about the axis, mm3.
+//
+// A LINE INTEGRAL round the boundary, not discs stacked up the axis, because the profile is not
+// single valued in height: the floor dishes DOWN from the punt plateau to the base corner, so two
+// radii share a height down there and no r(y) exists. Each segment contributes
+// pi/3 * dy * (r1^2 + r1 r2 + r2^2); the free surface adds nothing because dy is zero along it and
+// the axis nothing because r is, which is why summing the wetted run alone closes the region.
+//
+// Exact for the revolve, where a rendered mesh is a 64-gon inscribed in it and so reads 0.16 % low.
+function vessel_swept_volume(profile) =
+  len(profile) < 2
+    ? 0
+    : let (
+      _terms = [
+        for (i = [0:len(profile) - 2])
+          (profile[i + 1][1] - profile[i][1])
+          * (pow(profile[i][0], 2) + profile[i][0] * profile[i + 1][0] + pow(profile[i + 1][0], 2))
+      ]
+    )
+      PI / 3 * (_terms * [for (_t = _terms) 1]);
+
+// Litres held below a height, which is the one place the unit conversion happens.
+function vessel_profile_litres(profile, y) =
+  vessel_swept_volume(vessel_profile_below(profile, y)) / 1e6;
+
 /**
  * @brief Create a vessel from a registered type
  * @param type  Registered parameter set (see vessels.scad)
