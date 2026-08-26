@@ -160,15 +160,23 @@
     open and it still will not hold 0.5 vvm" is the replace-the-filter signal, and that belongs in
     the build notes
 
-- [ ] draw the vitamins that are registered but never rendered
-  - the **ball bearing** is registered as `BB608` and its numbers cut the lid's pocket, but
-    `ball_bearing()` is never called, so the part it is cut for does not appear. A pocket drawn
+- [x] draw the vitamins that are registered but never rendered
+  - the **ball bearing** was registered as `BB608` and its numbers cut the lid's pocket, but
+    `ball_bearing()` was never called, so the part it is cut for did not appear. A pocket drawn
     from a row nobody can see is the sort of thing that stays wrong quietly
-  - the **impeller set screws** are the same: `impeller_set_screw` sizes and places the tap holes,
-    but `screw()` is never called on it. NopSCADlib draws grub screws as `hs_grub`, so both are a
+  - the **impeller set screws** were the same: `impeller_set_screw` sizes and places the tap holes,
+    but `screw()` was never called on it. NopSCADlib draws grub screws as `hs_grub`, so both were a
     render toggle and a call, not new geometry
-  - wants its own `render_bearing` / `render_set_screws` flags alongside the existing ones, and
-    both belong in `render_all`. Non-urgent: nothing derives from them and no fit depends on it
+  - both now have their own flag - `render_bearing` and `render_set_screws` - and both are in
+    `render_all`. The screws needed one structural change beyond a call: the pair of impellers is
+    placed by one `mirror()`, so the printed part and its screws go inside a
+    `head_impeller_assembly()` that the mirror catches together, or the upper impeller's screws
+    stay on the lower one's angles
+  - **and drawing them is what checks them.** Measured off the exports rather than asserted:
+    the bearing comes out OD 22 / bore 8 / z -7 to 0, which is the pocket exactly; the screws come
+    out as four separate solids, 0 and 120 degrees on the lower impeller and 0 and 240 on the
+    upper, each running r 4.00 to 10.20 - cup tip on the shaft surface, socket on the hub's outer
+    face, which is what `set_screw_length` was picked against
 
 - [ ] caliper the real jar rim against the registered profile
   - the lid's gasket recess is cut to the flat land on top of the glass, which the model puts at 5.00 mm wide (r 71.5 out to 76.5) with a 2 mm bead rolled outboard below it. That land comes from the registered `rim_radius` and wall thickness rather than from a measurement, and the recess width follows from it, so it is worth confirming before cutting a gasket to it

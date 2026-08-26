@@ -65,8 +65,10 @@ motor_mount_part_to_render = "all"; // ["all", "base_plate", "face_plate", "midd
 render_motor_mount_inserts = false; // heat-set into the lid, and they stay there once set
 render_motor_mount_screws = false; // the screws into them, which come out every service
 render_shaft_coupler = false;
+render_bearing = false; // the 608 in the lid's pocket
 render_ext_shaft = false;
 render_impeller = false;
+render_set_screws = false; // the grub screws holding each impeller to the shaft
 render_bayonet_lock = false;
 render_tube_pinlock = false;
 render_thermocouple_pinlock = false;
@@ -2587,6 +2589,14 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       translate([0, 0, _mm_grip])
         screw(motor_mount_base_screw, screw_length(motor_mount_base_screw, _mm_grip, 0, insert=motor_mount_base_insert));
 
+  // The 608 the lid is pocketed for. Its numbers have cut that pocket all along without the part
+  // ever being drawn, which is a pocket nobody can check against the thing it is cut for. The
+  // pocket runs from this face down by bb_width and ball_bearing() draws itself centred, so half a
+  // width down puts it in the hole rather than beside it.
+  if (render_bearing || render_all)
+    translate([0, 0, -bb_width(shaft_bearing) / 2])
+      ball_bearing(shaft_bearing);
+
   // shaft coupling
   if (render_shaft_coupler || render_all) {
 
@@ -2620,6 +2630,30 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         rotate([0, 0, a])
           rotate([0, 90, 0])
             cylinder(r=_r, h=impeller_hub_radius + z_fight, $fn=32);
+  }
+
+  // The screws that go in those holes. Vitamins, so they sit outside head_impeller()'s difference
+  // and keep their own colour. Placed from the same three numbers the holes are - the hub radius,
+  // the collar's mid-height and the angle list - so the two cannot drift apart.
+  //
+  // Drawn pointing INWARD from the hub's outer surface: screw() runs its shaft down local -Z from
+  // the socket, and rotate([0, 90, 0]) turns that into +X, which puts the socket on the outside
+  // where a key reaches it and the cup tip at the shaft.
+  module head_impeller_set_screws() {
+    translate([0, 0, impeller_height / 2 + impeller_collar_height / 2])
+      for (a = impeller_set_screw_at)
+        rotate([0, 0, a])
+          translate([impeller_hub_radius, 0, 0])
+            rotate([0, 90, 0])
+              screw(set_screw_screw(impeller_set_screw), set_screw_length(impeller_set_screw));
+  }
+
+  // The printed part and the screws that hold it, at one impeller's position. One placement, two
+  // flags: the mirror below has to catch both, or the upper impeller's screws stay on the lower
+  // one's angles.
+  module head_impeller_assembly() {
+    if (render_impeller || render_all) head_impeller();
+    if (render_set_screws || render_all) head_impeller_set_screws();
   }
 
   module head_impeller() {
@@ -2668,15 +2702,15 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   }
 
   // impellers
-  if (render_impeller || render_all) {
+  if (render_impeller || render_set_screws || render_all) {
     translate([0, 0, -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height) + _impeller_clearance]) {
-      head_impeller();
+      head_impeller_assembly();
 
       // Mirrored, not turned over: that is what makes the pair oppose each other at all. Which of
       // them pumps up is then set by head_shaft_rotation, not by the part.
       translate([0, 0, impeller_spacing])
         mirror([0, 1, 0])
-          head_impeller();
+          head_impeller_assembly();
     }
   }
 }
