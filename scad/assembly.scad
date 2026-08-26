@@ -96,6 +96,13 @@ render_all = true;
 
 /* [Rendering Parameters] */
 
+// Every other entry file sets this and assembly.scad was the one that did not, which is not a
+// quality preference here but a correctness one. $fn is ZERO unless something assigns it, and a
+// module reached through `use` may be handed the caller's - so from this file the whole assembly
+// was drawn to $fa/$fs instead of the 64/128 that head.scad and frame.scad ask for, and anything
+// dividing by $fn got a division by zero. sparge_ring did.
+$fn = $preview ? 64 : 128;
+
 cross_section_active = true;
 
 /* [Vessel Selection] */
