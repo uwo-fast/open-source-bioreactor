@@ -217,22 +217,31 @@
     one statement rather than two. The drawn solid measures 8.2675 L against an echoed 8.2808, which
     is the 0.1607 % a 64-gon is inscribed by - not a disagreement
 
-- [ ] **set the fill line by WORKING VOLUME, not by a fraction of height**
+- [x] **set the fill line by WORKING VOLUME, not by a fraction of height**
   - `culture_fill_fraction = 0.8` is a fraction of internal HEIGHT. Nobody fills a jar to 80 % of
     its internal height; they pour in litres. And "we ran 8.0 L" transfers to another builder's jar
     where "80 % of internal height" does not, which is the reproducibility this project claims
   - the inversion is a bisection over `vessel_profile_litres()` - the profile is monotonic in height
     above the floor, so it converges - and the override idiom fits: `undef` derives from the
     fraction, a value in litres pins it
-  - it is also what unblocks the row refresh below, which is why that one is waiting
+  - **done, and pinned at 8.25 L on this jar.** `culture_working_volume` takes litres and solves the
+    height back; `undef` still derives from the fraction, which it has to, because a litre figure
+    that suits `jar_10L` will not fit `jar_1p5L` and every registered vessel has to build
+  - 8.25 rather than a rounder 8.0: at 8.0 the coverage over the upper impeller falls to 0.479 D
+    against the 0.5 this project holds, and spending that margin to buy a tidier number is the wrong
+    trade. 8.25 lands at 0.555 D, 235.1 mm deep, 79.7 % of internal height - so almost nothing
+    downstream moved, which is the point
+  - the echo now says whether the line was derived or pinned, and says so when a pinned volume is
+    larger than the jar - the solver holds the line at the rim and the volumes below become the
+    capacity, which nothing else would have reported
 
-- [ ] three BOM rows quote derived numbers that have since moved
+- [x] three BOM rows quote derived numbers that have since moved
   - the sterile filter's `14.1 kPa`, the rotameter's `81.7 % of scale`, the metering valve's
     `Cv 0.0296 at the 4.087 L/min design point`. Integrating the culture volume moved all of them by
     about 1.3 %: 14.28 kPa, 82.8 %, and Cv 0.0303 at 4.140 L/min
-  - **no decision moves.** Still a 0-5 L/min rotameter, still `MNV-4K2` at 2.97x required and 34 %
-    of travel. So this is record-keeping, and it is deliberately held until the fill line above is
-    settled rather than done twice for the same reason
+  - **no decision moved.** Still a 0-5 L/min rotameter, still `MNV-4K2` at 3.0x required and 34 % of
+    travel. Held until the fill line above was settled rather than done twice, then refreshed
+    against the pinned 8.25 L: filter 14.23 kPa, scale position 82.5 %, Cv 0.0301 at 4.125 L/min
 
 - [ ] caliper the real jar rim against the registered profile
   - the lid's gasket recess is cut to the flat land on top of the glass, which the model puts at 5.00 mm wide (r 71.5 out to 76.5) with a 2 mm bead rolled outboard below it. That land comes from the registered `rim_radius` and wall thickness rather than from a measurement, and the recess width follows from it, so it is worth confirming before cutting a gasket to it
