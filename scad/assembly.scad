@@ -155,7 +155,7 @@ joint_bolt = M8_hex_screw;
 lid_gasket_factor = head_gasket_factor();
 
 _reactor_light = is_undef(reactor_lights)
-  ? strip_light_for(head_liquid_height(vessel_internal_height(reactor_vessel)))
+  ? strip_light_for(head_liquid_height(vessel_internal_height(reactor_vessel), vessel_inner_profile(reactor_vessel)))
   : reactor_lights;
 
 assert(

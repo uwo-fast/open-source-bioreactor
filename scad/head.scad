@@ -330,9 +330,19 @@ impeller_clearance_factor = 0.9;
 // exists for a twisted extrusion, and the classic w = D/4 describes flat Rushton blades.
 impeller_n_fins = impeller_blades(head_impeller_type);
 impeller_twist_ang = impeller_twist(head_impeller_type);
-// Culture depth as a fraction of the vessel's internal height. An operating choice, not geometry -
-// nothing in this model sets a fill line - but the mean dissipation echo needs a volume, and the
-// full internal volume would understate it. 0.8 leaves the usual headspace for foam and gas.
+// How much culture is in the jar. An operating choice rather than geometry, but not a free one:
+// every process number this model reports is per unit volume, so the fill line sets them all.
+//
+// TWO WAYS TO SAY IT, and they are not equally good. A WORKING VOLUME in litres is what a person
+// actually pours and what another builder can repeat - "we ran 8.0 L" means the same thing on
+// someone else's jar. A fraction of internal height does not: it lands on a different volume in
+// every vessel, and it is only a proxy for the volume in the first place. So working volume pins
+// it when set, and the fill height is solved back from the jar's own profile.
+//
+// The fraction stays as the DERIVATION, undef working volume, because it is the only one that
+// scales across the registry - a litre figure that suits jar_10L will not fit jar_1p5L, and every
+// registered vessel has to build. 0.8 leaves the usual headspace for foam and gas.
+culture_working_volume = undef; // litres; undef derives from the fraction below
 culture_fill_fraction = 0.8;
 // Window a shaft speed measurement is averaged over, in seconds. Another operating choice with no
 // geometry behind it: it sets what a fitted encoder resolves, and the controller owns the real one.
@@ -779,8 +789,26 @@ function head_punt_top_depth(lid_flange_height, vessel_internal_height) =
 // How deep the culture stands. head() has always computed this inline; it is exported because the
 // frame needs it too - the lights are chosen to cover the liquid, and nothing else in the model
 // knows how much liquid there is.
-function head_liquid_height(vessel_internal_height) =
-  vessel_internal_height * culture_fill_fraction;
+// The fill height that holds `litres`, by bisection on the jar's own profile. Volume rises
+// monotonically with height above the floor, so halving the bracket converges; 40 halvings take the
+// tallest registered vessel below a nanometre, which is far past what anything downstream can use.
+// Inverted numerically rather than in closed form because the profile is a list of arcs - there is
+// no expression to rearrange, and writing one would be the second statement of a shape this repo
+// has just finished reducing to one.
+function head_fill_height_for(vessel_profile, litres, lo, hi, steps = 40) =
+  steps <= 0
+    ? (lo + hi) / 2
+    : let (_mid = (lo + hi) / 2)
+      vessel_profile_litres(vessel_profile, vessel_profile[0][1] + _mid) < litres
+        ? head_fill_height_for(vessel_profile, litres, _mid, hi, steps - 1)
+        : head_fill_height_for(vessel_profile, litres, lo, _mid, steps - 1);
+
+// The datum is the profile's own first point - the floor at the axis - which is exactly what
+// vessel_internal_height() measures down from, so the two cannot drift.
+function head_liquid_height(vessel_internal_height, vessel_profile) =
+  is_undef(culture_working_volume)
+    ? vessel_internal_height * culture_fill_fraction
+    : head_fill_height_for(vessel_profile, culture_working_volume, 0, vessel_internal_height);
 
 function head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height) =
   head_punt_top_depth(lid_flange_height, vessel_internal_height) + vessel_punt_height;
@@ -1161,7 +1189,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   // Resolved once. head_shaft may pin a row; otherwise the shortest that reaches this vessel.
   _shaft = head_shaft_selected(lid_flange_height, vessel_internal_height);
-  _liquid_height = head_liquid_height(vessel_internal_height);
+  _liquid_height = head_liquid_height(vessel_internal_height, vessel_profile);
 
   // Read off the port table, so it depends on nothing else and can sit this early. It has to:
   // Medek's envelope is conditioned on four baffles and the Po block below is the first consumer.
@@ -1422,11 +1450,25 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _vessel_capacity = vessel_profile_litres(vessel_profile, _floor_y + vessel_internal_height);
 
   echo(str(
-    "culture: ", _culture_volume, " L at ", culture_fill_fraction * 100, "% of ",
-    vessel_internal_height, " mm, in a jar that holds ", _vessel_capacity, " L brim full. A ",
-    "cylinder on the ", _vessel_bore, " mm bore would have said ",
-    PI / 4 * pow(_vessel_bore, 2) * _liquid_height / 1e6, " L"
+    "culture: ", _culture_volume, " L standing ", _liquid_height, " mm deep, ",
+    _liquid_height / vessel_internal_height * 100, "% of the ", vessel_internal_height,
+    " mm internal height - ",
+    is_undef(culture_working_volume)
+      ? "DERIVED from culture_fill_fraction, so it is a depth this jar happens to give rather than a run anyone can repeat; set culture_working_volume to state one in litres"
+      : "PINNED by culture_working_volume",
+    ". The jar holds ", _vessel_capacity, " L brim full, and a cylinder on the ", _vessel_bore,
+    " mm bore would have called this fill ", PI / 4 * pow(_vessel_bore, 2) * _liquid_height / 1e6, " L"
   ));
+
+  // Asked for more than the jar holds. The solver's bracket tops out at the rim, so the fill line
+  // is there and every volume below is the jar's capacity - which is a different number than the
+  // one that was asked for, and nothing else would say so.
+  if (!is_undef(culture_working_volume) && culture_working_volume > _vessel_capacity)
+    echo(str(
+      "WARNING culture: ", culture_working_volume, " L was asked for and this jar holds ",
+      _vessel_capacity, " L brim full. The fill line is pinned at the rim and every volume ",
+      "reported below is the capacity, not the working volume."
+    ));
   // Po and x are properties of the blade, so they come off the registered type. Three ways to get
   // one, in descending order of what it is worth:
   //
@@ -1514,7 +1556,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   if (len(_tc_port) > 0) {
     _tc_reach = thermocouple_probe_tip_height(head_port_probe(_tc_port[0]));
     _tc_floor = head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height);
-    _tc_surface = _tc_floor - vessel_punt_height - head_liquid_height(vessel_internal_height);
+    _tc_surface = _tc_floor - vessel_punt_height - _liquid_height;
 
     echo(str(
       "thermocouple: ", thermocouple_probe_part_number(head_port_probe(_tc_port[0])), " on ",
