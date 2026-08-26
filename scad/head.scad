@@ -242,8 +242,10 @@ lid_blind_pocket_floor_min = 3.0;
 // 0.45 is kept, now against the bore. It sits mid-band on every citation - Fitschen's 0.3-0.5,
 // Nienow's 0.4-0.5 for axial impellers, and Lonza's "most preferred" 0.44-0.46 - and it is what
 // lets every registered vessel build. jar_6p5gal_305x470 is the binding one: a 137 mm mouth on a
-// 280.8 mm bore caps the ratio at 0.4594 with the impeller exactly filling the neck, so 0.45
-// leaves 2.64 mm to actually pass it through. Every other jar tolerates 0.59 to 0.82.
+// 280.8 mm bore caps the ratio at 0.4879, so 0.45 leaves 10.64 mm to actually pass it through.
+// Every other jar tolerates 0.64 to 0.87. Those caps read 0.4594 and 0.59-0.82 for as long as the
+// mouth assert went on charging 8 mm for a tip ring that had been moved inboard of the blades -
+// the ratio was never in danger, but the headroom it was picked on was understated by 8 mm.
 //
 // Consequence worth knowing: this makes the impeller 94.5 mm where the first build ran 99 mm,
 // which was 0.4714 of the bore. Both are in band; 0.45 is the one that fits every vessel.
@@ -831,7 +833,7 @@ function head_baffle_ring_limit(mouth) =
 // which pushes the baffles outward until they foul it. The window between those is narrow, and
 // nothing in the model said so until it was asked to.
 //
-// These are the three couplings, written as functions of (mouth, impeller diameter) so that the
+// These are the four couplings, written as functions of (mouth, impeller diameter) so that the
 // asserts in head() and the feasibility report below are the SAME expression and cannot drift.
 // Each returns a clearance: positive is feasible, and the magnitude is what the assert reports.
 
@@ -842,8 +844,14 @@ function head_ring_baffle_gap(mouth, impeller_diameter) =
 function head_ring_mouth_gap(mouth, impeller_diameter) =
   mouth / 2 - (head_sparge_ring_radius(mouth) + sparge_ring_section[0] / 2);
 
-// Two of the three only bind if the lid carries baffles at all. A baffle-free lid still has to
-// pass its ring through its own mouth, but has nothing for the ring to foul.
+// The impeller itself has to go in through the mouth, whatever the lid carries. This was only ever
+// an assert inside head(), so head_feasible_mouths() reported mouths the impeller could not pass -
+// the one coupling of the four that was not in the predicate.
+function head_mouth_passes_impeller(mouth, impeller_diameter) =
+  mouth - 2 * head_impeller_swept_radius(impeller_diameter) > 0;
+
+// Two of the four only bind if the lid carries baffles at all. A baffle-free lid still has to
+// pass its ring and its impeller through its own mouth, but has nothing for the ring to foul.
 function head_mouth_is_feasible(mouth, impeller_diameter, has_baffles = true) =
   // A mouth too narrow for any registered port set is not feasible whatever the impeller does, and
   // the && short-circuits so the rest is never asked about a lid that does not exist. The sweep
@@ -852,10 +860,11 @@ function head_mouth_is_feasible(mouth, impeller_diameter, has_baffles = true) =
   && (!has_baffles
     || (head_baffle_width(mouth, impeller_diameter) > 0
       && head_ring_baffle_gap(mouth, impeller_diameter) > 0))
-  && head_ring_mouth_gap(mouth, impeller_diameter) > 0;
+  && head_ring_mouth_gap(mouth, impeller_diameter) > 0
+  && head_mouth_passes_impeller(mouth, impeller_diameter);
 
 // Solved by sweeping the predicate rather than inverted in closed form. A closed form would be a
-// second expression of the same three couplings and would go wrong the first time an allowance
+// second expression of the same four couplings and would go wrong the first time an allowance
 // moved - which is the defect docs/design-conventions.md names as this repo's recurring one.
 function head_feasible_mouth_sweep() = [40, 400, 0.25]; // [lo, hi, step] - the range searched
 function head_feasible_mouths(impeller_diameter, has_baffles = true) =
@@ -1578,12 +1587,16 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     )
   );
 
-  // The impeller is scaled off the vessel's outer diameter but has to pass through its opening,
-  // and the ring joining the fin tops is what meets the neck first, not the blades.
+  // The impeller is scaled off the vessel's bore but has to pass through its opening. This charged
+  // 2 * fin_width for a tip ring standing OUTBOARD of the blades; that ring was moved inside
+  // impeller_radius and this went on charging 8 mm for it, which is 8 mm of mouth no jar has to
+  // give. What has to pass the neck is what the part sweeps, and head_impeller_swept_radius is
+  // already the one place that answers that - for the baffle gap and for the D/T echo - so it
+  // answers here rather than being spelled out a third time.
   assert(
-    impeller_diameter + 2 * impeller_fin_width <= vessel_opening_diameter,
+    head_mouth_passes_impeller(vessel_opening_diameter, impeller_diameter),
     str(
-      "Impeller spans ", impeller_diameter + 2 * impeller_fin_width, " mm across its top ring, past the ",
+      "Impeller sweeps ", 2 * head_impeller_swept_radius(impeller_diameter), " mm, past the ",
       vessel_opening_diameter, " mm opening it has to pass through."
     )
   );
