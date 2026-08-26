@@ -9,6 +9,11 @@
  * datum the head and frame are dimensioned against; assembly.scad selects a registered
  * vessel and passes the coupling scalars (diameter, opening diameter, height, internal
  * height) on to the other subassemblies via these accessors.
+ *
+ * The cross-section is built by the functions below rather than inside vessel(), so the wetted
+ * shape can be READ as well as drawn: utils/stirred_tank.scad integrates the same points this
+ * module revolves. A culture volume that disagreed with the jar holding it would otherwise be
+ * invisible, which is what a cylinder standing in for the profile had been.
  */
 
 use <FunctionalOpenSCAD/functional.scad>;
@@ -46,6 +51,78 @@ function vessel_internal_height(type) =
 function vessel_neck_corner_radius(type) =
   (vessel_diameter(type) - vessel_opening_diameter(type)) / 2 - vessel_corner_radius(type);
 
+// ----- the cross-section -----
+//
+// UPRIGHT AND BOTTOM-UP. x is radius and y is height above the outside of the base, which is the
+// frame rotate_extrude() works in and the only frame a volume can be integrated in. The section
+// used to be authored MOUTH-DOWN on the -x side and flipped at the end by a 180 degree rotation,
+// so every coordinate carried the sign of that flip and the neck was hung off a rectangle that
+// then had to give back the height it added. That correction - body_height - is gone: the heights
+// below are measured DOWN FROM THE RIM, which is how a jar is dimensioned in the first place.
+//
+// Each corner is ONE centre with two radii, R outside and R - t inside, because the wall is a
+// constant offset. The previous version rounded two rectangles independently and recovered each
+// corner's direction by dividing a coordinate by its own absolute value - undefined on a
+// coordinate of zero - and carried a branch for corners 2 and 3 that its own loop never reached.
+
+// Where the straight neck starts, and where the shoulder's inner face tops out under it.
+function vessel_neck_bottom(type) = vessel_height(type) - vessel_neck_height(type);
+function vessel_shoulder_top(type) = vessel_neck_bottom(type) - vessel_neck_corner_radius(type);
+
+// The three corner centres, each shared by the inside and the outside. The neck is the one that
+// curves the other way, so it is the only one whose OUTER radius is the smaller of the pair.
+function vessel_base_centre(type) =
+  [vessel_diameter(type) / 2 - vessel_corner_radius_base(type), vessel_corner_radius_base(type)];
+function vessel_shoulder_centre(type) =
+  [
+    vessel_diameter(type) / 2 - vessel_corner_radius(type),
+    vessel_shoulder_top(type) + vessel_thickness(type) - vessel_corner_radius(type),
+  ];
+function vessel_neck_centre(type) =
+  [vessel_diameter(type) / 2 - vessel_corner_radius(type), vessel_neck_bottom(type)];
+
+/**
+ * @brief The wetted boundary: axis outward across the floor, up the wall, and out at the rim.
+ *
+ * Straight runs carry no points of their own, because two consecutive points already are one -
+ * the dished floor from the punt out to the base corner, the barrel wall, and the neck bore are
+ * all implicit. What is left is the punt plateau and three arcs.
+ */
+function vessel_inner_profile(type, arcFn = 64) =
+  let (_t = vessel_thickness(type), _floor = _t + vessel_punt_height(type))
+    concat(
+      [[0, _floor], [vessel_punt_width(type) / 2, _floor]],
+      arc(r=vessel_corner_radius_base(type) - _t, angle=90, offsetAngle=270, c=vessel_base_centre(type), $fn=arcFn),
+      arc(r=vessel_corner_radius(type) - _t, angle=90, offsetAngle=0, c=vessel_shoulder_centre(type), $fn=arcFn),
+      arc(r=vessel_neck_corner_radius(type), angle=-90, offsetAngle=270, c=vessel_neck_centre(type), $fn=arcFn),
+      [[vessel_opening_diameter(type) / 2, vessel_height(type)]]
+    );
+
+/**
+ * @brief The outside, the same way up, ending on the rim.
+ *
+ * The rim bead is a half round centred on the neck's outer wall and tangent to the rim plane, so
+ * it bulges outward without adding height. A registered rim_radius of 0 collapses it to a point,
+ * which is what the two jars with a ground rim want.
+ */
+function vessel_outer_profile(type, arcFn = 64) =
+  let (
+    _t = vessel_thickness(type),
+    _rim = vessel_rim_radius(type),
+    _neck_r = vessel_opening_diameter(type) / 2 + _t
+  )
+    concat(
+      [[0, vessel_punt_height(type)], [vessel_punt_width(type) / 2, vessel_punt_height(type)]],
+      arc(r=vessel_corner_radius_base(type), angle=90, offsetAngle=270, c=vessel_base_centre(type), $fn=arcFn),
+      arc(r=vessel_corner_radius(type), angle=90, offsetAngle=0, c=vessel_shoulder_centre(type), $fn=arcFn),
+      arc(r=vessel_neck_corner_radius(type) - _t, angle=-90, offsetAngle=270, c=vessel_neck_centre(type), $fn=arcFn),
+      arc(r=_rim, angle=180, offsetAngle=270, c=[_neck_r, vessel_height(type) - _rim], $fn=arcFn)
+    );
+
+// The closed glass section: up the outside, across the rim, down the inside, home along the axis.
+function vessel_section(type, arcFn = 64) =
+  concat(vessel_outer_profile(type, arcFn), reverse(vessel_inner_profile(type, arcFn)));
+
 /**
  * @brief Create a vessel from a registered type
  * @param type  Registered parameter set (see vessels.scad)
@@ -64,23 +141,10 @@ module vessel(
   show_3d = true,
   pts_r = 1
 ) {
-  height = vessel_height(type);
-  diameter = vessel_diameter(type);
-  thickness = vessel_thickness(type);
-  opening_diameter = vessel_opening_diameter(type);
-  neck = vessel_neck_height(type);
-  corner_radius = vessel_corner_radius(type);
-  corner_radius_base = vessel_corner_radius_base(type);
-  punt_height = vessel_punt_height(type);
-  punt_width = vessel_punt_width(type);
-  rim_rad = vessel_rim_radius(type);
-
-  neck_corner_radius = vessel_neck_corner_radius(type);
-
   assert(
-    neck_corner_radius >= 0,
+    vessel_neck_corner_radius(type) >= 0,
     str(
-      "vessel(): ", type[0], " has no room for a neck corner — its opening_diameter is too ",
+      "vessel(): ", vessel_name(type), " has no room for a neck corner — its opening_diameter is too ",
       "large for the given diameter and corner_radius"
     )
   );
@@ -88,139 +152,36 @@ module vessel(
   // the inner profile is offset inward by the wall, so a corner tighter than the wall
   // is thickness would invert its arc
   assert(
-    corner_radius > thickness && corner_radius_base > thickness,
-    str("vessel(): ", type[0], " has a corner radius smaller than its wall thickness")
+    vessel_corner_radius(type) > vessel_thickness(type)
+      && vessel_corner_radius_base(type) > vessel_thickness(type),
+    str("vessel(): ", vessel_name(type), " has a corner radius smaller than its wall thickness")
   );
 
-  // Local 2D corner-rounding helper. Defined at module scope (function definitions
-  // are not permitted inside the let() block below, where it is called from).
-  function corners(outline, corner_rad, corner_rad_base = undef) =
-    [
-      for (i = [0:1]) let (
-        xfactor = outline[0][i][0] / abs(outline[0][i][0]),
-        yfactor = outline[0][i][1] / abs(outline[0][i][1]),
-        radius = is_undef(corner_rad_base) ? corner_rad : (i == 1 || i == 2 ? corner_rad_base : corner_rad),
-        c_pt = [outline[0][i][0] - (radius * xfactor), outline[0][i][1] - (radius * yfactor)],
-        corner = arc(
-          r=radius, angle=90, offsetAngle=180 + (i * -90), c=c_pt, center=false,
-          internal=false, $fn=arcFn
-        )
-      ) ([reverse(corner)]),
-    ];
-
-  // The profile is authored mouth-down and flipped at the end, so the neck hangs off the outer
-  // rectangle rather than fitting inside it: the flat is placed off innerline, which is one wall
-  // shorter than outerline, and the corner arc between them rises its full radius. So the neck
-  // adds (neck + neck_corner_radius - thickness) beyond the body and the rectangle has to give
-  // that back for the jar to stand at its registered height. The rim arc is centred on the flat
-  // and sweeps symmetrically about it, so it adds no height and does not belong here.
-  body_height = height - neck - neck_corner_radius + thickness;
-
-  outerline = square([diameter, body_height], center=true);
-  innerline = square([diameter - (2 * thickness), body_height - (2 * thickness)], center=true);
-
-  if (show_pts)
-    showPoints(outerline, r=pts_r, $fn=16);
-  // show the points of the resulting poly
-
-  // Fun fact: A pontil mark or punt mark is the scar where the
-  // pontil, punty or punt was broken from a work of blown glass
-  outer_punt = [[-punt_width / 2, outerline[0][1][1] - punt_height], [0, outerline[0][1][1] - punt_height]];
-  inner_punt = [[0, innerline[0][1][1] - punt_height], [-punt_width / 2, innerline[0][1][1] - punt_height]];
+  // The NECK corner is the one that assert does not cover, and it is different in kind: a neck
+  // corner tighter than the wall does not invert an arc, it puts the shoulder's outer face above
+  // the neck's bottom, so the outside has to come back down to meet it and the jar carries a notch
+  // round the neck root. Expressible, so reported rather than asserted - and it is an
+  // inconsistency between three measured numbers rather than a part that cannot exist.
+  if (vessel_neck_corner_radius(type) < vessel_thickness(type))
+    echo(str(
+      "WARNING vessel: ", vessel_name(type), " has a ", vessel_neck_corner_radius(type),
+      " mm neck corner inside a ", vessel_thickness(type), " mm wall, so the shoulder's outer face ",
+      "tops out ", vessel_thickness(type) - vessel_neck_corner_radius(type),
+      " mm above the neck and the outside doubles back to reach it. corner_radius at or under ",
+      (vessel_diameter(type) - vessel_opening_diameter(type)) / 2 - vessel_thickness(type),
+      " mm clears it; it is registered at ", vessel_corner_radius(type),
+      ". Which of the three is wrong is a caliper question - see TODO.md."
+    ));
 
   if (show_pts) {
-    color("orange") showPoints(inner_punt, r=pts_r, $fn=16);
-    color("orange") showPoints(outer_punt, r=pts_r, $fn=16);
-  }
-
-  outerCornersPoly = corners(outerline, corner_rad=corner_radius, corner_rad_base=corner_radius_base);
-
-  outerCorner_nxny = flatten(outerCornersPoly)[0];
-  outerCorner_nxpy = flatten(outerCornersPoly)[1];
-
-  if (show_pts)
-    color("red") showPoints(outerCornersPoly, r=pts_r, $fn=16);
-  // show the points of the resulting poly
-
-  innerCornersPoly = corners(innerline, corner_radius - thickness, corner_radius_base - thickness);
-
-  innerCorner_nxny = reverse(flatten(innerCornersPoly)[0]);
-  innerCorner_nxpy = reverse(flatten(innerCornersPoly)[1]);
-
-  if (show_pts)
-    color("blue") showPoints(innerCornersPoly, r=pts_r, $fn=16);
-  // show the points of the resulting poly
-
-  // neck corner
-  neck_outer_corner_nx =
-  arc(
-    r=neck_corner_radius - thickness, angle=90, offsetAngle=0,
-    c=[outerline[0][0][0] + corner_radius, outerline[0][0][1] - neck_corner_radius + thickness],
-    center=false, internal=false, $fn=arcFn
-  );
-
-  neck_inner_corner_nx = arc(
-    r=neck_corner_radius, angle=90, offsetAngle=0,
-    c=[outerline[0][0][0] + corner_radius, innerline[0][0][1] - neck_corner_radius],
-    center=false, internal=false, $fn=arcFn
-  );
-
-  if (show_pts) {
-    color("green") showPoints(neck_outer_corner_nx, r=pts_r, $fn=16);
-    color("orange") showPoints(neck_inner_corner_nx, r=pts_r, $fn=16);
-  }
-
-  // neck flat
-  neck_flat_nx = translate(
-    [
-      outerline[0][0][0] + corner_radius + neck_corner_radius - thickness,
-      innerline[0][0][1] - neck - neck_corner_radius,
-    ],
-    [[0, 0], [thickness, 0]]
-  );
-
-  // Not checked: that the neck flat reproduces the registered opening. The flat lands at
-  // -(diameter/2) + corner_radius + neck_corner_radius, and neck_corner_radius is solved from the
-  // opening, so it reduces to -opening_diameter/2 for every input - thickness cancels too. What
-  // can actually go wrong is the solve running out of room, which is the assert above.
-
-  if (show_pts) {
-    color("purple") showPoints(neck_flat_nx, r=pts_r, $fn=16);
-  }
-
-  // rim
-  rim_nx = arc(
-    r=rim_rad, angle=180, offsetAngle=90,
-    c=[
-      outerline[0][0][0] + corner_radius + neck_corner_radius - thickness,
-      innerline[0][0][1] - neck - neck_corner_radius + rim_rad,
-    ],
-    center=false, internal=false, $fn=arcFn
-  );
-
-  if (show_pts) {
-    color("teal") {
-      showPoints(rim_nx, r=pts_r, $fn=16);
-    }
-  }
-
-  result = concat(
-    neck_outer_corner_nx, outerCorner_nxny, outerCorner_nxpy, outer_punt, inner_punt, innerCorner_nxpy,
-    innerCorner_nxny, reverse(neck_inner_corner_nx), reverse(neck_flat_nx), reverse(rim_nx)
-  );
-
-  // show the first and last point in pink and yellow
-  if (show_pts) {
-    color("pink") showPoints([result[0]], r=pts_r, $fn=16);
-    color("yellow") showPoints([result[len(result) - 1]], r=pts_r, $fn=16);
+    color("blue") showPoints(vessel_outer_profile(type, arcFn), r=pts_r, $fn=16);
+    color("orange") showPoints(vessel_inner_profile(type, arcFn), r=pts_r, $fn=16);
   }
 
   if (show_2d)
-    color("Aqua") poly2d(result);
+    color("Aqua") poly2d(vessel_section(type, arcFn));
 
-  transformed_result = translate([0, body_height / 2], rotate(a=180, v=[0, 1, 0], poly=result));
-
-  result3d = rotate_extrude(angle=angle, poly=transformed_result, $fn=rotExtFn);
   if (show_3d)
-    color("Azure", 0.5) poly3d(result3d);
+    color("Azure", 0.5)
+      poly3d(rotate_extrude(angle=angle, poly=vessel_section(type, arcFn), $fn=rotExtFn));
 }
