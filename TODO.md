@@ -275,6 +275,28 @@
     which the crossing happens and whether that speed is one the reactor runs at - which is what
     the numbers above are, and what the echo does not say
 
+- [ ] **the impeller's tip ring cannot print without support, and nothing has asked whether it earns it**
+  - it is a 4 x 4 mm annulus tying the four blade tips, sitting inboard of `impeller_radius`. Measured
+    off the exported blade by sampling its underside all the way round: **88.9 % of the ring floats**,
+    and the longest unsupported span is **63.2 mm**, four times over. A 45 degree blade prints itself;
+    the ring hanging between the blades does not
+  - **the steady load does not need it.** One blade carries about 0.62 N at the 420 rpm no-load
+    speed. Root bending is 15.8 N·mm on a section modulus of 50.4 mm3, so **0.31 MPa** - roughly one
+    percent of printed PLA cross-layer strength - and the blade's own tip deflects **11 um**. The
+    ring is two orders of magnitude past what the fluid asks for
+  - **the strike case is the argument that keeps it.** The same jar's baffle running clearance is
+    -0.28 mm, so a plate CAN reach the blades. A ring ties all four tips so a strike is reacted by
+    the set rather than levering one blade. That is an impact case and no number here covers it
+  - so it is a real decision, not an oversight: pay for support material and a scarred inner face on
+    every impeller, or drop the ring and rely on the blade being 100x over-strength against
+    everything except a collision the clearance stack already allows. **Deciding it is downstream of
+    deciding the -0.28 mm**, which is the item above
+  - the ring is also not part of the geometry `pbt_45_4`'s power number is defined on. Neither is a
+    4 mm plate on a 94.5 mm impeller: **t/D 0.042** against roughly 0.02 for the standard PBT the
+    correlations were measured on, and thickness is not a term in Medek's correlation at all. Both
+    are printed-part departures from a correlated shape, unquantified in the same direction
+
+
 ## drive and aeration
 
 Follows from the agitation work; the reasoning and citations are in `docs/agitation.md`.
@@ -430,6 +452,23 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
   - the rest of the sealing and mount hardware stays pinned by number, because each carries
     something a spec does not: 8525T65 sheet, 97163A152 insert (its geometry cuts the lid pocket),
     8785N383 port o-ring, 6153K71 bearing
+
+- [ ] **no check ever builds the geometry it checks**
+  - `check-scad` exports **`.csg`**, which is the CSG tree rather than a solid, so CGAL never runs
+    and a degenerate solid is invisible to `just check`. `check-vessels` does the same
+  - that is how the pitched blade sat TANGENT to its hub - joined along a line of zero width, 264
+    non-manifold edges in the mesh, OpenSCAD calling it out on every render - through a green suite.
+    Anyone slicing the STL would have met it; nothing in the repo does
+  - the guard is a recipe that renders the `entry` files to STL and fails on
+    `may not be a valid 2-manifold`. **The cost is why it is not done here:** head.scad takes minutes
+    to render where its `.csg` takes seconds, so this cannot go inside `just check` without changing
+    what that recipe is for. A separate `check-mesh`, run before a print rather than on every edit,
+    is the shape that fits
+  - `head_impeller_swept_radius()` has the same flavour. It is `max(D/2, hub)` - a formula, not a
+    measurement of what is drawn - so the echo comparing it against `impeller_diameter` can only
+    ever fire on a hub wider than the impeller. It could not have caught the outboard tip ring it
+    was written for, and it cannot catch the next one
+
 
 ## tooling / infrastructure / documentation
 
