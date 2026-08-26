@@ -202,6 +202,28 @@
 
 - [ ] caliper the real jar rim against the registered profile
   - the lid's gasket recess is cut to the flat land on top of the glass, which the model puts at 5.00 mm wide (r 71.5 out to 76.5) with a 2 mm bead rolled outboard below it. That land comes from the registered `rim_radius` and wall thickness rather than from a measurement, and the recess width follows from it, so it is worth confirming before cutting a gasket to it
+  - **and two jars are already provably inconsistent up there.** `vessel_neck_corner_radius()` is
+    SOLVED from the measured mouth bore rather than registered, and nothing checked the result
+    against the wall. It comes out smaller than the wall on two rows:
+
+    | vessel | neck corner | wall | shortfall |
+    | --- | --- | --- | --- |
+    | `jar_1gal_180x197` | 3.5 mm | 5 mm | 1.5 mm |
+    | `jar_1p5L_109x215` | 3.36 mm | 4 mm | 0.64 mm |
+
+  - what that does to the shape: the shoulder's OUTER face tops out `t - Rn` above the neck's
+    bottom, so the outside has to come back DOWN to meet the neck. Measured on `jar_1gal_180x197`,
+    the outer surface rises to z 186 and the neck starts at 184.5 - a notch running right round the
+    neck root. The section is still manifold, which is why nothing ever caught it
+  - `vessel()` already asserted exactly this failure for the BODY corners - "a corner tighter than
+    the wall would invert its arc" - and simply omitted the neck, which is the one corner whose
+    radius is derived rather than registered. It now REPORTS it instead of asserting: the shape is
+    expressible rather than impossible, and asserting would move a jar that currently builds into
+    `check-vessels`' broken list on the strength of an eyeballed number
+  - **which of the three is wrong is the caliper question.** `corner_radius` is the one the registry
+    itself calls the eyeballed value, and at or under 11 mm on the 1 gal and 6.86 on the 1.5 L it
+    clears; they are registered at 12.5 and 7.5. But `opening_diameter` and `thickness` are
+    measurements too and either could be the one that is off
 - [x] align the assembly -> subassembly -> part parameter interfaces
   - both previews now derive rather than quote: `frame.scad` builds against a registered vessel row, and `head.scad` runs the frame's own accessors for the joint instead of copying their results. Verified by perturbing a driver — `-D threaded_rod_hole_allowance=3` used to leave `head.scad` standalone boring the old 9.2, and now tracks the assembly
   - the interface contract in `assembly.scad` was rewritten to describe the actual signatures, which it had never matched
