@@ -100,7 +100,13 @@ check-vessels:
     while IFS='|' read -r name row; do
         listed=0
         for b in "${broken[@]}"; do [ "$b" = "$name" ] && listed=1; done
-        {{OPENSCAD}} -D "reactor_vessel=$row" -o "$tmp/v.csg" scad/head.scad 2>"$tmp/err" >/dev/null
+        # culture_working_volume is unset for the sweep. A working volume is a property of a RUN
+        # on one jar, not of the design - 8.25 L is this build's statement and it is a third of
+        # jar_6p5gal, which leaves its thermocouple in the headspace and rightly asserts. What is
+        # being checked here is whether each jar can be BUILT, so each is swept at the derivation
+        # that scales, and the pinned figure is checked by check-scad on the jar it belongs to.
+        {{OPENSCAD}} -D "reactor_vessel=$row" -D "culture_working_volume=undef" \
+            -o "$tmp/v.csg" scad/head.scad 2>"$tmp/err" >/dev/null
         if grep -q '^ERROR' "$tmp/err"; then
             if [ "$listed" = 1 ]; then
                 printf 'ok    %-22s known broken: %s\n' "$name" "$(grep -m1 '^ERROR' "$tmp/err" | sed 's/.*failed: //; s/ in file.*//' | cut -c1-70)"

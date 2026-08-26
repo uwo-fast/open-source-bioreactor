@@ -342,7 +342,11 @@ impeller_twist_ang = impeller_twist(head_impeller_type);
 // The fraction stays as the DERIVATION, undef working volume, because it is the only one that
 // scales across the registry - a litre figure that suits jar_10L will not fit jar_1p5L, and every
 // registered vessel has to build. 0.8 leaves the usual headspace for foam and gas.
-culture_working_volume = undef; // litres; undef derives from the fraction below
+// 8.25 L on this jar. A quarter-litre figure is easy to pour, easy to repeat, and sits close
+// enough to what the fraction was giving that nothing downstream moves much - coverage over the
+// upper impeller stays at 0.555 D against the 0.5 this project holds, where a round 8.0 would have
+// put it at 0.479 and spent that margin for the sake of a tidier number.
+culture_working_volume = 8.25; // litres; undef derives from the fraction below
 culture_fill_fraction = 0.8;
 // Window a shaft speed measurement is averaged over, in seconds. Another operating choice with no
 // geometry behind it: it sets what a fitted encoder resolves, and the controller owns the real one.
