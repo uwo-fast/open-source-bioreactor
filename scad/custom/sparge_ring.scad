@@ -64,8 +64,18 @@ module sparge_ring(
 
   // How far a hole has to travel inward from the section's centreline to break through the inner
   // wall everywhere, not just where a facet vertex happens to land.
+  //
+  // The facet count is DERIVED the way OpenSCAD derives it, not read off $fn. $fn is zero unless
+  // something sets it, and a zero $fn means the count comes from $fa and $fs instead - so 180/$fn
+  // was a division by zero for any consumer that had not set one. assembly.scad is exactly that
+  // consumer. It stayed hidden because a 2021.01 module still resolved $fn from its own file, and
+  // this file sets one; newer builds hand the module the caller's $fn, and there it evaluated to
+  // cos(inf) - a nan reach, and the assert below firing on a jar that renders fine.
+  _facets = $fn > 0
+    ? max($fn, 3)
+    : ceil(max(min(360 / $fa, (radius + section[0] / 2) * 2 * PI / $fs), 5));
   _inner_r = radius - section[0] / 2;
-  _facet_skin = _inner_r * (1 - cos(180 / $fn));
+  _facet_skin = _inner_r * (1 - cos(180 / _facets));
   _hole_reach = section[0] / 2 + _facet_skin;
 
   // Inward only. The hole starts at the section's centreline, inside the bore, so it never reaches
@@ -142,7 +152,7 @@ module sparge_ring(
     //
     // The length is not section[0]/2, which is what the nominal geometry says and what this used to
     // cut. rotate_extrude facets the ring, so between vertices the inner wall is a CHORD sitting at
-    // r*cos(180/$fn) rather than at r - closer to the axis, which leaves material where the nominal
+    // r*cos(180/facets) rather than at r - closer to the axis, which leaves material where the nominal
     // radius says there is none. A hole stopping at the nominal inner face therefore stops short of
     // the real one and leaves a skin: 0.08 mm at r 66.25 and $fn 64, and 2.3 mm by $fn 12, which is
     // more than the whole wall. Blind holes on a part whose entire job is to let gas out.
