@@ -200,6 +200,24 @@
     per 12 in square that the registry comment and `docs/procurement.md` had each been asserting by
     hand
 
+- [x] check that the probes reach the culture, and draw them
+  - the thermocouple has asserted both ends for a while - tip in the broth, tip short of the floor -
+    and it caught a 9 in probe that would have gone through `jar_1gal_180x197`'s floor. **The two
+    Atlas probes asserted nothing**, and `atlas_probe()` was never called either: registered, sizing
+    the collet bore every probe port is cut to, printed on each flange as a label, and never drawn
+  - the depth is not adjustable, which is the thing worth writing down. A flex collet sounds like it
+    is, but it grips the BODY between a pocket the body's own length and a tail sized for its boot,
+    so the probe seats where the collet puts it. `head_probe_reach()` is that depth, and
+    `bayonet_probe_port_collet_drop()` is exported from the port so the drawing and the check read
+    one number rather than two
+  - **the tilt costs more than it looks.** The port leans 7 degrees, so the tip's low CORNER hangs
+    `r*sin(tilt)` below the end of its centreline, and that corner is what meets the floor. Verified
+    against the drawn probe: the formula is exact at zero tilt and over-states the real low point by
+    0.02 mm at 7, because the sensing slots cut the very edge away - conservative on the floor,
+    which is the check it is there for
+  - `jar_1gal_180x197` is the binding vessel, at **3.17 mm** between the pH probe and its floor.
+    Everything else has 40 mm or more. Worth knowing before that jar is built rather than after
+
 - [x] give the culture a real volume and draw it
   - it was a CYLINDER on the vessel's bore, and every process number the model reports is per unit
     volume - mean dissipation, kLa, blend time, sparge flow, the vvm band, the aeration ceiling.

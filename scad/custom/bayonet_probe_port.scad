@@ -43,6 +43,13 @@ bayonet_probe_port(
 
 // ----- build -----
 // This is a pin half by definition - the lock half is the same for every port, so the lid
+// How far the collet's origin hangs below the port's underside. The wedge that leans the collet
+// over is as deep as the body it carries, so the probe's body diameter is part of the drop rather
+// than a constant. Exported because head() needs the same number to say where a tip lands, and two
+// expressions of one distance is how they drift.
+function bayonet_probe_port_collet_drop(probe, transition_length) =
+  transition_length + atlas_probe_body_dia(probe) / sqrt(3);
+
 // takes it straight from bayonet_port(). Shares bayonet_port's datum: the collet hangs off
 // the bottom of the coupling, inside the vessel, and the connector passes up through the bore.
 // OpenSCAD has no case conversion, and registry names are lower case; caps read better on a
@@ -84,7 +91,7 @@ module bayonet_probe_port(
 
   // The transitions mate to the bayonet at its interface (mating) surface, less the allowance.
   _bayonet_diameter = 2 * interface_radius - allowance;
-  _transition_length = transition_length + probe_body_diameter / sqrt(3);
+  _transition_length = bayonet_probe_port_collet_drop(probe, transition_length);
 
   union() {
 

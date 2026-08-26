@@ -74,6 +74,7 @@ render_bayonet_lock = false;
 render_tube_pinlock = false;
 render_thermocouple_pinlock = false;
 render_probe_pinlock = false;
+render_probes = false; // the Atlas probes themselves, hanging in their collets
 render_baffle_pinlock = false;
 render_seals = false; // the EPDM parts: rim gasket, plug o-ring, port o-rings
 // The culture, at the fill line the volume is reported for. Not in render_all: it is not a part,
@@ -793,6 +794,28 @@ function head_punt_top_depth(lid_flange_height, vessel_internal_height) =
 // How deep the culture stands. head() has always computed this inline; it is exported because the
 // frame needs it too - the lights are chosen to cover the liquid, and nothing else in the model
 // knows how much liquid there is.
+// How far below the lid's OUTER face a probe's deepest point lands.
+//
+// Fixed by geometry rather than by how far someone pushes it in: the collet grips the probe's BODY
+// between a pocket the body's own length and a tail that houses its boot, so the probe seats at one
+// depth and only one. Transition, body and tip, all leaned over by the port's tilt - which is why
+// this is not simply their sum.
+//
+// The last term is the tilt again, on the tip's RIM rather than its axis: lean a flat-ended
+// cylinder over and its low corner hangs r*sin(tilt) below the end of its centreline, and that
+// corner is what meets the floor first. Measured against the drawn probe, this over-states the real
+// low point by 0.02 mm, because the sensing slots cut away the very edge - conservative on the
+// floor, which is the check it exists for. The surface check reads a fraction of a millimetre
+// optimistic in exchange, against a margin of a hundred.
+function head_probe_reach(probe, lid_flange_height) =
+  head_lid_thickness(lid_flange_height)
+  + (
+    bayonet_probe_port_collet_drop(probe, probe_port_transition_length)
+    + atlas_probe_body_height(probe)
+    + atlas_probe_tip_height(probe)
+  ) * cos(probe_port_tilt_degrees)
+  + atlas_probe_tip_dia(probe) / 2 * sin(probe_port_tilt_degrees);
+
 // The fill height that holds `litres`, by bisection on the jar's own profile. Volume rises
 // monotonically with height above the floor, so halving the bracket converges; 40 halvings take the
 // tallest registered vessel below a nanometre, which is far past what anything downstream can use.
@@ -1585,6 +1608,47 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       )
     );
   }
+
+  // The probes have to end up in the culture and short of the floor - the same two questions the
+  // thermocouple answers, and until now the thermocouple was the only one asked. Both are asserted
+  // for the same reason its are: a tip in the headspace reads gas rather than broth, and a tip
+  // through the floor is not a fit at all.
+  //
+  // What is different is what FIXES the depth. A thermocouple threads into an NPT boss and lands
+  // where the thread stops. These hang in flex collets, which sounds adjustable and is not: the
+  // collet grips the BODY between a pocket its own length and a tail sized for its boot, so the
+  // probe seats where the collet puts it. head_probe_reach() is that depth.
+  for (i = [for (j = [0:_n - 1]) if (head_port_type(_ports[j]) == "probe") j])
+    let (
+      _p = head_port_probe(_ports[i]),
+      _reach = head_probe_reach(_p, lid_flange_height),
+      _floor = head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height),
+      _surface = _floor - vessel_punt_height - _liquid_height
+    ) {
+      echo(str(
+        "probe: ", head_port_function(_ports[i]), " carries ", atlas_probe_name(_p), ", reaching ",
+        _reach, " mm - tip ", _reach - _surface, " mm under the surface with ", _floor - _reach,
+        " mm to the floor, leaning ", probe_port_tilt_degrees, " deg"
+      ));
+
+      assert(
+        _reach < _floor,
+        str(
+          "The ", atlas_probe_name(_p), " probe on ", head_port_function(_ports[i]), " reaches ",
+          _reach, " mm but the floor is ", _floor, " mm below the lid, so its tip would be ",
+          _reach - _floor, " mm through it."
+        )
+      );
+
+      assert(
+        _reach > _surface,
+        str(
+          "The ", atlas_probe_name(_p), " probe on ", head_port_function(_ports[i]), " reaches ",
+          _reach, " mm and the culture starts ", _surface,
+          " mm below the lid, so its tip sits in the headspace and reads gas, not broth."
+        )
+      );
+    }
 
   // How long it takes to blend, and how fast oxygen crosses in. Both follow from the specific power
   // already echoed above, so they sit here rather than with the sparger; both are reported and
@@ -2623,6 +2687,27 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
               head_port(_port, lid_thickness, _baffle_width, _baffle_length, _baffle_segments);
     }
   }
+
+  // The probes themselves. Their bodies are what every probe collet is bored to and what each
+  // flange is labelled with, and nothing ever drew one - so where a tip lands has only ever been
+  // arithmetic. Placed off the same two numbers the port is built from, so the probe cannot end up
+  // somewhere the collet holding it is not.
+  //
+  // atlas_probe() draws tip-UP from its neck, and the collet's body pocket runs DOWN from its
+  // origin, so the probe is flipped and then lifted by its own neck height to seat the body.
+  if (render_probes || render_all)
+    for (i = [for (j = [0:_n - 1]) if (head_port_type(_ports[j]) == "probe") j])
+      let (_p = head_port_probe(_ports[i]))
+        head_port_at(i, vessel_opening_diameter)
+          translate([0, 0, -head_lid_thickness(lid_flange_height)])
+            rotate([0, probe_port_tilt_degrees, 0])
+              translate([
+                0, 0,
+                atlas_probe_neck_height(_p)
+                - bayonet_probe_port_collet_drop(_p, probe_port_transition_length),
+              ])
+                rotate([180, 0, 0])
+                  atlas_probe(_p);
 
   // motor and shaft
   if (render_motor || render_all) {
