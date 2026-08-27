@@ -24,10 +24,11 @@ _bp_collet_body_allowance = 0.6; // grip fit; tune this, not the registry, if a 
 _bp_collet_connector_allowance = 0.6;
 _bp_collet_tab_gap = 1.0;
 _bp_collet_tab_internal_deflection = 0.5;
-// Tilt to avoid bubbles on the sensor face. POSITIVE LEANS THE PROBE TOWARD +X, which is radially
-// OUTWARD once head_port_at() has put the port on its circle - out toward the vessel wall rather
-// than in over the shaft and the impellers.
-_bp_tilt_degrees = 7;
+// Tilt for the standalone preview only; head.scad sets its own per port, because the two probes it
+// carries want different ones. POSITIVE LEANS THE PROBE TOWARD +X, which is radially OUTWARD once
+// head_port_at() has put the port on its circle - out toward the vessel wall rather than in over
+// the shaft and the impellers. What caps it is the jar's mouth, which the lid descends through.
+_bp_tilt_degrees = 4.5;
 _bp_transition_length = 25;
 
 bayonet_probe_port(

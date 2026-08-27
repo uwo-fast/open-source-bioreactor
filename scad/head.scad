@@ -714,8 +714,28 @@ probe_port_collet_body_allowance = 0.6; // grip fit; tune this, not the registry
 probe_port_collet_connector_allowance = 0.6;
 probe_port_collet_tab_gap = 1.0;
 probe_port_collet_tab_deflection = 0.5;
-// Tilt to keep bubbles off the sensor face
-probe_port_tilt_degrees = 7;
+// Degrees each probe port leans its probe OUTWARD from vertical. Two numbers rather than one,
+// because the two probes want opposite things and this vessel has room for only one of them to
+// lean at all. See docs/references.md, probe mounting.
+//
+// DO LEANS. Its membrane is a galvanic cell that consumes the oxygen it reads, and a bubble sitting
+// on the face reads high - Sensorex have air bubbles collecting on the sensor's tip as a named
+// failure. Nothing retrievable states an ANGLE for it, so 4.5 is reasoned rather than cited, and it
+// is the ceiling anyway: past it the printed collet will not pass the jar's mouth, which head()
+// asserts below and which has been confirmed by hand on a printed part.
+//
+// pH DOES NOT, and vertical is not a concession. Yokogawa ask for a pH sensor "at least 15 degrees
+// above the horizontal plane to eliminate air bubbles in the pH glass bulb"; hanging straight down
+// is 90 degrees above it, so a vertical probe clears that requirement by 75 degrees. Which is
+// fortunate, because the pH probe is the long one - the only thing on this lid that reaches the
+// sparge ring's height, and at any lean at all it goes through the ring.
+// BOTH ARE PER-BUILD, against one jar's internals, and not properties of the design - the same
+// footing as culture_working_volume. 4.5 is what jar_10L allows; jar_1gal_180x197 is shorter, so
+// its DO tip reaches the ring and its own ceiling is nearer 2.5. check-vessels therefore sweeps the
+// registry with both flat, because vertical clears every jar, and the numbers below are checked by
+// check-scad against the jar they were chosen for.
+do_probe_port_tilt_degrees = 4.5;
+ph_probe_port_tilt_degrees = 0;
 probe_port_transition_length = 25;
 
 /* [Color Parameters] */
@@ -799,15 +819,23 @@ function head_punt_top_depth(lid_flange_height, vessel_internal_height) =
 // from the shaft, height in head()'s frame. The lean is RADIAL - the port tilts the probe within
 // the plane its own axis lies in - so this stays a straight line, which is what turns a 3D
 // interference question into a 2D one. See utils/meridian.scad.
-function head_probe_axis_at(vessel_opening_diameter, lid_flange_height, length) =
+// Which lean a port gets. Anything that is not one of the two named probe ports hangs STRAIGHT,
+// which is the orientation that clears everything here - so a probe port nobody has thought about
+// is safe by default rather than quietly leaning into an impeller.
+function head_probe_tilt(port) =
+  head_port_function(port) == "do_probe"
+    ? do_probe_port_tilt_degrees
+    : head_port_function(port) == "ph_probe" ? ph_probe_port_tilt_degrees : 0;
+
+function head_probe_axis_at(vessel_opening_diameter, lid_flange_height, length, tilt) =
   [
-    head_port_circle_radius(vessel_opening_diameter) + length * sin(probe_port_tilt_degrees),
-    -head_lid_thickness(lid_flange_height) - length * cos(probe_port_tilt_degrees),
+    head_port_circle_radius(vessel_opening_diameter) + length * sin(tilt),
+    -head_lid_thickness(lid_flange_height) - length * cos(tilt),
   ];
 
 // The two runs a probe hangs into the vessel: the collet, with the probe's body inside it, and the
 // bare sensing tip below. One line broken where it narrows.
-function head_probe_runs(probe, vessel_opening_diameter, lid_flange_height) =
+function head_probe_runs(probe, vessel_opening_diameter, lid_flange_height, tilt) =
   let (
     _shoulder = bayonet_probe_port_collet_drop(probe, probe_port_transition_length)
       + atlas_probe_body_height(probe),
@@ -815,13 +843,13 @@ function head_probe_runs(probe, vessel_opening_diameter, lid_flange_height) =
   )
     [
       [
-        head_probe_axis_at(vessel_opening_diameter, lid_flange_height, 0),
-        head_probe_axis_at(vessel_opening_diameter, lid_flange_height, _shoulder),
+        head_probe_axis_at(vessel_opening_diameter, lid_flange_height, 0, tilt),
+        head_probe_axis_at(vessel_opening_diameter, lid_flange_height, _shoulder, tilt),
         atlas_probe_body_dia(probe) / 2 + probe_port_collet_wall_thickness,
       ],
       [
-        head_probe_axis_at(vessel_opening_diameter, lid_flange_height, _shoulder),
-        head_probe_axis_at(vessel_opening_diameter, lid_flange_height, _tip),
+        head_probe_axis_at(vessel_opening_diameter, lid_flange_height, _shoulder, tilt),
+        head_probe_axis_at(vessel_opening_diameter, lid_flange_height, _tip, tilt),
         atlas_probe_tip_dia(probe) / 2,
       ],
     ];
@@ -848,14 +876,14 @@ function head_thermocouple_run(probe, vessel_opening_diameter, lid_flange_height
 // low point by 0.02 mm, because the sensing slots cut away the very edge - conservative on the
 // floor, which is the check it exists for. The surface check reads a fraction of a millimetre
 // optimistic in exchange, against a margin of a hundred.
-function head_probe_reach(probe, lid_flange_height) =
+function head_probe_reach(probe, lid_flange_height, tilt) =
   head_lid_thickness(lid_flange_height)
   + (
     bayonet_probe_port_collet_drop(probe, probe_port_transition_length)
     + atlas_probe_body_height(probe)
     + atlas_probe_tip_height(probe)
-  ) * cos(probe_port_tilt_degrees)
-  + atlas_probe_tip_dia(probe) / 2 * sin(probe_port_tilt_degrees);
+  ) * cos(tilt)
+  + atlas_probe_tip_dia(probe) / 2 * sin(tilt);
 
 // The fill height that holds `litres`, by bisection on the jar's own profile. Volume rises
 // monotonically with height above the floor, so halving the bracket converges; 40 halvings take the
@@ -1192,7 +1220,7 @@ module head_port(port, panel_thickness, baffle_width, baffle_length, baffle_segm
       collet_connector_allowance=probe_port_collet_connector_allowance,
       collet_tab_gap=probe_port_collet_tab_gap,
       collet_tab_internal_deflection=probe_port_collet_tab_deflection,
-      tilt_degrees=probe_port_tilt_degrees,
+      tilt_degrees=head_probe_tilt(port),
       transition_length=probe_port_transition_length
     );
   } else if (_type == "baffle") {
@@ -1662,14 +1690,15 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   for (i = [for (j = [0:_n - 1]) if (head_port_type(_ports[j]) == "probe") j])
     let (
       _p = head_port_probe(_ports[i]),
-      _reach = head_probe_reach(_p, lid_flange_height),
+      _tilt = head_probe_tilt(_ports[i]),
+      _reach = head_probe_reach(_p, lid_flange_height, _tilt),
       _floor = head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height),
       _surface = _floor - vessel_punt_height - _liquid_height
     ) {
       echo(str(
         "probe: ", head_port_function(_ports[i]), " carries ", atlas_probe_name(_p), ", reaching ",
         _reach, " mm - tip ", _reach - _surface, " mm under the surface with ", _floor - _reach,
-        " mm to the floor, leaning ", probe_port_tilt_degrees, " deg"
+        " mm to the floor, leaning ", _tilt, " deg"
       ));
 
       assert(
@@ -2229,7 +2258,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       for (i = [0:_n - 1])
         if (head_port_type(_ports[i]) == "probe")
           each let (
-            _runs = head_probe_runs(head_port_probe(_ports[i]), vessel_opening_diameter, lid_flange_height)
+            _runs = head_probe_runs(head_port_probe(_ports[i]), vessel_opening_diameter, lid_flange_height, head_probe_tilt(_ports[i]))
           )
             [
               [str(head_port_function(_ports[i]), "'s collet"), _runs[0]],
@@ -2265,6 +2294,48 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
             )
           );
         }
+
+  // ----- and does it fit through the mouth on the way in? -----
+  //
+  // A different question from the one above, and it is the one that bounds the lean. The lid
+  // DESCENDS through the jar's neck, so every part of what hangs off it is level with the mouth at
+  // some moment on the way down - what matters is the widest the assembly ever gets, not where it
+  // finishes. Nothing said so, and a 7 degree lean drew a collet 2.5 mm too wide for the jar it was
+  // for while every other check stayed green.
+  //
+  // What is checked is the PRINTED port. The probes go in afterwards, down through the bayonet's
+  // bore into the collet, so they never pass the mouth at all; their own reach is checked against
+  // the vessel's internals above.
+  //
+  // The transition cone above the collet flares wider, to meet the bayonet - but it sits where the
+  // lean has barely carried it, and the bayonet's own footprint is inside the plug by construction,
+  // since head_port_circle_radius() is derived from it. The collet's bottom is the widest point and
+  // that is the end of the run measured here.
+  for (i = [for (j = [0:_n - 1]) if (head_port_type(_ports[j]) == "probe") j])
+    let (
+      _tilt = head_probe_tilt(_ports[i]),
+      _collet = head_probe_runs(
+        head_port_probe(_ports[i]), vessel_opening_diameter, lid_flange_height, _tilt
+      )[0],
+      _widest = meridian_max_radius(_collet),
+      _mouth = vessel_opening_diameter / 2
+    ) {
+      echo(str(
+        "port fit: ", head_port_function(_ports[i]), "'s collet reaches ", _widest,
+        " mm from the axis leaning ", _tilt, " deg, and the mouth is ", _mouth, " mm - ",
+        _mouth - _widest, " mm to spare on the way in"
+      ));
+
+      assert(
+        _widest <= _mouth,
+        str(
+          head_port_function(_ports[i]), "'s collet reaches ", _widest,
+          " mm from the axis and the jar's mouth is ", _mouth, " mm, so the lid cannot be lowered ",
+          "past it - ", _widest - _mouth, " mm too wide. The lean is what buys this, so it is the ",
+          "lean that has to give."
+        )
+      );
+    }
 
   // What the riser has to span, and what it costs to push gas down it. The socket's top face is
   // the ring's own top plus the boss standing on it.
@@ -2818,7 +2889,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       let (_p = head_port_probe(_ports[i]))
         head_port_at(i, vessel_opening_diameter)
           translate([0, 0, -head_lid_thickness(lid_flange_height)])
-            rotate([0, -probe_port_tilt_degrees, 0])
+            rotate([0, -head_probe_tilt(_ports[i]), 0])
               translate([
                 0, 0,
                 atlas_probe_neck_height(_p)

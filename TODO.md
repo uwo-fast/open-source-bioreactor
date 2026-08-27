@@ -200,6 +200,34 @@
     per 12 in square that the registry comment and `docs/procurement.md` had each been asserting by
     hand
 
+- [x] stop the probes running into the impellers and the sparge ring
+  - the lean was 7 degrees INWARD, which put the pH tip at radius 40.8 on a jar whose impellers sweep
+    47.25. Turning it outward moved it into the sparge ring instead, by 1.14 mm, and out past the
+    jar's mouth by 13.3. **7 degrees does not fit this vessel in either direction**
+  - the probe threads a corridor between the impeller's swept radius (47.25) and the ring's inner
+    edge (66.25) - **19 mm wide, with a 12 mm probe in it** - so the usable window is about -0.8 to
+    +1.2 degrees. That the corridor is centred is luck: `head_port_circle_radius()` is derived from
+    the mouth and comes out 56.9, and the corridor's midpoint is 56.75. Nothing links them, so any
+    change to D/T or the ring radius squeezes it
+  - **the resolution is that the two probes want different things and the geometry agrees.** DO needs
+    the lean (bubbles collect on the sensing tip) and is the SHORT one, stopping 16 mm above the
+    ring; pH does not need it at all (Yokogawa want a pH sensor at least 15 degrees above horizontal,
+    and vertical is 90) and is the LONG one that reaches the ring. So DO leans 4.5 and pH hangs
+    straight - see `docs/references.md`, probe mounting
+  - **4.5 is the mouth's number, not a sensor's.** The printed collet reaches 71.18 mm from the axis
+    against a 71.5 mm mouth: **0.32 mm to spare**, with no print tolerance in it, and confirmed by
+    hand that past 4.5 the port fights the jar going in
+
+- [ ] **the DO probe needs flow across its membrane and nothing checks it**
+  - it is galvanic, so it consumes the oxygen it reads. Atlas ask for "approximately 60 ml/min" of
+    water movement and chart stagnant water reading about 60 % - so a DO number from a badly placed
+    probe is wrong in a way that looks plausible
+  - the model has never carried this. It reports tip speed, dissipation and blend time, none of
+    which say what the velocity is AT the probe, which sits at radius 56.9 between a baffle and the
+    wall - the part of a stirred vessel where flow is slowest
+  - it is a placement question as much as a rate one, and the honest first step is a number for the
+    velocity past the probe rather than another correlation
+
 - [x] check that the probes reach the culture, and draw them
   - the thermocouple has asserted both ends for a while - tip in the broth, tip short of the floor -
     and it caught a 9 in probe that would have gone through `jar_1gal_180x197`'s floor. **The two

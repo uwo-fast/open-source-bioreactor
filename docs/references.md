@@ -606,6 +606,47 @@ small jars. It is, separately, a cheap 24-30% on the large ones if they ever run
 
 ---
 
+## Probe mounting
+
+**Yokogawa TNA1505, *Best Practice pH Installation and Maintenance*** (2015) —
+<https://web-material3.yokogawa.com/TNA1505_+pH+Installation+and+Maintenance+Manual.pdf>
+**[VN]** · **read**
+"the sensor should be mounted with the process flow coming towards the sensor, and positioned at
+least 15° above the horizontal plane to eliminate air bubbles in the pH glass bulb." A probe hanging
+straight down sits 90° above horizontal, so vertical clears that by 75°. This is why the pH port
+leans 0° at no cost to the probe — it is not a concession made to fit the vessel.
+→ `scad/head.scad` `ph_probe_port_tilt_degrees`
+
+**Atlas Scientific, lab-grade DO probe datasheet** —
+<https://files.atlas-scientific.com/LG_DO_probe.pdf> **[VN]** · **read**
+Galvanic, and it CONSUMES the oxygen it reads: "a small amount of water movement is necessary to
+take accurate readings. Approximately 60 ml/min", with stagnant water charted at about 60 %. Silent
+on mounting angle. That flow requirement is nowhere in the model — see `TODO.md`.
+→ `scad/purchased/atlas_probes.scad` `do_lab_g2`
+
+**Atlas Scientific, lab-grade pH probe datasheet** —
+<https://files.atlas-scientific.com/pH_probe.pdf> **[VN]** · **read**
+Silent on mounting angle. Its only bubble note is about air inside the probe's own stem after
+shipping, cleared by shaking it down "as done with a clinical thermometer" — *not* about bubbles on
+the sensing face, which is what this lid's probe lean had been justified by.
+→ `scad/purchased/atlas_probes.scad` `ph_lab_g2`
+
+**Sensorex, *Operating Dissolved Oxygen Probes in Bioreactors and Cell Culture*** —
+<https://sensorex.com/operating-dissolved-oxygen-probes-bioreactors-cell-culture/> **[VN]** ·
+**read**
+"It's possible for air bubbles to collect on the tip of the sensor or to cross over it." Confirms
+the failure mode the DO port's lean is for. Gives no angle for it.
+→ `scad/head.scad` `do_probe_port_tilt_degrees`
+
+**No retrievable source gives a mounting ANGLE for a DO probe.** Mettler-Toledo's bioreactor DO
+sensor page and Hamilton's pH installation note both surface in search saying vertical installations
+are the troublesome case, and neither could be fetched to confirm it — HTTP 406 and an empty
+response respectively. So the 4.5° the DO port leans is **reasoned, not cited**. It is also moot:
+the jar's mouth caps it at 4.79° and `head()` asserts that, so the geometry decides the number and
+the sources only decide its direction.
+
+---
+
 ## Purchased parts
 
 Vendor pages and datasheets are cited inline on the registry row that uses them, since the row is

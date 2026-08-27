@@ -100,12 +100,22 @@ check-vessels:
     while IFS='|' read -r name row; do
         listed=0
         for b in "${broken[@]}"; do [ "$b" = "$name" ] && listed=1; done
-        # culture_working_volume is unset for the sweep. A working volume is a property of a RUN
-        # on one jar, not of the design - 8.25 L is this build's statement and it is a third of
-        # jar_6p5gal, which leaves its thermocouple in the headspace and rightly asserts. What is
-        # being checked here is whether each jar can be BUILT, so each is swept at the derivation
-        # that scales, and the pinned figure is checked by check-scad on the jar it belongs to.
+        # Two of this build's numbers are unset for the sweep, for the same reason.
+        #
+        # A WORKING VOLUME is a property of a run on one jar, not of the design - 8.25 L is this
+        # build's statement and it is a third of jar_6p5gal, which leaves its thermocouple in the
+        # headspace and rightly asserts.
+        #
+        # A PROBE LEAN is the same. The DO probe leans 4.5 degrees here because that is what
+        # jar_10L's internals and mouth allow; jar_1gal_180x197 is shorter, so its DO tip reaches
+        # the sparge ring and its ceiling is about 2.5. One number cannot suit six jars, and making
+        # it try is how a jar that builds perfectly well gets called broken.
+        #
+        # What is being checked here is whether each jar can be BUILT, so each is swept at the
+        # values that scale - vertical clears every jar's internals - and the pinned figures are
+        # checked by check-scad against the jar they were chosen for.
         {{OPENSCAD}} -D "reactor_vessel=$row" -D "culture_working_volume=undef" \
+            -D "do_probe_port_tilt_degrees=0" -D "ph_probe_port_tilt_degrees=0" \
             -o "$tmp/v.csg" scad/head.scad 2>"$tmp/err" >/dev/null
         if grep -q '^ERROR' "$tmp/err"; then
             if [ "$listed" = 1 ]; then

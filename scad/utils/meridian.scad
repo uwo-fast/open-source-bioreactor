@@ -49,6 +49,12 @@ function meridian_half_width(run) =
   let (_dr = run[1][0] - run[0][0], _dz = run[1][1] - run[0][1])
     _dz == 0 ? undef : run[2] * norm([_dr, _dz]) / abs(_dz);
 
+// The widest a run ever gets. Not where it ends up - what has to pass the jar's NECK is the widest
+// point of the whole hanging assembly, because the lid descends through it and every part of the
+// assembly is level with the neck at some moment on the way down.
+function meridian_max_radius(run) =
+  max(run[0][0], run[1][0]) + meridian_half_width(run);
+
 /**
  * @brief Radial gap between a run and an axisymmetric obstacle, over the heights they share.
  *
