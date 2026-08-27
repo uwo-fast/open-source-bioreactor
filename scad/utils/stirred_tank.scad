@@ -290,7 +290,9 @@ function stirred_tank_medek_departures(n_blades, clearance_ratio, tank_ratio, he
     if (!(clearance_ratio >= 0.2 && clearance_ratio <= 1.0)) "C/D",
     if (!(tank_ratio >= 2.45 && tank_ratio <= 5.93)) "T/D",
     if (!(height_ratio >= 0.55 && height_ratio <= 1.0)) "H/T",
-    if (!(blade_angle >= 15 && blade_angle <= 60)) "blade angle",
+    // undef is a departure, not a pass. A twisted blade has no single angle, and a correlation
+    // keyed on one cannot cover it - unguarded the comparison warns instead of answering.
+    if (is_undef(blade_angle) || !(blade_angle >= 15 && blade_angle <= 60)) "blade angle",
     if (baffles != 4) "baffle count",
     if (reynolds <= 1e4) "Reynolds",
   ];
@@ -315,6 +317,17 @@ function stirred_tank_tip_speed(impeller_diameter, rpm) =
 function stirred_tank_power(impeller_diameter, rpm, power_number) =
   power_number * stirred_tank_medium_density() * pow(rpm / 60, 3)
   * pow(impeller_diameter / 1000, 5);
+
+// Mean velocity of the return leg, m/s: what the impeller pumps, Fl*N*D^3, divided by the annulus
+// between it and the wall that the flow comes back down.
+//
+// A BULK number, and it has to be read as one - the vessel's average, not the speed at any
+// particular place. It answers whether the tank MOVES, which is the question a probe that consumes
+// what it measures actually asks. It says nothing about whether one corner of the vessel is
+// stagnant, and a probe sits in exactly one corner.
+function stirred_tank_circulation_velocity(flow_number, rpm, impeller_diameter, bore) =
+  flow_number * (rpm / 60) * pow(impeller_diameter / 1000, 3)
+  / (PI / 4 * (pow(bore / 1000, 2) - pow(impeller_diameter / 1000, 2)));
 
 // Shaft torque from power, N m. The same fact as the power above said another way, P = 2 pi N T,
 // and worth having because motors are rated in torque rather than power.
