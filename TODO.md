@@ -559,7 +559,7 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
   - one paywalled source might yet say something - Kumaresan & Joshi 2006,
     doi:10.1016/j.cej.2005.10.002, worth an interlibrary request
 
-- [ ] **the sparger's tubes are not connectable, and its sockets are not tellable apart**
+- [x] **the sparger's tubes are not connectable, and its sockets are not tellable apart**
   - three follow-ups from the support-tube work, none of which the model does today. The first is a
     defect rather than an enhancement: the parts cannot be plumbed as drawn
 
@@ -567,9 +567,19 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     top face, the way `rod_thread_proud` is measured from its nut, and the riser now stands 15 mm
     clear for a hose and a clamp. The two below are what is left
 
-  - **decided: tell them apart GEOMETRICALLY, not with a label.** Depth, diameter or shape, so the
-    wrong tube will not seat or is obvious by feel - this is a jar you reach into blind, and a mark
-    only helps if you can see it. Engraving stays available as a belt-and-braces addition
+  - **done: the feed boss is a HEX where the supports are round.** Sized across flats, so the wall is
+    the feed_wall it always was and only the corners are new material - measured on the export, the
+    hex's flats are 6.4 mm, the same diameter the round boss had. Tellable by feel, in a jar you
+    reach into blind, and it needs no mark you have to be able to see
+  - **and checking whether the failure was even reachable found a bigger one.** The ring cannot be
+    installed rotated: the sockets are 120 degrees apart and only one rotation puts BOTH under tube
+    ports, every other lands a socket on a baffle or a probe. So the error was never the ring - it
+    was at the LID, where `head_port` labelled tube ports with their BORE. air_in and air_out are
+    both 3 mm, so both engraved "O6"; acid and base are both 2.4 and both read "O4.8". The lid could
+    not tell you which port was the gas line, or which was acid
+  - tube ports now carry their FUNCTION and their bore - `AIR IN O6`, `ACID O4.8`. The formatter that
+    does it is the probe port's own uppercaser, lifted into `bayonet_port.scad` so both port kinds
+    read one copy rather than growing a second
   - **nothing marks which socket feeds gas.** The feed socket opens into the ring's bore and a
     support socket bottoms 6 mm short, but they differ only by 4.8 mm of depth - same diameter, same
     height, same arm. Put the gas line in a blind socket and nothing tells you: the pump runs, the
@@ -577,11 +587,13 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     an 8.15 x 4 mm flat free, which takes "GAS" at 2.5 mm, and this repo already engraves its ports.
     A height or shape difference would do as well and needs no text
 
-  - **nothing says where the drilled hole or filed slit goes.** A support tube is capped at the ring
-    and does its real job through a hole higher up - a vent in the headspace, a media line wherever
-    it should discharge. That is a hand operation and does not need modelling, but the HEIGHT does
-    need stating, and the model is the only thing that knows where the liquid surface is. It already
-    asserts exactly this for the thermocouple
+  - ~~**nothing says where the drilled hole or filed slit goes.**~~ **Done, and it is reported rather
+    than modelled** - drilling is a hand operation, but the model is the only thing that knows where
+    the culture stops. `head()` now states the window from the tube's TOP end, which is the end you
+    can reach with the tube in your hand: 38 to 87.9 mm on jar_10L, past the lid's inner face and
+    short of the liquid. Nearer the first number is better, because the headspace is there for foam
+    and foam finds the lowest hole; a tube meant to discharge INTO the culture is drilled past the
+    second
 
 - [ ] settle how the narrow jars are agitated — **the family question these two items answer**
   - `jar_1p5L` and `jar_1gal_155` cannot carry a top-entry drive on their lids at any mount size, and they cannot hold baffles beside two Ø16 probes at any port count. A stirred version of either would be a centred shaft in an unbaffled vessel, which Montante measured at a flow number 65% below the same impeller baffled - swirl, not mixing

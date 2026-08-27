@@ -58,10 +58,6 @@ function bayonet_probe_port_collet_drop(probe, transition_length) =
 // the bottom of the coupling, inside the vessel, and the connector passes up through the bore.
 // OpenSCAD has no case conversion, and registry names are lower case; caps read better on a
 // 3.6 mm engraved mark.
-function _bp_upper(s, i = 0) =
-  i >= len(s) ? ""
-  : str((ord(s[i]) >= 97 && ord(s[i]) <= 122) ? chr(ord(s[i]) - 32) : s[i], _bp_upper(s, i + 1));
-
 module bayonet_probe_port(
   type,
   probe,
@@ -109,7 +105,7 @@ module bayonet_probe_port(
         text_labels=true,
         // Not the bore - the connector hex below opens straight through it. What matters is
         // which probe the collet is cut for, since pH and DO differ by less than a millimetre.
-        label=str(_bp_upper(atlas_probe_name(probe)), " Ø", probe_body_diameter)
+        label=str(bayonet_label_text(atlas_probe_name(probe)), " Ø", probe_body_diameter)
       );
 
       // Cut hexagonal hole for connector

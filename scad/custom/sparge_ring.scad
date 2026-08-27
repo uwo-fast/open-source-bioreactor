@@ -105,9 +105,19 @@ module sparge_ring(
         translate([_feed_r, -section[0] / 2, -section[1] / 2])
           cube([radius - _feed_r, section[0], section[1]]);
 
-        // socket, standing on the arm for the riser to drop into
+        // Socket, standing on the arm for the riser to drop into - and HEXAGONAL, where the
+        // supports below are round, because that is the only thing that tells them apart.
+        //
+        // They are otherwise the same boss: same bore, same height, same arm. The difference is
+        // inside, where this one opens into the ring and a support's pocket is blind, and you
+        // cannot see inside a socket at the bottom of a jar. Get it wrong and the gas goes down a
+        // capped tube and back out its own vent hole into the headspace, while the rotameter reads
+        // flow and the culture gets nothing.
+        //
+        // Sized across FLATS, so the wall is the same feed_wall it always was and only the corners
+        // are new material.
         translate([_feed_r, 0, -section[1] / 2])
-          cylinder(h = section[1] + feed_height, d = feed_bore + 2 * feed_wall);
+          cylinder(h = section[1] + feed_height, d = (feed_bore + 2 * feed_wall) / cos(30), $fn = 6);
       }
 
       // Support arms. Identical to the feed's, and BLIND - nothing is bored through them, so the

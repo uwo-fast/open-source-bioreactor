@@ -130,6 +130,18 @@ bayonet_port(bayonet_std, part="pin", panel_thickness=18, center_bore_radius=3, 
  * @param label              Top mark; defaults to the bore. Adapters whose real opening is
  *                           not the bore must pass their own (see bayonet_probe_port).
  */
+// Turn a registry name into an engraved label. OpenSCAD has no case conversion and registry names
+// are lower case with underscores, so a label made from one needs both done by hand. Caps read
+// better on a 3.6 mm mark - the probe port has always uppercased its own names and this is that
+// function, lifted here so the tube ports can use it too rather than growing a second copy.
+function bayonet_label_text(s, i = 0) =
+  i >= len(s)
+    ? ""
+    : str(
+      s[i] == "_" ? " " : (ord(s[i]) >= 97 && ord(s[i]) <= 122) ? chr(ord(s[i]) - 32) : s[i],
+      bayonet_label_text(s, i + 1)
+    );
+
 module bayonet_port(
   type,
   part,

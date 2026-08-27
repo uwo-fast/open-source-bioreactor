@@ -1216,12 +1216,18 @@ module head_port(port, panel_thickness, baffle_width, baffle_length, baffle_segm
   if (_type == "tube") {
     // The tube interface is just the generic port with its bore set, and the bore printed
     // on the flange.
+    // Labelled by WHAT IT IS FOR, not just how wide it is. The default mark is the bore, and on
+    // this lid that made pairs of ports identical: air_in and air_out are both 3 mm, so both read
+    // "O6", and acid and base are both 2.4 and both read "O4.8". A gas line on the wrong one vents
+    // into the headspace while the rotameter still reads flow; a dosing line on the wrong one puts
+    // acid where base should go. The bore stays on the mark because it is what a hose has to fit.
     bayonet_port(
       type=_iface,
       part="pin",
       panel_thickness=panel_thickness,
       center_bore_radius=_bore,
-      text_labels=true
+      text_labels=true,
+      label=str(bayonet_label_text(head_port_function(port)), " \u00d8", _bore * 2)
     );
   } else if (_type == "probe") {
     assert(!is_undef(_probe), "head_port: a \"probe\" entry needs a registered atlas probe in slot 4");
@@ -2450,6 +2456,28 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _riser_I = steel_tube_second_moment(sparge_riser_tube);
   _riser_free = -lid_thickness - _sparge_socket_top;
   _riser_k = 3 * steel_tube_modulus() * _riser_I / pow(_riser_free, 3);
+
+  // Where to drill a support tube, which is a hand operation the model is nonetheless the only
+  // thing that can dimension - it is the only one that knows where the culture stops. A support
+  // tube is capped in its blind socket and does its own job through a hole higher up, so the hole
+  // has to be ABOVE the liquid and BELOW the lid's inner face, and it is measured from the tube's
+  // TOP end because that is the end you can reach when the tube is in your hand.
+  //
+  // Nearer the lid is better within that window: the headspace is there for foam, and a vent hole
+  // just above a working surface is the first thing foam finds.
+  _riser_top_z = _sparge_port_top + sparge_riser_proud;
+  _liquid_surface_z =
+  -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height)
+  + vessel_punt_height + _liquid_height;
+
+  if (len(_sparge_support_angles) > 0)
+    echo(str(
+      "sparge support drilling: a support tube vents through a hole drilled between ",
+      _riser_top_z + lid_thickness, " and ", _riser_top_z - _liquid_surface_z,
+      " mm from its TOP end - past the lid's inner face, short of the culture. Nearer the first ",
+      "number is better; the headspace is there for foam and foam finds the lowest hole. A tube ",
+      "meant to discharge INTO the culture instead is drilled past the second."
+    ));
 
   echo(str(
     "sparge support: ", 1 + len(_sparge_support_angles), " tubes at ",
