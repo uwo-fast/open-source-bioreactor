@@ -698,6 +698,12 @@ sparge_riser_proud = 15;
 // supply report, which sizes the metering valve from what is left. Worth replacing with a measured
 // number; a water manometer across it at the set flow is enough. See TODO.md.
 sparge_filter_drop_slope = 3.45;
+// The check valve, as the LINE sees it rather than as its headline reads. Both numbers come off the
+// datasheet of the registered part - see purchased-parts.csv - and both are needed, because a check
+// valve costs a CRACKING pressure to open at all and a flowing drop on top of that, and only the
+// first is ever quoted. Cole-Parmer 5011521: 0.18 psi to crack, Cv 0.12 open.
+sparge_check_valve_cracking = 1241; // Pa; 0.18 psi
+sparge_check_valve_cv = 0.12;
 // the aeration rate the holes are reported against, volumes of gas per volume of liquid per minute
 sparge_design_vvm = 0.5;
 // the band the gas metering has to cover, in vvm
@@ -2503,19 +2509,26 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   + stirred_tank_capillary_pressure(sparge_hole_diameter);
   _gas_band = [sparge_vvm_band[0] * _culture_volume, sparge_vvm_band[1] * _culture_volume];
 
-  // The line's own losses at the design flow. Both were missing from what the pump was said to have
-  // to beat: the filter is the larger by an order of magnitude and the riser is small but real.
+  // The line's own losses at the design flow. All three were missing from what the pump was said to
+  // have to beat: the filter is the larger by an order of magnitude, and the riser and the check
+  // valve are small but real. The check valve was the last one left out - it was registered after
+  // the filter and the riser were counted, and its own row has said 1.85 kPa the whole time while
+  // this sum ignored it.
   _gas_filter_drop = gas_filter_pressure_drop(_gas_band[1], sparge_filter_drop_slope);
   _gas_riser_drop = gas_tube_pressure_drop(
     _gas_band[1], steel_tube_id(sparge_riser_tube), _sparge_riser_length);
-  _gas_back_pressure = _gas_vessel_pressure + _gas_filter_drop + _gas_riser_drop;
+  _gas_check_valve_drop = sparge_check_valve_cracking
+    + gas_valve_pressure_drop(_gas_band[1], sparge_check_valve_cv, _gas_vessel_pressure);
+  _gas_back_pressure =
+  _gas_vessel_pressure + _gas_filter_drop + _gas_riser_drop + _gas_check_valve_drop;
 
   echo(str(
     "gas line losses: filter ", _gas_filter_drop,
-    " Pa (EXTRAPOLATED, not measured) and riser ", _gas_riser_drop, " Pa at ", _gas_band[1],
-    " L/min, on top of the vessel's ", _gas_vessel_pressure, " - so the pump beats ",
-    _gas_back_pressure, " Pa, and the filter alone is ", _gas_filter_drop / _gas_vessel_pressure,
-    "x the vessel"
+    " Pa (EXTRAPOLATED, not measured), check valve ", _gas_check_valve_drop,
+    " Pa (", sparge_check_valve_cracking, " of it just to crack) and riser ", _gas_riser_drop,
+    " Pa at ", _gas_band[1], " L/min, on top of the vessel's ", _gas_vessel_pressure,
+    " - so the pump beats ", _gas_back_pressure, " Pa, and the filter alone is ",
+    _gas_filter_drop / _gas_vessel_pressure, "x the vessel"
   ));
   _gas_free_flow = air_pump_free_flow_min(head_air_pump);
   _gas_dead_head = air_pump_dead_head(head_air_pump);

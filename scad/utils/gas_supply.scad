@@ -79,6 +79,14 @@ function gas_tube_pressure_drop(flow, bore, length) =
  * @param downstream    Pa gauge downstream of it
  * @return Cv
  */
+// The drop a valve of KNOWN Cv costs at a given flow - the inverse of gas_valve_cv() below, and the
+// one a bought valve needs. Sizing a throttle asks "what Cv passes this flow at this drop"; a check
+// valve is already chosen, so the question turns round: its Cv is on the datasheet and the flow is
+// what the vessel wants, and what falls out is what it takes off the line.
+function gas_valve_pressure_drop(flow, cv, downstream) =
+  let (_scfm = flow / 28.3168, _p2 = 14.7 + downstream / 6894.76)
+    pow(_scfm / (22.67 * cv), 2) * 530 / _p2 * 6894.76;
+
 function gas_valve_cv(flow, drop, downstream) =
   let (
     _scfm = flow / 28.3168,

@@ -77,7 +77,30 @@
     mount change reaches it
   - that is the narrow-jar agitation question, tracked under "drive and aeration". Nothing else in
     the model is waiting on it
-- [ ] **BOM completeness, before the rebuild purchase**
+- [x] **BOM completeness, before the rebuild purchase**
+  - **the gas chain is orderable end to end.** It had six components and no way to join them: five
+    different interfaces - 1/8 in barb, 3/16 in barb, 1/4-3/8 in stepped barb, 1/8 NPT female twice,
+    and a 4 mm tube OD - with no tubing, clamps, adapters or reducers anywhere in the list. The
+    rotameter was specified without registering what connects it
+  - the ROTAMETER makes the size change for free: a 1/8 in adapter on its inlet and a 3/16 in on its
+    outlet steps the line up inside the meter's own 1/8 NPT bore, so no coupler and one less joint.
+    Two tubing bores cover everything - 1/8 in to the meter, 3/16 in from it to the riser
+  - **the metering valve changed on the strength of its needle.** MNV-4K2 was chosen on Cv alone;
+    Clippard's own catalogue shows the MNV-4 needle is 20 degrees, the COARSEST of the four and
+    coarser than the MNV-1 this project had already rejected. MNV-3 is 3 degrees at the same rated
+    capacity (both 5 scfm at 100 psig, which back-solves to Cv 0.094). It costs two #10-32 fittings,
+    and adapters were being bought for the meter anyway
+  - **where a leak matters, and it is not symmetric.** The rotameter reads what passes IT, so a leak
+    upstream only costs flow that is then dialled back in; a leak downstream means the vessel gets
+    less than the meter says and every vvm figure is wrong by that much. All four risky joints -
+    check valve twice, filter twice - are downstream, and the filter's two are the stretched ones
+  - tubing and clamps are specified by BORE and SIZE RANGE rather than a catalogue code, the same
+    rule the fasteners follow: a commodity is fully specified by its standard and a part number for
+    one would be region-specific and perishable
+  - deburring tool registered (NOGA RC1000), with the caveat recorded on the row: nothing in the
+    listing says the blade reaches a 3 mm bore, which is the job
+
+- [x] ~~**BOM completeness, before the rebuild purchase**~~ - superseded by the entry above
   - hardware is being bought for the revised design and for further vessels, so the BOM has to be
     orderable end to end rather than mostly orderable. Known holes:
   - **gas chain** — rotameter (0-5 L/min for the 10 L jar), metering valve dropping ~24 kPa at
@@ -563,6 +586,9 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     top face, the way `rod_thread_proud` is measured from its nut, and the riser now stands 15 mm
     clear for a hose and a clamp. The two below are what is left
 
+  - **decided: tell them apart GEOMETRICALLY, not with a label.** Depth, diameter or shape, so the
+    wrong tube will not seat or is obvious by feel - this is a jar you reach into blind, and a mark
+    only helps if you can see it. Engraving stays available as a belt-and-braces addition
   - **nothing marks which socket feeds gas.** The feed socket opens into the ring's bore and a
     support socket bottoms 6 mm short, but they differ only by 4.8 mm of depth - same diameter, same
     height, same arm. Put the gas line in a blind socket and nothing tells you: the pump runs, the
@@ -665,6 +691,9 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     clean.** Both were fixed, but the version gap remains and nothing measures it
   - the cheap guard for that half is a second `check-scad` pass with `-D '$fn=0'`, which simulates
     the newer scoping and would catch anything else dividing by it. Roughly doubles that recipe
+  - **decided: a separate recipe, run before printing rather than on every edit.** `just check` stays
+    the fast loop. The risk is acknowledged and is the usual one - a check nobody runs is a check
+    that does not exist - so it wants naming in whatever build instructions carry the print list
 
 
 ## tooling / infrastructure / documentation
