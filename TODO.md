@@ -99,14 +99,6 @@
     one would be region-specific and perishable
   - deburring tool registered (NOGA RC1000), with the caveat recorded on the row: nothing in the
     listing says the blade reaches a 3 mm bore, which is the job
-
-- [x] ~~**BOM completeness, before the rebuild purchase**~~ - superseded by the entry above
-  - hardware is being bought for the revised design and for further vessels, so the BOM has to be
-    orderable end to end rather than mostly orderable. Known holes:
-  - **gas chain** — rotameter (0-5 L/min for the 10 L jar), metering valve dropping ~24 kPa at
-    4 L/min, check valve. Sizing is done; part numbers are not
-  - ~~**sparge riser**~~ — done: 316 welded tube 4 x 0.5 mm, 50415K21, one 1 m length cut into two
-    186.7 mm tubes. See its own item below
   - ~~**four fastener rows have no part numbers**~~ — done, and deliberately NOT with a supplier
     code. A commodity fastener is fully specified by its standard, so `part_number` now carries
     `ISO 4017 M8x30 A2-70`, `ISO 4032 M8 A2`, `ISO 4762 M4x8 A2-70` and `DIN 975 M8 A2`, which is
@@ -114,19 +106,8 @@
   - all four are **18-8, not plated steel and not 316**, per procurement.md's wetted→316 / dry→18-8
     rule. It is a free choice because strength is not a factor: 291.8 N per post against about
     16.5 kN of proof load, **1.8 %**
-  - the **M8 rod is a stock length cut into four**, not four parts — 4 x 322 mm = 1288 mm, and the
-    322 is vessel-dependent. Same defect the tube row had
-  - **a tube cutter and a deburring tool** still want rows. 0.5 mm wall rolls inward at the cut and
-    that restriction lands where gas enters, so deburring the ID is a real assembly step, not a
-    nicety
   - **the sparge ring itself is printed**, so it needs no row, but it does need to appear in
     whatever print list the build instructions carry
-  - worth doing in the same pass: check every registered row still matches what the model draws
-    after this revision. The impeller, baffles, clearance and sparger all changed, and the BOM was
-    written against the previous geometry
-  - buying for **more than one vessel** is the point rather than a side effect: the paper's claim is
-    a parametric family, and a second vessel realised from the same source is the evidence for it
-
 - [x] ~~**register plug o-rings for the other mouths**~~ — **done**
   - 22 rings registered, AS568 dash 150 to 171, all 3/32 in cord from McMaster's water- and
     steam-resistant line with part numbers. They seal a mouth from 77 to 217 mm continuously, so
