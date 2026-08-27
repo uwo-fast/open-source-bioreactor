@@ -49,28 +49,33 @@ is a rigid-walled green alga, the most shear-tolerant class.
 
 ## 2. This reactor, in the units that matter
 
-Computed on the 94.5 mm impeller in the 10 L jar, with **Np = 1.602 from Medek's correlation** for
-the registered 45° four-blade pitched turbine, and x = 16. Mean dissipation is over the **8.17 L** the jar holds at
-`culture_fill_fraction`, not over the full jar; `head()` echoes every figure below at render.
+Computed on the 94.5 mm impeller in the 10 L jar, with **Np = 1.498 from Medek's correlation** for
+the registered 45° four-blade pitched turbine, and x = 16. Mean dissipation is over the **8.25 L**
+this build is pinned to by `culture_working_volume`, not over the full jar — which holds 9.57 L brim
+full. `head()` echoes every figure below at render.
 
 | shaft speed | tip speed | Re | ε̄ (W/m³) | ε_max (W/kg) |
 | --- | --- | --- | --- | --- |
-| 255 rpm — Chlorella optimum | 1.26 m/s | 37,800 | 113 | 16.2 |
-| 320 rpm — registered drive, rated | 1.58 m/s | 47,400 | 224 | 32.1 |
-| 410 rpm — break-even | 2.03 m/s | 60,800 | 470 | 67.5 |
-| 420 rpm — registered drive, no-load | 2.08 m/s | 62,300 | 506 | 72.6 |
-| 1154 rpm — 36GP-3530 at full speed | 5.71 m/s | 171,100 | 10,490 | 1,505 |
+| 255 rpm — Chlorella optimum | 1.26 m/s | 37,800 | 105 | 15.4 |
+| 320 rpm — registered drive, rated | 1.58 m/s | 47,400 | 207 | 30.5 |
+| 410 rpm — break-even | 2.03 m/s | 60,800 | 436 | 64.2 |
+| 420 rpm — registered drive, no-load | 2.08 m/s | 62,300 | 468 | 69.0 |
+| 1154 rpm — 36GP-3530 at full speed | 5.71 m/s | 171,100 | 9,738 | 1,432 |
 
 Every figure in that column rose about 62 % when the blade changed, and none of it is the impeller
 getting worse. The old numbers used **Np = 0.99 borrowed from a differently shaped blade**, with a
-note calling them conservative; they were optimistic. 1.602 is computed from this impeller's own
+note calling them conservative; they were optimistic. Np is computed from this impeller's own
 geometry by a correlation that states where it is being extrapolated.
+
+Both columns then fell about 7 % when the fill line was pinned to a working volume, and Np went
+1.602 to 1.498. Medek's correlation reads **H/T**, so changing how full the vessel is changes the
+power number. Neither move is the impeller changing — only what is known about it.
 
 **The vessel is fully turbulent throughout the band.** Every speed above clears both the textbook
 Re > 10⁴ threshold and Nienow's stricter 2×10⁴.
 
 **The margin against damage is large.** At the rated 320 rpm the impeller's peak dissipation is
-~2.2×10⁴ W/m³ against bubble rupture at 10⁷–10⁹ W/m³ and a CHO lethal range of 10⁶–10⁸ W/m³ — two
+~3.0×10⁴ W/m³ against bubble rupture at 10⁷–10⁹ W/m³ and a CHO lethal range of 10⁶–10⁸ W/m³ — two
 to five orders of magnitude. Agitation is not what threatens this culture.
 
 **Aeration dominates the power budget too.** The one peer-reviewed worked example for a microalgal
@@ -415,6 +420,20 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
   warns at rather than comfortably inside it. The older figures in this section — 8.9 mm at 4 mm
   thick, 1.1 mm at 8 — are stale twice over: by that error and by the load, which went from the
   no-load 0.51 N to 0.77 N at the rated speed when the pitched blade's power number landed.
+- **So the plate is 10 mm, and the window is narrower than it looks.** At 9 mm the tip sat right on
+  the tenth-of-width limit `head()` warns at, and warned on every render of `jar_10L`. The fix was
+  written down as nearly free, because the lock bore does not cut into the width until 12.5 mm — so
+  12 looked available. **The bore is not what binds.** First mode goes as `t^1.5`: 15.4 Hz at 9,
+  17.6 at 10, 19.8 at 11, 22.0 at 12. Blade passing is four per revolution and sweeps 0–28 Hz on the
+  way to the drive's 420 rpm no-load speed, so it crosses the mode at 231 rpm on a 9 mm plate, 264
+  on a 10, 297 on an 11 and **330 on a 12 — inside the 320–420 band the reactor actually runs in**.
+  11 and 12 both fire the model's own resonance echo. 10 clears the deflection limit by 15 % and
+  puts the crossing 17 % under the rated point, which is the whole window.
+- **What `head()` reports on the 10 mm plate today**: 0.772 N each, **1.300 mm** at the tip with
+  0.185 mm of that the joints, first mode **17.6 Hz** against 7 Hz shaft and 28 Hz blade passing.
+  The joints take a larger share of a stiffer plate than they did of a thinner one, because the
+  dovetail's 4.2 mm neck does not thicken with it. Running clearance is untouched at **−0.28 mm** —
+  that is a tolerance stack, not a stiffness one, and it is still open.
 
 ### Splitting the plate so it can be printed
 

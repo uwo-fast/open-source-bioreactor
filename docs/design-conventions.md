@@ -234,6 +234,20 @@ must emit geometry, and every other file must emit **none** — a registry that 
 draws it into every consumer, which has happened once already. A new entry file therefore fails
 until it is listed, which is the point.
 
+**Neither of those runs CGAL, so neither can see a broken solid.** `.csg` export is a dump of the
+tree, not an evaluation of it, and a mesh export tessellates without being asked whether the result
+closes. The impeller's blades were drawn TANGENT to the hub — 264 non-manifold edges — and every
+check above passed on it, every render, every time. It was found by measuring the STL. **`just check-mesh`** closes that: it renders to a mesh and fails on a defect
+count above zero. The slow entry files sit behind an argument rather than in the default sweep,
+because `assembly.scad` alone exceeds fifteen minutes.
+
+**Check at the `$fn` the desk uses, not only the one CI pins.** `$fn` is dynamically scoped, and
+2021.01 lets a `use`d module resolve it from its own file where newer builds pass the caller's — so
+a module that divides by `$fn` is fine under one and produces `nan` under the other. Nobody sees it,
+because a `nan` propagates into a comparison that is simply false. `check-scad` runs a second pass at
+**`-D '$fn=0'`**, which is what an unset viewport actually is, and geometry derives its facet count
+from `$fa`/`$fs` rather than reading `$fn` off the caller.
+
 ---
 
 ## Standalone previews

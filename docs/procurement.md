@@ -86,36 +86,52 @@
   - taking the curve as linear between them and the system's static back-pressure as the culture
     head over the sparge ring plus the capillary pressure at a hole, the operating point is:
 
-    | vessel | culture | 0.5 vvm | head over ring | pump would give |
-    | --- | --- | --- | --- | --- |
-    | jar_1p5L_109x215 | 1.31 L | 0.66 L/min | 1099 Pa | 64.8 L/min |
-    | jar_1gal_155x251 | 3.39 | 1.69 | 1090 | 64.8 |
-    | jar_10L_220x305 | 8.17 | 4.09 | 1121 | 64.7 |
-    | jar_6p5gal_305x470 | 21.94 | 10.97 | 1941 | 62.6 |
+    | vessel | culture | 0.5 vvm |
+    | --- | --- | --- |
+    | jar_1p5L_109x215 | 1.35 L | 0.67 L/min |
+    | jar_1gal_155x251 | 3.43 | 1.72 |
+    | jar_10L_220x305 | **8.25** (pinned) | **4.13 L/min** |
+    | jar_6p5gal_305x470 | 22.06 | 11.03 |
 
-  - **so the pump is nowhere near the constraint** — it delivers 60+ L/min into every registered
-    vessel, because their back-pressure is 4-7 % of its dead-head. Holding 4.09 L/min by resistance
-    alone would need 25.4 kPa, and the vessel supplies 1.1. **The other 24.3 kPa has to come from a
-    metering valve**, which is what actually sets the rate; the meter only reads it
-  - that also means the flow is *not* sensitive to the things we cannot yet quantify. The sterile
-    filter's own pressure drop, the tubing losses and the orifice term all sit against a valve
-    dropping 24 kPa, so none of them move the operating point materially
+    The volumes are now integrated over each jar's own wetted profile rather than a cylinder on its
+    bore, which moved them 2-3 %. The two columns that used to sit here - head over the ring, and
+    what the pump would deliver - are gone rather than refreshed: both now depend on the whole line,
+    which is only computed for the vessel being built. `head()` echoes them at render.
+
+  - **the pump is still not the constraint, but the margin is a third of what this said.** Against
+    the whole line it delivers **23.1 L/min** where 4.13 is wanted - not the 60+ this claimed, which
+    counted only the vessel's own 1.1 kPa
+  - **and the second bullet here used to be wrong in a way worth keeping visible.** It said the
+    filter, the tubing and the orifice "all sit against a valve dropping 24 kPa, so none of them
+    move the operating point materially". The sterile filter alone drops **14.2 kPa** - twelve times
+    the vessel - and the check valve another **1.9**, of which 1.2 is just cracking it open. Counting
+    them took the line to **17.4 kPa** and left the valve only **7.9** to drop, which raised the Cv
+    it has to have from 0.020 to **0.0333**. The thing dismissed as immaterial was the largest term
+    in the budget
   - **range: a rotameter reads 10-100 % of full scale**, so for 0.1-0.5 vvm:
 
     | vessel | needs | scale |
     | --- | --- | --- |
-    | jar_1p5L_109x215 | 0.13-0.66 L/min | 0-1 L/min |
-    | jar_1gal_×2 | 0.34-1.69 | 0-2 L/min |
-    | jar_10L_220x305 | 0.82-4.09 | **0-5 L/min** |
-    | jar_6p5gal_305x470 | 2.19-10.97 | 0-15 L/min |
+    | jar_1p5L_109x215 | 0.13-0.67 L/min | 0-1 L/min |
+    | jar_1gal_×2 | 0.34-1.72 | 0-2 L/min |
+    | jar_10L_220x305 | 0.83-4.13 | **0-5 L/min** |
+    | jar_6p5gal_305x470 | 2.21-11.03 | 0-15 L/min |
 
-  - **buy 0-5 L/min for the 10 L jar**, where 0.82-4.09 sits at 16-82 % of scale. No single range
+  - **buy 0-5 L/min for the 10 L jar**, where 0.83-4.13 sits at 16.5-82.5 % of scale. No single range
     covers the family — that is a property of an 84:1 spread in culture volume, not a bad choice
   - enriching with CO₂ later does not invalidate the meter. A rotameter reads by gas density, and
     0.5 % CO₂ in air changes density by 0.26 %
-  - wanted alongside it: a **needle/metering valve** rated to drop ~24 kPa at these flows, and a
-    **check valve** — 1.0-1.9 kPa of culture head sits over the ring with nothing otherwise stopping
-    back-flow into a stopped pump
+  - **all three are now bought rather than wanted**, and the whole chain is in
+    `purchased-parts.csv`: Dwyer `VFA-23` bare meter, Clippard `MNV-3KP` needle valve dropping
+    **7.9 kPa** at 4.13 L/min (not the 24 this asked for - the filter took most of it), Cole-Parmer
+    `5011521` check valve against the 1.0-1.9 kPa of culture head that sits over the ring
+  - the valve is the 3° needle rather than the 20° `MNV-4K2` first chosen. Both are Cv 0.094, so
+    both sit at about 35 % of travel; what differs is roughly seven times the rotation for the same
+    change in flow, and the pump being seven times oversized puts the whole band in the first part
+    of that travel
+  - the meter is the BARE `VFA-23`, not the valved `-BV`. Dwyer do not publish the integral valve's
+    Cv, and unstated specs are what disqualified the medical and welding flowmeter channels here -
+    closing the metering row on one would have been inconsistent with how everything else was picked
 
 - thermocouple selection
   - McMaster-Carr 3872K117
@@ -151,6 +167,17 @@
     VIII-1 gasket factor m is 0.5 and the lid takes 12 posts, at or over it m is 1.0 and the
     lid takes 16. `head_gasket_factor()` derives that from the registered row, so buying a
     harder sheet changes the print rather than quietly under-bolting the joint
+  - it is cut BY HAND with a scalpel, against a printed **two-stage** template
+    (`scad/custom/gasket_cutter.scad`). One template cannot guide both cuts: a template shaped like
+    the gasket is a 3 mm wall standing at the ring's diameter, too slack in its own plane to hold a
+    blade, and bracing it needs material exactly where the blade goes. So the OUTER cut is taken
+    against a plain disc with nothing outboard to foul the blade, and the blank then drops into a
+    counterbore under the INNER plate, which holds it concentric while its bore guides the second
+    cut. Concentricity is a printed counterbore rather than the operator's hand, and both parts
+    print flat with no bridge and no support
+  - the radial perimeter does not have to be accurate - the gasket seals on its AXIAL faces - which
+    is why a template and a scalpel are enough and no die is bought. The fixture takes the same
+    `(ID, OD, thickness)` `sheet_gasket()` takes and knows nothing else about the jar
   - https://www.mcmaster.com/8525T65/
 
 - current motors in lab

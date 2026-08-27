@@ -70,6 +70,62 @@ back wherever it currently sits, so reordering the lid carries the sparger with 
 insists on exactly one match, so a table with two air inlets or none fails loudly rather than
 silently taking the first.
 
+## What the air-out port also carries
+
+The ring hangs on more than its feed. `sparge_support_functions` names the ports that carry a second
+riser, and it names **`air_out`** — because it is the one tube port that BOTH layouts place 120° from
+`air_in`, which is as far apart as either circle allows.
+
+A support riser is the same tube in the same material as the feed, but its socket is **blind**. It
+carries load and no gas, which is what lets it double as the exhaust: the tube is capped at the
+bottom and does its job through a hole drilled higher up, above the culture line. The model is the
+only thing that knows where that line is, so it dimensions the drill in an echo rather than leaving
+a hand operation undimensioned — **38 to 87.9 mm from the tube's TOP end** on `jar_10L`, measured
+from that end because it is the one you can reach with the tube in your hand, past the lid's inner
+face and short of the liquid. Nearer the lid is better: the headspace is there for foam, and foam
+finds the lowest hole. With no support named at all the model warns — the ring would then hang on
+the feed riser alone.
+
+The two sockets are told apart **on the part**, because you cannot see inside one at the bottom of
+a jar: the feed's boss is a **hex** and a support's is round. Otherwise they are the same boss —
+same bore, same height, same arm — and the difference is entirely internal. Sized across the flats,
+so the wall is unchanged and only the corners are new material.
+
+## The lid says which port is which
+
+Checking whether a socket could be misplumbed found the real hazard one level up. Tube ports were
+engraved with their **bore**, and this lid has pairs: `air_in` and `air_out` are both 3 mm, so both
+read `O6`, and acid and base are both 2.4 mm and both read `O4.8`. The lid could not tell you which
+port was the gas line — and dosing acid into the base line is the same mistake with worse
+consequences.
+
+Tube ports now carry their **function and their bore**: `AIR IN O6`, `ACID O4.8`. The ring itself
+cannot be installed rotated — its two sockets are 120° apart, and only one rotation puts both under
+tube ports; every other lands one on a baffle or a probe.
+
+## The probes lean, and only one of them
+
+Probe ports carry a **radial** tilt — the port leans the probe within the plane its own axis lies
+in, outward, away from the shaft. Two reasons it is not zero:
+
+- **DO leans 4.5°.** A galvanic probe consumes the oxygen it reads, so Atlas ask for roughly
+  60 mL/min across the membrane; leaning the tip out of the shaft's shadow and toward the wall puts
+  it where the flow is. 4.5° is a bench limit rather than a derived one — past it the probe gets
+  very hard to put through the port mouth
+- **pH stays vertical, and that is not a concession.** Yokogawa ask for a pH sensor at least 15°
+  above the horizontal to keep bubbles out of the glass bulb; hanging straight down clears that by
+  75°. Which is fortunate, because the pH probe is the long one — the only thing on this lid that
+  reaches the sparge ring's height, and at any lean at all it goes through the ring
+
+Both angles are **per-build**, on the same footing as `culture_working_volume`: 4.5° is what
+`jar_10L` allows, and `jar_1gal_180x197` is shorter, so its own ceiling is nearer 2.5°.
+`check-vessels` sweeps the registry with both flat, because vertical clears every jar.
+
+What checks this is `scad/utils/meridian.scad`. The vessel's obstructions are axisymmetric — an
+impeller sweeps a cylinder, the ring is an annulus — and a port's tilt never leaves its meridian, so
+"does a thing hanging from the lid clear a thing turning on the shaft?" collapses into the
+(radius, height) half-plane exactly, arithmetic rather than solid modelling.
+
 ## One table does not serve the family
 
 The layout above is a 143 mm mouth's layout. It does not fit the two narrow jars, and no amount of
