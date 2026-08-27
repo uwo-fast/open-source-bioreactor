@@ -67,7 +67,7 @@
   - the honest framing for a paper: this is a **CO₂ inventory problem**, and the enrichment fraction
     is a bigger lever on productivity than the entire sparger study was
 
-- [ ] **two of six registered vessels do not build** — one cause left, and it is parked
+- [ ] **two of six registered vessels do not build** — two causes now, both on the same jars
   - was "only one builds", then four. `baffle_length` now hangs to each jar's own floor, which
     unblocked `generic` and `jar_1gal_180x197`; the port table becoming a property of the vessel
     unblocked `jar_6p5gal_305x470` before that
@@ -77,6 +77,15 @@
     mount change reaches it
   - that is the narrow-jar agitation question, tracked under "drive and aeration". Nothing else in
     the model is waiting on it
+  - **and `jar_1gal_155x251` has picked up a SECOND cause, which the meridian check exposed.** It
+    now asserts before it ever reaches the motor mount: a **vertical** DO probe runs **6.29 mm**
+    through the upper impeller radially. Not a tilt problem — `check-vessels` sweeps both leans flat
+    and it fails anyway, so the port circle and the impeller simply want the same radius in a
+    155 mm bore. The justfile's `broken` list now records both, the probe first, because that is
+    the order they fire in
+  - it changes nothing about what to do — that jar was already unbuildable and the answer is still
+    a different agitation mode — but it means **fixing the mount would not unblock it**, which the
+    old one-cause reading implied
 - [x] **BOM completeness, before the rebuild purchase**
   - **the gas chain is orderable end to end.** It had six components and no way to join them: five
     different interfaces - 1/8 in barb, 3/16 in barb, 1/4-3/8 in stepped barb, 1/8 NPT female twice,

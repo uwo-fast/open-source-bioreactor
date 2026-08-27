@@ -104,7 +104,8 @@ check-vessels:
     set -uo pipefail
     broken=(
         "jar_1p5L_109x215"    # motor mount overlaps the port flanges by 12.45 mm
-        "jar_1gal_155x251"    # motor mount overlaps the port flanges by 8.30 mm
+        "jar_1gal_155x251"    # a vertical DO probe runs 6.29 mm through the upper impeller,
+                              # and the motor mount overlaps the port flanges by 8.30 mm
     )
     tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
     # The registry is the source of the list, so adding a jar adds it to the sweep.
