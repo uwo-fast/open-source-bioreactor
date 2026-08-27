@@ -650,7 +650,7 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     something a spec does not: 8525T65 sheet, 97163A152 insert (its geometry cuts the lid pocket),
     8785N383 port o-ring, 6153K71 bearing
 
-- [ ] **no check ever builds the geometry it checks**
+- [x] **no check ever builds the geometry it checks**
   - `check-scad` exports **`.csg`**, which is the CSG tree rather than a solid, so CGAL never runs
     and a degenerate solid is invisible to `just check`. `check-vessels` does the same
   - that is how the pitched blade sat TANGENT to its hub - joined along a line of zero width, 264
@@ -672,9 +672,23 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     clean.** Both were fixed, but the version gap remains and nothing measures it
   - the cheap guard for that half is a second `check-scad` pass with `-D '$fn=0'`, which simulates
     the newer scoping and would catch anything else dividing by it. Roughly doubles that recipe
-  - **decided: a separate recipe, run before printing rather than on every edit.** `just check` stays
-    the fast loop. The risk is acknowledged and is the usual one - a check nobody runs is a check
-    that does not exist - so it wants naming in whatever build instructions carry the print list
+  - **done, both halves, and both were proved to FIRE before being trusted.** Restoring the old
+    `180 / $fn` makes the new pass report the nan assertion; a deliberately tangent union makes
+    `check-mesh` report a non-manifold. A check that has only ever passed has not been tested
+  - `check-mesh` is a separate recipe, not in `just check`, which stays the fast loop. The `$fn=0`
+    pass IS in `check-scad`, because that recipe is the cheap one and doubling it costs seconds
+  - **and check-mesh had to be redesigned once it met a real render.** Built as a sweep of every
+    entry file it was unusable: `assembly.scad` alone passed FIFTEEN MINUTES without finishing, on a
+    picture that unions purchased vitamins nobody prints. The five multi-part files now sit in a
+    `MESH_SLOW` list - named and reported as skipped rather than dropped quietly - and any one of
+    them can be built by passing it as an argument, which is what you want before a print
+  - **the residual gap is real and worth stating.** `custom/impeller.scad`'s own example passes no
+    `blade_pitch`, so it renders the TWISTED path - the pitched blade that was tangent to its hub is
+    only reached through `head.scad`, which is on the slow list. So today's default sweep would NOT
+    have caught the bug that motivated the recipe. What closes it is per-part rendering rather than
+    per-file, which is the STL export item below
+  - the entry list moved to a justfile variable so `check-scad` and `check-mesh` read ONE record of
+    what renders; a second copy would be a second answer
 
 
 ## tooling / infrastructure / documentation

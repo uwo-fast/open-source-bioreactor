@@ -1,6 +1,26 @@
 PY := "analysis/.venv/bin/python"
 OPENSCAD := env("OPENSCAD", "openscad")
 
+# The files that are meant to render on their own. THE LIST IS THE RECORD - a new entry file fails
+# check-scad until it is here, which is the point - and it lives up here because two recipes read
+# it. check-scad asserts that everything else emits NO geometry; check-mesh builds these into
+# solids. A second copy of this list would be a second answer to "what renders".
+# What check-mesh does NOT build by default. Each of these renders every part it carries as one
+# CGAL union, which is minutes to tens of minutes - assembly.scad passed fifteen without finishing,
+# on a picture that unions purchased vitamins nobody prints. Named here rather than dropped
+# quietly, and still reachable: `just check-mesh scad/head.scad` builds one however long it takes,
+# which is what you want before committing to a print. Shrinking this list is not the work; the
+# per-part STL export in TODO.md is what would retire it.
+MESH_SLOW := "scad/assembly.scad scad/cart.scad scad/electronics_stand.scad scad/frame.scad \
+scad/head.scad"
+
+ENTRY := "scad/assembly.scad scad/bottle_holder.scad scad/cart.scad scad/electronics_stand.scad \
+scad/frame.scad scad/head.scad scad/custom/bayonet_baffle_port.scad scad/custom/bayonet_port.scad \
+scad/custom/bayonet_probe_port.scad scad/custom/bayonet_thermocouple_port.scad \
+scad/custom/cylindrical_flex_collet.scad scad/custom/gasket_cutter.scad scad/custom/impeller.scad \
+scad/custom/motor_mount.scad scad/custom/peri_pump_frame_mount.scad scad/custom/sheet_gasket.scad \
+scad/custom/sparge_ring.scad"
+
 # List available recipes.
 default:
     @just --list
@@ -23,25 +43,7 @@ check-scad:
     # Run with default render flags. render_all is declared in assembly.scad, head.scad and
     # frame.scad, so -D render_all=false sets all three and leaves 4 of the 36 asserts standing.
     set -uo pipefail
-    entry=(
-        scad/assembly.scad
-        scad/bottle_holder.scad
-        scad/cart.scad
-        scad/electronics_stand.scad
-        scad/frame.scad
-        scad/head.scad
-        scad/custom/bayonet_baffle_port.scad
-        scad/custom/bayonet_port.scad
-        scad/custom/bayonet_probe_port.scad
-        scad/custom/bayonet_thermocouple_port.scad
-        scad/custom/cylindrical_flex_collet.scad
-        scad/custom/gasket_cutter.scad
-        scad/custom/impeller.scad
-        scad/custom/motor_mount.scad
-        scad/custom/peri_pump_frame_mount.scad
-        scad/custom/sheet_gasket.scad
-        scad/custom/sparge_ring.scad
-    )
+    entry=({{ENTRY}})
     tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
     failed=0
     while read -r f; do
@@ -69,7 +71,21 @@ check-scad:
             echo "FAIL  $f  emits $size bytes into every consumer; add it to entry if it renders"
             failed=1
         else
-            printf 'ok    %-46s %s\n' "$f" "$([ "$renders" = 1 ] && echo "$size bytes" || echo 'no geometry')"
+            # SECOND PASS, with $fn forced to zero. Not a quality setting - zero is what $fn IS
+            # unless something assigns it, and it means the fragment count comes from $fa and $fs
+            # instead. OpenSCAD 2021.01 lets a module reached through `use` resolve $fn from its own
+            # file; newer builds hand it the caller's. So a file that divides by $fn is fine here
+            # and asserts on a nan the moment it is opened in a current GUI - which is exactly what
+            # sparge_ring did, while this suite stayed green. CI cannot be on every version, so it
+            # simulates the one it is not on.
+            {{OPENSCAD}} -o "$out" -D '$fn=0' "$f" 2>"$tmp/err0"
+            if grep -qE '^(ERROR|WARNING)' "$tmp/err0"; then
+                echo "FAIL  $f  at \$fn=0"
+                grep -E '^(ERROR|WARNING)' "$tmp/err0" | sort | uniq -c | sort -rn | head -3 | sed 's/^/        /'
+                failed=1
+            else
+                printf 'ok    %-46s %s\n' "$f" "$([ "$renders" = 1 ] && echo "$size bytes" || echo 'no geometry')"
+            fi
         fi
     done < <(find scad -name '*.scad' -not -path '*/_archive/*' -not -path '*/_shelf/*' | sort)
     exit $failed
@@ -260,5 +276,59 @@ json:
           echo; echo '  },'; echo '  "fileFormatVersion": "1"'; echo '}'
         } > "$out"
         echo "ok    $out  ($(echo "$names" | grep -c .) sets)"
+    done
+    exit $failed
+
+# Build the entry files into SOLIDS, which nothing else here does.
+#
+# check-scad exports .csg - the CSG tree, not a mesh - so CGAL never runs and a degenerate solid is
+# invisible to it. That is how a pitched blade sat TANGENT to its hub, joined along a line of zero
+# width with 264 non-manifold edges, through a green suite; anyone slicing the STL would have met it
+# immediately.
+#
+# NOT part of `just check`, and that is a deliberate trade. head.scad takes minutes to render where
+# its .csg takes seconds, and `check` is the loop you run on every edit. Run this before printing.
+# The risk is the usual one - a check nobody runs is a check that does not exist - so it belongs in
+# the build instructions beside the print list.
+#
+# Build entry files into solids and fail on a non-manifold. `just check-mesh <file>` for one.
+check-mesh file="":
+    #!/usr/bin/env bash
+    # A failing render still exits 0 and writes a small file, so nothing may be gated on $?. The
+    # manifold complaint on stderr is the signal and the file size is the backstop.
+    set -uo pipefail
+    tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
+    if [ -n "{{file}}" ]; then
+        targets="{{file}}"
+    else
+        targets=""
+        for f in {{ENTRY}}; do
+            slow=0
+            for s in {{MESH_SLOW}}; do [ "$s" = "$f" ] && slow=1; done
+            [ "$slow" = 0 ] && targets="$targets $f"
+        done
+        for s in {{MESH_SLOW}}; do
+            printf 'skip  %-46s minutes to build; pass it as an argument\n' "$s"
+        done
+    fi
+    failed=0
+    for f in $targets; do
+        out="$tmp/$(echo "$f" | tr / _).stl"
+        {{OPENSCAD}} -o "$out" "$f" 2>"$tmp/err" >/dev/null
+        size=$(stat -c%s "$out" 2>/dev/null || echo 0)
+        if grep -qi '2-manifold' "$tmp/err"; then
+            echo "FAIL  $f  not a valid 2-manifold"
+            grep -i '2-manifold' "$tmp/err" | head -2 | sed 's/^/        /'
+            failed=1
+        elif grep -q '^ERROR' "$tmp/err"; then
+            echo "FAIL  $f"
+            grep '^ERROR' "$tmp/err" | head -2 | sed 's/^/        /'
+            failed=1
+        elif [ "$size" -le 1 ]; then
+            echo "FAIL  $f  rendered nothing"
+            failed=1
+        else
+            printf 'ok    %-46s %s triangles\n' "$f" "$(grep -c '^ *facet' "$out" 2>/dev/null || echo '?')"
+        fi
     done
     exit $failed
