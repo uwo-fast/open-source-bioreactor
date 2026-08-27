@@ -218,15 +218,38 @@
     against a 71.5 mm mouth: **0.32 mm to spare**, with no print tolerance in it, and confirmed by
     hand that past 4.5 the port fights the jar going in
 
-- [ ] **the DO probe needs flow across its membrane and nothing checks it**
-  - it is galvanic, so it consumes the oxygen it reads. Atlas ask for "approximately 60 ml/min" of
-    water movement and chart stagnant water reading about 60 % - so a DO number from a badly placed
-    probe is wrong in a way that looks plausible
-  - the model has never carried this. It reports tip speed, dissipation and blend time, none of
-    which say what the velocity is AT the probe, which sits at radius 56.9 between a baffle and the
-    wall - the part of a stirred vessel where flow is slowest
-  - it is a placement question as much as a rate one, and the honest first step is a number for the
-    velocity past the probe rather than another correlation
+- [x] **the DO probe needs flow across its membrane and nothing checked it**
+  - it is galvanic, so it consumes the oxygen it reads. Atlas ask for "approximately 60 ml/min", and
+    the chart beside that is the part that matters: stagnant water goes from 90 % to 20 % **in
+    thirty seconds**. A still probe does not read a little low, it reports the hole it has eaten
+  - **the rate is not the problem.** Atlas state a flow where a tank can only offer a velocity;
+    60 mL/min over the probe's own sensing face is **8.84 mm/s**, and the vessel turns over at
+    145 mm/s at the rated 320 rpm - **16x**, and 21x at no load. It would still be met at about
+    20 rpm. That is a BULK mean and it is reported as one: it says the tank moves, not that the
+    probe's own corner of it does
+  - **the placement is the problem, and it is the opposite of what was expected.** The probe was
+    thought to sit in a slow corner between a baffle and the wall. It does not - its face sits
+    **20.6 mm above the sparge ring's centreline and 0.87 mm off its radius**, directly over a ring
+    of bubbles, in the convergence zone between two counter-pumping impellers
+  - so it is the one placement that can be wrong in **both directions at once**: a galvanic probe
+    reads HIGH with a bubble on the membrane and LOW with nothing moving past
+  - **and the lean is what puts it there.** Vertical, the tip band is r 50.9-62.9 and the ring's is
+    66.25-70.25 - clear by 3.35 mm. At 4.5 degrees it is 61.3-73.4 and straddles the ring. But the
+    holes discharge INWARD, toward the impeller, so vertical may be further INTO the plume rather
+    than out of it. **Nothing retrievable settles where the gas goes**, and this model does not
+    guess - it reports the distance and says so
+
+- [ ] **where the sparger's gas actually goes, and whether the DO probe should be somewhere else**
+  - the geometry above is exact; the gas is not modelled at all. The holes point inward, the
+    impellers disperse what they catch, and no source found gives DO probe placement relative to a
+    sparger - Mettler-Toledo and Eppendorf both refused to be fetched, and Atlas's own bioreactor
+    note has nothing on placement
+  - it is a bench question rather than a modelling one: run it, watch the DO trace, and see whether
+    it is noisy. A galvanic probe with bubbles crossing the membrane gives a characteristic spiky
+    trace, which is diagnosable without any more model
+  - what the model can offer if it turns out to matter: the probe port circle is fixed at 56.9 and
+    the ring's radius is the outermost the mouth allows, so the free variables are the LEAN and the
+    ring's height. Both are already parameters
 
 - [x] check that the probes reach the culture, and draw them
   - the thermocouple has asserted both ends for a while - tip in the broth, tip short of the floor -

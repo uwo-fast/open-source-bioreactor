@@ -714,6 +714,15 @@ probe_port_collet_body_allowance = 0.6; // grip fit; tune this, not the registry
 probe_port_collet_connector_allowance = 0.6;
 probe_port_collet_tab_gap = 1.0;
 probe_port_collet_tab_deflection = 0.5;
+// What a galvanic DO probe needs moving past its membrane, mL/min. Atlas state it as a FLOW -
+// "approximately 60 ml/min" - and chart stagnant water taking the reading from 90 % to 20 % in
+// thirty seconds. That is a collapse rather than a correction: the probe consumes the oxygen it
+// reads and needs it replaced, so a still probe reports the hole it has eaten around itself.
+//
+// A property of the sensing principle rather than of any one catalogue row, which is why it is here
+// and not a column in atlas_probes.scad. See docs/references.md.
+do_probe_flow_requirement = 60;
+
 // Degrees each probe port leans its probe OUTWARD from vertical. Two numbers rather than one,
 // because the two probes want opposite things and this vessel has room for only one of them to
 // lean at all. See docs/references.md, probe mounting.
@@ -1603,12 +1612,20 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       ". Twist lowers Po, so this over-estimates and every figure derived from it is conservative."
     ));
 
+  // Hoisted because the DO probe's flow check reads it too, and one number said twice is how two
+  // numbers start. Guarded, because Medek's correlation is keyed on a blade ANGLE and a twisted
+  // blade has none - unguarded it feeds undef into a correlation and four warnings out of it.
+  _impeller_flow_number = !_po_correlated
+    ? undef
+    : stirred_tank_medek_flow_number(
+      impeller_blades(head_impeller_type), _clearance_ratio, _vessel_bore / impeller_diameter,
+      _liquid_height / _vessel_bore, impeller_blade_angle(head_impeller_type)
+    );
+
   if (_po_correlated)
     echo(str(
       "impeller: ", impeller_name(head_impeller_type), " Po ", _impeller_po,
-      " and flow number ", stirred_tank_medek_flow_number(
-        impeller_blades(head_impeller_type), _clearance_ratio, _vessel_bore / impeller_diameter,
-        _liquid_height / _vessel_bore, impeller_blade_angle(head_impeller_type)),
+      " and flow number ", _impeller_flow_number,
       " from Medek's correlation at ", impeller_blade_angle(head_impeller_type), " deg, ",
       len(_medek_departures) == 0
         ? "inside its validity envelope"
@@ -2294,6 +2311,74 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
             )
           );
         }
+
+  // ----- can the vessel keep the DO probe fed, and where does it sit in the gas? -----
+  //
+  // The probe is GALVANIC: it consumes the oxygen it reads, so in still liquid its reading decays
+  // instead of settling - Atlas chart 90 % down to 20 % in thirty seconds. Every other number this
+  // model reports about oxygen assumes the probe is telling the truth, and nothing has ever asked
+  // whether the vessel keeps it fed.
+  //
+  // Atlas ask for a FLOW where a tank can only offer a VELOCITY, and the conversion is the
+  // assumption in all of this: 60 mL/min spread over the probe's own sensing face is what the face
+  // has to see. Its area is the tip's, which over-states the membrane a little and so the velocity
+  // it asks for a little under - the error is in the safe direction and it is small either way.
+  _do_probe = [
+    for (q = _ports) if (head_port_type(q) == "probe" && head_port_function(q) == "do_probe") q
+  ];
+
+  if (len(_do_probe) > 0 && _po_correlated)
+    let (
+      _do = head_port_probe(_do_probe[0]),
+      _face = PI / 4 * pow(atlas_probe_tip_dia(_do), 2),
+      _needed = do_probe_flow_requirement * 1000 / 60 / _face
+    ) {
+      for (sp = _drive_speeds)
+        let (
+          _v = stirred_tank_circulation_velocity(
+            _impeller_flow_number, sp[1], impeller_diameter, _vessel_bore
+          ) * 1000
+        )
+          echo(str(
+            "DO probe feed ", sp[0], " ", sp[1], " rpm: the vessel turns over at ", _v,
+            " mm/s mean and the probe needs ", _needed, " mm/s past its face - ", _v / _needed,
+            "x. MEAN, not local: it says the tank moves, not that this corner of it does"
+          ));
+
+      // Where it sits in what the sparger makes. The distance is exact; where the gas GOES is not
+      // modelled and should not be guessed - the holes discharge inward, toward the impeller, and
+      // the impeller disperses what it catches. What is worth stating is that the sensing face
+      // hangs this close to a ring of bubbles, whichever way they turn.
+      let (
+        _tip = head_probe_axis_at(
+          vessel_opening_diameter, lid_flange_height,
+          bayonet_probe_port_collet_drop(_do, probe_port_transition_length)
+          + atlas_probe_body_height(_do) + atlas_probe_tip_height(_do),
+          head_probe_tilt(_do_probe[0])
+        )
+      )
+      {
+        echo(str(
+          "DO probe in the gas: its face sits ", _tip[1] - (_floor_z + _sparge_ring_height),
+          " mm above the sparge ring's centreline and ", abs(_tip[0] - _sparge_ring_radius),
+          " mm off its radius. Where the bubbles actually go is a bench question - the holes point ",
+          "inward, toward the impeller, and the impeller disperses what it catches - so nothing ",
+          "here models it."
+        ));
+
+        // Reported, not asserted, and deliberately not dressed up as a plume model. What can be
+        // said exactly is that the face stands within the ring's own width of the ring's radius,
+        // directly above it. Whether that matters is a reading taken on the bench, not a number.
+        if (abs(_tip[0] - _sparge_ring_radius)
+          < sparge_ring_section[0] / 2 + atlas_probe_tip_dia(_do) / 2)
+          echo(str(
+            "WARNING DO probe: its face overlaps the sparge ring's own radius and hangs ",
+            _tip[1] - (_floor_z + _sparge_ring_height), " mm over it. A galvanic probe reads HIGH ",
+            "with a bubble on the membrane and low with none moving past, so this is the one ",
+            "placement that can be wrong in both directions at once. See TODO.md."
+          ));
+      }
+    }
 
   // ----- and does it fit through the mouth on the way in? -----
   //

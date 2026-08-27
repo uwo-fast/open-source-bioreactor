@@ -620,8 +620,11 @@ leans 0° at no cost to the probe — it is not a concession made to fit the ves
 **Atlas Scientific, lab-grade DO probe datasheet** —
 <https://files.atlas-scientific.com/LG_DO_probe.pdf> **[VN]** · **read**
 Galvanic, and it CONSUMES the oxygen it reads: "a small amount of water movement is necessary to
-take accurate readings. Approximately 60 ml/min", with stagnant water charted at about 60 %. Silent
-on mounting angle. That flow requirement is nowhere in the model — see `TODO.md`.
+take accurate readings. Approximately 60 ml/min". The chart beside it is the part that matters —
+stagnant water takes the reading from 90 % to 20 % **in thirty seconds**, so a still probe does not
+read a bit low, it reports the hole it has eaten around itself. Silent on mounting angle.
+→ `scad/head.scad` `do_probe_flow_requirement`, and `stirred_tank_circulation_velocity()` for what
+the vessel offers against it
 → `scad/purchased/atlas_probes.scad` `do_lab_g2`
 
 **Atlas Scientific, lab-grade pH probe datasheet** —
