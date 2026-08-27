@@ -536,11 +536,9 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
   - three follow-ups from the support-tube work, none of which the model does today. The first is a
     defect rather than an enhancement: the parts cannot be plumbed as drawn
 
-  - **the tubes end flush with the lid.** `_sparge_riser_length = 0 - (...)` measures to the lid's
-    OUTER face, so a tube runs up to the lid surface and stops - and the port's own flange stands
-    5 mm above that, so the tube actually finishes *inside* its port. There is nothing to push a
-    hose over, nothing to clamp, nothing for a fitting to grip. Wants a `proud` parameter measured
-    from the port's top face, the way `rod_thread_proud` is measured from its nut
+  - ~~**the tubes end flush with the lid.**~~ **Done.** `sparge_riser_proud` measures from the port's
+    top face, the way `rod_thread_proud` is measured from its nut, and the riser now stands 15 mm
+    clear for a hose and a clamp. The two below are what is left
 
   - **nothing marks which socket feeds gas.** The feed socket opens into the ring's bore and a
     support socket bottoms 6 mm short, but they differ only by 4.8 mm of depth - same diameter, same
@@ -637,6 +635,13 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     measurement of what is drawn - so the echo comparing it against `impeller_diameter` can only
     ever fire on a hub wider than the impeller. It could not have caught the outboard tip ring it
     was written for, and it cannot catch the next one
+  - **and CI is not on the same OpenSCAD as the desk.** `check-scad` runs 2021.01, where a module
+    reached through `use` resolves `$fn` from its OWN file; newer builds hand it the caller's. So
+    `sparge_ring` divided by a `$fn` of zero and asserted on a nan the moment `assembly.scad` was
+    opened in the GUI, while `just check` stayed green - **a green suite is not proof the desk is
+    clean.** Both were fixed, but the version gap remains and nothing measures it
+  - the cheap guard for that half is a second `check-scad` pass with `-D '$fn=0'`, which simulates
+    the newer scoping and would catch anything else dividing by it. Roughly doubles that recipe
 
 
 ## tooling / infrastructure / documentation
