@@ -94,6 +94,19 @@ function bayonet_gland_width(type) = oring_gland_width(bayonet_oring_cs_diameter
 function bayonet_gland_inner_radius(type) = bayonet_gland_outer_radius(type) - bayonet_gland_width(type);
 function bayonet_gland_depth(type) = oring_gland_depth(bayonet_oring_cs_diameter(type));
 
+// Material the gland below has to leave outboard of itself, inside the coupling's own wall.
+bayonet_bore_gland_wall = 1;
+
+// The ROD gland, which is a different seal from the one above and only some ports carry it. A rigid
+// tube passing up the bore is not sealed by the bore - printed plastic on ground steel leaks along
+// the layer lines - so the ring closes the annulus around it. Its ID is the tube, so the gland
+// follows from the ring alone the same way the face one does.
+function bayonet_bore_gland_radius(ring) =
+  oring_rod_gland_diameter(oring_inner_diameter(ring), oring_cross_section(ring)) / 2;
+// How far it reaches up from the panel's inner face. Table A's width, used as a depth here: the
+// cord has the same room to spread either way up, and one wall of this gland is the open face.
+function bayonet_bore_gland_length(ring) = oring_gland_width(oring_cross_section(ring));
+
 // Derived, not registered: a flange narrower than its own groove is not expressible.
 function bayonet_flange_radius(type) =
   is_undef(bayonet_oring_id(type))
@@ -117,7 +130,9 @@ function bayonet_entry_rotation(type) =
   (bayonet_turn_direction(type) == "CW") ? bayonet_sweep_angle(type) : -bayonet_sweep_angle(type);
 
 // Example usage (open this file directly to preview)
-bayonet_port(bayonet_std, part="pin", panel_thickness=18, center_bore_radius=3, text_labels=true);
+// Carries the rod gland, so the sweep in `just check-mesh` renders it: this recipe builds per FILE,
+// and a branch no example reaches is a branch it never sees.
+bayonet_port(bayonet_std, part="pin", panel_thickness=18, center_bore_radius=3, bore_oring=oring_4x1p5_epdm, text_labels=true);
 
 /**
  * One half of a panel feedthrough port. See the datum diagram at the top of this file.
@@ -126,6 +141,7 @@ bayonet_port(bayonet_std, part="pin", panel_thickness=18, center_bore_radius=3, 
  * @param part               "pin" (carries the flange, fitted from outside) or "lock"
  * @param panel_thickness    Thickness of the panel the port passes through
  * @param center_bore_radius Through-bore up the middle of the pin half; 0 for solid
+ * @param bore_oring         Registered ring sealing on a rigid tube in that bore; undef for none
  * @param entry_depth        Insertion depth before the turn; the library defaults it
  * @param label              Top mark; defaults to the bore. Adapters whose real opening is
  *                           not the bore must pass their own (see bayonet_probe_port).
@@ -147,6 +163,7 @@ module bayonet_port(
   part,
   panel_thickness,
   center_bore_radius = 0,
+  bore_oring = undef,
   entry_depth = undef,
   catch_pockets = true,
   text_labels = false,
@@ -174,6 +191,34 @@ module bayonet_port(
       bayonet_lock_bore_radius(type), " bore - the seal would sit over the opening"
     )
   );
+
+  // The rod gland's two ways of not being expressible. The ring's ID is the tube it seals on, so
+  // a bore narrower than that passes no tube, and a gland no wider than the bore has no shoulder
+  // to hold the cord against. Neither is a fit to tune - both are the wrong ring for the port.
+  //
+  // Guarded by an if rather than by is_undef() inside the condition, because a message is built
+  // whether or not its assert fires and every port without a ring would compute one out of undef.
+  if (!is_undef(bore_oring)) {
+
+    assert(
+      center_bore_radius * 2 > oring_inner_diameter(bore_oring)
+      && bayonet_bore_gland_radius(bore_oring) > center_bore_radius,
+      str(
+        "bayonet_port: a ", oring_inner_diameter(bore_oring), " x ", oring_cross_section(bore_oring),
+        " o-ring seals on a ", oring_inner_diameter(bore_oring), " mm tube and wants a gland out to r ",
+        bayonet_bore_gland_radius(bore_oring), ", against a bore of r ", center_bore_radius
+      )
+    );
+
+    assert(
+      bayonet_bore_gland_radius(bore_oring) + bayonet_bore_gland_wall <= bayonet_pin_face_radius(type),
+      str(
+        "bayonet_port: that gland reaches r ", bayonet_bore_gland_radius(bore_oring),
+        " and the coupling's wall starts at ", bayonet_pin_face_radius(type),
+        " - it would leave under ", bayonet_bore_gland_wall, " mm of material"
+      )
+    );
+  }
 
   // Not checked here: oring_containment, or gland fill. Both this gland's width and its depth are
   // derived from the cord, so the cord cancels out of either fraction - containment is 80.4% and
@@ -250,6 +295,19 @@ module bayonet_port(
     // the flange as well as the core; triple-height and centered to clear both ends.
     if (part == "pin" && center_bore_radius > 0)
       cylinder(h=(panel_thickness + _flange_h) * 3, r=center_bore_radius, center=true);
+
+    // Rod gland: a counterbore at the panel's INNER face, holding a ring that seals on the tube
+    // passing up the bore. Open at that face rather than an enclosed groove, because a ring whose
+    // free outer diameter is most of twice the bore cannot be folded through it to reach one. Which
+    // face it opens at is the whole of the design: the vessel is on that side, so pressure drives
+    // the cord onto the shoulder rather than out past it, and that face is the one on the bed when
+    // the pin is printed, so nothing bridges the bore.
+    if (part == "pin" && !is_undef(bore_oring))
+      translate([0, 0, -panel_thickness - z_fight])
+        cylinder(
+          h=bayonet_bore_gland_length(bore_oring) + z_fight,
+          r=bayonet_bore_gland_radius(bore_oring)
+        );
 
     // O-ring groove, sunk into the flange's panel-facing face. Only the ring is cut, so the
     // face either side of it stays proud and lands on the panel - that contact is the stop

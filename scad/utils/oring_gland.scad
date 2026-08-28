@@ -72,6 +72,20 @@ function oring_containment(cs, groove_depth) =
     : d <= -r ? 0
     : 1 - (r * r * acos(d / r) * PI / 180 - d * sqrt(r * r - d * d)) / (PI * r * r);
 
+/**
+ * @brief Groove diameter for a RADIAL gland: a ring in a bore, sealing on a rod passing through it.
+ *
+ * The face form above cannot serve. There the ring's own outer diameter is the wall it is driven
+ * against, so the groove follows the ring; here the ROD sets everything and the groove is however
+ * far out the cord has to be held to squeeze it. Table A's radial column wants 14-23 percent at
+ * this scale, against 19-33 for a face seal, because a radial gland squeezes the cord across two
+ * curved surfaces rather than two flat ones - 18 is the middle of it.
+ *
+ * The ring's own ID is the rod, at zero stretch. oring_stretch says how far off that a row is.
+ */
+function oring_rod_gland_diameter(rod_diameter, cs, squeeze = 0.18) =
+  rod_diameter + 2 * oring_gland_depth(cs, squeeze);
+
 // How far a ring is stretched onto a groove of this diameter. A piston gland wants 0 to 5%:
 // slack lets the ring sag out of its groove, and stretching thins the cord it seals with.
 function oring_stretch(ring_id, groove_bottom_diameter) = (groove_bottom_diameter - ring_id) / ring_id;

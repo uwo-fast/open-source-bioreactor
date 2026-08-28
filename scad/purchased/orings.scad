@@ -20,6 +20,12 @@ oring_13x1p5_epdm      = ["13x1.5 EPDM",   "1289N323",  [13,      1.5 ], "EPDM",
 oring_17x1p5_epdm      = ["17x1.5 EPDM",   "8785N378",  [17,      1.5 ], "EPDM",   70,    "Black"];
 oring_23x1p5_epdm      = ["23x1.5 EPDM",   "8785N383",  [23,      1.5 ], "EPDM",   70,    "Black"];
 
+// Rod seal, not a face seal, and the only one here that is: the sparger's riser passes up the bore
+// of its port and this closes the annulus around it. Its ID IS THE TUBE - 4 mm on 4 mm, so it seats
+// at zero stretch - which is why the row cannot be chosen by the gland the way the ones above are.
+// Same EPDM 70A line and the same -65 to 300 F as them, one size down the same catalogue page.
+oring_4x1p5_epdm       = ["4x1.5 EPDM",    "8785N364",  [4,       1.5 ], "EPDM",   70,    "Black"];
+
 // The lid plug's radial seal, AS568 dash 150 to 171, all 3/32 in (2.62 mm) cord. That width is not
 // a preference: head_plug_oring_cord_limit() caps the cord at 3.05 mm, because the groove and the
 // port bores are cut into the same wall of the plug. The 1/8 in cord the same catalogue stocks is
@@ -58,7 +64,7 @@ oring_as568_169_epdm   = ["AS568-169",     "8785N647",  [190.170, 2.62], "EPDM",
 oring_as568_170_epdm   = ["AS568-170",     "8785N648",  [196.520, 2.62], "EPDM",   70,    "Black"];
 oring_as568_171_epdm   = ["AS568-171",     "8785N649",  [202.870, 2.62], "EPDM",   70,    "Black"];
 
-orings = [oring_13x1p5_epdm, oring_17x1p5_epdm, oring_23x1p5_epdm, oring_as568_150_epdm, oring_as568_151_epdm, oring_as568_152_epdm,
+orings = [oring_4x1p5_epdm, oring_13x1p5_epdm, oring_17x1p5_epdm, oring_23x1p5_epdm, oring_as568_150_epdm, oring_as568_151_epdm, oring_as568_152_epdm,
            oring_as568_153_epdm, oring_as568_154_epdm, oring_as568_155_epdm, oring_as568_156_epdm,
            oring_as568_157_epdm, oring_as568_158_epdm, oring_as568_159_epdm, oring_as568_160_epdm,
            oring_as568_161_epdm, oring_as568_162_epdm, oring_as568_163_epdm, oring_as568_164_epdm,

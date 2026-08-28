@@ -409,6 +409,12 @@ sparge_riser_tube = steel_tube_welded_4x0p5;
 // instead - so a 4 mm tube hung in a 6 mm hole with 2 mm of slack.
 tube_port_riser_bore = steel_tube_od(sparge_riser_tube) / 2 + 0.2; // 0.2 as the bearing hole takes
 
+// What closes the annulus that fit leaves. A rod seal rather than a face one: it sits in a
+// counterbore at the lid's inner face and seals on the tube, so its ID is the tube's OD and head()
+// checks the two against oring_stretch rather than trusting the pair. Without it the lid carries
+// two open holes into the headspace, which is a filter on the air in and none of it on the way out.
+tube_port_riser_oring = oring_4x1p5_epdm;
+
 head_port_set_full = [
   ["air_out",     "tube",         tube_port_riser_bore], //   0 deg
   ["baffle",      "baffle",       0           ], //  30
@@ -549,6 +555,13 @@ function head_port_index(vessel_opening_diameter, fn) =
 
 // The gas comes down whichever port is the air inlet, wherever that ends up sitting.
 function head_sparge_feed_port(vessel_opening_diameter) = head_port_index(vessel_opening_diameter, "air_in");
+
+// Which ports have a RIGID tube standing in them, and so want a seal around it rather than a bore
+// that only guides it: the sparger's feed, and whatever steadies it. Asked by function, so moving a
+// support to another port takes its gland with it.
+function head_port_carries_riser(port) =
+  let (_f = head_port_function(port))
+    _f == "air_in" || len([for (s = sparge_support_functions) if (s == _f) 1]) > 0;
 
 /* [Baffle Parameters] */
 
@@ -1239,6 +1252,7 @@ module head_port(port, panel_thickness, baffle_width, baffle_length, baffle_segm
       part="pin",
       panel_thickness=panel_thickness,
       center_bore_radius=_bore,
+      bore_oring=head_port_carries_riser(port) ? tube_port_riser_oring : undef,
       text_labels=true,
       label=str(bayonet_label_text(head_port_function(port)), " \u00d8", _bore * 2)
     );
@@ -2531,6 +2545,39 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     sparge_riser_insertion, " mm inside the socket; ",
     head_port_bore_radius(head_ports_for(vessel_opening_diameter)[head_sparge_feed_port(vessel_opening_diameter)]) * 2 - steel_tube_od(sparge_riser_tube),
     " mm of slack through the port's bore"
+  ));
+
+  // The port's ring is chosen by its ID, and its ID is the tube: two registered rows that have to
+  // agree, so this compares them rather than assuming. A ring stretched onto a rod thins the cord
+  // it seals with, which is why the ceiling is the same 5% a piston gland takes.
+  _riser_seal_stretch = oring_stretch(
+    oring_inner_diameter(tube_port_riser_oring), steel_tube_od(sparge_riser_tube)
+  );
+
+  assert(
+    _riser_seal_stretch >= 0 && _riser_seal_stretch <= 0.05,
+    str(
+      "sparge riser seal: a ", oring_name(tube_port_riser_oring), " ring on a ",
+      steel_tube_od(sparge_riser_tube), " mm tube is ", _riser_seal_stretch * 100,
+      "% of stretch, outside the 0-5% a rod seal takes"
+    )
+  );
+
+  // Measured off the gland the port actually cuts rather than repeating the squeeze it was cut at,
+  // and against the TUBE rather than the ring's own ID, which is the diameter it really seals on.
+  _riser_seal_squeeze =
+    1 - (bayonet_bore_gland_radius(tube_port_riser_oring) - steel_tube_od(sparge_riser_tube) / 2)
+        / oring_cross_section(tube_port_riser_oring);
+
+  _riser_port_bore =
+    head_port_bore_radius(head_ports_for(vessel_opening_diameter)[head_sparge_feed_port(vessel_opening_diameter)]) * 2;
+
+  echo(str(
+    "sparge riser seal: ", oring_name(tube_port_riser_oring), " (", oring_part_number(tube_port_riser_oring),
+    ") in each of ", 1 + len(sparge_support_functions), " ports, at ", _riser_seal_stretch * 100,
+    "% stretch and ", _riser_seal_squeeze * 100, "% squeeze - without it each port is a ",
+    PI / 4 * (pow(_riser_port_bore, 2) - pow(steel_tube_od(sparge_riser_tube), 2)),
+    " mm2 hole into the headspace, and the sterile filter only covers the way in"
   ));
 
   // It is bought as a length of stock and cut, not as a part per tube, so the purchase list needs

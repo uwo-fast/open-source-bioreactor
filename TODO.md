@@ -46,13 +46,19 @@ ledger at the end: decisions that took real work to reach and would otherwise be
   - the answer to both is the narrow-jar agitation question, tracked under "drive and aeration".
     Nothing else in the model is waiting on it
 
-- [ ] **the riser has 2 mm of slack through its port, and nothing seals it**
-  - the 4 mm tube passes a 6 mm port bore, so it is neither centred nor sealed by the port. That is
-    the tube port's business rather than the sparger's, and it is the last of the four sparger
-    follow-ups still open - the other three (tubes ending flush with the lid, telling the feed socket
-    from a support, where to drill a support tube) are done
-  - it matters in both directions: the feed riser leaks gas the rotameter has already counted, and a
-    support tube is a dead leg into the headspace
+- [ ] **the air leaves unfiltered, and only the way in is guarded**
+  - the BOM buys one 0.2 um sterile filter and puts it on the INLET. The normal arrangement is a
+    filter on the air in and another on the air out, and the exhaust here is a hole drilled in a
+    support tube that vents straight into the room
+  - **it only became worth doing now that the gas ports seal.** Beside two open 15.7 mm2 annuli an
+    outlet filter would have been filtering about 18 % of the exhaust and adding back-pressure to
+    the other 82 %. The rod gland is what makes the support tube the only way out
+  - the part is already bought: 1594522 comes as a pack of TEN, so the second one costs a barb
+    adapter and a length of silicone rather than a filter
+  - nothing geometric is waiting on it. The support tube's drilled window and its 3 mm bore are the
+    whole exhaust path and both are dimensioned already. What it wants is a BOM row, a plumbing
+    note - and a back-pressure term, because a filter on the outlet raises the headspace the
+    sparger has to bubble against, and `sparge_filter_drop_slope` today counts the inlet alone
 
 - [ ] **measure the sterile filter's pressure drop**
   - `sparge_filter_drop_slope = 3.45` kPa per L/min is EXTRAPOLATED from an equivalent 0.2 um PTFE
@@ -328,6 +334,11 @@ outlives the commit, in `docs/`.
   support tube that stays where it is put is the whole point - and it is $22.72/m against $181.42
 - **the plug o-ring cord is 3/32 in, not 1/8.** The groove and the port bores are cut into the same
   wall, so a fatter cord fouls the bores on every vessel rather than just a tight one
+- **the riser's gland is a counterbore open to the vessel, not an enclosed groove.** A 4 x 1.5 ring
+  is 7 mm across free and cannot be folded through a 4.4 mm bore to reach a groove behind it. Which
+  face it opens at is then forced twice over: headspace pressure drives the cord onto the shoulder
+  rather than out past it, and that face lies on the bed when the pin half is printed, so nothing
+  bridges the bore
 - **`check-mesh` is not in `just check`** - it renders solids, which is minutes to tens of minutes.
   The `$fn=0` second pass IS in `check-scad`, because that recipe is the cheap one. Both were proved
   to FIRE on a deliberately broken input before being trusted

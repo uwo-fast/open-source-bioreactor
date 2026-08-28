@@ -91,7 +91,7 @@ a jar: the feed's boss is a **hex** and a support's is round. Otherwise they are
 same bore, same height, same arm — and the difference is entirely internal. Sized across the flats,
 so the wall is unchanged and only the corners are new material.
 
-## The two gas ports are bored for a tube, not for a hose
+## The two gas ports are bored for a tube, and sealed around it
 
 Every other tube port passes **flexible tubing**, which deforms into a printed bore and holds itself
 there. The two gas ports pass a **rigid steel riser**, which does neither, and for a long time they
@@ -103,6 +103,28 @@ slack**, neither located nor closed.
 Both bores come off `sparge_riser_tube` now, at OD plus 0.2 mm, which is the same allowance the
 bearing and shaft holes take. Slack **2 mm → 0.4**. That is a guide and nothing more: printed
 plastic on ground steel leaks along the layer lines however close it is cut.
+
+What closes it is a **rod gland** — the only one in the build, and the opposite of the face seals
+every port already carries. A face seal is chosen by the gland it sits in; this one's **ID is the
+tube**, 4 mm on the 4 mm riser, so it seats at zero stretch and `head()` checks the two registered
+rows against `oring_stretch` rather than trusting them to agree. `8785N364`, one size down the
+same catalogue page as the port seals, at 18 % radial squeeze — Apple Rubber's Table A gives
+radial glands 14–23 % where a face gland takes 19–33 %.
+
+It is a **counterbore at the lid's inner face**, not an enclosed groove, and that is forced rather
+than chosen: a 4 × 1.5 ring is 7 mm across free and cannot be folded through a 4.4 mm bore to reach
+a groove behind it. Which face it opens at is then the whole of the design, and both reasons point
+the same way. The vessel is on that side, so headspace pressure drives the cord onto the shoulder
+instead of out past it; and that face is the one on the bed when the pin half is printed, so nothing
+bridges the bore.
+
+**Why it is worth a purchased part.** A bioreactor normally filters the air on the way in *and* on
+the way out, and this build only has the inlet filter. That is worth fixing — but an exhaust filter
+does nothing at all while the lid has open holes beside it. Unsealed, each gas port was a
+**15.7 mm² annulus** against the support tube's **7.07 mm² bore**, so about **82 %** of the exhaust
+left by the gaps rather than by the vent; boring for the tube alone would still have left 43 %. A
+0.2 µm sterile filter guarding a vessel that is open to the room is a filter on one of several
+openings.
 
 ## The lid says which port is which
 
