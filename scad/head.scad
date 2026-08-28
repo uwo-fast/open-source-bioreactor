@@ -388,8 +388,29 @@ port_position = "locked"; // [locked, entry]
 // Four baffles at 90 degrees, which on twelve ports means every third one. That leaves the other
 // eight as four adjacent PAIRS, one between each baffle, and the pairs are what the functional
 // grouping below is built on. Derivation and the checks against it: docs/ports-layout.md.
+
+// The riser: a straight rigid tube from the lid port down into the sparge ring's socket. Rigid and
+// not flexible tubing because it is the only thing holding the ring - nothing else in the vessel
+// touches it - so it is structure as much as gas path.
+//
+// A registered row, so the OD, the bore and the part number all come off one part rather than
+// being three numbers that have to agree. It was 4 x 2.5 mm as two literals, which is a size
+// nobody sells: at 4 mm OD the catalogue offers 0.25, 0.4 and 0.5 mm walls and no 0.75. Wall is a
+// stiffness choice here rather than a pressure one - see the support report in head() - and 0.5 is
+// the thickest the 4 mm size comes in, so it keeps the most of it and survives cutting best.
+//
+// It sits up here rather than with the rest of the sparger because the two gas ports below are
+// bored for it, and OpenSCAD gives a table no value assigned under it.
+sparge_riser_tube = steel_tube_welded_4x0p5;
+
+// What the two gas ports are bored to, and a GUIDE rather than a grip: flexible tubing pressed
+// into a printed bore deforms and holds itself there, a ground steel tube cannot. The old literal
+// 3 was a hose radius on a port no hose enters - the supply line pushes over the riser's proud end
+// instead - so a 4 mm tube hung in a 6 mm hole with 2 mm of slack.
+tube_port_riser_bore = steel_tube_od(sparge_riser_tube) / 2 + 0.2; // 0.2 as the bearing hole takes
+
 head_port_set_full = [
-  ["air_out",     "tube",         3           ], //   0 deg
+  ["air_out",     "tube",         tube_port_riser_bore], //   0 deg
   ["baffle",      "baffle",       0           ], //  30
   ["do_probe",    "probe",        0, do_lab_g2], //  60      opposite the air inlet
   ["temperature", "thermocouple", 3, mcmaster_1245N31_thermocouple_probe], //  90  beside DO, which compensates from it
@@ -397,7 +418,7 @@ head_port_set_full = [
   ["ph_probe",    "probe",        0, ph_lab_g2], // 150      away from both dosing lines
   ["media",       "tube",         1.5         ], // 180      also the spare
   ["baffle",      "baffle",       0           ], // 210
-  ["air_in",      "tube",         3           ], // 240      the sparger hangs from this one
+  ["air_in",      "tube",         tube_port_riser_bore], // 240   the sparger hangs from this one
   ["acid",        "tube",         2.4         ], // 270
   ["baffle",      "baffle",       0           ], // 300
   ["base",        "tube",         2.4         ], // 330
@@ -420,9 +441,9 @@ head_port_set_full = [
 // already baffle-against-probe - so the full set keeps the 1/2 NPT thread.
 head_port_set_reduced = [
   ["do_probe",    "probe",        0, do_lab_g2], //   0 deg  opposite the air inlet
-  ["air_out",     "tube",         3           ], //  60
+  ["air_out",     "tube",         tube_port_riser_bore], //  60
   ["media",       "tube",         1.5         ], // 120      also the spare
-  ["air_in",      "tube",         3           ], // 180      the sparger hangs from this one
+  ["air_in",      "tube",         tube_port_riser_bore], // 180   the sparger hangs from this one
   ["ph_probe",    "probe",        0, ph_lab_g2], // 240
   ["temperature", "thermocouple", 3, mcmaster_3872K129_thermocouple_probe], // 300  beside DO
 ];
@@ -664,16 +685,8 @@ sparge_hole_count = 8;
 // 120 degrees from air_in, which is as far apart as either layout allows. Its socket is blind: the
 // tube is capped there and takes a drilled hole higher up, where a vent actually wants to be.
 sparge_support_functions = ["air_out"];
-// The riser: a straight rigid tube from the lid port down into that socket. Rigid and not flexible
-// tubing because it is the only thing holding the ring - nothing else in the vessel touches it -
-// so it is structure as much as gas path.
-//
-// A registered row, so the OD, the bore and the part number all come off one part rather than
-// being three numbers that have to agree. It was 4 x 2.5 mm as two literals, which is a size
-// nobody sells: at 4 mm OD the catalogue offers 0.25, 0.4 and 0.5 mm walls and no 0.75. Wall is a
-// stiffness choice here rather than a pressure one - see the support report in head() - and 0.5 is
-// the thickest the 4 mm size comes in, so it keeps the most of it and survives cutting best.
-sparge_riser_tube = steel_tube_welded_4x0p5;
+// sparge_riser_tube is registered up in [Port Assignment], because the ports it passes are bored
+// for it and a table cannot read a value set below it.
 // bore of the socket the riser drops into, off the tube itself so the two cannot drift
 sparge_feed_bore = steel_tube_od(sparge_riser_tube);
 // how far it lands inside the socket
@@ -2172,6 +2185,24 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _sparge_support_angles = [
     for (f = sparge_support_functions) head_port_index(vessel_opening_diameter, f) * 360 / _n,
   ];
+
+  // A support tube is cut from the riser's own stock, so whichever ports carry one have to pass it.
+  // air_out's bore is cut for that tube and cannot fail this; every other port's is registered
+  // independently, and moving a support onto one is a one-line edit that nothing else would catch,
+  // because the model never draws a tube through a port. Reports the narrowest of them.
+  _support_bores = [
+    for (f = sparge_support_functions)
+      head_port_bore_radius(head_ports_for(vessel_opening_diameter)[head_port_index(vessel_opening_diameter, f)]),
+  ];
+
+  assert(
+    len(_support_bores) == 0 || min(_support_bores) * 2 >= steel_tube_od(sparge_riser_tube),
+    str(
+      "sparge support: ", sparge_support_functions, " - the narrowest of those ports bores ",
+      min(_support_bores) * 2, " mm and the support tube is ", steel_tube_od(sparge_riser_tube),
+      " mm across, so it will not go through"
+    )
+  );
 
   //
   // Reported before it is drawn, the same way clearance and coverage were, because the fits are

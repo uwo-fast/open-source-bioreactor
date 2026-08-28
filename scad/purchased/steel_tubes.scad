@@ -55,13 +55,16 @@ steel_tube_welded_8x0p5   = ["welded_8x0.5",  "50415K34", [8,  0.5  ], "316 SS",
 steel_tube_welded_10x0p5  = ["welded_10x0.5", "50415K35", [10, 0.5  ], "316 SS", "welded", "hard"];
 steel_tube_welded_12x0p5  = ["welded_12x0.5", "50415K36", [12, 0.5  ], "316 SS", "welded", "hard"];
 
-// What is REACHABLE today is only the first half of that. A tube has to pass the bore of the port
-// it hangs from, and the widest tube bore either registered port set carries is air_in and air_out
-// at 3 mm radius - so 6 mm OD and under. 7 to 12 are registered anyway, for the same reason
-// shafts.scad carries 600 and 800 mm: they are the same part in another size, and what excludes
-// them is a NUMBER IN A PORT TABLE, which a harvest or drain line on a bigger jar would simply
-// change. That is the opposite of the twenty-five plug o-rings that were discarded - those were
-// shut out by a derived cord ceiling that no edit could move.
+// EVERY row here is reachable, and it was not always so. A tube has to pass the bore of the port
+// it hangs from, and that bore used to be a literal 3 in head.scad's port table - so 6 mm OD was
+// the ceiling and the rows above it were registered against an edit nobody had made. The gas
+// ports are bored FOR the riser now, so choosing a wider tube widens its port instead of being
+// refused by it.
+//
+// What a wider tube costs is FLANGE, not reach: 2 to 5 mm OD sit on a mini (flange r 8.6), 6 to 8
+// step up to a midi (10.6) and 10 to 12 to a std (13.6). Flange radius is what sets the smallest
+// mouth a port set fits, so a wider riser is paid for in mouth diameter - which is a trade a
+// harvest or drain line on a bigger jar might well take.
 //
 // The catalogue's 1 mm OD row is deliberately absent: a 0.5 mm bore fouls on algae and nothing
 // grips a 1 mm tube.

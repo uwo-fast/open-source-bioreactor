@@ -91,6 +91,19 @@ a jar: the feed's boss is a **hex** and a support's is round. Otherwise they are
 same bore, same height, same arm — and the difference is entirely internal. Sized across the flats,
 so the wall is unchanged and only the corners are new material.
 
+## The two gas ports are bored for a tube, not for a hose
+
+Every other tube port passes **flexible tubing**, which deforms into a printed bore and holds itself
+there. The two gas ports pass a **rigid steel riser**, which does neither, and for a long time they
+were bored as though they did not know the difference: `air_in` and `air_out` each carried a literal
+bore radius of 3 — a hose radius on a port no hose enters, since the supply line pushes over the
+riser's 15 mm proud end and is clamped there. So a 4 mm tube hung in a 6 mm hole with **2 mm of
+slack**, neither located nor closed.
+
+Both bores come off `sparge_riser_tube` now, at OD plus 0.2 mm, which is the same allowance the
+bearing and shaft holes take. Slack **2 mm → 0.4**. That is a guide and nothing more: printed
+plastic on ground steel leaks along the layer lines however close it is cut.
+
 ## The lid says which port is which
 
 Checking whether a socket could be misplumbed found the real hazard one level up. Tube ports were
@@ -99,9 +112,11 @@ read `O6`, and acid and base are both 2.4 mm and both read `O4.8`. The lid could
 port was the gas line — and dosing acid into the base line is the same mistake with worse
 consequences.
 
-Tube ports now carry their **function and their bore**: `AIR IN O6`, `ACID O4.8`. The ring itself
-cannot be installed rotated — its two sockets are 120° apart, and only one rotation puts both under
-tube ports; every other lands one on a baffle or a probe.
+Tube ports now carry their **function and their bore**: `AIR IN O4.4`, `ACID O4.8`. The gas ports
+read 4.4 rather than the 6 above, because their bore is cut for the riser and not for a hose — see
+the section before this one. The ring itself cannot be installed rotated: its two sockets are 120°
+apart, and only one rotation puts both under tube ports; every other lands one on a baffle or a
+probe.
 
 ## The probes lean, and only one of them
 
