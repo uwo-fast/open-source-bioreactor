@@ -70,11 +70,23 @@ render_shaft_coupler = false;
 render_bearing = false; // the 608 in the lid's pocket
 render_ext_shaft = false;
 render_impeller = false;
+// Which of the pair, for a per-part export. They are mirror images and therefore two different
+// parts, so one STL of both is an assembly picture rather than something to print. Same shape as
+// motor_mount_part_to_render above, and useful interactively for the same reason.
+impeller_to_render = "both"; // [both, lower, upper]
 render_set_screws = false; // the grub screws holding each impeller to the shaft
 render_bayonet_lock = false;
 render_tube_pinlock = false;
 render_thermocouple_pinlock = false;
 render_probe_pinlock = false;
+// Narrows the pin halves above to ONE port, named by function - "air_in", "do_probe", "baffle_1".
+// The type flags render a whole class at once, which is the right thing on screen and the wrong
+// thing for a print file: five tube ports differ by bore and by what is engraved on them. Baffles
+// all carry the same function, so they take an index suffix. "" is every port the flags allow.
+port_to_render = "";
+// Which piece of a baffle plate, for the same reason. A plate prints in segments and undef emits
+// them all interlocked, which is the assembled part rather than something to put on a bed.
+baffle_segment_to_render = undef;
 render_probes = false; // the Atlas probes themselves, hanging in their collets
 render_baffle_pinlock = false;
 render_seals = false; // the EPDM parts: rim gasket, plug o-ring, port o-rings
@@ -84,7 +96,13 @@ render_culture = false;
 // The templates the rim gasket is cut with. Deliberately NOT in render_all: it is a tool, and the
 // assembly is the reactor. Turn it on beside render_seals to see the ring against what cuts it.
 render_gasket_cutter = false;
+// Which of its two discs. "all" stands them side by side, which is the picture, not the print.
+gasket_cutter_part_to_render = "all"; // [all, outer, inner]
 render_sparger = false; // the ring in the inter-impeller gap and its feed arm
+// The 316 SS riser and its support, which are BOUGHT and cut to length rather than printed. Their
+// own flag because render_sparger is what a per-part export asks for, and a print file with two
+// steel tubes in it is not a print file - it stood 197 mm tall on a ring whose section is 10.
+render_sparge_tubes = false;
 
 // Draw the lid's 24 bayonet halves as bare shells while previewing; their pins and channels
 // are boolean-heavy and only the coupling positions read on screen. Renders are unaffected.
@@ -555,6 +573,75 @@ function head_port_index(vessel_opening_diameter, fn) =
 
 // The gas comes down whichever port is the air inlet, wherever that ends up sitting.
 function head_sparge_feed_port(vessel_opening_diameter) = head_port_index(vessel_opening_diameter, "air_in");
+
+/**
+ * @brief Every printed part this lid carries: [name, quantity, the flags that render it alone].
+ *
+ * The one list nothing outside the model can hold. It VARIES WITH THE VESSEL - a narrow jar takes
+ * six ports where a wide one takes twelve - and it is the complement of the purchase list, which
+ * only knows about things you buy. So the sparge ring, the second impeller and every port half
+ * appear here and nowhere else.
+ *
+ * Each row carries how to render itself rather than leaving a recipe to work it out from the name,
+ * because a mapping written down twice is the defect docs/design-conventions.md names as this
+ * repo's recurring one. `just export-parts` walks these rows and does what they say.
+ */
+function head_print_parts(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height) =
+  let (
+    _ports = head_ports_for(vessel_opening_diameter),
+    _segs = head_baffle_segments(lid_flange_height, vessel_internal_height, vessel_punt_height)
+  )
+    concat(
+      [["lid", 1, "-D render_lid=true"]],
+      [
+        for (m = ["base_plate", "face_plate", "middle_stand"])
+          [str("motor_mount_", m), 1, str("-D render_motor_mount=true -D motor_mount_part_to_render=\"", m, "\"")],
+      ],
+      // Mirror images, so two parts and not one printed twice.
+      [
+        for (h = ["lower", "upper"])
+          [str("impeller_", h), 1, str("-D render_impeller=true -D impeller_to_render=\"", h, "\"")],
+      ],
+      [["sparge_ring", 1, "-D render_sparger=true"]],
+      // Ports, in the order they sit on the lid. A baffle's plate prints in pieces, so it is that
+      // many parts; every other port is one.
+      [
+        for (i = [0:len(_ports) - 1])
+          let (_n = head_port_export_name(_ports, i))
+            if (head_port_type(_ports[i]) != "baffle")
+              [str("port_", _n), 1, str("-D port_to_render=\"", _n, "\"")],
+      ],
+      // Every baffle port is the same part - same width, same length, same pieces, same mark - so
+      // this is ONE part with a quantity, not four that happen to match. Rendered off the first of
+      // them; which one it is does not reach the geometry.
+      let (
+        _baffles = [for (i = [0:len(_ports) - 1]) if (head_port_type(_ports[i]) == "baffle") i]
+      )
+        len(_baffles) == 0
+          ? []
+          : [
+            for (k = [0:_segs - 1])
+              [
+                str("port_baffle_piece_", k),
+                len(_baffles),
+                str(
+                  "-D port_to_render=\"", head_port_export_name(_ports, _baffles[0]),
+                  "\" -D baffle_segment_to_render=", k
+                ),
+              ],
+          ],
+      // A tool rather than a reactor part, which is why render_all leaves it out - but you cannot
+      // cut the rim gasket without it, and no purchase list will ever mention it.
+      [
+        for (g = ["outer", "inner"])
+          [str("gasket_cutter_", g), 1, str("-D render_gasket_cutter=true -D gasket_cutter_part_to_render=\"", g, "\"")],
+      ]
+    );
+
+// What a per-part export addresses a port by. Its function, which is this table's identity -
+// except that every baffle carries the same one, so those take the index of the port they sit on.
+function head_port_export_name(ports, i) =
+  head_port_function(ports[i]) == "baffle" ? str("baffle_", i) : head_port_function(ports[i]);
 
 // Which ports have a RIGID tube standing in them, and so want a seal around it rather than a bore
 // that only guides it: the sparger's feed, and whatever steadies it. Asked by function, so moving a
@@ -1287,6 +1374,7 @@ module head_port(port, panel_thickness, baffle_width, baffle_length, baffle_segm
       joint_flare=baffle_joint_flare,
       joint_allowance=baffle_joint_allowance,
       segments=baffle_segments,
+      segment=baffle_segment_to_render,
       width=baffle_width
     );
   } else if (_type == "thermocouple") {
@@ -2729,7 +2817,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       }
   }
 
-  if (render_sparger || render_all)
+  if (render_sparge_tubes || render_all)
     color("grey")
       for (a = concat([_sparge_feed_angle], _sparge_support_angles))
         rotate([0, 0, a])
@@ -3039,7 +3127,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // and at its plane, which is where the two can be compared.
   if (render_gasket_cutter)
     translate([0, 0, -lid_flange_height - (gasket_sheet_thickness(lid_gasket_sheet) - head_gasket_depth())])
-      gasket_cutter(_gasket_ir * 2, _gasket_or * 2, gasket_sheet_thickness(lid_gasket_sheet));
+      gasket_cutter(_gasket_ir * 2, _gasket_or * 2, gasket_sheet_thickness(lid_gasket_sheet), part=gasket_cutter_part_to_render);
 
   // The EPDM. Each is drawn at its free size on the diameter it is installed at, so it overlaps
   // what it seals against by exactly the squeeze its gland was cut for - that overlap is the
@@ -3066,15 +3154,18 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   // Port pin halves. Each shares the lock's datum, so it needs no placement beyond its hole
   // centre; port_position only turns it about its own axis, between locked and entry.
-  if (render_tube_pinlock || render_probe_pinlock || render_thermocouple_pinlock || render_baffle_pinlock || render_all) {
+  if (port_to_render != "" || render_tube_pinlock || render_probe_pinlock || render_thermocouple_pinlock || render_baffle_pinlock || render_all) {
     for (i = [0:_n - 1]) {
       _port = _ports[i];
       _type = head_port_type(_port);
       _port_turn = (port_position == "entry")
         ? bayonet_entry_rotation(head_port_interface(_port))
         : 0;
-      _show =
-      render_all || (_type == "tube" && render_tube_pinlock) || (_type == "probe" && render_probe_pinlock) || (_type == "thermocouple" && render_thermocouple_pinlock) || (_type == "baffle" && render_baffle_pinlock);
+      // Naming one port SELECTS it, rather than filtering what a type flag already allowed: an
+      // export then asks for a part by name and gets exactly it, with no second flag to remember.
+      _show = (port_to_render != "")
+        ? port_to_render == head_port_export_name(_ports, i)
+        : render_all || (_type == "tube" && render_tube_pinlock) || (_type == "probe" && render_probe_pinlock) || (_type == "thermocouple" && render_thermocouple_pinlock) || (_type == "baffle" && render_baffle_pinlock);
 
       if (_show)
         color(prints1_color)
@@ -3275,13 +3366,15 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // impellers
   if (render_impeller || render_set_screws || render_all) {
     translate([0, 0, -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height) + _impeller_clearance]) {
-      head_impeller_assembly();
+      if (impeller_to_render != "upper")
+        head_impeller_assembly();
 
       // Mirrored, not turned over: that is what makes the pair oppose each other at all. Which of
       // them pumps up is then set by head_shaft_rotation, not by the part.
-      translate([0, 0, impeller_spacing])
-        mirror([0, 1, 0])
-          head_impeller_assembly();
+      if (impeller_to_render != "lower")
+        translate([0, 0, impeller_spacing])
+          mirror([0, 1, 0])
+            head_impeller_assembly();
     }
   }
 }
