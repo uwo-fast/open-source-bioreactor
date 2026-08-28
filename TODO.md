@@ -275,13 +275,41 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     would come out of. Not chased here: it changes the lid, and the rim profile it is all measured
     against is itself uncalipered - see the caliper item above
 
-- [ ] add PowerShell and shell scripts to export a chosen assembly parameter set as individual STL files, together with a print list, BOM, and other relevant build outputs
-  - **the JSON half is done.** `just json` writes `scad/assembly.json` and `scad/head.json` from the vessel registry, one set per jar, and `openscad -p scad/assembly.json -P <vessel>` selects one. `check-json` fails if either file is stale or its dropdown has drifted
-  - what closed it was not the format but being able to CHOOSE: `reactor_vessel` was a reference to a registry variable, and a parameter file carries values, so under `-p` OpenSCAD dropped it and every set built the same jar. It selects by name now
-  - what is left is the scripting: walk the sets, export each part to STL, and emit the print list and BOM beside them. Four of six vessels build today, so two of the six sets would fail - which is worth REPORTING rather than hiding, the same way `check-vessels` records what does not build
-  - only `reactor_vessel_name` is name-selectable so far. The other fourteen registry choices - motor, gearbox, impeller, bayonet, gasket sheet, bearing, fasteners - are still variable references and would need the same treatment before a set could vary them. Not needed for a per-vessel export, and not worth doing until something wants to vary them
-  - **it also closes a hole in `check-mesh`.** That recipe renders per FILE, and `custom/impeller.scad`'s own example passes no `blade_pitch`, so it renders the TWISTED path - the pitched blade that was tangent to its hub is reached only through `head.scad`, which is on the slow list. So today's default sweep would not have caught the bug the recipe was written for. Per-PART rendering is what fixes it
-  - the print list has to carry the **sparge ring**, which is printed and therefore has no BOM row - the one part a purchase list cannot remind you to make
+- [ ] **export the frame's parts too, and let a parameter set vary more than the jar**
+  - `just export-parts` writes every part `head.scad` carries as its own STL - 19 parts, 25 pieces
+    on `jar_10L` - with a print list beside them, and CGAL-renders each one on the way past.
+    `head_print_parts()` is the manifest, it varies with the vessel because the port table does,
+    and `check-parts` fails if a render flag reaches no row of it
+  - **that closed the hole in `check-mesh`**, which renders per FILE: `custom/impeller.scad`'s own
+    example passes no `blade_pitch`, so the sweep took the TWISTED path and the pitched blade that
+    was tangent to its hub was reachable only through `head.scad`, on the slow list. Every part is
+    rendered individually now, that one included
+  - what is left is **`frame.scad`**: base, top base, ribs, rod spacers. Its flags render a whole
+    class at once - all twelve rod spacers in one STL - so it wants the same narrowing the head
+    got, which is one part and a quantity beside it. Until then the print list says so rather than
+    reading as if the frame did not exist
+  - **only the selected vessel exports.** The probe tilt and the working volume are pinned to
+    `jar_10L`, so naming another jar fails on a real assert rather than on a missing feature -
+    `jar_1gal_180x197`'s DO probe reaches the sparge ring at 4.5 degrees. `check-vessels` sweeps at
+    values that scale and an export cannot, because it has to produce the build as configured
+  - the sets still vary only the JAR. `reactor_vessel_name` is name-selectable; the other fourteen
+    registry choices - motor, gearbox, impeller, bayonet, gasket sheet, bearing, fasteners - are
+    still variable references, which a parameter file cannot carry. Not needed for a per-vessel
+    export and not worth doing until something wants to vary them
+
+- [ ] **the baffle is split for a 180 mm bed and the lid needs a 260 mm one**
+  - `baffle_segment_height_max = 170` is justified in `head.scad` as "180 mm machines are the small
+    end of what anyone building this owns". Exporting the parts and measuring them says the lid is
+    **257 x 257 mm**, and it cannot be split - it is one piece because the bayonet channels are the
+    walls of its own bores. The gasket cutter's inner plate is 175
+  - so the splitting is sized against a machine that could never print the part the plates hang
+    from, and the family's real floor is a 260 mm bed. Nobody noticed because nothing measured a
+    part until `just export-parts` did
+  - **which of the two moves is the question, and it is not obvious.** Raising the cap to match the
+    lid makes each plate one piece, which is stiffer - the joints take 14 % of the tip deflection -
+    and drops four dovetails from the print. Keeping it says the lid is what a builder needs a big
+    machine for and the plates are just easier to print well at 170
+  - it is a comment and a constant, not geometry, so nothing is waiting on it
 
 - [ ] run `tokei` in CI to report lines of code and other codebase statistics
 

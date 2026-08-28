@@ -73,7 +73,7 @@ built from one file twice will pump the same way and not converge on the sparge 
 build a mount, and the mount it builds does not match the holes the assembly drills in the lid. The
 file says so itself.
 
-The baffle plates are the only parts that do not fit a small bed whole:
+The baffle plates are split so they fit a small bed:
 
 ```
 baffle print: 2 pieces of 140 mm, tallest standing 163 mm against a 170 mm bed;
@@ -85,9 +85,18 @@ second moment
 building this owns, and 10 mm leaves room for a brim. A larger printer can pin `baffle_segments = 1`
 and print each plate whole, which is stiffer: the joints already take 14 % of the tip deflection.
 
-There is no per-part STL export yet. Until there is, parts come out by setting the render flags at
-the top of `head.scad` by hand, and the sweep in `just check-mesh` renders whole files rather than
-individual parts.
+**But a 180 mm machine cannot build this reactor anyway, and the splitting does not change that.**
+Exporting the parts and measuring them says so plainly: the **lid is 257 × 257 mm** and cannot be
+split — it is one piece because the bayonet channels are the walls of its own bores. The gasket
+cutter's inner plate is 175 mm. So the real floor is a **260 mm bed**, and the baffle cap is sized
+against a machine that could never print the part it hangs from. Reconciling the two is on
+[`TODO.md`](../TODO.md); until then, take the 170 as a plate that will not warp rather than as a
+statement about what you need to own.
+
+`just export-parts` writes every one of these as its own STL, with a print list beside them, and
+CGAL-renders each on the way past — so a part that is not a valid solid is caught there rather than
+in a slicer. It covers the lid and everything hanging from it; the frame is still a matter of
+setting the render flags at the top of `frame.scad` by hand.
 
 ---
 

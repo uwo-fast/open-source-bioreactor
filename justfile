@@ -9,8 +9,12 @@ OPENSCAD := env("OPENSCAD", "openscad")
 # CGAL union, which is minutes to tens of minutes - assembly.scad passed fifteen without finishing,
 # on a picture that unions purchased vitamins nobody prints. Named here rather than dropped
 # quietly, and still reachable: `just check-mesh scad/head.scad` builds one however long it takes,
-# which is what you want before committing to a print. Shrinking this list is not the work; the
-# per-part STL export in TODO.md is what would retire it.
+# which is what you want before committing to a print. Shrinking this list is not the work.
+#
+# head.scad is the one that no longer needs it: `just export-parts` CGAL-renders every part it
+# carries, one at a time, which is finer than this recipe could ever be at the file level - and it
+# reaches the pitched blade that custom/impeller.scad's own example does not. The remaining four
+# are still only checked whole.
 MESH_SLOW := "scad/assembly.scad scad/cart.scad scad/electronics_stand.scad scad/frame.scad \
 scad/head.scad"
 
@@ -26,7 +30,7 @@ default:
     @just --list
 
 # Everything CI runs.
-check: check-scad check-vessels check-json check-bom
+check: check-scad check-vessels check-json check-bom check-parts
 
 # Evaluate every SCAD file and report anything that does not build.
 check-scad:
@@ -278,6 +282,202 @@ json:
         } > "$out"
         echo "ok    $out  ($(echo "$names" | grep -c .) sets)"
     done
+    exit $failed
+
+# Fail when a render flag in head.scad reaches no row of the print manifest and is not declared
+# here as something nobody prints.
+#
+# head_print_parts() is hand-written where the flags it drives are hand-written, so the two can
+# drift in the one direction that matters: add a printed part, give it a flag, forget the manifest,
+# and `just export-parts` quietly writes a print list one part short. Nothing else would notice -
+# the geometry is fine, the export succeeds, and the part is simply never made.
+#
+# So `not_printed` below is the record, the same way `entry` and `broken` are. A new render flag
+# fails this until someone either puts it in the manifest or says here why it makes nothing you
+# print. It fails BOTH ways: a flag listed here that the manifest also covers means the list has
+# gone stale.
+#
+# Fail when a printed part exists that the print manifest does not carry.
+check-parts:
+    #!/usr/bin/env bash
+    set -uo pipefail
+    tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
+    not_printed=(
+        render_all                  # the meta flag every other one is measured against
+        render_bayonet_lock         # a view of channels the lid buries; the locks print WITH the lid
+        render_culture              # the broth at the fill line, which is not a part
+        render_motor                # vitamin
+        render_motor_mount_inserts  # vitamin, and heat-set into the lid rather than printed
+        render_motor_mount_screws   # vitamin
+        render_shaft_coupler        # vitamin
+        render_bearing              # vitamin
+        render_ext_shaft            # vitamin
+        render_set_screws           # vitamin
+        render_probes               # vitamin - the Atlas bodies hanging in their collets
+        render_seals                # purchased EPDM: the rim gasket, the plug ring, the port rings
+        render_sparge_tubes         # vitamin - the 316 SS riser and support, bought as stock and cut
+        render_tube_pinlock         # a whole CLASS of port at once; the manifest names each one
+        render_probe_pinlock        # through port_to_render, which is what makes them separate
+        render_thermocouple_pinlock # parts rather than one STL of five
+        render_baffle_pinlock       #
+    )
+    cat > "$tmp/m.scad" <<SCAD
+    include <$PWD/scad/head.scad>
+    _v = reactor_vessel;
+    for (p = head_print_parts(vessel_opening_diameter(_v), _preview_flange_height,
+                              vessel_internal_height(_v), vessel_punt_height(_v)))
+      echo(str("PART|", p[2]));
+    SCAD
+    {{OPENSCAD}} -o "$tmp/m.csg" "$tmp/m.scad" 2>"$tmp/err" >/dev/null
+    manifest=$(grep '^ECHO: "PART|' "$tmp/err" | sed 's/^ECHO: "PART|//; s/"$//')
+    if [ -z "$manifest" ]; then echo "FAIL  could not read the print manifest"; exit 1; fi
+    failed=0
+    for f in $(grep -oE '^render_[a-z_]+' scad/head.scad | sort -u); do
+        listed=0
+        for n in "${not_printed[@]}"; do [ "$n" = "$f" ] && listed=1; done
+        if grep -q -- "$f=true" <<< "$manifest"; then
+            if [ "$listed" = 1 ]; then
+                echo "FAIL  $f  is in the manifest AND listed as not printed - drop it from one"
+                failed=1
+            fi
+        elif [ "$listed" = 0 ]; then
+            echo "FAIL  $f  renders something no print manifest row asks for"
+            echo "        add it to head_print_parts(), or to not_printed in check-parts"
+            failed=1
+        fi
+    done
+    [ $failed -eq 0 ] && echo "ok    every printed part is on the print manifest"
+    exit $failed
+
+# Export every printed part of one build as its own STL, with a print list beside them.
+#
+# THE COMPLEMENT OF THE PURCHASE LIST. A purchase list only knows about things you buy, so the
+# sparge ring, the mirrored second impeller and every port half appear nowhere else - and nothing
+# would remind you to make them. head_print_parts() in head.scad is the statement of what they are.
+# It has to live there rather than here because the list VARIES WITH THE VESSEL: a narrow jar
+# carries six ports where a wide one carries twelve. Each row also carries the flags that render
+# itself, so this recipe does what the rows say and knows nothing about any part.
+#
+# It also does per-PART what check-mesh does per FILE, which is the one thing that recipe cannot
+# reach. custom/impeller.scad's own example renders the TWISTED blade, so the pitched one the build
+# actually uses is only reachable through head.scad - which is on check-mesh's slow list. Every
+# part here is CGAL-rendered and checked for a manifold on the way past.
+#
+# MINUTES, NOT SECONDS: every part re-evaluates the whole of head.scad, about a minute apiece.
+#
+# `just export-parts` takes the vessel the model selects. Naming another uses the parameter sets
+# `just json` writes - and today only the selected one gets all the way through, because the probe
+# tilt and the working volume are pinned to it. A jar that fails is reported rather than skipped.
+#
+# Export every printed part as its own STL, with a print list. `just export-parts <vessel>` for one.
+export-parts vessel="" out="output":
+    #!/usr/bin/env bash
+    # A failing render still exits 0 and writes a small file, the same as check-mesh, so nothing
+    # here may be gated on $?. stderr is the signal and the file size is the backstop.
+    set -uo pipefail
+    tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
+
+    sel=()
+    label="{{vessel}}"
+    if [ -n "{{vessel}}" ]; then sel=(-p scad/head.json -P "{{vessel}}"); fi
+
+    # Ask the model what it prints. A stub rather than a render: the manifest needs the port table
+    # and the segment count, both of which are functions, so this costs seconds where head.scad
+    # costs a minute.
+    cat > "$tmp/m.scad" <<SCAD
+    include <$PWD/scad/head.scad>
+    _v = reactor_vessel;
+    for (p = head_print_parts(vessel_opening_diameter(_v), _preview_flange_height,
+                              vessel_internal_height(_v), vessel_punt_height(_v)))
+      echo(str("PART|", p[0], "|", p[1], "|", p[2]));
+    echo(str("VESSEL|", vessel_name(_v)));
+    SCAD
+    {{OPENSCAD}} "${sel[@]}" -o "$tmp/m.csg" "$tmp/m.scad" 2>"$tmp/err" >/dev/null
+    if grep -q '^ERROR' "$tmp/err"; then
+        echo "FAIL  ${label:-the selected vessel} does not resolve, so there is nothing to export"
+        grep -m1 '^ERROR' "$tmp/err" | sed 's/^/        /'
+        exit 1
+    fi
+    # What the model actually resolved, which is not always what was asked for: OpenSCAD ignores a
+    # -P naming a set that does not exist and silently falls back to the file's own defaults. Left
+    # unchecked that writes a directory labelled with one jar and full of another one's parts.
+    got=$(grep -m1 '^ECHO: "VESSEL|' "$tmp/err" | sed 's/.*VESSEL|//; s/"$//')
+    if [ -n "$label" ] && [ "$label" != "$got" ]; then
+        echo "FAIL  no parameter set is named $label - the model resolved $got instead"
+        echo "        the sets come from the vessel registry; run just json after adding a jar"
+        exit 1
+    fi
+    label="$got"
+    rows=$(grep '^ECHO: "PART|' "$tmp/err" | sed 's/^ECHO: "PART|//; s/"$//')
+    if [ -z "$rows" ]; then echo "FAIL  the model lists no printed parts"; exit 1; fi
+
+    dir="{{out}}/$label"
+    mkdir -p "$dir"
+    list="$dir/print-list.md"
+    : > "$tmp/rows.md"
+    failed=0
+    pieces=0
+    parts=0
+
+    while IFS='|' read -r name qty flags; do
+        [ -z "$name" ] && continue
+        parts=$((parts + 1))
+        pieces=$((pieces + qty))
+        out="$dir/$name.stl"
+        # render_all overrides every other flag, so it has to go off before the row's own go on.
+        {{OPENSCAD}} "${sel[@]}" -D render_all=false $flags -o "$out" scad/head.scad 2>"$tmp/e" >/dev/null
+        size=$(stat -c%s "$out" 2>/dev/null || echo 0)
+        tris=$(grep -c '^ *facet' "$out" 2>/dev/null || echo 0)
+        # The bounding box, because "will this fit my printer" is the question the baffle is split
+        # to answer and a triangle count cannot answer it. Read off the mesh rather than asked of
+        # the model, so it measures what was actually exported.
+        box=$(awk '/^ *vertex/ {
+            if (n++ == 0) { x1=x2=$2; y1=y2=$3; z1=z2=$4 }
+            else {
+                if ($2<x1) x1=$2; if ($2>x2) x2=$2
+                if ($3<y1) y1=$3; if ($3>y2) y2=$3
+                if ($4<z1) z1=$4; if ($4>z2) z2=$4
+            }
+        } END { if (n) printf "%.0f x %.0f x %.0f", x2-x1, y2-y1, z2-z1 }' "$out" 2>/dev/null)
+        if grep -q '^ERROR' "$tmp/e"; then
+            echo "FAIL  $name"; grep -m1 '^ERROR' "$tmp/e" | sed 's/^/        /'; failed=1
+            printf '| %s | %s | — | — | **did not build** |\n' "$name" "$qty" >> "$tmp/rows.md"
+        elif grep -qi '2-manifold' "$tmp/e"; then
+            echo "FAIL  $name  not a valid 2-manifold"; failed=1
+            printf '| %s | %s | `%s.stl` | — | **not a 2-manifold** |\n' "$name" "$qty" "$name" >> "$tmp/rows.md"
+        elif [ "$size" -le 1 ]; then
+            echo "FAIL  $name  rendered nothing"; failed=1
+            printf '| %s | %s | — | — | **rendered nothing** |\n' "$name" "$qty" >> "$tmp/rows.md"
+        else
+            printf 'ok    %-28s x%-3s %-16s %s triangles\n' "$name" "$qty" "$box mm" "$tris"
+            printf '| %s | %s | `%s.stl` | %s | %s |\n' "$name" "$qty" "$name" "$box" "$tris" >> "$tmp/rows.md"
+        fi
+    done <<< "$rows"
+
+    { echo "# Print list — $label"
+      echo
+      echo "$pieces pieces, $parts distinct parts. Written by \`just export-parts\`; the model is the"
+      echo "authority and this is a transcript of it, so regenerate rather than editing."
+      echo
+      echo "Transparent PETG for anything the culture touches, grey for structure. The gasket cutter"
+      echo "is a tool rather than a part of the reactor, and you need it to cut the rim gasket."
+      echo "Assembly, and the numbers that go with it, are in [docs/build.md](../../docs/build.md)."
+      echo
+      echo "**This is the lid and everything hanging from it.** The frame - base, top base, ribs and"
+      echo "rod spacers - is a separate file and is not exported yet, so it is not on this list."
+      echo
+      echo "Sizes are the exported mesh's own bounding box. Each part is written where it sits in the"
+      echo "assembly rather than at the origin, so let the slicer place it - what the size column is"
+      echo "for is whether it fits the bed at all. The baffle pieces are the ones to watch."
+      echo
+      echo '| part | qty | file | size, mm | triangles |'
+      echo '| --- | --- | --- | --- | --- |'
+      cat "$tmp/rows.md"
+      echo
+      echo "The bought parts are in [purchased-parts.csv](../../purchased-parts.csv)."
+    } > "$list"
+
+    echo "ok    $list  ($pieces pieces, $parts parts)"
     exit $failed
 
 # Build the entry files into SOLIDS, which nothing else here does.
