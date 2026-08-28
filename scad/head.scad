@@ -841,6 +841,9 @@ function head_gasket_seating_force(vessel_opening_diameter, vessel_wall_thicknes
     lid_gasket_compression
   );
 function head_gasket_depth() = gasket_sheet_thickness(lid_gasket_sheet) * (1 - lid_gasket_compression);
+// The other part of the same sheet: what the recess keeps against what the joint has to move. Two
+// halves of one thickness, so neither is free to drift from the other.
+function head_gasket_travel() = gasket_sheet_thickness(lid_gasket_sheet) * lid_gasket_compression;
 
 // Gasket factor m, ASME VIII-1 Table 2-5.1: 0 for an o-ring, 0.5 for elastomer under 75A, 1.0
 // over. The joint's bolt count is derived from it, and the assembly reads it back from here

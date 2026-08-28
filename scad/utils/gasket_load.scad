@@ -43,3 +43,19 @@ function gasket_seating_force(shore_a, width, thickness, mean_diameter, compress
 // which is strong in compression and unforgiving of anything else, so it is worth watching.
 function gasket_seat_stress(shore_a, width, thickness, compression) =
   compression * gasket_apparent_modulus(shore_a, width, thickness);
+
+/**
+ * @brief How far a nut turns to take the gasket to a given compression, in degrees past snug.
+ *
+ * The one figure here that does NOT depend on the modulus, and so the only one a builder should
+ * work to. Force reaches a bolt through a friction coefficient nobody can measure on the bench -
+ * across the 0.20 to 0.30 an unlubricated stainless nut plausibly spans, one preload is a 40 %
+ * band of torque, and 18-8 galls, which is what makes the coefficient unpredictable in the first
+ * place. A turn is geometry: thickness times compression is the travel, and the pitch converts it.
+ *
+ * It assumes everything else in the stack is rigid, which is worth checking rather than believing.
+ * Steel is: at these loads an M8 post stretches under a thousandth of a millimetre, well under a
+ * percent of the travel. Printed flanges are not, and they creep, so read this as the floor of
+ * what the joint takes and expect to go back to it.
+ */
+function gasket_seating_turn(travel, thread_pitch) = 360 * travel / thread_pitch;

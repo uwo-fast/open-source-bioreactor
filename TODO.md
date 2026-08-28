@@ -254,29 +254,22 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
 
 ## tooling / infrastructure / documentation
 
-- [ ] **no assembly torque is specified anywhere, and the glass is what limits it**
-  - `head()` reports **291.8 N per post** to hold the gasket at 25 % squeeze, which on M8 is about
-    **0.6 N·m** - finger tight with a short wrench. A published M8 A2-70 figure is 20-24 N·m,
-    roughly **40x** that, and the design point already puts **2.51 MPa on the jar's rim**
-  - so the bolts are preload-limited by the SODA-LIME JAR, not by the fastener, and nothing
-    anywhere says so. Torquing them to fastener spec is how the jar gets cracked
-  - it is a build-instruction gap rather than a model one - the number is already computed and
-    echoed. What is missing is somewhere for a builder to read it, and a tightening pattern
-  - worth deciding at the same time whether the gasket recess is meant to bottom out as a stop.
-    It is 1.19 mm deep for a 1.5875 mm sheet, so at 25 % squeeze the gasket is flush and the
-    printed flange meets glass. That either is the stop or is the thing to avoid, and which one is
-    not recorded
-  - **the arithmetic says it cannot be the stop.** The gasket's section is 3 x 1.5875 = 4.76 mm2 and
-    the recess's is 3 x 1.19 = 3.57 mm2, so the recess holds three quarters of the rubber that has to
-    fit in it. Elastomer is near enough incompressible - bulk modulus about 2 GPa against a shear
-    modulus of 1.2 MPa - so the flange cannot reach the glass until a quarter of the gasket has left
-    the recess, and the only way out is sideways across the 1 mm bearing lands. The flange would then
-    bottom on extruded rubber rather than on glass
+- [ ] **the gasket recess holds three quarters of the rubber that has to fit in it**
+  - what is left of the assembly-torque item, which `docs/build.md` and the `joint tightening` echo
+    closed. The joint is now instructed as a TURN rather than a torque - 114.3 deg past snug on each
+    of the 12 nuts - because force reaches a fastener through a friction coefficient nobody can
+    measure here, while a turn is the gasket's travel over the thread's pitch
+  - what is NOT closed is the recess's own volume. The gasket's section is 3 x 1.5875 = 4.76 mm2 and
+    the recess's is 3 x 1.19 = 3.57 mm2, so a quarter of the rubber has nowhere to go. Elastomer is
+    near enough incompressible - bulk modulus about 2 GPa against a shear modulus of 1.2 MPa - so the
+    flange cannot reach the glass until that quarter has left the recess sideways across the 1 mm
+    bearing lands, and it would then bottom on extruded rubber rather than on glass
   - it also disagrees with the load model. `gasket_shape_factor()` is `width / (2 * thickness)`, the
     FREE-bulge form: it assumes both edges of the pad can bulge, and the recess walls are exactly
     where they cannot. So the 291.8 N per post and the 2.51 MPa on the glass describe a pad that is
     not the one drawn - reported, not asserted, and `gasket_load.scad` already says its figures are
-    for judging a design rather than cutting a part to
+    for judging a design rather than cutting a part to. The TURN does not depend on any of it, which
+    is why that is the number a builder is given
   - the usual rule for a confined flat gasket is groove section at or above gasket section, commonly
     10-25 % over. Widening the recess is what buys that, and the 1 mm lands either side are what it
     would come out of. Not chased here: it changes the lid, and the rim profile it is all measured
@@ -334,6 +327,11 @@ outlives the commit, in `docs/`.
   support tube that stays where it is put is the whole point - and it is $22.72/m against $181.42
 - **the plug o-ring cord is 3/32 in, not 1/8.** The groove and the port bores are cut into the same
   wall, so a fatter cord fouls the bores on every vessel rather than just a tight one
+- **the lid joint is instructed as a TURN, not a torque, and that is not an omission.** 291.8 N per
+  post is 0.47 to 0.70 N.m across the 0.20-0.30 nut factor unlubricated 18-8 spans - a 40 % band
+  from friction alone, on a fastener that galls, at a setting below most torque wrenches. The turn
+  is the gasket's travel over the thread's pitch and has no modulus or friction in it. Both are in
+  `docs/build.md`; the torque is there to say why it is not the instruction
 - **the riser's gland is a counterbore open to the vessel, not an enclosed groove.** A 4 x 1.5 ring
   is 7 mm across free and cannot be folded through a 4.4 mm bore to reach a groove behind it. Which
   face it opens at is then forced twice over: headspace pressure drives the cord onto the shoulder

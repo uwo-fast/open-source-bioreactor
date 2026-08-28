@@ -80,6 +80,7 @@ include <purchased/vessels.scad>;
 include <purchased/strip_lights.scad>;
 
 use <utils/bolt_pattern.scad>;
+use <utils/gasket_load.scad>;
 
 include <NopSCADlib/core.scad>;
 include <NopSCADlib/vitamins/screws.scad>; // M8_hex_screw type
@@ -218,6 +219,25 @@ _seating_force = head_gasket_seating_force(
 echo(str(
   "joint load: ", _seating_force, " N of gasket seating over ", joint_posts, " posts = ",
   _seating_force / joint_posts, " N each, on M", _bolt_d, " bolts and M", _rod_d, " rods"
+));
+
+// What a builder actually does at the bench, which is not the line above. Force reaches a fastener
+// through a friction coefficient nobody can measure here - 18-8 galls, so the 0.20 to 0.30 an
+// unlubricated nut spans makes one preload a 40% band of torque - and the figure is a fortieth of
+// this bolt's own rated torque anyway, because what limits this joint is the GLASS. The turn is
+// geometry instead: the gasket's travel over the thread's pitch, no modulus and no friction in it.
+_joint_pitch = bolt_coarse_pitch(_bolt_d);
+
+assert(
+  !is_undef(_joint_pitch),
+  str("No coarse pitch is listed for an M", _bolt_d, " joint bolt - see utils/bolt_pattern.scad.")
+);
+
+echo(str(
+  "joint tightening: ", gasket_seating_turn(head_gasket_travel(), _joint_pitch),
+  " deg past snug on each of the ", joint_posts, " nuts, all of which sit on top of the lid - ",
+  head_gasket_travel(), " mm of gasket travel on a ", _joint_pitch,
+  " mm pitch. The printed flange takes a little more and then creeps, so go back to them."
 ));
 
 // The assembled reactor's envelope, for anything that has to make room for one - cart.scad is the

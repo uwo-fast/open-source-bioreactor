@@ -47,6 +47,20 @@ function bolt_post_count(n_rods, bolt_diameter, pattern_diameter, flange_thickne
 function bolt_post_spacing(n_posts, pattern_diameter) = PI * pattern_diameter / n_posts;
 
 /**
+ * @brief ISO 261 coarse thread pitch for a nominal diameter, mm. undef for a size not listed.
+ *
+ * NopSCADlib's screw rows carry no pitch and a turn past snug needs one - see
+ * utils/gasket_load.scad. Looked up from the diameter rather than registered beside the bolt,
+ * because a pitch written down next to an M8 stays 1.25 after someone changes the bolt to an M6.
+ */
+function bolt_coarse_pitch(diameter) =
+  let (_at = [
+      for (r = [[3, 0.5], [4, 0.7], [5, 0.8], [6, 1.0], [8, 1.25], [10, 1.5], [12, 1.75]])
+        if (r[0] == diameter) r[1],
+    ])
+    len(_at) == 1 ? _at[0] : undef;
+
+/**
  * @brief Points of a bolt circle, counter-clockwise from positive x with a post on that axis.
  * @param n_posts          Total posts on the circle
  * @param pattern_diameter Diameter of the bolt circle
