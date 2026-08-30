@@ -1231,9 +1231,41 @@ function head_mouth_is_feasible(mouth, impeller_diameter, has_baffles = true) =
 // second expression of the same four couplings and would go wrong the first time an allowance
 // moved - which is the defect docs/design-conventions.md names as this repo's recurring one.
 function head_feasible_mouth_sweep() = [40, 400, 0.25]; // [lo, hi, step] - the range searched
+function head_feasible_mouth_count() =
+  let (_s = head_feasible_mouth_sweep()) floor((_s[1] - _s[0]) / _s[2]) + 1;
+function head_feasible_mouth_at(i) =
+  let (_s = head_feasible_mouth_sweep()) _s[0] + i * _s[2];
 function head_feasible_mouths(impeller_diameter, has_baffles = true) =
   let (_s = head_feasible_mouth_sweep())
     [for (m = [_s[0]:_s[2]:_s[1]]) if (head_mouth_is_feasible(m, impeller_diameter, has_baffles)) m];
+
+// Only the two edges are ever reported, and walking all 1441 samples to print them cost 57 s of
+// every preview, render and export. Measured over D = 60..180 mm, baffled and unbaffled,
+// feasibility flips exactly once as the mouth widens, so bisecting the SAME grid the sweep defines
+// returns the same sample in 11 evaluations. The sweep is still what decides - this only skips
+// asking it about samples that cannot be the edge, and head_feasible_mouths() remains the check.
+// Lowest feasible index in (lo, hi], given lo infeasible and hi feasible.
+function head_feasible_edge(impeller_diameter, has_baffles, lo, hi) =
+  hi - lo <= 1 ? hi
+  : let (_mid = floor((lo + hi) / 2))
+      head_mouth_is_feasible(head_feasible_mouth_at(_mid), impeller_diameter, has_baffles)
+        ? head_feasible_edge(impeller_diameter, has_baffles, lo, _mid)
+        : head_feasible_edge(impeller_diameter, has_baffles, _mid, hi);
+
+// [first, last] feasible mouth, or undef if none. An infeasible ceiling means an upper coupling has
+// bound, which the single-flip measurement never covered, so that case walks the full sweep.
+function head_feasible_mouth_window(impeller_diameter, has_baffles = true) =
+  let (
+    _top = head_feasible_mouth_count() - 1,
+    _lo_ok = head_mouth_is_feasible(head_feasible_mouth_at(0), impeller_diameter, has_baffles),
+    _hi_ok = head_mouth_is_feasible(head_feasible_mouth_at(_top), impeller_diameter, has_baffles)
+  )
+  _hi_ok
+    ? [head_feasible_mouth_at(_lo_ok ? 0
+         : head_feasible_edge(impeller_diameter, has_baffles, 0, _top)),
+       head_feasible_mouth_at(_top)]
+    : let (_all = head_feasible_mouths(impeller_diameter, has_baffles))
+        len(_all) == 0 ? undef : [_all[0], _all[len(_all) - 1]];
 
 // The drive stack, from the lid's outer face up. head() builds against these rather than
 // recomputing them, and anything that has to make room for an assembled reactor reads them back
@@ -1524,10 +1556,10 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // circle carries the baffles out until the ring fouls them. Nothing chooses a jar's mouth to suit
   // its bore, so where a given jar falls in here is luck, and worth seeing rather than inferring
   // from an assert that only speaks when it fails.
-  _feasible = head_feasible_mouths(impeller_diameter, _has_baffles);
+  _feasible = head_feasible_mouth_window(impeller_diameter, _has_baffles);
 
   echo(
-    len(_feasible) == 0
+    is_undef(_feasible)
       ? str(
         "vessel fit: NO mouth is feasible for a ", impeller_diameter,
         " mm impeller at these allowances - the couplings have closed on each other."
@@ -1536,10 +1568,9 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         "vessel fit: a ", impeller_diameter, " mm impeller is feasible in mouths ", _feasible[0],
         " to ",
         // an upper bound equal to the search ceiling is the search running out, not a constraint
-        _feasible[len(_feasible) - 1] >= head_feasible_mouth_sweep()[1]
+        _feasible[1] >= head_feasible_mouth_sweep()[1]
           ? "anything wider (nothing bounds it above)"
-          : str(_feasible[len(_feasible) - 1], " mm, a window ",
-                _feasible[len(_feasible) - 1] - _feasible[0], " mm wide"),
+          : str(_feasible[1], " mm, a window ", _feasible[1] - _feasible[0], " mm wide"),
         "; this jar's is ", vessel_opening_diameter
       )
   );
