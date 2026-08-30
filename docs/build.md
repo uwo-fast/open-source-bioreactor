@@ -125,7 +125,7 @@ is set by the rod bosses, so that bought nothing and was undone.
 | Stock | Cut | Yield |
 | --- | --- | --- |
 | M8 threaded rod, DIN 975 A2 | **4 × 322 mm** | buy 1500 mm or more |
-| 316 SS tube 4 × 0.5 mm, `50415K21` | **2 × 186.7 mm** | 373.4 mm from a 500 mm length, 126.6 mm spare |
+| 316 SS tube 4 × 0.5 mm, `50415K21` | **2 × 186.637 mm** | 373.275 mm from a 500 mm length, 126.7 mm spare |
 | EPDM sheet 1/16 in 60A, `8525T65` | **145 × 151 mm** per lid | 4 per 304.8 mm sheet |
 
 **The rod length follows the jar, not the design.** 322 mm is `jar_10L`; it is 214 mm on
@@ -343,8 +343,22 @@ line steps up inside the meter's own bore rather than through a coupler. One les
 
 **The sterile filter is the boundary.** Everything downstream of it is inside the sterile envelope
 and is platinum-cure silicone; everything upstream can be PVC or polyurethane, and the barbed
-fittings on that side are rated for firm line rather than silicone. The smallest joints — 1/8 in ID,
-about 6 mm outside — fall below most worm clamps and want spring or pinch clips.
+fittings on that side are rated for firm line rather than silicone.
+
+**One clamp size closes all fourteen joints.** `5011T141` is an SAE 4 on a 5/16 in band — 5.6 to
+15.875 mm — which at the 1/16 in wall these bores are sold in reaches under the 1/8 in line's
+6.35 mm outside and over the 3/8 in line's 12.70. The band width is not a free choice: it is what
+`sparge_riser_proud` in `head.scad` is derived from, and the next band up is 12.70 mm, which would
+leave 2.3 mm of lead-in on a tube that stands 14.94 mm proud.
+
+**The joint that can escape the range is the largest, and it does not escape by a little.** Buy the
+3/8 in run in a 1/8 in wall and it measures **15.875 mm** against a clamp whose limit is **15.875** —
+the same number twice, on a clamp wound out to its last thread. Buy that run in 1/16 or 3/32 in wall
+and the problem does not arise.
+
+They are 316 in both halves, which is why they are rated to 7.5 in.-lbs and not 10: an austenitic
+screw in an austenitic housing galls. Snug them with the 1/4 in nut driver and stop — a wrench will
+strip one, and these get opened again at every filter change.
 
 The check valve exists to stop culture siphoning back into the pump when it stops. It is not
 optional.

@@ -210,6 +210,7 @@ check-bom:
       echo(str("BOM|", thermocouple_probe_part_number(head_port_probe(q)), "|thermocouple"));
     echo(str("BOM|", shaft_part_number(head_shaft_selected(8, vessel_internal_height(_v))), "|impeller shaft"));
     echo(str("BOM|", steel_tube_part_number(sparge_riser_tube), "|sparge riser tube"));
+    echo(str("BOM|", hose_clamp_part_number(sparge_riser_clamp), "|riser hose clamp"));
     echo(str("BOM|", set_screw_part_number(impeller_set_screw), "|impeller set screw"));
     SCAD
     {{OPENSCAD}} -o "$tmp/b.csg" "$tmp/b.scad" 2>"$tmp/err" >/dev/null

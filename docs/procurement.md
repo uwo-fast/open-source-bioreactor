@@ -133,6 +133,50 @@
     Cv, and unstated specs are what disqualified the medical and welding flowmeter channels here -
     closing the metering row on one would have been inconsistent with how everything else was picked
 
+- hose clamp selection
+  - McMaster-Carr 5011T141
+  - worm-drive hose clamp, 316 stainless band **and** screw, 5/16 in band × 0.023 in, SAE J1508
+  - SAE 4: 7/32 in to 5/8 in, i.e. **5.556 to 15.875 mm**; 1/4 in hex, 7.5 in.-lbs maximum torque
+  - 14 needed, sold in tens, so 2 packs; US$19.82 a pack
+  - https://www.mcmaster.com/5011T141/
+  - **the band width was decided by the model, and the model now reads it back.** The riser stood
+    a literal 15 mm proud, justified against "a worm clamp's band is about 9 mm wide" — so once a
+    clamp was actually chosen, one band had two numbers. The clamp is registered in
+    `scad/purchased/hose_clamps.scad` and `sparge_riser_proud` derives from its **7.9375 mm** band
+    plus 3.5 mm of lead-in either side: **14.9375 mm**, and the riser is 186.637 rather than 186.7.
+    The 5/16 in band is also the narrowest McMaster offer this clamp in; the 1/2 in band is 12.7 mm
+    and would leave 2.3 mm of lead-in in total
+  - **one size covers the whole line**, which the width decides for it: the 5/16 in band's smallest
+    size is the SAE 4 at 5.556-15.875 mm and the next size up starts at 11 mm. Against the gas
+    line's four bores — 3/8, 1/4, 1/8 in PVC and 3/16 in silicone — the SAE 4 takes all fourteen
+    joints on one part number
+  - those outside diameters follow the WALL, which is not the bore and is not pinned for a commodity
+    tube. At 1/16 in wall they are 12.70, 9.53, 6.35 and 7.94 mm and every one is inside the range.
+    The wall only decides anything at the top, which is why the 3/8 in run carries one in the
+    purchase list and the other three do not
+  - **that retires the caution this row used to carry.** The 1/8 in joints were recorded as falling
+    below worm-clamp ranges and wanting spring or pinch clips; at 6.35 mm they are inside the range,
+    near the bottom of it but engaged. The joint that can leave the range is the *largest*: 3/8 in
+    line in a 1/8 in wall is 9.525 + 2 × 3.175 = **15.875 mm**, and the SAE 4's upper limit is
+    5/8 in, which is **15.875 mm**. Not a tight fit with something in hand — the same number twice,
+    on a clamp wound out to its last thread. So `purchased-parts.csv` specifies that run in 1/16 or
+    3/32 in wall, 12.70 or 14.29 mm, rather than adding an SAE 6 for one joint
+  - **316 rather than the three cheaper builds of the same clamp.** McMaster sell it as 301 band
+    with a zinc-plated, 410, 305 or 316 screw. The plated screw is the one to reject outright — the
+    band survives and the screw rusts and seizes, and the riser clamp sits in a permanently humid
+    headspace. Of the rest, 410 alone keeps the 10 in.-lbs rating; **305 and 316 are both derated to
+    7.5**, so 316 costs nothing in torque against 305 and only $4.46 a pack. This reactor is
+    chemically sterilised rather than autoclaved and already carries one recorded chloride
+    vulnerability in the 440C bearing above; 316 is the grade that does not reopen that argument
+  - **7.5 in.-lbs is a galling limit, not a strength one** — austenitic screw in an austenitic
+    housing. These get opened at every filter change, so they are snugged with the 1/4 in nut driver
+    and never a wrench. Nothing here needs the torque: the clamps close soft tubing over rigid
+    barbs, and the tightest of them is 0.76 mm of slack on the riser
+  - the rule this follows is the one set against the impeller set screws — wetted → 316, dry → 18-8.
+    Strictly these are dry, which would allow the 305, and the 305 would be a defensible row. What
+    tips it is that one clamp size serves every joint, so the whole line inherits whichever grade is
+    bought, including the sterile-side four and the one at the lid
+
 - thermocouple selection
   - McMaster-Carr 3872K117
   - Type K threaded thermocouple probe for liquids and gases

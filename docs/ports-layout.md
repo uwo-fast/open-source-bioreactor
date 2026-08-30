@@ -97,7 +97,7 @@ Every other tube port passes **flexible tubing**, which deforms into a printed b
 there. The two gas ports pass a **rigid steel riser**, which does neither, and for a long time they
 were bored as though they did not know the difference: `air_in` and `air_out` each carried a literal
 bore radius of 3 — a hose radius on a port no hose enters, since the supply line pushes over the
-riser's 15 mm proud end and is clamped there. So a 4 mm tube hung in a 6 mm hole with **2 mm of
+riser's 14.94 mm proud end and is clamped there. So a 4 mm tube hung in a 6 mm hole with **2 mm of
 slack**, neither located nor closed.
 
 Both bores come off `sparge_riser_tube` now, at OD plus 0.2 mm, which is the same allowance the

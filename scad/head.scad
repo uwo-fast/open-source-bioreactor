@@ -35,6 +35,7 @@ include <purchased/shaft_couplings.scad>;
 include <purchased/shafts.scad>;
 include <purchased/gasket_sheets.scad>;
 include <purchased/printers.scad>;
+include <purchased/hose_clamps.scad>;
 
 include <custom/bayonet_interfaces.scad>;
 include <custom/impellers.scad>;
@@ -822,14 +823,27 @@ sparge_support_functions = ["air_out"];
 sparge_feed_bore = steel_tube_od(sparge_riser_tube);
 // how far it lands inside the socket
 sparge_riser_insertion = 8;
+// The clamp that lands on the riser, and the only reason a hose clamp is a registered part: what
+// the model needs off it is the band's width, and that is what decides how far the tube stands
+// proud. Which clamp, and why this grade, is in docs/procurement.md.
+sparge_riser_clamp = clamp_sae4_316_5p16;
+// Bare tube either side of the band, so the clamp lands wholly on the riser rather than overhanging
+// an end. Tune this if a clamp is awkward to start; the band is the part's and not ours to move.
+sparge_riser_clamp_lead_in = 3.5;
+
 // How far a tube stands above the top of its port, so something can be connected to it.
 //
 // It used to stand nowhere: the length was measured to the lid's OUTER face, which the port's own
-// flange stands 5 mm above, so every tube finished INSIDE its port with nothing to grip. Flexible
-// tubing pushed over 4 mm needs a few diameters of engagement and a worm clamp's band is about 9 mm
-// wide, so 15 mm carries the clamp with lead-in either side. It is shorter than the thermocouple's
-// own 20 mm NPT mount, which is the tallest thing already standing on this lid.
-sparge_riser_proud = 15;
+// flange stands 5 mm above, so every tube finished INSIDE its port with nothing to grip. It was
+// then a literal 15, justified against "a worm clamp's band is about 9 mm wide" - and once a clamp
+// was actually chosen the purchase list knew 7.9375, so the same band had two numbers. It derives
+// from the registered clamp now.
+//
+// The other requirement is met rather than expressed: flexible tubing pushed over a 4 mm tube wants
+// a few diameters of engagement, and this is 3.7 of them. If a wider riser ever made that the
+// binding one, this is where it would have to say so. Either way it stays shorter than the
+// thermocouple's own 20 mm NPT mount, which is the tallest thing already standing on this lid.
+sparge_riser_proud = hose_clamp_band_width(sparge_riser_clamp) + 2 * sparge_riser_clamp_lead_in;
 // What the sterile inlet filter costs, kPa per L/min. EXTRAPOLATED, NOT MEASURED: Cole-Parmer do
 // not publish a curve for 1594522, so this is a linear fit taken from an equivalent 0.2 um PTFE
 // disc of near-identical dimensions. Linear is the right shape - membrane flow at these pressures
