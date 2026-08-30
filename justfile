@@ -168,22 +168,31 @@ check-vessels:
 # A sharp fall there means reasoning has started living somewhere it cannot be checked against the
 # code it explains.
 #
-# This recipe does not install anything. tokei is packaged, but what a workstation has belongs in
+# cloc rather than tokei, and that is the whole point of this recipe: trixie's tokei is 12.1.2 and
+# OpenSCAD only arrived upstream in 14.0.0, so tokei counts every .scad file as nothing at all. It
+# was tried here and reported zero of them. cloc maps .scad natively and reads // and comment blocks
+# the way OpenSCAD does.
+#
+# This recipe does not install anything. cloc is packaged, but what a workstation has belongs in
 # workstation-configs rather than in a repo's build file - see the message below.
 #
-# Report lines of code and comment per language. Needs tokei.
+# Report lines of code and comment per language. Needs cloc.
 stats:
     #!/usr/bin/env bash
     set -uo pipefail
-    if ! command -v tokei >/dev/null 2>&1; then
-        echo "tokei is not installed, so there is nothing to report."
-        echo "        It is packaged - apt has 12.1.2 - but nothing here installs a tool: add it to"
+    if ! command -v cloc >/dev/null 2>&1; then
+        echo "cloc is not installed, so there is nothing to report."
+        echo "        It is packaged - apt has 2.04 - but nothing here installs a tool: add it to"
         echo "        packages/dev.apt in CameronBrooks11/workstation-configs so every machine gets"
         echo "        the same one, then run this again."
+        echo "        NOT tokei: trixie's is 12.1.2 and OpenSCAD only landed upstream in 14.0.0, so"
+        echo "        it counts none of the SCAD tree, which is the one thing worth counting here."
         exit 1
     fi
-    # analysis/.venv is thousands of files of somebody else's code, and output/ is generated meshes.
-    tokei --exclude analysis/.venv --exclude output --exclude working.tmp
+    # analysis/.venv is thousands of files of somebody else's code and output/ is generated meshes.
+    # _archive and _shelf are excluded from every other check too, so counting them here would make
+    # this disagree with the rest of the tooling about what the model is.
+    cloc --exclude-dir=.venv,output,working.tmp,_archive,_shelf .
 
 # Create the analysis virtualenv from analysis/pyproject.toml.
 analysis-setup:
