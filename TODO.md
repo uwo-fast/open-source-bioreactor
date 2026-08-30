@@ -46,19 +46,22 @@ ledger at the end: decisions that took real work to reach and would otherwise be
   - the answer to both is the narrow-jar agitation question, tracked under "drive and aeration".
     Nothing else in the model is waiting on it
 
-- [ ] **the air leaves unfiltered, and only the way in is guarded**
-  - the BOM buys one 0.2 um sterile filter and puts it on the INLET. The normal arrangement is a
-    filter on the air in and another on the air out, and the exhaust here is a hole drilled in a
-    support tube that vents straight into the room
-  - **it only became worth doing now that the gas ports seal.** Beside two open 15.7 mm2 annuli an
-    outlet filter would have been filtering about 18 % of the exhaust and adding back-pressure to
-    the other 82 %. The rod gland is what makes the support tube the only way out
-  - the part is already bought: 1594522 comes as a pack of TEN, so the second one costs a barb
-    adapter and a length of silicone rather than a filter
-  - nothing geometric is waiting on it. The support tube's drilled window and its 3 mm bore are the
-    whole exhaust path and both are dimensioned already. What it wants is a BOM row, a plumbing
-    note - and a back-pressure term, because a filter on the outlet raises the headspace the
-    sparger has to bubble against, and `sparge_filter_drop_slope` today counts the inlet alone
+- [ ] **choose an outlet filter that fits in 1.91 kPa/L/min, because the obvious one does not**
+  - the exhaust is unguarded: the headspace vents through a support tube's bore into the room while
+    a 0.2 um filter guards the inlet, which is half the usual arrangement. `head()` says so on every
+    render now rather than leaving it to a document
+  - **the second 1594522 does not work, which is what this item found.** It looked free - the filter
+    is sold in tens - but an outlet filter raises the headspace the sparge holes discharge into. Two
+    of them put the line at **31.8 kPa** against a pump that dead-heads at 27, and the reactor
+    settles at **3.27 L/min**: 0.5 vvm stops being a setting it can hold
+  - the model reports the budget instead of a part: **at most 1.91 kPa per L/min**, 55 % of the
+    inlet filter's slope, so roughly twice the membrane area. `sparge_outlet_filter_drop_slope` is
+    undef until something is chosen; set it and head() prices the exhaust into the line
+  - **it moves with the inlet filter's own number**, which is still extrapolated rather than
+    measured. Measure that first - the item below - and this budget follows from it
+  - a fix that costs nothing in pressure is worth weighing against a filter at all: the exhaust
+    could vent into a trap or a longer tube rather than a membrane, which guards against splashback
+    without the drop. That is a different claim about sterility and should be made deliberately
 
 - [ ] **measure the sterile filter's pressure drop**
   - `sparge_filter_drop_slope = 3.45` kPa per L/min is EXTRAPOLATED from an equivalent 0.2 um PTFE

@@ -573,6 +573,30 @@ function head_port_index(vessel_opening_diameter, fn) =
       str("This lid has ", len(_at), " ports for \"", fn, "\"; looking one up by function needs exactly one.")
     ) _at[0];
 
+/**
+ * @brief What the line costs at a given flow, Pa - the vessel included.
+ *
+ * A function of FLOW rather than a number, because the filter is linear in it and dominates: the
+ * line at the design point is not the line at any other. Anything asking where the pump settles
+ * has to be able to price it twice.
+ *
+ * The exhaust side is in here too when there is one. A filter on the outlet does not sit between
+ * the pump and the sparge holes, but it raises the headspace the holes discharge into, which the
+ * gas has to beat just the same.
+ */
+function head_gas_line_pressure(flow, vessel_pressure, riser_length) =
+  vessel_pressure
+  + gas_filter_pressure_drop(flow, sparge_filter_drop_slope)
+  + gas_tube_pressure_drop(flow, steel_tube_id(sparge_riser_tube), riser_length)
+  + sparge_check_valve_cracking
+  + gas_valve_pressure_drop(flow, sparge_check_valve_cv, vessel_pressure)
+  + (
+    is_undef(sparge_outlet_filter_drop_slope)
+      ? 0
+      : gas_filter_pressure_drop(flow, sparge_outlet_filter_drop_slope)
+        + gas_tube_pressure_drop(flow, steel_tube_id(sparge_riser_tube), riser_length)
+  );
+
 // The gas comes down whichever port is the air inlet, wherever that ends up sitting.
 function head_sparge_feed_port(vessel_opening_diameter) = head_port_index(vessel_opening_diameter, "air_in");
 
@@ -856,6 +880,13 @@ sparge_riser_proud = hose_clamp_band_width(sparge_riser_clamp) + 2 * sparge_rise
 // supply report, which sizes the metering valve from what is left. Worth replacing with a measured
 // number; a water manometer across it at the set flow is enough. See TODO.md.
 sparge_filter_drop_slope = 3.45;
+// What a filter on the way OUT would cost, same units. undef is what this build has: nothing. The
+// headspace vents through a support tube's bore into the room, so the 0.2 um filter on the inlet
+// guards one direction of two - which is half of the usual arrangement for a bioreactor.
+//
+// It is undef rather than a part because the obvious part does not fit. Set it and head() prices
+// the exhaust into the line and says what it costs; leave it and head() reports the budget instead.
+sparge_outlet_filter_drop_slope = undef;
 // The check valve, as the LINE sees it rather than as its headline reads. Both numbers come off the
 // datasheet of the registered part - see purchased-parts.csv - and both are needed, because a check
 // valve costs a CRACKING pressure to open at all and a flowing drop on top of that, and only the
@@ -2763,41 +2794,92 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     _gas_band[1], steel_tube_id(sparge_riser_tube), _sparge_riser_length);
   _gas_check_valve_drop = sparge_check_valve_cracking
     + gas_valve_pressure_drop(_gas_band[1], sparge_check_valve_cv, _gas_vessel_pressure);
+  // The line, from the one expression of it, so nothing can price it two ways. The terms above are
+  // kept for the echo below - they say where it goes - but the total is not re-added here.
   _gas_back_pressure =
-  _gas_vessel_pressure + _gas_filter_drop + _gas_riser_drop + _gas_check_valve_drop;
+    head_gas_line_pressure(_gas_band[1], _gas_vessel_pressure, _sparge_riser_length);
+  _gas_outlet_drop = is_undef(sparge_outlet_filter_drop_slope)
+    ? 0
+    : gas_filter_pressure_drop(_gas_band[1], sparge_outlet_filter_drop_slope) + _gas_riser_drop;
 
   echo(str(
     "gas line losses: filter ", _gas_filter_drop,
     " Pa (EXTRAPOLATED, not measured), check valve ", _gas_check_valve_drop,
     " Pa (", sparge_check_valve_cracking, " of it just to crack) and riser ", _gas_riser_drop,
     " Pa at ", _gas_band[1], " L/min, on top of the vessel's ", _gas_vessel_pressure,
+    _gas_outlet_drop == 0 ? "" : str(" and ", _gas_outlet_drop, " Pa on the way back out"),
     " - so the pump beats ", _gas_back_pressure, " Pa, and the filter alone is ",
     _gas_filter_drop / _gas_vessel_pressure, "x the vessel"
   ));
   _gas_free_flow = air_pump_free_flow_min(head_air_pump);
   _gas_dead_head = air_pump_dead_head(head_air_pump);
 
+  // The line priced at both ends of the band, so where the pump settles can be asked properly.
+  _gas_line = gas_line_secant(
+    _gas_band[0], head_gas_line_pressure(_gas_band[0], _gas_vessel_pressure, _sparge_riser_length),
+    _gas_band[1], _gas_back_pressure);
+  _gas_ceiling_flow = gas_operating_flow(_gas_free_flow, _gas_dead_head, _gas_line);
+
   echo(str(
-    "gas supply: ", air_pump_name(head_air_pump), " would give ",
-    gas_pump_flow(_gas_free_flow, _gas_dead_head, _gas_back_pressure),
-    " L/min against this line's ", _gas_back_pressure, " Pa, where ", _gas_band[1],
+    "gas supply: ", air_pump_name(head_air_pump), " settles at ", _gas_ceiling_flow,
+    " L/min against this line, where ", _gas_band[1],
     " L/min is wanted - so a throttle has to drop ",
     gas_throttle_pressure(_gas_free_flow, _gas_dead_head, _gas_band[1], _gas_back_pressure),
-    " Pa on top of the line's own"
+    " Pa on top of the line's own. NOT the ",
+    gas_pump_flow(_gas_free_flow, _gas_dead_head, _gas_back_pressure),
+    " L/min a back pressure held at the design point suggests: the filter is linear in flow, so ",
+    "asking for more raises the line, and that figure prices it at a flow nobody is asking for"
   ));
+
+  // WHAT GUARDS THE WAY OUT, which today is nothing. A bioreactor normally filters the air in and
+  // the air out; this one filters the inlet and vents the headspace through a support tube's bore
+  // into the room. Worth saying on every render rather than in a document, because the number that
+  // decides whether it can be fixed is right here.
+  _gas_outlet_budget =
+    gas_filter_slope_budget(_gas_free_flow, _gas_dead_head, _gas_line, _gas_band[1]);
+
+  echo(
+    is_undef(sparge_outlet_filter_drop_slope)
+      ? str(
+        "gas exhaust: NOTHING FILTERS THE WAY OUT - the headspace vents through a support tube to ",
+        "the room, so the 0.2 um filter on the inlet guards one direction of two. An outlet filter ",
+        "may cost at most ", _gas_outlet_budget, " kPa per L/min before ", _gas_band[1],
+        " L/min stops being reachable, which is ", _gas_outlet_budget / sparge_filter_drop_slope,
+        " of what the inlet filter costs - so a second one of those will not do."
+      )
+      : str(
+        "gas exhaust: an outlet filter at ", sparge_outlet_filter_drop_slope,
+        " kPa per L/min is in the line, against a budget of ", _gas_outlet_budget,
+        " before ", _gas_band[1], " L/min stops being reachable"
+      )
+  );
 
   // What that throttle is, as a part rather than as a pressure. The filter takes more than half of
   // what the valve would otherwise have had, so this number moved a long way when it landed.
-  _gas_valve_cv = gas_valve_cv(
-    _gas_band[1],
-    gas_throttle_pressure(_gas_free_flow, _gas_dead_head, _gas_band[1], _gas_back_pressure),
-    _gas_back_pressure);
+  //
+  // Only where there is anything for a throttle to do. A line the pump cannot beat asks the valve
+  // to drop a NEGATIVE pressure, and gas_valve_cv() answers that with a nan - which is arithmetic
+  // reporting a design problem in the one form nobody reads. Say it instead.
+  _gas_throttle_drop =
+    gas_throttle_pressure(_gas_free_flow, _gas_dead_head, _gas_band[1], _gas_back_pressure);
 
-  echo(str(
-    "gas throttle: a valve of Cv ", _gas_valve_cv, " passes ", _gas_band[1],
-    " L/min at that drop. Sold Cv should be 2-4x it, so the setting sits mid-travel rather than ",
-    "at either stop"
-  ));
+  if (_gas_throttle_drop > 0) {
+    _gas_valve_cv = gas_valve_cv(_gas_band[1], _gas_throttle_drop, _gas_back_pressure);
+
+    echo(str(
+      "gas throttle: a valve of Cv ", _gas_valve_cv, " passes ", _gas_band[1],
+      " L/min at that drop. Sold Cv should be 2-4x it, so the setting sits mid-travel rather than ",
+      "at either stop"
+    ));
+  } else {
+    echo(str(
+      "WARNING gas throttle: there is nothing for a valve to do - the line already costs ",
+      _gas_back_pressure, " Pa where the pump needs to see ",
+      gas_pump_back_pressure_for(_gas_free_flow, _gas_dead_head, _gas_band[1]),
+      " Pa to settle at ", _gas_band[1], " L/min. It settles at ", _gas_ceiling_flow,
+      " instead, so the top of the aeration band is not a setting this build can hold."
+    ));
+  }
 
   echo(str(
     "gas metering: ", sparge_vvm_band[0], "-", sparge_vvm_band[1], " vvm on ", _culture_volume,

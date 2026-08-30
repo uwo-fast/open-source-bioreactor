@@ -24,6 +24,41 @@ function gas_pump_back_pressure_for(free_flow, dead_head, target_flow) =
 function gas_throttle_pressure(free_flow, dead_head, target_flow, system_pressure) =
   gas_pump_back_pressure_for(free_flow, dead_head, target_flow) - system_pressure;
 
+/**
+ * @brief A straight line through two flows the caller has already priced: [slope, offset].
+ *
+ * What a line COSTS is not fixed - it rises with the flow through it - so anything that asks where
+ * a pump settles needs the line as a relation rather than as a number. Two points is enough here
+ * because the membrane filter dominates and is linear in flow; the check valve and the tubes bend
+ * it slightly, and a secant through them runs a little under, which makes the flow that falls out
+ * a little over. About 2 % on this build.
+ */
+function gas_line_secant(flow_lo, pressure_lo, flow_hi, pressure_hi) =
+  let (_slope = (pressure_hi - pressure_lo) / (flow_hi - flow_lo))
+    [_slope, pressure_lo - _slope * flow_lo];
+
+/**
+ * @brief Where the pump actually settles: its own curve crossed with the line's, L/min.
+ *
+ * gas_pump_flow() above answers a DIFFERENT question - what a pump gives against a back pressure
+ * held fixed - and a line does not hold still. Asking it with the line's value at the design point
+ * prices the line at a flow the pump is not being asked for, and on this build that reads 23 L/min
+ * where the crossing is 6. It is the number anyone would use to judge whether there is room for
+ * another filter, so it is worth having right.
+ */
+function gas_operating_flow(free_flow, dead_head, line) =
+  free_flow * (dead_head - line[1]) / (dead_head + free_flow * line[0]);
+
+/**
+ * @brief The most another filter may cost, kPa per L/min, before target_flow stops being reachable.
+ *
+ * Turned round from the above: a filter adds its slope to the line's, so there is a slope at which
+ * the crossing lands exactly on the flow wanted. Anything costlier than this and the top of the
+ * aeration band is not a setting the pump can hold, whatever the throttle does.
+ */
+function gas_filter_slope_budget(free_flow, dead_head, line, target_flow) =
+  ((free_flow * (dead_head - line[1]) / target_flow - dead_head) / free_flow - line[0]) / 1000;
+
 // The plausibility check the ReSun's listing fails. If a pump really delivered its free flow at its
 // dead-head pressure it would be doing this much pneumatic work; compared against the electrical
 // input it says whether the two numbers can be simultaneous. Diaphragm pumps run 10-30 % efficient,

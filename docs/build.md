@@ -368,6 +368,23 @@ strip one, and these get opened again at every filter change.
 The check valve exists to stop culture siphoning back into the pump when it stops. It is not
 optional.
 
+**Nothing filters the way out, and fitting the obvious part would cost you the top of the band.**
+A bioreactor normally filters the air in *and* out. This one filters the inlet and vents the
+headspace through a support tube's bore into the room, so the 0.2 µm filter guards one direction of
+two. The tempting fix is a second `1594522` — the filter is sold in tens, so it looks free.
+
+It is not. An outlet filter does not sit between the pump and the sparge holes, but it raises the
+headspace those holes discharge into, and the gas has to beat that too. A second identical filter
+puts the line at **31.8 kPa** against a pump that dead-heads at **27** — the reactor would settle at
+**3.27 L/min**, and 0.5 vvm would stop being a setting it can hold. `head()` reports the budget:
+an outlet filter may cost at most **1.91 kPa per L/min**, which is 55 % of what the inlet one does,
+so it wants roughly **twice the membrane area** rather than the same part again.
+
+Two numbers behind that are worth knowing. The pump's real ceiling on this line is **6.05 L/min**,
+not the 23 that a back pressure held at the design point suggests — the filter is linear in flow, so
+asking for more raises the line. And the inlet filter's own slope is still extrapolated rather than
+measured, so the budget moves with it: measure that first, and this number follows.
+
 ---
 
 ## Commissioning
