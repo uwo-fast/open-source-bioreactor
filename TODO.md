@@ -261,10 +261,6 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
 
 - [ ] optional end styles (sensor gland) for atlas probes to match product more closely
 
-- [ ] register lights per cord on the strip lights and drive the frame from it
-  - recorded in the row comments for now: `rwntao_13in` is 3 tubes per cord, the three `grow_*` are 4. `lights_per_quadrant` in `frame.scad` is still set by hand and has no relation to what a cord actually carries
-  - `strip_lights.scad` would gain the count, and `frame.scad` would derive placement from it rather than from a free parameter — cords come in fixed multiples, so the current setup can ask for a light count no purchasable product provides
-
 ## tooling / infrastructure / documentation
 
 - [ ] **the gasket recess holds three quarters of the rubber that has to fit in it**
@@ -385,6 +381,11 @@ outlives the commit, in `docs/`.
   face it opens at is then forced twice over: headspace pressure drives the cord onto the shoulder
   rather than out past it, and that face lies on the bed when the pin half is printed, so nothing
   bridges the bore
+- **lights per cord is registered, and it does NOT decide how many lights there are.** These are
+  sold as a cord and a controller driving a fixed number of tubes, so a layout that is not a whole
+  number of cords buys the next one up. frame() reports the cords a layout needs; the layout stays
+  an illumination decision. Deriving the count from the packaging would be letting the shop set the
+  design, which is the direction the arrow must not point
 - **the baffle's resonance check asks WHERE the mode is crossed, not whether it is near one.** It
   compared the mode against the excitations at the drive's fastest setting and warned within 30 %,
   which is right for load and wrong for resonance: a DC motor sweeps every frequency below its

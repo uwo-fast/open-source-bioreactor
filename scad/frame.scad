@@ -296,6 +296,30 @@ module frame(vessel_height, vessel_outer_diameter, light, wall_thickness, lid_fl
 
   echo("base wall thickness: ", _base_wall_thickness / 10, " cm");
 
+  // WHAT THE LAYOUT COSTS TO BUY. The light count is a layout decision - which quadrants carry
+  // lights and how many sit in each - and these do not come as tubes: one cord and controller
+  // drives a fixed number. So a layout that is not a whole number of cords buys the next one up and
+  // leaves the rest in the box, along with a controller it does not need.
+  //
+  // Reported rather than enforced, and the arrow points this way on purpose. How much light the
+  // culture gets is an illumination question; letting the packaging answer it would be letting the
+  // shop set the design. What this does is stop the purchase list being hand-counted.
+  _light_total = len(light_quadrants) * lights_per_quadrant;
+  _light_per_cord = strip_light_per_cord(light);
+  _light_cords = ceil(_light_total / _light_per_cord);
+
+  _light_spare = _light_cords * _light_per_cord - _light_total;
+
+  echo(str(
+    "lights: ", _light_total, " tube", _light_total == 1 ? "" : "s", " - ", lights_per_quadrant,
+    " in each of ", len(light_quadrants), " quadrant", len(light_quadrants) == 1 ? "" : "s",
+    " - on a light that comes ", _light_per_cord, " to a cord, so ", _light_cords, " cord",
+    _light_cords == 1 ? "" : "s",
+    _light_spare == 0
+      ? " and nothing spare"
+      : str(" and ", _light_spare, " tube", _light_spare == 1 ? "" : "s", " left over")
+  ));
+
   module frame_lights(local_quadrants = light_quadrants) {
     lights(local_quadrants, vessel_outer_diameter, light, lights_per_quadrant, occupy_angle);
   }
