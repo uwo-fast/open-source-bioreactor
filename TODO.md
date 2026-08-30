@@ -153,12 +153,6 @@ ledger at the end: decisions that took real work to reach and would otherwise be
     - *a baffle-only interface row at 0.1 mm allowance*. Free in the model, no area or print cost,
       but 0.1 mm is a tight printed bayonet fit on the one port that gets twisted by hand at arm's
       length inside a jar
-  - **and the resonance check only looks at one speed** - a separate gap, and a real one. It tests
-    the mode against the excitations at the drive's *fastest* setting, on the grounds that fastest is
-    worst. That is right for load and wrong for resonance: a DC motor's speed is continuous, so blade
-    passing sweeps every frequency under 28 Hz and something is always crossed. What decides the
-    plate is the SPEED at which the crossing happens and whether the reactor runs there - 264 rpm on
-    the 10 mm plate, against a 320-420 band - and the echo does not say it
 
 - [ ] **the impeller's tip ring cannot print without support, and nothing has asked whether it earns it**
   - it is a 4 x 4 mm annulus tying the four blade tips, sitting inboard of `impeller_radius`. Measured
@@ -369,6 +363,12 @@ outlives the commit, in `docs/`.
   face it opens at is then forced twice over: headspace pressure drives the cord onto the shoulder
   rather than out past it, and that face lies on the bed when the pin half is printed, so nothing
   bridges the bore
+- **the baffle's resonance check asks WHERE the mode is crossed, not whether it is near one.** It
+  compared the mode against the excitations at the drive's fastest setting and warned within 30 %,
+  which is right for load and wrong for resonance: a DC motor sweeps every frequency below its
+  maximum, so something is always crossed on the way up. What matters is the SPEED of the crossing
+  and whether the drive is asked to hold it - 264 rpm on the 10 mm plate against a 320-420 band, and
+  the clearance to that band is reported because that is what separates a 10 mm plate from an 11
 - **`check-mesh` is not in `just check`** - it renders solids, which is minutes to tens of minutes.
   The `$fn=0` second pass IS in `check-scad`, because that recipe is the cheap one. Both were proved
   to FIRE on a deliberately broken input before being trusted

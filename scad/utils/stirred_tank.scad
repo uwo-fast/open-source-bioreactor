@@ -246,6 +246,21 @@ function stirred_tank_baffle_frequency(length, width, thickness, modulus, solid_
 function stirred_tank_shaft_frequency(rpm) = rpm / 60;
 function stirred_tank_blade_frequency(rpm, n_blades) = rpm * n_blades / 60;
 
+/**
+ * @brief The speed at which an excitation of a given order crosses a frequency, rpm.
+ *
+ * The inverse of the two above, and the number that actually decides a plate. Asking whether a
+ * mode sits near an excitation AT ONE SPEED answers it for that speed only - which is the right
+ * question for LOAD, where fastest is worst, and the wrong one for RESONANCE. A DC motor's speed is
+ * continuous, so blade passing sweeps every frequency under its own maximum and something is always
+ * crossed on the way up. What decides a plate is the SPEED the crossing happens at, and whether the
+ * reactor is asked to sit there.
+ *
+ * @param frequency Hz, the mode being crossed
+ * @param order     excitations per revolution: 1 for the shaft, the blade count for blade passing
+ */
+function stirred_tank_critical_speed(frequency, order) = frequency * 60 / order;
+
 // ----- hydrodynamics -----
 //
 // Everything below takes millimetres and rpm, because that is what the model and the motor

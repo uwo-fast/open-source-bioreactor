@@ -2288,7 +2288,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       _baffle_segments < 2 ? "" : str(" (", _baffle_joint_deflection, " mm of it the joints)"),
       "; first mode ", _baffle_frequency, " Hz against ", stirred_tank_shaft_frequency(_baffle_rpm),
       " Hz shaft and ", stirred_tank_blade_frequency(_baffle_rpm, impeller_n_fins),
-      " Hz blade passing - that mode is the solid plate, the joints soften it"
+      " Hz blade passing at ", _baffle_rpm, " rpm - that mode is the solid plate, the joints soften it"
     ));
 
   // What splitting costs and what it buys, both in one line, since neither is decidable alone. The
@@ -2343,15 +2343,54 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         ? "more" : "no more", "."
     ));
 
-  // Parenthesised, because && binds tighter than ||: this read (has_baffles && shaft) || blade, so
-  // the blade-passing arm was asked about a lid with no baffles and no plate to have a mode.
-  if (_has_baffles
-   && (abs(_baffle_frequency - stirred_tank_shaft_frequency(_baffle_rpm)) < 0.3 * stirred_tank_shaft_frequency(_baffle_rpm)
-    || abs(_baffle_frequency - stirred_tank_blade_frequency(_baffle_rpm, impeller_n_fins)) < 0.3 * stirred_tank_blade_frequency(_baffle_rpm, impeller_n_fins)))
+  // WHERE THE MODE IS CROSSED, which is a speed and not a frequency.
+  //
+  // This used to compare the mode against the excitations AT THE FASTEST SETTING, and warn if it
+  // came within 30 %. That is the right question for load and the wrong one for resonance: the
+  // drive is a DC motor, so its speed is continuous and blade passing sweeps every frequency below
+  // its own maximum. Something is always crossed on the way up. What decides the plate is the SPEED
+  // each crossing happens at and whether the reactor is asked to sit there - so that is what this
+  // reports, and the warning fires on a crossing INSIDE the operating band rather than near one.
+  _drive_rpm_lo = min([for (s = _drive_speeds) s[1]]);
+  _baffle_crossings = [
+    ["the shaft", stirred_tank_critical_speed(_baffle_frequency, 1)],
+    ["blade passing", stirred_tank_critical_speed(_baffle_frequency, impeller_n_fins)],
+  ];
+  _baffle_crossings_in_band =
+    [for (c = _baffle_crossings) if (c[1] >= _drive_rpm_lo && c[1] <= _baffle_rpm) c];
+  // How far the nearest crossing sits outside the band, against the edge it is nearest. Reported
+  // rather than thresholded: a crossing just under the bottom is not a fault, but it is the number
+  // that says how much of the band a speed controller may wander into.
+  _baffle_crossing_clearance = min([
+    for (c = _baffle_crossings)
+      c[1] < _drive_rpm_lo
+        ? (_drive_rpm_lo - c[1]) / _drive_rpm_lo
+        : c[1] > _baffle_rpm ? (c[1] - _baffle_rpm) / _baffle_rpm : 0
+  ]);
+
+  if (_has_baffles)
     echo(str(
-      "WARNING baffle plate: its first mode at ", _baffle_frequency,
-      " Hz is within 30% of a drive excitation. Thickness raises it as t^1.5 and length lowers it ",
-      "as 1/L^2, so a thicker plate is the cheaper fix."
+      "baffle resonance: the ", _baffle_frequency, " Hz mode is crossed by ",
+      _baffle_crossings[0][0], " at ", _baffle_crossings[0][1], " rpm and by ",
+      _baffle_crossings[1][0], " at ", _baffle_crossings[1][1], " rpm, against a ",
+      _drive_rpm_lo, "-", _baffle_rpm, " rpm band. ",
+      len(_baffle_crossings_in_band) == 0
+        ? str(
+          "Neither is a speed this drive is asked to hold - the nearest clears the band by ",
+          _baffle_crossing_clearance * 100,
+          "% - though it passes through on the way up, which is a transient rather than a duty."
+        )
+        : "That is a speed it is asked to hold."
+    ));
+
+  if (_has_baffles && len(_baffle_crossings_in_band) > 0)
+    echo(str(
+      "WARNING baffle plate: ", _baffle_crossings_in_band[0][0], " crosses its ", _baffle_frequency,
+      " Hz mode at ", _baffle_crossings_in_band[0][1], " rpm, inside the ", _drive_rpm_lo, "-",
+      _baffle_rpm, " rpm the drive runs. Thickness raises the crossing as t^1.5 and length lowers ",
+      "it as 1/L^2, so it can be walked out of either end - but check WHICH end is nearer before ",
+      "reaching for a thicker plate, because from below the band that is the direction that walks ",
+      "it in."
     ));
 
   // ----- sparge ring -----

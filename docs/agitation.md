@@ -427,10 +427,14 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
   17.6 at 10, 19.8 at 11, 22.0 at 12. Blade passing is four per revolution and sweeps 0–28 Hz on the
   way to the drive's 420 rpm no-load speed, so it crosses the mode at 231 rpm on a 9 mm plate, 264
   on a 10, 297 on an 11 and **330 on a 12 — inside the 320–420 band the reactor actually runs in**.
-  11 and 12 both fire the model's own resonance echo. 10 clears the deflection limit by 15 % and
-  puts the crossing 17 % under the rated point, which is the whole window.
+  Only 12 fires the model's resonance warning, which now asks whether a crossing lands *in* the band
+  rather than whether the mode is within 30 % of an excitation at one speed. What separates 10 from
+  11 is margin, and `head()` reports it: **10 clears the band by 17.6 %, 11 by only 7.2 %**. With a
+  DC motor whose speed is set open-loop, 7 % is not much room for a controller to wander into. 10
+  also clears the deflection limit by 15 %, and that is the whole window.
 - **What `head()` reports on the 10 mm plate today**: 0.772 N each, **1.300 mm** at the tip with
-  0.185 mm of that the joints, first mode **17.6 Hz** against 7 Hz shaft and 28 Hz blade passing.
+  0.185 mm of that the joints, first mode **17.6 Hz** — crossed by blade passing at **264 rpm** and
+  by the shaft at 1055, against the 320–420 rpm the drive runs.
   The joints take a larger share of a stiffer plate than they did of a thinner one, because the
   dovetail's 4.2 mm neck does not thicken with it. Running clearance is untouched at **−0.28 mm** —
   that is a tolerance stack, not a stiffness one, and it is still open.
