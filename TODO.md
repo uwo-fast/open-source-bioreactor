@@ -284,14 +284,14 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     example passes no `blade_pitch`, so the sweep took the TWISTED path and the pitched blade that
     was tangent to its hub was reachable only through `head.scad`, on the slow list. Every part is
     rendered individually now, that one included
-  - what is left is **`frame.scad`**: base, top base, ribs, rod spacers. Its flags render a whole
-    class at once - all twelve rod spacers in one STL - so it wants the same narrowing the head got,
-    which is one part and a quantity beside it
-  - **and leaving it out is not cosmetic.** The base and the top base are 257.40 mm across, the
-    same as the lid and wider than anything else in the build, so a print list that omits them
-    omits the parts that decide what a builder has to own. It was exactly that gap that let an
-    export report the reactor fitting a 256 mm machine. The print list says so and `assembly.scad`
-    reports the whole-build answer, but neither is a substitute for exporting them
+  - **the frame is covered now.** `frame_print_parts()` carries its base, top base, 8 ribs and 12
+    rod spacers, and the export walks both manifests through `assembly.scad` - which is where the
+    flange height and the rod count are chosen, so neither half is read from a preview's copy. 47
+    pieces across 23 parts. `check-parts` guards both files
+  - what is left is **which jar**. `frame.scad` has no parameter set: it builds the vessel named in
+    its own preview, so the export hands `-p/-P` to `head.scad` only and a frame is always
+    `jar_10L`. Naming another vessel already fails on the head before it gets that far, so this is
+    latent rather than live - but it is the kind of thing that looks like it worked
   - **only the selected vessel exports.** The probe tilt and the working volume are pinned to
     `jar_10L`, so naming another jar fails on a real assert rather than on a missing feature -
     `jar_1gal_180x197`'s DO probe reaches the sparge ring at 4.5 degrees. `check-vessels` sweeps at

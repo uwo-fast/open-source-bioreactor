@@ -57,7 +57,11 @@ This is the part of the build nothing else will remind you about.
 - **two impellers**
 - the **sparge ring**
 
-**From `frame.scad`:** the base, the top base, the ribs and the rod spacers.
+**From `frame.scad`:** the base, the top base, **eight ribs** and **twelve rod spacers**. The ribs
+are one part printed eight times, which took measuring rather than reading — each is rotated by a
+multiple of 90° and bitten by the same lights cutout, and the exported meshes disagree because the
+cut surface tessellates differently at each angle. Intersecting one with another turned to its angle
+returns a whole rib, so it is one solid meshed two ways.
 
 **Tools, printed once:** the two halves of the gasket cutter.
 
@@ -99,9 +103,10 @@ is half again as slender for it. So the rule grades every piece by the plate.
 `just export-parts` writes every one of these as its own STL, with a print list beside them, and
 CGAL-renders each on the way past — so a part that is not a valid solid is caught there rather than
 in a slicer. It measures each one too, and reports which registered printers take it. It covers the
-lid and everything hanging from it; the frame is still a matter of setting the render flags at the
-top of `frame.scad` by hand — and since the frame holds two of the three widest parts, take
-`assembly.scad`'s report rather than the print list's for what you need to own.
+whole reactor — the lid and everything hanging from it, and the frame's base, top base, ribs and rod
+spacers — which comes to **47 pieces across 23 distinct parts**. `assembly.scad` reports the printer
+answer independently, off the geometry rather than the meshes; the two agreeing is the check that
+nothing has fallen off a manifest.
 
 **What you need to own.** Three parts are a **257.40 mm disc** — the lid, and the frame's base and
 top base — and they are the widest things in the build by a long way. A disc has the same width at

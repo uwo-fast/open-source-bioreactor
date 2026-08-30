@@ -25,8 +25,14 @@ render_all = true; // render all components
 render_base = false;
 render_upper_base = false;
 render_ribs = false;
+// Which rib, counted in the order they are emitted, for a per-part export. undef renders the whole
+// set at their own positions, which is the assembly picture rather than something to put on a bed.
+rib_to_render = undef;
 render_rods = false;
 render_rodspacers = false;
+// Which rod spacer, for the same reason. There are three runs of four and they are all one part -
+// a plain annulus with nothing to tell them apart - so a per-part export wants any single one.
+rodspacer_to_render = undef;
 render_lights = false;
 
 // -------
@@ -87,6 +93,9 @@ upper_base_height = 10;
 rib_base_height = 10;
 // stack a second rib at each level, rotated to close the arc the pair below leaves open
 double_ribs = true;
+// how many rib levels the stack carries. Up here beside double_ribs rather than inside frame(),
+// because frame_print_parts() has to count the ribs and the spacers and cannot see a local.
+n_rib_levels = 2;
 
 /* [Rod Spacer Parameters] */
 
@@ -121,6 +130,27 @@ function frame_bolt_circle_diameter(vessel_outer_diameter) =
 // vessel - which is what left it 0.4 mm short of the frame it lands on.
 function frame_outer_diameter(vessel_outer_diameter, wall_thickness) =
   (vessel_outer_diameter + base_jar_fit_allow) + wall_thickness;
+
+/**
+ * @brief Every printed part the frame carries: [name, quantity, the flags that render it alone].
+ *
+ * The other half of head_print_parts(), and the half that matters most for what a builder needs to
+ * own: the base and the top base are as wide as the lid and wider than anything hanging off it, so
+ * a print list without them omits the parts that decide the printer. `just export-parts` walks both.
+ *
+ * THE RIBS ARE ONE PART, EIGHT TIMES, and that took measuring rather than reading. Each is rotated
+ * by a multiple of 90 degrees and then bitten by the same lights cutout, and the exported meshes do
+ * NOT agree: the vertices land at different radii, because the cut surface tessellates differently
+ * at each rotation. Volume, facet count and bounding box all match, and intersecting one with
+ * another turned to its angle returns a rib's whole volume - the same solid, meshed two ways.
+ */
+function frame_print_parts(n_rods) =
+  [
+    ["frame_base", 1, "-D render_base=true"],
+    ["frame_upper_base", 1, "-D render_upper_base=true"],
+    ["frame_rib", n_rib_levels * 2 * (double_ribs ? 2 : 1), "-D render_ribs=true -D rib_to_render=0"],
+    ["frame_rod_spacer", (n_rib_levels + 1) * n_rods, "-D render_rodspacers=true -D rodspacer_to_render=0"],
+  ];
 
 // How far the frame reaches below the vessel's bottom. The lights set it: the base floor is
 // whatever is left once a light, a nut and a half for the radial bolt heads, and the top base have
@@ -199,8 +229,7 @@ module frame(vessel_height, vessel_outer_diameter, light, wall_thickness, lid_fl
 
   lower_base_height = base_floor_height + lower_base_wall_height;
 
-  // ribs and spacers share one stack, so both read these rather than deriving them separately
-  n_rib_levels = 2;
+  // ribs and spacers share one stack, so both read this rather than deriving it separately
   ribs_per_level = double_ribs ? 2 : 1;
   rib_level_height = rib_base_height * ribs_per_level;
   spacers_total_height = total_height - upper_base_height - lower_base_height - rib_level_height * n_rib_levels;
@@ -401,7 +430,9 @@ module frame(vessel_height, vessel_outer_diameter, light, wall_thickness, lid_fl
 
         // a 2-rod base is a 90 degree arc, so the j pair leaves two gaps; k stacks a second
         // pair on the first pair's rod bosses, turned 90 to fill them
-        for (j = [1:2], k = [0:ribs_per_level - 1]) {
+        for (j = [1:2], k = [0:ribs_per_level - 1])
+          // Flat over the three loops, so an export can name one without knowing how they nest.
+          if (is_undef(rib_to_render) || rib_to_render == ((i - 1) * 2 + (j - 1)) * ribs_per_level + k) {
           rotate([0, 0, j * 180 + k * 90])
             rotate([0, 0, i * 90])
               translate([0, 0, rib_pos + k * rib_base_height])
@@ -437,7 +468,8 @@ module frame(vessel_height, vessel_outer_diameter, light, wall_thickness, lid_fl
 
       // one spacer run under each rib level and one above the topmost, hence the extra
       color(prints2_color)for (i = [0:n_rib_levels]) {
-        for (j = [0:n_rods - 1]) {
+        for (j = [0:n_rods - 1])
+          if (is_undef(rodspacer_to_render) || rodspacer_to_render == i * n_rods + j) {
 
           spacer_pos = lower_base_height + spacer_pitch * i + spacer_joint + rib_level_height * i;
 

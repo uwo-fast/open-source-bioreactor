@@ -285,8 +285,8 @@ json:
     done
     exit $failed
 
-# Fail when a render flag in head.scad reaches no row of the print manifest and is not declared
-# here as something nobody prints.
+# Fail when a render flag in head.scad or frame.scad reaches no row of a print manifest and is not
+# declared here as something nobody prints.
 #
 # head_print_parts() is hand-written where the flags it drives are hand-written, so the two can
 # drift in the one direction that matters: add a printed part, give it a flag, forget the manifest,
@@ -321,19 +321,22 @@ check-parts:
         render_probe_pinlock        # through port_to_render, which is what makes them separate
         render_thermocouple_pinlock # parts rather than one STL of five
         render_baffle_pinlock       #
+        render_rods                 # vitamin - the M8 studding and its nuts, cut from stock
+        render_lights               # vitamin - the LED strips the frame makes room for
     )
     cat > "$tmp/m.scad" <<SCAD
-    include <$PWD/scad/head.scad>
+    include <$PWD/scad/assembly.scad>
     _v = reactor_vessel;
-    for (p = head_print_parts(vessel_opening_diameter(_v), _preview_flange_height,
+    for (p = head_print_parts(vessel_opening_diameter(_v), lid_flange_height,
                               vessel_internal_height(_v), vessel_punt_height(_v)))
       echo(str("PART|", p[2]));
+    for (p = frame_print_parts(n_rods)) echo(str("PART|", p[2]));
     SCAD
-    {{OPENSCAD}} -o "$tmp/m.csg" "$tmp/m.scad" 2>"$tmp/err" >/dev/null
+    {{OPENSCAD}} -D render_all=false -o "$tmp/m.csg" "$tmp/m.scad" 2>"$tmp/err" >/dev/null
     manifest=$(grep '^ECHO: "PART|' "$tmp/err" | sed 's/^ECHO: "PART|//; s/"$//')
     if [ -z "$manifest" ]; then echo "FAIL  could not read the print manifest"; exit 1; fi
     failed=0
-    for f in $(grep -oE '^render_[a-z_]+' scad/head.scad | sort -u); do
+    for f in $(grep -hoE '^render_[a-z_]+' scad/head.scad scad/frame.scad | sort -u); do
         listed=0
         for n in "${not_printed[@]}"; do [ "$n" = "$f" ] && listed=1; done
         if grep -q -- "$f=true" <<< "$manifest"; then
@@ -343,7 +346,8 @@ check-parts:
             fi
         elif [ "$listed" = 0 ]; then
             echo "FAIL  $f  renders something no print manifest row asks for"
-            echo "        add it to head_print_parts(), or to not_printed in check-parts"
+            echo "        add it to head_print_parts() or frame_print_parts(), whichever file it is"
+            echo "        in, or to not_printed in check-parts if it makes nothing anybody prints"
             failed=1
         fi
     done
@@ -382,18 +386,24 @@ export-parts vessel="" out="output":
     label="{{vessel}}"
     if [ -n "{{vessel}}" ]; then sel=(-p scad/head.json -P "{{vessel}}"); fi
 
-    # Ask the model what it prints. A stub rather than a render: the manifest needs the port table
-    # and the segment count, both of which are functions, so this costs seconds where head.scad
-    # costs a minute.
+    # Ask the model what it prints. Through ASSEMBLY, because that is the file that owns both
+    # halves - the flange height and the rod count are chosen there and the head and the frame both
+    # build to them, so asking either one directly would be reading a preview's copy. A stub rather
+    # than a render, and with render_all off, so it costs a second where the assembly costs minutes.
+    #
+    # Each row says which FILE renders it, since that is the one thing a manifest row cannot carry
+    # about itself.
     cat > "$tmp/m.scad" <<SCAD
-    include <$PWD/scad/head.scad>
+    include <$PWD/scad/assembly.scad>
     _v = reactor_vessel;
-    for (p = head_print_parts(vessel_opening_diameter(_v), _preview_flange_height,
+    for (p = head_print_parts(vessel_opening_diameter(_v), lid_flange_height,
                               vessel_internal_height(_v), vessel_punt_height(_v)))
-      echo(str("PART|", p[0], "|", p[1], "|", p[2]));
+      echo(str("PART|scad/head.scad|", p[0], "|", p[1], "|", p[2]));
+    for (p = frame_print_parts(n_rods))
+      echo(str("PART|scad/frame.scad|", p[0], "|", p[1], "|", p[2]));
     echo(str("VESSEL|", vessel_name(_v)));
     SCAD
-    {{OPENSCAD}} "${sel[@]}" -o "$tmp/m.csg" "$tmp/m.scad" 2>"$tmp/err" >/dev/null
+    {{OPENSCAD}} "${sel[@]}" -D render_all=false -o "$tmp/m.csg" "$tmp/m.scad" 2>"$tmp/err" >/dev/null
     if grep -q '^ERROR' "$tmp/err"; then
         echo "FAIL  ${label:-the selected vessel} does not resolve, so there is nothing to export"
         grep -m1 '^ERROR' "$tmp/err" | sed 's/^/        /'
@@ -420,13 +430,18 @@ export-parts vessel="" out="output":
     pieces=0
     parts=0
 
-    while IFS='|' read -r name qty flags; do
+    while IFS='|' read -r file name qty flags; do
         [ -z "$name" ] && continue
         parts=$((parts + 1))
         pieces=$((pieces + qty))
         out="$dir/$name.stl"
+        # The vessel selection only reaches head.scad: frame.scad has no parameter set and builds
+        # the jar named in its own preview, so handing it -P would look like it worked and quietly
+        # produce another jar's frame. Naming a vessel already fails on the head before it gets
+        # here, so this is a latent gap rather than a live one - it is in TODO.md.
+        fsel=(); [ "$file" = "scad/head.scad" ] && fsel=("${sel[@]}")
         # render_all overrides every other flag, so it has to go off before the row's own go on.
-        {{OPENSCAD}} "${sel[@]}" -D render_all=false $flags -o "$out" scad/head.scad 2>"$tmp/e" >/dev/null
+        {{OPENSCAD}} ${fsel[@]+"${fsel[@]}"} -D render_all=false $flags -o "$out" "$file" 2>"$tmp/e" >/dev/null
         size=$(stat -c%s "$out" 2>/dev/null || echo 0)
         tris=$(grep -c '^ *facet' "$out" 2>/dev/null || echo 0)
         # The bounding box, because "will this fit my printer" is the question the baffle is split
@@ -463,20 +478,20 @@ export-parts vessel="" out="output":
     # in awk.
     #
     # REPORTED, not targeted. The design does not name a printer and bend itself to fit one; it is
-    # what it is and this says what that needs. assembly.scad makes the same report for the whole
-    # reactor, and its answer is the one to trust - the frame's bases are not exported here and they
-    # are as wide as the lid. A part that fits NOTHING is the only thing that fails.
+    # what it is and this says what that needs. assembly.scad reports the same thing off the
+    # geometry, and the two are now measuring the same set of parts - so if they ever disagree, a
+    # part has fallen off a manifest. A part that fits NOTHING is the only thing that fails.
     {
         # printers.scad explicitly, not by way of head.scad: the fit rule is this stub's dependency
         # and it should say so rather than lean on another file's include chain.
         printf 'include <%s/scad/purchased/printers.scad>\n' "$PWD"
-        printf 'include <%s/scad/head.scad>\n_s = [' "$PWD"
+        printf 'include <%s/scad/assembly.scad>\n_s = [' "$PWD"
         while read -r n w d h; do printf '["%s", [%s, %s, %s]],' "$n" "$w" "$d" "$h"; done < "$tmp/sizes"
         printf '];\n'
         printf 'for (s = _s) if (len(printers_fitting(s[1])) == 0) echo(str("NOFIT|", s[0]));\n'
         printf 'echo(str("ALLFIT|", [for (p = printers) if (len([for (s = _s) if (!printer_fits(p, s[1])) 1]) == 0) printer_name(p)]));\n'
     } > "$tmp/fit.scad"
-    {{OPENSCAD}} "${sel[@]}" -o "$tmp/fit.csg" "$tmp/fit.scad" 2>"$tmp/fit" >/dev/null
+    {{OPENSCAD}} "${sel[@]}" -D render_all=false -o "$tmp/fit.csg" "$tmp/fit.scad" 2>"$tmp/fit" >/dev/null
     allfit=$(grep -m1 '^ECHO: "ALLFIT|' "$tmp/fit" | sed 's/.*ALLFIT|//; s/"$//; s/[]["]//g')
     for m in $(grep '^ECHO: "NOFIT|' "$tmp/fit" | sed 's/.*NOFIT|//; s/"$//'); do
         echo "FAIL  $m  fits no registered printer at all - see scad/purchased/printers.scad"
@@ -493,13 +508,15 @@ export-parts vessel="" out="output":
       echo "is a tool rather than a part of the reactor, and you need it to cut the rim gasket."
       echo "Assembly, and the numbers that go with it, are in [docs/build.md](../../docs/build.md)."
       echo
-      echo "**This is the lid and everything hanging from it.** The frame - base, top base, ribs and"
-      echo "rod spacers - is a separate file and is not exported yet, so it is not on this list."
+      echo "**This is the whole reactor** - the lid and everything hanging from it, and the frame's"
+      echo "base, top base, ribs and rod spacers. The frame is built at the vessel named in"
+      echo "\`frame.scad\`'s own preview, which is the only jar this exports today anyway."
       echo
-      echo "**Printers that take every part on this list:** $allfit. That is reported, not targeted -"
-      echo "the design is what it is and this says what it needs. It counts only the parts below, and"
-      echo "the frame's bases are as wide as the lid, so render \`scad/assembly.scad\` for the answer"
-      echo "covering the whole reactor. Volumes: [scad/purchased/printers.scad](../../scad/purchased/printers.scad)."
+      echo "**Printers that take every part on this list:** $allfit. Reported, not targeted - the"
+      echo "design is what it is and this says what it needs, measured off the meshes below rather"
+      echo "than off the model. \`scad/assembly.scad\` reports the same thing from the geometry and"
+      echo "should agree; the two disagreeing means a part is not on this list."
+      echo "Volumes: [scad/purchased/printers.scad](../../scad/purchased/printers.scad)."
       echo
       echo "Sizes are the exported mesh's own bounding box. Each part is written where it sits in the"
       echo "assembly rather than at the origin, so let the slicer place it - what the size column is"
