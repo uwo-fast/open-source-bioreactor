@@ -327,6 +327,20 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     and that ratio is the thing worth watching rather than the total. A sharp fall means reasoning
     has moved somewhere it cannot be checked against the code it explains
 
+- [ ] **`just check-mesh scad/head.scad` cannot pass, and the recipe invites you to run it**
+  - the recipe skips `head.scad` as slow and prints "pass it as an argument", which reads as though
+    it would then pass. It does not: `head.scad` defaults to `render_all = true`, so the mesh it
+    exports is the assembled head - motor, bearing, probes, seals, screws and the culture unioned
+    into one solid. Overlapping vitamins are not a 2-manifold and never will be
+  - **it is not a regression.** Measured before and after the `$fa`/`$fs` change and the failure is
+    byte-identical, so it predates both. The parts themselves are fine: `just export-parts` runs the
+    same 2-manifold test per part and all 23 pass
+  - so the check is sound and its target is wrong. Either point it at the printed parts rather than
+    the preview, or say in the skip line that the entry files are assemblies and only their parts
+    are meshable. Left open because deciding which is a call about what check-mesh is FOR
+  - the same question applies to `assembly.scad`, `frame.scad`, `cart.scad` and
+    `electronics_stand.scad`, which are skipped for the same reason and are assemblies too
+
 - [ ] adopt the Just the Docs OpenSCAD setup for this project, including its web-based OpenSCAD preview
 
 ## second hardware revision
