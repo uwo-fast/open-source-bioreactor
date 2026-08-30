@@ -50,6 +50,23 @@ rebuild the value.
 permitted two readings — outer diameter versus bore, motor speed versus output speed, screw centre
 distance versus bolt circle. If a field could be read two ways, it eventually will be.
 
+**Documents are the second expression.** The same defect appears in prose, and there it is worse:
+the model cannot check a document, so a stale figure sits unchallenged until a reader trusts it.
+Eight were found in one pass — a D/T cap the model had moved, a thermocouple nothing buys, a pump
+delivery the model explicitly retracts in its own echo, a fenced echo quoting a number the model no
+longer emits, and one document stating both that the baffle hangs its full length and that it has
+never been lengthened.
+
+Prefer quoting an accessor or an echo over restating its result. Where a figure must be written out,
+**check it against the model rather than against another document** — several of these agreed with
+each other and with nothing else.
+
+**A corrected figure gets its predecessor labelled, not deleted.** The form is
+`(Superseded — kept for the record.)`, followed by what the number was and what made it wrong. The
+old value is evidence: it records which assumption failed, and deleting it invites the same mistake
+back. Three of the eight above were live only because the correction was made somewhere else and
+the original was left standing with nothing marking it.
+
 ---
 
 ## Purchased parts are registered rows that drive geometry
