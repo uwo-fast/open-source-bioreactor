@@ -431,14 +431,15 @@ export-parts vessel="" out="output":
         # The bounding box, because "will this fit my printer" is the question the baffle is split
         # to answer and a triangle count cannot answer it. Read off the mesh rather than asked of
         # the model, so it measures what was actually exported.
-        box=$(awk '/^ *vertex/ {
+        raw=$(awk '/^ *vertex/ {
             if (n++ == 0) { x1=x2=$2; y1=y2=$3; z1=z2=$4 }
             else {
                 if ($2<x1) x1=$2; if ($2>x2) x2=$2
                 if ($3<y1) y1=$3; if ($3>y2) y2=$3
                 if ($4<z1) z1=$4; if ($4>z2) z2=$4
             }
-        } END { if (n) printf "%.0f x %.0f x %.0f", x2-x1, y2-y1, z2-z1 }' "$out" 2>/dev/null)
+        } END { if (n) printf "%.2f %.2f %.2f", x2-x1, y2-y1, z2-z1 }' "$out" 2>/dev/null)
+        box=$(echo "$raw" | awk '{ printf "%.0f x %.0f x %.0f", $1, $2, $3 }')
         if grep -q '^ERROR' "$tmp/e"; then
             echo "FAIL  $name"; grep -m1 '^ERROR' "$tmp/e" | sed 's/^/        /'; failed=1
             printf '| %s | %s | — | — | **did not build** |\n' "$name" "$qty" >> "$tmp/rows.md"
@@ -451,8 +452,36 @@ export-parts vessel="" out="output":
         else
             printf 'ok    %-28s x%-3s %-16s %s triangles\n' "$name" "$qty" "$box mm" "$tris"
             printf '| %s | %s | `%s.stl` | %s | %s |\n' "$name" "$qty" "$name" "$box" "$tris" >> "$tmp/rows.md"
+            echo "$name $raw" >> "$tmp/sizes"
         fi
     done <<< "$rows"
+
+    # WHICH PRINTERS TAKE THESE, asked of the model rather than worked out here. The rule for
+    # whether a box fits a bed lives in purchased/printers.scad and this passes it the sizes that
+    # came off the meshes - so the registry decides, and there is no second copy of the arithmetic
+    # in awk.
+    #
+    # REPORTED, not targeted. The design does not name a printer and bend itself to fit one; it is
+    # what it is and this says what that needs. assembly.scad makes the same report for the whole
+    # reactor, and its answer is the one to trust - the frame's bases are not exported here and they
+    # are as wide as the lid. A part that fits NOTHING is the only thing that fails.
+    {
+        # printers.scad explicitly, not by way of head.scad: the fit rule is this stub's dependency
+        # and it should say so rather than lean on another file's include chain.
+        printf 'include <%s/scad/purchased/printers.scad>\n' "$PWD"
+        printf 'include <%s/scad/head.scad>\n_s = [' "$PWD"
+        while read -r n w d h; do printf '["%s", [%s, %s, %s]],' "$n" "$w" "$d" "$h"; done < "$tmp/sizes"
+        printf '];\n'
+        printf 'for (s = _s) if (len(printers_fitting(s[1])) == 0) echo(str("NOFIT|", s[0]));\n'
+        printf 'echo(str("ALLFIT|", [for (p = printers) if (len([for (s = _s) if (!printer_fits(p, s[1])) 1]) == 0) printer_name(p)]));\n'
+    } > "$tmp/fit.scad"
+    {{OPENSCAD}} "${sel[@]}" -o "$tmp/fit.csg" "$tmp/fit.scad" 2>"$tmp/fit" >/dev/null
+    allfit=$(grep -m1 '^ECHO: "ALLFIT|' "$tmp/fit" | sed 's/.*ALLFIT|//; s/"$//; s/[]["]//g')
+    for m in $(grep '^ECHO: "NOFIT|' "$tmp/fit" | sed 's/.*NOFIT|//; s/"$//'); do
+        echo "FAIL  $m  fits no registered printer at all - see scad/purchased/printers.scad"
+        failed=1
+    done
+    [ -n "$allfit" ] && echo "ok    every exported part fits: $allfit"
 
     { echo "# Print list — $label"
       echo
@@ -465,6 +494,11 @@ export-parts vessel="" out="output":
       echo
       echo "**This is the lid and everything hanging from it.** The frame - base, top base, ribs and"
       echo "rod spacers - is a separate file and is not exported yet, so it is not on this list."
+      echo
+      echo "**Printers that take every part on this list:** $allfit. That is reported, not targeted -"
+      echo "the design is what it is and this says what it needs. It counts only the parts below, and"
+      echo "the frame's bases are as wide as the lid, so render \`scad/assembly.scad\` for the answer"
+      echo "covering the whole reactor. Volumes: [scad/purchased/printers.scad](../../scad/purchased/printers.scad)."
       echo
       echo "Sizes are the exported mesh's own bounding box. Each part is written where it sits in the"
       echo "assembly rather than at the origin, so let the slicer place it - what the size column is"

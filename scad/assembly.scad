@@ -78,6 +78,7 @@
 
 include <purchased/vessels.scad>;
 include <purchased/strip_lights.scad>;
+include <purchased/printers.scad>;
 
 use <utils/bolt_pattern.scad>;
 use <utils/gasket_load.scad>;
@@ -175,6 +176,10 @@ joint_bolt_circle = frame_bolt_circle_diameter(vessel_diameter(reactor_vessel));
 // them thread through three plates at once - and the plug locates the lid radially, not the bolts,
 // so the bolt positions are deliberately loose rather than fitted to the screw.
 joint_hole_diameter = frame_rod_hole_diameter();
+// The face the joint presents, which the head builds its flange to exactly. Named here rather than
+// computed inline at the call below, because the printer report further down needs the same number
+// and two expressions of one diameter is how they drift.
+joint_outer_diameter = frame_outer_diameter(vessel_diameter(reactor_vessel), frame_wall_thickness);
 joint_posts = bolt_post_count(n_rods, screw_radius(joint_bolt) * 2, joint_bolt_circle, lid_flange_height, lid_gasket_factor);
 
 assert(
@@ -253,6 +258,36 @@ function reactor_envelope_height() =
 
 echo("reactor envelope: ", reactor_envelope_diameter(), " mm dia x ", reactor_envelope_height(), " mm tall");
 
+// WHAT CAN PRINT THIS, reported rather than designed to.
+//
+// The lid and the frame's two bases are all one disc of the joint's outer diameter, and they are
+// the widest printed parts in the build by a long way - nothing else comes near, so this one number
+// decides what a builder has to own. It is reported here because this is the only file that sees
+// both halves: head.scad cannot see the frame's bases, which is exactly how a per-part export came
+// to say the reactor fitted a 256 mm machine while two 257.40 mm parts sat in the other file.
+//
+// A DISC, so min(x, y) is the test and printer_fits() is the wrong one - that allows a rectangle
+// the 90 degree turn a circle does not get. It is why a 250 x 220 bed is ruled out by its 220.
+//
+// Height is not checked here and does not need to be: every registered printer has at least 250 mm
+// of Z, against a tallest piece of about 163. `just export-parts` measures each part and reports
+// its fit, which is the fine-grained version of this.
+_widest_printed = joint_outer_diameter;
+_printers_fitting = [for (p = printers) if (printer_max_disc(p) >= _widest_printed) printer_name(p)];
+
+echo(str(
+  "printers: the widest printed part is a ", _widest_printed, " mm disc - the lid, and the frame's ",
+  "base and top base - so this build wants a bed that takes a disc that wide. Registered printers ",
+  "that do: ", _printers_fitting
+));
+
+if (len(_printers_fitting) == 0)
+  echo(str(
+    "WARNING printers: no registered printer takes a ", _widest_printed,
+    " mm disc, so nothing in scad/purchased/printers.scad can build this reactor. Either the joint ",
+    "has grown or the registry is short a machine."
+  ));
+
 // The vessel sections itself by revolving through 180 degrees, which keeps the +y half. Cut the
 // head to that same half so the two read as one section: almost everything the head seals with
 // is buried - the o-ring glands, the bayonet channels, the gasket recess - and a section is the
@@ -303,7 +338,7 @@ if (render_head || render_all) {
       vessel_wall_thickness=vessel_thickness(reactor_vessel),
       vessel_internal_height=vessel_internal_height(reactor_vessel),
       vessel_punt_height=vessel_punt_height(reactor_vessel),
-      joint_outer_diameter=frame_outer_diameter(vessel_diameter(reactor_vessel), frame_wall_thickness),
+      joint_outer_diameter=joint_outer_diameter,
       post_pts=bolt_pattern_pts(joint_posts, joint_bolt_circle),
       post_hole_diameter=joint_hole_diameter,
       vessel_profile=vessel_inner_profile(reactor_vessel)
