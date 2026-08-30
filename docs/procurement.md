@@ -180,13 +180,16 @@
     bought, including the sterile-side four and the one at the lid
 
 - thermocouple selection
-  - McMaster-Carr 3872K117
+  - McMaster-Carr 1245N31
   - Type K threaded thermocouple probe for liquids and gases
   - 1/2 NPT male fitting, wire leads
-  - 9 in long x 1/8 in diameter grounded 304 stainless probe
+  - 6 in long x 1/8 in diameter grounded 304 stainless probe
   - 4 ft fiberglass cable, 24 AWG, 1/2 in wire leads
   - 0.5 s response time, 900 F maximum temperature
-  - https://www.mcmaster.com/3872K117/
+  - https://www.mcmaster.com/1245N31/
+  - (Superseded — kept for the record. This was 3872K117, the same probe at 9 in, until the model
+    showed a 9 in probe reaching through the jar's floor. Both are registered in
+    `purchased/thermocouple_probes.scad`; `head()` selects the 6 in one.)
 
 - motor mount insert selection
   - McMaster-Carr 97163A152
