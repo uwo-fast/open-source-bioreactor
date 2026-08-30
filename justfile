@@ -22,7 +22,8 @@ ENTRY := "scad/assembly.scad scad/bottle_holder.scad scad/cart.scad scad/electro
 scad/frame.scad scad/head.scad scad/custom/bayonet_baffle_port.scad scad/custom/bayonet_port.scad \
 scad/custom/bayonet_probe_port.scad scad/custom/bayonet_thermocouple_port.scad \
 scad/custom/cylindrical_flex_collet.scad scad/custom/gasket_cutter.scad scad/custom/impeller.scad \
-scad/custom/motor_mount.scad scad/custom/peri_pump_frame_mount.scad scad/custom/sheet_gasket.scad \
+scad/custom/motor_mount.scad scad/custom/peri_pump_frame_mount.scad \
+scad/custom/peri_pump_head.scad scad/custom/sheet_gasket.scad \
 scad/custom/sparge_ring.scad"
 
 # List available recipes.
@@ -211,6 +212,7 @@ check-bom:
     echo(str("BOM|", shaft_part_number(head_shaft_selected(8, vessel_internal_height(_v))), "|impeller shaft"));
     echo(str("BOM|", steel_tube_part_number(sparge_riser_tube), "|sparge riser tube"));
     echo(str("BOM|", hose_clamp_part_number(sparge_riser_clamp), "|riser hose clamp"));
+    echo(str("BOM|", peri_pump_part_number(head_dosing_pump), "|dosing pump"));
     echo(str("BOM|", set_screw_part_number(impeller_set_screw), "|impeller set screw"));
     SCAD
     {{OPENSCAD}} -o "$tmp/b.csg" "$tmp/b.scad" 2>"$tmp/err" >/dev/null

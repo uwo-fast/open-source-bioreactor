@@ -45,6 +45,7 @@ include <NopSCADlib/vitamins/inserts.scad>; // F1BM4 type + insert()
 include <NopSCADlib/vitamins/screws.scad>; // M4_cap_screw type + screw()
 include <purchased/set_screws.scad>; // after screws.scad - the rows bind M4_grub_screw
 include <purchased/air_pumps.scad>;
+include <purchased/peri_pumps.scad>;
 include <NopSCADlib/vitamins/ball_bearings.scad>; // BB608 type + bb_diameter()/bb_width()
 use <NopSCADlib/vitamins/shaft_coupling.scad>;
 
@@ -899,6 +900,12 @@ sparge_design_vvm = 0.5;
 sparge_vvm_band = [0.1, 0.5];
 // what pushes the gas
 head_air_pump = air_pump_resun_35w;
+// What doses acid and base. It is selected here, beside the air pump, because what this model knows
+// about a dosing pump is the TUBE it pushes - and the port that tube has to enter is this file's.
+head_dosing_pump = peri_pump_kamoer_nkp;
+// Which ports it feeds. A list rather than two names, because a narrow jar's reduced port set has
+// no dosing pair at all and the check below has to find nothing rather than assert.
+dosing_pump_functions = ["acid", "base"];
 
 /* [Probe Port Parameters] */
 
@@ -2787,6 +2794,39 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     PI / 4 * (pow(_riser_port_bore, 2) - pow(steel_tube_od(sparge_riser_tube), 2)),
     " mm2 hole into the headspace, and the sterile filter only covers the way in"
   ));
+
+  // WHAT THE DOSING LINE HAS TO GET INTO. The pump pushes a registered tube and the lid bores a
+  // port for it, and the two are chosen in different files - so until now nothing compared them.
+  //
+  // A tube BIGGER than its bore is the wanted condition here, unlike the riser's: the interference
+  // is the grip, the same way flexible tubing holds itself into the other tube ports. A dosing line
+  // loose in its bore is one that can back out with acid in it.
+  //
+  // Empty on a narrow jar, whose reduced port set has no dosing pair at all - that lid gives up pH
+  // control by design, so finding nothing here is the right answer rather than a fault.
+  _dosing_ports = [
+    for (i = [0:_n - 1])
+      if (len([for (f = dosing_pump_functions) if (head_port_function(_ports[i]) == f) 1]) > 0) i
+  ];
+  _dosing_tube_od = peri_pump_tube_outer_diameter(head_dosing_pump);
+  _dosing_bore = len(_dosing_ports) == 0
+    ? undef
+    : min([for (i = _dosing_ports) head_port_bore_radius(_ports[i]) * 2]);
+
+  if (len(_dosing_ports) > 0)
+    echo(str(
+      "dosing: ", peri_pump_name(head_dosing_pump), " pushes ",
+      peri_pump_tube_inner_diameter(head_dosing_pump), " x ", _dosing_tube_od, " mm tube into ",
+      len(_dosing_ports), " ports bored ", _dosing_bore, " mm - ",
+      _dosing_tube_od - _dosing_bore, " mm of interference, which is what grips it"
+    ));
+
+  if (len(_dosing_ports) > 0 && _dosing_tube_od <= _dosing_bore)
+    echo(str(
+      "WARNING dosing: a ", _dosing_tube_od, " mm tube in a ", _dosing_bore,
+      " mm bore is loose, and nothing else holds a dosing line in - it is pushed into the port and ",
+      "gripped by it. Either the port's bore or the pump's tube has moved."
+    ));
 
   // It is bought as a length of stock and cut, not as a part per tube, so the purchase list needs
   // the stock and the cut list rather than a quantity - which is what this line gives it.

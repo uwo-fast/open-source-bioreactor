@@ -6,7 +6,23 @@ ledger at the end: decisions that took real work to reach and would otherwise be
 
 ## model completeness / enhancement
 
-- [ ] finish modelling peri pumps and integrating with a motor then into the assembly using the peri pump motor mount that has been modified to take the registered parameters for the motor and pump
+- [ ] **place the bought pumps in the assembly, which needs the frame mount rethought**
+  - the registry half is done. `purchased/peri_pumps.scad` carries the **Kamoer NKP-DC-S10B** with
+    its part number, its 67 x 55 x 41 envelope and its 3 x 5 mm tube, and `purchased/peri_pump.scad`
+    draws that envelope as a vitamin. `check-bom` guards the row - proved to fail on a wrong part
+    number - and `head()` checks the pump's tube against the port it has to enter: 5 mm into a
+    4.8 mm bore, **0.2 mm of interference, which is what grips it**
+  - the printed head moved to `custom/peri_pump_head.scad`, one file, prefixed so it cannot collide
+    with the bought part. It is an entry file now, so it renders and is mesh-checked rather than
+    sitting as an unbuilt work in progress. It is a stretch goal and not this build
+  - **what is left is placement, and the mount is what blocks it.** `peri_pump_frame_mount.scad`
+    still assumes the printed path: it says it seats in pockets `frame.scad` does not have, it
+    collars `motor_12v_5w` which is on no purchase list, and its `flange_screw_distance = 48.0`
+    waits on a faceplate a snap-in Kamoer has not got. A bought unit wants a bracket that holds a
+    67 x 55 x 41 body, which is a different part rather than a modified one
+  - and the frame needs somewhere to put three of them: pockets, or a rail, or hanging off the
+    electronics stand. That is a design decision rather than a parameter, and nothing else waits
+    on it - the reference run had the dose pumps disabled throughout
 
 - [ ] replace as many of the "generic" parameter registrations as possible with specific ones for the actual hardware (i.e. mcmaster carr part numbers or best effort for other parts)
 
