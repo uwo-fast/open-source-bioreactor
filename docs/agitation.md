@@ -62,7 +62,7 @@ full. `head()` echoes every figure below at render.
 | 420 rpm — registered drive, no-load | 2.08 m/s | 62,300 | 468 | 69.0 |
 | 1154 rpm — 36GP-3530 at full speed | 5.71 m/s | 171,100 | 9,738 | 1,432 |
 
-Every figure in that column rose about 62 % when the blade changed, and none of it is the impeller
+Every figure in that column rose about 51 % when the blade changed, and none of it is the impeller
 getting worse. The old numbers used **Np = 0.99 borrowed from a differently shaped blade**, with a
 note calling them conservative; they were optimistic. Np is computed from this impeller's own
 geometry by a correlation that states where it is being extrapolated.
@@ -145,6 +145,13 @@ never in danger; the headroom it was chosen on was understated by 8 mm.)
 
 ### Blade twist and height — out of the literature's tested range
 
+**(Superseded — kept for the record.)** This section describes the constant-pitch helicoid, which
+the model no longer builds: `head()` selects `pbt_45_4`, a flat four-blade 45° pitched turbine, and
+takes `Po 1.49754` from Medek's correlation instead of borrowing 0.99. It is kept because the
+reading in it is *why* the helicoid was abandoned — the twist definition, the direction of its
+effect, and the pitch geometry showing the blade was steeper than 45° at every radius. Nothing
+below describes a part that is printed today.
+
 `impeller_twist_ang` and `impeller_height` remain **uncharacterised for this blade**, but not for
 the reason recorded here until 2026-08-13. That entry said twist had "no citable basis" and that a
 search found nothing giving a value. Both twist papers were obtained and read on that date, and
@@ -159,8 +166,10 @@ turbine and measured a 3 % drop in secondary flow number and 1 % in averaged she
 On their definition **this blade is a 30° twist**, 83° at the hub to 53° at the tip — 1.5× the
 largest twist either tested, at hub angles 23° beyond either's range. So the numbers do not
 transfer, but the direction does, and it matters: **Po = 0.99 is borrowed from an untwisted blade,
-so it is likely an over-estimate here**, making the power, dissipation and torque figures above
-conservative rather than optimistic.
+so it is likely an over-estimate here**, making the power, dissipation and torque figures of the
+day conservative rather than optimistic. That reasoning held only for the helicoid. On the blade
+actually built, the correlated Po is 1.498 against the borrowed 0.99, so those figures were
+**optimistic** — see the blade-choice section above, which records the correction.
 
 A second, smaller departure was added deliberately. The hub carries the set screws that hold the
 impeller to the shaft, and sizing it for thread engagement grew it from 7.5 to 10 mm radius — from
@@ -299,8 +308,8 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
   helicoid's 0.634921 is the only geometric ratio left in the registry with nothing behind it.
   A pitched blade is also the easiest thing in the registry to draw and to print, where the
   helicoid was the hardest.
-- **The switch is not free and the direction may read backwards.** Po goes 0.99 → 1.602 and every
-  power, dissipation and torque figure rises about 62 %. That is a borrowed number being replaced
+- **The switch is not free and the direction may read backwards.** Po goes 0.99 → 1.498 and every
+  power, dissipation and torque figure rises about 51 %. That is a borrowed number being replaced
   by a correlated one, not the impeller getting worse; the old figures carried a note calling them
   conservative, and they were optimistic. It also loaded the baffles 62 % harder — they react the
   impeller's torque — which took the plates from 8 mm to 9 to stay inside their deflection limit.
