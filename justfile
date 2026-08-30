@@ -164,7 +164,8 @@ check-vessels:
 #
 # WHAT IS WORTH LOOKING AT HERE IS THE COMMENT SHARE, not the total. This model keeps its reasoning
 # in the source - why a number is what it is, and what went wrong before it was - so the ratio is a
-# property of the method rather than an accident. The SCAD tree runs a little over 40 % comment.
+# property of the method rather than an accident. The SCAD tree is 3,852 comment to 4,907 code,
+# 44 %.
 # A sharp fall there means reasoning has started living somewhere it cannot be checked against the
 # code it explains.
 #
@@ -189,10 +190,16 @@ stats:
         echo "        it counts none of the SCAD tree, which is the one thing worth counting here."
         exit 1
     fi
-    # analysis/.venv is thousands of files of somebody else's code and output/ is generated meshes.
+    # --vcs=git so this counts what the repo actually carries: analysis/.venv, output/ and
+    # working.tmp are all gitignored and drop out on their own. The cost is that a new file counts
+    # only once it is tracked, which is the right side to err on for a figure about the method.
+    #
+    # CSV is data, never source, and two tracked instrument logs run to 740k lines - counted, they
+    # bury every other language and the SUM stops meaning anything.
+    #
     # _archive and _shelf are excluded from every other check too, so counting them here would make
     # this disagree with the rest of the tooling about what the model is.
-    cloc --exclude-dir=.venv,output,working.tmp,_archive,_shelf .
+    cloc --vcs=git --exclude-dir=_archive,_shelf --exclude-lang=CSV .
 
 # Create the analysis virtualenv from analysis/pyproject.toml.
 analysis-setup:

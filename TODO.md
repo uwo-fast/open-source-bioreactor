@@ -328,9 +328,10 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
   - **it is not in `just check` and should not be.** It reports, and a number that cannot fail is
     not a check; wiring it in would make the whole suite fail on a machine that simply lacks the
     tool. The original item said "in CI", and in this repo CI is `just check`
-  - counted by hand in the meantime: the SCAD tree is 4,884 code against 3,841 comment, **44 %**,
-    and that ratio is the thing worth watching rather than the total. A sharp fall means reasoning
-    has moved somewhere it cannot be checked against the code it explains
+  - measured, now that the tool can see the language: the SCAD tree is **4,907 code against 3,852
+    comment, 44 %**, across 56 files. That is the ratio worth watching rather than the total - a
+    sharp fall means reasoning has moved somewhere it cannot be checked against the code it
+    explains. cloc reproduced the hand count exactly, which is some evidence for both
 
 - [ ] **`just check-mesh scad/head.scad` cannot pass, and the recipe invites you to run it**
   - the recipe skips `head.scad` as slow and prints "pass it as an argument", which reads as though
