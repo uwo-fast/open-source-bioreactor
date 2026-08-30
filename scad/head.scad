@@ -56,7 +56,12 @@ use <NopSCADlib/vitamins/shaft_coupling.scad>;
 use <frame.scad>;
 
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
-$fn = $preview ? 64 : 128;
+// Tessellate by feature size, as bayonet_port.scad already does. A flat 128 was wrong at both
+// ends: a 0.21 mm chord on an M8 bore, and 24 such bores were most of the lid's render, against
+// a 6.32 mm chord on the 257 mm flange. Costs 0.0156 mm of undersize on the smallest hole.
+$fn = 0;
+$fa = $preview ? 6 : 2;
+$fs = $preview ? 1.2 : 0.6;
 
 // -----
 
