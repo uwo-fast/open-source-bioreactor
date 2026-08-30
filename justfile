@@ -353,6 +353,46 @@ check-parts:
             failed=1
         fi
     done
+    # AND EVERY ENTRY FILE IS ACCOUNTED FOR, which is the other half of the same hole. The two
+    # manifests live in head.scad and frame.scad, so a printed part in any OTHER file that renders
+    # on its own reaches no print list and nothing notices - true today of the pump mount, the cart,
+    # the stand and the bottle holder. This does not put them on a list. It stops the omission being
+    # silent, which is what let the print list call itself the whole reactor while covering two
+    # files of eighteen.
+    exported=(scad/head.scad scad/frame.scad)
+    not_exported=(
+        scad/assembly.scad                          # the whole reactor as a picture, not a part
+        scad/custom/bayonet_baffle_port.scad        # a COMPONENT: head.scad renders it into a
+        scad/custom/bayonet_port.scad               # manifest row of its own, so it reaches a print
+        scad/custom/bayonet_probe_port.scad         # list through head rather than on its own. Its
+        scad/custom/bayonet_thermocouple_port.scad  # standalone render is a preview of the part,
+        scad/custom/cylindrical_flex_collet.scad    # not a second copy of it
+        scad/custom/gasket_cutter.scad
+        scad/custom/impeller.scad
+        scad/custom/motor_mount.scad
+        scad/custom/sparge_ring.scad
+        scad/custom/sheet_gasket.scad               # EPDM cut from a sheet with a knife, not printed
+        scad/bottle_holder.scad                     # bench furniture AROUND the reactor rather than
+        scad/cart.scad                              # part of it. Printed, and on no print list -
+        scad/electronics_stand.scad                 # see TODO.md, they want manifests of their own
+        scad/custom/peri_pump_frame_mount.scad      # printed and part of the reactor, but waiting on
+                                                    # where the bought pumps mount at all
+        scad/custom/peri_pump_head.scad             # a stretch goal rather than this build
+    )
+    for f in {{ENTRY}}; do
+        seen=0
+        for e in "${exported[@]}"; do [ "$e" = "$f" ] && seen=$((seen + 1)); done
+        for n in "${not_exported[@]}"; do [ "$n" = "$f" ] && seen=$((seen + 2)); done
+        if [ "$seen" = 0 ]; then
+            echo "FAIL  $f  renders on its own and reaches no print list"
+            echo "        give it a manifest and walk it in export-parts, or say here why not"
+            failed=1
+        elif [ "$seen" = 3 ]; then
+            echo "FAIL  $f  is both walked by export-parts and declared as not walked"
+            failed=1
+        fi
+    done
+
     [ $failed -eq 0 ] && echo "ok    every printed part is on the print manifest"
     exit $failed
 
@@ -510,9 +550,12 @@ export-parts vessel="" out="output":
       echo "is a tool rather than a part of the reactor, and you need it to cut the rim gasket."
       echo "Assembly, and the numbers that go with it, are in [docs/build.md](../../docs/build.md)."
       echo
-      echo "**This is the whole reactor** - the lid and everything hanging from it, and the frame's"
-      echo "base, top base, ribs and rod spacers. The frame is built at the vessel named in"
-      echo "\`frame.scad\`'s own preview, which is the only jar this exports today anyway."
+      echo "**This is the reactor's own parts** - the lid and everything hanging from it, and the"
+      echo "frame's base, top base, ribs and rod spacers. It is NOT everything this repo prints: the"
+      echo "cart, the electronics stand, the bottle holder and the peri pump mount each render from"
+      echo "their own file and reach no manifest, which \`just check-parts\` records rather than"
+      echo "hides. The frame is built at the vessel named in \`frame.scad\`'s own preview, which is"
+      echo "the only jar this exports today anyway."
       echo
       echo "**Printers that take every part on this list:** $allfit. Reported, not targeted - the"
       echo "design is what it is and this says what it needs, measured off the meshes below rather"

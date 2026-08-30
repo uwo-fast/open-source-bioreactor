@@ -103,8 +103,15 @@ is half again as slender for it. So the rule grades every piece by the plate.
 `just export-parts` writes every one of these as its own STL, with a print list beside them, and
 CGAL-renders each on the way past — so a part that is not a valid solid is caught there rather than
 in a slicer. It measures each one too, and reports which registered printers take it. It covers the
-whole reactor — the lid and everything hanging from it, and the frame's base, top base, ribs and rod
-spacers — which comes to **47 pieces across 23 distinct parts**. `assembly.scad` reports the printer
+reactor's own parts — the lid and everything hanging from it, and the frame's base, top base, ribs
+and rod spacers — which comes to **47 pieces across 23 distinct parts**.
+
+It is not everything in this repo that gets printed. The **cart**, the **electronics stand**, the
+**bottle holder** and the **peri pump mount** each render from a file of their own and are on no
+manifest, so they appear on no print list. `just check-parts` holds the record of that rather than
+letting it go unnoticed, and giving them manifests is on [`TODO.md`](../TODO.md).
+
+`assembly.scad` reports the printer
 answer independently, off the geometry rather than the meshes; the two agreeing is the check that
 nothing has fallen off a manifest.
 

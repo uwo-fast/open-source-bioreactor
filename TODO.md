@@ -301,6 +301,12 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     rod spacers, and the export walks both manifests through `assembly.scad` - which is where the
     flange height and the rod count are chosen, so neither half is read from a preview's copy. 47
     pieces across 23 parts. `check-parts` guards both files
+  - **four printed parts are on no print list at all**: the cart, the electronics stand, the bottle
+    holder and the peri pump mount each render from a file of their own, and the two manifests live
+    in `head.scad` and `frame.scad`. `check-parts` now accounts for every entry file - each is
+    either walked by the export or declared here with a reason, and it fails both ways - so the
+    omission is recorded rather than silent. What it is not yet is fixed: each of those wants a
+    manifest of its own before it can reach a print list
   - what is left is **which jar**. `frame.scad` has no parameter set: it builds the vessel named in
     its own preview, so the export hands `-p/-P` to `head.scad` only and a frame is always
     `jar_10L`. Naming another vessel already fails on the head before it gets that far, so this is
