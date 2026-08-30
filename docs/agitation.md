@@ -460,10 +460,11 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
   the slide and registers the two pieces in one place; the butt faces meet with nothing between
   them, so the plate keeps its length and the 0.1 mm allowance is flank clearance only.
 - **What it costs is the neck.** Only the tail crosses the joint plane, so the joint has
-  **4.2 mm of the plate's 9**, a tenth of its second moment. One joint at mid-plate adds
-  **0.11 mm** to the tip deflection, 7 %, taking `jar_10L` from 1.53 to **1.64 mm** — which is what
-  now trips the tenth-of-width warning. The neck is the parameter rather than the tail's depth for
-  exactly that reason, and a shallow 10° flare is what buys engagement without eating it.
+  **4.2 mm of the plate's 10**, 0.074 of its second moment. One joint at mid-plate adds
+  **0.185 mm** to the tip deflection, 17 %, taking `jar_10L` from 1.12 to **1.30 mm** — still 15 %
+  under the tenth-of-width limit, which a 9 mm plate was not. The neck is the parameter rather than
+  the tail's depth for exactly that reason, and a shallow 10° flare is what buys engagement without
+  eating it.
 - **Two things about the joint are not modelled.** The first bending mode `head()` reports is the
   solid plate's; the joints soften it, and by how much is not computed. And a 0.1 mm crevice at the
   joint sits in the culture, in a vessel that is chemically sterilised rather than autoclaved —

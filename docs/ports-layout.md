@@ -197,11 +197,11 @@ rule the design already used. Ø16 probe body, 2 mm collet wall each side, Ø20 
 13.6 mm flange. **Nothing in that chain has slack**, which is why every limit below traces back to
 the two probes.
 
-| interface | iface_r | flange_r | baffle width, 9 mm plate |
+| interface | iface_r | flange_r | baffle width, 10 mm plate |
 | --- | --- | --- | --- |
-| std | 10 | 13.60 | 17.5 mm |
-| midi | 7 | 10.60 | 10.3 mm |
-| mini | 5 | 8.60 | 3.6 mm — useless |
+| std | 10 | 13.60 | 17.09 mm |
+| midi | 7 | 10.60 | 9.51 mm |
+| mini | 5 | 8.60 | will not pass — a 10 mm plate in a 9.8 mm bore |
 
 Baffles cannot be small: the plate drops through the lock bore, so `width = 2·√(bore² − (t/2)²)`.
 

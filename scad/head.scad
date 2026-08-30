@@ -797,8 +797,8 @@ baffle_segments = undef;
 // custom/bayonet_baffle_port.scad for why that axis and not the other.
 //
 // The neck is the parameter rather than the tail's depth because the neck is the mechanics: it is
-// the only material crossing the joint plane. 4.2 of 9 mm leaves the joint a tenth of the plate's
-// second moment, which is a 7 % tip deflection penalty at one joint and the reason the cap above
+// the only material crossing the joint plane. 4.2 of 10 mm leaves the joint 0.074 of the plate's
+// second moment, which is a 14 % tip deflection penalty at one joint and the reason the cap above
 // is not lower. Depth follows from it and the flare, at 4.54 mm.
 baffle_joint_lip = 1.6; // socket wall each side, four perimeters at a 0.4 nozzle
 baffle_joint_neck = 4.2;
