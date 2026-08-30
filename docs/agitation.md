@@ -133,9 +133,15 @@ culture, 0.44–0.46 as a manufacturer's "most preferred". Above roughly 0.5 an 
 its strong axial motion.
 
 **`jar_6p5gal_305x470` is the binding vessel.** Its 137 mm mouth on a 280.8 mm bore caps the ratio
-at 0.4594 with the impeller exactly filling the neck; 0.45 leaves 2.64 mm to pass it through. Every
-other registered jar tolerates 0.59 to 0.82. The model asserts that the impeller — measured across
-its fin-top ring, which is what meets the neck first — can pass the vessel's opening.
+at 0.4875 with the impeller exactly filling the neck; 0.45 leaves 10.64 mm to pass it through. Every
+other registered jar tolerates 0.64 to 0.87.
+
+The model asserts that the impeller — measured across its fin-top ring, which is what meets the
+neck first — can pass the vessel's opening.
+
+(Superseded — kept for the record. Those caps read 0.4594, 2.64 mm and 0.59–0.82 for as long as the
+mouth assert charged 8 mm for a tip ring that had been moved inboard of the blades. The ratio was
+never in danger; the headroom it was chosen on was understated by 8 mm.)
 
 ### Blade twist and height — out of the literature's tested range
 
@@ -479,9 +485,11 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
   a lever — it already sits as far out as the lid plug allows. The coupling runs the other way too:
   at **D/T ≤ 0.4305** the impeller stops binding and the plate returns to the full 19.39 mm the bore
   allows, and past D/T 0.54 there is no plate left at all and the model refuses to build.
-- **The plate has not actually been lengthened yet.** Deflection of a cantilever goes as the fourth
-  power of its length, and the plate's inner edge is now 2 mm from a turning impeller, so how much
-  of that 280 mm can be used is a stiffness question rather than a geometric one.
+- **The plate now hangs the full 280 mm**, as the section above records and as `head()` echoes:
+  `4 x 15.3 x 280 mm (280 mm clears the floor)`. Deflection of a cantilever goes as the fourth power
+  of its length and the plate's inner edge is 2 mm from a turning impeller, so the length was a
+  stiffness question rather than a geometric one — and it is the 10 mm plate that answered it, at
+  1.30 mm of tip deflection against a 1.53 mm limit.
 - Their being **partial and inboard** is separately uncited: the relevant papers are paywalled and
   unread. Note that these plates span r 49.3–64.6 mm in a 210 mm bore, so the annulus outboard of
   them is 40 mm wide and unobstructed — a consequence of having to pass every part through a 143 mm
