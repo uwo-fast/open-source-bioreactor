@@ -285,9 +285,13 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     was tangent to its hub was reachable only through `head.scad`, on the slow list. Every part is
     rendered individually now, that one included
   - what is left is **`frame.scad`**: base, top base, ribs, rod spacers. Its flags render a whole
-    class at once - all twelve rod spacers in one STL - so it wants the same narrowing the head
-    got, which is one part and a quantity beside it. Until then the print list says so rather than
-    reading as if the frame did not exist
+    class at once - all twelve rod spacers in one STL - so it wants the same narrowing the head got,
+    which is one part and a quantity beside it
+  - **and leaving it out is not cosmetic.** The base and the top base are 257.40 mm across, the
+    same as the lid and wider than anything else in the build, so a print list that omits them
+    omits the parts that decide what a builder has to own. It was exactly that gap that let an
+    export report the reactor fitting a 256 mm machine. The print list says so and `assembly.scad`
+    reports the whole-build answer, but neither is a substitute for exporting them
   - **only the selected vessel exports.** The probe tilt and the working volume are pinned to
     `jar_10L`, so naming another jar fails on a real assert rather than on a missing feature -
     `jar_1gal_180x197`'s DO probe reaches the sparge ring at 4.5 degrees. `check-vessels` sweeps at
@@ -296,20 +300,6 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     registry choices - motor, gearbox, impeller, bayonet, gasket sheet, bearing, fasteners - are
     still variable references, which a parameter file cannot carry. Not needed for a per-vessel
     export and not worth doing until something wants to vary them
-
-- [ ] **the baffle is split for a 180 mm bed and the lid needs a 260 mm one**
-  - `baffle_segment_height_max = 170` is justified in `head.scad` as "180 mm machines are the small
-    end of what anyone building this owns". Exporting the parts and measuring them says the lid is
-    **257 x 257 mm**, and it cannot be split - it is one piece because the bayonet channels are the
-    walls of its own bores. The gasket cutter's inner plate is 175
-  - so the splitting is sized against a machine that could never print the part the plates hang
-    from, and the family's real floor is a 260 mm bed. Nobody noticed because nothing measured a
-    part until `just export-parts` did
-  - **which of the two moves is the question, and it is not obvious.** Raising the cap to match the
-    lid makes each plate one piece, which is stiffer - the joints take 14 % of the tip deflection -
-    and drops four dovetails from the print. Keeping it says the lid is what a builder needs a big
-    machine for and the plates are just easier to print well at 170
-  - it is a comment and a constant, not geometry, so nothing is waiting on it
 
 - [ ] run `tokei` in CI to report lines of code and other codebase statistics
 
@@ -360,6 +350,17 @@ outlives the commit, in `docs/`.
   from friction alone, on a fastener that galls, at a setting below most torque wrenches. The turn
   is the gasket's travel over the thread's pitch and has no modulus or friction in it. Both are in
   `docs/build.md`; the torque is there to say why it is not the instruction
+- **the lid follows the frame's outer diameter, and trimming it buys nothing.** It was cut to 252
+  once - its own floor, being the bolt circle plus a bore plus wall - because 257.40 put it past
+  every 256 mm machine by 1.4 mm. Then the FRAME was measured: its base and top base are 257.40 as
+  well, and its wall cannot come down because the rod bosses want 36.8 mm of it. So the trim thinned
+  the lid's flange and put a 2.7 mm step in the joint to reach a printer the frame ruled out anyway.
+  What can print this is REPORTED by assembly.scad instead of designed to
+- **the baffle cap is a PRINT-QUALITY rule, not a bed one.** It was a literal 170 defended by
+  180 mm machines, which could never have built this reactor at all. It is now a piece's height
+  against three times its own section - a brim as wide as the part on each side - and the piece that
+  binds is the TIP, not the one carrying the port: a flange is a wide foot, so the bare plate is
+  half again as slender. Do not re-derive it from a printer; that is the mistake it replaced
 - **the riser's gland is a counterbore open to the vessel, not an enclosed groove.** A 4 x 1.5 ring
   is 7 mm across free and cannot be folded through a 4.4 mm bore to reach a groove behind it. Which
   face it opens at is then forced twice over: headspace pressure drives the cord onto the shoulder

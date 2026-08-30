@@ -85,18 +85,38 @@ second moment
 building this owns, and 10 mm leaves room for a brim. A larger printer can pin `baffle_segments = 1`
 and print each plate whole, which is stiffer: the joints already take 14 % of the tip deflection.
 
-**But a 180 mm machine cannot build this reactor anyway, and the splitting does not change that.**
-Exporting the parts and measuring them says so plainly: the **lid is 257 × 257 mm** and cannot be
-split — it is one piece because the bayonet channels are the walls of its own bores. The gasket
-cutter's inner plate is 175 mm. So the real floor is a **260 mm bed**, and the baffle cap is sized
-against a machine that could never print the part it hangs from. Reconciling the two is on
-[`TODO.md`](../TODO.md); until then, take the 170 as a plate that will not warp rather than as a
-statement about what you need to own.
+**That cap is about the part, not about your printer.** It used to be a literal 170, justified by
+180 mm machines being "the small end of what anyone building this owns" — and no 180 mm machine was
+ever going to build this reactor, so the number was measuring nothing. It is now a piece's height
+against **three times its own section**: a brim as wide as the part on each side, which is why a
+brim is worth printing on something this slender. On `jar_10L` that comes out at 205 mm against a
+163 mm tallest piece.
+
+The piece that binds is not the obvious one. The piece carrying the port stands on a **27.2 mm
+flange**, which is a wide foot; a tip piece stands on the plate's own **15.3 × 10 mm** section and
+is half again as slender for it. So the rule grades every piece by the plate.
 
 `just export-parts` writes every one of these as its own STL, with a print list beside them, and
 CGAL-renders each on the way past — so a part that is not a valid solid is caught there rather than
-in a slicer. It covers the lid and everything hanging from it; the frame is still a matter of
-setting the render flags at the top of `frame.scad` by hand.
+in a slicer. It measures each one too, and reports which registered printers take it. It covers the
+lid and everything hanging from it; the frame is still a matter of setting the render flags at the
+top of `frame.scad` by hand — and since the frame holds two of the three widest parts, take
+`assembly.scad`'s report rather than the print list's for what you need to own.
+
+**What you need to own.** Three parts are a **257.40 mm disc** — the lid, and the frame's base and
+top base — and they are the widest things in the build by a long way. A disc has the same width at
+every angle, so it cannot be turned to fit a narrow bed: what your printer needs is `min(X, Y)` of
+at least 257.40.
+
+`scad/assembly.scad` reports this on every render, against the machines registered in
+[`scad/purchased/printers.scad`](../scad/purchased/printers.scad). Today that is the **Prusa CORE
+One L**, the **Bambu H2D**, the **Sovol SV08**, a **Voron 2.4 350** and the **Prusa XL**.
+
+What misses, and by how little, is worth knowing. A **Bambu X1C** is 256 — short by **1.4 mm**. A
+**Voron 250** is short by 7.4. A **Prusa CORE One** is 250 × 220 and cannot do it at any margin,
+because the jar alone is 220 mm across and the lid has to overhang the glass to carry its bolts.
+The lid was briefly trimmed to 252 to reach the X1C; the frame's bases are 257.40 too and its wall
+is set by the rod bosses, so that bought nothing and was undone.
 
 ---
 

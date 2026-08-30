@@ -34,6 +34,7 @@ include <purchased/steel_tubes.scad>;
 include <purchased/shaft_couplings.scad>;
 include <purchased/shafts.scad>;
 include <purchased/gasket_sheets.scad>;
+include <purchased/printers.scad>;
 
 include <custom/bayonet_interfaces.scad>;
 include <custom/impellers.scad>;
@@ -717,17 +718,47 @@ baffle_transition_height = 10;
  *   with a wide enough mouth would ask for more. Standing that on a bed is the tallest, most
  *   slender thing in the model by a wide margin, and it prints slowly, badly and unreliably.
  * - The part stands in the port's own axis - the flange, the o-ring groove and the pins all want
- *   that - so it is the printer's Z that bounds it, and the port's own 23 mm counts against the
- *   first piece. 170 mm is the cap: 180 mm machines (Prusa MINI, Bambu A1 mini) are the small end
- *   of what anyone building this owns, and 10 mm leaves room for a brim. It costs less than it
- *   looks: at a 250 mm cap jar_10L still needs two pieces, since its part is 303 mm whole. What a
- *   bigger machine buys is the SHORT jar, whose 195 mm part would go on the bed in one.
+ *   that - so what bounds a piece is how tall it may stand on its own footprint. This is a PRINT
+ *   QUALITY cap and not a bed one, which is the correction: it was a literal 170, defended by
+ *   180 mm machines being the small end of what a builder owns, and then the frame's bases turned
+ *   out to be 257.40 mm across. No 180 mm machine was ever going to build this reactor, so the
+ *   number was measuring nothing. What printers can actually build it is REPORTED by assembly.scad
+ *   against scad/purchased/printers.scad, which is where a fact about the world belongs.
+ * - It costs less than it looks: at any cap under 303 mm jar_10L needs two pieces, that being its
+ *   part whole. What a bigger cap buys is the SHORT jar, whose 195 mm part would go on in one.
  * - What it costs is the joint, which is a local drop in section, so a split plate deflects further
  *   than a whole one. head() reports the difference rather than hiding it.
  */
 
+// What a piece stands on. Its own section, plus a brim as wide as that section on each side, so
+// the footprint is three times the width - which is the whole reason a brim is worth printing on a
+// part this slender.
+baffle_brim_spread = 3;
+// How tall a piece may stand per unit of that footprint, and the one number in this rule that is a
+// judgement rather than a measurement. At 4 the cap comes out 205 mm, which leaves jar_10L's
+// tallest piece at 163 with 42 mm to spare.
+//
+// WHICH PIECE BINDS IS NOT THE OBVIOUS ONE. The piece carrying the port stands on a 27.2 mm flange,
+// which is a wide foot; a tip piece stands on the plate's own section and is half again as slender
+// for it - 3.05 against 2.00 by this measure. So the section below is the plate's and not the
+// flange's, which grades every piece by the worst of them.
+baffle_slenderness = 4;
+// And a ceiling, so the arithmetic cannot ask for a piece nobody can stand up: the shortest Z any
+// registered printer has, less room for a brim. It does not bind today and is not meant to.
+baffle_segment_height_ceiling = min([for (p = printers) printer_build_z(p)]) - 10;
+
 // Tallest a printed piece may stand on the bed, the port's own stack included.
-baffle_segment_height_max = 170;
+//
+// The section is the WIDEST a plate can be - what the port's bore will pass - rather than the width
+// a particular jar ends up with, so the cap is a property of the port and not of the vessel. That
+// is safe rather than convenient: jar_10L's ring pushes its plate to 15.3 mm against the 17.1 the
+// bore allows, and even scaled down by that ratio the cap is 184 mm against a 163 mm piece.
+baffle_segment_height_max =
+  min(
+    baffle_segment_height_ceiling,
+    baffle_brim_spread * baffle_slenderness
+      * max(bayonet_baffle_width(head_interface_for("baffle", 0), baffle_thickness, baffle_bore_clearance), baffle_thickness)
+  );
 // How many pieces each plate splits into. undef derives it from the cap above; a number pins it,
 // including 1, which is a plate printed whole on a machine that can take it.
 baffle_segments = undef;
@@ -2226,7 +2257,9 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     echo(str(
       "baffle print: ", _baffle_segments, " piece", _baffle_segments == 1 ? "" : "s",
       " of ", _baffle_length / _baffle_segments, " mm, tallest standing ", _baffle_piece_height,
-      " mm against a ", baffle_segment_height_max, " mm bed",
+      " mm against a ", baffle_segment_height_max,
+      " mm cap - which is how slender a piece may be, NOT how tall a bed is; see assembly.scad for ",
+      "what can actually print this",
       _baffle_piece_height > baffle_segment_height_max
         ? str(" - PINNED AT ", _baffle_segments, ", WHICH THE CAP WOULD NOT HAVE CHOSEN")
         : "",
