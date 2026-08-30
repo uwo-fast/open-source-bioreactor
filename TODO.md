@@ -28,8 +28,8 @@ ledger at the end: decisions that took real work to reach and would otherwise be
 
 - [ ] **measured gas flow** — a reproducibility gap, not a geometry one. **The parts are chosen and in the BOM: Dwyer `VFA-23` bare meter, C$86.22, and a Clippard `MNV-3KP` needle valve, US$15.11, the valve upstream of the meter. What is left is buying them and taking a reading.**
   - the gap it closes: the model states a vvm and no builder can set one. Against the real line the
-    registered ReSun pump gives **23.1 L/min** where **0.825-4.125** is wanted, so it runs at a few
-    percent of rating with nothing metering it. That boundary condition is unrepeatable between runs
+    registered ReSun pump settles at **6.05 L/min** where **0.825-4.125** is wanted, so it runs at
+    a fraction of rating with nothing metering it. That boundary condition is unrepeatable between runs
     and between builders, which is the reproducibility this project claims. Why these parts rather
     than the others is in `docs/procurement.md`
   - still unpublished and worth one email: the meter's **graduation interval**. Not a blocker - over

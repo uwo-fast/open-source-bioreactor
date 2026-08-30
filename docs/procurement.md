@@ -98,9 +98,11 @@
     what the pump would deliver - are gone rather than refreshed: both now depend on the whole line,
     which is only computed for the vessel being built. `head()` echoes them at render.
 
-  - **the pump is still not the constraint, but the margin is a third of what this said.** Against
-    the whole line it delivers **23.1 L/min** where 4.13 is wanted - not the 60+ this claimed, which
-    counted only the vessel's own 1.1 kPa
+  - **the pump is still not the constraint, but the margin is a fraction of what this said.**
+    Against the whole line it settles at **6.05 L/min** where 4.13 is wanted - not the 60+ this
+    claimed, which counted only the vessel's own 1.1 kPa, and not the **23.1** that replaced it,
+    which held back pressure at the design point. The filter is linear in flow, so asking for more
+    raises the line; `head()` echoes the 6.05 and says so
   - **and the second bullet here used to be wrong in a way worth keeping visible.** It said the
     filter, the tubing and the orifice "all sit against a valve dropping 24 kPa, so none of them
     move the operating point materially". The sterile filter alone drops **14.2 kPa** - twelve times
