@@ -316,7 +316,16 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     still variable references, which a parameter file cannot carry. Not needed for a per-vessel
     export and not worth doing until something wants to vary them
 
-- [ ] run `tokei` in CI to report lines of code and other codebase statistics
+- [ ] **add tokei to workstation-configs so `just stats` can run**
+  - the recipe is written and refuses cleanly without the tool, naming what to do. What it needs is
+    `tokei` in `packages/dev.apt` - apt carries 12.1.2-6 - because nothing in this repo installs a
+    tool: what a workstation has belongs in workstation-configs, or it is not reproducible
+  - **it is not in `just check` and should not be.** It reports, and a number that cannot fail is
+    not a check; wiring it in would make the whole suite fail on a machine that simply lacks the
+    tool. The original item said "in CI", and in this repo CI is `just check`
+  - counted by hand in the meantime: the SCAD tree is 4,884 code against 3,841 comment, **44 %**,
+    and that ratio is the thing worth watching rather than the total. A sharp fall means reasoning
+    has moved somewhere it cannot be checked against the code it explains
 
 - [ ] adopt the Just the Docs OpenSCAD setup for this project, including its web-based OpenSCAD preview
 

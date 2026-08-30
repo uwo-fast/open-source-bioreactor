@@ -156,6 +156,35 @@ check-vessels:
     done <<< "$rows"
     exit $failed
 
+# Lines of code, comment and blank, per language.
+#
+# NOT PART OF `just check`, and not a gate on anything. It reports; a number that cannot fail is
+# not a check, and wiring it into the suite would make the suite fail on a machine that simply does
+# not have the tool.
+#
+# WHAT IS WORTH LOOKING AT HERE IS THE COMMENT SHARE, not the total. This model keeps its reasoning
+# in the source - why a number is what it is, and what went wrong before it was - so the ratio is a
+# property of the method rather than an accident. The SCAD tree runs a little over 40 % comment.
+# A sharp fall there means reasoning has started living somewhere it cannot be checked against the
+# code it explains.
+#
+# This recipe does not install anything. tokei is packaged, but what a workstation has belongs in
+# workstation-configs rather than in a repo's build file - see the message below.
+#
+# Report lines of code and comment per language. Needs tokei.
+stats:
+    #!/usr/bin/env bash
+    set -uo pipefail
+    if ! command -v tokei >/dev/null 2>&1; then
+        echo "tokei is not installed, so there is nothing to report."
+        echo "        It is packaged - apt has 12.1.2 - but nothing here installs a tool: add it to"
+        echo "        packages/dev.apt in CameronBrooks11/workstation-configs so every machine gets"
+        echo "        the same one, then run this again."
+        exit 1
+    fi
+    # analysis/.venv is thousands of files of somebody else's code, and output/ is generated meshes.
+    tokei --exclude analysis/.venv --exclude output --exclude working.tmp
+
 # Create the analysis virtualenv from analysis/pyproject.toml.
 analysis-setup:
     uv venv analysis/.venv
