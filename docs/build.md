@@ -77,17 +77,17 @@ built from one file twice will pump the same way and not converge on the sparge 
 build a mount, and the mount it builds does not match the holes the assembly drills in the lid. The
 file says so itself.
 
-The baffle plates are split so they fit a small bed:
+The baffle plates are split so no piece is too slender to print standing:
 
 ```
-baffle print: 2 pieces of 140 mm, tallest standing 163 mm against a 170 mm bed;
-the dovetail leaves 4.2 mm of 10 crossing each joint, 0.074088 of the plate's
-second moment
+baffle print: 2 pieces of 140 mm, tallest standing 163 mm against a 205.07 mm cap
+- which is how slender a piece may be, NOT how tall a bed is; see assembly.scad
+for what can actually print this; the dovetail leaves 4.2 mm of 10 crossing each
+joint, 0.074088 of the plate's second moment
 ```
 
-170 mm is the cap the model splits against — 180 mm machines are the small end of what anyone
-building this owns, and 10 mm leaves room for a brim. A larger printer can pin `baffle_segments = 1`
-and print each plate whole, which is stiffer: the joints already take 14 % of the tip deflection.
+A larger printer can pin `baffle_segments = 1` and print each plate whole, which is stiffer: the
+joints already take 14 % of the tip deflection.
 
 **That cap is about the part, not about your printer.** It used to be a literal 170, justified by
 180 mm machines being "the small end of what anyone building this owns" — and no 180 mm machine was
