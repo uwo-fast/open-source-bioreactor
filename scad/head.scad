@@ -368,11 +368,14 @@ impeller_twist_ang = impeller_twist(head_impeller_type);
 // The fraction stays as the DERIVATION, undef working volume, because it is the only one that
 // scales across the registry - a litre figure that suits jar_10L will not fit jar_1p5L, and every
 // registered vessel has to build. 0.8 leaves the usual headspace for foam and gas.
-// 8.25 L on this jar. A quarter-litre figure is easy to pour, easy to repeat, and sits close
-// enough to what the fraction was giving that nothing downstream moves much - coverage over the
-// upper impeller stays at 0.555 D against the 0.5 this project holds, where a round 8.0 would have
-// put it at 0.479 and spent that margin for the sake of a tidier number.
-culture_working_volume = 8.25; // litres; undef derives from the fraction below
+// SO IT IS UNDEF HERE, and a litre figure is a build's to state. It was pinned at 8.25 - the
+// reference run's jar_10L figure, kept for the record - and a working volume is a statement about
+// ONE jar: 8.25 L is a fifth of jar_6p5gal_305x470, which put its thermocouple in the headspace and
+// stopped that vessel rendering at all. The number was right and the scope was not.
+// On jar_10L the two agree to under half a percent - 8.2808 L against 8.25, coverage over
+// the upper impeller 0.565 D against 0.555, both clear of the 0.5 this project holds - so nothing
+// the reference build prints moves.
+culture_working_volume = undef; // litres; undef derives from the fraction below
 culture_fill_fraction = 0.8;
 // Window a shaft speed measurement is averaged over, in seconds. Another operating choice with no
 // geometry behind it: it sets what a fitted encoder resolves, and the controller owns the real one.
@@ -939,12 +942,20 @@ do_probe_flow_requirement = 60;
 // is 90 degrees above it, so a vertical probe clears that requirement by 75 degrees. Which is
 // fortunate, because the pH probe is the long one - the only thing on this lid that reaches the
 // sparge ring's height, and at any lean at all it goes through the ring.
-// BOTH ARE PER-BUILD, against one jar's internals, and not properties of the design - the same
-// footing as culture_working_volume. 4.5 is what jar_10L allows; jar_1gal_180x197 is shorter, so
-// its DO tip reaches the ring and its own ceiling is nearer 2.5. check-vessels therefore sweeps the
-// registry with both flat, because vertical clears every jar, and the numbers below are checked by
-// check-scad against the jar they were chosen for.
-do_probe_port_tilt_degrees = 4.5;
+// WHAT THE DESIGN WANTS IS A CEILING, NOT AN ANGLE. 4.5 is reasoned rather than cited, and it is
+// the most jar_10L can take before the collet stops passing the mouth. It is not what every jar can
+// take: jar_1gal_180x197 is shorter, its DO tip reaches the sparge ring first, and its own ceiling
+// is nearer 2.5. Pinning one jar's angle on all of them stopped that vessel rendering.
+//
+// So the lean is DERIVED: the most of the ceiling below that this jar's own internals allow, capped
+// at it and never above. Solved by scanning rather than inverting, because the two bounds close
+// from opposite sides - leaning out carries the tip AWAY from the impellers and TOWARD the sparge
+// ring - so there is no single expression to solve. Set do_probe_port_tilt_degrees to pin an angle.
+//
+// Where nothing clears, the search returns 0 rather than a best effort, and the reach asserts below
+// report the real conflict. A guess would bury it.
+do_probe_port_tilt_max = 4.5;
+do_probe_port_tilt_degrees = undef; // degrees; undef derives the most this jar allows
 ph_probe_port_tilt_degrees = 0;
 probe_port_transition_length = 25;
 
@@ -1039,9 +1050,9 @@ function head_punt_top_depth(lid_flange_height, vessel_internal_height) =
 // Which lean a port gets. Anything that is not one of the two named probe ports hangs STRAIGHT,
 // which is the orientation that clears everything here - so a probe port nobody has thought about
 // is safe by default rather than quietly leaning into an impeller.
-function head_probe_tilt(port) =
+function head_probe_tilt(port, do_tilt) =
   head_port_function(port) == "do_probe"
-    ? do_probe_port_tilt_degrees
+    ? do_tilt
     : head_port_function(port) == "ph_probe" ? ph_probe_port_tilt_degrees : 0;
 
 function head_probe_axis_at(vessel_opening_diameter, lid_flange_height, length, tilt) =
@@ -1070,6 +1081,83 @@ function head_probe_runs(probe, vessel_opening_diameter, lid_flange_height, tilt
         atlas_probe_tip_dia(probe) / 2,
       ],
     ];
+
+// Where the sparge ring sits in the gap between the impellers, measured between the parts that
+// actually bound it: the lower impeller's set-screw collar, not its blades, and the upper
+// impeller's blades. The probe lean is solved against the ring before the ring is drawn, so both
+// read this rather than rebuilding it - two expressions of one height agree until one moves.
+function head_sparge_ring_z(impeller_diameter) =
+  let (
+    _clearance = stirred_tank_clearance(impeller_diameter, impeller_clearance_factor),
+    _height = impeller_axial_span(head_impeller_type, impeller_diameter, impeller_fin_width),
+    _bottom = _clearance + _height / 2 + impeller_collar_height,
+    _top = _clearance + stirred_tank_impeller_spacing(impeller_diameter, impeller_spacing_factor) - _height / 2
+  )
+    _bottom + sparge_ring_gap_fraction * (_top - _bottom);
+
+// Everything axisymmetric a hanging run has to miss, as annuli in the (radius, height) half-plane.
+// See utils/meridian.scad for why that is enough.
+function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter) =
+  let (
+    _floor_z = -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height),
+    _swept = head_impeller_swept_radius(impeller_diameter),
+    _clearance = stirred_tank_clearance(impeller_diameter, impeller_clearance_factor),
+    _height = impeller_axial_span(head_impeller_type, impeller_diameter, impeller_fin_width),
+    _spacing = stirred_tank_impeller_spacing(impeller_diameter, impeller_spacing_factor),
+    _ring_r = head_sparge_ring_radius(vessel_opening_diameter),
+    _ring_z = head_sparge_ring_z(impeller_diameter)
+  )
+    [
+      [
+        "lower impeller",
+        [0, _swept, _floor_z + _clearance - _height / 2, _floor_z + _clearance + _height / 2],
+      ],
+      [
+        "upper impeller",
+        [0, _swept,
+         _floor_z + _clearance + _spacing - _height / 2,
+         _floor_z + _clearance + _spacing + _height / 2],
+      ],
+      [
+        "sparge ring",
+        [_ring_r - sparge_ring_section[0] / 2, _ring_r + sparge_ring_section[0] / 2,
+         _floor_z + _ring_z - sparge_ring_section[1] / 2,
+         _floor_z + _ring_z + sparge_ring_section[1] / 2],
+      ],
+    ];
+
+// Does a probe at this lean clear the vessel's internals, AND still pass the mouth on the way in?
+// Both, because the two answer to opposite directions of lean and either alone would pick an angle
+// the other rules out.
+function head_probe_lean_fits(probe, vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, tilt) =
+  let (
+    _runs = head_probe_runs(probe, vessel_opening_diameter, lid_flange_height, tilt),
+    _obstacles = head_reach_obstacles(
+      vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter
+    ),
+    _gaps = [
+      for (r = _runs)
+        for (o = _obstacles)
+          let (_g = meridian_clearance(r, o[1])) if (!is_undef(_g)) _g
+    ]
+  )
+    meridian_max_radius(_runs[0]) <= vessel_opening_diameter / 2
+    && (len(_gaps) == 0 || min(_gaps) > 0);
+
+// The most of `want` this jar allows. Scanned down from the ceiling in `steps`, so the first hit is
+// the largest that fits; 0 where nothing does, which leaves the reach asserts to name the conflict.
+function head_probe_tilt_ceiling(probe, vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, want, steps = 45) =
+  let (
+    _ok = [
+      for (i = [0:steps])
+        let (_t = want * (steps - i) / steps)
+          if (head_probe_lean_fits(
+                probe, vessel_opening_diameter, lid_flange_height, vessel_internal_height,
+                vessel_punt_height, impeller_diameter, _t
+              )) _t
+    ]
+  )
+    len(_ok) == 0 ? 0 : _ok[0];
 
 // The thermocouple hangs straight, and the length that is in the vessel is all sensing tip - its
 // body is up in the NPT boss. So it is one run with no lean.
@@ -1441,7 +1529,7 @@ function head_port_is_oriented(type) = type == "baffle" || type == "probe";
 
 // One port pin half, dispatched on its registered type. All share the same bayonet
 // interface, so they are interchangeable across the lid's locks.
-module head_port(port, panel_thickness, baffle_width, baffle_length, baffle_segments) {
+module head_port(port, panel_thickness, baffle_width, baffle_length, baffle_segments, do_tilt) {
   _type = head_port_type(port);
   _bore = head_port_bore_radius(port);
   _probe = head_port_probe(port);
@@ -1476,7 +1564,7 @@ module head_port(port, panel_thickness, baffle_width, baffle_length, baffle_segm
       collet_connector_allowance=probe_port_collet_connector_allowance,
       collet_tab_gap=probe_port_collet_tab_gap,
       collet_tab_internal_deflection=probe_port_collet_tab_deflection,
-      tilt_degrees=head_probe_tilt(port),
+      tilt_degrees=head_probe_tilt(port, do_tilt),
       transition_length=probe_port_transition_length
     );
   } else if (_type == "baffle") {
@@ -1553,6 +1641,30 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // the impeller's torque by a count of zero.
   _has_baffles = len(_baffle_at) > 0;
   impeller_diameter = stirred_tank_impeller_diameter(_vessel_bore, impeller_bore_ratio);
+
+  // Resolved once, here, because the immersion checks below read it and OpenSCAD takes a variable
+  // in its own scope in order - a lean assigned past its first consumer is undef at the consumer.
+  _do_port = [for (p = _ports) if (head_port_function(p) == "do_probe") p];
+  _do_tilt =
+    len(_do_port) == 0 ? 0
+    : is_undef(do_probe_port_tilt_degrees)
+      ? head_probe_tilt_ceiling(
+        head_port_probe(_do_port[0]), vessel_opening_diameter, lid_flange_height,
+        vessel_internal_height, vessel_punt_height, impeller_diameter, do_probe_port_tilt_max
+      )
+      : do_probe_port_tilt_degrees;
+
+  echo(str(
+    "DO probe lean: ", _do_tilt, " deg - ",
+    is_undef(do_probe_port_tilt_degrees)
+      ? str(
+        "DERIVED as the most of ", do_probe_port_tilt_max, " deg this jar allows",
+        _do_tilt < do_probe_port_tilt_max
+          ? str(", capped ", do_probe_port_tilt_max - _do_tilt, " deg short by its own internals")
+          : ", which is the whole of it"
+      )
+      : "PINNED by do_probe_port_tilt_degrees"
+  ));
 
   // The window this jar had to land in, reported whether or not it did. The three couplings above
   // squeeze from both sides: too small a mouth and the ring will not pass, too large and the port
@@ -1968,7 +2080,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   for (i = [for (j = [0:_n - 1]) if (head_port_type(_ports[j]) == "probe") j])
     let (
       _p = head_port_probe(_ports[i]),
-      _tilt = head_probe_tilt(_ports[i]),
+      _tilt = head_probe_tilt(_ports[i], _do_tilt),
       _reach = head_probe_reach(_p, lid_flange_height, _tilt),
       _floor = head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height),
       _surface = _floor - vessel_punt_height - _liquid_height
@@ -2488,11 +2600,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _sparge_ring_diameter = _sparge_ring_radius * 2;
   _sparge_ring_ratio = stirred_tank_sparge_ring_ratio(_sparge_ring_diameter, impeller_diameter);
 
-  // The gap the ring lives in, measured between the parts that actually bound it: the lower
-  // impeller's set-screw collar, not its blades, and the upper impeller's blades.
-  _gap_bottom = _impeller_clearance + impeller_height / 2 + impeller_collar_height;
-  _gap_top = _impeller_clearance + impeller_spacing - impeller_height / 2;
-  _sparge_ring_height = _gap_bottom + sparge_ring_gap_fraction * (_gap_top - _gap_bottom);
+  _sparge_ring_height = head_sparge_ring_z(impeller_diameter);
 
   _sparge_baffle_gap = head_ring_baffle_gap(vessel_opening_diameter, impeller_diameter);
   _sparge_mouth_gap = head_ring_mouth_gap(vessel_opening_diameter, impeller_diameter);
@@ -2568,34 +2676,16 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // at. utils/meridian.scad carries the argument and the arithmetic.
   _floor_z = -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height);
 
-  _obstacles = [
-    [
-      "lower impeller",
-      [0, head_impeller_swept_radius(impeller_diameter),
-       _floor_z + _impeller_clearance - impeller_height / 2,
-       _floor_z + _impeller_clearance + impeller_height / 2],
-    ],
-    [
-      "upper impeller",
-      [0, head_impeller_swept_radius(impeller_diameter),
-       _floor_z + _impeller_clearance + impeller_spacing - impeller_height / 2,
-       _floor_z + _impeller_clearance + impeller_spacing + impeller_height / 2],
-    ],
-    [
-      "sparge ring",
-      [_sparge_ring_radius - sparge_ring_section[0] / 2,
-       _sparge_ring_radius + sparge_ring_section[0] / 2,
-       _floor_z + _sparge_ring_height - sparge_ring_section[1] / 2,
-       _floor_z + _sparge_ring_height + sparge_ring_section[1] / 2],
-    ],
-  ];
+  _obstacles = head_reach_obstacles(
+    vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter
+  );
 
   _hanging = concat(
     [
       for (i = [0:_n - 1])
         if (head_port_type(_ports[i]) == "probe")
           each let (
-            _runs = head_probe_runs(head_port_probe(_ports[i]), vessel_opening_diameter, lid_flange_height, head_probe_tilt(_ports[i]))
+            _runs = head_probe_runs(head_port_probe(_ports[i]), vessel_opening_diameter, lid_flange_height, head_probe_tilt(_ports[i], _do_tilt))
           )
             [
               [str(head_port_function(_ports[i]), "'s collet"), _runs[0]],
@@ -2674,7 +2764,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
           vessel_opening_diameter, lid_flange_height,
           bayonet_probe_port_collet_drop(_do, probe_port_transition_length)
           + atlas_probe_body_height(_do) + atlas_probe_tip_height(_do),
-          head_probe_tilt(_do_probe[0])
+          head_probe_tilt(_do_probe[0], _do_tilt)
         )
       )
       {
@@ -2718,7 +2808,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // that is the end of the run measured here.
   for (i = [for (j = [0:_n - 1]) if (head_port_type(_ports[j]) == "probe") j])
     let (
-      _tilt = head_probe_tilt(_ports[i]),
+      _tilt = head_probe_tilt(_ports[i], _do_tilt),
       _collet = head_probe_runs(
         head_port_probe(_ports[i]), vessel_opening_diameter, lid_flange_height, _tilt
       )[0],
@@ -3427,7 +3517,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         color(prints1_color)
           head_port_at(i, vessel_opening_diameter)
             rotate([0, 0, _port_turn])
-              head_port(_port, lid_thickness, _baffle_width, _baffle_length, _baffle_segments);
+              head_port(_port, lid_thickness, _baffle_width, _baffle_length, _baffle_segments, _do_tilt);
     }
   }
 
@@ -3443,7 +3533,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       let (_p = head_port_probe(_ports[i]))
         head_port_at(i, vessel_opening_diameter)
           translate([0, 0, -head_lid_thickness(lid_flange_height)])
-            rotate([0, -head_probe_tilt(_ports[i]), 0])
+            rotate([0, -head_probe_tilt(_ports[i], _do_tilt), 0])
               translate([
                 0, 0,
                 atlas_probe_neck_height(_p)
