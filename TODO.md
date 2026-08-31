@@ -275,14 +275,24 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
 
 ## tooling / infrastructure / documentation
 
-- [ ] **`check-vessels` sweeps `head.scad`, so the frame and the assembly are unswept**
-  - it renders `head.scad` per vessel with `culture_working_volume=undef` and both probe leans flat.
-    That is a legitimate sweep - it asks whether a jar CAN be built - but it is not what
-    `assembly.scad` renders, and the gap is what let four failing vessels read as two
-  - nothing builds `frame.scad` against the registry at all. The base's centre bore was derived from
-    the wall until it was cut from the jar's base corner, and `jar_6p5gal_305x470` sat on its own
-    fillet over the bore edge for as long as that went unswept
-  - what it should be is both configurations: the jar's own limit, and the build as it ships
+- [ ] **a build cannot designate anything: the customizer surface reaches one variable**
+  - `head()` takes ten arguments, all vessel or joint dimensions. Everything else - the port table,
+    which probes sit in it, the impeller, the motor, the working volume - is a `head.scad` file
+    global, so `assembly.scad` cannot set it and a parameter set cannot carry it. **Verified: `-D`
+    reaches a `use`d file's globals and `-p`/`-P` does NOT**, so adding keys to the .json would
+    silently do nothing. Both files' sets are one key wide because that is all that can work
+  - so the fix is to hoist the BUILD CHOICES into `assembly.scad` and pass them through `head()`,
+    leaving the design constants where they are - collet allowances, print fits, bayonet geometry
+    and blind pocket floors are the model's, not an operator's. Which side each parameter falls on
+    is the decision to settle first, and `head()` wants one build list rather than a dozen more
+    positional arguments
+  - `frame.scad` has no vessel selector at all: `_preview_vessel` sits after `module dummy()`, so it
+    is outside the customizer block and private. That is why there is no `frame.json`, and why
+    `check-vessels` reaches its jar through `_preview_vessel`. `just json` also hardcodes its file
+    loop to two names
+  - the port set itself is already right and should be the model for the rest: `head_ports = undef`
+    derives the widest set that fits the mouth, and picks the six-port reduced table for exactly the
+    three narrow jars. What is missing is a channel to PIN one from outside
 
 - [ ] **the gasket recess holds three quarters of the rubber that has to fit in it**
   - what is left of the assembly-torque item, which `docs/build.md` and the `joint tightening` echo
