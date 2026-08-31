@@ -177,8 +177,12 @@ module sparge_ring(
   }
 }
 
-// example usage - this file is an entry and must emit geometry; head.scad passes its own numbers
+// example usage - this file is an entry and must emit geometry; head.scad passes its own numbers.
+// These CANNOT be derived the way the conventions ask: the radius comes from
+// head_sparge_ring_radius() and including head.scad here would close a cycle, since head.scad uses
+// this file. So they are quoted, and quoted numbers drift - the radius read 68.04 against the
+// model's 68.25 until 2026-08-30. Check both against head()'s echo before trusting a render here.
 sparge_ring(
-  radius = 68.04, section = [4, 10], wall = 1.2, hole_diameter = 3, hole_count = 8,
+  radius = 68.25, section = [4, 10], wall = 1.2, hole_diameter = 3, hole_count = 8,
   feed_angle = 240, feed_radius = 56.9
 );

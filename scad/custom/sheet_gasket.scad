@@ -12,9 +12,14 @@
  * recess, and the difference standing proud is the compression.
  */
 
+include <../purchased/gasket_sheets.scad>; // so the preview derives its thickness, not quotes it
+
 $fn = $preview ? 64 : 128;
 
-sheet_gasket(inner_diameter=145, outer_diameter=151, thickness=1.5);
+// example usage - head.scad passes its own numbers. The thickness comes off the registered sheet
+// because a quoted one goes stale: this read 1.5 while the sheet had been 1.5875 for some time.
+sheet_gasket(inner_diameter=145, outer_diameter=151,
+             thickness=gasket_sheet_thickness(sheet_epdm_1p6_60a));
 
 /**
  * @brief A flat annular gasket.

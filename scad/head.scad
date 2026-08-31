@@ -125,8 +125,6 @@ $bayonet_shell_only = $preview && fast_bayonet_preview;
 lid_plug_height = 10;
 // allowance for the lid to fit on the jar
 lid_radial_allowance = 0.4;
-// height allowance for the lid to fit on the jar
-lid_vertical_allowance = 0.2;
 // minimum wall the lid keeps around a bore: to the plug's edge, to a neighbouring port, and to the
 // flange's outer edge for the joint posts
 lid_holes_offset = 2.0;
@@ -386,10 +384,6 @@ encoder_speed_window = 0.1;
 thermocouple_mount_height = 20;
 
 /* [Bayonet Lock Parameters] */
-
-// the registered bayonet interface every port on the lid mates to; all bayonet
-// dimensions are derived from it via the accessor functions in bayonet_port.scad
-head_bayonet = bayonet_std;
 
 // how to draw each port on its lock: "locked" as assembled, or "entry" as it sits on
 // insertion before the turn. Entry is the useful one for checking clearance around the
@@ -1852,6 +1846,15 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       _liquid_height / _vessel_bore, impeller_blade_angle(head_impeller_type))
   : impeller_power_number(head_impeller_po_fallback);
   _impeller_x = impeller_dissipation_factor(head_impeller_type);
+
+  if (_po_measured)
+    echo(str(
+      "impeller: ", impeller_name(head_impeller_type), " Po ", _impeller_po,
+      is_undef(impeller_power_number_tol(head_impeller_type))
+        ? ", measured, and the source gives no uncertainty"
+        : str(" +/- ", impeller_power_number_tol(head_impeller_type), ", measured, band from the source"),
+      ". Nothing is correlated here, so Medek's validity envelope does not apply."
+    ));
 
   if (_po_borrowed)
     echo(str(

@@ -121,7 +121,6 @@ function stirred_tank_pair_converges(rotation) = stirred_tank_lower_pumps_up(rot
 // both studied single impellers - neither settles a counter-pumping pair. Gas belongs in the
 // impeller's discharge stream; which side that is depends on pumping direction.
 
-function stirred_tank_sparge_ring_diameter(impeller_diameter, ratio) = impeller_diameter * ratio;
 function stirred_tank_sparge_ring_ratio(ring_diameter, impeller_diameter) = ring_diameter / impeller_diameter;
 function stirred_tank_sparge_ring_band() = [1.0, 2.0]; // Birch & Ahmed 1997 tested 1.4; Rewatkar & Joshi 1993 optimum 2.0
 
@@ -163,7 +162,6 @@ function stirred_tank_orifice_pressure(velocity) = 0.5 * 1.2 * pow(velocity, 2) 
 function stirred_tank_baffle_reference_width(tank_diameter) = 4 * tank_diameter / 12; // four at T/12
 function stirred_tank_baffle_reference_area(tank_diameter, liquid_height) =
   stirred_tank_baffle_reference_width(tank_diameter) * liquid_height;
-function stirred_tank_baffle_width(tank_diameter, count) = stirred_tank_baffle_reference_width(tank_diameter) / count;
 function stirred_tank_baffle_wetted_length(length, freeboard, liquid_height) =
   max(0, min(length - freeboard, liquid_height)); // freeboard is how far the plate's top sits dry
 function stirred_tank_baffle_area_ratio(tank_diameter, liquid_height, count, width, wetted_length) =
@@ -187,7 +185,7 @@ function stirred_tank_gas_stream_power(gas_flow, liquid_height) =
 function stirred_tank_gas_power_ratio(pumping) = pumping == "radial" ? 3 : 8; // Oldshue's lower bound
 function stirred_tank_gas_flow_ceiling(impeller_power, pumping, liquid_height) =
   impeller_power / stirred_tank_gas_power_ratio(pumping)
-  / (stirred_tank_medium_density() * 9.81 * liquid_height / 1000);
+  / stirred_tank_gas_stream_power(1, liquid_height); // the power one unit of flow carries
 
 // ----- baffle loading -----
 //
