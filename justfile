@@ -5,18 +5,32 @@ OPENSCAD := env("OPENSCAD", "openscad")
 # check-scad until it is here, which is the point - and it lives up here because two recipes read
 # it. check-scad asserts that everything else emits NO geometry; check-mesh builds these into
 # solids. A second copy of this list would be a second answer to "what renders".
-# What check-mesh does NOT build by default. Each of these renders every part it carries as one
-# CGAL union, which is minutes to tens of minutes - assembly.scad passed fifteen without finishing,
-# on a picture that unions purchased vitamins nobody prints. Named here rather than dropped
-# quietly, and still reachable: `just check-mesh scad/head.scad` builds one however long it takes,
-# which is what you want before committing to a print. Shrinking this list is not the work.
+# What check-mesh does NOT build by default. The reason DIFFERS per file, so the recipe prints one
+# for each rather than calling them all slow, which is what it used to do and was wrong about.
+# Measured 2026-08-31, not assumed:
 #
-# head.scad is the one that no longer needs it: `just export-parts` CGAL-renders every part it
-# carries, one at a time, which is finer than this recipe could ever be at the file level - and it
-# reaches the pitched blade that custom/impeller.scad's own example does not. The remaining four
-# are still only checked whole.
-MESH_SLOW := "scad/assembly.scad scad/cart.scad scad/electronics_stand.scad scad/frame.scad \
-scad/head.scad"
+#   head.scad       not a 2-manifold as it previews. `just export-parts` already builds all 23 of
+#                   its parts one at a time, which is finer than this file could ever be, and it
+#                   reaches the pitched blade custom/impeller.scad's own example does not
+#   frame.scad      a CLEAN 2-manifold, 141 s. Skipped for time alone; its parts are in that same
+#                   export
+#   assembly.scad   fifteen minutes without finishing. check-parts already calls it "the whole
+#                   reactor as a picture, not a part"
+#   cart.scad       not a 2-manifold as it previews, 515 s, and its corner bracket has no render of
+#                   its own to build instead - see TODO.md, these files want manifests
+#
+# THE FAILURES ARE NOT DEFECTS IN ANYTHING PRINTED. head.scad's printed geometry on its own IS a
+# 2-manifold, built in 501 s. Adding one vitamin group at a time to that base, three of them break
+# it on their own - render_seals, render_probes, and render_bearing with render_shaft_coupler - and
+# three do not: render_culture, render_set_screws, render_sparge_tubes. Every one of the three that
+# break it is already on check-parts' not_printed list: EPDM in its grooves, Atlas bodies in their
+# collets, a bearing and a coupling on the shaft. So the check was failing on vitamins this repo
+# has formally declared are not printed. It could not pass, and nothing about it was actionable.
+# (render_motor with its inserts and screws was not measured - the sweep was stopped there.)
+#
+# electronics_stand.scad came OFF this list. It builds in 14 s rather than minutes, and
+# `-D print_corner=true` gives its printed bracket as a clean 2-manifold in 4. It is checked now.
+MESH_SKIP := "scad/assembly.scad scad/cart.scad scad/frame.scad scad/head.scad"
 
 ENTRY := "scad/assembly.scad scad/bottle_holder.scad scad/cart.scad scad/electronics_stand.scad \
 scad/frame.scad scad/head.scad scad/custom/bayonet_baffle_port.scad scad/custom/bayonet_port.scad \
@@ -630,10 +644,18 @@ export-parts vessel="" out="output":
 # width with 264 non-manifold edges, through a green suite; anyone slicing the STL would have met it
 # immediately.
 #
-# NOT part of `just check`, and that is a deliberate trade. head.scad takes minutes to render where
-# its .csg takes seconds, and `check` is the loop you run on every edit. Run this before printing.
-# The risk is the usual one - a check nobody runs is a check that does not exist - so it belongs in
-# the build instructions beside the print list.
+# NOT part of `just check`, and that is a deliberate trade. Building solids takes minutes where a
+# .csg takes seconds, and `check` is the loop you run on every edit.
+#
+# WHAT TO RUN BEFORE PRINTING is `just export-parts`, not this. It applies the same 2-manifold test
+# to every part on the manifest, one at a time, and that is where the reactor's own parts are
+# covered. This recipe covers the files that render a printed part on their own and reach no
+# manifest - the ports, the collet, the cutter, the impeller, the mount, the pump head, the gasket,
+# the sparge ring, the bottle holder and the stand's bracket.
+#
+# The risk is the usual one - a check nobody runs is a check that does not exist. A check that
+# CANNOT PASS is worse, because it teaches people to ignore a real failure later: this recipe told
+# you to run it on head.scad before a print, where it had never once passed.
 #
 # Build entry files into solids and fail on a non-manifold. `just check-mesh <file>` for one.
 check-mesh file="":
@@ -642,23 +664,45 @@ check-mesh file="":
     # manifold complaint on stderr is the signal and the file size is the backstop.
     set -uo pipefail
     tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
+    # Flags that turn a file's PREVIEW into the part it prints. Most files need none: their default
+    # render already IS the part. The ones that need it render an assembly to be looked at.
+    mesh_flags() {
+        case "$1" in
+            scad/electronics_stand.scad) echo "-D print_corner=true" ;;
+            *) echo "" ;;
+        esac
+    }
+    # Why a file is not built by default. See MESH_SKIP above for how each was measured.
+    mesh_why() {
+        case "$1" in
+            scad/head.scad)     echo "not a 2-manifold as it previews - export-parts builds its 23 parts" ;;
+            scad/frame.scad)    echo "a clean 2-manifold but 141 s - export-parts builds its parts" ;;
+            scad/assembly.scad) echo "the assembled reactor as a picture; nothing is printed from it" ;;
+            scad/cart.scad)     echo "not a 2-manifold as it previews; its bracket has no render of its own" ;;
+            *) echo "" ;;
+        esac
+    }
     if [ -n "{{file}}" ]; then
         targets="{{file}}"
+        # Naming a skipped file builds it anyway, but say first what it will do, so nobody reads a
+        # guaranteed failure as a defect in something they were about to print.
+        why=$(mesh_why "{{file}}")
+        [ -n "$why" ] && printf 'note  %-46s %s\n' "{{file}}" "$why"
     else
         targets=""
         for f in {{ENTRY}}; do
-            slow=0
-            for s in {{MESH_SLOW}}; do [ "$s" = "$f" ] && slow=1; done
-            [ "$slow" = 0 ] && targets="$targets $f"
+            skip=0
+            for s in {{MESH_SKIP}}; do [ "$s" = "$f" ] && skip=1; done
+            [ "$skip" = 0 ] && targets="$targets $f"
         done
-        for s in {{MESH_SLOW}}; do
-            printf 'skip  %-46s minutes to build; pass it as an argument\n' "$s"
+        for s in {{MESH_SKIP}}; do
+            printf 'skip  %-46s %s\n' "$s" "$(mesh_why "$s")"
         done
     fi
     failed=0
     for f in $targets; do
         out="$tmp/$(echo "$f" | tr / _).stl"
-        {{OPENSCAD}} -o "$out" "$f" 2>"$tmp/err" >/dev/null
+        {{OPENSCAD}} $(mesh_flags "$f") -o "$out" "$f" 2>"$tmp/err" >/dev/null
         size=$(stat -c%s "$out" 2>/dev/null || echo 0)
         if grep -qi '2-manifold' "$tmp/err"; then
             echo "FAIL  $f  not a valid 2-manifold"

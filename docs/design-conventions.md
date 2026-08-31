@@ -254,9 +254,22 @@ until it is listed, which is the point.
 **Neither of those runs CGAL, so neither can see a broken solid.** `.csg` export is a dump of the
 tree, not an evaluation of it, and a mesh export tessellates without being asked whether the result
 closes. The impeller's blades were drawn TANGENT to the hub — 264 non-manifold edges — and every
-check above passed on it, every render, every time. It was found by measuring the STL. **`just check-mesh`** closes that: it renders to a mesh and fails on a defect
-count above zero. The slow entry files sit behind an argument rather than in the default sweep,
-because `assembly.scad` alone exceeds fifteen minutes.
+check above passed on it, every render, every time. It was found by measuring the STL.
+**`just check-mesh`** closes that: it renders to a mesh and fails on a defect count above zero, and
+**`just export-parts`** applies the same test to every part on the print manifest, one at a time.
+
+**A check must be run in the configuration that makes the part, not the one that makes the
+picture.** Four entry files render an assembly by default, and `check-mesh` used to skip all four as
+"slow" and invite you to run them before a print. Three of them cannot pass: `head.scad`'s printed
+geometry alone IS a 2-manifold, and what breaks it is `render_seals`, `render_probes`, and the
+bearing with its coupling — EPDM in its grooves, Atlas bodies in their collets, a bearing on the
+shaft, every one of them already on `check-parts`' `not_printed` list. So the check failed on
+vitamins the repo had declared are not printed, could never pass, and taught anyone who ran it to
+ignore it. `electronics_stand.scad` was on that list too and is not even slow: 14 s as a picture,
+and 4 s as the bracket it prints, which is a clean 2-manifold. It is checked now.
+
+**A check that cannot pass is worse than no check**, because the next real failure reads as more of
+the same noise.
 
 **Check at the `$fn` the desk uses, not only the one CI pins.** `$fn` is dynamically scoped, and
 2021.01 lets a `use`d module resolve it from its own file where newer builds pass the caller's — so
