@@ -468,7 +468,7 @@ unresolved citation.
 ## Unbaffled vessels and eccentric agitation
 
 Opened because mouths under about 98 mm cannot hold four baffles beside two Ø16 probes at any port
-count (`working.tmp/PORTS-options.md`), so the small jars in the family are unbaffled whatever else
+count (see `docs/ports-layout.md`), so the small jars in the family are unbaffled whatever else
 is decided.
 
 **Two claims in the first draft of this section came from search summaries and were wrong.** Montante
@@ -645,7 +645,7 @@ reach on every registered vessel.** What is reachable, by Karcz's equation:
 The result is the wrong way round: **the vessels with room for eccentricity are the ones already wide
 enough to carry baffles, and the two that need it have none.** Off-centring is not a rescue for the
 small jars. It is, separately, a cheap 24-30% on the large ones if they ever run unbaffled.
-→ `working.tmp/PORTS-options.md`, `TODO.md` airlift item
+→ `docs/ports-layout.md` "Baffles on a narrow jar", `TODO.md` airlift item
 
 ---
 

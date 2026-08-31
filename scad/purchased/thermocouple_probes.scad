@@ -12,7 +12,7 @@
 // Thread size is a geometry decision, not just a plumbing one: a 1/2 NPT mount needs the full-size
 // bayonet, while 1/8 NPT fits a smaller one. On a twelve-port lid that is the difference between
 // seven big ports and six, and so between a 142 mm and a 130 mm smallest mouth - see
-// working.tmp/PORTS-options.md.
+// docs/ports-layout.md.
 
 // INSULATED vs noninsulated is the ungrounded-junction option. It costs more and is worth checking
 // before choosing: a grounded sheath puts the probe electrically in the culture alongside the pH

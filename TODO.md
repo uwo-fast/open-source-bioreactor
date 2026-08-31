@@ -226,7 +226,7 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
 - [ ] explore an airlift variant of the sparger, with no impeller at all
   - falls out of the port work: mouths under about 98 mm cannot hold four baffles beside two Ø16
     Atlas probes at any port count, so the small jars are unbaffled whatever else is decided. See
-    `working.tmp/PORTS-options.md` for where that number comes from
+    `docs/ports-layout.md`, "Baffles on a narrow jar", for where that number comes from
   - the small jars visibly *do* mix on the air alone. That is not a reason to rely on it. Aeration
     that mixes as a side effect is an uncontrolled variable: the gas rate is then setting both kLa
     and the mixing time, they cannot be varied independently, and nothing in the model would say

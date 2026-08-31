@@ -134,6 +134,29 @@
   - the meter is the BARE `VFA-23`, not the valved `-BV`. Dwyer do not publish the integral valve's
     Cv, and unstated specs are what disqualified the medical and welding flowmeter channels here -
     closing the metering row on one would have been inconsistent with how everything else was picked
+  - **what was rejected, and on what.** The workings were working notes; these are the reasons.
+    - *Flowmeter, 13 candidates.* The discriminator was **scale unit and calibration pressure**,
+      not range or price. Five McMaster tubes read **scfh**, which puts a conversion on every
+      reading in the paper. The medical channel is referenced at **50 psig** and the welding
+      channel at **30**, so both would read about **87 % wrong** at this line's pressure — ruled
+      out on calibration basis rather than cost. Cole-Parmer have no 5 L/min rung and their
+      nearest tube is 8.5 L/min full scale, which costs **±10.4 %** at the design point against
+      the Dwyer's ±6.1 %, for 69 % more money. A glass LZB-4WB was cheapest but its listing quotes
+      "2.5 %, 4 %, 6 %" across the series without saying which applies to that model.
+    - *Check valve, 13 candidates.* The discriminator was the **flowing drop at 4.087 L/min**,
+      which no spec sheet carries — every page quotes only static cracking pressure. Computing it
+      from published Cv reorders the field: an Air Logic umbrella at the same nominal cracking
+      pressure costs about **0.9 kPa more**, because its flow capacity is a quarter. The
+      nylon/silicone sibling `5011519` was rejected on material — nylon is hygroscopic and swells
+      in continuously humid air. `5011521` beat US Plastic `22577` **on procurement, not physics**:
+      1.85 against 1.78 kPa is inside the error on the filter figure that dominates the budget,
+      and it shares a supplier with the sterile filter, so one shipment and one customs clearance.
+    - *Metering valve.* Required Cv moved twice as the line was accounted — **0.020 → 0.0296 →
+      0.0333** — which retired two picks. `MNV-2` (Cv 0.032) ended at 92 % of wide open with no
+      authority left; an Ideal Valve 52-1-12 (Cv 0.019) **could not reach the design flow at all**.
+      `MNV-4K2` was then chosen on Cv alone and retired on the **needle**: Clippard's catalogue
+      gives it a 20° taper, coarser than the `MNV-1` already rejected for being coarse.
+
 
 - hose clamp selection
   - McMaster-Carr 5011T141

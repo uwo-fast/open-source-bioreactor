@@ -4,6 +4,9 @@ The lid carries twelve bayonet locks on one circle, 30° apart. They are identic
 *is* comes entirely from `head_ports` in `scad/head.scad` — this document is the derivation behind
 that table, and the table is the statement of record.
 
+[`ports_layout.drawio`](ports_layout.drawio) is the sketch of the same circle, editable in
+draw.io. It was in the repo and referenced by nothing, which is how a diagram goes stale unnoticed.
+
 ## Why four baffles, and why they set everything else
 
 An equally spaced count has to divide the port circle. On twelve ports that allows 2, 3, 4, 6 or
@@ -261,6 +264,15 @@ drops the four baffles and the acid/base pair. What a narrow jar gives up is pH 
 measurement. Which functions a given experiment wants is the operator's call; this is the default.
 
 ## Baffles on a narrow jar
+
+**The floor is about 98 mm, and it is not a property of the registered sets.** Sweeping port count
+rather than taking the registered twelve, four baffles cannot sit beside two Ø16 Atlas probes below
+roughly a 98 mm mouth at *any* count — the two probes are the widest pair on the circle and four
+baffles must space equally around them. The registered sets land above that anyway (142.0 mm full,
+122.7 three-baffle), so nothing in the model computes 98; it is the bound the search ran into, and
+it is why the small jars are unbaffled whatever else is decided rather than pending a cleverer
+layout.
+
 The small jars are unbaffled, and an unbaffled vessel with a centred shaft swirls: Montante measured
 a flow number of 0.25 for a centred unbaffled impeller, **65% below the same impeller baffled**.
 
