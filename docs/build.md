@@ -65,7 +65,9 @@ returns a whole rib, so it is one solid meshed two ways.
 
 **Tools, printed once:** the two halves of the gasket cutter.
 
-Transparent PETG for anything in contact with the culture, grey for structure.
+Food-grade clear PETG for anything in contact with the culture, grey PETG for structure. The
+food-grade qualifier is a purchasing constraint, not a colour: a clear spool is not automatically
+one, and the wetted parts are what the culture sits against for the length of a run.
 
 ### Two things about printing them
 

@@ -591,7 +591,8 @@ export-parts vessel="" out="output":
       echo "$pieces pieces, $parts distinct parts. Written by \`just export-parts\`; the model is the"
       echo "authority and this is a transcript of it, so regenerate rather than editing."
       echo
-      echo "Transparent PETG for anything the culture touches, grey for structure. The gasket cutter"
+      echo "Food-grade clear PETG for anything the culture touches, grey PETG for structure -"
+      echo "food-grade is a purchasing constraint, not a colour. The gasket cutter"
       echo "is a tool rather than a part of the reactor, and you need it to cut the rim gasket."
       echo "Assembly, and the numbers that go with it, are in [docs/build.md](../../docs/build.md)."
       echo

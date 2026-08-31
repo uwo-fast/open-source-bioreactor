@@ -16,6 +16,7 @@
 // Figures are the manufacturers' own. Two carry a caveat and both are noted on the row.
 
 //                          ["name"             [x,    y,    z  ]]
+printer_prusa_mk3s       = ["prusa_mk3s",       [250,  210,  210]];
 printer_prusa_core_one   = ["prusa_core_one",   [250,  220,  270]];
 printer_voron_250        = ["voron_250",        [250,  250,  250]];
 printer_bambu_x1c        = ["bambu_x1c",        [256,  256,  256]];
@@ -25,6 +26,10 @@ printer_sovol_sv08       = ["sovol_sv08",       [350,  350,  345]];
 printer_voron_350        = ["voron_350",        [350,  350,  350]];
 printer_prusa_xl         = ["prusa_xl",         [360,  360,  360]];
 
+// prusa_mk3s is the machine this project's parts were actually printed on, alongside the XL for
+// the big ones, so it is the one row here that is not a hypothetical builder's machine. It is also
+// the smallest registered and the tightest constraint: at 210 mm in Y it cannot take the lid.
+//
 // voron_250 covers both the 2.4 and the Trident at that size; they share a 250 mm cube. The 350
 // row is the 2.4, whose Z matches its bed - a Trident 350 is 350 x 350 x 250 and would be its own
 // row if anyone wanted it.
@@ -40,8 +45,9 @@ printer_prusa_xl         = ["prusa_xl",         [360,  360,  360]];
 // numbers and a part that only just fits one is a part to look at twice - printer_z_margin in
 // head.scad is the only place this project puts a number on that.
 
-printers = [printer_prusa_core_one, printer_voron_250, printer_bambu_x1c, printer_prusa_core_one_l,
-            printer_bambu_h2d, printer_sovol_sv08, printer_voron_350, printer_prusa_xl];
+printers = [printer_prusa_mk3s, printer_prusa_core_one, printer_voron_250, printer_bambu_x1c,
+            printer_prusa_core_one_l, printer_bambu_h2d, printer_sovol_sv08, printer_voron_350,
+            printer_prusa_xl];
 
 // Accessors live here rather than in a printer.scad, because there is no geometry to separate from
 // them - the same split shafts.scad and steel_tubes.scad use.
