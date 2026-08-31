@@ -425,12 +425,20 @@ never above 85 %, hard limit 90 %. Table B for the groove's outer diameter under
 
 ## Bolted joint
 
-**ASME BPVC VIII-1, Mandatory Appendix 2** — flange design, gasket factor *m* from Table 2-5.1.
-Working reference used: <https://codesignengg.com/wp-content/uploads/2025/05/LinkedIn-Article-Flange-Design-per-Appendix-2.pdf>
-**[TP]** · **read**
-Bolt count and spacing for the lid-to-frame joint; *m* = 0.5 for elastomer under 75A, 1.0 at or
-above.
+**ASME BPVC Section VIII Division 1, Mandatory Appendix 2** — "Rules for Bolted Flange Connections
+With Ring Type Gaskets," Table 2-5.1, gasket factor *m*. **[TX]** · **unread**
+The primary, and it has NOT been obtained: the standard is paywalled and nothing here has read
+Table 2-5.1 itself. `head_gasket_factor()` returns *m* = 0.5 for elastomer under 75A and 1.0 at or
+above, and the lid joint's bolt count is derived from it — so a number taken at second hand decides
+how many bolts hold the vessel shut. See TODO.md for exactly what to check.
 → `scad/utils/bolt_pattern.scad`, `scad/head.scad` `head_gasket_factor()`
+
+**Codesign Engineering — "Flange Design per Appendix 2"** (LinkedIn article, re-hosted) —
+<https://codesignengg.com/wp-content/uploads/2025/05/LinkedIn-Article-Flange-Design-per-Appendix-2.pdf>
+**[TP]** · **read**
+The working reference the *m* values were actually taken from. A trade-press summary of the entry
+above, re-hosted on a consultancy's WordPress: it is where the number came from, so it is cited as
+such rather than dressed up as the standard.
 
 ---
 
