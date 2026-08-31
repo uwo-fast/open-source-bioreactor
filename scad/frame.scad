@@ -40,6 +40,7 @@ render_lights = false;
 frame(
   vessel_height=vessel_height(_preview_vessel),
   vessel_outer_diameter=vessel_diameter(_preview_vessel),
+  vessel_corner_radius_base=vessel_corner_radius_base(_preview_vessel),
   light=_preview_light,
   wall_thickness=_preview_wall_thickness,
   lid_flange_height=_preview_flange_height,
@@ -84,6 +85,10 @@ nut_height = nut_thickness(rod_nut);
 
 // allowance for the jar to fit in the base
 base_jar_fit_allow = 0.4;
+
+// how far the base floor reaches inboard of the circle the jar lands on. reasoned, not cited: the
+// registered base corner radius is eyeballed, so this covers where the glass actually bears
+base_jar_support_reach = 15;
 
 // height of the bottom base (holding jar)
 lower_base_wall_height = 25;
@@ -209,7 +214,7 @@ module lights(quadrants, vessel_outer_diameter, light, lights_per_quadrant, occu
   }
 }
 
-module frame(vessel_height, vessel_outer_diameter, light, wall_thickness, lid_flange_height, n_rods, bolt_pts, bolt_screw, collapse_spacer_z_allow=true) {
+module frame(vessel_height, vessel_outer_diameter, vessel_corner_radius_base, light, wall_thickness, lid_flange_height, n_rods, bolt_pts, bolt_screw, collapse_spacer_z_allow=true) {
 
   base_floor_height = frame_floor_depth(vessel_height, light);
 
@@ -218,6 +223,13 @@ module frame(vessel_height, vessel_outer_diameter, light, wall_thickness, lid_fl
 
   // diameter of the cutout for the jar
   base_jar_cut_diameter = vessel_outer_diameter + base_jar_fit_allow;
+
+  // The jar's underside dishes up from its base corner, so it lands on ONE circle and the floor
+  // ring has to reach inboard of that. Cut from the jar, not the wall - the wall is set by the
+  // lights and the rods, and deriving the bore from it put jar_6p5gal_305x470's contact circle
+  // 13.2 mm inside the hole, sat on the bore edge up on its own fillet.
+  _jar_contact_radius = vessel_outer_diameter / 2 - vessel_corner_radius_base;
+  _base_center_bore_diameter = (_jar_contact_radius - base_jar_support_reach) * 2;
 
   // diameter of the hole for the threaded rod
   threaded_rod_hole_diameter = frame_rod_hole_diameter();
@@ -289,12 +301,27 @@ module frame(vessel_height, vessel_outer_diameter, light, wall_thickness, lid_fl
     str("The lid-to-top-base gap is ", stack_slack, " mm; the bolts cannot clamp the lid into the vessel without it.")
   );
 
+  // Weak, not dead: it is driven by the jar's diameter against its own base corner, and
+  // jar_1p5L_109x215 is the nearest at a 64.22 mm bore.
+  assert(
+    _base_center_bore_diameter > 0,
+    str(
+      "The jar lands on the base floor at r ", _jar_contact_radius, " mm and the ring is asked to reach ",
+      base_jar_support_reach, " mm inboard of that, which is past the axis."
+    )
+  );
+
   _base_wall_thickness = wall_thickness;
 
   // every base closes on this face, and so does the lid flange above them
   _outer_diameter = frame_outer_diameter(vessel_outer_diameter, wall_thickness);
 
   echo("base wall thickness: ", _base_wall_thickness / 10, " cm");
+
+  echo(
+    "base floor: jar lands at r", _jar_contact_radius, "mm, ring spans r",
+    _base_center_bore_diameter / 2, "to r", base_jar_cut_diameter / 2, "mm"
+  );
 
   // WHAT THE LAYOUT COSTS TO BUY. The light count is a layout decision - which quadrants carry
   // lights and how many sit in each - and these do not come as tubes: one cord and controller
@@ -391,7 +418,7 @@ module frame(vessel_height, vessel_outer_diameter, light, wall_thickness, lid_fl
             translate([0, 0, base_floor_height])
               cylinder(d=base_jar_cut_diameter, h=lower_base_height - base_floor_height + z_fight);
             translate([0, 0, -z_fight / 2])
-              cylinder(d=base_jar_cut_diameter - _base_wall_thickness * 2, h=lower_base_height + z_fight);
+              cylinder(d=_base_center_bore_diameter, h=lower_base_height + z_fight);
 
             for (i = [0:n_rods - 1]) {
               _nut_pocket_height = nut_height * 1.1;
