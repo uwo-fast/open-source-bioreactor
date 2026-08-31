@@ -50,17 +50,29 @@ ledger at the end: decisions that took real work to reach and would otherwise be
     CO₂ inventory problem, where the enrichment fraction is a bigger lever on productivity than the
     entire sparger study was
 
-- [ ] **two of six registered vessels do not build**, and one of them for two reasons
-  - **`jar_1p5L_109x215` and `jar_1gal_155x251` cannot carry a top-entry drive on their lids at
-    all.** Their port flanges leave 27.1 and 35.4 mm where the motor mount's own floor is 42, so
-    they are 14.9 and 6.6 mm of diameter short. No lid or mount change reaches it
-  - **and `jar_1gal_155x251` fails on the probe FIRST**, which the meridian check exposed: a
-    vertical DO probe runs 6.29 mm through the upper impeller radially. Not a tilt problem -
-    `check-vessels` sweeps both leans flat and it fails anyway, so the port circle and the impeller
-    want the same radius in a 155 mm bore. So fixing the mount would not unblock that jar, which one
-    recorded cause implied it would
-  - the answer to both is the narrow-jar agitation question, tracked under "drive and aeration".
-    Nothing else in the model is waiting on it
+- [ ] **four of six registered vessels do not render from `assembly.scad`**, in two different ways
+  - **`check-vessels` has been measuring a configuration nobody builds.** It sweeps `head.scad`
+    with `culture_working_volume=undef` and both probe leans flat, which is why the count read two.
+    Rendering `assembly.scad` as it ships, four fail. Extending the sweep to `assembly.scad`, or to
+    both configurations, is the fix - see the tooling section
+  - **two are blocked only by a per-build scalar, and are otherwise fine.** `jar_1gal_180x197` on
+    `do_probe_port_tilt_degrees = 4.5`, which its shorter body cannot take - it builds at 2.5, a
+    ceiling `head.scad` already named in a comment and had no way to apply. `jar_6p5gal_305x470` on
+    `culture_working_volume = 8.25`, which is this build's statement about a 10 L jar and leaves the
+    thermocouple in the headspace of a 24 L one. **Both are now derived rather than pinned**
+  - **two cannot carry a top-entry drive on their lids at all.** `jar_1p5L_109x215`'s port flanges
+    leave 27.1 mm against a 56 mm mount; dropping the mount to 47.5 - the smallest registered motor
+    plus two walls - still leaves it 8.2 mm short, and D/T does not move it. `jar_1gal_155x251`
+    needs D/T under about 0.37 AND a mount under 39.4 mm, and at 39.4 the mount's inserts overlap
+    the bearing pocket by 1.15 mm instead. Shrinking the mount only moves the failure
+  - **`jar_1gal_155x251`'s probe conflict is the pH probe, not the DO probe.** Recorded here as a
+    vertical DO probe through the upper impeller, which is what a flat sweep shows; lean the DO
+    probe out and it clears, and the pH probe - vertical by Yokogawa's requirement, and the long one
+    - runs 6.29 mm through the LOWER impeller. No DO lean reaches that. (Superseded - kept for the
+    record. The old reading blamed the DO probe because the only sweep that existed held both leans
+    flat, which is the DO probe's worst case and the pH probe's best.)
+  - the answer to the last two is the narrow-jar agitation question, tracked under "drive and
+    aeration". Nothing else in the model is waiting on it
 
 - [ ] **choose an outlet filter that fits in 1.91 kPa/L/min, because the obvious one does not**
   - the exhaust is unguarded: the headspace vents through a support tube's bore into the room while
@@ -262,6 +274,15 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
 - [ ] optional end styles (sensor gland) for atlas probes to match product more closely
 
 ## tooling / infrastructure / documentation
+
+- [ ] **`check-vessels` sweeps `head.scad`, so the frame and the assembly are unswept**
+  - it renders `head.scad` per vessel with `culture_working_volume=undef` and both probe leans flat.
+    That is a legitimate sweep - it asks whether a jar CAN be built - but it is not what
+    `assembly.scad` renders, and the gap is what let four failing vessels read as two
+  - nothing builds `frame.scad` against the registry at all. The base's centre bore was derived from
+    the wall until it was cut from the jar's base corner, and `jar_6p5gal_305x470` sat on its own
+    fillet over the bore edge for as long as that went unswept
+  - what it should be is both configurations: the jar's own limit, and the build as it ships
 
 - [ ] **the gasket recess holds three quarters of the rubber that has to fit in it**
   - what is left of the assembly-torque item, which `docs/build.md` and the `joint tightening` echo
