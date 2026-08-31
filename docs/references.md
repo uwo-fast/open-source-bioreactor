@@ -15,9 +15,9 @@ turned out to be wrong. The status says how far each source was actually checked
 Grades: **[PR]** peer-reviewed · **[TH]** thesis · **[PAT]** patent · **[TX]** textbook ·
 **[TP]** trade press · **[VN]** vendor.
 
-Every literature source below is also in [`references.bib`](references.bib) — 33 entries carrying
-the grade and verification status in their `note` fields, so the whole set imports into a reference
-manager in one go rather than one DOI at a time. Vendor pages, part numbers and software libraries
+Every literature source below is also in [`references.bib`](references.bib) — 48 entries, every one
+carrying its grade and verification status in a `note` field, so the whole set imports into a
+reference manager in one go rather than one DOI at a time. Vendor pages, part numbers and software libraries
 are deliberately not in it: they are cited inline on the registry row or file that uses them.
 
 ---
@@ -69,6 +69,18 @@ vessel cannot remove; and the folded blade is a three-angle fold, not a flat pla
 its measured Po does not transfer to a plate drawn at 45°.
 → `scad/custom/impellers.scad` `impeller_folded_axial_3/4/6` and `impeller_pbt_45_4` width_ratio,
 `scad/head.scad` `impeller_n_fins`
+
+**Medek, J. & Fořt, I.** — the correlations this model actually computes with, reached through
+Fořt et al. (2002) above rather than obtained. **[PR]** · **unread**
+`stirred_tank_medek_power_number()` and `..._flow_number()` implement `Po ∝ (sin α)^2.077` and
+`N_Qp ∝ (sin α)^0.468` as Fořt et al. state them; the primary papers have not been read. Crossref
+gives two candidates in *Coll. Czech. Chem. Commun.* — "Pumping effect of impellers with flat
+inclined blades," 44:3077-3089 (1979), [doi:10.1135/cccc19793077](https://doi.org/10.1135/cccc19793077),
+and Fořt, Medek & Placek, "Hydraulic characteristics of paddle impellers with flat inclined blades,"
+40:3443-3458 (1975), [doi:10.1135/cccc19753443](https://doi.org/10.1135/cccc19753443) — but WHICH
+of them Fořt et al. drew from has not been checked, so neither is claimed here.
+Named 20+ times across the code and docs and, until now, in no bibliography.
+→ `scad/utils/stirred_tank.scad` `stirred_tank_medek_*`
 
 **Jirout, T. & Rieger, F.** "Impeller design for mixing of suspensions." CTU Prague —
 <https://users.fs.cvut.cz/tomas.jirout/vyuka/p2_hmp/chep_vyuka.pdf> **[PR]** · **read**
@@ -267,6 +279,17 @@ reaches 30° twist at 83° hub angle, so this is a direction, not a correction f
 
 ## Cell damage, shear and agitation
 
+**Molina Grima, E., Acién Fernández, F.G., García Camacho, F. & Chisti, Y. (1999).**
+"Photobioreactors: light regime, mass transfer, and scaleup." *Journal of Biotechnology*
+70(1-3):231-247. [doi:10.1016/S0168-1656(99)00078-4](https://doi.org/10.1016/S0168-1656(99)00078-4)
+**[PR]** · **unread**
+Source of the *"frequency of switch"* criterion `docs/agitation.md` quotes — that a photobioreactor
+is judged by how often a cell crosses between lit and dark zones, not by a blend-time multiple.
+Quoted there by name and, until now, cited nowhere. The full text is in the project's Zotero
+library; the passage carrying the phrase has not been confirmed, so this is marked unread rather
+than read.
+→ `docs/agitation.md` mixing-criterion paragraph
+
 **Mazzuca Sobczuk, T., García Camacho, F., Molina Grima, E. & Chisti, Y. (2006).** "Effects of
 agitation on the microalgae *Phaeodactylum tricornutum* and *Porphyridium cruentum*." *Bioprocess
 and Biosystems Engineering* 28(4):243-250. [doi:10.1007/s00449-005-0030-3](https://doi.org/10.1007/s00449-005-0030-3) **[PR]** · **read**
@@ -414,9 +437,15 @@ above.
 <https://myengineeringtools.com/references/pages/baffle_width_and_number_calculation.html> **[VN]**
 · **read** → `scad/custom/bayonet_baffle_port.scad`
 
-**PMC8459426** — <https://pmc.ncbi.nlm.nih.gov/articles/PMC8459426/> **[PR]** · **read**
+**Sato, E., Ochi, Y., Horiguchi, H., Takenaka, K., Wu, J. & Parthasarathy, R. (2021).** "Effect of
+Baffle Clearance on Scale Deposition in an Agitated Vessel." *ACS Omega* 6(37):24070-24074.
+[doi:10.1021/acsomega.1c03503](https://doi.org/10.1021/acsomega.1c03503) **[PR]** · **read**
 Flow accelerating behind a baffle keeps that region from going stagnant, which is why partial
 baffles standing inboard are not purely a loss. → `scad/head.scad` baffle block
+
+(Superseded — kept for the record. This was cited as the bare accession number **PMC8459426**, with
+no author, title, journal or year, while being the only support for the inboard-baffle claim. It is
+the same article: <https://pmc.ncbi.nlm.nih.gov/articles/PMC8459426/>.)
 
 **Note on status:** partial/inboard baffles are *characterised* in the literature, not
 *recommended*. The relevant papers (*Chem Eng Res Des* S0263876207730952, *Chem Eng Sci*
