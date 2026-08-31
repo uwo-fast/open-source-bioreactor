@@ -917,7 +917,7 @@ dosing_pump_functions = ["acid", "base"];
 // Design choices for the collet. Every hardware dimension comes from the registered probe
 // named in head_ports, so nothing about the probe itself is entered here.
 probe_port_collet_wall_thickness = 1.2;
-probe_port_collet_body_allowance = 0.6; // grip fit; tune this, not the registry, if a cap is tight
+probe_port_collet_body_allowance = 0.6; // grip fit; 0.5 was tried twice and was tight, 0.6 stuck
 probe_port_collet_connector_allowance = 0.6;
 probe_port_collet_tab_gap = 1.0;
 probe_port_collet_tab_deflection = 0.5;
