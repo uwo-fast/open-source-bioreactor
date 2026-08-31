@@ -83,7 +83,10 @@ Named 20+ times across the code and docs and, until now, in no bibliography.
 → `scad/utils/stirred_tank.scad` `stirred_tank_medek_*`
 
 **Jirout, T. & Rieger, F.** "Impeller design for mixing of suspensions." CTU Prague —
-<https://users.fs.cvut.cz/tomas.jirout/vyuka/p2_hmp/chep_vyuka.pdf> **[PR]** · **read**
+<https://users.fs.cvut.cz/tomas.jirout/vyuka/p2_hmp/chep_vyuka.pdf> **[TX]** · **read**
+(Superseded — kept for the record. Graded **[PR]** until 2026-08-30, which it never was: it is
+undated teaching material from a course directory, as its own note said. Its Np = 0.99 ± 0.04 is
+also the superseded power number — the model takes Po from Medek's correlation via Fořt.)
 Reproduces the above and adds the folded-blade series, including **Np = 0.99 ± 0.04** for a 4-blade
 folded axial impeller — the closest measured analogue to this project's blade.
 → `scad/custom/impellers.scad` `impeller_folded_axial_4`
@@ -572,10 +575,13 @@ Read the caution with it: the paper shows the **Kolmogorov criterion mispredicte
 (both rigs had eddies larger than the cells, yet only one caused damage), and that accumulated stress
 in Pa s was the better descriptor. Nothing in this model computes that.
 
-**Michels, M.H.A.; van der Goot, A.J.; Vermue, M.H.; Wijffels, R.H. (2015).** "Cultivation of shear
+**Michels, M.H.A.; van der Goot, A.J.; Vermuë, M.H.; Wijffels, R.H. (2016).** "Cultivation of shear
 stress sensitive and tolerant microalgal species in a tubular photobioreactor equipped with a
-centrifugal pump." *Journal of Applied Phycology* 28:53-62.
-[doi:10.1007/s10811-015-0559-8](https://doi.org/10.1007/s10811-015-0559-8) **[PR]** · **abstract**
+centrifugal pump." *Journal of Applied Phycology* 28(1):53-62.
+[doi:10.1007/s10811-015-0559-8](https://doi.org/10.1007/s10811-015-0559-8) **[PR]** · **read**
+Retrieved and read 2026-08-30. Same paper as the entry above, which cites it jointly with Michels
+2010; this one carries the detail. Cited as 2015 here and 2016 there until that date — the journal
+prints *J Appl Phycol (2016) 28:53-62* on the page and 20 March 2015 as the online date.
 Context only — it tests four marine aquaculture species and **not Chlorella**. Useful for scale:
 severe damage to *I. galbana*, *S. costatum* and *C. muelleri* between 1.2 and 5.4 Pa, while
 *T. suecica* tolerates 80 Pa. Shear tolerance spans more than an order of magnitude between species,
