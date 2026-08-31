@@ -1829,21 +1829,26 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   //
   // Whichever applies is echoed. Po is the largest single uncertainty in every power, dissipation
   // and torque figure below, so which kind of number it is has to travel with it.
+  // Medek's two geometric ratios, hoisted: they are arguments to the power number, the flow number
+  // and the departures check, and three copies of a ratio is how three ratios begin.
+  _tank_ratio = _vessel_bore / impeller_diameter;
+  _height_ratio = _liquid_height / _vessel_bore;
+
   _po_measured = impeller_has_power_number(head_impeller_type);
   _po_correlated = !_po_measured && !is_undef(impeller_blade_angle(head_impeller_type));
   _po_borrowed = !_po_measured && !_po_correlated;
 
   _medek_departures = stirred_tank_medek_departures(
-    impeller_blades(head_impeller_type), _clearance_ratio, _vessel_bore / impeller_diameter,
-    _liquid_height / _vessel_bore, impeller_blade_angle(head_impeller_type),
+    impeller_blades(head_impeller_type), _clearance_ratio, _tank_ratio,
+    _height_ratio, impeller_blade_angle(head_impeller_type),
     len(_baffle_at), stirred_tank_reynolds(impeller_diameter, dc_motor_rated_output_rpm(head_motor))
   );
 
   _impeller_po =
   _po_measured ? impeller_power_number(head_impeller_type)
   : _po_correlated ? stirred_tank_medek_power_number(
-      impeller_blades(head_impeller_type), _clearance_ratio, _vessel_bore / impeller_diameter,
-      _liquid_height / _vessel_bore, impeller_blade_angle(head_impeller_type))
+      impeller_blades(head_impeller_type), _clearance_ratio, _tank_ratio,
+      _height_ratio, impeller_blade_angle(head_impeller_type))
   : impeller_power_number(head_impeller_po_fallback);
   _impeller_x = impeller_dissipation_factor(head_impeller_type);
 
@@ -1870,8 +1875,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _impeller_flow_number = !_po_correlated
     ? undef
     : stirred_tank_medek_flow_number(
-      impeller_blades(head_impeller_type), _clearance_ratio, _vessel_bore / impeller_diameter,
-      _liquid_height / _vessel_bore, impeller_blade_angle(head_impeller_type)
+      impeller_blades(head_impeller_type), _clearance_ratio, _tank_ratio,
+      _height_ratio, impeller_blade_angle(head_impeller_type)
     );
 
   if (_po_correlated)

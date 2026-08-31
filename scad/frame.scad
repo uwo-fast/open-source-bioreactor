@@ -72,8 +72,8 @@ rod_nut = M8_nut;
 nut_pocket_allowance = 0.6;
 // allowance for the hole for the threaded rod
 threaded_rod_hole_allowance = 1.2;
-// thread left showing above the topmost rod nut; two coarse M8 pitches
-rod_thread_proud = 2.5;
+// thread left showing above the topmost rod nut; two coarse pitches, from the rod's own diameter
+rod_thread_proud = 2 * bolt_coarse_pitch(threaded_rod_diameter);
 
 // diameter of the nut
 nut_pocket_diameter = 2 * nut_radius(rod_nut) + nut_pocket_allowance;

@@ -249,8 +249,7 @@ echo(str(
 // only such thing today. Composed here because the reactor is what this file assembles: the frame
 // sets the width and the depth below the jar, the head's drive stack sets the top. Measured
 // against a mesh export of the whole assembly at 257.400 x 571.250 mm.
-function reactor_envelope_diameter() =
-  frame_outer_diameter(vessel_diameter(reactor_vessel), frame_wall_thickness);
+function reactor_envelope_diameter() = joint_outer_diameter; // the flange circle IS the envelope
 function reactor_envelope_height() =
   frame_floor_depth(vessel_height(reactor_vessel), _reactor_light)
   + vessel_height(reactor_vessel) + lid_flange_height
