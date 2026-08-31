@@ -15,7 +15,7 @@ turned out to be wrong. The status says how far each source was actually checked
 Grades: **[PR]** peer-reviewed · **[TH]** thesis · **[PAT]** patent · **[TX]** textbook ·
 **[TP]** trade press · **[VN]** vendor.
 
-Every literature source below is also in [`references.bib`](references.bib) — 48 entries, every one
+Every literature source below is also in [`references.bib`](references.bib) — 49 entries, every one
 carrying its grade and verification status in a `note` field, so the whole set imports into a
 reference manager in one go rather than one DOI at a time. Vendor pages, part numbers and software libraries
 are deliberately not in it: they are cited inline on the registry row or file that uses them.
@@ -425,12 +425,18 @@ never above 85 %, hard limit 90 %. Table B for the groove's outer diameter under
 
 ## Bolted joint
 
-**ASME BPVC Section VIII Division 1, Mandatory Appendix 2** — "Rules for Bolted Flange Connections
-With Ring Type Gaskets," Table 2-5.1, gasket factor *m*. **[TX]** · **unread**
-The primary, and it has NOT been obtained: the standard is paywalled and nothing here has read
-Table 2-5.1 itself. `head_gasket_factor()` returns *m* = 0.5 for elastomer under 75A and 1.0 at or
-above, and the lid joint's bolt count is derived from it — so a number taken at second hand decides
-how many bolts hold the vessel shut. See TODO.md for exactly what to check.
+**ASME (2019).** *ASME Boiler and Pressure Vessel Code, Section VIII, Division 1: Rules for
+Construction of Pressure Vessels.* ASME BPVC.VIII.1-2019, Mandatory Appendix 2, "Rules for Bolted
+Flange Connections With Ring Type Gaskets," **Table 2-5.1 p.399**. **[TX]** · **read**
+Retrieved and read 2026-08-31. Gasket factor *m* and minimum design seating stress *y*, for
+"elastomers without fabric or high percent of mineral fiber": **below 75A Shore, m = 0.50 and
+y = 0 psi; 75A or higher, m = 1.00 and y = 200 psi (1.4 MPa)**. Self-energizing types, o-rings among
+them, are m = 0 and y = 0. All four figures the model encodes were confirmed against the table
+rather than the summary they came from.
+**Two things the table says that the summary did not.** *y* is **zero** for this build's 60A sheet,
+so there is no seating-stress minimum to meet and the model is right to compute none. And the
+table's own note reads: the values "are suggested only and **are not mandatory**" — so this is
+guidance the design follows, not a requirement it satisfies, and a reviewer should be told which.
 → `scad/utils/bolt_pattern.scad`, `scad/head.scad` `head_gasket_factor()`
 
 **Codesign Engineering — "Flange Design per Appendix 2"** (LinkedIn article, re-hosted) —

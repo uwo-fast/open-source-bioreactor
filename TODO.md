@@ -330,26 +330,6 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
   - the same question applies to `assembly.scad`, `frame.scad`, `cart.scad` and
     `electronics_stand.scad`, which are skipped for the same reason and are assemblies too
 
-- [ ] **check the ASME gasket factor against the standard, not a summary of it** — Cameron has
-  institutional access; this is the exact lookup
-  - **ASME BPVC Section VIII, Division 1, Mandatory Appendix 2**, "Rules for Bolted Flange
-    Connections With Ring Type Gaskets" — **Table 2-5.1**, "Gasket Materials and Contact Facings:
-    Gasket Factors *m* for Operating Conditions and Minimum Design Seating Stress *y*"
-  - the row wanted is **elastomers without fabric or high percent of asbestos fibre**, split by
-    hardness. Confirm both halves: **below 75A Shore** and **75A or higher**. The model's gasket is
-    EPDM 1/16 in at **60A**, so it takes the first
-  - **what to bring back:** the *m* value for each half, and the ***y* value alongside it**.
-    `head_gasket_factor()` uses only *m* (0.5 / 1.0) and the model computes no *y* at all — if the
-    table gives a minimum seating stress, that is a check the joint currently does not make. The
-    echo reports 2.51 MPa on the glass, so there is a number to compare against
-  - **also worth noting while the table is open:** whether recent editions still call it Mandatory
-    Appendix 2 and Table 2-5.1, and whether the gasket-factor values are still normative — in some
-    editions they carry a caveat that they are for guidance rather than requirement
-  - why it matters: *m* sets the lid joint's bolt count, so how many bolts hold the vessel shut
-    currently rests on a LinkedIn article re-hosted on a consultancy's WordPress. That source is
-    now cited honestly as the trade-press secondary it is, with the standard listed unread beside
-    it, but the number is still second-hand
-
 - [ ] adopt the Just the Docs OpenSCAD setup for this project, including its web-based OpenSCAD preview
 
 ## second hardware revision

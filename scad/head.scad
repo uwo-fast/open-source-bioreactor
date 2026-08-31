@@ -1014,9 +1014,13 @@ function head_gasket_depth() = gasket_sheet_thickness(lid_gasket_sheet) * (1 - l
 // halves of one thickness, so neither is free to drift from the other.
 function head_gasket_travel() = gasket_sheet_thickness(lid_gasket_sheet) * lid_gasket_compression;
 
-// Gasket factor m, ASME VIII-1 Table 2-5.1: 0 for an o-ring, 0.5 for elastomer under 75A, 1.0
-// over. The joint's bolt count is derived from it, and the assembly reads it back from here
-// because the sheet is the head's to choose - same shape as the frame exporting its bolt circle.
+// Gasket factor m, ASME BPVC.VIII.1-2019 Table 2-5.1 p.399, read from the standard: 0 for a
+// self-energizing type (o-rings), 0.50 below 75A Shore, 1.00 at or above. Its y column, the minimum
+// design seating stress, is 0 psi below 75A and 200 psi (1.4 MPa) at or above - so this 60A sheet
+// has no seating minimum to meet and nothing here computes one. The table's own note: the values
+// "are suggested only and are not mandatory". The joint's bolt count is derived from m, and the
+// assembly reads it back from here because the sheet is the head's to choose - same shape as the
+// frame exporting its bolt circle.
 function head_gasket_factor() = gasket_sheet_shore_a(lid_gasket_sheet) < 75 ? 0.5 : 1.0;
 
 // z = 0 is the lid's OUTER face, and the assembly seats the flange on the rim, so the lid's own

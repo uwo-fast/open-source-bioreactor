@@ -5,12 +5,12 @@
 % docs/references.md stays the prose record - what each source is used for and where in the
 % repo that use lives. This file is the machine-readable half of it and nothing more.
 %
-% 48 entries, every one carrying its grade and verification status in a note field. The 39
+% 49 entries, every one carrying its grade and verification status in a note field. The 39
 % DOI-backed ones started as Crossref's own BibTeX, fetched through doi.org content negotiation,
 % so the bibliographic fields are the publisher's rather than retyped - with two corrections
 % Crossref got wrong and one convention Crossref does not follow, all noted below. The 9 without
-% a DOI - three patents, two conference papers, a thesis, a book chapter, a journal article and
-% one set of course notes - are hand-written from the sources.
+% a DOI - three patents, two conference papers, a thesis, a book chapter, a journal article, a
+% standard and one set of course notes - are hand-written from the sources.
 %
 % YEARS ARE THE ISSUE YEAR, not the online-first date Crossref returns. Five entries disagreed
 % with docs/references.md for exactly that reason. The journal's own page furniture decides it:
@@ -298,4 +298,13 @@
   volume  = {70}, number = {1-3}, pages = {231--247}, year = {1999},
   doi     = {10.1016/S0168-1656(99)00078-4},
   note    = {Grade [PR]. Verification status: unread. Source of the "frequency of switch" criterion quoted by name in docs/agitation.md and previously cited nowhere. Full text is in the project Zotero library but the passage has not been confirmed. Cited in docs/references.md.}
+}
+
+@book{ASME_BPVC_VIII_1_2019,
+  author    = {{American Society of Mechanical Engineers}},
+  title     = {{ASME} Boiler and Pressure Vessel Code, Section {VIII}, Division 1: Rules for Construction of Pressure Vessels},
+  publisher = {American Society of Mechanical Engineers},
+  address   = {New York},
+  year      = {2019},
+  note      = {Grade [TX]. Verification status: read. ASME BPVC.VIII.1-2019. Mandatory Appendix 2, Table 2-5.1 p.399: gasket factor m and minimum design seating stress y. Elastomers without fabric, below 75A Shore m = 0.50 and y = 0 psi; 75A or higher m = 1.00 and y = 200 psi. Self-energizing types including o-rings, m = 0 and y = 0. The table's own note states the values are suggested only and are not mandatory. Read 2026-08-31. Cited in docs/references.md.}
 }
