@@ -2116,7 +2116,6 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     )
   );
 
-  // The coupling's two bores are catalogue facts and the shafts they go on are set elsewhere, so
   // The shaft runs directly in the bearing's inner race, so the fit is two tolerances meeting.
   // Both are registered, so this is checked rather than assumed - a plain rod at h9 would nominally
   // be "8 mm" and still rattle. Reported, not asserted: a transition fit is what a rotating inner
@@ -2129,6 +2128,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     bb_bore(shaft_bearing), " mm bore: ", _fit_tightest, " to ", _fit_loosest, " mm"
   ));
 
+  // The coupling's two bores are catalogue facts and the shafts they go on are set elsewhere, so
   // nothing but this stops a coupling that fits neither end.
   assert(
     sc_diameter1(shaft_coupler) == gearbox_output_shaft_dia(head_gearbox) &&
