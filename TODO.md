@@ -316,23 +316,6 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     still variable references, which a parameter file cannot carry. Not needed for a per-vessel
     export and not worth doing until something wants to vary them
 
-- [ ] **add cloc to workstation-configs so `just stats` can run**
-  - the recipe is written and refuses cleanly without the tool, naming what to do. What it needs is
-    `cloc` in `packages/dev.apt` - apt carries 2.04-1 - because nothing in this repo installs a
-    tool: what a workstation has belongs in workstation-configs, or it is not reproducible
-  - (Superseded — kept for the record. This asked for `tokei`, which was added and installed and
-    then reported **zero** `.scad` files: trixie ships 12.1.2 and OpenSCAD only arrived upstream in
-    14.0.0. The tool was argued for without checking that it knows the language. cloc maps `.scad`
-    natively and reads `//` and comment blocks the way OpenSCAD does. Both are in the manifest now;
-    only cloc can answer this item.)
-  - **it is not in `just check` and should not be.** It reports, and a number that cannot fail is
-    not a check; wiring it in would make the whole suite fail on a machine that simply lacks the
-    tool. The original item said "in CI", and in this repo CI is `just check`
-  - measured, now that the tool can see the language: the SCAD tree is **4,907 code against 3,852
-    comment, 44 %**, across 56 files. That is the ratio worth watching rather than the total - a
-    sharp fall means reasoning has moved somewhere it cannot be checked against the code it
-    explains. cloc reproduced the hand count exactly, which is some evidence for both
-
 - [ ] **`just check-mesh scad/head.scad` cannot pass, and the recipe invites you to run it**
   - the recipe skips `head.scad` as slow and prints "pass it as an argument", which reads as though
     it would then pass. It does not: `head.scad` defaults to `render_all = true`, so the mesh it
