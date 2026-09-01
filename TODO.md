@@ -275,20 +275,47 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
 
 ## tooling / infrastructure / documentation
 
-- [ ] **three decided changes the campaign has not made yet**
-  - **`culture_fill_fraction` should be a VOLUME fraction, and today it is a HEIGHT fraction.**
-    `head_liquid_height` computes `internal_height * fraction`; the chain that is wanted is
-    fraction x capacity = litres, then litres + the vessel profile = surface height, which is what
-    decides what is submerged. The two are not close: on jar_10L, 0.8 of height is 236.00 mm and
-    8.2808 L, while 0.8 of capacity is 7.6584 L and 218.03 mm - and coverage over the upper
-    impeller falls from **0.565 D to 0.374 D**, well under the 0.5 D floor `agitation.md:382`
-    holds and which was already used once to reject a change at 0.48 D (`agitation.md:343`).
-    **The comment cites a volume convention** - "0.8 leaves the usual headspace for foam and gas" -
-    so the model has been filling to 86.5% of capacity while quoting a convention that means 80%.
-    The fix is the definition plus the number: **0.865011** is what the reference build actually
-    stands at (8.2808 of 9.57306 L), it reproduces 236.00 mm exactly (the solver round-trips), and
-    the departure from the 0.8 convention becomes an echoed fact instead of a hidden one. Verify
-    with a CSG diff per vessel - the fill line reaches the frame through light selection
+- [ ] **`jar_1gal_180x197`'s upper impeller is barely in the broth**
+  - **10.94 mm of culture over it, 0.143 D against the 0.5 D floor** `agitation.md:382` holds. It
+    was 0.037 D before the fill fraction became a fraction of volume, so that change improved it
+    almost fourfold and nowhere near fixed it
+  - the jar is 197 mm tall against jar_10L's 305, and the drive stack does not shrink with it: the
+    impeller pair is spaced 1 D on a 94.5 mm impeller whatever the vessel, so on a short jar the
+    upper blade ends up near the surface. **`impeller_spacing_factor` and `impeller_clearance_factor`
+    are single globals applied to every jar** - the same defect class as the fill fraction, one
+    number governing six vessels
+  - it BUILDS, so nothing fails; it is the agitation that is nominal. That is the worst shape for a
+    defect in this model - every check green and the mixing not there
+  - what settles it: decide whether the spacing factor should derive from what the vessel can carry,
+    the way the port set and the probe lean now do, or whether a short jar simply gets one impeller.
+    Both are agitation decisions, not parameter plumbing
+
+- [ ] **stale figures the fill-fraction and working-volume changes left in the docs**
+  - the 8.25 L pin went away in `c8c4bb0` and the fraction changed meaning in `97cb01f`; the prose
+    that quotes those numbers did not move with them. **Each wants checking against a fresh render,
+    not against another document** - several of this repo's worst figures agreed with each other and
+    with nothing else
+  - confirmed stale: `TODO.md:213` says the reactor envelope is 579.25 mm, the model echoes
+    **571.25**; `docs/build.md:401` gives 0.1-0.5 vvm on 8.25 L as 0.825-4.125 L/min, the model
+    echoes **8.2807 L is 0.82807-4.14035 L/min**; `docs/agitation.md:53` puts mean dissipation over
+    8.25 L; `docs/procurement.md:93` carries `**8.25** (pinned)`, which is wrong twice - it is
+    neither 8.25 nor pinned
+  - flagged by the campaign audit but NOT yet verified by me, so check before changing:
+    `docs/agitation.md:136`'s 0.4875 mouth-limited D/T ratio (audit said 0.4879), and the
+    1.91 kPa/L/min outlet-filter budget at `docs/build.md:389` and `TODO.md:77,85` (audit said 1.885)
+
+- [ ] **`motor_mount_body_diameter = 56` is a literal that restates a derivation**
+  - it is exactly the largest registered gearbox's 36 mm plus two times the 10 mm
+    `motor_mount_wall_thickness`. One physical thing, two expressions: change the gearbox and the
+    mount body does not follow, and the mount is the part that decides whether a jar can carry a
+    top-entry drive at all
+  - not why `jar_1p5L_109x215` and `jar_1gal_155x251` fail - they fail at any mount size, and
+    dropping it to 47.5 still leaves the 1p5L 8.2 mm short - so this is a correctness fix, not a
+    fix for those jars
+  - it should read the registered gearbox once the motor is designatable, which is where the
+    campaign sequence puts it
+
+- [ ] **two decided changes the campaign has not made yet**
   - **the motor-mount slenderness limit should echo, not assert.** `head.scad`'s
     `_mount_slenderness <= 5` is `reasoned, not cited` and holds refusal authority over the drive
     stack, which the assert/echo rule does not allow a reasoned value. Demote to a WARNING echo
@@ -318,6 +345,23 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
   - **do not build `motor_for` / `air_pump_for` / `coupler_for` yet.** Those registries hold 4, 1
     and 1 rows; a selection over one candidate is a fit check wearing a selector's clothes.
     Registering rows is the prerequisite, not writing selectors
+
+- [ ] **the frame took a different strip light and drew the same geometry**
+  - found while changing the fill fraction, which moved `jar_6p5gal_305x470`'s culture from 354.32 to
+    325.267 mm and so moved `strip_light_for()` from `grow_16in` (400 mm, 14.30 wide, 4/cord) to
+    `rwntao_13in` (330 mm, 14.1 wide, 3/cord). `frame()`'s own echo proves it got the new row - "a
+    light that comes 3 to a cord" where it used to say 4 - and the frame's CSG is **byte-identical**,
+    240005 bytes both sides
+  - it is not that the frame ignores the light in general: rendering `frame.scad` directly at the two
+    rows DOES differ, at -114.8 against -44.8 (the 70 mm of length) and -7.15 against -7.05 (the
+    0.2 mm of width). So the frame reads the row on the reference jar and does not on this one
+  - the likely reason is that a 470 mm vessel puts both lights entirely below the top base and the
+    cutout through the lower base is the same either way - in which case the right answer is that
+    nothing is wrong and the frame should SAY the light does not reach its geometry on tall jars.
+    But that is a hypothesis, not a measurement
+  - **what settles it: put the two light rows through `frame()` at this vessel and find the surface
+    that should have moved.** If the pocket genuinely never reaches the bases on a jar this tall,
+    that is a fit worth reporting rather than a silence
 
 - [ ] **`assembly.scad` and `head.scad` disagree about the head's tessellation**
   - `assembly.scad` sets `$fn = 64/128`; `head.scad:61` sets `$fn = 0` deliberately and tessellates
@@ -479,8 +523,14 @@ outlives the commit, in `docs/`.
   Oldshue p. 214's 80 %-of-impeller ring, which two experimental studies contradict
 - **the ring's 8 × 3 mm holes are for spacing and against fouling, not for even flow.** Capillary is
   96 Pa against 2.4 Pa of orifice, so they will not share equally at any count
-- **the working volume is pinned at 8.25 L, not a rounder 8.0.** At 8.0 the coverage over the upper
-  impeller falls to 0.479 D against the 0.5 this project holds
+- **the working volume is DERIVED from a fraction of capacity, not pinned in litres.** 0.865 of what
+  the jar holds, which is 8.2807 L on jar_10L and scales to every registered vessel. A litre figure
+  is a statement about one jar: 8.25 L left jar_6p5gal_305x470's thermocouple in the headspace and
+  stopped that vessel rendering at all. (Superseded — kept for the record. This read "the working
+  volume is pinned at 8.25 L, not a rounder 8.0. At 8.0 the coverage over the upper impeller falls
+  to 0.479 D against the 0.5 this project holds." The coverage reasoning still stands and is why the
+  fraction is 0.865 rather than the 0.8 convention — 0.8 of capacity gives 0.374 D. What was wrong
+  was the SCOPE: a number chosen for one jar was governing six.)
 - **the riser is welded hard-temper 316, not seamless soft.** Temper does not move the modulus, but a
   support tube that stays where it is put is the whole point - and it is $22.72/m against $181.42
 - **the plug o-ring cord is 3/32 in, not 1/8.** The groove and the port bores are cut into the same
