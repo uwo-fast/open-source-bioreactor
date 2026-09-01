@@ -170,9 +170,15 @@ function frame_floor_depth(vessel_height, light) =
 // choices, so the preview picks them; everything after that is derived here the same way the
 // assembly derives it, rather than quoting the numbers it comes out as.
 _preview_vessel = vessel_by_name("jar_10L_220x305"); // by name, for the same reason assembly.scad is
-// Derived the same way the assembly derives it, rather than naming a row: the shortest registered
-// light that covers this jar's culture. 0.8 is head.scad's culture_fill_fraction, quoted rather
-// than read because frame.scad does not depend on head.scad and should not start to for this.
+// The shortest registered light that covers this jar's culture, derived the way the assembly derives
+// it rather than naming a row.
+//
+// RESTATEMENT, and it will drift. 0.8 is the fraction of INTERNAL HEIGHT the reference build stands
+// at - 236 of 295 mm - and it is not head.scad's culture_fill_fraction, which is 0.865 and is a
+// fraction of the jar's CAPACITY. Multiplying a height by that one would put the fill 19 mm high.
+// The two agree here only because this preview is pinned to jar_10L; on any other jar they do not.
+// Quoted rather than read because frame.scad does not depend on head.scad and should not start to
+// for a preview - see docs/design-conventions.md, "Standalone previews".
 _preview_light = strip_light_for(vessel_internal_height(_preview_vessel) * 0.8);
 _preview_wall_thickness = 37;
 _preview_flange_height = 8;

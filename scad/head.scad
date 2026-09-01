@@ -376,7 +376,15 @@ impeller_twist_ang = impeller_twist(head_impeller_type);
 // the upper impeller 0.565 D against 0.555, both clear of the 0.5 this project holds - so nothing
 // the reference build prints moves.
 culture_working_volume = undef; // litres; undef derives from the fraction below
-culture_fill_fraction = 0.8;
+// Fraction of the jar's CAPACITY the culture stands at, and 0.865 rather than a round 0.8 because
+// it is what the reference build runs: 8.2807 L of jar_10L's 9.57306 L. Rounded from the 0.865011
+// that reproduces the old fill line exactly, which lands it 235.997 mm against the 236.000 the
+// model used to draw - 3 um, and the third figure is worth more than the micron.
+//
+// The 0.8 the literature quotes is reported against, not adopted - see head()'s culture echo, which
+// names the departure. Coverage over the upper impeller is what the margin buys: 0.565 D here
+// against the 0.5 D floor, where 0.8 of capacity would give 0.374 D.
+culture_fill_fraction = 0.865;
 // Window a shaft speed measurement is averaged over, in seconds. Another operating choice with no
 // geometry behind it: it sets what a fitted encoder resolves, and the controller owns the real one.
 encoder_speed_window = 0.1;
@@ -1221,12 +1229,29 @@ function head_fill_height_for(vessel_profile, litres, lo, hi, steps = 40) =
         ? head_fill_height_for(vessel_profile, litres, _mid, hi, steps - 1)
         : head_fill_height_for(vessel_profile, litres, lo, _mid, steps - 1);
 
-// The datum is the profile's own first point - the floor at the axis - which is exactly what
-// vessel_internal_height() measures down from, so the two cannot drift.
+// What the jar holds to the rim. Same datum as the solver above - the profile's own first point,
+// the floor at the axis, which is what vessel_internal_height() measures up from.
+function head_vessel_capacity(vessel_profile, vessel_internal_height) =
+  vessel_profile_litres(vessel_profile, vessel_profile[0][1] + vessel_internal_height);
+
+// The fill line, and the fraction is a fraction of VOLUME.
+//
+// It used to be a fraction of HEIGHT, and the two are not close: a jar is not a cylinder, so on
+// jar_10L 0.8 of the internal height is 8.2808 L where 0.8 of the capacity is 7.6584 L. The comment
+// on culture_fill_fraction cited "the usual headspace for foam and gas", which is a working-volume
+// convention - so the model was filling to 86.5 % of capacity while quoting a rule that means 80,
+// and nothing said so.
+//
+// Both branches now solve the height from litres, so there is one expression of the fill line and
+// the fraction states the thing a bioprocess actually specifies.
 function head_liquid_height(vessel_internal_height, vessel_profile, working_volume, fill_fraction) =
-  is_undef(working_volume)
-    ? vessel_internal_height * fill_fraction
-    : head_fill_height_for(vessel_profile, working_volume, 0, vessel_internal_height);
+  head_fill_height_for(
+    vessel_profile,
+    is_undef(working_volume)
+      ? head_vessel_capacity(vessel_profile, vessel_internal_height) * fill_fraction
+      : working_volume,
+    0, vessel_internal_height
+  );
 
 function head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height) =
   head_punt_top_depth(lid_flange_height, vessel_internal_height) + vessel_punt_height;
@@ -1936,18 +1961,32 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // The datum is the punt top, which is where vessel_internal_height() measures from too.
   _floor_y = vessel_wall_thickness + vessel_punt_height;
   _culture_volume = vessel_profile_litres(vessel_profile, _floor_y + _liquid_height);
-  _vessel_capacity = vessel_profile_litres(vessel_profile, _floor_y + vessel_internal_height);
+  _vessel_capacity = head_vessel_capacity(vessel_profile, vessel_internal_height);
 
   echo(str(
     "culture: ", _culture_volume, " L standing ", _liquid_height, " mm deep, ",
+    _culture_volume / _vessel_capacity * 100, "% of capacity and ",
     _liquid_height / vessel_internal_height * 100, "% of the ", vessel_internal_height,
     " mm internal height - ",
     is_undef(_build_working_volume)
-      ? "DERIVED from culture_fill_fraction, so it is a depth this jar happens to give rather than a run anyone can repeat; set culture_working_volume to state one in litres"
+      ? "DERIVED from culture_fill_fraction, a fraction of what this jar holds, so it scales to every registered vessel; set culture_working_volume to state one run in litres"
       : "PINNED by culture_working_volume",
     ". The jar holds ", _vessel_capacity, " L brim full, and a cylinder on the ", _vessel_bore,
     " mm bore would have called this fill ", PI / 4 * pow(_vessel_bore, 2) * _liquid_height / 1e6, " L"
   ));
+
+  // Reported, not adopted. 0.8 of capacity is what this model's own note called the usual headspace
+  // allowance for foam and gas; it is unsourced here, so it is a figure to sit against rather than a
+  // band to be inside. What the extra fill buys is coverage over the upper impeller, on the
+  // impeller clearance line above.
+  if (is_undef(_build_working_volume))
+    echo(str(
+      "culture headspace: ", _vessel_capacity - _culture_volume, " L of gas space, filling ",
+      _build_fill_fraction * 100, "% of capacity",
+      _build_fill_fraction > 0.8
+        ? str(" - ABOVE the 0.8 this project's own note called usual, by ", (_build_fill_fraction - 0.8) * 100, " points")
+        : ""
+    ));
 
   // Asked for more than the jar holds. The solver's bracket tops out at the rim, so the fill line
   // is there and every volume below is the jar's capacity - which is a different number than the

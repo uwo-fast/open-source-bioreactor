@@ -200,9 +200,11 @@ lid_gasket_factor = head_gasket_factor();
 
 // litres the vessel is run at; undef derives it from the fill fraction below. NOT carryable
 culture_working_volume = undef;
-// fraction of the vessel's internal height the culture stands at, when no volume is stated. A
-// plain number with a real default, which is what makes it the one row a parameter set can carry
-culture_fill_fraction = 0.8;
+// Fraction of the jar's CAPACITY the culture stands at, when no volume is stated. A fraction of
+// volume, not of height - a jar is not a cylinder, and the headspace convention this is measured
+// against is a working-volume one. 0.865 is what the reference build runs; head()'s culture echo
+// reports it against the 0.8 the literature quotes. A plain number, so a parameter set can carry it.
+culture_fill_fraction = 0.865;
 // the registered shaft; undef takes the shortest row that reaches this vessel. NOT carryable
 head_shaft = undef;
 // the ring centring the lid plug; undef takes any ring whose stretch this mouth allows. NOT carryable
