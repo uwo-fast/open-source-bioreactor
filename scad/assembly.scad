@@ -70,7 +70,7 @@
  *           collapse_spacer_z_allow
  * - head:   lid_flange_height, vessel_outer_diameter, vessel_opening_diameter,
  *           vessel_wall_thickness, vessel_internal_height, vessel_punt_height,
- *           joint_outer_diameter, post_pts, post_hole_diameter
+ *           joint_outer_diameter, post_pts, post_hole_diameter, vessel_profile, build
  *
  * The frame no longer assumes anything about the face the head presents: it is handed
  * joint_outer_diameter and the head builds its flange to exactly that. That the bores land on the
@@ -157,8 +157,51 @@ joint_bolt = M8_hex_screw;
 // rather than entered here - a harder sheet wants more bolts and nothing else would say so
 lid_gasket_factor = head_gasket_factor();
 
+/* [Build] */
+
+// WHAT THIS BUILD CHOOSES, as opposed to what the design is. head.scad carries the same names as
+// its own defaults and renders standalone on them; naming one here is this build's statement and
+// head() takes it over the default.
+//
+// They are declared HERE rather than left in head.scad because a customizer parameter set can only
+// assign parameters of the file it is applied to - `-p`/`-P` does not reach a `use`d file's scope,
+// though `-D` does. So a build is only expressible from the file the build is assembled in, and
+// scad/assembly.json can only carry what this section declares.
+//
+// AND ONLY ONE OF THEM IS CARRYABLE YET. A parameter set can assign a parameter only if the
+// customizer registered it, and the customizer registers it only if it can infer a type - so a
+// parameter defaulting to `undef` is invisible to `-P`, which is the four undef rows here. Proved
+// by giving one of them a numeric default, at which point the same parameter set applied.
+//
+// That is a real collision with the undef-derives idiom the rest of the model uses, and it is not
+// settled here: the obvious sentinel is the plausible number design-conventions.md says not to
+// register. Until it is, those four are reachable with `-D` and by editing this file, the same as
+// before. See TODO.md.
+
+// litres the vessel is run at; undef derives it from the fill fraction below. NOT carryable
+culture_working_volume = undef;
+// fraction of the vessel's internal height the culture stands at, when no volume is stated. A
+// plain number with a real default, which is what makes it the one row a parameter set can carry
+culture_fill_fraction = 0.8;
+// the registered shaft; undef takes the shortest row that reaches this vessel. NOT carryable
+head_shaft = undef;
+// the ring centring the lid plug; undef takes any ring whose stretch this mouth allows. NOT carryable
+lid_plug_oring = undef;
+// degrees the DO probe leans out; undef takes the most this jar allows. NOT carryable
+do_probe_port_tilt_degrees = undef;
+
+// Pairs rather than a positional row: each is optional, and naming one with undef ("derive it")
+// has to stay distinguishable from not naming it at all. head_build() in head.scad reads them.
+reactor_build = [
+  ["culture_working_volume", culture_working_volume],
+  ["culture_fill_fraction", culture_fill_fraction],
+  ["head_shaft", head_shaft],
+  ["lid_plug_oring", lid_plug_oring],
+  ["do_probe_port_tilt_degrees", do_probe_port_tilt_degrees],
+];
+
 _reactor_light = is_undef(reactor_lights)
-  ? strip_light_for(head_liquid_height(vessel_internal_height(reactor_vessel), vessel_inner_profile(reactor_vessel)))
+  ? strip_light_for(head_liquid_height(vessel_internal_height(reactor_vessel), vessel_inner_profile(reactor_vessel), culture_working_volume, culture_fill_fraction))
   : reactor_lights;
 
 assert(
@@ -254,7 +297,7 @@ function reactor_envelope_diameter() = joint_outer_diameter; // the flange circl
 function reactor_envelope_height() =
   frame_floor_depth(vessel_height(reactor_vessel), _reactor_light)
   + vessel_height(reactor_vessel) + lid_flange_height
-  + head_stack_height(lid_flange_height, vessel_internal_height(reactor_vessel));
+  + head_stack_height(lid_flange_height, vessel_internal_height(reactor_vessel), head_shaft);
 
 echo("reactor envelope: ", reactor_envelope_diameter(), " mm dia x ", reactor_envelope_height(), " mm tall");
 
@@ -342,6 +385,7 @@ if (render_head || render_all) {
       joint_outer_diameter=joint_outer_diameter,
       post_pts=bolt_pattern_pts(joint_posts, joint_bolt_circle),
       post_hole_diameter=joint_hole_diameter,
-      vessel_profile=vessel_inner_profile(reactor_vessel)
+      vessel_profile=vessel_inner_profile(reactor_vessel),
+      build=reactor_build
     );
 }

@@ -970,6 +970,23 @@ module dummy() {
   // stop the customizer detection from here onwards
 }
 
+// WHAT A BUILD CHOOSES, looked up by name.
+//
+// The parameters above are head.scad's own, and they are what it renders standalone. They cannot be
+// reached from assembly.scad: a `use`d file keeps its own scope, and - this is the part that
+// decides the mechanism - `-p`/`-P` only assigns parameters declared in the MAIN file, so a
+// parameter set naming one of them does nothing at all. `-D` does reach them, which is why the
+// sweeps could set them and a .json could not.
+//
+// So a build's choices travel as [name, value] PAIRS and head() resolves them against the defaults
+// above. Pairs rather than a positional row because these are heterogeneous and each is optional; a
+// row of twenty would be a column nobody can count. The whole pair is matched and indexed after, so
+// a build that NAMES a key with the value undef ("derive it") is distinguishable from one that does
+// not name it at all ("use head.scad's own").
+function head_build(build, key, fallback) =
+  let (_hit = [for (kv = build) if (kv[0] == key) kv])
+    len(_hit) == 0 ? fallback : _hit[0][1];
+
 // the assembly derives the joint from the frame and hands the same pattern to both sides; the
 // standalone preview reproduces it, see the interface TODO about the hardcoded vessel dimensions
 // The lid is one part in two sections: a flange landing on the vessel rim that carries the joint,
@@ -1206,10 +1223,10 @@ function head_fill_height_for(vessel_profile, litres, lo, hi, steps = 40) =
 
 // The datum is the profile's own first point - the floor at the axis - which is exactly what
 // vessel_internal_height() measures down from, so the two cannot drift.
-function head_liquid_height(vessel_internal_height, vessel_profile) =
-  is_undef(culture_working_volume)
-    ? vessel_internal_height * culture_fill_fraction
-    : head_fill_height_for(vessel_profile, culture_working_volume, 0, vessel_internal_height);
+function head_liquid_height(vessel_internal_height, vessel_profile, working_volume, fill_fraction) =
+  is_undef(working_volume)
+    ? vessel_internal_height * fill_fraction
+    : head_fill_height_for(vessel_profile, working_volume, 0, vessel_internal_height);
 
 function head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height) =
   head_punt_top_depth(lid_flange_height, vessel_internal_height) + vessel_punt_height;
@@ -1380,18 +1397,18 @@ function head_shaft_for(lid_flange_height, vessel_internal_height) =
   )
     len(_fits) == 0 ? undef : [for (t = shafts) if (shaft_length(t) == min(_fits)) t][0];
 
-function head_shaft_selected(lid_flange_height, vessel_internal_height) =
-  is_undef(head_shaft) ? head_shaft_for(lid_flange_height, vessel_internal_height) : head_shaft;
+function head_shaft_selected(lid_flange_height, vessel_internal_height, shaft) =
+  is_undef(shaft) ? head_shaft_for(lid_flange_height, vessel_internal_height) : shaft;
 
-function head_shaft_protrusion(lid_flange_height, vessel_internal_height) =
-  shaft_length(head_shaft_selected(lid_flange_height, vessel_internal_height))
+function head_shaft_protrusion(lid_flange_height, vessel_internal_height, shaft) =
+  shaft_length(head_shaft_selected(lid_flange_height, vessel_internal_height, shaft))
   - (head_punt_top_depth(lid_flange_height, vessel_internal_height) - shaft_jar_punt_clearance);
-function head_motor_mount_height(lid_flange_height, vessel_internal_height) =
+function head_motor_mount_height(lid_flange_height, vessel_internal_height, shaft) =
   gearbox_output_shaft_length(dc_motor_gearbox(head_motor))
-  + head_shaft_protrusion(lid_flange_height, vessel_internal_height) + shaft_shaft_coupling_offset;
+  + head_shaft_protrusion(lid_flange_height, vessel_internal_height, shaft) + shaft_shaft_coupling_offset;
 // top of the motor, which is the highest thing on the reactor
-function head_stack_height(lid_flange_height, vessel_internal_height) =
-  head_motor_mount_height(lid_flange_height, vessel_internal_height)
+function head_stack_height(lid_flange_height, vessel_internal_height, shaft) =
+  head_motor_mount_height(lid_flange_height, vessel_internal_height, shaft)
   + dc_motor_length(head_motor) + gearbox_length(dc_motor_gearbox(head_motor));
 // The groove a given ring would get in a given mouth, and how far that stretches it. Written
 // per-candidate because the groove's depth follows the ring's own cord, so choosing a ring and
@@ -1423,17 +1440,17 @@ function head_plug_oring_for(vessel_opening_diameter) =
   let (_fits = [for (r = orings) if (head_plug_oring_fits(vessel_opening_diameter, r)) r])
     len(_fits) == 0 ? undef : _fits[0];
 
-function head_plug_oring_selected(vessel_opening_diameter) =
-  is_undef(lid_plug_oring) ? head_plug_oring_for(vessel_opening_diameter) : lid_plug_oring;
+function head_plug_oring_selected(vessel_opening_diameter, plug_oring) =
+  is_undef(plug_oring) ? head_plug_oring_for(vessel_opening_diameter) : plug_oring;
 
-function head_plug_groove_width(vessel_opening_diameter) =
-  oring_gland_width(oring_cross_section(head_plug_oring_selected(vessel_opening_diameter)));
+function head_plug_groove_width(vessel_opening_diameter, plug_oring) =
+  oring_gland_width(oring_cross_section(head_plug_oring_selected(vessel_opening_diameter, plug_oring)));
 
 // A piston gland: cut relative to the bore it seals against, not to the plug it is cut into, so
 // the ring's squeeze is what the glass leaves it.
-function head_plug_oring_groove_radius(vessel_opening_diameter) =
+function head_plug_oring_groove_radius(vessel_opening_diameter, plug_oring) =
   head_plug_groove_diameter(
-    vessel_opening_diameter, head_plug_oring_selected(vessel_opening_diameter)
+    vessel_opening_diameter, head_plug_oring_selected(vessel_opening_diameter, plug_oring)
   ) / 2;
 
 // Place children at port i, on the ring and turned to face out.
@@ -1454,7 +1471,7 @@ module head_port_at(i, vessel_opening_diameter, flipped = false) {
       children();
 }
 
-module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter) {
+module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter, plug_oring) {
 
   _ports = head_ports_for(vessel_opening_diameter);
   _n = len(_ports);
@@ -1464,7 +1481,7 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
   // z = 0 is the lid's outer face here and the part is flipped by the caller, so the flange's
   // glass-facing side is its far face, at z = lid_flange_height, where the plug starts.
   _gasket_depth = head_gasket_depth();
-  _plug_groove_w = head_plug_groove_width(vessel_opening_diameter);
+  _plug_groove_w = head_plug_groove_width(vessel_opening_diameter, plug_oring);
   _plug_groove_z = lid_flange_height + lid_plug_height / 2; // mid plug: most land either side,
   // and clear of the bayonet channels, which sit in the half of the coupling nearest this face
 
@@ -1516,7 +1533,7 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
         difference() {
           cylinder(r=head_lid_plug_diameter(vessel_opening_diameter) / 2 + 1, h=_plug_groove_w);
           translate([0, 0, -z_fight])
-            cylinder(r=head_plug_oring_groove_radius(vessel_opening_diameter), h=_plug_groove_w + z_fight * 2);
+            cylinder(r=head_plug_oring_groove_radius(vessel_opening_diameter, plug_oring), h=_plug_groove_w + z_fight * 2);
         }
     }
 }
@@ -1600,7 +1617,15 @@ module head_port(port, panel_thickness, baffle_width, baffle_length, baffle_segm
   }
 }
 
-module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, vessel_internal_height, vessel_punt_height, joint_outer_diameter, post_pts, post_hole_diameter, vessel_profile) {
+module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, vessel_internal_height, vessel_punt_height, joint_outer_diameter, post_pts, post_hole_diameter, vessel_profile, build = []) {
+
+  // Resolved before anything reads them. An empty build is head.scad's own parameters, which is
+  // what this file renders standalone.
+  _build_working_volume = head_build(build, "culture_working_volume", culture_working_volume);
+  _build_fill_fraction = head_build(build, "culture_fill_fraction", culture_fill_fraction);
+  _build_shaft = head_build(build, "head_shaft", head_shaft);
+  _build_plug_oring = head_build(build, "lid_plug_oring", lid_plug_oring);
+  _build_do_tilt = head_build(build, "do_probe_port_tilt_degrees", do_probe_port_tilt_degrees);
 
   // The table this lid carries, resolved once. head_ports pins it; undef derives it from the mouth.
   _ports = head_ports_for(vessel_opening_diameter);
@@ -1629,8 +1654,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _vessel_bore = vessel_outer_diameter - 2 * vessel_wall_thickness;
 
   // Resolved once. head_shaft may pin a row; otherwise the shortest that reaches this vessel.
-  _shaft = head_shaft_selected(lid_flange_height, vessel_internal_height);
-  _liquid_height = head_liquid_height(vessel_internal_height, vessel_profile);
+  _shaft = head_shaft_selected(lid_flange_height, vessel_internal_height, _build_shaft);
+  _liquid_height = head_liquid_height(vessel_internal_height, vessel_profile, _build_working_volume, _build_fill_fraction);
 
   // Read off the port table, so it depends on nothing else and can sit this early. It has to:
   // Medek's envelope is conditioned on four baffles and the Po block below is the first consumer.
@@ -1647,16 +1672,16 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _do_port = [for (p = _ports) if (head_port_function(p) == "do_probe") p];
   _do_tilt =
     len(_do_port) == 0 ? 0
-    : is_undef(do_probe_port_tilt_degrees)
+    : is_undef(_build_do_tilt)
       ? head_probe_tilt_ceiling(
         head_port_probe(_do_port[0]), vessel_opening_diameter, lid_flange_height,
         vessel_internal_height, vessel_punt_height, impeller_diameter, do_probe_port_tilt_max
       )
-      : do_probe_port_tilt_degrees;
+      : _build_do_tilt;
 
   echo(str(
     "DO probe lean: ", _do_tilt, " deg - ",
-    is_undef(do_probe_port_tilt_degrees)
+    is_undef(_build_do_tilt)
       ? str(
         "DERIVED as the most of ", do_probe_port_tilt_max, " deg this jar allows",
         _do_tilt < do_probe_port_tilt_max
@@ -1917,7 +1942,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     "culture: ", _culture_volume, " L standing ", _liquid_height, " mm deep, ",
     _liquid_height / vessel_internal_height * 100, "% of the ", vessel_internal_height,
     " mm internal height - ",
-    is_undef(culture_working_volume)
+    is_undef(_build_working_volume)
       ? "DERIVED from culture_fill_fraction, so it is a depth this jar happens to give rather than a run anyone can repeat; set culture_working_volume to state one in litres"
       : "PINNED by culture_working_volume",
     ". The jar holds ", _vessel_capacity, " L brim full, and a cylinder on the ", _vessel_bore,
@@ -1927,9 +1952,9 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // Asked for more than the jar holds. The solver's bracket tops out at the rim, so the fill line
   // is there and every volume below is the jar's capacity - which is a different number than the
   // one that was asked for, and nothing else would say so.
-  if (!is_undef(culture_working_volume) && culture_working_volume > _vessel_capacity)
+  if (!is_undef(_build_working_volume) && _build_working_volume > _vessel_capacity)
     echo(str(
-      "WARNING culture: ", culture_working_volume, " L was asked for and this jar holds ",
+      "WARNING culture: ", _build_working_volume, " L was asked for and this jar holds ",
       _vessel_capacity, " L brim full. The fill line is pinned at the rim and every volume ",
       "reported below is the capacity, not the working volume."
     ));
@@ -2218,7 +2243,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   );
 
   // Motor and shaft driven parameters
-  shaft_protrusion = head_shaft_protrusion(lid_flange_height, vessel_internal_height);
+  shaft_protrusion = head_shaft_protrusion(lid_flange_height, vessel_internal_height, _build_shaft);
 
   // What the shaft leaves above the lid for the coupling to grip. At or below zero the shaft ends
   // inside the vessel and there is nothing for the motor to couple to.
@@ -2257,7 +2282,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   );
 
   // the height that the motor coupling assembly requires
-  motor_mount_height = head_motor_mount_height(lid_flange_height, vessel_internal_height);
+  motor_mount_height = head_motor_mount_height(lid_flange_height, vessel_internal_height, _build_shaft);
 
   // Mount slenderness. REASONED, NOT CITED - no source stands behind these two numbers. The
   // coupling is rigid, so it transmits misalignment rather than absorbing it, and any deflection
@@ -2269,7 +2294,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   if (_mount_slenderness > 3)
     echo(str(
       "WARNING motor mount: ", _mount_slenderness, " diameters tall. ",
-      is_undef(head_shaft)
+      is_undef(_build_shaft)
         ? str(
           "The shaft is already the shortest registered row that reaches - ", shaft_length(_shaft),
           " mm against the ", head_shaft_length_needed(lid_flange_height, vessel_internal_height),
@@ -3238,8 +3263,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // --- lid seal ---
   _gasket_ir = head_gasket_inner_radius(vessel_opening_diameter);
   _gasket_or = head_gasket_outer_radius(vessel_opening_diameter, vessel_wall_thickness);
-  _groove_r = head_plug_oring_groove_radius(vessel_opening_diameter);
-  _groove_w = head_plug_groove_width(vessel_opening_diameter);
+  _groove_r = head_plug_oring_groove_radius(vessel_opening_diameter, _build_plug_oring);
+  _groove_w = head_plug_groove_width(vessel_opening_diameter, _build_plug_oring);
   // 0% stretch; anything down to this over 1.05 still hugs the groove. With no ring selected there
   // is no cord to cut a groove from, so the range is quoted against the largest cord registered -
   // which is the family a plug ring comes from, the small ones being port face seals.
@@ -3290,7 +3315,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         lid_gasket_compression
       ), " N instead of ", _gasket_force, "."
     ));
-  _plug_ring = head_plug_oring_selected(vessel_opening_diameter);
+  _plug_ring = head_plug_oring_selected(vessel_opening_diameter, _build_plug_oring);
   _plug_stretch =
   is_undef(_plug_ring) ? undef : oring_stretch(oring_inner_diameter(_plug_ring), _ring_id);
 
@@ -3442,7 +3467,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     color(prints2_color)
       union() {
         rotate([0, 180, 0])
-          lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter(_shaft));
+          lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter(_shaft), _build_plug_oring);
         lid_locks();
       }
   }

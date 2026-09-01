@@ -275,24 +275,38 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
 
 ## tooling / infrastructure / documentation
 
-- [ ] **a build cannot designate anything: the customizer surface reaches one variable**
-  - `head()` takes ten arguments, all vessel or joint dimensions. Everything else - the port table,
-    which probes sit in it, the impeller, the motor, the working volume - is a `head.scad` file
-    global, so `assembly.scad` cannot set it and a parameter set cannot carry it. **Verified: `-D`
-    reaches a `use`d file's globals and `-p`/`-P` does NOT**, so adding keys to the .json would
-    silently do nothing. Both files' sets are one key wide because that is all that can work
-  - so the fix is to hoist the BUILD CHOICES into `assembly.scad` and pass them through `head()`,
-    leaving the design constants where they are - collet allowances, print fits, bayonet geometry
-    and blind pocket floors are the model's, not an operator's. Which side each parameter falls on
-    is the decision to settle first, and `head()` wants one build list rather than a dozen more
-    positional arguments
+- [ ] **hoisting the build choices: 22 named, 5 threaded, and two representations to settle first**
+  - the channel exists now. `head()` takes a `build` list of `[name, value]` pairs, `head_build()`
+    resolves it against `head.scad`'s own parameters, and `assembly.scad` has a `[Build]` section.
+    `culture_fill_fraction` is carried end to end by a parameter set, which nothing but
+    `reactor_vessel_name` could do before. The split was settled at **22 build choices** - nine
+    purchased selections, eight process numbers, five layout - against 78 design constants that stay
+  - **an `undef` default cannot be a customizer parameter, and that is the blocker.** `-P` assigns
+    only what the customizer registered, and it registers only what it can infer a TYPE for, so a
+    parameter defaulting to `undef` is invisible to a parameter set. Proved by giving one a numeric
+    default, at which point the same set applied. That hits `culture_working_volume`, `head_shaft`,
+    `lid_plug_oring`, `do_probe_port_tilt_degrees` and `head_ports` - all five already threaded, none
+    yet carryable, all still reachable with `-D`
+  - **and the obvious fix is the one this repo argues against.** A sentinel default - 0 litres, -1
+    degrees - is exactly the plausible number `docs/design-conventions.md` says not to register,
+    because `undef` propagates and gets noticed where a plausible number does not. A separate mode
+    parameter (`..._mode = "derived" | "pinned"`) keeps `undef` out of the surface but spends two
+    parameters on one quantity. Neither is obviously right and nothing should be hoisted into the
+    same shape until it is
+  - **a registry row cannot be carried either, for the reason the vessel already showed:** a .json
+    holds values, not references, so `reactor_vessel_name` is a string and `vessel_by_name()` does
+    the lookup. The seven purchased selections - gasket sheet, bearing, motor, coupler, impeller
+    type, air pump, dosing pump - each want that same pair, and only `vessels` has one today
+  - so what is actually carryable without new machinery is the seven plain numbers: `D/T`, the
+    clearance and spacing factors, the fill fraction, the design vvm, the encoder window and the pH
+    lean. That is the honest next commit
   - `frame.scad` has no vessel selector at all: `_preview_vessel` sits after `module dummy()`, so it
     is outside the customizer block and private. That is why there is no `frame.json`, and why
     `check-vessels` reaches its jar through `_preview_vessel`. `just json` also hardcodes its file
     loop to two names
-  - the port set itself is already right and should be the model for the rest: `head_ports = undef`
-    derives the widest set that fits the mouth, and picks the six-port reduced table for exactly the
-    three narrow jars. What is missing is a channel to PIN one from outside
+  - the port set is still the model for all of it: `head_ports = undef` derives the widest set that
+    fits the mouth and picks the six-port reduced table for exactly the three narrow jars. What is
+    missing is only a way to PIN one from outside
 
 - [ ] **the gasket recess holds three quarters of the rubber that has to fit in it**
   - what is left of the assembly-torque item, which `docs/build.md` and the `joint tightening` echo
