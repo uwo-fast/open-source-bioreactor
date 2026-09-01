@@ -69,6 +69,54 @@ the original was left standing with nothing marking it.
 
 ---
 
+## Three layers, and where a parameter lives
+
+The model was built on two: things two components must agree on, which live in `assembly.scad`, and
+a component's own preferences, which live in its own file. That is right as far as it goes, and it
+misses a third kind, which surfaced when a build's choices had nowhere to be stated.
+
+A **DESIGNATION** is a per-reactor choice: which registered jar, which motor, which probe in which
+port, what fill fraction. It is not a preference — it is about *this* build, not about the design —
+and it is not classic coupling, because `assembly.scad` may never consume it. It is forced into the
+entry file anyway, by a platform fact: a customizer parameter set can only assign parameters
+declared in the file being rendered. See *What the customizer can and cannot carry*.
+
+**Where a parameter lives.** It belongs in `assembly.scad` if any of these hold:
+
+- two or more components must agree on it;
+- `assembly.scad` itself consumes it in a derivation — `frame_wall_thickness` feeding
+  `joint_outer_diameter`, the fill fraction feeding light selection, the shaft feeding the envelope;
+- it is a designation, a per-reactor choice an operator states.
+
+Everything else stays in the component that embodies it: allowances, wall thicknesses, land margins,
+joint geometry, and the search that derives a designation left unstated.
+
+**A designation travels as a NAME, never as a row.** A parameter set holds values, not references,
+so a registered row cannot be named directly. The form is a string parameter resolved through that
+registry's by-name lookup — `reactor_vessel_name` with `vessel_by_name()` is the pattern — with a
+loud assert on a name nothing matches. `"auto"` means *derive it*.
+
+That string is not the plausible number this document bans elsewhere. `undef` is unavailable here
+(the customizer cannot see it) and a numeric sentinel would be exactly the plausible value that
+propagates unnoticed into arithmetic. A string cannot: it is visible in the surface, it is carried,
+and it is consumed by a mode branch that never multiplies it by anything.
+
+**Only departures travel.** The build list packs only what a build actually states; anything left at
+`"auto"` is omitted, so the component's own search remains the single expression of the default.
+Nothing is ever declared live in two files with defaults kept in step by hand.
+
+**A value read back out of a component is an argument whose default is that component's own.**
+`function head_gasket_factor(sheet = lid_gasket_sheet)` — verified: a default argument resolves in
+the file that defines the function, not the caller's, so one expression serves both the standalone
+preview and the assembled build and the readback cannot disagree with the geometry it describes.
+
+**Pinning does not switch the checks off, it inverts them.** A designated row runs the same fit
+asserts the derived one would have, and the echo reports what was pinned *and what derivation would
+have chosen*. A selection over a registry holding one row says so — "sole registered row,
+fit-checked, not chosen" — rather than implying a choice was made.
+
+---
+
 ## Purchased parts are registered rows that drive geometry
 
 Every bought part is a row in `scad/purchased/`, and the geometry is cut from the row rather than
@@ -79,6 +127,19 @@ The failure this prevents: a heat-set insert was once modelled from a library ro
 purchasable part**, and the lid was printed for it. A registry row must describe something orderable,
 and where a library already carries the real part (`BB608` is the 608 bearing actually bought) the
 library row is used directly rather than copied.
+
+**The contract every registry owes.** A rows list; a `*_name()` accessor; a part number where a
+stable one exists, and `undef` with the reason where it does not; provenance travelling with each
+value; and a `*_by_name()` lookup wherever the part is designatable. Data-only registries — rows
+that carry numbers and draw nothing — are legitimate.
+
+**Only orderable rows go in the swept list.** The list is what `check-vessels` and the sweeps build
+against, so a placeholder in it means "this builds" covers something nobody can buy.
+
+**Designatable is not the same as purchased.** Every bought thing is a registered row; only the ones
+an operator actually picks per reactor get a by-name lookup and a slot on the build surface. The
+bearing, the heat-set inserts, the screws, the riser tube and its o-ring, the hose clamp are the
+design's bill of materials — one expression each, not a menu.
 
 ---
 
@@ -191,6 +252,12 @@ someone is studying, so the model reports rather than refuses.
 
 - **Assert** only what is physically impossible or unbuildable — an impeller too wide to pass the
   vessel mouth, a pocket cut through into the culture, a nut deeper than the base it sits in.
+- **And cited bands at the pressure boundary may assert**, which is a deliberate exception rather
+  than a lapse. The three o-ring checks — riser stretch, plug gland fill, plug containment — guard
+  the seal between the culture and the room, and they come from gland practice rather than from
+  this project's judgement. A seal outside its band is nearer unbuildable than it is to a variation
+  someone is studying. A limit that is `reasoned, not cited` does **not** get that authority: it
+  echoes.
 - **Echo** the value and the literature band it sits against, with a distinct warning line when it
   falls outside. The build continues.
 
@@ -280,6 +347,33 @@ from `$fa`/`$fs` rather than reading `$fn` off the caller.
 
 ---
 
+## What the customizer can and cannot carry
+
+Measured on **OpenSCAD 2021.01**, by rendering probes rather than by reading documentation. Every
+rule in *Three layers* rests on these, so a version bump re-runs them before anything else.
+
+- **`-D` reaches a `use`d file's globals. `-p`/`-P` does not.** A parameter set assigns only
+  parameters declared in the file being rendered; keys naming a `use`d file's globals do nothing,
+  silently. This is the fact that forces designations into the entry file.
+- **A parameter defaulting to `undef` is invisible to the customizer.** It has no inferable type, so
+  no parameter set can assign it. Proved by giving one a numeric default, at which point the same
+  set applied. This is why a designation defaults to `"auto"` and never to `undef`.
+- **A flat vector is carryable, but only as a string holding a SCAD literal.** A native JSON array
+  is ignored without warning; `"[\"x\",\"y\"]"` applies, and may change length. Anything
+  generating a parameter set has to emit that form.
+- **A nested table cannot be carried at all**, in either encoding. Port tables and registry rows
+  stay in SCAD; only their names travel.
+- **`-p` beats `-D` on the same key, silently.** Keep the two key sets disjoint.
+- **Almost everything fails at exit 0** — a bad `-P` name, a missing file, an unknown key, an
+  unparseable value. Detection is a stderr grep or a `jq` check, never `$?`.
+- **`-o /dev/null` does not render at all** — it exits 1 on the missing suffix. A check written that
+  way passes whatever it is pointed at, which is the shape of check this document warns about
+  everywhere else. Export to a real file.
+- **Dropdown annotations are comments**, so an option list cannot be generated at runtime. Where one
+  mirrors a registry, both ends say so.
+
+---
+
 ## Standalone previews
 
 Each subassembly renders on its own. Those previews must **derive** what the assembly would hand
@@ -288,3 +382,10 @@ the old one after the real derivation moves, and a part exported from it will no
 
 What a preview may legitimately choose are the things the assembly chooses: the vessel, the light,
 the wall thickness, the flange height. Everything downstream of those is derived.
+
+**A subassembly keeps its own parameters as live standalone defaults.** Opening `head.scad` and
+working on it directly is worth more than the purity of deleting them, and an assembled build
+overrides them only through the departures it states. Where a preview must restate something the
+assembly owns, the restatement carries the drift label — it is two expressions held in step by
+discipline and by the echo, not by construction, and it should be visible as such rather than
+quietly correct.

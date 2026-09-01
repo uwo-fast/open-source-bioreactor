@@ -275,12 +275,76 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
 
 ## tooling / infrastructure / documentation
 
+- [ ] **three decided changes the campaign has not made yet**
+  - **`culture_fill_fraction` should be a VOLUME fraction, and today it is a HEIGHT fraction.**
+    `head_liquid_height` computes `internal_height * fraction`; the chain that is wanted is
+    fraction x capacity = litres, then litres + the vessel profile = surface height, which is what
+    decides what is submerged. The two are not close: on jar_10L, 0.8 of height is 236.00 mm and
+    8.2808 L, while 0.8 of capacity is 7.6584 L and 218.03 mm - and coverage over the upper
+    impeller falls from **0.565 D to 0.374 D**, well under the 0.5 D floor `agitation.md:382`
+    holds and which was already used once to reject a change at 0.48 D (`agitation.md:343`).
+    **The comment cites a volume convention** - "0.8 leaves the usual headspace for foam and gas" -
+    so the model has been filling to 86.5% of capacity while quoting a convention that means 80%.
+    The fix is the definition plus the number: **0.865011** is what the reference build actually
+    stands at (8.2808 of 9.57306 L), it reproduces 236.00 mm exactly (the solver round-trips), and
+    the departure from the 0.8 convention becomes an echoed fact instead of a hidden one. Verify
+    with a CSG diff per vessel - the fill line reaches the frame through light selection
+  - **the motor-mount slenderness limit should echo, not assert.** `head.scad`'s
+    `_mount_slenderness <= 5` is `reasoned, not cited` and holds refusal authority over the drive
+    stack, which the assert/echo rule does not allow a reasoned value. Demote to a WARNING echo
+    reporting the ratio, the limit and the 2.3-works calibration. It is currently dormant - the two
+    failing jars fail on other asserts first - so this is cheap now and converts a refusal into a
+    named departure
+  - **`generic_vessel` should leave the swept list** (`purchased/vessels.scad:34`), or stay with a
+    written reason for occupying a sweep slot. Only orderable rows are swept; `atlas_probes` is the
+    convention
+
+- [ ] **the architecture campaign: layering settled, twelve steps, decisions D1-D8 closed**
+  - the rules are written down now - `docs/design-conventions.md`, "Three layers, and where a
+    parameter lives" and "What the customizer can and cannot carry" - and `assembly.scad`'s header
+    states the contract. What is left is executing against them
+  - **remaining sequence**, each independently shippable and green: registry substrate
+    (`row_by_name`, the missing `*_by_name`/`*_name` accessors, part numbers, the set_screws-shape
+    rewrap of heat_set_inserts and shaft_couplings) -> harden `head_build` (unknown-key and
+    unknown-name asserts, name resolution, `"auto"` mapped after the pair match) -> amend the five
+    `[Build]` rows to name-strings -> gasket sheet onto its registry and designatable -> motor
+    designation -> joint completeness (`frame_upper_base_height()` into the ASME thickness, one
+    expression for the rod pattern phase) -> frame vessel selector and `frame.json` -> gas-train
+    registry for the Cole-Parmer rows -> port-set designation -> probe designation -> tooling
+    lockdown (jq-validate `-P` names, literal-default keys only, a designation matrix in the sweep)
+  - **do not hoist the remaining BUILD rows mechanically.** 0304a3a's arithmetic: five moved
+    declarations bought one carryable number. Relocation without the name-lookup layer multiplies
+    duplicated defaults and carries nothing
+  - **do not build `motor_for` / `air_pump_for` / `coupler_for` yet.** Those registries hold 4, 1
+    and 1 rows; a selection over one candidate is a fit check wearing a selector's clothes.
+    Registering rows is the prerequisite, not writing selectors
+
+- [ ] **`assembly.scad` and `head.scad` disagree about the head's tessellation**
+  - `assembly.scad` sets `$fn = 64/128`; `head.scad:61` sets `$fn = 0` deliberately and tessellates
+    by `$fa`/`$fs`, because a flat 128 was wrong at both ends of a lid carrying M8 bores and a
+    257 mm flange. `$fn` is dynamically scoped, and **which one a head module gets depends on the
+    OpenSCAD version** - 2021.01 resolves it from the module's own file, newer builds pass the
+    caller's. So the head may tessellate differently rendered from `assembly.scad` than rendered
+    alone, and a version bump would silently switch it
+  - `check-scad`'s second pass at `-D '$fn=0'` covers the *crash* this causes, not the divergence
+  - found while correcting `assembly.scad`'s header, which claimed head.scad "asks for" 64/128. The
+    claim is now corrected; the disagreement it was hiding is not resolved
+  - what settles it: decide whose policy governs a head rendered from the assembly, and make the
+    losing file stop asserting one. Measure before choosing - the isolation render attempted during
+    the campaign did not produce a usable comparison
+
 - [ ] **hoisting the build choices: 22 named, 5 threaded, and two representations to settle first**
   - the channel exists now. `head()` takes a `build` list of `[name, value]` pairs, `head_build()`
     resolves it against `head.scad`'s own parameters, and `assembly.scad` has a `[Build]` section.
     `culture_fill_fraction` is carried end to end by a parameter set, which nothing but
     `reactor_vessel_name` could do before. The split was settled at **22 build choices** - nine
     purchased selections, eight process numbers, five layout - against 78 design constants that stay
+  - **SETTLED (D1-D8, campaign):** designations default to the string `"auto"`, never `undef` and
+    never a numeric sentinel - a string is carryable, visible, and never reaches arithmetic. Rows
+    are named and resolved by `*_by_name()`. Only rows an operator picks per reactor are
+    designatable; the bearing, inserts, screws, riser tube and clamp stay the design's BOM. The
+    `undef` blocker below is therefore closed for designations, and stands only as the reason
+    `undef` cannot be the surface form
   - **an `undef` default cannot be a customizer parameter, and that is the blocker.** `-P` assigns
     only what the customizer registered, and it registers only what it can infer a TYPE for, so a
     parameter defaulting to `undef` is invisible to a parameter set. Proved by giving one a numeric
@@ -368,6 +432,24 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
 - [ ] swap out the threaded rods with printed parts
 
 ## settled — do not re-open without new evidence
+
+- **A designation is a STRING, and `"auto"` means derive it.** Not `undef`, which the customizer
+  cannot see at all, and not a numeric sentinel: `0` litres or `-1` degrees is exactly the plausible
+  number that propagates unnoticed, and on a research instrument a negative lean is a value someone
+  could be studying rather than a flag. A string is carried, is visible in the surface, and is
+  consumed by a mode branch that never multiplies it by anything. Rejected outright: numeric
+  sentinels anywhere
+- **Cited bands at the pressure boundary may assert; `reasoned, not cited` limits may not.** The
+  three o-ring checks guard the seal between culture and room and come from gland practice rather
+  than this project's judgement, so they keep refusal authority. The distinction is the provenance,
+  not the severity - which is why the mount slenderness limit loses its
+- **No `builds/` escape file yet.** The only thing that genuinely cannot ride a parameter set is a
+  nested table, and nobody has needed a custom port table - the two registered sets cover all six
+  jars. `-D` is the escape hatch. Revisit only if a custom table becomes recurring; if it is ever
+  adopted it must never be rendered with `-p`, which silently un-pins the file's own assignments
+- **`peri_pump_frame_mount.scad` is left alone deliberately**, `flange_screw_distance = 48.0` and
+  all. It is a stretch goal waiting on a faceplate the bought Kamoer has not got, it blocks nothing,
+  and the campaign has enough surface. See the pump item above for what it actually needs
 
 Each of these was asked and answered. The reasoning is in the commit that closed it and, where it
 outlives the commit, in `docs/`.

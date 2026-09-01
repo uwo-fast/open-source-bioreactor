@@ -21,12 +21,26 @@
  * purchased/vessels.scad registers the jars. This file selects one and reads the coupling
  * dimensions back out of it through those accessors.
  *
- * This is an interface-based design, where each component is designed to fit together based on defined interfaces. 
- * Therefore, this file contains only parameters that cross-couple between components, such as the diameter of the 
- * vessel and the corresponding dimensions of the frame and head.
+ * This is an interface-based design, where each component fits the others through defined
+ * interfaces. This file therefore carries exactly two kinds of parameter.
  *
- * Preference or customization parameters that are specific to a single component are scoped to their respective
- * subassembly files (e.g., head.scad, frame.scad) to maintain modularity and separation of concerns.
+ * First, CROSS-COUPLING: everything two components must agree on, or that this file consumes in a
+ * derivation of its own. Derived once here and handed down, never derived twice.
+ *
+ * Second, the BUILD DESIGNATION surface: every choice an operator states per reactor - which
+ * registered vessel, motor, shaft, gasket sheet, probe, port set, what fill fraction. These are not
+ * cross-coupling and this file may never consume them; they are declared here because a customizer
+ * parameter set can only assign parameters of the file being rendered, and this is the file a build
+ * renders from. A designation names a registered row by its STRING NAME, resolved through that
+ * registry's by-name lookup - a .json holds values, not references, which is why the vessel is
+ * chosen as reactor_vessel_name and not as a row. "auto" means the component derives it, and only
+ * stated departures are passed down, so the component's own search stays the single expression of
+ * the default. A pinned choice is still fit-checked, and echoed against what derivation would have
+ * chosen.
+ *
+ * How a component EMBODIES a choice - allowances, walls, searches, and every default a builder does
+ * not state - stays scoped to that component's file (head.scad, frame.scad). See
+ * docs/design-conventions.md, "Three layers, and where a parameter lives".
  *
  * The two internal lib directories (purchased and custom) are the actual source components, defined as fully
  * parameterized modules that are then used in the subassembly files.
@@ -99,11 +113,17 @@ render_all = true;
 
 /* [Rendering Parameters] */
 
-// Every other entry file sets this and assembly.scad was the one that did not, which is not a
-// quality preference here but a correctness one. $fn is ZERO unless something assigns it, and a
-// module reached through `use` may be handed the caller's - so from this file the whole assembly
-// was drawn to $fa/$fs instead of the 64/128 that head.scad and frame.scad ask for, and anything
-// dividing by $fn got a division by zero. sparge_ring did.
+// Set here because $fn is ZERO unless something assigns it, and a module reached through `use` may
+// be handed the caller's - so from this file the assembly was drawn with nothing assigned at all,
+// and anything dividing by $fn got a division by zero. sparge_ring did.
+//
+// It is frame.scad's 64/128 that this matches (frame.scad:20). head.scad does NOT ask for it:
+// head.scad:61 sets $fn = 0 deliberately and tessellates by $fa/$fs, because a flat 128 was wrong
+// at both ends of a lid carrying both M8 bores and a 257 mm flange. Which of the two a head module
+// actually gets depends on the OpenSCAD version - 2021.01 resolves $fn from the module's own file,
+// newer builds pass the caller's - so this line and head.scad:61 disagree about the head's
+// tessellation and the binary picks the winner. check-scad's second pass at -D '$fn=0' covers the
+// crash, not the divergence. Unresolved; see TODO.md.
 $fn = $preview ? 64 : 128;
 
 cross_section_active = true;
