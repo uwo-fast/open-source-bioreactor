@@ -135,7 +135,7 @@ cross_section_active = true;
 // Which jar this build is for, chosen BY NAME so a customizer parameter set can carry it - a .json
 // holds values, not references, so it cannot name the variable. `just json` writes one set per
 // registered vessel from this same registry.
-reactor_vessel_name = "jar_10L_220x305"; // [generic, jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x215, jar_1gal_155x251]
+reactor_vessel_name = "jar_10L_220x305"; // [jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x215, jar_1gal_155x251]
 reactor_vessel = vessel_by_name(reactor_vessel_name);
 
 assert(

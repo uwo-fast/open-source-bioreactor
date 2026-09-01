@@ -1,6 +1,5 @@
 {
   "parameterSets": {
-    "generic": { "reactor_vessel_name": "generic" },
     "jar_10L_220x305": { "reactor_vessel_name": "jar_10L_220x305" },
     "jar_1gal_180x197": { "reactor_vessel_name": "jar_1gal_180x197" },
     "jar_6p5gal_305x470": { "reactor_vessel_name": "jar_6p5gal_305x470" },

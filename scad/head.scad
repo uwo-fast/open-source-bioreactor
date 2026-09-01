@@ -2347,14 +2347,18 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         )
     ));
 
-  assert(
-    _mount_slenderness <= 5,
-    str(
-      "Motor mount is ", motor_mount_height, " mm on a ", motor_mount_body_diameter, " mm body, ",
-      _mount_slenderness, " diameters. A printed telescoping tube that slender will not hold a ",
-      "rigid coupling in alignment. Choose a shorter registered shaft."
-    )
-  );
+  // Was an assert refusing above 5. Demoted: the number is REASONED, NOT CITED, and a reasoned
+  // limit does not get refusal authority - see docs/design-conventions.md, "Asserts versus echoes".
+  // It also stood over the tall-narrow-jar family, which is a design question rather than an
+  // impossibility, and a refusal there decides it by default instead of reporting it.
+  if (_mount_slenderness > 5)
+    echo(str(
+      "WARNING motor mount: ", motor_mount_height, " mm on a ", motor_mount_body_diameter,
+      " mm body is ", _mount_slenderness, " diameters, past the 5 this model used to refuse at and ",
+      "well past the 3 it warns at. A printed telescoping tube that slender will not hold a rigid ",
+      "coupling in alignment. Nothing here is measured: the calibration is the build in hand, and ",
+      "this configuration computes ", _mount_slenderness, " against its 2.3."
+    ));
 
   echo("motor mount height: ", motor_mount_height / 10, " cm");
 
@@ -3792,7 +3796,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 // Which jar this build is for, chosen BY NAME so a customizer parameter set can carry it - a .json
 // holds values, not references, so it cannot name the variable. `just json` writes one set per
 // registered vessel from this same registry.
-reactor_vessel_name = "jar_10L_220x305"; // [generic, jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x215, jar_1gal_155x251]
+reactor_vessel_name = "jar_10L_220x305"; // [jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x215, jar_1gal_155x251]
 reactor_vessel = vessel_by_name(reactor_vessel_name);
 
 assert(

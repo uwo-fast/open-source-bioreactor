@@ -315,17 +315,6 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
   - it should read the registered gearbox once the motor is designatable, which is where the
     campaign sequence puts it
 
-- [ ] **two decided changes the campaign has not made yet**
-  - **the motor-mount slenderness limit should echo, not assert.** `head.scad`'s
-    `_mount_slenderness <= 5` is `reasoned, not cited` and holds refusal authority over the drive
-    stack, which the assert/echo rule does not allow a reasoned value. Demote to a WARNING echo
-    reporting the ratio, the limit and the 2.3-works calibration. It is currently dormant - the two
-    failing jars fail on other asserts first - so this is cheap now and converts a refusal into a
-    named departure
-  - **`generic_vessel` should leave the swept list** (`purchased/vessels.scad:34`), or stay with a
-    written reason for occupying a sweep slot. Only orderable rows are swept; `atlas_probes` is the
-    convention
-
 - [ ] **the architecture campaign: layering settled, twelve steps, decisions D1-D8 closed**
   - the rules are written down now - `docs/design-conventions.md`, "Three layers, and where a
     parameter lives" and "What the customizer can and cannot carry" - and `assembly.scad`'s header

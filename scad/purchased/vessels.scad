@@ -31,7 +31,10 @@ jar_1p5L_109x215     = ["jar_1p5L_109x215",     [215,       109.22,     4       
 // here mates with them, and glass thread profiles are a project of their own.
 jar_1gal_155x251     = ["jar_1gal_155x251",     [251,       155.3,      3        ], [95.8,        30  ], [25,          14             ], [6,      73    ], 0    ];
 
-vessels = [generic_vessel, jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x215, jar_1gal_155x251];
+// The swept list, and only orderable rows go in it - the sweeps build against this, so a
+// placeholder here makes "it builds" cover a jar nobody can buy. generic_vessel stays defined and
+// out of it, which is what atlas_probes and strip_lights already do with their own generic rows.
+vessels = [jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x215, jar_1gal_155x251];
 
 // A row from its name. It lives here rather than with the other accessors in vessel.scad because a
 // function resolves globals from its OWN file, and `vessels` is only in scope in this one.
