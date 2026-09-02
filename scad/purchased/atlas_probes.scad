@@ -118,6 +118,15 @@ atlas_probes = [
 
 use <atlas_probe.scad>;
 
+// DEVIATION, recorded: ph_lab_g1 and do_lab_g1 are no longer sold, and are still in use - more than
+// one reactor is being built, across both generations. They stay swept for the same reason the
+// discontinued motor does. The g1 and g2 bodies are NOT interchangeable in a printed collet: pH is
+// 15.6 x 36.0 against 16.0 x 30.2, on a 0.6 mm grip fit, so a lid answers to one generation.
+
+use <../utils/registries.scad>;
+// A row from its name - see utils/registries.scad. A miss returns undef; the consumer asserts.
+function atlas_probe_by_name(name) = registry_by_name(atlas_probes, name);
+
 // example usage - keep commented, this file is include'd and would emit the probes into
 // every consumer (see 1a6df3d)
 // atlas_probe(ph_lab_g2);                       // registered set

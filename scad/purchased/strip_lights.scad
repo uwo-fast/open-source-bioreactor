@@ -53,6 +53,10 @@ function strip_light_for(liquid_height) =
 
 use <strip_light.scad>
 
+use <../utils/registries.scad>;
+// A row from its name - see utils/registries.scad. A miss returns undef; the consumer asserts.
+function strip_light_by_name(name) = registry_by_name(strip_lights, name);
+
 // example usage - keep commented, this file is include'd and would emit the lights into
 // every consumer
 // strip_light(rwntao_13in);                                             // registered set

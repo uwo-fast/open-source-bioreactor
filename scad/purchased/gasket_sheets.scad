@@ -18,6 +18,10 @@ sheet_epdm_1p6_60a   = ["EPDM 1/16 60A", "EPDM",   1.5875,    60,      [304.8,  
 
 gasket_sheets = [sheet_epdm_1p6_60a];
 
+use <../utils/registries.scad>;
+// A row from its name - see utils/registries.scad. A miss returns undef; the consumer asserts.
+function gasket_sheet_by_name(name) = registry_by_name(gasket_sheets, name);
+
 function gasket_sheet_name(type) = type[0];
 function gasket_sheet_material(type) = type[1];
 function gasket_sheet_thickness(type) = type[2];

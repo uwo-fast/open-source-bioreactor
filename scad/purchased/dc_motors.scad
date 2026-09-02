@@ -35,7 +35,15 @@ motor_36pg_555pm_14_en  = ["36PG-555PM-14-EN", [36,   57  ], [2,       8      ],
 // bare motor supplied on the peri pump head, no part number, 12 V / 5 W, no published speed
 motor_12v_5w            = ["12v_5w",           [27.5, 38  ], [2.3,     20     ], undef,                 [10,     3     ], [15.75,       2      ], undef,                            undef,  undef  ];
 
+// DEVIATION, recorded: two of these are real parts that cannot be ordered. motor_36gp_3530_5p18 is
+// discontinued and is the motor on the bench; motor_12v_5w arrives fitted to the peri pump head and
+// has no part number of its own. They stay swept because the sweep exists to check hardware that
+// exists - see docs/design-conventions.md, "Purchased parts are registered rows that drive geometry".
 dc_motors = [motor_36gp_3530_5p18, motor_36pg_3429_5p2, motor_36pg_555pm_14_en, motor_12v_5w];
+
+use <../utils/registries.scad>;
+// A row from its name - see utils/registries.scad. A miss returns undef; the consumer asserts.
+function dc_motor_by_name(name) = registry_by_name(dc_motors, name);
 
 use <dc_motor.scad>
 

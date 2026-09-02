@@ -73,6 +73,10 @@ orings = [oring_4x1p5_epdm, oring_13x1p5_epdm, oring_17x1p5_epdm, oring_23x1p5_e
 
 use <oring.scad>; // oring() draws the torus these rows describe
 
+use <../utils/registries.scad>;
+// A row from its name - see utils/registries.scad. A miss returns undef; the consumer asserts.
+function oring_by_name(name) = registry_by_name(orings, name);
+
 // example usage - keep commented, this file is include'd and would emit a ring into every
 // consumer (see shaft_couplings.scad for the same note)
 // oring(oring_23x1p5_epdm);

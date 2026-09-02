@@ -24,6 +24,10 @@ peri_pump_kamoer_nkp   = ["Kamoer NKP-DC-S10B", "NKP-DC-S10B",   [67, 55, 41], [
 
 peri_pumps = [peri_pump_kamoer_nkp];
 
+use <../utils/registries.scad>;
+// A row from its name - see utils/registries.scad. A miss returns undef; the consumer asserts.
+function peri_pump_by_name(name) = registry_by_name(peri_pumps, name);
+
 use <peri_pump.scad>; // peri_pump() draws the envelope these rows describe
 
 // example usage - keep commented, this file is include'd and a bare call would draw a pump into

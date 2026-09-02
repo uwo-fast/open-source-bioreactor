@@ -63,4 +63,8 @@ impellers = [impeller_rushton_6, impeller_pbt_45_4,
              impeller_folded_axial_3, impeller_folded_axial_4, impeller_folded_axial_6,
              impeller_twisted_paddle_4];
 
+use <../utils/registries.scad>;
+// A row from its name - see utils/registries.scad. A miss returns undef; the consumer asserts.
+function impeller_by_name(name) = registry_by_name(impellers, name);
+
 // Accessors are in impeller.scad. Pure data - no geometry, so consumers can include it freely.
