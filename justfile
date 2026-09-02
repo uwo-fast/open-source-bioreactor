@@ -560,6 +560,11 @@ export-parts vessel="" out="output":
     for (p = frame_print_parts(n_rods))
       echo(str("PART|scad/frame.scad|", p[0], "|", p[1], "|", p[2]));
     echo(str("VESSEL|", vessel_name(_v)));
+    echo(str("DESIG|shaft_name|", shaft_name));
+    echo(str("DESIG|plug_oring_name|", plug_oring_name));
+    echo(str("DESIG|strip_light_name|", strip_light_name));
+    echo(str("DESIG|do_probe_name|", do_probe_name));
+    echo(str("DESIG|ph_probe_name|", ph_probe_name));
     SCAD
     {{OPENSCAD}} "${sel[@]}" -D render_all=false -o "$tmp/m.csg" "$tmp/m.scad" 2>"$tmp/err" >/dev/null
     if grep -q '^ERROR' "$tmp/err"; then
@@ -571,6 +576,23 @@ export-parts vessel="" out="output":
     # -P naming a set that does not exist and silently falls back to the file's own defaults. Left
     # unchecked that writes a directory labelled with one jar and full of another one's parts.
     got=$(grep -m1 '^ECHO: "VESSEL|' "$tmp/err" | sed 's/.*VESSEL|//; s/"$//')
+    # A DESIGNATED PART WOULD NOT BE EXPORTED. Every row below renders from scad/head.scad or
+    # scad/frame.scad directly, and neither has a designation surface: head.scad's own tail calls
+    # head() with no build argument, so it falls back to its own globals. The manifest is read from
+    # assembly.scad and knows what was designated; the renders do not. Exporting anyway would write
+    # an STL of the DEFAULT part under a build that asked for a different one - the model and the
+    # printed thing disagreeing silently, which is the failure this repo exists to prevent.
+    #
+    # So it refuses rather than exporting the wrong part. The fix is to render the parts through
+    # assembly.scad, which does carry the designations; until then this is the loud edge.
+    pinned=$(grep '^ECHO: "DESIG|' "$tmp/err" | sed 's/.*DESIG|//; s/"$//' | grep -v '|auto$' || true)
+    if [ -n "$pinned" ]; then
+        echo "FAIL  this build designates a part, and the per-part renders cannot see it"
+        echo "$pinned" | sed 's/|/ = /' | sed 's/^/        /'
+        echo "        scad/head.scad renders standalone with no build, so it would export the default part."
+        echo "        Set these back to \"auto\" to export, or see TODO.md - exports want routing through assembly.scad."
+        exit 1
+    fi
     if [ -n "$label" ] && [ "$label" != "$got" ]; then
         echo "FAIL  no parameter set is named $label - the model resolved $got instead"
         echo "        the sets come from the vessel registry; run just json after adding a jar"
