@@ -146,10 +146,11 @@ assert(
 /* [Light Strip Selection] */
 // This should be made to be driven by the vessel for whatever is optimal; future TODO.
 
-// Which strip light this build carries. undef derives it from the culture the vessel holds: the
-// shortest registered light that still covers the liquid. A longer one is not free - the base drops
-// by whatever the light overhangs the jar, which put 152 mm of empty base under a 197 mm vessel.
-reactor_lights = undef;
+// Which strip light this build carries, BY REGISTERED NAME. "auto" derives it from the culture the
+// vessel holds: the shortest registered light that still covers the liquid. A longer one is not
+// free - the base drops by whatever the light overhangs the jar, which put 152 mm of empty base
+// under a 197 mm vessel. The names are in scad/purchased/strip_lights.scad.
+strip_light_name = "auto";
 
 /* [Head Parameters - Coupling] */
 
@@ -188,15 +189,19 @@ lid_gasket_factor = head_gasket_factor();
 // though `-D` does. So a build is only expressible from the file the build is assembled in, and
 // scad/assembly.json can only carry what this section declares.
 //
-// AND ONLY ONE OF THEM IS CARRYABLE YET. A parameter set can assign a parameter only if the
-// customizer registered it, and the customizer registers it only if it can infer a type - so a
-// parameter defaulting to `undef` is invisible to `-P`, which is the four undef rows here. Proved
-// by giving one of them a numeric default, at which point the same parameter set applied.
+// A PART IS DESIGNATED BY ITS REGISTERED NAME, never by its row. A parameter set carries values and
+// not references, so a .json can say "8x400_316" but cannot say the variable of that name - the
+// vessel has worked this way since the first parameter set and the rest now follow. "auto" means
+// the model derives it, and each name resolves once below through that registry's by-name lookup,
+// with an assert that names the file to look in.
 //
-// That is a real collision with the undef-derives idiom the rest of the model uses, and it is not
-// settled here: the obvious sentinel is the plausible number design-conventions.md says not to
-// register. Until it is, those four are reachable with `-D` and by editing this file, the same as
-// before. See TODO.md.
+// The string is also what makes them carryable at all: the customizer registers a parameter only if
+// it can infer a TYPE, so a parameter defaulting to `undef` is invisible to `-P`. That is why "auto"
+// is a string and not undef, and it is not the plausible-number sentinel design-conventions.md bans -
+// a string is visible in the surface and is read by a mode branch, never by arithmetic.
+//
+// The two rows still defaulting to undef are numbers, not names, and stay uncarryable until their
+// representation is settled. See TODO.md.
 
 // litres the vessel is run at; undef derives it from the fill fraction below. NOT carryable
 culture_working_volume = undef;
@@ -205,26 +210,50 @@ culture_working_volume = undef;
 // against is a working-volume one. 0.865 is what the reference build runs; head()'s culture echo
 // reports it against the 0.8 the literature quotes. A plain number, so a parameter set can carry it.
 culture_fill_fraction = 0.865;
-// the registered shaft; undef takes the shortest row that reaches this vessel. NOT carryable
-head_shaft = undef;
-// the ring centring the lid plug; undef takes any ring whose stretch this mouth allows. NOT carryable
-lid_plug_oring = undef;
+// The impeller shaft, by registered name. "auto" takes the shortest row that reaches this vessel.
+// Names are in scad/purchased/shafts.scad.
+shaft_name = "auto";
+// The ring centring the lid plug, by registered name. "auto" takes any ring whose free ID lands
+// this jar's groove between zero and five percent stretch. Names are in scad/purchased/orings.scad.
+plug_oring_name = "auto";
 // degrees the DO probe leans out; undef takes the most this jar allows. NOT carryable
 do_probe_port_tilt_degrees = undef;
+
+// Each designation resolves ONCE, here, and fails loudly. registry_by_name returns undef both for a
+// name nothing answers to and for one two rows answer to, so the assert says both - and because a
+// failing assert exits 0 in OpenSCAD, this ERROR line on stderr is the only thing the justfile's
+// greps can catch. "auto" never reaches a lookup; it is a mode, and the branch takes it first.
+_build_shaft = shaft_name == "auto" ? undef : shaft_by_name(shaft_name);
+assert(
+  shaft_name == "auto" || !is_undef(_build_shaft),
+  str("No registered shaft is named \"", shaft_name, "\", or it is registered twice. See scad/purchased/shafts.scad.")
+);
+
+_build_plug_oring = plug_oring_name == "auto" ? undef : oring_by_name(plug_oring_name);
+assert(
+  plug_oring_name == "auto" || !is_undef(_build_plug_oring),
+  str("No registered o-ring is named \"", plug_oring_name, "\", or it is registered twice. See scad/purchased/orings.scad.")
+);
+
+_build_light = strip_light_name == "auto" ? undef : strip_light_by_name(strip_light_name);
+assert(
+  strip_light_name == "auto" || !is_undef(_build_light),
+  str("No registered strip light is named \"", strip_light_name, "\", or it is registered twice. See scad/purchased/strip_lights.scad.")
+);
 
 // Pairs rather than a positional row: each is optional, and naming one with undef ("derive it")
 // has to stay distinguishable from not naming it at all. head_build() in head.scad reads them.
 reactor_build = [
   ["culture_working_volume", culture_working_volume],
   ["culture_fill_fraction", culture_fill_fraction],
-  ["head_shaft", head_shaft],
-  ["lid_plug_oring", lid_plug_oring],
+  ["head_shaft", _build_shaft],
+  ["lid_plug_oring", _build_plug_oring],
   ["do_probe_port_tilt_degrees", do_probe_port_tilt_degrees],
 ];
 
-_reactor_light = is_undef(reactor_lights)
+_reactor_light = is_undef(_build_light)
   ? strip_light_for(head_liquid_height(vessel_internal_height(reactor_vessel), vessel_inner_profile(reactor_vessel), culture_working_volume, culture_fill_fraction))
-  : reactor_lights;
+  : _build_light;
 
 assert(
   !is_undef(_reactor_light),
@@ -319,7 +348,7 @@ function reactor_envelope_diameter() = joint_outer_diameter; // the flange circl
 function reactor_envelope_height() =
   frame_floor_depth(vessel_height(reactor_vessel), _reactor_light)
   + vessel_height(reactor_vessel) + lid_flange_height
-  + head_stack_height(lid_flange_height, vessel_internal_height(reactor_vessel), head_shaft);
+  + head_stack_height(lid_flange_height, vessel_internal_height(reactor_vessel), _build_shaft);
 
 echo("reactor envelope: ", reactor_envelope_diameter(), " mm dia x ", reactor_envelope_height(), " mm tall");
 
