@@ -150,7 +150,7 @@ assert(
 // vessel holds: the shortest registered light that still covers the liquid. A longer one is not
 // free - the base drops by whatever the light overhangs the jar, which put 152 mm of empty base
 // under a 197 mm vessel. The names are in scad/purchased/strip_lights.scad.
-strip_light_name = "auto";
+strip_light_name = "auto"; // [auto, RWNTAO 13in, grow 13in, grow 16in, grow 8.6in]
 
 /* [Head Parameters - Coupling] */
 
@@ -212,7 +212,7 @@ culture_working_volume = undef;
 culture_fill_fraction = 0.865;
 // The impeller shaft, by registered name. "auto" takes the shortest row that reaches this vessel.
 // Names are in scad/purchased/shafts.scad.
-shaft_name = "auto";
+shaft_name = "auto"; // [auto, 8x200_316, 8x400_316, 8x600_316, 8x800_316]
 // The ring centring the lid plug, by registered name. "auto" takes any ring whose free ID lands
 // this jar's groove between zero and five percent stretch. Names are in scad/purchased/orings.scad.
 plug_oring_name = "auto";
