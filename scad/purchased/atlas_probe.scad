@@ -24,6 +24,7 @@ function atlas_probe_tip_height(type) = type[3][1]; // height of the tip
 function atlas_probe_connector_dia(type) = type[4]; // cord-end connector, drawn by no one yet
 function atlas_probe_wire_dia(type) = type[5]; // diameter of the wire
 function atlas_probe_accent_color(type) = type[6]; // accent color for the neck
+function atlas_probe_part_number(type) = type[7]; // what to order it by; the SKU names the product line, not the generation
 
 /**
  * @brief Creates an Atlas Scientific probe from a registered type

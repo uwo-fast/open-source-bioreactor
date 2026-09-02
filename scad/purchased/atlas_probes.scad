@@ -23,7 +23,7 @@
 // - pH lab by 1.8 mm, ORP consumer and lab by 0.6 mm - and the components are registered.
 
 // atlas_probe is not a real probe, but a placeholder showing the expected format.
-//             ["name"          [neck_d, neck_h, neck_taper_d], [body_d, body_h], [tip_d, tip_h], conn_d, wire_d, accent_color];
+//             ["name"          [neck_d, neck_h, neck_taper_d], [body_d, body_h], [tip_d, tip_h], conn_d, wire_d, accent_color, part_no];
 atlas_probe  = ["generic",      [10,     26,     5           ], [16.0,   36.2  ], [12,    115.0], 8,      3,      "Pink"      ];
 
 // https://atlas-scientific.com/probes/mini-ph-probe/
@@ -39,8 +39,12 @@ ph_consumer  = ["pH con",       [9,     6,     8            ], [16.0,   30.2  ],
 // https://files.atlas-scientific.com/pH_probe.pdf
 // g2 is the current product and the sheet above.
 // g1 are no longer sold to my knowledge as of 2026-08.
-ph_lab_g1    = ["pH lab g1",    [10,    26,    5            ], [15.6,   36.0  ], [12,    115.0], 8,      2.8,    "Red"       ];
-ph_lab_g2    = ["pH lab g2",    [9,     6,     8            ], [16.0,   30.2  ], [12,    115.0], 8,      2.8,    "Red"       ];
+//
+// BOTH carry ENV-40-PH, and that is not a mistake. Atlas sell the product LINE under one number and
+// the SKU does not distinguish generation - which one arrives depends on when the order was placed.
+// Both generations are owned and in use here, across more than one reactor.
+ph_lab_g1    = ["pH lab g1",    [10,    26,    5            ], [15.6,   36.0  ], [12,    115.0], 8,      2.8,    "Red"       , "ENV-40-PH" ];
+ph_lab_g2    = ["pH lab g2",    [9,     6,     8            ], [16.0,   30.2  ], [12,    115.0], 8,      2.8,    "Red"       , "ENV-40-PH" ];
 
 // https://atlas-scientific.com/probes/research-grade-ph-probe/
 // https://files.atlas-scientific.com/Research_grade_pH_probe.pdf
@@ -52,10 +56,11 @@ do_mini      = ["DO mini",      [10,     26,     5           ], [16.0,   36.2  ]
 
 // https://atlas-scientific.com/probes/dissolved-oxygen-probe/
 // https://files.atlas-scientific.com/LG_DO_probe.pdf
-// g2 is the current product and the sheet above. 
-// g1 are no longer sold to my knowledge as of 2026-08.
-do_lab_g1    = ["DO lab g1",    [9,     26,    4.5          ], [16.1,   36.2  ], [12,    64.0 ], 8,      2.6,    "Goldenrod" ];
-do_lab_g2    = ["DO lab g2",    [9,     6,     8            ], [16.0,   30.2  ], [12,    69.1 ], 8,      2.6,    "Goldenrod" ];
+// g2 is the current product and the sheet above.
+// g1 are no longer sold to my knowledge as of 2026-08. Both carry ENV-40-DOX, for the reason on the
+// pH pair above: the SKU names the line, not the generation.
+do_lab_g1    = ["DO lab g1",    [9,     26,    4.5          ], [16.1,   36.2  ], [12,    64.0 ], 8,      2.6,    "Goldenrod" , "ENV-40-DOX"];
+do_lab_g2    = ["DO lab g2",    [9,     6,     8            ], [16.0,   30.2  ], [12,    69.1 ], 8,      2.6,    "Goldenrod" , "ENV-40-DOX"];
 
 // https://atlas-scientific.com/probes/mini-e-c-probe-k-1-0/
 // https://files.atlas-scientific.com/Mini_EC_K_1.0_probe.pdf
