@@ -43,10 +43,10 @@ vessels = [jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x2
 // "jar_10L_220x305" but it cannot say the variable of that name, and under -p OpenSCAD drops the
 // reference with nothing but an "unknown variable" warning. Selecting by name is what lets one
 // parameter set per vessel drive a build - see the json recipes in the justfile.
-function vessel_by_name(name) =
-  let (_m = [for (v = vessels) if (v[0] == name) v]) len(_m) == 1 ? _m[0] : undef;
+function vessel_by_name(name) = registry_by_name(vessels, name);
 
 use <vessel.scad>;
+use <../utils/registries.scad>;
 
 // example usage (open this file directly to preview)
 // vessel(jar_1gal_155x251, angle=180);                                     // registered set, cross section
