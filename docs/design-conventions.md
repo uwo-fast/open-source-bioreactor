@@ -133,8 +133,18 @@ stable one exists, and `undef` with the reason where it does not; provenance tra
 value; and a `*_by_name()` lookup wherever the part is designatable. Data-only registries — rows
 that carry numbers and draw nothing — are legitimate.
 
-**Only orderable rows go in the swept list.** The list is what `check-vessels` and the sweeps build
-against, so a placeholder in it means "this builds" covers something nobody can buy.
+**Only REAL parts go in the swept list.** The list is what `check-vessels` and the sweeps build
+against, so what sits in it is a claim about hardware.
+
+A **placeholder** — a row describing nothing anyone ever bought, like `generic_vessel` or a
+`"generic"` probe with an empty part number — stays defined and out of the list. It is a shape, not
+a product, and sweeping it makes "this builds" cover something nobody can buy.
+
+A **discontinued or bundled** part is the opposite case and stays swept, with the deviation recorded
+beside the list. The 36GP motor is no longer sold and is on the bench; the 12 V pump motor arrives
+fitted to a pump head and has no part number of its own; both Atlas g1 probes are out of production
+and still in use. Refusing to sweep those would stop checking hardware that exists, which is the
+wrong way round — the point of the sweep is that real parts build.
 
 **Designatable is not the same as purchased.** Every bought thing is a registered row; only the ones
 an operator actually picks per reactor get a by-name lookup and a slot on the build surface. The

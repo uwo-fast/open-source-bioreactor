@@ -53,7 +53,12 @@ mcmaster_1245N18_thermocouple_probe    = ["mcmaster_1245N18",   "1245N18",   npt
 mcmaster_3872K118_thermocouple_probe   = ["mcmaster_3872K118",  "3872K118",  npt_1_2,  [10,     12,     5,       20,     3.175,  304.8,  3,      25   ]];  // 12 in x 1/8 in
 mcmaster_1245N22_thermocouple_probe    = ["mcmaster_1245N22",   "1245N22",   npt_1_2,  [10,     12,     5,       20,     4.7625, 304.8,  3,      25   ]];  // 12 in x 3/16 in
 
-thermocouple_probes = [generic_thermocouple_probe, mcmaster_3872K127_thermocouple_probe,
+// The swept list carries REAL parts only. generic_thermocouple_probe stays defined and out of it:
+// its part number is "" because there is nothing to order - it is a shape, not a product - and a
+// placeholder in here would make "it builds" cover a probe nobody can buy. A real part that has
+// been discontinued is a different case and stays swept, with the deviation recorded beside the
+// list. Same treatment as generic_vessel, atlas_probe and generic_strip_light.
+thermocouple_probes = [mcmaster_3872K127_thermocouple_probe,
   mcmaster_3872K128_thermocouple_probe, mcmaster_3872K129_thermocouple_probe,
   mcmaster_3872K13_thermocouple_probe, mcmaster_3872K131_thermocouple_probe,
   mcmaster_3872K132_thermocouple_probe, mcmaster_3872K133_thermocouple_probe,
