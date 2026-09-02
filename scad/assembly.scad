@@ -289,6 +289,20 @@ assert(
   "No strip light is registered, so nothing can light the vessel. See scad/purchased/strip_lights.scad."
 );
 
+// THE RULE THE DERIVATION SELECTS ON, reported for whatever light is actually fitted. strip_light_for
+// takes the shortest row that still COVERS the culture, and a designated light skipped that test
+// entirely - a 217 mm row under a 236 mm culture built silently. Echoed rather than asserted: an
+// under-lit reactor is buildable and is a choice someone may be making, which is the assert/echo
+// rule, and the light is not a pressure boundary.
+_culture_depth = head_liquid_height(vessel_internal_height(reactor_vessel), vessel_inner_profile(reactor_vessel), culture_working_volume, culture_fill_fraction);
+if (strip_light_length(_reactor_light) < _culture_depth)
+  echo(str(
+    "WARNING lights: ", strip_light_name(_reactor_light), " is ", strip_light_length(_reactor_light),
+    " mm and the culture stands ", _culture_depth, " mm deep, so ",
+    _culture_depth - strip_light_length(_reactor_light), " mm of it is unlit. \"auto\" takes the ",
+    "shortest registered row that covers the liquid; this one was named."
+  ));
+
 module dummy() {
   // stop the customizer detection from here onwards
 }

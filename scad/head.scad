@@ -3447,6 +3447,21 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     oring_gland_depth(oring_cross_section(_plug_ring), lid_plug_oring_squeeze)
   );
 
+  // THE SAME BAND THE DERIVATION SELECTS ON, applied to whatever ring is actually fitted. It was a
+  // selection criterion only (head_plug_oring_fits), so a DESIGNATED ring skipped it entirely and a
+  // plug o-ring pinned at 82.8% stretch built silently - the contract says pinning inverts the
+  // checks, not that it switches them off. Weak, not dead: the derived ring passes by construction,
+  // a pinned one need not. The riser seal already asserts on this same 0-5% band, so this makes the
+  // two seals consistent rather than granting a reasoned number new authority.
+  assert(
+    is_undef(_plug_ring) || (_plug_stretch >= 0 && _plug_stretch <= 0.05),
+    str(
+      "The plug o-ring ", oring_name(_plug_ring), " sits at ", _plug_stretch * 100,
+      "% stretch on this mouth; the band is 0 to 5. Under zero it sags out of its groove, over five ",
+      "it thins the cord. Leave plug_oring_name at \"auto\" and the model picks a ring inside it."
+    )
+  );
+
   assert(
     _plug_fill <= 0.90,
     str("The plug o-ring fills ", _plug_fill * 100, "% of its gland; over 90 leaves the squeeze nowhere to go.")
