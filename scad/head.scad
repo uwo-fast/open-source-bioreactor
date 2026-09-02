@@ -958,12 +958,11 @@ do_probe_flow_requirement = 60;
 // So the lean is DERIVED: the most of the ceiling below that this jar's own internals allow, capped
 // at it and never above. Solved by scanning rather than inverting, because the two bounds close
 // from opposite sides - leaning out carries the tip AWAY from the impellers and TOWARD the sparge
-// ring - so there is no single expression to solve. Set do_probe_port_tilt_degrees to pin an angle.
+// ring - so there is no single expression to solve. Lower do_probe_port_tilt_max to ask for less.
 //
 // Where nothing clears, the search returns 0 rather than a best effort, and the reach asserts below
 // report the real conflict. A guess would bury it.
 do_probe_port_tilt_max = 4.5;
-do_probe_port_tilt_degrees = undef; // degrees; undef derives the most this jar allows
 ph_probe_port_tilt_degrees = 0;
 probe_port_transition_length = 25;
 
@@ -1650,7 +1649,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _build_fill_fraction = head_build(build, "culture_fill_fraction", culture_fill_fraction);
   _build_shaft = head_build(build, "head_shaft", head_shaft);
   _build_plug_oring = head_build(build, "lid_plug_oring", lid_plug_oring);
-  _build_do_tilt = head_build(build, "do_probe_port_tilt_degrees", do_probe_port_tilt_degrees);
+  _build_do_tilt_max = head_build(build, "do_probe_port_tilt_max", do_probe_port_tilt_max);
   _build_do_probe = head_build(build, "do_probe", undef);
   _build_ph_probe = head_build(build, "ph_probe", undef);
 
@@ -1717,25 +1716,25 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // Resolved once, here, because the immersion checks below read it and OpenSCAD takes a variable
   // in its own scope in order - a lean assigned past its first consumer is undef at the consumer.
   _do_port = [for (p = _ports) if (head_port_function(p) == "do_probe") p];
+  // ALWAYS DERIVED. There was a pin beside the ceiling, and it earned nothing: for any angle the
+  // jar allows, pinning it and lowering the ceiling to it give byte-identical geometry, because the
+  // search returns `want` whenever `want` fits. The pin's only distinct behaviour was to force an
+  // angle the jar does NOT allow and be refused by the reach and mouth asserts a moment later -
+  // where lowering the ceiling answers the same question better, by reporting what the jar does
+  // take. It was also the wrong half to keep: the ceiling is a plain number a parameter set can
+  // carry and the pin defaulted to undef, which the customizer cannot see at all.
   _do_tilt =
     len(_do_port) == 0 ? 0
-    : is_undef(_build_do_tilt)
-      ? head_probe_tilt_ceiling(
-        head_port_probe(_do_port[0]), vessel_opening_diameter, lid_flange_height,
-        vessel_internal_height, vessel_punt_height, impeller_diameter, do_probe_port_tilt_max
-      )
-      : _build_do_tilt;
+    : head_probe_tilt_ceiling(
+      head_port_probe(_do_port[0]), vessel_opening_diameter, lid_flange_height,
+      vessel_internal_height, vessel_punt_height, impeller_diameter, _build_do_tilt_max
+    );
 
   echo(str(
-    "DO probe lean: ", _do_tilt, " deg - ",
-    is_undef(_build_do_tilt)
-      ? str(
-        "DERIVED as the most of ", do_probe_port_tilt_max, " deg this jar allows",
-        _do_tilt < do_probe_port_tilt_max
-          ? str(", capped ", do_probe_port_tilt_max - _do_tilt, " deg short by its own internals")
-          : ", which is the whole of it"
-      )
-      : "PINNED by do_probe_port_tilt_degrees"
+    "DO probe lean: ", _do_tilt, " deg - the most of ", _build_do_tilt_max, " deg this jar allows",
+    _do_tilt < _build_do_tilt_max
+      ? str(", capped ", _build_do_tilt_max - _do_tilt, " deg short by its own internals")
+      : ", which is the whole of it"
   ));
 
   // The window this jar had to land in, reported whether or not it did. The three couplings above

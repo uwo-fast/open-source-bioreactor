@@ -231,8 +231,11 @@ plug_oring_name = "auto";
 // reports below assume a galvanic DO probe and will not say so if one is not there.
 do_probe_name = "auto";
 ph_probe_name = "auto";
-// degrees the DO probe leans out; undef takes the most this jar allows. NOT carryable
-do_probe_port_tilt_degrees = undef;
+// Ceiling on how far the DO probe leans out, in degrees. The lean itself is always DERIVED - the
+// most of this the jar's own internals allow - so this asks for less lean, never for more than a
+// jar can take. It leans at all to shed bubbles off a galvanic membrane; 4.5 is reasoned, not
+// cited. A plain number, so a parameter set can carry it.
+do_probe_port_tilt_max = 4.5;
 
 // Each designation resolves ONCE, here, and fails loudly. registry_by_name returns undef both for a
 // name nothing answers to and for one two rows answer to, so the assert says both - and because a
@@ -275,7 +278,7 @@ reactor_build = [
   ["culture_fill_fraction", culture_fill_fraction],
   ["head_shaft", _build_shaft],
   ["lid_plug_oring", _build_plug_oring],
-  ["do_probe_port_tilt_degrees", do_probe_port_tilt_degrees],
+  ["do_probe_port_tilt_max", do_probe_port_tilt_max],
   ["do_probe", _build_do_probe],
   ["ph_probe", _build_ph_probe],
 ];
