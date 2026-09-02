@@ -8,6 +8,13 @@ _reference/
 *.bak
 *.swp
 
+# Render output, wherever it lands. The recipes all export into a mktemp directory, so anything of
+# these in the tree is a stray from an ad-hoc `openscad -o` - and one did get as far as `git status`
+# once. Neither is committed on purpose: the STLs were dropped in 1fe41fa, keeping the 3MFs that
+# record what was printed, and a .csg is a dump of the tree rather than anything to keep.
+*.csg
+*.stl
+
 # Analysis: raw/ and figures/ are committed, everything regenerable is not.
 # See analysis/README.md.
 analysis/**/derived/
