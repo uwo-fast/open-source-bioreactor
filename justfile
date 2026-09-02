@@ -263,7 +263,12 @@ analysis-method name:
 # Fail when a part the model PRESCRIBES is not on the purchase list.
 #
 # Only the registries that carry a part number can be checked - orings, shafts, thermocouple
-# probes, set screws and steel tubes - so this is a floor, not a full audit. It is worth having
+# probes, set screws, steel tubes, hose clamps, peri pumps and heat-set inserts - so this is a
+# floor, not a full audit. Two prescriptions are deliberately absent: the gasket sheet and the drive
+# motor. The sheet is not selected per build yet, and the motor's CSV part_number field is the
+# compound string "RM-ESMO-071 (36PG-555PM-14-EN)", which grep -qxF can never match - normalize that
+# column before enrolling it. The shaft coupling stays out because uxcell publish no number for it,
+# so its registry returns undef by design and the undef branch below would fail on it. It is worth having
 # anyway: the CSV has now drifted behind the model twice in two days, once carrying a 9 in
 # thermocouple the model had replaced because it went through a jar's floor, and once missing the
 # mini port seal entirely.
@@ -294,6 +299,7 @@ check-bom:
     echo(str("BOM|", hose_clamp_part_number(sparge_riser_clamp), "|riser hose clamp"));
     echo(str("BOM|", peri_pump_part_number(head_dosing_pump), "|dosing pump"));
     echo(str("BOM|", set_screw_part_number(impeller_set_screw), "|impeller set screw"));
+    echo(str("BOM|", heat_set_insert_part_number(motor_mount_base_insert), "|motor mount heat-set insert"));
     SCAD
     {{OPENSCAD}} -o "$tmp/b.csg" "$tmp/b.scad" 2>"$tmp/err" >/dev/null
     # the part_number COLUMN, so a match cannot come from a stale URL elsewhere in the row
@@ -302,8 +308,11 @@ check-bom:
     if [ -z "$lines" ]; then echo "FAIL  could not read what the model prescribes"; exit 1; fi
     failed=0
     while IFS='|' read -r _ pn what; do
-        [ -z "$pn" ] && continue
-        if [ "$pn" = "undef" ]; then
+        # An EMPTY part number used to be skipped, which made a registry row with part_no "" invisible
+        # to this check - the same silence the undef branch exists to break. It fails now.
+        if [ -z "$pn" ]; then
+            echo "FAIL  the $what prescribes an empty part number"; failed=1
+        elif [ "$pn" = "undef" ]; then
             echo "FAIL  the $what has no part number in its registry"; failed=1
         elif ! grep -qxF "$pn" "$tmp/pns"; then
             echo "FAIL  the model prescribes $pn for the $what, and purchased-parts.csv has no such row"
