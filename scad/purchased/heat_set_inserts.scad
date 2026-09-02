@@ -7,7 +7,7 @@
 // here rather than taken from that library because none of its rows is a part we can buy, and it
 // is the hole the lid gets printed with that has to match the tin.
 
-//        length  outer_d  hole_d  screw  barrel_d  ring1_h  ring2_d  ring3_d
+//        length  outer_d  hole_d  screw  barrel_d  ring1_h  ring2_d  ring3_d  pitch  chamfer  part_no      material   pack
 
 // McMaster 97163A152, 18-8 stainless, ASTM A380, M4 x 0.7. The lid's mount screws land in four of
 // these. Stainless over the brass 94180A351: this face sees condensation, splash and wipe-downs,
@@ -23,11 +23,20 @@
 //
 // Hole: a 2 Ga drill is 5.6134 mm and the catalogue's maximum is 5.7404, so the 5.6 below sits
 // just under the size it is specified against.
-insert_m4x4p7_ss = ["M4x4.7 18-8", 4.7,  6.3,     5.6,    4,     5.15,     1.0,     6.0,     5.55];
+//
+// FIELDS PAST ring3_d. [9] and [10] are NOT free - NopSCADlib reads them as threaded_insert_pitch
+// and threaded_insert_chamfer (vitamins/insert.scad), and this is a heat-fit insert with no outer
+// thread, so they are explicitly undef and the library keeps answering undef for them as it always
+// did. The project's own fields start at [11]. Putting a part number at [9] would have registered
+// it as a thread pitch.
+insert_m4x4p7_ss = ["M4x4.7 18-8", 4.7,  6.3,     5.6,    4,     5.15,     1.0,     6.0,     5.55,    undef, undef,   "97163A152", "18-8 SS", 10];
 
 heat_set_inserts = [insert_m4x4p7_ss];
 
 // The row is NopSCADlib's own insert schema - insert(), insert_hole_radius() and
 // insert_hole_length() read [1] upward - so there is no singular accessor file to put this in and
 // [0] is the one index the library leaves alone. See utils/registries.scad.
-function heat_set_insert_name(type) = type[0];
+function heat_set_insert_name(type) = type[0]; // the row's identity, and the key a build designates it by
+function heat_set_insert_part_number(type) = type[11]; // what to order it by
+function heat_set_insert_material(type) = type[12];
+function heat_set_insert_pack(type) = type[13]; // how many arrive in the smallest buy
