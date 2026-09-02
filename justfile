@@ -45,7 +45,7 @@ default:
     @just --list
 
 # Everything CI runs.
-check: check-scad check-vessels check-json check-bom check-parts
+check: check-scad check-vessels check-designations check-json check-bom check-parts
 
 # Evaluate every SCAD file and report anything that does not build.
 check-scad:
@@ -259,6 +259,59 @@ analysis-run name:
 # Rebuild one method, e.g. `just analysis-method light-irradiance`.
 analysis-method name:
     {{PY}} analysis/methods/{{name}}/pipeline.py --verify
+
+# Fail when a designation stops reaching the model.
+check-designations:
+    #!/usr/bin/env bash
+    # A designation is a string a build states and a registry answers to - the vessel, the shaft,
+    # the plug o-ring, the light, the two probes. Nothing else in the suite exercises one:
+    # check-vessels sweeps jars, check-scad renders defaults, and a lookup that quietly returned
+    # undef for every name would pass both. That is not hypothetical - nine by_name wrappers shipped
+    # once with no `use <../utils/registries.scad>`, every one answering undef, and the round-trip
+    # test meant to catch it passed because it included a file whose own `use` leaked the function in.
+    #
+    # Two kinds of row, because two things can break:
+    #   differs - the value must change the geometry. Proves the designation reaches the model
+    #             rather than resolving and being dropped on the floor.
+    #   builds  - it must resolve and render. Some designations legitimately cannot move geometry:
+    #             every registered AS568 ring shares a 2.62 cord and the groove is cut from the
+    #             cord, so pinning a different one changes the stretch and not the shape.
+    # Both kinds also get a name nothing answers to, which must FAIL - that is what proves the
+    # lookup reads its argument instead of always handing back a row.
+    set -uo pipefail
+    tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
+    matrix=(
+        "shaft_name|8x600_316|differs"
+        "strip_light_name|grow 16in|differs"
+        "do_probe_name|DO lab g1|differs"
+        "ph_probe_name|pH lab g1|differs"
+        "plug_oring_name|AS568-160|builds"
+    )
+    {{OPENSCAD}} -o "$tmp/base.csg" scad/assembly.scad 2>"$tmp/be" >/dev/null
+    if grep -q '^ERROR' "$tmp/be"; then echo "FAIL  assembly.scad does not build at its defaults"; exit 1; fi
+    failed=0
+    for row in "${matrix[@]}"; do
+        param="${row%%|*}"; rest="${row#*|}"; value="${rest%|*}"; want="${rest##*|}"
+        {{OPENSCAD}} -D "$param=\"$value\"" -o "$tmp/d.csg" scad/assembly.scad 2>"$tmp/e" >/dev/null
+        if grep -q '^ERROR' "$tmp/e"; then
+            echo "FAIL  $param=\"$value\" does not build"
+            grep -m1 '^ERROR' "$tmp/e" | sed 's/.*failed: //; s/ in file.*//' | sed 's/^/        /'
+            failed=1
+        elif [ "$want" = differs ] && cmp -s "$tmp/base.csg" "$tmp/d.csg"; then
+            echo "FAIL  $param=\"$value\" resolved but changed nothing - it is not reaching the model"
+            failed=1
+        else
+            printf 'ok    %-18s %-12s %s\n' "$param" "$value" "$want"
+        fi
+        # the same parameter with a name nothing answers to has to fail, loudly
+        {{OPENSCAD}} -D "$param=\"no_such_row\"" -o "$tmp/x.csg" scad/assembly.scad 2>"$tmp/xe" >/dev/null
+        if ! grep -q '^ERROR' "$tmp/xe"; then
+            echo "FAIL  $param accepted a name nothing is registered under"
+            failed=1
+        fi
+    done
+    [ $failed -eq 0 ] && echo "ok    every designation reaches the model, and a bad name is refused"
+    exit $failed
 
 # Fail when a part the model PRESCRIBES is not on the purchase list.
 #
