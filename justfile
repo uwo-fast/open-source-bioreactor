@@ -345,8 +345,13 @@ json:
     if [ -z "$names" ]; then echo "FAIL  could not read the vessel registry"; exit 1; fi
     failed=0
     for f in scad/assembly.scad scad/head.scad; do
-        # the dropdown is a comment, so it cannot derive - check it instead
-        listed=$(grep -m1 '^reactor_vessel_name' "$f" | sed 's/.*\[\(.*\)\].*/\1/' | tr -d ' ' | tr ',' '\n')
+        # the dropdown is a comment, so it cannot derive - check it instead.
+        #
+        # Split on the commas FIRST and trim each field, rather than deleting every space in the
+        # list. `tr -d ' '` worked only because vessel names happen to be identifier-shaped; the
+        # moment a registry with spaced names is compared this way - "pH lab g2", "EPDM 1/16 60A" -
+        # the listed name loses its spaces, the registry's does not, and the two never match.
+        listed=$(grep -m1 '^reactor_vessel_name' "$f" | sed 's/.*\[\(.*\)\].*/\1/' | tr ',' '\n' | sed 's/^ *//; s/ *$//')
         if [ "$(echo "$names" | sort)" != "$(echo "$listed" | sort)" ]; then
             echo "FAIL  $f dropdown does not match the registry"
             diff <(echo "$names" | sort) <(echo "$listed" | sort) | sed 's/^/        /'
