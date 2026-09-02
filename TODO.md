@@ -50,29 +50,20 @@ ledger at the end: decisions that took real work to reach and would otherwise be
     CO₂ inventory problem, where the enrichment fraction is a bigger lever on productivity than the
     entire sparger study was
 
-- [ ] **four of six registered vessels do not render from `assembly.scad`**, in two different ways
-  - **`check-vessels` has been measuring a configuration nobody builds.** It sweeps `head.scad`
-    with `culture_working_volume=undef` and both probe leans flat, which is why the count read two.
-    Rendering `assembly.scad` as it ships, four fail. Extending the sweep to `assembly.scad`, or to
-    both configurations, is the fix - see the tooling section
-  - **two are blocked only by a per-build scalar, and are otherwise fine.** `jar_1gal_180x197` on
-    `do_probe_port_tilt_degrees = 4.5`, which its shorter body cannot take - it builds at 2.5, a
-    ceiling `head.scad` already named in a comment and had no way to apply. `jar_6p5gal_305x470` on
-    `culture_working_volume = 8.25`, which is this build's statement about a 10 L jar and leaves the
-    thermocouple in the headspace of a 24 L one. **Both are now derived rather than pinned**
-  - **two cannot carry a top-entry drive on their lids at all.** `jar_1p5L_109x215`'s port flanges
-    leave 27.1 mm against a 56 mm mount; dropping the mount to 47.5 - the smallest registered motor
-    plus two walls - still leaves it 8.2 mm short, and D/T does not move it. `jar_1gal_155x251`
-    needs D/T under about 0.37 AND a mount under 39.4 mm, and at 39.4 the mount's inserts overlap
-    the bearing pocket by 1.15 mm instead. Shrinking the mount only moves the failure
-  - **`jar_1gal_155x251`'s probe conflict is the pH probe, not the DO probe.** Recorded here as a
+- [ ] **two of the five swept vessels do not render from `assembly.scad`**, and both for the drive
+  - `jar_1p5L_109x215`'s port flanges leave 27.1 mm against a 56 mm motor mount; dropping the mount
+    to 47.5 - the smallest registered motor plus two walls - still leaves it 8.2 mm short, and D/T
+    does not move it. `jar_1gal_155x251` needs D/T under about 0.37 AND a mount under 39.4 mm, and
+    at 39.4 the mount's inserts overlap the bearing pocket by 1.15 mm instead. Shrinking the mount
+    only moves the failure
+  - **`jar_1gal_155x251`'s probe conflict is the pH probe, not the DO probe.** It was recorded as a
     vertical DO probe through the upper impeller, which is what a flat sweep shows; lean the DO
     probe out and it clears, and the pH probe - vertical by Yokogawa's requirement, and the long one
-    - runs 6.29 mm through the LOWER impeller. No DO lean reaches that. (Superseded - kept for the
+    - runs 6.29 mm through the LOWER impeller. No DO lean reaches that. (Superseded — kept for the
     record. The old reading blamed the DO probe because the only sweep that existed held both leans
     flat, which is the DO probe's worst case and the pH probe's best.)
-  - the answer to the last two is the narrow-jar agitation question, tracked under "drive and
-    aeration". Nothing else in the model is waiting on it
+  - the answer to both is the narrow-jar agitation question, tracked under "drive and aeration".
+    Nothing else in the model is waiting on it
 
 - [ ] **choose an outlet filter that fits in 1.91 kPa/L/min, because the obvious one does not**
   - the exhaust is unguarded: the headspace vents through a support tube's bore into the room while
@@ -315,20 +306,28 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
   - it should read the registered gearbox once the motor is designatable, which is where the
     campaign sequence puts it
 
-- [ ] **the architecture campaign: layering settled, twelve steps, decisions D1-D8 closed**
-  - the rules are written down now - `docs/design-conventions.md`, "Three layers, and where a
-    parameter lives" and "What the customizer can and cannot carry" - and `assembly.scad`'s header
-    states the contract. What is left is executing against them
-  - **remaining sequence**, each independently shippable and green: registry substrate
-    (`row_by_name`, the missing `*_by_name`/`*_name` accessors, part numbers, the set_screws-shape
-    rewrap of heat_set_inserts and shaft_couplings) -> harden `head_build` (unknown-key and
-    unknown-name asserts, name resolution, `"auto"` mapped after the pair match) -> amend the five
-    `[Build]` rows to name-strings -> gasket sheet onto its registry and designatable -> motor
-    designation -> joint completeness (`frame_upper_base_height()` into the ASME thickness, one
-    expression for the rod pattern phase) -> frame vessel selector and `frame.json` -> gas-train
-    registry for the Cole-Parmer rows -> port-set designation -> probe designation -> tooling
-    lockdown (jq-validate `-P` names, literal-default keys only, a designation matrix in the sweep)
-  - **do not hoist the remaining BUILD rows mechanically.** 0304a3a's arithmetic: five moved
+- [ ] **the architecture campaign: what is left, and what was refused**
+  - the rules are in `docs/design-conventions.md` - "Three layers, and where a parameter lives" and
+    "What the customizer can and cannot carry" - and `assembly.scad`'s header states the contract.
+    The registry substrate is built: `registry_by_name`, name accessors, part numbers, and a
+    by-name lookup on all nine designatable registries. **Six parts are designated end to end** -
+    vessel, shaft, plug o-ring, strip light, DO probe, pH probe - reaching the geometry and the
+    exported STL
+  - **what is left:** a designation matrix in `check-vessels`, so a designation regression is caught
+    the way a vessel one is; the gas-train registry for the Cole-Parmer filter and check valve rows;
+    the motor and gasket-sheet designations; joint completeness (`frame_upper_base_height()` into
+    the ASME thickness, one expression for the rod pattern phase); and a vessel selector plus
+    `frame.json` for `frame.scad`, whose jar is still the private `_preview_vessel` that
+    `check-vessels` reaches through
+  - **REFUSED, do not re-open without new evidence.** Rewrapping `heat_set_inserts` or
+    `shaft_couplings` into the `set_screws` shape: the template wraps because the LIBRARY owns the
+    geometry and the row adds purchase identity, and these are the opposite - the project registers
+    the part in NopSCADlib's own schema, so a wrap costs ~9 call-site edits to buy uniformity.
+    Threading the port table through its ~53 call sites: the hazard is unreachable while
+    `head_interface_for` gives every probe port `bayonet_std` whatever it carries, and a guard
+    against it would be a dead assert. **The trigger that reopens it** is a designation that can
+    move a port's INTERFACE - a thermocouple thread swap - or one that changes the table's count
+  - **do not hoist the remaining BUILD rows mechanically.** `0304a3a`'s arithmetic: five moved
     declarations bought one carryable number. Relocation without the name-lookup layer multiplies
     duplicated defaults and carries nothing
   - **do not build `motor_for` / `air_pump_for` / `coupler_for` yet.** Those registries hold 4, 1
@@ -366,44 +365,21 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     losing file stop asserting one. Measure before choosing - the isolation render attempted during
     the campaign did not produce a usable comparison
 
-- [ ] **hoisting the build choices: 22 named, 5 threaded, and two representations to settle first**
-  - the channel exists now. `head()` takes a `build` list of `[name, value]` pairs, `head_build()`
-    resolves it against `head.scad`'s own parameters, and `assembly.scad` has a `[Build]` section.
-    `culture_fill_fraction` is carried end to end by a parameter set, which nothing but
-    `reactor_vessel_name` could do before. The split was settled at **22 build choices** - nine
-    purchased selections, eight process numbers, five layout - against 78 design constants that stay
-  - **SETTLED (D1-D8, campaign):** designations default to the string `"auto"`, never `undef` and
-    never a numeric sentinel - a string is carryable, visible, and never reaches arithmetic. Rows
-    are named and resolved by `*_by_name()`. Only rows an operator picks per reactor are
-    designatable; the bearing, inserts, screws, riser tube and clamp stay the design's BOM. The
-    `undef` blocker below is therefore closed for designations, and stands only as the reason
-    `undef` cannot be the surface form
-  - **an `undef` default cannot be a customizer parameter, and that is the blocker.** `-P` assigns
-    only what the customizer registered, and it registers only what it can infer a TYPE for, so a
-    parameter defaulting to `undef` is invisible to a parameter set. Proved by giving one a numeric
-    default, at which point the same set applied. That hits `culture_working_volume`, `head_shaft`,
-    `lid_plug_oring`, `do_probe_port_tilt_degrees` and `head_ports` - all five already threaded, none
-    yet carryable, all still reachable with `-D`
-  - **and the obvious fix is the one this repo argues against.** A sentinel default - 0 litres, -1
-    degrees - is exactly the plausible number `docs/design-conventions.md` says not to register,
-    because `undef` propagates and gets noticed where a plausible number does not. A separate mode
-    parameter (`..._mode = "derived" | "pinned"`) keeps `undef` out of the surface but spends two
-    parameters on one quantity. Neither is obviously right and nothing should be hoisted into the
-    same shape until it is
-  - **a registry row cannot be carried either, for the reason the vessel already showed:** a .json
-    holds values, not references, so `reactor_vessel_name` is a string and `vessel_by_name()` does
-    the lookup. The seven purchased selections - gasket sheet, bearing, motor, coupler, impeller
-    type, air pump, dosing pump - each want that same pair, and only `vessels` has one today
-  - so what is actually carryable without new machinery is the seven plain numbers: `D/T`, the
-    clearance and spacing factors, the fill fraction, the design vvm, the encoder window and the pH
-    lean. That is the honest next commit
-  - `frame.scad` has no vessel selector at all: `_preview_vessel` sits after `module dummy()`, so it
-    is outside the customizer block and private. That is why there is no `frame.json`, and why
-    `check-vessels` reaches its jar through `_preview_vessel`. `just json` also hardcodes its file
-    loop to two names
-  - the port set is still the model for all of it: `head_ports = undef` derives the widest set that
-    fits the mouth and picks the six-port reduced table for exactly the three narrow jars. What is
-    missing is only a way to PIN one from outside
+- [ ] **the two parameters a build still cannot carry**
+  - `culture_working_volume` and `do_probe_port_tilt_degrees` default to `undef`, and the customizer
+    registers a parameter only if it can infer a TYPE - so no parameter set can assign either.
+    Proved by giving one a numeric default, at which point the same set applied. Both derive
+    correctly and both are reachable with `-D`, so neither blocks anything today
+  - the designation answer does not apply: these are NUMBERS, not names, so there is no registry to
+    look one up in. A sentinel default - 0 litres, -1 degrees - is exactly the plausible number
+    `docs/design-conventions.md` says not to register, and -1 degrees is a value someone could be
+    studying rather than a flag. A companion mode parameter keeps `undef` out of the surface and
+    spends two parameters on one quantity
+  - **the tilt may not want to be an input at all.** It is already solved against the jar's own
+    internals, capped by `do_probe_port_tilt_max`, and the derivation was proved to land on the
+    2.5 degrees a comment had named for `jar_1gal_180x197`. Pinning it can only ask for an angle
+    the search would have found anyway, or one the fit asserts then refuse. If that is right, the
+    honest fix is to delete the pin and leave the ceiling, which retires half this item
 
 - [ ] **the gasket recess holds three quarters of the rubber that has to fit in it**
   - what is left of the assembly-torque item, which `docs/build.md` and the `joint tightening` echo
@@ -426,37 +402,18 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     would come out of. Not chased here: it changes the lid, and the rim profile it is all measured
     against is itself uncalipered - see the caliper item above
 
-- [ ] **export the frame's parts too, and let a parameter set vary more than the jar**
-  - `just export-parts` writes every part `head.scad` carries as its own STL - 19 parts, 25 pieces
-    on `jar_10L` - with a print list beside them, and CGAL-renders each one on the way past.
-    `head_print_parts()` is the manifest, it varies with the vessel because the port table does,
-    and `check-parts` fails if a render flag reaches no row of it
-  - **that closed the hole in `check-mesh`**, which renders per FILE: `custom/impeller.scad`'s own
-    example passes no `blade_pitch`, so the sweep took the TWISTED path and the pitched blade that
-    was tangent to its hub was reachable only through `head.scad`, on the slow list. Every part is
-    rendered individually now, that one included
-  - **the frame is covered now.** `frame_print_parts()` carries its base, top base, 8 ribs and 12
-    rod spacers, and the export walks both manifests through `assembly.scad` - which is where the
-    flange height and the rod count are chosen, so neither half is read from a preview's copy. 47
-    pieces across 23 parts. `check-parts` guards both files
-  - **four printed parts are on no print list at all**: the cart, the electronics stand, the bottle
-    holder and the peri pump mount each render from a file of their own, and the two manifests live
-    in `head.scad` and `frame.scad`. `check-parts` now accounts for every entry file - each is
-    either walked by the export or declared here with a reason, and it fails both ways - so the
-    omission is recorded rather than silent. What it is not yet is fixed: each of those wants a
-    manifest of its own before it can reach a print list
-  - what is left is **which jar**. `frame.scad` has no parameter set: it builds the vessel named in
-    its own preview, so the export hands `-p/-P` to `head.scad` only and a frame is always
-    `jar_10L`. Naming another vessel already fails on the head before it gets that far, so this is
-    latent rather than live - but it is the kind of thing that looks like it worked
-  - **only the selected vessel exports.** The probe tilt and the working volume are pinned to
-    `jar_10L`, so naming another jar fails on a real assert rather than on a missing feature -
-    `jar_1gal_180x197`'s DO probe reaches the sparge ring at 4.5 degrees. `check-vessels` sweeps at
-    values that scale and an export cannot, because it has to produce the build as configured
-  - the sets still vary only the JAR. `reactor_vessel_name` is name-selectable; the other fourteen
-    registry choices - motor, gearbox, impeller, bayonet, gasket sheet, bearing, fasteners - are
-    still variable references, which a parameter file cannot carry. Not needed for a per-vessel
-    export and not worth doing until something wants to vary them
+- [ ] **four printed parts are on no print list**
+  - the cart, the electronics stand, the bottle holder and the peri pump mount each render from a
+    file of their own, and the two manifests live in `head.scad` and `frame.scad`. `check-parts`
+    accounts for every entry file - each is either walked by the export or declared with a reason,
+    and it fails both ways - so the omission is recorded rather than silent. What it is not is
+    fixed: each wants a manifest of its own before it can reach a print list
+  - everything else in this item is done. `just export-parts` writes all 23 parts across both
+    halves as their own STLs, 47 pieces on `jar_10L`, CGAL-rendered on the way past and with a
+    print list beside them. Every part now renders **through `assembly.scad`**, which is what
+    carries a build's designations - exporting from `head.scad` wrote the DEFAULT part under a
+    build that had asked for another one, and that also closed the frame's vessel gap, since the
+    frame used to build the jar named in its own preview whatever was selected
 
 - [ ] adopt the Just the Docs OpenSCAD setup for this project, including its web-based OpenSCAD preview
 
