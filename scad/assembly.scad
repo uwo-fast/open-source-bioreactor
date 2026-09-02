@@ -110,6 +110,12 @@ render_vessel = true;
 render_head = false;
 render_frame = false;
 render_all = true;
+// Parts are exported through THIS file rather than from head.scad, because this is the file that
+// carries a build's designations - head.scad renders standalone with no build and would export the
+// default part. A part wants to come out where head.scad would have put it rather than at its
+// assembled height, so the export path turns the placement off. It moves the part; it does not
+// change its shape. See `just export-parts`.
+export_at_origin = false;
 
 /* [Rendering Parameters] */
 
@@ -448,7 +454,7 @@ if (render_frame || render_all) {
 
 if (render_head || render_all) {
   cross_section(_section_active)
-  translate([0, 0, vessel_height(reactor_vessel) + lid_flange_height])
+  translate(export_at_origin ? [0, 0, 0] : [0, 0, vessel_height(reactor_vessel) + lid_flange_height])
     head(
       lid_flange_height=lid_flange_height,
       vessel_outer_diameter=vessel_diameter(reactor_vessel),

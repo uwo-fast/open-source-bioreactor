@@ -542,7 +542,7 @@ export-parts vessel="" out="output":
 
     sel=()
     label="{{vessel}}"
-    if [ -n "{{vessel}}" ]; then sel=(-p scad/head.json -P "{{vessel}}"); fi
+    if [ -n "{{vessel}}" ]; then sel=(-p scad/assembly.json -P "{{vessel}}"); fi
 
     # Ask the model what it prints. Through ASSEMBLY, because that is the file that owns both
     # halves - the flange height and the rod count are chosen there and the head and the frame both
@@ -576,23 +576,15 @@ export-parts vessel="" out="output":
     # -P naming a set that does not exist and silently falls back to the file's own defaults. Left
     # unchecked that writes a directory labelled with one jar and full of another one's parts.
     got=$(grep -m1 '^ECHO: "VESSEL|' "$tmp/err" | sed 's/.*VESSEL|//; s/"$//')
-    # A DESIGNATED PART WOULD NOT BE EXPORTED. Every row below renders from scad/head.scad or
-    # scad/frame.scad directly, and neither has a designation surface: head.scad's own tail calls
-    # head() with no build argument, so it falls back to its own globals. The manifest is read from
-    # assembly.scad and knows what was designated; the renders do not. Exporting anyway would write
-    # an STL of the DEFAULT part under a build that asked for a different one - the model and the
-    # printed thing disagreeing silently, which is the failure this repo exists to prevent.
-    #
-    # So it refuses rather than exporting the wrong part. The fix is to render the parts through
-    # assembly.scad, which does carry the designations; until then this is the loud edge.
+    # WHAT THIS BUILD DESIGNATED, reported rather than assumed. These parts now render through
+    # assembly.scad so a designation does reach them, and the print list should say which one it
+    # carries - an STL of a g1 collet and one of a g2 collet look identical in a directory listing.
     pinned=$(grep '^ECHO: "DESIG|' "$tmp/err" | sed 's/.*DESIG|//; s/"$//' | grep -v '|auto$' || true)
     if [ -n "$pinned" ]; then
-        echo "FAIL  this build designates a part, and the per-part renders cannot see it"
-        echo "$pinned" | sed 's/|/ = /' | sed 's/^/        /'
-        echo "        scad/head.scad renders standalone with no build, so it would export the default part."
-        echo "        Set these back to \"auto\" to export, or see TODO.md - exports want routing through assembly.scad."
-        exit 1
+        echo "note  this build designates:"
+        echo "$pinned" | sed 's/|/ = /' | sed 's/^/          /'
     fi
+
     if [ -n "$label" ] && [ "$label" != "$got" ]; then
         echo "FAIL  no parameter set is named $label - the model resolved $got instead"
         echo "        the sets come from the vessel registry; run just json after adding a jar"
@@ -615,13 +607,29 @@ export-parts vessel="" out="output":
         parts=$((parts + 1))
         pieces=$((pieces + qty))
         out="$dir/$name.stl"
-        # The vessel selection only reaches head.scad: frame.scad has no parameter set and builds
-        # the jar named in its own preview, so handing it -P would look like it worked and quietly
-        # produce another jar's frame. Naming a vessel already fails on the head before it gets
-        # here, so this is a latent gap rather than a live one - it is in TODO.md.
-        fsel=(); [ "$file" = "scad/head.scad" ] && fsel=("${sel[@]}")
+        # EVERY PART RENDERS THROUGH assembly.scad, whichever half it belongs to. That file is the
+        # one that carries a build's designations - the probes, the shaft, the o-ring, the light -
+        # and head.scad's own tail calls head() with no build, so exporting from it wrote the
+        # DEFAULT part under a build that had asked for another one. Measured before this changed:
+        # the do_probe port rendered from head.scad was byte-identical with and without
+        # -D do_probe_name="DO lab g1", while the same designation moved 134 CSG tokens through
+        # assembly.
+        #
+        # It also closes the frame's vessel gap in passing. frame.scad has no parameter set and
+        # built the jar named in its own preview, so a named vessel silently produced another jar's
+        # frame; through assembly the frame gets the selected vessel like everything else.
+        #
+        # The manifest's file column now says which HALF a row belongs to rather than which file
+        # renders it, because that is what decides the render flags.
+        case "$file" in
+            scad/head.scad)  half=(-D render_vessel=false -D render_frame=false -D render_head=true -D export_at_origin=true) ;;
+            scad/frame.scad) half=(-D render_vessel=false -D render_head=false -D render_frame=true) ;;
+            *) echo "FAIL  $name: no render flags known for $file"; failed=1; continue ;;
+        esac
         # render_all overrides every other flag, so it has to go off before the row's own go on.
-        {{OPENSCAD}} ${fsel[@]+"${fsel[@]}"} -D render_all=false $flags -o "$out" "$file" 2>"$tmp/e" >/dev/null
+        # export_at_origin puts a head part where head.scad would have put it instead of at its
+        # assembled height; it moves the part and does not change its shape.
+        {{OPENSCAD}} ${sel[@]+"${sel[@]}"} -D render_all=false "${half[@]}" $flags -o "$out" scad/assembly.scad 2>"$tmp/e" >/dev/null
         size=$(stat -c%s "$out" 2>/dev/null || echo 0)
         tris=$(grep -c '^ *facet' "$out" 2>/dev/null || echo 0)
         # The bounding box, because "will this fit my printer" is the question the baffle is split
