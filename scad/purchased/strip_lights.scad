@@ -46,9 +46,9 @@ strip_lights = [rwntao_13in, grow_13in, grow_16in, grow_8p6in];
 // from its own file, and `strip_lights` is only in scope in this one.
 function strip_light_for(liquid_height) =
   let (
-    _covering = [for (l = strip_lights) if (l[1][2] >= liquid_height) l[1][2]],
-    _target = len(_covering) > 0 ? min(_covering) : max([for (l = strip_lights) l[1][2]]),
-    _match = [for (l = strip_lights) if (l[1][2] == _target) l]
+    _covering = [for (l = strip_lights) if (strip_light_length(l) >= liquid_height) strip_light_length(l)],
+    _target = len(_covering) > 0 ? min(_covering) : max([for (l = strip_lights) strip_light_length(l)]),
+    _match = [for (l = strip_lights) if (strip_light_length(l) == _target) l]
   ) _match[0];
 
 use <strip_light.scad>
