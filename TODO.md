@@ -365,21 +365,18 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     losing file stop asserting one. Measure before choosing - the isolation render attempted during
     the campaign did not produce a usable comparison
 
-- [ ] **the two parameters a build still cannot carry**
-  - `culture_working_volume` and `do_probe_port_tilt_degrees` default to `undef`, and the customizer
-    registers a parameter only if it can infer a TYPE - so no parameter set can assign either.
-    Proved by giving one a numeric default, at which point the same set applied. Both derive
-    correctly and both are reachable with `-D`, so neither blocks anything today
-  - the designation answer does not apply: these are NUMBERS, not names, so there is no registry to
-    look one up in. A sentinel default - 0 litres, -1 degrees - is exactly the plausible number
-    `docs/design-conventions.md` says not to register, and -1 degrees is a value someone could be
-    studying rather than a flag. A companion mode parameter keeps `undef` out of the surface and
-    spends two parameters on one quantity
-  - **the tilt may not want to be an input at all.** It is already solved against the jar's own
-    internals, capped by `do_probe_port_tilt_max`, and the derivation was proved to land on the
-    2.5 degrees a comment had named for `jar_1gal_180x197`. Pinning it can only ask for an angle
-    the search would have found anyway, or one the fit asserts then refuse. If that is right, the
-    honest fix is to delete the pin and leave the ceiling, which retires half this item
+- [ ] **`culture_working_volume` is the one parameter a build still cannot carry**
+  - it defaults to `undef`, and the customizer registers a parameter only if it can infer a TYPE, so
+    no parameter set can assign it. It derives correctly and is reachable with `-D`, so nothing is
+    blocked - but a run that wants to state litres cannot say so in a .json
+  - the designation answer does not apply: this is a NUMBER, not a name, so there is no registry to
+    look one up in. A sentinel default - 0 litres - is exactly the plausible number
+    `docs/design-conventions.md` says not to register. A companion mode parameter keeps `undef` out
+    of the surface and spends two parameters on one quantity. Neither is obviously right
+  - the probe lean, which used to be the other half of this, is settled: the pin is gone and the
+    CEILING is what a build states. For any angle a jar allows, pinning it and lowering the ceiling
+    to it are byte-identical, because the search returns `want` whenever `want` fits - so the pin
+    only ever forced an angle the jar refuses. The ceiling is a plain number and now carries
 
 - [ ] **the gasket recess holds three quarters of the rubber that has to fit in it**
   - what is left of the assembly-torque item, which `docs/build.md` and the `joint tightening` echo
