@@ -12,6 +12,7 @@
 
 $fn = $preview ? 48 : 96;
 
+function castor_name(type) = type[0]; // the row's identity, and the key a build designates it by
 function castor_plate_size(type) = [type[1][0], type[1][1]]; // mounting plate [x, y]
 function castor_bolt_spacing(type) = [type[1][2], type[1][3]]; // bolt hole spacing [x, y]
 function castor_bolt_diameter(type) = type[1][4]; // mounting bolt hole diameter

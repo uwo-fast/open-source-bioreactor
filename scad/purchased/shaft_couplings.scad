@@ -18,6 +18,15 @@ shaft_coupler_8x8_rigid  = ["SC_8x8_rigid", 25,     14,      8,      8,      fal
 
 shaft_couplings = [shaft_coupler_8x8_rigid];
 
+// [0] is the one index NopSCADlib's sc_* accessors leave alone - they read [1] upward - so the
+// name lives here rather than in a singular file this registry does not have.
+function shaft_coupling_name(type) = type[0];
+
+// No part number: uxcell publish none for this coupling, so the row above is the listing's own
+// dimensions instead. undef rather than "" or "n/a" - an empty string is silently skipped by
+// check-bom and "n/a" is a plausible string that would grep-match the buy list.
+function shaft_coupling_part_number(type) = undef;
+
 use <NopSCADlib/vitamins/shaft_coupling.scad>;
 
 // example usage - keep commented, this file is include'd and would emit a coupling into every

@@ -14,6 +14,7 @@ $fn = $preview ? 64 : 128;
 
 include <../utils/npt_threads.scad>
 
+function thermocouple_probe_name(type) = type[0]; // the row's identity, and the key a build designates it by
 function thermocouple_probe_part_number(type) = type[1]; // what to order it by
 function thermocouple_probe_thread(type) = type[2]; // registered NPT thread it screws in on
 function thermocouple_probe_neck_dia(type) = type[3][0]; // diameter of the neck

@@ -26,3 +26,8 @@
 insert_m4x4p7_ss = ["M4x4.7 18-8", 4.7,  6.3,     5.6,    4,     5.15,     1.0,     6.0,     5.55];
 
 heat_set_inserts = [insert_m4x4p7_ss];
+
+// The row is NopSCADlib's own insert schema - insert(), insert_hole_radius() and
+// insert_hole_length() read [1] upward - so there is no singular accessor file to put this in and
+// [0] is the one index the library leaves alone. See utils/registries.scad.
+function heat_set_insert_name(type) = type[0];

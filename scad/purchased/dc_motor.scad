@@ -11,6 +11,7 @@ use <gearbox.scad>
 light_grey = [0.6, 0.6, 0.6];
 medium_grey = [0.5, 0.5, 0.5];
 
+function dc_motor_name(type) = type[0]; // the row's identity, and the key a build designates it by
 function dc_motor_diameter(type) = type[1][0]; // diameter of the motor
 function dc_motor_length(type) = type[1][1]; // length of the motor
 function dc_motor_shaft(type) = type[2]; // [shaft_d, shaft_l] of the bare shaft, optional

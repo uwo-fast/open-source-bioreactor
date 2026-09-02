@@ -13,6 +13,7 @@ medium_grey = [0.5, 0.5, 0.5];
 grey = [0.4, 0.4, 0.4];
 dark_grey = [0.3, 0.3, 0.3];
 
+function gearbox_name(type) = type[0]; // the row's identity, and the key a build designates it by
 function gearbox_diameter(type) = type[1][0]; // diameter of the gearbox body
 function gearbox_length(type) = type[1][1]; // length of the gearbox body
 function gearbox_output_shaft_dia(type) = type[2][0]; // diameter of the output shaft

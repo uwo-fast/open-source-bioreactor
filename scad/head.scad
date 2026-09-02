@@ -2080,7 +2080,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   ];
 
   if (len(_drive_speeds) == 0)
-    echo(str("drive: ", head_motor[0], " registers no output speed, so no Re or dissipation follows"));
+    echo(str("drive: ", dc_motor_name(head_motor), " registers no output speed, so no Re or dissipation follows"));
 
   for (s = _drive_speeds)
     let (_rpm = s[1], _power = stirred_tank_power(impeller_diameter, _rpm, _impeller_po))
@@ -2223,7 +2223,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _encoder_counts = dc_motor_encoder_counts_per_output_rev(head_motor);
 
   if (is_undef(_encoder))
-    echo(str("drive: ", head_motor[0], " carries no encoder, so shaft speed is commanded, not measured"));
+    echo(str("drive: ", dc_motor_name(head_motor), " carries no encoder, so shaft speed is commanded, not measured"));
   else
     echo(str(
       "drive encoder: ", _encoder[0], " ppr x ", _encoder[1], " channels through ",
@@ -2314,7 +2314,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     sc_diameter1(shaft_coupler) == gearbox_output_shaft_dia(head_gearbox) &&
     sc_diameter2(shaft_coupler) == shaft_diameter(_shaft),
     str(
-      "The ", shaft_coupler[0], " coupling bores ", sc_diameter1(shaft_coupler), " and ",
+      "The ", shaft_coupling_name(shaft_coupler), " coupling bores ", sc_diameter1(shaft_coupler), " and ",
       sc_diameter2(shaft_coupler), " mm, for a ", gearbox_output_shaft_dia(head_gearbox),
       " mm gearbox shaft and a ", shaft_diameter(_shaft), " mm impeller shaft."
     )
@@ -2380,7 +2380,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   assert(
     _insert_floor >= lid_blind_pocket_floor_min,
     str(
-      "A ", motor_mount_base_insert[0], " insert leaves ", _insert_floor, " mm of lid before the culture; ",
+      "A ", heat_set_insert_name(motor_mount_base_insert), " insert leaves ", _insert_floor, " mm of lid before the culture; ",
       lid_blind_pocket_floor_min, " mm is the least this lid keeps."
     )
   );
@@ -2414,7 +2414,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   );
 
   echo(str(
-    "motor mount: 4 x ", motor_mount_base_insert[0], " inserts on a ", head_motor_mount_screw_radius() * 2,
+    "motor mount: 4 x ", heat_set_insert_name(motor_mount_base_insert), " inserts on a ", head_motor_mount_screw_radius() * 2,
     " mm circle, ", screw_length(motor_mount_base_screw, motor_mount_base_screw_grip(motor_mount_wall_thickness), 0, insert=motor_mount_base_insert),
     " mm M", insert_screw_diameter(motor_mount_base_insert), " screws, ", _insert_floor, " mm of lid left under them, ",
     _insert_to_bearing, " mm to the bearing pocket"

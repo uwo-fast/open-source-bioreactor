@@ -10,6 +10,7 @@
 
 $fn = $preview ? 64 : 128;
 
+function strip_light_name(type) = type[0]; // the row's identity, and the key a build designates it by
 function strip_light_width(type) = type[1][0]; // width of the strip light
 function strip_light_depth(type) = type[1][1]; // depth of the strip light
 function strip_light_length(type) = type[1][2]; // length of the strip light
