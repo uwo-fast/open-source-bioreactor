@@ -216,6 +216,15 @@ shaft_name = "auto"; // [auto, 8x200_316, 8x400_316, 8x600_316, 8x800_316]
 // The ring centring the lid plug, by registered name. "auto" takes any ring whose free ID lands
 // this jar's groove between zero and five percent stretch. Names are in scad/purchased/orings.scad.
 plug_oring_name = "auto";
+// The probes in the DO and pH ports, by registered name. "auto" takes whatever the port table
+// carries. Names are in scad/purchased/atlas_probes.scad - and the generations are not
+// interchangeable in a printed collet, so a lid answers to the one it was cut for.
+//
+// Any registered Atlas row is accepted, including an EC or ORP probe. Nothing refuses it: the fit
+// checks run on whatever is named, which is the point of a research instrument - but the DO-specific
+// reports below assume a galvanic DO probe and will not say so if one is not there.
+do_probe_name = "auto";
+ph_probe_name = "auto";
 // degrees the DO probe leans out; undef takes the most this jar allows. NOT carryable
 do_probe_port_tilt_degrees = undef;
 
@@ -235,6 +244,18 @@ assert(
   str("No registered o-ring is named \"", plug_oring_name, "\", or it is registered twice. See scad/purchased/orings.scad.")
 );
 
+_build_do_probe = do_probe_name == "auto" ? undef : atlas_probe_by_name(do_probe_name);
+assert(
+  do_probe_name == "auto" || !is_undef(_build_do_probe),
+  str("No registered Atlas probe is named \"", do_probe_name, "\", or it is registered twice. See scad/purchased/atlas_probes.scad.")
+);
+
+_build_ph_probe = ph_probe_name == "auto" ? undef : atlas_probe_by_name(ph_probe_name);
+assert(
+  ph_probe_name == "auto" || !is_undef(_build_ph_probe),
+  str("No registered Atlas probe is named \"", ph_probe_name, "\", or it is registered twice. See scad/purchased/atlas_probes.scad.")
+);
+
 _build_light = strip_light_name == "auto" ? undef : strip_light_by_name(strip_light_name);
 assert(
   strip_light_name == "auto" || !is_undef(_build_light),
@@ -249,6 +270,8 @@ reactor_build = [
   ["head_shaft", _build_shaft],
   ["lid_plug_oring", _build_plug_oring],
   ["do_probe_port_tilt_degrees", do_probe_port_tilt_degrees],
+  ["do_probe", _build_do_probe],
+  ["ph_probe", _build_ph_probe],
 ];
 
 _reactor_light = is_undef(_build_light)

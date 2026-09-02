@@ -1651,9 +1651,31 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _build_shaft = head_build(build, "head_shaft", head_shaft);
   _build_plug_oring = head_build(build, "lid_plug_oring", lid_plug_oring);
   _build_do_tilt = head_build(build, "do_probe_port_tilt_degrees", do_probe_port_tilt_degrees);
+  _build_do_probe = head_build(build, "do_probe", undef);
+  _build_ph_probe = head_build(build, "ph_probe", undef);
 
   // The table this lid carries, resolved once. head_ports pins it; undef derives it from the mouth.
-  _ports = head_ports_for(vessel_opening_diameter);
+  //
+  // A DESIGNATED PROBE is spliced into the resolved table rather than threaded through the model,
+  // and that is safe for exactly one reason: head_interface_for() gives every "probe" port
+  // bayonet_std whatever it carries, so swapping the row cannot move the interface, the port
+  // circle, or anything derived from them. Everything that reads a probe reads it off this table.
+  //
+  // It would NOT be safe for a thermocouple. That port's interface is chosen from its NPT thread,
+  // which comes off the registered row - a 1/2 needs a std flange where a 1/8 fits a mini - and
+  // head_port_circle_radius() re-resolves the table for itself, so a designated thermocouple would
+  // be drawn against one table and checked against another. That wants the ports threaded through
+  // properly first; see TODO.md.
+  _designated = [
+    for (p = head_ports_for(vessel_opening_diameter))
+      let (
+        _swap = head_port_function(p) == "do_probe" ? _build_do_probe
+              : head_port_function(p) == "ph_probe" ? _build_ph_probe
+              : undef
+      )
+        is_undef(_swap) ? p : [p[0], p[1], p[2], _swap]
+  ];
+  _ports = _designated;
   _n = len(_ports);
 
   assert(
