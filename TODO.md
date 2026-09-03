@@ -251,10 +251,74 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
 - [ ] explore a magnetic drive: a DC fan under the jar turning a rotor inside it
   - a square DC fan below the vessel, a printed hub on its centre boss carrying two magnets facing up, and a magnet inside the vessel - either a stir bar or, better here, a magnet potted into a printed rotor. Nothing crosses the boundary, so it retires the shaft, the coupling, the bearing, the plug seal around the shaft AND the motor mount in one move. The lid becomes ports and a seal
   - it is the obvious answer at this scale - it is what a lab does - and it is the one mode that removes the constraint rather than working around it
-  - **the punt is what decides it, and no jar here has a flat centre.** The registry: `jar_1p5L` a 15 mm dimple 7 tall on a 4 mm base, `jar_1gal_155` a 73 mm dome 6 tall on 3 mm, `jar_10L` 30 mm and 5 on 5 mm, `jar_6p5gal` a 160 mm dome 15 tall on a 12 mm base. A conventional bar straddles all of them
+  - **the punt is what decides it, and no jar here has a flat centre.** The registry: `jar_1p5L` a 15 mm dimple 7 tall on a 4 mm base, `jar_1gal_155` a 73 mm dome 6 tall on 3 mm, `jar_10L` 30 mm and 5 on 5 mm, `jar_6p5gal` a 160 mm dome 15 tall on a 12 mm base, and - missed when this was written - `jar_1gal_180x197` a 100 mm dome 7 tall on 5 mm. A conventional bar straddles all of them
   - which is why the rotor is the interesting part rather than the magnets: a printed impeller with a central recess that sits OVER the punt and pivots on it, magnets in its rim. The punt stops being an obstacle and becomes the bearing
-  - the number that has to be run before any of it: coupling torque across the gap, which is base wall plus punt height plus clearance. That is about 11 mm on `jar_1p5L` and about 27 on `jar_6p5gal`, against the 5-10 mm a lab stir plate typically works through. **Magnetic is most viable exactly where it is most needed** - thin base, small punt - and probably not viable at all on the big jars
-  - also unsettled: a DC fan runs 1000-3000 rpm where this design wants 320-420, so it needs PWM and a way to know the actual speed. Fan torque is low, which is fine for a 1.5 L jar and likely not for anything larger
+  - **but the punt is a shallow CONE, not a dimple**, so that recess is a conical seat rather than a
+    spigot. `vessel_outer_profile()` runs a plateau out to `punt_width/2` and then straight down to
+    the base corner arc's tangent at `[D/2 - corner_radius_base, 0]`: 3.5 deg on `jar_10L`, 10 on
+    `jar_1p5L`, 12.5 on `jar_1gal_155`, 14.3 on `jar_1gal_180`, 33.8 on `jar_6p5gal`
+  - **THERE ARE TWO GAPS, and only the larger one was measured.** The punt is re-entrant - the outer
+    profile starts at `[0, punt_height]`, so the outside of the base at the axis sits that far ABOVE
+    the surface the jar stands on. A driver lying flat on that surface pays wall plus punt; a driver
+    whose hub goes UP INSIDE the punt pays the wall alone:
+
+    | vessel | flat driver | nested driver | usable radius nested |
+    | --- | --- | --- | --- |
+    | jar_1gal_155x251 | 9.0 | **3.0** | 36.5 |
+    | jar_1p5L_109x215 | 11.0 | **4.0** | 7.5 |
+    | jar_10L_220x305 | 10.0 | **5.0** | 15.0 |
+    | jar_1gal_180x197 | 12.0 | **5.0** | 50.0 |
+    | jar_6p5gal_305x470 | 27.0 | **12.0** | 80.0 |
+
+  - **and nesting inverts the ranking.** The punt's WIDTH becomes the asset, because it is both the
+    lever arm and the room for magnets - so `jar_1p5L`, the jar this mode exists for, is the worst of
+    the five at 7.5 mm of usable radius, and `jar_1gal_155x251` is the best by a distance: 36.5 mm
+    through 3 mm of glass. (Superseded — kept for the record. This read "the number that has to be
+    run before any of it: coupling torque across the gap, which is base wall plus punt height plus
+    clearance. That is about 11 mm on `jar_1p5L` and about 27 on `jar_6p5gal`, against the 5-10 mm a
+    lab stir plate typically works through. **Magnetic is most viable exactly where it is most
+    needed** - thin base, small punt - and probably not viable at all on the big jars." Two things
+    were wrong. The definition names three terms and the figures carry two - 11 is 4+7 and 27 is
+    12+15, with no clearance in either - and the flat driver is not the only arrangement. The 5-10 mm
+    is still uncited and stays `reasoned, not cited` until a plate's own spec is read.)
+  - **the torque it has to beat is already in the model**, which this item treated as the unknown.
+    `docs/agitation.md`: the impeller pair draws under **0.067 N·m at 320 rpm** and **0.116 at 420**,
+    against the drive's 0.490 rating. Scaled to the narrow jars at constant D/T and EQUAL TIP SPEED -
+    so torque goes as `v^2 D^3`, not as `D^5` - the tip-speed band 1.26 to 2.03 m/s costs:
+
+    | vessel | rpm across the band | pair | one rotor |
+    | --- | --- | --- | --- |
+    | jar_1p5L_109x215 | 528-851 | 4.8-12.3 mN·m | ~2.4-6.2 |
+    | jar_1gal_155x251 | 358-577 | 15.3-39.6 mN·m | ~7.6-19.8 |
+
+    SCALED, NOT RENDERED. It holds `Po` and D/T fixed, and a printed rotor is neither `pbt_45_4` nor
+    a pair. What it settles is the ORDER, and the order is millinewton-metres
+  - **the rpm objection was against the wrong band.** 320-420 is the registered DRIVE's band on a
+    94.5 mm impeller in `jar_10L`, not a target the design holds. The target is tip speed, and
+    holding it puts `jar_1p5L` at 528-851 rpm and `jar_1gal_155` at 358-577 - so a 1000-3000 rpm fan
+    is nearer native than it looked. PWM and speed feedback are still wanted; the gap being closed is
+    smaller. (Superseded — kept for the record. This read "a DC fan runs 1000-3000 rpm where this
+    design wants 320-420". The band was quoted off the reference build's drive and applied to jars
+    whose impellers are half the diameter.)
+  - **it also gives eccentricity back, which is the bigger prize.** `docs/ports-layout.md` rules out
+    Hall's off-centre fix - indistinguishable from baffled at equal power, 36 % faster than unbaffled
+    centred - because eccentricity is referenced to the tank diameter while the room for it is set by
+    the mouth, and the motor mount sits in that room: `e = 0.2 T` wants 21.8 mm on `jar_1p5L` where
+    the best any lid offers is 0.5. A magnetic drive puts nothing through the mouth, so the thing
+    that ruled it out is gone
+  - **which surfaces the decision this item does not make: centred or eccentric.** They are different
+    rotors. A centred one pivots on the punt as above and is still a centred impeller in an unbaffled
+    jar - Montante's flow number 0.25, 65 % below baffled, which is the thing the narrow-jar question
+    exists to escape. An eccentric one is Hall's fix and has nothing locating it: at `e = 21.8` on
+    `jar_1p5L` it sits 14.3 mm outboard of a 7.5 mm plateau, about 2.5 mm down a 10 deg slope, on a
+    floor whose high point is the centre it is trying not to occupy. Two cautions ride with it -
+    Galletti reports macro-mixing in an eccentric unbaffled vessel is UNSTEADY, and power consumption
+    RISES with eccentricity, which a low-torque fan is the least able to pay
+  - **and a bottom drive gives ONE impeller**, on the jar least able to spare the second.
+    `jar_1p5L_109x215` is H/T **1.681**, the tallest column in the registry and the one place the
+    count item above says convention most clearly wants a pair. A floor-mounted rotor turns 170 mm of
+    liquid from the bottom. Not a reason against the mode - the number that has to be answered before
+    it is called equivalent
   - separate design item, not scheduled
 
 ## nice to haves
