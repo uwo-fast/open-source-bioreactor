@@ -1866,6 +1866,26 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       "shallow draws its own discharge off the surface. Lower impeller_clearance_factor."
     ));
 
+  // WHETHER THIS VESSEL WANTS TWO IMPELLERS AT ALL, which nothing asked before. The lid carries a
+  // mirrored pair on every jar, and the aspect ratio decides whether that is right: a second
+  // impeller is added above about H/T 1.2, and below it one impeller is turning the whole column.
+  //
+  // 1.2 is CONVENTION, not a citation - docs/agitation.md records it as such, and no source held
+  // here states it - so this reports and does not warn. It is reported because the departure is not
+  // free: forcing a pair into a short column is what spends the liquid over the upper impeller, and
+  // the two jars whose coverage is comfortable are exactly the two above the threshold.
+  _liquid_to_bore = _liquid_height / _vessel_bore;
+  echo(str(
+    "impeller count: 2 on H/T ", _liquid_to_bore, ", where convention adds a second above about 1.2",
+    _liquid_to_bore >= 1.2
+      ? " - so the pair is what convention gives this column"
+      : str(
+        " - so this column is SHORT for a pair, and the second impeller is one convention would not ",
+        "add. It costs the coverage above: ", _coverage_ratio, " D against the ",
+        stirred_tank_coverage_minimum(), " D floor"
+      )
+  ));
+
   // Reported against the guidance that fits the blade, which is not always Oldshue's. His 1-2 d is
   // about "these FLUIDFOIL impellers" - the hydrofoil class - and it is permissive even there:
   // "if the impeller CAN be placed ... these impellers OFFER". A pitched blade turbine is a

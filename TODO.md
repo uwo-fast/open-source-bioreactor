@@ -266,20 +266,31 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
 
 ## tooling / infrastructure / documentation
 
-- [ ] **`jar_1gal_180x197`'s upper impeller is barely in the broth**
-  - **10.94 mm of culture over it, 0.143 D against the 0.5 D floor** `agitation.md:382` holds. It
-    was 0.037 D before the fill fraction became a fraction of volume, so that change improved it
-    almost fourfold and nowhere near fixed it
-  - the jar is 197 mm tall against jar_10L's 305, and the drive stack does not shrink with it: the
-    impeller pair is spaced 1 D on a 94.5 mm impeller whatever the vessel, so on a short jar the
-    upper blade ends up near the surface. **`impeller_spacing_factor` and `impeller_clearance_factor`
-    are single globals applied to every jar** - the same defect class as the fill fraction, one
-    number governing six vessels
-  - it BUILDS, so nothing fails; it is the agitation that is nominal. That is the worst shape for a
-    defect in this model - every check green and the mixing not there
-  - what settles it: decide whether the spacing factor should derive from what the vessel can carry,
-    the way the port set and the probe lean now do, or whether a short jar simply gets one impeller.
-    Both are agitation decisions, not parameter plumbing
+- [ ] **three of five jars carry a second impeller convention would not add**
+  - measured across the registry against the threshold `docs/agitation.md` itself names - a second
+    impeller above about H/T 1.2, recorded there as CONVENTION rather than a citation:
+
+    | vessel | bore | liquid | H/T | coverage | by that convention |
+    | --- | --- | --- | --- | --- | --- |
+    | jar_10L_220x305 | 210.0 | 236.0 | 1.124 | 0.565 D | one |
+    | jar_1gal_180x197 | 170.0 | 156.1 | 0.918 | 0.143 D | one |
+    | jar_6p5gal_305x470 | 280.8 | 325.3 | 1.158 | 0.711 D | one |
+    | jar_1p5L_109x215 | 101.2 | 170.2 | 1.681 | 1.888 D | two |
+    | jar_1gal_155x251 | 149.3 | 189.1 | 1.267 | 0.913 D | two |
+
+  - **the correlation is exact**: the three short columns are the three with the tightest coverage,
+    and the two above the threshold have room to spare. Forcing a pair into a short column is what
+    spends the liquid over the upper impeller. `jar_1gal_180x197` at 0.143 D against the 0.5 D floor
+    is the worst case, not a separate problem
+  - the count is baked in at two - `impeller_to_render = "both"`, a mirrored pair in the print
+    manifest - and nothing asked whether the vessel wanted two. `head()` now REPORTS the departure
+    on every render; it does not act on it
+  - **what deciding it costs**, which is why it is reported rather than derived: the sparge ring is
+    placed in the GAP between the two impellers, the power reporting is per pair, and the manifest
+    lists an upper and a lower. One impeller unpicks all three. It would also change the reference
+    build, which is physically made with two
+  - the 1.2 is not verified against a source here - it is quoted from this repo's own document. That
+    is the first thing to check before acting on it
 
 - [ ] **stale figures the fill-fraction and working-volume changes left in the docs**
   - the 8.25 L pin went away in `c8c4bb0` and the fraction changed meaning in `97cb01f`; the prose
