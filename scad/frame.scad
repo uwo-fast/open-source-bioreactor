@@ -140,6 +140,13 @@ module dummy() {
 // The rod circle is where the frame puts its tie rods, and the lid has to bolt to the same circle,
 // so the assembly reads these back out rather than rebuilding them from the frame's own allowances.
 function frame_rod_diameter() = threaded_rod_diameter; // exported so the joint can check its bolts against it
+
+// The top base's thickness, exported because the JOINT is a stack of two plates and the ASME bolt
+// spacing rule is driven by the THINNER of them - a thin plate bends between bolts, so it wants
+// more of them. assembly.scad had only the lid flange to hand and used it alone, which is right
+// only while the flange is the thinner one. It is, at 8 against 10, so nothing moves today; a
+// flange thicker than this base would have derived the count from the plate that does not govern.
+function frame_upper_base_height() = upper_base_height;
 function frame_rod_hole_diameter() = threaded_rod_diameter + threaded_rod_hole_allowance;
 function frame_bolt_circle_diameter(vessel_outer_diameter) =
   (vessel_outer_diameter + base_jar_fit_allow) + frame_rod_hole_diameter() * 2;
@@ -233,6 +240,17 @@ module lights(quadrants, vessel_outer_diameter, light, lights_per_quadrant, occu
       }
     }
   }
+}
+
+// Where a tie rod stands, and which way its features face. Three places cut something at every rod
+// - the rods themselves, the lower base's holes and nut pockets, the top base's - and each built
+// the same rotate-then-translate for itself. The nut pockets are slots rather than bores, so they
+// have to be ORIENTED and not just positioned, which is why this places children rather than
+// returning points.
+module frame_rod_at(i, n_rods, rod_shift) {
+  rotate([0, 0, i * 360 / n_rods])
+    translate([rod_shift, 0, 0])
+      children();
 }
 
 module frame(vessel_height, vessel_outer_diameter, vessel_corner_radius_base, light, wall_thickness, lid_flange_height, n_rods, bolt_pts, bolt_screw, collapse_spacer_z_allow=true) {
@@ -389,8 +407,7 @@ module frame(vessel_height, vessel_outer_diameter, vessel_corner_radius_base, li
     // rods and nuts
     if (render_rods || render_all) {
       for (i = [0:n_rods - 1]) {
-        rotate([0, 0, i * 360 / n_rods])
-          translate([rod_shift, 0, 0]) {
+        frame_rod_at(i, n_rods, rod_shift) {
 
             // M8 threaded rod, full height (base at z = 0)
             translate([0, 0, base_floor_height])
@@ -443,8 +460,7 @@ module frame(vessel_height, vessel_outer_diameter, vessel_corner_radius_base, li
 
             for (i = [0:n_rods - 1]) {
               _nut_pocket_height = nut_height * 1.1;
-              rotate([0, 0, i * 360 / n_rods])
-                translate([rod_shift, 0, 0]) {
+              frame_rod_at(i, n_rods, rod_shift) {
                   translate([0, 0, base_floor_height])
                     cylinder(d=threaded_rod_hole_diameter, h=lower_base_height + z_fight);
 
@@ -474,8 +490,7 @@ module frame(vessel_height, vessel_outer_diameter, vessel_corner_radius_base, li
                 cylinder(d=base_jar_cut_diameter, h=upper_base_height - f_height + z_fight);
 
               for (i = [0:n_rods - 1]) {
-                rotate([0, 0, i * 360 / n_rods])
-                  translate([rod_shift, 0, 0]) {
+                frame_rod_at(i, n_rods, rod_shift) {
                     translate([0, 0, -z_fight / 2])
                       cylinder(d=threaded_rod_hole_diameter, h=upper_base_height + z_fight);
 

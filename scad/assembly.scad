@@ -348,7 +348,14 @@ joint_hole_diameter = frame_rod_hole_diameter();
 // computed inline at the call below, because the printer report further down needs the same number
 // and two expressions of one diameter is how they drift.
 joint_outer_diameter = frame_outer_diameter(vessel_diameter(reactor_vessel), frame_wall_thickness);
-joint_posts = bolt_post_count(n_rods, screw_radius(joint_bolt) * 2, joint_bolt_circle, lid_flange_height, lid_gasket_factor);
+// THE THINNER PLATE GOVERNS. The joint is a stack of two - the lid flange and the frame's top base
+// - and ASME's spacing rule divides by the flange thickness, so a thin plate bends between bolts
+// and wants more of them. This read the lid flange alone, which is right only while the flange is
+// the thinner one. It is, 8 against 10, so the count does not move today; a flange thicker than the
+// base would have derived it from the plate that does not govern. The base's thickness is read back
+// out of the frame rather than restated, the same way its bolt circle and outer face are.
+_joint_plate = min(lid_flange_height, frame_upper_base_height());
+joint_posts = bolt_post_count(n_rods, screw_radius(joint_bolt) * 2, joint_bolt_circle, _joint_plate, lid_gasket_factor);
 
 assert(
   bolt_post_spacing(joint_posts, joint_bolt_circle) >= screw_radius(joint_bolt) * 5, // 2.5x nominal, enough to get a wrench in

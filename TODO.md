@@ -306,32 +306,6 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
   - it should read the registered gearbox once the motor is designatable, which is where the
     campaign sequence puts it
 
-- [ ] **the architecture campaign: what is left, and what was refused**
-  - the rules are in `docs/design-conventions.md` - "Three layers, and where a parameter lives" and
-    "What the customizer can and cannot carry" - and `assembly.scad`'s header states the contract.
-    The registry substrate is built: `registry_by_name`, name accessors, part numbers, and a
-    by-name lookup on all nine designatable registries. **Six parts are designated end to end** -
-    vessel, shaft, plug o-ring, strip light, DO probe, pH probe - reaching the geometry and the
-    exported STL
-  - **what is left:** joint completeness - `frame_upper_base_height()` into the ASME thickness, and
-    one expression for the rod pattern phase. Everything else on the sequence has landed:
-    `check-designations` guards the designation surface, `frame.scad` has a public selector and a
-    `frame.json`, and the gas train is two registries rather than four loose literals
-  - **REFUSED, do not re-open without new evidence.** Rewrapping `heat_set_inserts` or
-    `shaft_couplings` into the `set_screws` shape: the template wraps because the LIBRARY owns the
-    geometry and the row adds purchase identity, and these are the opposite - the project registers
-    the part in NopSCADlib's own schema, so a wrap costs ~9 call-site edits to buy uniformity.
-    Threading the port table through its ~53 call sites: the hazard is unreachable while
-    `head_interface_for` gives every probe port `bayonet_std` whatever it carries, and a guard
-    against it would be a dead assert. **The trigger that reopens it** is a designation that can
-    move a port's INTERFACE - a thermocouple thread swap - or one that changes the table's count
-  - **do not hoist the remaining BUILD rows mechanically.** `0304a3a`'s arithmetic: five moved
-    declarations bought one carryable number. Relocation without the name-lookup layer multiplies
-    duplicated defaults and carries nothing
-  - **do not build `motor_for` / `air_pump_for` / `coupler_for` yet.** Those registries hold 4, 1
-    and 1 rows; a selection over one candidate is a fit check wearing a selector's clothes.
-    Registering rows is the prerequisite, not writing selectors
-
 - [ ] **the frame took a different strip light and drew the same geometry**
   - found while changing the fill fraction, which moved `jar_6p5gal_305x470`'s culture from 354.32 to
     325.267 mm and so moved `strip_light_for()` from `grow_16in` (400 mm, 14.30 wide, 4/cord) to
@@ -417,6 +391,29 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
 - [ ] swap out the threaded rods with printed parts
 
 ## settled — do not re-open without new evidence
+
+- **the architecture campaign is done, and these are its refusals.** Eight parts are designated end
+  to end - vessel, shaft, plug o-ring, strip light, gasket sheet, motor, DO probe, pH probe -
+  reaching the geometry, the readbacks and the exported STL. The rules are in
+  `docs/design-conventions.md` ("Three layers, and where a parameter lives", "What the customizer
+  can and cannot carry"), `check-designations` guards the surface, and the registries carry names,
+  part numbers and provenance
+- **REWRAPPING `heat_set_inserts` OR `shaft_couplings` into the `set_screws` shape was refused.**
+  That template wraps because the LIBRARY owns the geometry and the row adds purchase identity;
+  these are the opposite - the project registers the part in NopSCADlib's own schema - so a wrap
+  costs about nine call-site edits in `head.scad` to buy uniformity and nothing else. The insert's
+  fields ride the row's tail instead, starting at [11] because the library reads [9] and [10]
+- **THREADING THE PORT TABLE through its ~53 call sites was refused**, and a guard against the
+  hazard was refused with it. `head_interface_for` gives every probe port `bayonet_std` whatever it
+  carries, so no expressible designation can move an interface, and an equality guard would be a
+  dead assert by the sweep test. **What reopens it** is a designation that can move a port's
+  INTERFACE - a thermocouple thread swap - or one that changes the table's count
+- **do not hoist the remaining BUILD rows mechanically.** `0304a3a`'s arithmetic: five moved
+  declarations bought one carryable number. Relocation without the name-lookup layer multiplies
+  duplicated defaults and carries nothing
+- **do not build `motor_for` / `air_pump_for` / `coupler_for` yet.** Those registries hold 4, 1 and
+  1 rows; a selection over one candidate is a fit check wearing a selector's clothes. Registering
+  rows is the prerequisite, not writing selectors
 
 - **A designation is a STRING, and `"auto"` means derive it.** Not `undef`, which the customizer
   cannot see at all, and not a numeric sentinel: `0` litres or `-1` degrees is exactly the plausible
