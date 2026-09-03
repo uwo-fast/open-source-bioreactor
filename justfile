@@ -429,12 +429,20 @@ json:
     # Every designation and the registry it draws from. A dropdown is a hand-written comment, so it
     # is the one place a registry's names are duplicated - this is what verifies the copy.
     # The third field says whether "auto" is a legal value, which it is for anything derivable.
-    DESIGNATIONS="reactor_vessel_name:vessels:0 shaft_name:shafts:1 strip_light_name:strip_lights:1"
+    DESIGNATIONS="reactor_vessel_name:0 shaft_name:1 strip_light_name:1 plug_oring_name:1 \
+                  do_probe_name:1 ph_probe_name:1 gasket_sheet_name:1 motor_name:1"
     {
-      for inc in vessels shafts strip_lights; do printf 'include <%s/scad/purchased/%s.scad>\n' "$PWD" "$inc"; done
-      echo 'for (v = vessels)      echo(str("N|reactor_vessel_name|", vessel_name(v)));'
-      echo 'for (t = shafts)       echo(str("N|shaft_name|", shaft_name(t)));'
-      echo 'for (l = strip_lights) echo(str("N|strip_light_name|", strip_light_name(l)));'
+      for inc in vessels shafts strip_lights orings atlas_probes gasket_sheets dc_motors; do
+        printf 'include <%s/scad/purchased/%s.scad>\n' "$PWD" "$inc"
+      done
+      echo 'for (v = vessels)       echo(str("N|reactor_vessel_name|", vessel_name(v)));'
+      echo 'for (t = shafts)        echo(str("N|shaft_name|", shaft_name(t)));'
+      echo 'for (l = strip_lights)  echo(str("N|strip_light_name|", strip_light_name(l)));'
+      echo 'for (r = orings)        echo(str("N|plug_oring_name|", oring_name(r)));'
+      echo 'for (r = atlas_probes)  echo(str("N|do_probe_name|", atlas_probe_name(r)));'
+      echo 'for (r = atlas_probes)  echo(str("N|ph_probe_name|", atlas_probe_name(r)));'
+      echo 'for (r = gasket_sheets) echo(str("N|gasket_sheet_name|", gasket_sheet_name(r)));'
+      echo 'for (r = dc_motors)     echo(str("N|motor_name|", dc_motor_name(r)));'
     } > "$tmp/n.scad"
     {{OPENSCAD}} -o "$tmp/n.csg" "$tmp/n.scad" 2>"$tmp/err" >/dev/null
     names=$(grep '^ECHO: "N|reactor_vessel_name|' "$tmp/err" | sed 's/^ECHO: "N|reactor_vessel_name|//; s/"$//')
@@ -450,7 +458,7 @@ json:
         # moment a registry with spaced names is compared this way - "pH lab g2", "EPDM 1/16 60A" -
         # the listed name loses its spaces, the registry's does not, and the two never match.
         for spec in $DESIGNATIONS; do
-            param="${spec%%:*}"; rest="${spec#*:}"; takes_auto="${rest#*:}"
+            param="${spec%%:*}"; takes_auto="${spec#*:}"
             decl=$(grep -m1 "^$param" "$f" || true)
             [ -z "$decl" ] && continue
             case "$decl" in *'['*']'*) ;; *) continue ;; esac

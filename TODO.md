@@ -292,6 +292,21 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
   - the 1.2 is not verified against a source here - it is quoted from this repo's own document. That
     is the first thing to check before acting on it
 
+- [ ] **the Customizer shows a line of code, or half a sentence, for most parameters**
+  - OpenSCAD parses **only the line immediately above** a variable as its description; a multi-line
+    comment block is not read, so the last line of one is what the UI shows. Across the three entry
+    files that is 198 parameters, of which **29 read as a description**: 54 show the previous LINE OF
+    CODE (`render_head` showed `render_vessel = true;`) and 115 show a mid-sentence fragment
+  - `assembly.scad` is fixed - every designation has a generated dropdown, every real parameter a
+    one-line description, and the twelve derived internals are behind `/* [Hidden] */` instead of
+    being offered as knobs. `head.scad` (130 parameters) and `frame.scad` (35) are not
+  - **it is not a mechanical sweep.** The reasoning belongs in the source and should stay; what each
+    parameter needs is one clean line ADDED at the bottom of its block. And most of head.scad's 130
+    are design constants the campaign said are not build choices - offering them in a Customizer at
+    all is the prior question, and `/* [Hidden] */` is the documented answer
+  - the dropdowns are checked by `just json` against their registries, so they cannot drift; the
+    descriptions are prose and nothing checks them
+
 - [ ] **stale figures the fill-fraction and working-volume changes left in the docs**
   - the 8.25 L pin went away in `c8c4bb0` and the fraction changed meaning in `97cb01f`; the prose
     that quotes those numbers did not move with them. **Each wants checking against a fresh render,

@@ -115,6 +115,7 @@ render_all = true;
 // default part. A part wants to come out where head.scad would have put it rather than at its
 // assembled height, so the export path turns the placement off. It moves the part; it does not
 // change its shape. See `just export-parts`.
+// Export a part where head.scad would have put it, not at its assembled height
 export_at_origin = false;
 
 /* [Rendering Parameters] */
@@ -132,6 +133,7 @@ export_at_origin = false;
 // crash, not the divergence. Unresolved; see TODO.md.
 $fn = $preview ? 64 : 128;
 
+// Cut the preview in half to see inside; ignored on a render
 cross_section_active = true;
 
 /* [Vessel Selection] */
@@ -141,14 +143,8 @@ cross_section_active = true;
 // Which jar this build is for, chosen BY NAME so a customizer parameter set can carry it - a .json
 // holds values, not references, so it cannot name the variable. `just json` writes one set per
 // registered vessel from this same registry.
+// Which jar this build is for
 reactor_vessel_name = "jar_10L_220x305"; // [jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x215, jar_1gal_155x251]
-reactor_vessel = vessel_by_name(reactor_vessel_name);
-
-assert(
-  !is_undef(reactor_vessel),
-  str("No registered vessel is named \"", reactor_vessel_name, "\". See scad/purchased/vessels.scad.")
-);
-
 /* [Light Strip Selection] */
 // This should be made to be driven by the vessel for whatever is optimal; future TODO.
 
@@ -156,21 +152,25 @@ assert(
 // vessel holds: the shortest registered light that still covers the liquid. A longer one is not
 // free - the base drops by whatever the light overhangs the jar, which put 152 mm of empty base
 // under a 197 mm vessel. The names are in scad/purchased/strip_lights.scad.
+// The strip light; auto takes the shortest row that covers the culture
 strip_light_name = "auto"; // [auto, RWNTAO 13in, grow 13in, grow 16in, grow 8.6in]
 
 /* [Head Parameters - Coupling] */
 
 // height of the lid flange, which is the distance 
 // from the top of the vessel to the top of the lid
+// Height of the lid flange, vessel rim to the top of the lid, in mm
 lid_flange_height = 8;
 
 // wall the frame carries outboard of its jar pocket. The lid flange closes on the same outer face,
 // so it is handed frame_outer_diameter() rather than being given this and rebuilding it
+// Wall the frame carries outboard of its jar pocket, in mm (diametral)
 frame_wall_thickness = 37;
 
 /* [Head to Frame Joint] */
 
 // tie rods running the assembly; they are also posts on the bolt circle, so the lid is bored for them
+// How many tie rods run the assembly; they are posts on the bolt circle too
 n_rods = 4;
 // The fastener clamping the lid flange to the top base, its nut and clearance following from the
 // type. M8 is the CAP, not just the current pick: NopSCADlib stops there, and nothing in this design
@@ -179,6 +179,7 @@ n_rods = 4;
 // family. An M8 in the softest common class carries that many times over, so going bigger would mean
 // hand-writing screw and nut rows for a size no vessel needs. If a jar ever does need more, the
 // gasket width is the first thing to look at, not the bolt - see head.scad's lid_gasket_width_max.
+// The fastener clamping the lid flange to the top base
 joint_bolt = M8_hex_screw;
 
 /* [Build] */
@@ -207,28 +208,34 @@ joint_bolt = M8_hex_screw;
 // representation is settled. See TODO.md.
 
 // litres the vessel is run at; undef derives it from the fill fraction below. NOT carryable
+// Litres the vessel is run at; undef derives it from the fill fraction
 culture_working_volume = undef;
 // Fraction of the jar's CAPACITY the culture stands at, when no volume is stated. A fraction of
 // volume, not of height - a jar is not a cylinder, and the headspace convention this is measured
 // against is a working-volume one. 0.865 is what the reference build runs; head()'s culture echo
 // reports it against the 0.8 the literature quotes. A plain number, so a parameter set can carry it.
+// Fraction of the jar's CAPACITY the culture fills, when no volume is stated
 culture_fill_fraction = 0.865;
 // The impeller shaft, by registered name. "auto" takes the shortest row that reaches this vessel.
 // Names are in scad/purchased/shafts.scad.
+// The impeller shaft; auto takes the shortest row that reaches this vessel
 shaft_name = "auto"; // [auto, 8x200_316, 8x400_316, 8x600_316, 8x800_316]
 // The ring centring the lid plug, by registered name. "auto" takes any ring whose free ID lands
 // this jar's groove between zero and five percent stretch. Names are in scad/purchased/orings.scad.
-plug_oring_name = "auto";
+// The ring centring the lid plug; auto takes one this mouth can stretch onto
+plug_oring_name = "auto"; // [auto, 4x1.5 EPDM, 13x1.5 EPDM, 17x1.5 EPDM, 23x1.5 EPDM, AS568-150, AS568-151, AS568-152, AS568-153, AS568-154, AS568-155, AS568-156, AS568-157, AS568-158, AS568-159, AS568-160, AS568-161, AS568-162, AS568-163, AS568-164, AS568-165, AS568-166, AS568-167, AS568-168, AS568-169, AS568-170, AS568-171]
 // The drive motor, by registered name. "auto" takes head.scad's own registered row. The gearbox
 // comes off the motor, so this moves the mount height and the whole drive stack with it - which is
 // why the envelope below reads it back rather than assuming. Names are in
 // scad/purchased/dc_motors.scad; two of those rows cannot be ordered and say so.
-motor_name = "auto";
+// The drive motor; auto takes the head's own registered row
+motor_name = "auto"; // [auto, 36GP-3530-5.18, 36PG-3429-5.2, 36PG-555PM-14-EN, 12v_5w]
 // The lid's rim gasket stock, by registered name. "auto" takes head.scad's own registered sheet.
 // Its hardness sets the gasket factor m, and the joint's bolt count is derived from that - so this
 // is read back through head_gasket_factor() rather than restated here. Names are in
 // scad/purchased/gasket_sheets.scad.
-gasket_sheet_name = "auto";
+// The lid's rim gasket stock; auto takes the head's own registered sheet
+gasket_sheet_name = "auto"; // [auto, EPDM 1/16 60A]
 // The probes in the DO and pH ports, by registered name. "auto" takes whatever the port table
 // carries. Names are in scad/purchased/atlas_probes.scad - and the generations are not
 // interchangeable in a printed collet, so a lid answers to the one it was cut for.
@@ -236,18 +243,34 @@ gasket_sheet_name = "auto";
 // Any registered Atlas row is accepted, including an EC or ORP probe. Nothing refuses it: the fit
 // checks run on whatever is named, which is the point of a research instrument - but the DO-specific
 // reports below assume a galvanic DO probe and will not say so if one is not there.
-do_probe_name = "auto";
-ph_probe_name = "auto";
+// The probe in the DO port; auto takes whatever the port table carries
+do_probe_name = "auto"; // [auto, pH mini, pH con, pH lab g1, pH lab g2, pH res, DO mini, DO lab g1, DO lab g2, EC mini K1.0, EC K0.1, EC K1.0, EC K10, EC K0.1 8cm, ORP mini, ORP con, ORP lab, ORP gold]
+// The probe in the pH port; auto takes whatever the port table carries
+ph_probe_name = "auto"; // [auto, pH mini, pH con, pH lab g1, pH lab g2, pH res, DO mini, DO lab g1, DO lab g2, EC mini K1.0, EC K0.1, EC K1.0, EC K10, EC K0.1 8cm, ORP mini, ORP con, ORP lab, ORP gold]
 // Ceiling on how far the DO probe leans out, in degrees. The lean itself is always DERIVED - the
 // most of this the jar's own internals allow - so this asks for less lean, never for more than a
 // jar can take. It leans at all to shed bubbles off a galvanic membrane; 4.5 is reasoned, not
 // cited. A plain number, so a parameter set can carry it.
+// Ceiling on how far the DO probe leans out, in degrees
 do_probe_port_tilt_max = 4.5;
 
 // Each designation resolves ONCE, here, and fails loudly. registry_by_name returns undef both for a
 // name nothing answers to and for one two rows answer to, so the assert says both - and because a
 // failing assert exits 0 in OpenSCAD, this ERROR line on stderr is the only thing the justfile's
 // greps can catch. "auto" never reaches a lookup; it is a mode, and the branch takes it first.
+/* [Hidden] */
+
+// NOTHING BELOW IS AN INPUT. These are resolved from the parameters above, and they sat in the
+// Customizer's surface only because they are declared before `module dummy()` - a build was being
+// offered `reactor_build` and `_reactor_light` as though they were knobs. [Hidden] is the
+// documented way to keep a parameter out of the UI while it still evaluates normally.
+reactor_vessel = vessel_by_name(reactor_vessel_name);
+
+assert(
+  !is_undef(reactor_vessel),
+  str("No registered vessel is named \"", reactor_vessel_name, "\". See scad/purchased/vessels.scad.")
+);
+
 _build_shaft = shaft_name == "auto" ? undef : shaft_by_name(shaft_name);
 assert(
   shaft_name == "auto" || !is_undef(_build_shaft),
