@@ -140,10 +140,8 @@ check-vessels:
         "assembly|jar_1gal_155x251"   # a vertical pH probe runs 6.29 mm through the lower impeller
         "head|jar_1gal_155x251"       # the same
     )
-    # Which variable carries the jar. frame.scad has no selector of its own yet - its vessel is a
-    # private preview variable rather than a customizer parameter, which is also why it has no
-    # .json. See TODO.md, tooling.
-    vessel_var() { case "$1" in frame) echo _preview_vessel ;; *) echo reactor_vessel ;; esac; }
+    # All three entry files now carry the same public selector, so the sweep names one variable.
+    # frame.scad used to reach its jar through a private _preview_vessel below `module dummy()`.
     tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
     # The registry is the source of the list, so adding a jar adds it to the sweep.
     printf 'include <%s/scad/purchased/vessels.scad>\nfor (v = vessels) echo(str("V|", vessel_name(v), "|", v));\n' "$PWD" > "$tmp/rows.scad"
@@ -160,7 +158,7 @@ check-vessels:
             # stale list, which the branch below already says, and it should not also be reported
             # as a key nothing ever swept.
             [ "$listed" = 1 ] && seen+=("$f|$name")
-            {{OPENSCAD}} -D "$(vessel_var "$f")=$row" -o "$tmp/v.csg" "scad/$f.scad" 2>"$tmp/err" >/dev/null
+            {{OPENSCAD}} -D "reactor_vessel=$row" -o "$tmp/v.csg" "scad/$f.scad" 2>"$tmp/err" >/dev/null
             if grep -q '^ERROR' "$tmp/err"; then
                 if [ "$listed" = 1 ]; then
                     printf 'ok    %-9s %-22s known broken: %s\n' "$f" "$name" "$(grep -m1 '^ERROR' "$tmp/err" | sed 's/.*failed: //; s/ in file.*//' | cut -c1-62)"
@@ -404,9 +402,9 @@ check-bom:
 check-json:
     #!/usr/bin/env bash
     set -uo pipefail
-    before=$(cat scad/assembly.json scad/head.json 2>/dev/null || true)
+    before=$(cat scad/assembly.json scad/head.json scad/frame.json 2>/dev/null || true)
     just json > /dev/null || { echo "FAIL  the dropdowns have drifted - run just json"; exit 1; }
-    if [ "$before" != "$(cat scad/assembly.json scad/head.json)" ]; then
+    if [ "$before" != "$(cat scad/assembly.json scad/head.json scad/frame.json)" ]; then
         echo "FAIL  parameter files were stale - run just json and commit the result"; exit 1
     fi
     echo "ok    parameter files match the registry"
@@ -440,7 +438,7 @@ json:
     names=$(grep '^ECHO: "N|reactor_vessel_name|' "$tmp/err" | sed 's/^ECHO: "N|reactor_vessel_name|//; s/"$//')
     if [ -z "$names" ]; then echo "FAIL  could not read the vessel registry"; exit 1; fi
     failed=0
-    for f in scad/assembly.scad scad/head.scad; do
+    for f in scad/assembly.scad scad/head.scad scad/frame.scad; do
         # A dropdown is a comment, so it cannot derive - check it instead. Every designation this
         # file DECLARES WITH a dropdown is compared; one declared without a list is left alone,
         # because there is no copy to drift. A file that does not declare the parameter is skipped.

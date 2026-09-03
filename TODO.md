@@ -313,12 +313,11 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     by-name lookup on all nine designatable registries. **Six parts are designated end to end** -
     vessel, shaft, plug o-ring, strip light, DO probe, pH probe - reaching the geometry and the
     exported STL
-  - **what is left:** a designation matrix in `check-vessels`, so a designation regression is caught
-    the way a vessel one is; the gas-train registry for the Cole-Parmer filter and check valve rows;
-    the motor and gasket-sheet designations; joint completeness (`frame_upper_base_height()` into
-    the ASME thickness, one expression for the rod pattern phase); and a vessel selector plus
-    `frame.json` for `frame.scad`, whose jar is still the private `_preview_vessel` that
-    `check-vessels` reaches through
+  - **what is left:** the gas-train registry for the Cole-Parmer filter and check valve rows, whose
+    datasheet figures are still loose literals in `head.scad`; and joint completeness -
+    `frame_upper_base_height()` into the ASME thickness, and one expression for the rod pattern
+    phase. `check-designations` now guards the designation surface, and `frame.scad` has a public
+    selector and a `frame.json`
   - **REFUSED, do not re-open without new evidence.** Rewrapping `heat_set_inserts` or
     `shaft_couplings` into the `set_screws` shape: the template wraps because the LIBRARY owns the
     geometry and the row adds purchase identity, and these are the opposite - the project registers

@@ -35,12 +35,27 @@ render_rodspacers = false;
 rodspacer_to_render = undef;
 render_lights = false;
 
+/* [Vessel Selection] */
+
+// Which jar this frame is built for, chosen BY NAME so a customizer parameter set can carry it - a
+// .json holds values, not references. It was a private `_preview_vessel` below `module dummy()`,
+// which put it outside the customizer block: frame.scad had no parameter set at all, so an export
+// or a sweep naming another vessel silently got jar_10L's frame. `just json` writes one set per
+// registered vessel from this same registry.
+reactor_vessel_name = "jar_10L_220x305"; // [jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x215, jar_1gal_155x251]
+reactor_vessel = vessel_by_name(reactor_vessel_name);
+
+assert(
+  !is_undef(reactor_vessel),
+  str("No registered vessel is named \"", reactor_vessel_name, "\". See scad/purchased/vessels.scad.")
+);
+
 // -------
 
 frame(
-  vessel_height=vessel_height(_preview_vessel),
-  vessel_outer_diameter=vessel_diameter(_preview_vessel),
-  vessel_corner_radius_base=vessel_corner_radius_base(_preview_vessel),
+  vessel_height=vessel_height(reactor_vessel),
+  vessel_outer_diameter=vessel_diameter(reactor_vessel),
+  vessel_corner_radius_base=vessel_corner_radius_base(reactor_vessel),
   light=_preview_light,
   wall_thickness=_preview_wall_thickness,
   lid_flange_height=_preview_flange_height,
@@ -166,10 +181,10 @@ function frame_floor_depth(vessel_height, light) =
   let (delta = (strip_light_length(light) + nut_height * 1.5 + upper_base_height) - vessel_height)
     delta > _base_floor_height_min ? delta : _base_floor_height_min;
 
-// What the assembly would hand this frame. The vessel, the light, the wall and the flange are its
-// choices, so the preview picks them; everything after that is derived here the same way the
+// What the assembly would hand this frame. The vessel is chosen above, in the customizer block, so
+// a parameter set can select it; the light, the wall and the flange are the assembly's other
+// choices and the preview picks them here. Everything after that is derived the same way the
 // assembly derives it, rather than quoting the numbers it comes out as.
-_preview_vessel = vessel_by_name("jar_10L_220x305"); // by name, for the same reason assembly.scad is
 // The shortest registered light that covers this jar's culture, derived the way the assembly derives
 // it rather than naming a row.
 //
@@ -179,7 +194,7 @@ _preview_vessel = vessel_by_name("jar_10L_220x305"); // by name, for the same re
 // The two agree here only because this preview is pinned to jar_10L; on any other jar they do not.
 // Quoted rather than read because frame.scad does not depend on head.scad and should not start to
 // for a preview - see docs/design-conventions.md, "Standalone previews".
-_preview_light = strip_light_for(vessel_internal_height(_preview_vessel) * 0.8);
+_preview_light = strip_light_for(vessel_internal_height(reactor_vessel) * 0.8);
 _preview_wall_thickness = 37;
 _preview_flange_height = 8;
 _preview_n_rods = 4;
@@ -188,7 +203,7 @@ _preview_bolt = M8_hex_screw;
 // soft-sheet value the registered EPDM gives
 _preview_gasket_factor = 0.5;
 
-_preview_bolt_circle = frame_bolt_circle_diameter(vessel_diameter(_preview_vessel));
+_preview_bolt_circle = frame_bolt_circle_diameter(vessel_diameter(reactor_vessel));
 _preview_posts = bolt_post_count(
   _preview_n_rods, screw_radius(_preview_bolt) * 2, _preview_bolt_circle,
   _preview_flange_height, _preview_gasket_factor
