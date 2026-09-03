@@ -180,9 +180,6 @@ n_rods = 4;
 // hand-writing screw and nut rows for a size no vessel needs. If a jar ever does need more, the
 // gasket width is the first thing to look at, not the bolt - see head.scad's lid_gasket_width_max.
 joint_bolt = M8_hex_screw;
-// gasket factor m for the lid seal, read back from the registered sheet the head is built around
-// rather than entered here - a harder sheet wants more bolts and nothing else would say so
-lid_gasket_factor = head_gasket_factor();
 
 /* [Build] */
 
@@ -222,6 +219,11 @@ shaft_name = "auto"; // [auto, 8x200_316, 8x400_316, 8x600_316, 8x800_316]
 // The ring centring the lid plug, by registered name. "auto" takes any ring whose free ID lands
 // this jar's groove between zero and five percent stretch. Names are in scad/purchased/orings.scad.
 plug_oring_name = "auto";
+// The lid's rim gasket stock, by registered name. "auto" takes head.scad's own registered sheet.
+// Its hardness sets the gasket factor m, and the joint's bolt count is derived from that - so this
+// is read back through head_gasket_factor() rather than restated here. Names are in
+// scad/purchased/gasket_sheets.scad.
+gasket_sheet_name = "auto";
 // The probes in the DO and pH ports, by registered name. "auto" takes whatever the port table
 // carries. Names are in scad/purchased/atlas_probes.scad - and the generations are not
 // interchangeable in a printed collet, so a lid answers to the one it was cut for.
@@ -253,6 +255,18 @@ assert(
   str("No registered o-ring is named \"", plug_oring_name, "\", or it is registered twice. See scad/purchased/orings.scad.")
 );
 
+_build_gasket_sheet = gasket_sheet_name == "auto" ? undef : gasket_sheet_by_name(gasket_sheet_name);
+assert(
+  gasket_sheet_name == "auto" || !is_undef(_build_gasket_sheet),
+  str("No registered gasket sheet is named \"", gasket_sheet_name, "\", or it is registered twice. See scad/purchased/gasket_sheets.scad.")
+);
+
+// Gasket factor m for the lid seal, read back from the sheet this build carries rather than
+// entered here - a harder sheet wants more bolts and nothing else would say so. It sits below the
+// designation rather than up with the joint, because OpenSCAD takes a variable in its own scope in
+// order and a readback above the row it reads sees nothing.
+lid_gasket_factor = head_gasket_factor(_build_gasket_sheet);
+
 _build_do_probe = do_probe_name == "auto" ? undef : atlas_probe_by_name(do_probe_name);
 assert(
   do_probe_name == "auto" || !is_undef(_build_do_probe),
@@ -279,6 +293,7 @@ reactor_build = [
   ["head_shaft", _build_shaft],
   ["lid_plug_oring", _build_plug_oring],
   ["do_probe_port_tilt_max", do_probe_port_tilt_max],
+  ["lid_gasket_sheet", _build_gasket_sheet],
   ["do_probe", _build_do_probe],
   ["ph_probe", _build_ph_probe],
 ];
@@ -360,7 +375,8 @@ if (_rod_d != _bolt_d)
 // What the bolts are actually holding. The head owns the gasket so it owns the force; the count is
 // this file's, so the division happens here. Reported only - see utils/gasket_load.scad.
 _seating_force = head_gasket_seating_force(
-  vessel_opening_diameter(reactor_vessel), vessel_thickness(reactor_vessel)
+  vessel_opening_diameter(reactor_vessel), vessel_thickness(reactor_vessel),
+  _build_gasket_sheet
 );
 echo(str(
   "joint load: ", _seating_force, " N of gasket seating over ", joint_posts, " posts = ",
@@ -380,9 +396,9 @@ assert(
 );
 
 echo(str(
-  "joint tightening: ", gasket_seating_turn(head_gasket_travel(), _joint_pitch),
+  "joint tightening: ", gasket_seating_turn(head_gasket_travel(_build_gasket_sheet), _joint_pitch),
   " deg past snug on each of the ", joint_posts, " nuts, all of which sit on top of the lid - ",
-  head_gasket_travel(), " mm of gasket travel on a ", _joint_pitch,
+  head_gasket_travel(_build_gasket_sheet), " mm of gasket travel on a ", _joint_pitch,
   " mm pitch. The printed flange takes a little more and then creeps, so go back to them."
 ));
 

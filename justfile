@@ -295,6 +295,7 @@ check-designations:
         "do_probe_name|DO lab g1|differs"
         "ph_probe_name|pH lab g1|differs"
         "plug_oring_name|AS568-160|builds"
+        "gasket_sheet_name|EPDM 1/16 60A|builds"
         "do_probe_port_tilt_max|2|number"
         "culture_fill_fraction|0.7|number"
     )

@@ -1036,18 +1036,18 @@ function head_gasket_outer_radius(vessel_opening_diameter, vessel_wall_thickness
 function head_gasket_mean_diameter(vessel_opening_diameter, vessel_wall_thickness) =
   head_gasket_inner_radius(vessel_opening_diameter)
   + head_gasket_outer_radius(vessel_opening_diameter, vessel_wall_thickness);
-function head_gasket_seating_force(vessel_opening_diameter, vessel_wall_thickness) =
+function head_gasket_seating_force(vessel_opening_diameter, vessel_wall_thickness, sheet) =
   gasket_seating_force(
-    gasket_sheet_shore_a(lid_gasket_sheet),
+    gasket_sheet_shore_a(head_gasket_sheet(sheet)),
     head_gasket_width(vessel_wall_thickness),
-    gasket_sheet_thickness(lid_gasket_sheet),
+    gasket_sheet_thickness(head_gasket_sheet(sheet)),
     head_gasket_mean_diameter(vessel_opening_diameter, vessel_wall_thickness),
     lid_gasket_compression
   );
-function head_gasket_depth() = gasket_sheet_thickness(lid_gasket_sheet) * (1 - lid_gasket_compression);
+function head_gasket_depth(sheet) = gasket_sheet_thickness(head_gasket_sheet(sheet)) * (1 - lid_gasket_compression);
 // The other part of the same sheet: what the recess keeps against what the joint has to move. Two
 // halves of one thickness, so neither is free to drift from the other.
-function head_gasket_travel() = gasket_sheet_thickness(lid_gasket_sheet) * lid_gasket_compression;
+function head_gasket_travel(sheet) = gasket_sheet_thickness(head_gasket_sheet(sheet)) * lid_gasket_compression;
 
 // Gasket factor m, ASME BPVC.VIII.1-2019 Table 2-5.1 p.399, read from the standard: 0 for a
 // self-energizing type (o-rings), 0.50 below 75A Shore, 1.00 at or above. Its y column, the minimum
@@ -1056,7 +1056,18 @@ function head_gasket_travel() = gasket_sheet_thickness(lid_gasket_sheet) * lid_g
 // "are suggested only and are not mandatory". The joint's bolt count is derived from m, and the
 // assembly reads it back from here because the sheet is the head's to choose - same shape as the
 // frame exporting its bolt circle.
-function head_gasket_factor() = gasket_sheet_shore_a(lid_gasket_sheet) < 75 ? 0.5 : 1.0;
+//
+// The four take the sheet as an ARGUMENT, which is the readback rule in docs/design-conventions.md:
+// without it the joint's bolt count would be derived from the default sheet while the lid was cut
+// for another one.
+//
+// undef means "the head's own", resolved by head_gasket_sheet() rather than by a default argument.
+// Passing undef EXPLICITLY does not trigger a default in OpenSCAD, and "auto" is exactly what puts
+// undef in the build list - so a default would have read undef into gasket_sheet_shore_a(), where
+// `undef < 75` is false and the factor comes back 1.0 instead of 0.5. That is a doubled bolt count
+// from a silent undef.
+function head_gasket_sheet(sheet) = is_undef(sheet) ? lid_gasket_sheet : sheet;
+function head_gasket_factor(sheet) = gasket_sheet_shore_a(head_gasket_sheet(sheet)) < 75 ? 0.5 : 1.0;
 
 // z = 0 is the lid's OUTER face, and the assembly seats the flange on the rim, so the lid's own
 // flange height stands between that face and the glass. Every vessel-referenced depth in this file
@@ -1495,7 +1506,7 @@ module head_port_at(i, vessel_opening_diameter, flipped = false) {
       children();
 }
 
-module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter, plug_oring) {
+module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter, plug_oring, sheet) {
 
   _ports = head_ports_for(vessel_opening_diameter);
   _n = len(_ports);
@@ -1504,7 +1515,7 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
 
   // z = 0 is the lid's outer face here and the part is flipped by the caller, so the flange's
   // glass-facing side is its far face, at z = lid_flange_height, where the plug starts.
-  _gasket_depth = head_gasket_depth();
+  _gasket_depth = head_gasket_depth(sheet);
   _plug_groove_w = head_plug_groove_width(vessel_opening_diameter, plug_oring);
   _plug_groove_z = lid_flange_height + lid_plug_height / 2; // mid plug: most land either side,
   // and clear of the bayonet channels, which sit in the half of the coupling nearest this face
@@ -1650,6 +1661,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _build_shaft = head_build(build, "head_shaft", head_shaft);
   _build_plug_oring = head_build(build, "lid_plug_oring", lid_plug_oring);
   _build_do_tilt_max = head_build(build, "do_probe_port_tilt_max", do_probe_port_tilt_max);
+  _gasket_sheet = head_gasket_sheet(head_build(build, "lid_gasket_sheet", lid_gasket_sheet));
   _build_do_probe = head_build(build, "do_probe", undef);
   _build_ph_probe = head_build(build, "ph_probe", undef);
 
@@ -3340,14 +3352,14 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   _gasket_w = head_gasket_width(vessel_wall_thickness);
   _gasket_rim = head_gasket_rim_width(vessel_wall_thickness);
-  _gasket_force = head_gasket_seating_force(vessel_opening_diameter, vessel_wall_thickness);
+  _gasket_force = head_gasket_seating_force(vessel_opening_diameter, vessel_wall_thickness, _gasket_sheet);
 
   echo(str(
     "lid gasket: cut ", _gasket_ir * 2, " x ", _gasket_or * 2, " mm from ",
-    gasket_sheet_name(lid_gasket_sheet), " (", gasket_sheet_thickness(lid_gasket_sheet),
-    " mm), recess ", head_gasket_depth(), " mm deep (", lid_gasket_compression * 100, "% squeeze); ",
-    gasket_sheet_yield(lid_gasket_sheet, _gasket_or * 2), " per ",
-    gasket_sheet_size(lid_gasket_sheet)[0], " x ", gasket_sheet_size(lid_gasket_sheet)[1], " mm sheet"
+    gasket_sheet_name(_gasket_sheet), " (", gasket_sheet_thickness(_gasket_sheet),
+    " mm), recess ", head_gasket_depth(_gasket_sheet), " mm deep (", lid_gasket_compression * 100, "% squeeze); ",
+    gasket_sheet_yield(_gasket_sheet, _gasket_or * 2), " per ",
+    gasket_sheet_size(_gasket_sheet)[0], " x ", gasket_sheet_size(_gasket_sheet)[1], " mm sheet"
   ));
 
   // The only load in the reactor, so it is worth saying out loud. Reported and never asserted on:
@@ -3357,8 +3369,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     "lid gasket load: ", _gasket_w, " mm wide on a ", _gasket_rim, " mm rim, ",
     _gasket_force, " N to hold ", lid_gasket_compression * 100, "% squeeze, ",
     gasket_seat_stress(
-      gasket_sheet_shore_a(lid_gasket_sheet), _gasket_w,
-      gasket_sheet_thickness(lid_gasket_sheet), lid_gasket_compression
+      gasket_sheet_shore_a(_gasket_sheet), _gasket_w,
+      gasket_sheet_thickness(_gasket_sheet), lid_gasket_compression
     ), " MPa on the glass"
   ));
 
@@ -3374,8 +3386,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       "lid gasket: rim offers ", _gasket_rim, " mm but the gasket is held to ", lid_gasket_width_max,
       " mm. Taking the whole rim would cost ",
       gasket_seating_force(
-        gasket_sheet_shore_a(lid_gasket_sheet), _gasket_rim,
-        gasket_sheet_thickness(lid_gasket_sheet), 2 * _gasket_ir + _gasket_rim,
+        gasket_sheet_shore_a(_gasket_sheet), _gasket_rim,
+        gasket_sheet_thickness(_gasket_sheet), 2 * _gasket_ir + _gasket_rim,
         lid_gasket_compression
       ), " N instead of ", _gasket_force, "."
     ));
@@ -3414,13 +3426,13 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     "Gasket recess reaches inside the plug, so it would open into the vessel rather than seat on the rim."
   );
   assert(
-    head_gasket_depth() < lid_flange_height,
-    str("Gasket recess is ", head_gasket_depth(), " mm deep in a ", lid_flange_height, " mm flange.")
+    head_gasket_depth(_gasket_sheet) < lid_flange_height,
+    str("Gasket recess is ", head_gasket_depth(_gasket_sheet), " mm deep in a ", lid_flange_height, " mm flange.")
   );
   // and bounded below, which the assert above trivially satisfies at a negative depth
   assert(
-    head_gasket_depth() > 0,
-    str("Gasket recess is ", head_gasket_depth(), " mm deep at ", lid_gasket_compression * 100, "% squeeze.")
+    head_gasket_depth(_gasket_sheet) > 0,
+    str("Gasket recess is ", head_gasket_depth(_gasket_sheet), " mm deep at ", lid_gasket_compression * 100, "% squeeze.")
   );
 
   // the groove is cut from the bore, so a fatter cord walks inward toward the port bores; the
@@ -3546,7 +3558,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     color(prints2_color)
       union() {
         rotate([0, 180, 0])
-          lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter(_shaft), _build_plug_oring);
+          lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter(_shaft), _build_plug_oring, _gasket_sheet);
         lid_locks();
       }
   }
@@ -3576,16 +3588,16 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // - so the tool cannot describe a different ring than the model does. Concentric with the gasket
   // and at its plane, which is where the two can be compared.
   if (render_gasket_cutter)
-    translate([0, 0, -lid_flange_height - (gasket_sheet_thickness(lid_gasket_sheet) - head_gasket_depth())])
-      gasket_cutter(_gasket_ir * 2, _gasket_or * 2, gasket_sheet_thickness(lid_gasket_sheet), part=gasket_cutter_part_to_render);
+    translate([0, 0, -lid_flange_height - (gasket_sheet_thickness(_gasket_sheet) - head_gasket_depth(_gasket_sheet))])
+      gasket_cutter(_gasket_ir * 2, _gasket_or * 2, gasket_sheet_thickness(_gasket_sheet), part=gasket_cutter_part_to_render);
 
   // The EPDM. Each is drawn at its free size on the diameter it is installed at, so it overlaps
   // what it seals against by exactly the squeeze its gland was cut for - that overlap is the
   // check. Kept behind their own flag so a part export never picks up a purchased ring.
   if (render_seals || render_all) {
     // rim gasket, standing proud of the flange by what the recess squeezes out of it
-    translate([0, 0, -lid_flange_height - (gasket_sheet_thickness(lid_gasket_sheet) - head_gasket_depth())])
-      sheet_gasket(_gasket_ir * 2, _gasket_or * 2, gasket_sheet_thickness(lid_gasket_sheet));
+    translate([0, 0, -lid_flange_height - (gasket_sheet_thickness(_gasket_sheet) - head_gasket_depth(_gasket_sheet))])
+      sheet_gasket(_gasket_ir * 2, _gasket_or * 2, gasket_sheet_thickness(_gasket_sheet));
 
     // plug o-ring, stretched onto its groove and reaching past the plug into the glass
     translate([0, 0, -lid_flange_height - lid_plug_height / 2])
