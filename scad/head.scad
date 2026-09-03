@@ -36,6 +36,8 @@ include <purchased/shafts.scad>;
 include <purchased/gasket_sheets.scad>;
 include <purchased/printers.scad>;
 include <purchased/hose_clamps.scad>;
+include <purchased/gas_filters.scad>;
+include <purchased/check_valves.scad>;
 
 include <custom/bayonet_interfaces.scad>;
 include <custom/impellers.scad>;
@@ -601,14 +603,14 @@ function head_port_index(vessel_opening_diameter, fn) =
  */
 function head_gas_line_pressure(flow, vessel_pressure, riser_length) =
   vessel_pressure
-  + gas_filter_pressure_drop(flow, sparge_filter_drop_slope)
+  + gas_filter_pressure_drop(flow, gas_filter_drop_slope(sparge_inlet_filter))
   + gas_tube_pressure_drop(flow, steel_tube_id(sparge_riser_tube), riser_length)
-  + sparge_check_valve_cracking
-  + gas_valve_pressure_drop(flow, sparge_check_valve_cv, vessel_pressure)
+  + check_valve_cracking(sparge_check_valve)
+  + gas_valve_pressure_drop(flow, check_valve_cv(sparge_check_valve), vessel_pressure)
   + (
-    is_undef(sparge_outlet_filter_drop_slope)
+    is_undef(sparge_outlet_filter)
       ? 0
-      : gas_filter_pressure_drop(flow, sparge_outlet_filter_drop_slope)
+      : gas_filter_pressure_drop(flow, gas_filter_drop_slope(sparge_outlet_filter))
         + gas_tube_pressure_drop(flow, steel_tube_id(sparge_riser_tube), riser_length)
   );
 
@@ -883,31 +885,21 @@ sparge_riser_clamp_lead_in = 3.5;
 // binding one, this is where it would have to say so. Either way it stays shorter than the
 // thermocouple's own 20 mm NPT mount, which is the tallest thing already standing on this lid.
 sparge_riser_proud = hose_clamp_band_width(sparge_riser_clamp) + 2 * sparge_riser_clamp_lead_in;
-// What the sterile inlet filter costs, kPa per L/min. EXTRAPOLATED, NOT MEASURED: Cole-Parmer do
-// not publish a curve for 1594522, so this is a linear fit taken from an equivalent 0.2 um PTFE
-// disc of near-identical dimensions. Linear is the right shape - membrane flow at these pressures
-// is viscous, so Darcy makes it proportional to flow - and the slope is corroborated rather than
-// invented: area-correcting Pall's Acro 50 from 19.6 to this filter's 16.2 cm2 gives 3.02 against
-// the 3.45 used here, so it sits 14 % conservative of the best-documented comparable part.
-//
-// It matters more than its size suggests. At the design flow it is 14.1 kPa against the vessel's
-// own 1.1, so it takes over half of what the throttle would otherwise have had - see the gas
-// supply report, which sizes the metering valve from what is left. Worth replacing with a measured
-// number; a water manometer across it at the set flow is enough. See TODO.md.
-sparge_filter_drop_slope = 3.45;
+// The sterile inlet filter, as a registered row. Its pressure drop, its rating and the caveat on
+// the drop - EXTRAPOLATED, not measured - all travel with the part now instead of sitting here as
+// literals beside the geometry. See scad/purchased/gas_filters.scad.
+sparge_inlet_filter = gas_filter_cp_1594522;
 // What a filter on the way OUT would cost, same units. undef is what this build has: nothing. The
 // headspace vents through a support tube's bore into the room, so the 0.2 um filter on the inlet
 // guards one direction of two - which is half of the usual arrangement for a bioreactor.
 //
 // It is undef rather than a part because the obvious part does not fit. Set it and head() prices
 // the exhaust into the line and says what it costs; leave it and head() reports the budget instead.
-sparge_outlet_filter_drop_slope = undef;
-// The check valve, as the LINE sees it rather than as its headline reads. Both numbers come off the
-// datasheet of the registered part - see purchased-parts.csv - and both are needed, because a check
-// valve costs a CRACKING pressure to open at all and a flowing drop on top of that, and only the
-// first is ever quoted. Cole-Parmer 5011521: 0.18 psi to crack, Cv 0.12 open.
-sparge_check_valve_cracking = 1241; // Pa; 0.18 psi
-sparge_check_valve_cv = 0.12;
+sparge_outlet_filter = undef;
+// The check valve, as a registered row. A valve costs a CRACKING pressure to open at all and a
+// flowing drop on top of that, and only the first is ever quoted - both are on the row now rather
+// than as two literals here. See scad/purchased/check_valves.scad.
+sparge_check_valve = check_valve_cp_5011521;
 // the aeration rate the holes are reported against, volumes of gas per volume of liquid per minute
 sparge_design_vvm = 0.5;
 // the band the gas metering has to cover, in vvm
@@ -3112,23 +3104,23 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // valve are small but real. The check valve was the last one left out - it was registered after
   // the filter and the riser were counted, and its own row has said 1.85 kPa the whole time while
   // this sum ignored it.
-  _gas_filter_drop = gas_filter_pressure_drop(_gas_band[1], sparge_filter_drop_slope);
+  _gas_filter_drop = gas_filter_pressure_drop(_gas_band[1], gas_filter_drop_slope(sparge_inlet_filter));
   _gas_riser_drop = gas_tube_pressure_drop(
     _gas_band[1], steel_tube_id(sparge_riser_tube), _sparge_riser_length);
-  _gas_check_valve_drop = sparge_check_valve_cracking
-    + gas_valve_pressure_drop(_gas_band[1], sparge_check_valve_cv, _gas_vessel_pressure);
+  _gas_check_valve_drop = check_valve_cracking(sparge_check_valve)
+    + gas_valve_pressure_drop(_gas_band[1], check_valve_cv(sparge_check_valve), _gas_vessel_pressure);
   // The line, from the one expression of it, so nothing can price it two ways. The terms above are
   // kept for the echo below - they say where it goes - but the total is not re-added here.
   _gas_back_pressure =
     head_gas_line_pressure(_gas_band[1], _gas_vessel_pressure, _sparge_riser_length);
-  _gas_outlet_drop = is_undef(sparge_outlet_filter_drop_slope)
+  _gas_outlet_drop = is_undef(sparge_outlet_filter)
     ? 0
-    : gas_filter_pressure_drop(_gas_band[1], sparge_outlet_filter_drop_slope) + _gas_riser_drop;
+    : gas_filter_pressure_drop(_gas_band[1], gas_filter_drop_slope(sparge_outlet_filter)) + _gas_riser_drop;
 
   echo(str(
     "gas line losses: filter ", _gas_filter_drop,
     " Pa (EXTRAPOLATED, not measured), check valve ", _gas_check_valve_drop,
-    " Pa (", sparge_check_valve_cracking, " of it just to crack) and riser ", _gas_riser_drop,
+    " Pa (", check_valve_cracking(sparge_check_valve), " of it just to crack) and riser ", _gas_riser_drop,
     " Pa at ", _gas_band[1], " L/min, on top of the vessel's ", _gas_vessel_pressure,
     _gas_outlet_drop == 0 ? "" : str(" and ", _gas_outlet_drop, " Pa on the way back out"),
     " - so the pump beats ", _gas_back_pressure, " Pa, and the filter alone is ",
@@ -3162,16 +3154,16 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     gas_filter_slope_budget(_gas_free_flow, _gas_dead_head, _gas_line, _gas_band[1]);
 
   echo(
-    is_undef(sparge_outlet_filter_drop_slope)
+    is_undef(sparge_outlet_filter)
       ? str(
         "gas exhaust: NOTHING FILTERS THE WAY OUT - the headspace vents through a support tube to ",
         "the room, so the 0.2 um filter on the inlet guards one direction of two. An outlet filter ",
         "may cost at most ", _gas_outlet_budget, " kPa per L/min before ", _gas_band[1],
-        " L/min stops being reachable, which is ", _gas_outlet_budget / sparge_filter_drop_slope,
+        " L/min stops being reachable, which is ", _gas_outlet_budget / gas_filter_drop_slope(sparge_inlet_filter),
         " of what the inlet filter costs - so a second one of those will not do."
       )
       : str(
-        "gas exhaust: an outlet filter at ", sparge_outlet_filter_drop_slope,
+        "gas exhaust: an outlet filter at ", gas_filter_drop_slope(sparge_outlet_filter),
         " kPa per L/min is in the line, against a budget of ", _gas_outlet_budget,
         " before ", _gas_band[1], " L/min stops being reachable"
       )

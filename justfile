@@ -336,8 +336,8 @@ check-designations:
 # Fail when a part the model PRESCRIBES is not on the purchase list.
 #
 # Only the registries that carry a part number can be checked - orings, shafts, thermocouple
-# probes, set screws, steel tubes, hose clamps, peri pumps and heat-set inserts - so this is a
-# floor, not a full audit. Two prescriptions are deliberately absent: the gasket sheet and the drive
+# probes, set screws, steel tubes, hose clamps, peri pumps, heat-set inserts, the sterile filter and
+# the check valve - so this is a floor, not a full audit. Two prescriptions are deliberately absent: the gasket sheet and the drive
 # motor. The sheet is not selected per build yet, and the motor's CSV part_number field is the
 # compound string "RM-ESMO-071 (36PG-555PM-14-EN)", which grep -qxF can never match - normalize that
 # column before enrolling it. The shaft coupling stays out because uxcell publish no number for it,
@@ -373,6 +373,8 @@ check-bom:
     echo(str("BOM|", peri_pump_part_number(head_dosing_pump), "|dosing pump"));
     echo(str("BOM|", set_screw_part_number(impeller_set_screw), "|impeller set screw"));
     echo(str("BOM|", heat_set_insert_part_number(motor_mount_base_insert), "|motor mount heat-set insert"));
+    echo(str("BOM|", gas_filter_part_number(sparge_inlet_filter), "|sterile inlet filter"));
+    echo(str("BOM|", check_valve_part_number(sparge_check_valve), "|gas line check valve"));
     SCAD
     {{OPENSCAD}} -o "$tmp/b.csg" "$tmp/b.scad" 2>"$tmp/err" >/dev/null
     # the part_number COLUMN, so a match cannot come from a stale URL elsewhere in the row
