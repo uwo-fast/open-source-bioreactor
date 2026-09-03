@@ -187,7 +187,6 @@ check-vessels:
         fi
     done
     exit $failed
-    exit $failed
 
 # Lines of code, comment and blank, per language.
 #
