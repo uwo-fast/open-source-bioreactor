@@ -296,6 +296,7 @@ check-designations:
         "ph_probe_name|pH lab g1|differs"
         "plug_oring_name|AS568-160|builds"
         "gasket_sheet_name|EPDM 1/16 60A|builds"
+        "motor_name|36PG-3429-5.2|differs"
         "do_probe_port_tilt_max|2|number"
         "culture_fill_fraction|0.7|number"
     )

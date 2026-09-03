@@ -193,6 +193,10 @@ shaft_bearing = BB608; // McMaster 6153K71, 440C stainless, sealed, trade no. 60
 // (dc_motor_gearbox), and all motor/gearbox dimensions are derived from these via
 // the accessor functions rather than re-entered here
 head_motor = motor_36pg_555pm_14_en;
+// undef means this file's own row, resolved here rather than by a default argument: passing undef
+// EXPLICITLY does not trigger a default in OpenSCAD, and "auto" is what puts undef in the build
+// list. Same shape as head_gasket_sheet().
+function head_motor_selected(motor) = is_undef(motor) ? head_motor : motor;
 
 /* [Shaft Parameters] */
 
@@ -1438,13 +1442,13 @@ function head_shaft_selected(lid_flange_height, vessel_internal_height, shaft) =
 function head_shaft_protrusion(lid_flange_height, vessel_internal_height, shaft) =
   shaft_length(head_shaft_selected(lid_flange_height, vessel_internal_height, shaft))
   - (head_punt_top_depth(lid_flange_height, vessel_internal_height) - shaft_jar_punt_clearance);
-function head_motor_mount_height(lid_flange_height, vessel_internal_height, shaft) =
-  gearbox_output_shaft_length(dc_motor_gearbox(head_motor))
+function head_motor_mount_height(lid_flange_height, vessel_internal_height, shaft, motor) =
+  gearbox_output_shaft_length(dc_motor_gearbox(head_motor_selected(motor)))
   + head_shaft_protrusion(lid_flange_height, vessel_internal_height, shaft) + shaft_shaft_coupling_offset;
 // top of the motor, which is the highest thing on the reactor
-function head_stack_height(lid_flange_height, vessel_internal_height, shaft) =
-  head_motor_mount_height(lid_flange_height, vessel_internal_height, shaft)
-  + dc_motor_length(head_motor) + gearbox_length(dc_motor_gearbox(head_motor));
+function head_stack_height(lid_flange_height, vessel_internal_height, shaft, motor) =
+  head_motor_mount_height(lid_flange_height, vessel_internal_height, shaft, motor)
+  + dc_motor_length(head_motor_selected(motor)) + gearbox_length(dc_motor_gearbox(head_motor_selected(motor)));
 // The groove a given ring would get in a given mouth, and how far that stretches it. Written
 // per-candidate because the groove's depth follows the ring's own cord, so choosing a ring and
 // cutting its groove are one question rather than two.
@@ -1662,6 +1666,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _build_plug_oring = head_build(build, "lid_plug_oring", lid_plug_oring);
   _build_do_tilt_max = head_build(build, "do_probe_port_tilt_max", do_probe_port_tilt_max);
   _gasket_sheet = head_gasket_sheet(head_build(build, "lid_gasket_sheet", lid_gasket_sheet));
+  _motor = head_motor_selected(head_build(build, "head_motor", head_motor));
   _build_do_probe = head_build(build, "do_probe", undef);
   _build_ph_probe = head_build(build, "ph_probe", undef);
 
@@ -1698,7 +1703,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   );
 
   // the gearbox carried by the selected motor - single source for gearbox dims
-  head_gearbox = dc_motor_gearbox(head_motor);
+  head_gearbox = dc_motor_gearbox(_motor);
 
   // There was an assert here that len(head_ports) equalled the hole count, from when the table and
   // the count were two statements that could drift. They are one now - _n counts the table this lid
@@ -2054,7 +2059,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _medek_departures = stirred_tank_medek_departures(
     impeller_blades(head_impeller_type), _clearance_ratio, _tank_ratio,
     _height_ratio, impeller_blade_angle(head_impeller_type),
-    len(_baffle_at), stirred_tank_reynolds(impeller_diameter, dc_motor_rated_output_rpm(head_motor))
+    len(_baffle_at), stirred_tank_reynolds(impeller_diameter, dc_motor_rated_output_rpm(_motor))
   );
 
   _impeller_po =
@@ -2101,19 +2106,19 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         ? "inside its validity envelope"
         : str("extrapolated on ", _medek_departures)
     ));
-  _rated_torque = dc_motor_rated_output_torque(head_motor); // undef on a motor that publishes none
+  _rated_torque = dc_motor_rated_output_torque(_motor); // undef on a motor that publishes none
 
   // no-load and rated are different facts and either may be unpublished, so each is reported as
   // itself and a motor missing both says so rather than echoing a silent undef
   _drive_speeds = [
     for (s = [
-      ["no-load", dc_motor_no_load_output_rpm(head_motor)],
-      ["rated", dc_motor_rated_output_rpm(head_motor)],
+      ["no-load", dc_motor_no_load_output_rpm(_motor)],
+      ["rated", dc_motor_rated_output_rpm(_motor)],
     ]) if (!is_undef(s[1])) s
   ];
 
   if (len(_drive_speeds) == 0)
-    echo(str("drive: ", dc_motor_name(head_motor), " registers no output speed, so no Re or dissipation follows"));
+    echo(str("drive: ", dc_motor_name(_motor), " registers no output speed, so no Re or dissipation follows"));
 
   for (s = _drive_speeds)
     let (_rpm = s[1], _power = stirred_tank_power(impeller_diameter, _rpm, _impeller_po))
@@ -2252,11 +2257,11 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // Whether the speed above can be measured or only commanded. Worth reporting next to it because
   // the band the drive aims at is narrow, so what resolves it decides whether the model's numbers
   // describe the shaft or only the request.
-  _encoder = dc_motor_encoder(head_motor);
-  _encoder_counts = dc_motor_encoder_counts_per_output_rev(head_motor);
+  _encoder = dc_motor_encoder(_motor);
+  _encoder_counts = dc_motor_encoder_counts_per_output_rev(_motor);
 
   if (is_undef(_encoder))
-    echo(str("drive: ", dc_motor_name(head_motor), " carries no encoder, so shaft speed is commanded, not measured"));
+    echo(str("drive: ", dc_motor_name(_motor), " carries no encoder, so shaft speed is commanded, not measured"));
   else
     echo(str(
       "drive encoder: ", _encoder[0], " ppr x ", _encoder[1], " channels through ",
@@ -2354,7 +2359,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   );
 
   // the height that the motor coupling assembly requires
-  motor_mount_height = head_motor_mount_height(lid_flange_height, vessel_internal_height, _build_shaft);
+  motor_mount_height = head_motor_mount_height(lid_flange_height, vessel_internal_height, _build_shaft, _motor);
 
   // Mount slenderness. REASONED, NOT CITED - no source stands behind these two numbers. The
   // coupling is rigid, so it transmits misalignment rather than absorbing it, and any deflection
@@ -3665,9 +3670,9 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     // the registered type. motor_mount() takes an overall height, so the mount's top face sits
     // at motor_mount_height and the gearbox output face lands flush on it, with the output boss
     // dropping into the faceplate's centre hole.
-    translate([0, 0, motor_mount_height + dc_motor_length(head_motor) + gearbox_length(head_gearbox)])
+    translate([0, 0, motor_mount_height + dc_motor_length(_motor) + gearbox_length(head_gearbox)])
       rotate([0, 180, 0])
-        dc_motor(head_motor);
+        dc_motor(_motor);
   }
 
   // motor mount; the module does not color itself, so all three telescoping parts take this one

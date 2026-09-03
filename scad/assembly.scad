@@ -219,6 +219,11 @@ shaft_name = "auto"; // [auto, 8x200_316, 8x400_316, 8x600_316, 8x800_316]
 // The ring centring the lid plug, by registered name. "auto" takes any ring whose free ID lands
 // this jar's groove between zero and five percent stretch. Names are in scad/purchased/orings.scad.
 plug_oring_name = "auto";
+// The drive motor, by registered name. "auto" takes head.scad's own registered row. The gearbox
+// comes off the motor, so this moves the mount height and the whole drive stack with it - which is
+// why the envelope below reads it back rather than assuming. Names are in
+// scad/purchased/dc_motors.scad; two of those rows cannot be ordered and say so.
+motor_name = "auto";
 // The lid's rim gasket stock, by registered name. "auto" takes head.scad's own registered sheet.
 // Its hardness sets the gasket factor m, and the joint's bolt count is derived from that - so this
 // is read back through head_gasket_factor() rather than restated here. Names are in
@@ -253,6 +258,12 @@ _build_plug_oring = plug_oring_name == "auto" ? undef : oring_by_name(plug_oring
 assert(
   plug_oring_name == "auto" || !is_undef(_build_plug_oring),
   str("No registered o-ring is named \"", plug_oring_name, "\", or it is registered twice. See scad/purchased/orings.scad.")
+);
+
+_build_motor = motor_name == "auto" ? undef : dc_motor_by_name(motor_name);
+assert(
+  motor_name == "auto" || !is_undef(_build_motor),
+  str("No registered motor is named \"", motor_name, "\", or it is registered twice. See scad/purchased/dc_motors.scad.")
 );
 
 _build_gasket_sheet = gasket_sheet_name == "auto" ? undef : gasket_sheet_by_name(gasket_sheet_name);
@@ -293,6 +304,7 @@ reactor_build = [
   ["head_shaft", _build_shaft],
   ["lid_plug_oring", _build_plug_oring],
   ["do_probe_port_tilt_max", do_probe_port_tilt_max],
+  ["head_motor", _build_motor],
   ["lid_gasket_sheet", _build_gasket_sheet],
   ["do_probe", _build_do_probe],
   ["ph_probe", _build_ph_probe],
@@ -410,7 +422,7 @@ function reactor_envelope_diameter() = joint_outer_diameter; // the flange circl
 function reactor_envelope_height() =
   frame_floor_depth(vessel_height(reactor_vessel), _reactor_light)
   + vessel_height(reactor_vessel) + lid_flange_height
-  + head_stack_height(lid_flange_height, vessel_internal_height(reactor_vessel), _build_shaft);
+  + head_stack_height(lid_flange_height, vessel_internal_height(reactor_vessel), _build_shaft, _build_motor);
 
 echo("reactor envelope: ", reactor_envelope_diameter(), " mm dia x ", reactor_envelope_height(), " mm tall");
 
