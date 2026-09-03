@@ -546,23 +546,61 @@ Experimentation Reactors." *Industrial & Engineering Chemistry Research* 43:4149
 The source Montante was pointing at, and a much closer match to this design than Montante itself:
 **six-bladed 45 deg pitched blade turbines**, up-pumping, in vessels of **T = 60 and 88 mm** — the
 scale of the small jars in this family. All configurations compared at a constant 168 W/m3, which is
-what makes the comparison fair. Table 2, mixing time to 95% homogeneity:
+what makes the comparison fair. Table 2, mixing time to 95% homogeneity, on the T = 60 vessel:
 baffled 1.98 s, unbaffled centred 2.80 s, **unbaffled eccentric 1.78 s**. Off-centre is 36% faster
 than unbaffled centred and, at equal power per volume, indistinguishable from baffled — the paper
 puts it at "no discernible difference (<=0.1 s)". Bulk-fluid energy dissipation improved about 200%.
 The eccentric position tested was **e = 0.2 T**, and it was the only one tested.
 
+**T is the tank's internal diameter**, which this project's use of the paper turns on. Two places in
+it say so independently: the Nomenclature gives "T = tank diameter (m)" alongside "R = tank radius"
+and "Cw = impeller clearance from vessel sidewall", and Table 1 registers `Cw/T` as 0.5 for both the
+baffled and the unbaffled centred runs and **0.7 for the eccentric one** — a shaft half a diameter
+from the wall is on the axis, so 0.7 − 0.5 is the eccentricity and `e = 0.2 T` is measured on the
+bore. Table 1 also fixes the fourth row: T88E's 2.21 s is the 88 mm vessel, so the three figures
+above are one vessel and are comparable to each other.
+
+**Where it departs from this design**, which was not recorded before: Table 1 gives **D/T of 0.58
+and 0.55** against 0.45 here, **H/T = 1** against 1.124 on `jar_10L`, and Re of 8237-19280 against
+about 4.7e4. The impeller class, the blade angle, the pumping direction and the scale all match; the
+diameter ratio and the fill do not. The 36% is measured on a fatter impeller in a shallower vessel.
+
 **Karcz, J.; Cudak, M.; Szoplik, J. (2005).** "Stirring of a liquid in a stirred tank with an
 eccentrically located impeller." *Chemical Engineering Science* 60:2369-2380.
 [doi:10.1016/j.ces.2004.11.018](https://doi.org/10.1016/j.ces.2004.11.018) **[PR]** · **read**
-What Hall does not give: the shape of the curve between centred and 0.2 T. Eq. (6) correlates
-dimensionless mixing time against eccentricity continuously over e/R in [0, 0.57], unbaffled, Re
-2e4-8e4 — this design sits at 4.7e4, inside the range. Propeller at D = 0.33 T, mean error +/-10%.
+What Hall does not give: the shape of the curve between centred and 0.2 T. **Eq. (6), p. 2372**,
+correlates dimensionless mixing time against eccentricity continuously:
+
+```
+Theta = 48.5 + (1/M) * exp[-1.89 * (1/M) * (e/R)] * exp[8.18 * M]
+```
+
+`Theta = n * t_m`, `M = +0.32` for an up-pumping propeller and `-0.32` for a down-pumping one, and
+**`R = T/2`** — so `e/R` is twice `e/T`, which is the conversion this project needs and the easiest
+thing in the equation to get wrong. Mean relative error **±10 %**.
+
+Its envelope, from Table 1 and the text: **unbaffled**, `T = 0.7 m` inner diameter, `H = T`,
+`V = 270 dm3`, a **propeller at `D = 0.33 T`** with pitch `S = D` and blade width `w = 0.2 D`,
+off-bottom clearance `h = 0.33 H`, `e/R` in ⟨0, 0.57⟩ — so `e/T` up to 0.285, which covers every
+value this design can reach — and **Re in ⟨2e4, 8e4⟩**, where this design sits at 4.7e4. Table 1's
+first row reads "Inner diameter of the tank, T", which is the second independent confirmation that
+T is the bore.
+
 **The response is exponential, not linear**, so most of the benefit arrives early: half of it by
-e/T = 0.05, and 26% of the centred mixing time gone by e/T = 0.07.
+e/T = 0.05, and 26% of the centred mixing time gone by e/T = 0.07. Both are eq. (6) evaluated, not
+read off a figure.
+
 Cross-checked against Hall at the one point they share, e/T = 0.2: Karcz's equation predicts 42%
 faster than centred, Hall measured 36%. Different impellers, tanks 12x apart in size, agreeing
 within six points — which is why the correlation is used below rather than Hall's single point.
+
+**The departures are larger than Hall's and want stating.** `D = 0.33 T` against 0.45 here; a
+three-bladed **propeller**, or an HE 3, rather than a pitched blade turbine; `H = T` against 1.124;
+and 270 L against 8.25. Worst of all, **`M` has only two values and this design is neither** — the
+build runs a mirrored counter-pumping pair, where eq. (6) offers up-pumping or down-pumping and the
+two branches disagree about the centred case by a factor of nearly two (`Theta` 91.3 against 48.3).
+Every figure quoted from eq. (6) in this document is the **up-pumping** branch, which is the one
+Hall's up-pumping PBT corroborates.
 
 **Cabaret, F.; Fradette, L.; Tanguy, P.A. (2008).** "Gas-liquid mass transfer in unbaffled
 dual-impeller mixers." *Chemical Engineering Science* 63:1636-1647.
@@ -635,22 +673,48 @@ and on `jar_1gal_155` **−8.30 mm** — an unasserted collision until `head()` 
 masked before that because the port-spacing assert fires first.
 
 The deeper problem is that **eccentricity is referenced to the tank diameter while the room for it is
-set by the mouth.** Hall's e = 0.2 T needs 21.8 mm on `jar_1p5L` and 44.0 mm on `jar_10L`; the widest
+set by the mouth.** Hall's e = 0.2 T needs 20.2 mm on `jar_1p5L` and 42.0 mm on `jar_10L`; the widest
 offset any of these lids can give, with the mount shrunk to the Ø36 floor its own gearbox faceplate
 allows and every port on a mini flange, is 0.5 mm and 28.4 mm respectively. **e/T = 0.2 is out of
-reach on every registered vessel.** What is reachable, by Karcz's equation:
+reach on every registered vessel** — `jar_1gal_180` comes closest at 0.181 and misses it narrowly.
+What is reachable, by Karcz's equation:
 
 | vessel | mouth/T | e/T today | gain | e/T at best | gain |
 | --- | --- | --- | --- | --- | --- |
-| `jar_1p5L` | 0.80 | 0 | 0% | 0.005 | 3% |
-| `jar_1gal_155` | 0.62 | 0 | 0% | 0.030 | 14% |
-| `jar_6p5gal` | 0.45 | 0.034 | 15% | 0.083 | 29% |
-| `jar_10L` | 0.65 | 0.060 | 24% | 0.129 | 37% |
-| `jar_1gal_180` | 0.82 | 0.088 | 30% | 0.171 | 41% |
+| `jar_1p5L` | 0.864 | 0 | 0% | 0.005 | 3% |
+| `jar_1gal_155` | 0.642 | 0 | 0% | 0.031 | 14% |
+| `jar_6p5gal` | 0.488 | 0.037 | 17% | 0.090 | 31% |
+| `jar_10L` | 0.681 | 0.063 | 25% | 0.135 | 37% |
+| `jar_1gal_180` | 0.871 | 0.093 | 31% | 0.181 | 41% |
+
+**T is the BORE here**, `vessel_outer_diameter − 2 × vessel_wall_thickness`, which is what T means
+everywhere else in this project: `head.scad`'s D/T is cut from it and so is the H/T the model echoes.
+(Superseded — kept for the record. This section measured T as the OUTER diameter throughout. It read
+"Hall's e = 0.2 T needs 21.8 mm on `jar_1p5L` and 44.0 mm on `jar_10L`", with mouth/T of 0.80, 0.62,
+0.45, 0.65, 0.82, e/T today of 0, 0, 0.034, 0.060, 0.088 and e/T at best of 0.005, 0.030, 0.083,
+0.129, 0.171 — every one of them 0.2 × or ÷ the glass rather than the bore. It is the defect
+`docs/design-conventions.md` already lists against the impeller ratio, which multiplied the outer
+diameter where D/T means the bore; that one was caught in the model and this one was not, so the two
+disagreed about T while sitting in the same repository. What was NOT wrong is the numerator:
+`Rpc − flange − lid_holes_offset − mount_radius` is lid geometry in mm, so the physical room is
+unchanged and only the denominator moved — 4 to 8 %, all one way, making the target easier to reach
+and the achieved ratio higher.)
+
+**The gain columns are recomputed from eq. (6)**, up-pumping branch, at the corrected e/T. The
+equation is now written out in the Karcz entry above, so this table can be re-derived rather than
+trusted: `gain = 1 − Theta(2·e/T) / Theta(0)`, with `Theta(0) = 91.32`. Reading the paper also
+validated the arithmetic that was already here — every gain in the superseded column reproduces
+from eq. (6) at the old e/T, and so do the two figures in the Karcz entry, so the only thing that
+was ever wrong in this section was the dimension T was measured on. (Superseded — kept for the
+record: `e/T today` gains read 0%, 0%, 15%, 24%, 30% and `e/T at best` read 3%, 14%, 29%, 37%, 41%.)
+
+What it is still **not** is a check. The gains are computed by hand here and nothing in the model
+evaluates eq. (6), so a future edit to this table cannot be caught the way a geometry number can.
+Encoding it in `utils/stirred_tank.scad` is filed in `TODO.md`.
 
 The result is the wrong way round: **the vessels with room for eccentricity are the ones already wide
 enough to carry baffles, and the two that need it have none.** Off-centring is not a rescue for the
-small jars. It is, separately, a cheap 24-30% on the large ones if they ever run unbaffled.
+small jars. It is, separately, a cheap 25-31% on the large ones if they ever run unbaffled.
 → `docs/ports-layout.md` "Baffles on a narrow jar", `TODO.md` airlift item
 
 ---

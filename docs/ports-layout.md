@@ -280,8 +280,9 @@ Off-centring the shaft is the established fix and is well supported — Hall mea
 60 and 88 mm vessels and found eccentric agitation indistinguishable from baffled at equal power, and
 36% faster than unbaffled centred. **It is not available here.** Eccentricity is referenced to the
 tank diameter while the room for it is set by the mouth, and the motor mount sits in that room:
-Hall's e = 0.2 T wants 21.8 mm on `jar_1p5L`, where the best any lid can offer is 0.5 mm. See
-`docs/references.md` for the numbers on every vessel.
+Hall's e = 0.2 T wants 20.2 mm on `jar_1p5L`, where the best any lid can offer is 0.5 mm. See
+`docs/references.md` for the numbers on every vessel, and for why T is the bore. (Superseded — kept
+for the record: this said 21.8 mm, which is 0.2 of the outer diameter rather than of the bore.)
 
 So the narrow jars trade baffles for a real change of agitation, not for a shrug. That is the airlift
 variant in `TODO.md`, and it is the same change that removes the motor mount — the part that blocks

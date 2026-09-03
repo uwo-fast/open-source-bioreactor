@@ -303,14 +303,14 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
   - **it also gives eccentricity back, which is the bigger prize.** `docs/ports-layout.md` rules out
     Hall's off-centre fix - indistinguishable from baffled at equal power, 36 % faster than unbaffled
     centred - because eccentricity is referenced to the tank diameter while the room for it is set by
-    the mouth, and the motor mount sits in that room: `e = 0.2 T` wants 21.8 mm on `jar_1p5L` where
+    the mouth, and the motor mount sits in that room: `e = 0.2 T` wants 20.2 mm on `jar_1p5L` where
     the best any lid offers is 0.5. A magnetic drive puts nothing through the mouth, so the thing
     that ruled it out is gone
   - **which surfaces the decision this item does not make: centred or eccentric.** They are different
     rotors. A centred one pivots on the punt as above and is still a centred impeller in an unbaffled
     jar - Montante's flow number 0.25, 65 % below baffled, which is the thing the narrow-jar question
-    exists to escape. An eccentric one is Hall's fix and has nothing locating it: at `e = 21.8` on
-    `jar_1p5L` it sits 14.3 mm outboard of a 7.5 mm plateau, about 2.5 mm down a 10 deg slope, on a
+    exists to escape. An eccentric one is Hall's fix and has nothing locating it: at `e = 20.2` on
+    `jar_1p5L` it sits 12.7 mm outboard of a 7.5 mm plateau, about 2.2 mm down a 10 deg slope, on a
     floor whose high point is the centre it is trying not to occupy. Two cautions ride with it -
     Galletti reports macro-mixing in an eccentric unbaffled vessel is UNSTEADY, and power consumption
     RISES with eccentricity, which a low-torque fan is the least able to pay
@@ -384,6 +384,28 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
   - flagged by the campaign audit but NOT yet verified by me, so check before changing:
     `docs/agitation.md:136`'s 0.4875 mouth-limited D/T ratio (audit said 0.4879), and the
     1.91 kPa/L/min outlet-filter budget at `docs/build.md:389` and `TODO.md:77,85` (audit said 1.885)
+
+- [ ] **encode Karcz's eq. (6) in the model, now that the paper has been read**
+  - the equation itself is no longer missing - it is written out in `docs/references.md`'s Karcz
+    entry, with `M`, `R = T/2` and its full envelope, and the eccentricity table's gains are
+    recomputed from it. Reading it also validated what was already there: every gain in that table
+    reproduced from eq. (6) at the old e/T, so the only defect in that section was the dimension T
+    was measured on
+  - what is left is that **nothing evaluates it**. The gains are hand-computed in a document, so the
+    table cannot be caught the way a geometry number can - the case `docs/design-conventions.md`
+    calls the worst kind, a figure the model cannot check sitting where a reader will trust it. It is
+    not a small column either: the section prefers this correlation to Hall's single measured point,
+    so the whole reachability argument for off-centring rests on it
+  - where it belongs: `utils/stirred_tank.scad`, beside the blend time it modifies, taking e/T and
+    returning the ratio, with departures RETURNED AS NAMES the way `stirred_tank_medek_departures()`
+    does. There are five and they are not small - `D = 0.33 T` against 0.45, a three-bladed propeller
+    against a pitched blade, `H = T` against 1.124, 270 L against 8.25, and the one that has no
+    honest value at all: **`M` is +0.32 up-pumping or -0.32 down-pumping and this build is a mirrored
+    counter-pumping pair**, where the two branches disagree about the centred case by nearly a factor
+    of two. Every figure in the document is the up-pumping branch, chosen because Hall's up-pumping
+    PBT corroborates it, and that choice should be echoed rather than buried
+  - Re is the one that is comfortably inside: ⟨2e4, 8e4⟩ against 4.7e4 here, and `e/R` ⟨0, 0.57⟩
+    covers every offset any registered lid can reach
 
 - [ ] **`motor_mount_body_diameter = 56` is a literal that restates a derivation**
   - it is exactly the largest registered gearbox's 36 mm plus two times the 10 mm
