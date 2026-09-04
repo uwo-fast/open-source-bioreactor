@@ -388,6 +388,29 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     computed against the retired 8.25 L flow and did not move when the fill fraction did. Fixed at
     all four sites, and against a fresh render rather than against another document
 
+- [ ] **head() still builds the OLD sparge ring, so the family has two spargers**
+  - `custom/sparger.scad` is the tube sparger: round bore, octagonal outside, split opposite the
+    feed with a solid plug at each cut face and a self-tap pilot for a 316 set screw, a swept elbow
+    where the feed turns into the ring, one to N concentric rings on equal-area radii, and holes
+    along the spokes for a hub-and-spoke layout. It renders, meshes at 59178 triangles and is on
+    `check-scad`; `sparger_report()` echoes what it does to the gas
+  - `head.scad` calls `sparge_ring()` still, so `custom/sparge_ring.scad` remains the part the
+    reactor actually gets. **That is one physical thing with two expressions** and the conventions
+    say so - it is deliberate for now, because swapping it touches the print manifest, check-parts,
+    the port table's feed angle and the reference build, and none of that should ride in on a part
+    that has never been printed
+  - what has to happen to close it: head() derives radii from `sparger_equal_area_radii()` against
+    the baffle and mouth clearances it already computes, passes `set_screw_tap_radius()` for the
+    plug, calls `sparger_report()` beside its own sparge echoes, and `sparge_ring.scad` is deleted
+    rather than left as a second answer
+  - **the numbers say the swap is worth making.** The old ring's eight 3 mm holes on a 5 mm bore are
+    an open area ratio of 1.44, so its holes compete with their own supply; at 1.2 mm they run 0.9.
+    Bubble diameter at formation goes 5.10 mm to 3.76 mm and specific area up 36 %, which is the
+    lever `docs/agitation.md` now records as outranking the agitation mode itself
+  - and it is bounded: bubble size goes as the CUBE ROOT of hole diameter, so reaching the 1.56 mm
+    of Uyar's microporous sparger would want an 86 micron orifice. A printed ring cannot get there;
+    it can get most of the way from 3 mm to 1 mm and then stops
+
 - [ ] **decide whether the eccentricity report should reach the two jars that need it**
   - Karcz's eq. (6) is encoded in `utils/stirred_tank.scad` and `head()` consumes it: it takes the
     offset the mount leaves - the slack above the minimum its mount-versus-flange assert clears -

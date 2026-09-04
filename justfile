@@ -38,7 +38,7 @@ scad/custom/bayonet_probe_port.scad scad/custom/bayonet_thermocouple_port.scad \
 scad/custom/cylindrical_flex_collet.scad scad/custom/gasket_cutter.scad scad/custom/impeller.scad \
 scad/custom/motor_mount.scad scad/custom/peri_pump_frame_mount.scad \
 scad/custom/peri_pump_head.scad scad/custom/sheet_gasket.scad \
-scad/custom/sparge_ring.scad"
+scad/custom/sparge_ring.scad scad/custom/sparger.scad"
 
 # List available recipes.
 default:
@@ -569,6 +569,8 @@ check-parts:
         scad/custom/impeller.scad
         scad/custom/motor_mount.scad
         scad/custom/sparge_ring.scad
+        scad/custom/sparger.scad                    # the tube sparger that replaces sparge_ring. On
+                                                    # no manifest until head() drives it - see TODO
         scad/custom/sheet_gasket.scad               # EPDM cut from a sheet with a knife, not printed
         scad/bottle_holder.scad                     # bench furniture AROUND the reactor rather than
         scad/cart.scad                              # part of it. Printed, and on no print list -

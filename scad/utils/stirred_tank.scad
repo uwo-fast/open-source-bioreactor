@@ -144,8 +144,75 @@ function stirred_tank_orifice_velocity(gas_flow, count, hole_diameter) =
 // first is 1-3 orders larger, which is why hole-to-hole TOLERANCE and not channel area decides
 // whether every hole flows - and why bigger holes are less sensitive, since 4 sigma / d falls as d
 // rises while a fixed tolerance does not.
-function stirred_tank_capillary_pressure(hole_diameter) = 4 * 0.072 / (hole_diameter / 1000);
+function stirred_tank_capillary_pressure(hole_diameter) =
+  4 * stirred_tank_surface_tension() / (hole_diameter / 1000);
 function stirred_tank_orifice_pressure(velocity) = 0.5 * 1.2 * pow(velocity, 2) / pow(0.6, 2);
+
+// ----- what the hole actually makes -----
+//
+// Bubble diameter at formation, from the force balance that gives Tate's law: a bubble grows on the
+// orifice until buoyancy beats the surface tension holding it to the rim, so
+//
+//   pi * d_o * sigma  =  (pi/6) * d_b^3 * (rho_l - rho_g) * g
+//
+// QUASI-STATIC, and that is the whole caveat: it holds while the gas rate is low enough that a
+// bubble detaches before the next crowds it, and above that size becomes flow-dependent and larger
+// than this. Kulkarni & Joshi 2005 review the regimes. So it is a FLOOR on what an orifice can
+// produce rather than a promise. Sanity against the only measurement held here: Uyar's 0.8 mm
+// orifice gives 3.28 mm by this and they measured 4.18-4.25 mm at a real gas rate - right size, low
+// as expected.
+//
+// This is the strongest lever the geometry has on mass transfer and nothing reported it before.
+// Uyar measured kLa varying FIVE-FOLD across three 2 L photobioreactors on one organism, entirely
+// with bubble size, while the impeller moved it 15 %. But it goes as the CUBE ROOT of hole
+// diameter, so the lever is bounded: 3 mm gives 5.10 mm bubbles and 0.5 mm gives 2.81 mm, and
+// reaching the 1.56 mm of Uyar's microporous sparger would need an 86 micron orifice. That is why
+// those spargers are sintered rather than drilled, and it is the honest limit on what a printed
+// ring can buy.
+function stirred_tank_bubble_diameter(hole_diameter) =
+  1000 * pow(
+    6 * (hole_diameter / 1000) * stirred_tank_surface_tension()
+    / (9.81 * (stirred_tank_medium_density() - gas_air_density_at_20c())),
+    1 / 3
+  );
+
+// Air at 20 C. Named rather than left as a literal beside the density above, because the buoyancy
+// that detaches a bubble is a DIFFERENCE of densities and a difference wants both terms visible.
+function gas_air_density_at_20c() = 1.204; // kg/m^3
+
+// Interfacial area per unit volume of dispersion, 1/m: a = 6*eps/d_b. This is the whole chain from
+// a drilled hole to kLa, which is kL times this - and it is why a smaller hole is worth more than a
+// bigger impeller on a vessel that is transfer limited.
+function stirred_tank_specific_area(holdup, bubble_diameter) =
+  6 * holdup / (bubble_diameter / 1000);
+
+// Bubbles a second. Worth reporting because it says whether a hole count is a lot or a little, and
+// because Barbosa puts cell damage at bubble FORMATION rather than at bursting, so it scales with
+// this rather than with flow.
+function stirred_tank_bubble_rate(gas_flow, bubble_diameter) =
+  gas_flow / (PI / 6 * pow(bubble_diameter / 1000, 3));
+
+// ----- whether a sparger's bore is a plenum -----
+//
+// A manifold shares evenly only if the resistance at the holes dominates the pressure differences
+// along the bore. Two numbers say whether it does, and the ring this project shipped fails the
+// second: eight 3 mm holes on a 5 mm bore is an open area ratio of 1.44, so its holes were
+// competing with their own supply.
+
+// Gas speed inside the sparger tube. `paths` is how many ways flow splits AT THE FEED: two for a
+// ring fed at one point, whether or not it is split opposite - a split ring still sends gas both
+// ways round, each way dead-ending at a plug rather than meeting. One per arm for a spider.
+function stirred_tank_sparge_bore_velocity(gas_flow, bore_diameter, paths = 2) =
+  gas_flow / (paths * PI / 4 * pow(bore_diameter / 1000, 2));
+
+// The velocity head that speed carries. Large against what a hole costs and the far holes see a
+// different pressure from the near ones.
+function stirred_tank_sparge_bore_head(velocity) = 0.5 * gas_air_density_at_20c() * pow(velocity, 2);
+
+// Total hole area over bore area. Well under 1 and the bore is the plenum it should be; at or above
+// 1 the holes are competing with it.
+function stirred_tank_sparge_open_area_ratio(hole_count, hole_diameter, bore_diameter, paths = 2) =
+  hole_count * pow(hole_diameter, 2) / (paths * pow(bore_diameter, 2));
 
 // ----- baffles -----
 //
@@ -269,6 +336,10 @@ function stirred_tank_critical_speed(frequency, order) = frequency * 60 / order;
 // properties for an algal suspension. Change these two and every number below follows.
 function stirred_tank_medium_density() = 998.2; // kg/m^3
 function stirred_tank_medium_viscosity() = 1.002e-3; // Pa s
+// Air against water at 20 C. It was a literal inside the capillary pressure below until the
+// sparger wanted it too - a bubble's size at formation and the pressure to launch it are the same
+// surface tension said twice, and two copies would have drifted the moment either moved.
+function stirred_tank_surface_tension() = 0.072; // N/m
 
 // Medek's correlations for a pitched blade impeller, from Fořt et al. 2002, Acta Polytechnica
 // 42(4), doi:10.14311/380. These give the power number and the pumping-capacity number as
