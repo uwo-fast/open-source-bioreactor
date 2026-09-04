@@ -41,6 +41,11 @@ Real examples, each of which shipped:
   17.4 mm and each passed through the rail above it.
 - The **bearing's** allowance was applied twice — once folded into the registered diameter and again
   as the pocket allowance — leaving the pocket 0.8 mm oversize.
+- The **eccentricity analysis** measured T as the outer diameter — the impeller-ratio defect above,
+  recurring in a document after it had been fixed in the model, so the two disagreed about what T
+  meant while sitting in one repository. Nothing could catch it: no geometry reads those numbers.
+  It is the clearest case for the rule below that a document is the second expression, and the
+  worse place for one.
 
 The fix is always the same shape: one expression, read back by whoever needs it. Subassemblies
 export accessors (`frame_outer_diameter()`, `head_gasket_factor()`) rather than have consumers
