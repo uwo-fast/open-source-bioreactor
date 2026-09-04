@@ -683,7 +683,7 @@ What is reachable, by Karcz's equation:
 | --- | --- | --- | --- | --- | --- |
 | `jar_1p5L` | 0.864 | 0 | 0% | 0.005 | 3% |
 | `jar_1gal_155` | 0.642 | 0 | 0% | 0.031 | 14% |
-| `jar_6p5gal` | 0.488 | 0.037 | 17% | 0.090 | 31% |
+| `jar_6p5gal` | 0.488 | 0.037 | 16% | 0.090 | 31% |
 | `jar_10L` | 0.681 | 0.063 | 25% | 0.135 | 37% |
 | `jar_1gal_180` | 0.871 | 0.093 | 31% | 0.181 | 41% |
 
@@ -708,9 +708,26 @@ from eq. (6) at the old e/T, and so do the two figures in the Karcz entry, so th
 was ever wrong in this section was the dimension T was measured on. (Superseded — kept for the
 record: `e/T today` gains read 0%, 0%, 15%, 24%, 30% and `e/T at best` read 3%, 14%, 29%, 37%, 41%.)
 
-What it is still **not** is a check. The gains are computed by hand here and nothing in the model
-evaluates eq. (6), so a future edit to this table cannot be caught the way a geometry number can.
-Encoding it in `utils/stirred_tank.scad` is filed in `TODO.md`.
+**The `e/T today` columns are ECHOED BY THE MODEL, not transcribed.** `head()` computes the offset
+the mount leaves — the slack above the minimum its mount-versus-flange assert clears — divides it by
+the bore, and reports the gain with `stirred_tank_eccentric_gain()`, so those two columns can be
+read off a render rather than trusted. The figures above are that echo: 10.3 mm, 13.3 and 15.8, at
+e/T 0.037, 0.063 and 0.093. The two jars showing 0 render no echo at all, because an assert stops
+them first — the mount on `jar_1p5L`, and the pH probe on `jar_1gal_155x251`, which fails on the
+probe before it reaches the mount it would also fail. Their 0 is reasoning, not a render, and it is
+the same fact said another way: a lid with no room for the mount has none for an offset.
+
+**The `e/T at best` columns are still by hand**, because they describe a lid that does not exist:
+the mount shrunk to the Ø36 floor its own gearbox faceplate allows, with every port on a mini
+flange. Nothing renders that, so nothing can echo it. They are eq. (6) evaluated at an offset
+someone worked out, and they carry exactly that much authority.
+
+**And they carry one digit less than they show.** Those e/T were re-derived from the superseded
+column, which was quoted to three decimals, so each is uncertain by about ±0.0005 — the offset in
+millimetres was never written down for three of the five rows. Run the interval through eq. (6) and
+four rows are unmoved: 3 %, 31 %, 37 % and 41 % hold across it. **`jar_1gal_155` does not — it is
+14 to 15 %**, and which one cannot be said from what was recorded. It is written as 14 because that
+is the midpoint, and it is the one figure in this table that a re-derivation should expect to move.
 
 The result is the wrong way round: **the vessels with room for eccentricity are the ones already wide
 enough to carry baffles, and the two that need it have none.** Off-centring is not a rescue for the

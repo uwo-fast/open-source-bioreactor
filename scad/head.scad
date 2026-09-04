@@ -3340,6 +3340,29 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     )
   );
 
+  // What the room that check just measured would be WORTH, which is the narrow-jar question priced.
+  // The offset available is the slack above the minimum the assert cleared, and head() is the only
+  // place that knows it - docs/references.md carries the per-vessel table this derives.
+  //
+  // NOT A GAIN THIS BUILD COLLECTS. Karcz's correlation is for an UNBAFFLED tank and this lid
+  // carries four baffles, so the figure prices a vessel that cannot hold them - the two jars whose
+  // mouths refuse baffles are exactly the two whose lids refuse the mount, which is the whole
+  // difficulty. Reported, never warned on, and the departures say why.
+  _eccentricity_room = max(0, _mount_to_ports - lid_holes_offset);
+  _eccentricity_ratio = _eccentricity_room / _vessel_bore;
+  _karcz_departures = stirred_tank_eccentric_departures(
+    _impeller_ratio, _liquid_to_bore, _culture_volume,
+    stirred_tank_reynolds(impeller_diameter, dc_motor_rated_output_rpm(_motor)),
+    _eccentricity_ratio, len(_baffle_at), impeller_to_render == "both", false
+  );
+
+  echo(str(
+    "eccentricity: the mount leaves ", _eccentricity_room, " mm of offset, e/T ", _eccentricity_ratio,
+    " against Hall's measured 0.2 - worth ", 100 * stirred_tank_eccentric_gain(_eccentricity_ratio),
+    "% of the centred blend time on Karcz's up-pumping branch, but only to an unbaffled vessel and ",
+    "this one carries ", len(_baffle_at), " baffles. Extrapolated on ", _karcz_departures
+  ));
+
   // The joint posts are bored through the flange, and where its edge falls is the assembly's to
   // set, so nothing here stops a bore running off it. Caught only incidentally today, and by the
   // frame complaining about its own wall, in another file.
