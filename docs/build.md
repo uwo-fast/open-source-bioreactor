@@ -386,7 +386,7 @@ It is not. An outlet filter does not sit between the pump and the sparge holes, 
 headspace those holes discharge into, and the gas has to beat that too. A second identical filter
 puts the line at **31.8 kPa** against a pump that dead-heads at **27** — the reactor would settle at
 **3.27 L/min**, and 0.5 vvm would stop being a setting it can hold. `head()` reports the budget:
-an outlet filter may cost at most **1.91 kPa per L/min**, which is 55 % of what the inlet one does,
+an outlet filter may cost at most **1.885 kPa per L/min**, which is 54.6 % of what the inlet one does,
 so it wants roughly **twice the membrane area** rather than the same part again.
 
 Two numbers behind that are worth knowing. The pump's real ceiling on this line is **6.05 L/min**,

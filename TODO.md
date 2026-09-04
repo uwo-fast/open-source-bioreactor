@@ -65,7 +65,7 @@ ledger at the end: decisions that took real work to reach and would otherwise be
   - the answer to both is the narrow-jar agitation question, tracked under "drive and aeration".
     Nothing else in the model is waiting on it
 
-- [ ] **choose an outlet filter that fits in 1.91 kPa/L/min, because the obvious one does not**
+- [ ] **choose an outlet filter that fits in 1.885 kPa/L/min, because the obvious one does not**
   - the exhaust is unguarded: the headspace vents through a support tube's bore into the room while
     a 0.2 um filter guards the inlet, which is half the usual arrangement. `head()` says so on every
     render now rather than leaving it to a document
@@ -73,7 +73,7 @@ ledger at the end: decisions that took real work to reach and would otherwise be
     is sold in tens - but an outlet filter raises the headspace the sparge holes discharge into. Two
     of them put the line at **31.8 kPa** against a pump that dead-heads at 27, and the reactor
     settles at **3.27 L/min**: 0.5 vvm stops being a setting it can hold
-  - the model reports the budget instead of a part: **at most 1.91 kPa per L/min**, 55 % of the
+  - the model reports the budget instead of a part: **at most 1.885 kPa per L/min**, 54.6 % of the
     inlet filter's slope, so roughly twice the membrane area. `sparge_outlet_filter_drop_slope` is
     undef until something is chosen; set it and head() prices the exhaust into the line
   - **it moves with the inlet filter's own number**, which is still extrapolated rather than
@@ -381,9 +381,12 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     echoes **8.2807 L is 0.82807-4.14035 L/min**; `docs/agitation.md:53` puts mean dissipation over
     8.25 L; `docs/procurement.md:93` carries `**8.25** (pinned)`, which is wrong twice - it is
     neither 8.25 nor pinned
-  - flagged by the campaign audit but NOT yet verified by me, so check before changing:
-    `docs/agitation.md:136`'s 0.4875 mouth-limited D/T ratio (audit said 0.4879), and the
-    1.91 kPa/L/min outlet-filter budget at `docs/build.md:389` and `TODO.md:77,85` (audit said 1.885)
+  - the two the campaign audit flagged are now checked and corrected, and the audit was right both
+    times. `docs/agitation.md`'s mouth-limited D/T was 0.4875 where 137 on a 280.8 bore is **0.4879**
+    - a wrong fourth digit, not a wrong dimension. The outlet-filter budget was 1.91 kPa/L/min at
+    "55 % of the inlet filter's slope" where `head()` echoes **1.8854** at **0.5465**; it was
+    computed against the retired 8.25 L flow and did not move when the fill fraction did. Fixed at
+    all four sites, and against a fresh render rather than against another document
 
 - [ ] **encode Karcz's eq. (6) in the model, now that the paper has been read**
   - the equation itself is no longer missing - it is written out in `docs/references.md`'s Karcz

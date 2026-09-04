@@ -133,7 +133,7 @@ culture, 0.44–0.46 as a manufacturer's "most preferred". Above roughly 0.5 an 
 its strong axial motion.
 
 **`jar_6p5gal_305x470` is the binding vessel.** Its 137 mm mouth on a 280.8 mm bore caps the ratio
-at 0.4875 with the impeller exactly filling the neck; 0.45 leaves 10.64 mm to pass it through. Every
+at 0.4879 with the impeller exactly filling the neck; 0.45 leaves 10.64 mm to pass it through. Every
 other registered jar tolerates 0.64 to 0.87.
 
 The model asserts that the impeller — measured across its fin-top ring, which is what meets the
