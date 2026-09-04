@@ -106,8 +106,13 @@ function sparger_pitch_ratio_floor() = 3; // reasoned, not cited
 // [innermost, outermost] radius the tubes occupy. A tube sparger is ROUND, which is what the old
 // flat section existed to avoid - the annulus between baffles and mouth is millimetres while the
 // room above and below is tens - so the envelope is reported and the vessel decides.
-function sparger_tube_envelope(radii, tube_diameter) =
-  [min(radii) - tube_diameter / 2, max(radii) + tube_diameter / 2];
+//
+// ACROSS CORNERS, because that is where the material actually is. Quoted across flats it
+// under-reports by a quarter of a millimetre a side on a 6 mm octagon, and this is the number that
+// has to clear 1.7 mm of baffle gap - a fit figure that flatters itself is worse than none.
+function sparger_tube_envelope(radii, tube_diameter, facets = 8) =
+  let (_ac = sparger_across_corners(tube_diameter, facets))
+    [min(radii) - _ac / 2, max(radii) + _ac / 2];
 
 // What this sparger violates, by NAME, the shape stirred_tank_medek_departures set. A caller told
 // only "out of range" cannot tell a sparger that is merely coarse from one that cannot distribute.
@@ -194,7 +199,8 @@ module sparger_elbow_solid(r, bend, across_flats, facets) {
  * @param feed_angle      Bearing of the feed arm. Must be a sector with no baffle in it.
  * @param feed_radius     Where the socket sits - the lid's port circle, so the riser is straight.
  * @param feed_bore       Socket bore, sized to the riser it accepts.
- * @param feed_height     How far the socket stands above the tube's top.
+ * @param feed_height     Length of the socket above the elbow's top - which is bend_radius above
+ *                        the tube's centreline, not above its top face.
  * @param feed_wall       Wall around the socket bore.
  * @param support_angles  Bearings of blind sockets that steady the part. ROUND, where the feed is
  *                        hexagonal - see below, it is the only thing that tells them apart.
@@ -233,6 +239,10 @@ module sparger(
   _inner = min(radii);
   _feed_r = is_undef(feed_radius) ? _inner : feed_radius;
   _wall = (tube - bore) / 2;
+  // The tube is quoted across FLATS and its material reaches across CORNERS. Everything that has to
+  // clear it, cut it or measure it uses this, not tube - see the hole reach below for what happens
+  // when it does not. Defined here because the asserts need it.
+  _ac = sparger_across_corners(tube, section_facets);
   // 1.5 tube diameters on the centreline, the usual floor for a pipe bend. It has to clear the
   // tube's own ACROSS-CORNERS half width or the swept profile crosses the axis and rotate_extrude
   // refuses the part - which is exactly what a bend of one bore radius did on the first render.
@@ -260,16 +270,28 @@ module sparger(
     hole_diameter < bore,
     str("sparger: a ", hole_diameter, " mm hole does not open into a ", bore, " mm bore")
   );
-  // The split has to land in a hole-free sector on every ring. Holes sit at half-pitch from the
-  // feed, so the far side is exactly between two of them - but only while the split stays inside
-  // that gap, and the gap shrinks as the hole count rises.
+  // The split has to land in a hole-free sector on every ring, and this is checked against WHERE
+  // THE HOLES ACTUALLY ARE rather than against their pitch. A pitch bound looks sufficient and is
+  // not: holes sit at half-pitch from the feed, so an ODD count puts one exactly at feed+180, dead
+  // centre of the split, while the bound passes it comfortably - 9 holes give a 20 deg half-pitch
+  // and a 14 deg split clears it on paper and eats a hole in fact. The part still renders, still
+  // meshes, and quietly vents one hole fewer than the report claims it has.
   _split_half = split_angle / 2;
-  _hole_half = [for (i = [0:_n - 1]) 180 / holes[i]];
+  _eaten = [
+    for (i = [0:_n - 1])
+      for (j = [0:holes[i] - 1])
+        let (
+          _a = (180 / holes[i] + j * 360 / holes[i]) % 360,       // relative to the feed
+          _d = abs(((_a - 180 + 180 + 720) % 360) - 180),          // ... from the split's centre
+          _hw = asin(min(1, (hole_diameter / 2) / radii[i]))
+        )
+          if (_d < _split_half + _hw) [i, _a]
+  ];
   assert(
-    split_angle == 0 || _split_half < min(_hole_half),
+    split_angle == 0 || len(_eaten) == 0,
     str(
-      "sparger: a ", split_angle, " deg split reaches past the ", 2 * min(_hole_half),
-      " deg between holes on the busiest ring, so it removes one"
+      "sparger: the ", split_angle, " deg split removes hole(s) [ring, deg from feed] ", _eaten,
+      " - an odd hole count always lands one at feed+180. Change the count or narrow the split"
     )
   );
 
@@ -281,7 +303,7 @@ module sparger(
   _split_at = (feed_angle + 180) % 360;
   // An arm's own angular half-width, taken at the INNERMOST ring where a given tube subtends the
   // most angle. Using a fixed tolerance instead rejected arms 30 degrees clear of the split.
-  _arm_half = asin(min(1, (tube / 2) / _inner));
+  _arm_half = asin(min(1, (_ac / 2) / _inner));
   _fouled = [
     for (a = _arms)
       let (_d = abs(((a - _split_at + 180 + 720) % 360) - 180))
@@ -300,9 +322,20 @@ module sparger(
   // centre than the nominal radius - so a hole stopping at nominal leaves a skin. The old part
   // learned this the expensive way: blind holes on a component whose entire job is to let gas out.
   // A circular bore (bore_facets 0) still facets at $fn, so the same correction applies to it.
-  _bore_facets_real = bore_facets == 0 ? $fn : bore_facets;
-  _skin = (bore / 2) * (1 - cos(180 / max(_bore_facets_real, 3)));
-  _reach = tube / 2 + _skin;
+  //
+  // TWO skins, not one, and the first is the one that bit. The tube's section is a POLYGON quoted
+  // across FLATS, so its own surface reaches across CORNERS - tube/2 is 3.0 on a 6 mm tube where
+  // the material actually reaches 3.247. A hole cut to tube/2 stops 0.25 mm inside the wall and
+  // never breaks out: eight blind holes on a part whose whole job is to let gas out, which is the
+  // same defect the ring this replaces carried, in a different disguise.
+  //
+  // The second is the sweep's. rotate_extrude facets the ring, so between vertices the inner
+  // surface sits at r*cos(180/n) - nearer the axis than nominal, so the hole has further to go.
+  // Per ring, because it depends on that ring's radius.
+  _sweep_facets = $fn > 0
+    ? max($fn, 3)
+    : ceil(max(min(360 / $fa, (_outer + _ac / 2) * 2 * PI / $fs), 5));
+  function _reach_at(r) = r - (r - _ac / 2) * cos(180 / _sweep_facets);
 
   difference() {
     union() {
@@ -327,8 +360,7 @@ module sparger(
         // reads flow and the culture gets nothing.
         translate([_feed_r, 0, _bend])
           cylinder(
-            h = feed_height + tube / 2, d = sparger_across_corners(feed_bore + 2 * feed_wall, 6),
-            $fn = 6
+            h = feed_height, d = sparger_across_corners(feed_bore + 2 * feed_wall, 6), $fn = 6
           );
       }
 
@@ -337,8 +369,8 @@ module sparger(
       for (a = support_angles)
         rotate([0, 0, a]) {
           sparger_spoke_solid(_feed_r, _outer, 0, tube, section_facets);
-          translate([_feed_r, 0, -tube / 2])
-            cylinder(h = tube + feed_height, d = feed_bore + 2 * feed_wall);
+          translate([_feed_r, 0, -_ac / 2])
+            cylinder(h = _ac + feed_height, d = feed_bore + 2 * feed_wall);
         }
 
     }
@@ -371,14 +403,14 @@ module sparger(
       sparger_elbow_solid(_feed_r, _bend, bore, bore_facets);
       // and up the socket, meeting the elbow's top
       translate([_feed_r, 0, _bend])
-        cylinder(h = feed_height + tube / 2 + z_fight, d = feed_bore);
+        cylinder(h = feed_height + z_fight, d = feed_bore);
     }
 
     // A support's pocket stops at the tube's own top face, so the arm below stays solid and a tube
     // dropped in cannot vent into the bore.
     for (a = support_angles)
       rotate([0, 0, a])
-        translate([_feed_r, 0, tube / 2])
+        translate([_feed_r, 0, _ac / 2])
           cylinder(h = feed_height + z_fight, d = feed_bore);
 
     // The cleaning gap, opposite the feed. A pie rather than a box, so both cut faces are radial
@@ -386,8 +418,10 @@ module sparger(
     if (split_angle > 0)
       rotate([0, 0, feed_angle + 180 - split_angle / 2])
         rotate_extrude(angle = split_angle, convexity = 4)
-          translate([max(_inner - tube, 0.01), -tube / 2 - z_fight])
-            square([_outer - _inner + 2 * tube, tube + 2 * z_fight]);
+          // Across CORNERS plus a margin, in both directions. Sized on across-flats it left a
+          // 0.25 mm skin at the octagon's top and bottom corners and the ring never opened.
+          translate([max(_inner - _ac, 0.01), -_ac / 2 - 1])
+            square([_outer - _inner + 2 * _ac, _ac + 2]);
 
     // The pilot for each end screw, on the ring's tangent so the screw runs along the bore. No
     // thread is modelled - a 316 set screw cuts its own in PETG, which is what head.scad already
@@ -410,8 +444,8 @@ module sparger(
       for (a = spoke_angles)
         for (r = sparger_equal_area_radii(spoke_holes, _outer, _inner))
           rotate([0, 0, a])
-            translate([r, 0, -_reach])
-              cylinder(h = _reach + z_fight, d = hole_diameter);
+            translate([r, 0, -_ac / 2 - z_fight])
+              cylinder(h = _ac / 2 + 2 * z_fight, d = hole_diameter);
 
     // Gas holes. Inward at the impeller, or down at the floor - Birch & Ahmed discharged theirs
     // toward the turbine, which is the "in" case; a vessel with no impeller wants "down".
@@ -420,11 +454,11 @@ module sparger(
         rotate([0, 0, feed_angle + 180 / holes[i] + j * 360 / holes[i]])
           translate([radii[i], 0, 0])
             if (hole_bearing == "down")
-              translate([0, 0, -_reach])
-                cylinder(h = _reach + z_fight, d = hole_diameter);
+              translate([0, 0, -_ac / 2 - z_fight])
+                cylinder(h = _ac / 2 + 2 * z_fight, d = hole_diameter);
             else
               rotate([0, -90, 0])
-                cylinder(h = _reach + z_fight, d = hole_diameter);
+                cylinder(h = _reach_at(radii[i]) + z_fight, d = hole_diameter);
   }
 }
 
@@ -475,7 +509,7 @@ module sparger_report(radii, holes, hole_diameter, tube, bore, gas_flow, paths =
     _open >= 1 ? " - ABOVE 1, so the holes compete with their own supply" : ""
   ));
   echo(str(
-    "sparger envelope: r ", sparger_tube_envelope(radii, tube),
+    "sparger envelope: r ", sparger_tube_envelope(radii, tube, 8),
     " mm, which is what has to clear the baffles and pass the mouth"
   ));
   echo(str(
