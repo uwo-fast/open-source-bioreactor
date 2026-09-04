@@ -238,7 +238,92 @@ a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not tr
 
 ---
 
-## 5. Open
+## 5. Agitation mode per vessel
+
+Not every registered jar can be agitated the same way, and the reasons are geometric rather than
+preferential. Three of the five swept vessels carry no baffles, and **they are unbaffled for two
+different reasons** — a distinction `docs/ports-layout.md` did not draw, because it attributes all of
+it to the 98 mm mouth floor.
+
+| vessel | mouth | bore | mouth/T | baffles | why not |
+| --- | --- | --- | --- | --- | --- |
+| `jar_1gal_180x197` | 148 | 170 | 0.871 | 4 | — |
+| `jar_10L_220x305` | 143 | 210 | 0.681 | 4 | — |
+| `jar_6p5gal_305x470` | 137 | 280.8 | **0.488** | 0 | the port circle falls inside the impeller |
+| `jar_1gal_155x251` | 95.8 | 149.3 | 0.642 | 0 | mouth below the flange floor |
+| `jar_1p5L_109x215` | 87.5 | 101.2 | 0.864 | 0 | mouth below the flange floor |
+
+**The absolute floor**, which the ports document already has: below about 98 mm no baffle fits beside
+two Ø16 Atlas probes at any port count. That is `jar_1p5L` and `jar_1gal_155`. Note that `jar_1p5L`
+has a *generous* mouth for its bore — 0.864 — so its problem is absolute size, not proportion.
+
+**The ratio bound**, which it did not: `jar_6p5gal`'s mouth is small relative to its BORE, so the
+port circle its lid can offer sits inside the impeller's own sweep. Measured by adding a
+three-baffle set and rendering: the flanges fit — 7, 8 and 9-port sets all clear at a 137 mm mouth,
+and Oldshue sanctions three baffles at equal projected area — and the vessel then failed on
+something else, *"a 126.36 mm impeller leaves no room for a baffle on a 107 mm port circle"*. No port
+count reaches it; D/T would have to fall to about 0.20 against a 0.3 floor. **This jar cannot carry a
+lid-hung baffle at all**, and the port table is not what stops it.
+
+### The three modes
+
+**Baffled stirred** — `jar_10L`, `jar_1gal_180`. The reference configuration; nothing here changes it.
+
+**Unbaffled eccentric stirred** — `jar_6p5gal`. It is the family's worst case today: the largest
+vessel, unbaffled and centred, which Montante measured at flow number **0.25, 65 % below the same
+impeller baffled**. It cannot be baffled, but it *builds*, it carries a top-entry drive, and it has
+room to offset one. `head()` prices that room: **10.3 mm today, e/T 0.037, worth 16 %** of the centred
+blend time by Karcz; **25.3 mm** with the mount at the Ø36 floor its own gearbox faceplate allows,
+e/T 0.090, **worth 31 %**. This is a mount change on a jar that already works, not a new mode of
+agitation.
+
+What rides with it, and none of it is small: six of the eight Karcz departures fire here and Reynolds
+is one of them; Galletti reports macro-mixing in an eccentric unbaffled vessel is UNSTEADY, the
+vortex oscillating slowly rather than sitting; Cabaret reports power RISING with eccentricity; and
+Hall's measured `e = 0.2 T` stays out of reach at 0.090.
+
+**Gas-driven** — `jar_1p5L`, `jar_1gal_155`. For these two the eccentric-versus-centred question does
+not arise, because neither can carry a shaft to centre or offset. Four things point the same way:
+
+- **Both build failures are assertions about the top-entry drivetrain.** The mount overlaps the port
+  flanges by 12.45 mm on `jar_1p5L`; the pH probe runs 6.29 mm through the lower impeller on
+  `jar_1gal_155`. Neither assert would exist in a configuration without that drivetrain, and the
+  model has no way to express one — a modelling gap, not a physical result.
+- **`jar_1p5L`'s impeller is already negated at the design aeration rate.** Oldshue's 8× rule caps
+  axial pumping at **0.341 vvm** where the design is 0.5. It is the only vessel in the family that
+  floods; the others hold 1.7× to 3.2× headroom. At intended conditions it is a bubble column with a
+  spinning obstruction in it.
+- **Measured, on this organism, at this scale.** Uyar 2024 ran *C. sorokiniana* in 2 L
+  side-illuminated columns and moved the stirrer from 100 to 200 rpm for **15 %** on kLa and **18 %**
+  on mixing time, while the sparger moved kLa **five-fold**. Productivity ranked bubble column 0.097,
+  airlift 0.072, stirred tank 0.064 gdw/L·day. The impeller is not what makes a vessel of this size
+  work.
+- **Swirl is specifically wrong for a side-illuminated column.** Molina Grima: average irradiance
+  "considers only the total length of the dark and the light periods, not the frequency of switch".
+  Solid-body rotation preserves a cell's radius, so it is close to the worst available flow here —
+  the failure is not slow blending, it is that the light/dark cycle never happens.
+
+**An AIRLIFT rather than a plain bubble column**, and the reason is this project's own objection to
+leaning on aeration: aeration that mixes as a side effect is an uncontrolled variable. A draft tube
+gives a riser/downcomer ratio, a circulation velocity and a circulation time — quantities Uyar
+measured at 10.9-12.1 cm/s and 6.1-6.8 s, and which a bubble column does not have at all; that paper
+computes circulation time "only for ALR which has a circulation loop, it is not applicable to BCR nor
+STR". Uyar's bubble column did out-produce its airlift, but the authors attribute that to the
+sparger — microporous against a single 0.8 mm orifice — so it is not evidence that a column beats an
+airlift at equal sparging.
+
+### What outranks all three
+
+**The sparger, and it applies family-wide.** The five-fold kLa spread Uyar measured came entirely
+from bubble size: 1.56 mm from a microporous sparger against 4.18-4.25 mm from orifice spargers. This
+ring is 8 × 3 mm holes — coarser than the 0.8 mm orifice that gave them 4 mm bubbles. Whatever mode a
+jar runs, a finer sparger is worth more than the choice between modes. It is a trade rather than an
+oversight: the hole size carries a settled anti-fouling reason, recorded in `TODO.md`. It has not
+been priced against the mass transfer it costs, and it should be.
+
+---
+
+## 6. Open
 
 - **There is no sparger in the model.** `ports-layout.md` reasons about a sparger sector and bubble
   trajectories, but air enters through a bayonet tube port and nothing else. Given that bubble
