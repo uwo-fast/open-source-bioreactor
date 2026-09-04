@@ -385,6 +385,67 @@ function stirred_tank_blend_time(bore, impeller_diameter, mean_dissipation) =
 // correlation is extrapolation, which is exactly what Hall does at 1.7e-4 and says so.
 function stirred_tank_blend_time_volume_band() = [0.01, 10];
 
+// ----- eccentricity -----
+//
+// What moving the impeller off the axis buys in an UNBAFFLED vessel, which is the only case it is
+// claimed for. Karcz 2005 eq. (6), p. 2372:
+//
+//   Theta = 48.5 + (1/M) * exp[-1.89 * (1/M) * (e/R)] * exp[8.18 * M]
+//
+// Theta is the dimensionless mixing time n*t_m, M is +0.32 for an up-pumping propeller and -0.32
+// for a down-pumping one, and R is the tank RADIUS - so e/R is TWICE e/T. That conversion is the
+// easiest thing here to get wrong, and the neighbouring mistake has already been made once: the
+// same analysis measured e against the outer diameter instead of the bore. Both are in
+// docs/references.md.
+//
+// Returned as a RATIO against the centred case, never as a mixing time. Theta is n*t_m on Karcz's
+// own 270 L propeller tank, so its magnitude says nothing about this vessel; what transfers is the
+// fraction of the centred blend time an offset buys back.
+//
+// Mean relative error +/-10%, and corroborated at the one point a second source reaches: at
+// e/T = 0.2 this returns 0.425 where Hall 2004 measured 0.36 on a pitched blade at 1/12 the scale.
+function stirred_tank_karcz_m(pumps_up) = pumps_up ? 0.32 : -0.32;
+
+function stirred_tank_eccentric_theta(eccentricity_ratio, pumps_up = true) =
+  let (_m = stirred_tank_karcz_m(pumps_up), _e_over_r = 2 * eccentricity_ratio) // R = T/2
+    48.5 + (1 / _m) * exp(-1.89 * (1 / _m) * _e_over_r) * exp(8.18 * _m);
+
+// Fraction of the centred blend time an offset buys back. 0 on the axis, about 0.43 at the far end
+// of the fitted range.
+function stirred_tank_eccentric_gain(eccentricity_ratio, pumps_up = true) =
+  1 - stirred_tank_eccentric_theta(eccentricity_ratio, pumps_up)
+  / stirred_tank_eccentric_theta(0, pumps_up);
+
+function stirred_tank_eccentricity_band() = [0, 0.285]; // e/T, from the paper's e/R over <0, 0.57>
+function stirred_tank_karcz_reynolds_band() = [2e4, 8e4];
+
+// What this vessel violates, by NAME, the same way stirred_tank_medek_departures does. Karcz fitted
+// one geometry and varied only e/R and Re, so most of these are a single condition rather than a
+// band - the tolerances below exist so a float compares, not as an allowance - and this reactor
+// misses nearly all of them. That is exactly why they are named: a caller told only "extrapolated"
+// cannot tell one departure from six, or say which of them is the one that matters.
+//
+// The one that matters is `pumping mode`. M has two values and a mirrored counter-pumping pair is
+// neither, and the branches disagree about the centred case by nearly a factor of two - Theta 91.3
+// up-pumping against 48.3 down. Every figure this project quotes from eq. (6) is the up-pumping
+// branch, chosen because Hall's up-pumping PBT corroborates it.
+function stirred_tank_eccentric_departures(impeller_ratio, height_ratio, volume, reynolds,
+                                           eccentricity_ratio, baffles, counter_pumping,
+                                           is_propeller) =
+  [
+    if (abs(impeller_ratio - 0.33) > 0.005) "D/T",
+    if (abs(height_ratio - 1.0) > 0.005) "H/T",
+    if (abs(volume - 270) > 2.7) "scale",
+    if (!stirred_tank_in_band(reynolds, stirred_tank_karcz_reynolds_band())) "Reynolds",
+    if (!stirred_tank_in_band(eccentricity_ratio, stirred_tank_eccentricity_band())) "e/T",
+    if (baffles != 0) "baffle count",
+    if (counter_pumping) "pumping mode",
+    // Blade form is not a term in eq. (6) at all - it was fitted on a 3-blade propeller, pitch
+    // S = D, width w = 0.2 D - so a different impeller is out of the correlation with no way to
+    // say by how much.
+    if (!is_propeller) "impeller type",
+  ];
+
 // ----- gas-liquid mass transfer -----
 //
 // Superficial gas velocity: the sparge flow spread over the vessel's cross section, m/s from m^3/s

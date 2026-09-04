@@ -388,27 +388,31 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     computed against the retired 8.25 L flow and did not move when the fill fraction did. Fixed at
     all four sites, and against a fresh render rather than against another document
 
-- [ ] **encode Karcz's eq. (6) in the model, now that the paper has been read**
+- [ ] **let something in the model CONSUME Karcz's eq. (6), now that it is encoded**
   - the equation itself is no longer missing - it is written out in `docs/references.md`'s Karcz
     entry, with `M`, `R = T/2` and its full envelope, and the eccentricity table's gains are
     recomputed from it. Reading it also validated what was already there: every gain in that table
     reproduced from eq. (6) at the old e/T, so the only defect in that section was the dimension T
     was measured on
-  - what is left is that **nothing evaluates it**. The gains are hand-computed in a document, so the
-    table cannot be caught the way a geometry number can - the case `docs/design-conventions.md`
-    calls the worst kind, a figure the model cannot check sitting where a reader will trust it. It is
-    not a small column either: the section prefers this correlation to Hall's single measured point,
-    so the whole reachability argument for off-centring rests on it
-  - where it belongs: `utils/stirred_tank.scad`, beside the blend time it modifies, taking e/T and
-    returning the ratio, with departures RETURNED AS NAMES the way `stirred_tank_medek_departures()`
-    does. There are five and they are not small - `D = 0.33 T` against 0.45, a three-bladed propeller
-    against a pitched blade, `H = T` against 1.124, 270 L against 8.25, and the one that has no
-    honest value at all: **`M` is +0.32 up-pumping or -0.32 down-pumping and this build is a mirrored
-    counter-pumping pair**, where the two branches disagree about the centred case by nearly a factor
-    of two. Every figure in the document is the up-pumping branch, chosen because Hall's up-pumping
-    PBT corroborates it, and that choice should be echoed rather than buried
-  - Re is the one that is comfortably inside: ⟨2e4, 8e4⟩ against 4.7e4 here, and `e/R` ⟨0, 0.57⟩
-    covers every offset any registered lid can reach
+  - **the correlation is in `utils/stirred_tank.scad` now**, with `M`, the `e/R = 2 e/T` conversion
+    and its departures returned as names the way `stirred_tank_medek_departures()` does. It
+    reproduces the paper's own anchors and all five rows of the document's table
+  - what is left is that **nothing calls it**. The gains are still hand-computed in a document, so
+    that table cannot be caught the way a geometry number can - the case
+    `docs/design-conventions.md` calls the worst kind, a figure the model cannot check sitting where
+    a reader will trust it. The section prefers this correlation to Hall's single measured point, so
+    the whole reachability argument for off-centring rests on it
+  - **`head()` already holds the number it needs.** The room for an offset is
+    `Rpc - flange - lid_holes_offset - mount_radius`, which head() computes for the mount-versus-
+    flange check that reports -12.45 mm on `jar_1p5L`. Feeding that to the gain and echoing it makes
+    the table derived rather than transcribed. That is a change to head()'s echo surface, so it
+    wants doing deliberately rather than as a rider
+  - six of the eight departures fire on this build - `D/T`, `H/T`, `scale`, `baffle count`,
+    `pumping mode`, `impeller type` - and the worst is **`pumping mode`**: `M` is up- or
+    down-pumping and this build is a mirrored counter-pumping pair, where the branches disagree
+    about the centred case by nearly a factor of two. The two that pass are the two that matter for
+    reachability: Re ⟨2e4, 8e4⟩ against 4.7e4, and `e/T` ⟨0, 0.285⟩ covering every offset any
+    registered lid can reach
 
 - [ ] **`motor_mount_body_diameter = 56` is a literal that restates a derivation**
   - it is exactly the largest registered gearbox's 36 mm plus two times the 10 mm
