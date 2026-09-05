@@ -21,7 +21,7 @@ use <custom/bayonet_probe_port.scad>;
 use <custom/bayonet_thermocouple_port.scad>;
 use <custom/bayonet_baffle_port.scad>;
 use <custom/impeller.scad>;
-use <custom/sparge_ring.scad>;
+use <custom/sparger.scad>;
 
 include <purchased/dc_motors.scad>;
 include <purchased/gearboxes.scad>;
@@ -645,7 +645,7 @@ function head_print_parts(vessel_opening_diameter, lid_flange_height, vessel_int
         for (h = ["lower", "upper"])
           [str("impeller_", h), 1, str("-D render_impeller=true -D impeller_to_render=\"", h, "\"")],
       ],
-      [["sparge_ring", 1, "-D render_sparger=true"]],
+      [["sparger", 1, "-D render_sparger=true"]],
       // Ports, in the order they sit on the lid. A baffle's plate prints in pieces, so it is that
       // many parts; every other port is one.
       [
@@ -838,14 +838,37 @@ baffle_joint_allowance = 0.1;
 sparge_ring_clearance = 1.25;
 // where the ring sits in the gap: 0 at the lower impeller's collar, 1 at the upper impeller
 sparge_ring_gap_fraction = 0.5;
-// The ring's own section, [radial, axial]. NOT round, and that is the point: the squeeze here is
-// entirely radial - 6.95 mm between the baffles and the mouth - while the gap gives 73 mm of
-// height. A round tube of any bore worth having will not fit that band at any ratio. A tall narrow
-// section spends the dimension that is free, and it is the one thing a printed ring can do that a
-// bent tube cannot.
-sparge_ring_section = [4, 10];
-// wall around the bore
-sparge_ring_wall = 1.2;
+// The sparger is a TUBE now, and the old argument for a tall flat section has been overtaken by a
+// harder requirement. That section was chosen because the squeeze is radial - a few millimetres
+// between the baffles and the mouth - while the gap gives 73 mm of height, so spending the free
+// dimension was free. What it could not do is be CLEANED: a 1.6 x 7.6 mm slot whose only openings
+// are the gas holes takes no brush and never comes clean, which on an algal culture is the failure
+// that matters. A round bore, split opposite the feed and plugged with two screws, does.
+//
+// It still fits, because the mouth constrains the tube's OUTER edge and nothing constrains the
+// inner one until the impeller - so the centreline moves inboard and the band is not the bound the
+// old note assumed. head_ring_baffle_gap() and head_ring_mouth_gap() below say so per vessel.
+// DERIVED FROM THE RISER, not chosen. The feed socket is this tube standing up, so the tube's bore
+// is the riser's own bore and its outside is that plus a wall. Sizing the socket separately is the
+// same physical thing described twice, and it showed: a 6 mm tube under a 6.4 mm socket left a
+// 0.2 mm ledge all the way round the joint.
+sparge_wall = 1.2; // around the bore, and what the socket must keep around the riser it accepts
+sparge_tube_facets = 8; // octagon outside: flats to drill into, and no crown to bridge
+function sparge_bore() = steel_tube_od(sparge_riser_tube); // one passage, the riser's own
+function sparge_tube() = sparge_bore() + 2 * sparge_wall;  // across FLATS
+// How many concentric rings. One is the reference build. Above one they sit on EQUAL AREA, because
+// an annulus grows with radius and equally spaced rings under-serve the wall.
+sparge_ring_count = 1;
+// Where the innermost ring sits when there is more than one, as a fraction of the outermost.
+// REASONED, NOT CITED - inboard of this the shaft and hub occupy the axis.
+sparge_inner_fraction = 0.35;
+// The cleaning gap opposite the feed, and the screw that plugs each end. A pilot only; the screw
+// cuts its own thread in PETG, which is what the impeller collar already does.
+sparge_split_angle = 14;
+sparge_plug_screw = set_screw_m4x6_316;
+/* [Hidden] */
+// Emit the breakthrough probes check-holes tests. Off for a normal render.
+sparge_hole_probes = false;
 // Gas holes, drilled radially inward - Birch & Ahmed: "all spargers discharged gas towards the
 // turbine". 3 mm is mid Rewatkar's tested 2-6 and the least tolerance-sensitive that still spaces.
 sparge_hole_diameter = 3;
@@ -1151,9 +1174,9 @@ function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel
       ],
       [
         "sparge ring",
-        [_ring_r - sparge_ring_section[0] / 2, _ring_r + sparge_ring_section[0] / 2,
-         _floor_z + _ring_z - sparge_ring_section[1] / 2,
-         _floor_z + _ring_z + sparge_ring_section[1] / 2],
+        [_ring_r - sparge_tube_extent() / 2, _ring_r + sparge_tube_extent() / 2,
+         _floor_z + _ring_z - sparge_tube_extent() / 2,
+         _floor_z + _ring_z + sparge_tube_extent() / 2],
       ],
     ];
 
@@ -1321,12 +1344,38 @@ function head_baffle_width(vessel_opening_diameter, impeller_diameter) =
 // 4 mm ring with a clearance each side needs more. So the ring cannot fit outside a full-width
 // baffle on ANY jar; it cannot fit inside them either, since that gap is baffle_impeller_clearance
 // wide by construction. The baffle has to yield, and head_baffle_width() takes a third bound.
+// What the tube actually occupies, radially and axially - a tube is symmetric, so one number does
+// both where the old section needed two. ACROSS CORNERS, because that is where the material is:
+// quoted across flats it under-reports by a quarter millimetre a side, and these are the fits that
+// have to clear a 1.7 mm baffle gap.
+function sparge_tube_extent() = sparger_across_corners(sparge_tube(), sparge_tube_facets);
+
 function head_sparge_ring_radius(mouth) =
-  mouth / 2 - sparge_ring_clearance - sparge_ring_section[0] / 2;
+  mouth / 2 - sparge_ring_clearance - sparge_tube_extent() / 2;
+
+// Every ring's radius. One ring goes as far out as the mouth allows, which is what Birch & Ahmed
+// and Rewatkar & Joshi both want and what this build has always done. Several sit on equal area
+// over the annulus inboard of it, so each carries the plan area it serves - and the outermost then
+// sits slightly inboard of the mouth limit, which is the price of covering the section evenly.
+function head_sparge_radii(mouth) =
+  let (_o = head_sparge_ring_radius(mouth))
+    sparge_ring_count == 1
+      ? [_o]
+      : sparger_equal_area_radii(sparge_ring_count, _o, sparge_inner_fraction * _o);
+
+// and the holes each of them carries, split by the area it serves.
+function head_sparge_holes(mouth) =
+  let (_o = head_sparge_ring_radius(mouth))
+    sparge_ring_count == 1
+      ? [sparge_hole_count]
+      : sparger_holes_per_ring(
+          sparge_hole_count,
+          sparger_area_shares(head_sparge_radii(mouth), _o, sparge_inner_fraction * _o)
+        );
 
 // The widest plate that still leaves the ring its section and a clearance either side.
 function head_baffle_ring_limit(mouth) =
-  2 * (mouth / 2 - head_port_circle_radius(mouth) - 2 * sparge_ring_clearance - sparge_ring_section[0]);
+  2 * (mouth / 2 - head_port_circle_radius(mouth) - 2 * sparge_ring_clearance - sparge_tube_extent());
 
 // ----- where the mouth and the bore have to agree -----
 //
@@ -1341,11 +1390,11 @@ function head_baffle_ring_limit(mouth) =
 // Each returns a clearance: positive is feasible, and the magnitude is what the assert reports.
 
 function head_ring_baffle_gap(mouth, impeller_diameter) =
-  (head_sparge_ring_radius(mouth) - sparge_ring_section[0] / 2)
+  (head_sparge_ring_radius(mouth) - sparge_tube_extent() / 2)
   - (head_port_circle_radius(mouth) + head_baffle_width(mouth, impeller_diameter) / 2);
 
 function head_ring_mouth_gap(mouth, impeller_diameter) =
-  mouth / 2 - (head_sparge_ring_radius(mouth) + sparge_ring_section[0] / 2);
+  mouth / 2 - (head_sparge_ring_radius(mouth) + sparge_tube_extent() / 2);
 
 // The impeller itself has to go in through the mouth, whatever the lid carries. This was only ever
 // an assert inside head(), so head_feasible_mouths() reported mouths the impeller could not pass -
@@ -2722,7 +2771,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   _sparge_baffle_gap = head_ring_baffle_gap(vessel_opening_diameter, impeller_diameter);
   _sparge_mouth_gap = head_ring_mouth_gap(vessel_opening_diameter, impeller_diameter);
-  _sparge_bore = [sparge_ring_section[0] - 2 * sparge_ring_wall, sparge_ring_section[1] - 2 * sparge_ring_wall];
+  _sparge_radii = head_sparge_radii(vessel_opening_diameter);
+  _sparge_holes = head_sparge_holes(vessel_opening_diameter);
 
   _sparge_flow = stirred_tank_gas_flow(sparge_design_vvm, _culture_volume);
   _sparge_velocity = stirred_tank_orifice_velocity(_sparge_flow, sparge_hole_count, sparge_hole_diameter);
@@ -2738,9 +2788,23 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   echo(str(
     "sparge ring fits: ", _sparge_baffle_gap, " mm to the baffles, ", _sparge_mouth_gap,
-    " mm to the jar's mouth on the way in. Section ", sparge_ring_section,
-    " mm gives a ", _sparge_bore, " mm bore, ", _sparge_bore[0] * _sparge_bore[1], " mm2"
+    " mm to the jar's mouth on the way in. A ", sparge_tube(), " mm tube reaching ",
+    sparge_tube_extent(), " across its corners, on a ", sparge_bore(), " mm bore of ",
+    PI / 4 * pow(sparge_bore(), 2), " mm2"
   ));
+
+  sparger_report(
+    radii=_sparge_radii, holes=_sparge_holes, hole_diameter=sparge_hole_diameter,
+    tube=sparge_tube(), bore=sparge_bore(), gas_flow=_sparge_flow, paths=2
+  );
+
+  // Only when asked. `just check-holes` renders with -D sparge_hole_probes=true and tests every
+  // point this emits against the built mesh; a normal render does not want twenty more lines.
+  if (sparge_hole_probes)
+    sparger_hole_probes(
+      radii=_sparge_radii, holes=_sparge_holes, tube=sparge_tube(),
+      section_facets=sparge_tube_facets, feed_angle=_sparge_feed_angle
+    );
 
   echo(str(
     "sparge holes: ", sparge_hole_count, " x ", sparge_hole_diameter, " mm at ",
@@ -2898,7 +2962,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         // said exactly is that the face stands within the ring's own width of the ring's radius,
         // directly above it. Whether that matters is a reading taken on the bench, not a number.
         if (abs(_tip[0] - _sparge_ring_radius)
-          < sparge_ring_section[0] / 2 + atlas_probe_tip_dia(_do) / 2)
+          < sparge_tube_extent() / 2 + atlas_probe_tip_dia(_do) / 2)
           echo(str(
             "WARNING DO probe: its face overlaps the sparge ring's own radius and hangs ",
             _tip[1] - (_floor_z + _sparge_ring_height), " mm over it. A galvanic probe reads HIGH ",
@@ -2954,7 +3018,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // the ring's own top plus the boss standing on it.
   _sparge_socket_top =
   -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height)
-  + _sparge_ring_height + sparge_ring_section[1] / 2 + 8;
+  + _sparge_ring_height + sparge_tube_extent() / 2 + 8;
   // The tube runs from inside its socket to clear of its port. Measured to the PORT's top face and
   // not the lid's, because the flange stands between the two and it is the flange a hose must clear.
   _sparge_port_top = bayonet_flange_height(head_interface_for("tube", steel_tube_od(sparge_riser_tube) / 2));
@@ -3294,16 +3358,20 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
           -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height)
           + _sparge_ring_height,
         ])
-        sparge_ring(
-          radius=_sparge_ring_radius,
-          section=sparge_ring_section,
-          wall=sparge_ring_wall,
+        sparger(
+          radii=_sparge_radii,
+          holes=_sparge_holes,
           hole_diameter=sparge_hole_diameter,
-          hole_count=sparge_hole_count,
+          tube=sparge_tube(),
+          bore=sparge_bore(),
+          section_facets=sparge_tube_facets,
+          spoke_angles=sparge_ring_count > 1 ? _sparge_support_angles : [],
           feed_angle=_sparge_feed_angle,
           feed_radius=port_circle_radius,
           feed_bore=sparge_feed_bore,
-          support_angles=_sparge_support_angles
+          support_angles=_sparge_support_angles,
+          split_angle=sparge_split_angle,
+          plug_tap_radius=set_screw_tap_radius(sparge_plug_screw)
         );
 
   // the port circle is sized against the plug's edge, so what it does not settle is whether

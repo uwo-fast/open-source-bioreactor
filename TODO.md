@@ -388,28 +388,35 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     computed against the retired 8.25 L flow and did not move when the fill fraction did. Fixed at
     all four sites, and against a fresh render rather than against another document
 
-- [ ] **head() still builds the OLD sparge ring, so the family has two spargers**
-  - `custom/sparger.scad` is the tube sparger: round bore, octagonal outside, split opposite the
-    feed with a solid plug at each cut face and a self-tap pilot for a 316 set screw, a swept elbow
-    where the feed turns into the ring, one to N concentric rings on equal-area radii, and holes
-    along the spokes for a hub-and-spoke layout. It renders, meshes at 59178 triangles and is on
-    `check-scad`; `sparger_report()` echoes what it does to the gas
-  - `head.scad` calls `sparge_ring()` still, so `custom/sparge_ring.scad` remains the part the
-    reactor actually gets. **That is one physical thing with two expressions** and the conventions
-    say so - it is deliberate for now, because swapping it touches the print manifest, check-parts,
-    the port table's feed angle and the reference build, and none of that should ride in on a part
-    that has never been printed
-  - what has to happen to close it: head() derives radii from `sparger_equal_area_radii()` against
-    the baffle and mouth clearances it already computes, passes `set_screw_tap_radius()` for the
-    plug, calls `sparger_report()` beside its own sparge echoes, and `sparge_ring.scad` is deleted
-    rather than left as a second answer
-  - **the numbers say the swap is worth making.** The old ring's eight 3 mm holes on a 5 mm bore are
-    an open area ratio of 1.44, so its holes compete with their own supply; at 1.2 mm they run 0.9.
-    Bubble diameter at formation goes 5.10 mm to 3.76 mm and specific area up 36 %, which is the
-    lever `docs/agitation.md` now records as outranking the agitation mode itself
-  - and it is bounded: bubble size goes as the CUBE ROOT of hole diameter, so reaching the 1.56 mm
-    of Uyar's microporous sparger would want an 86 micron orifice. A printed ring cannot get there;
-    it can get most of the way from 3 mm to 1 mm and then stops
+- [ ] **the sparger's holes are the wrong size, and the model now says so on every render**
+  - `head()` drives `custom/sparger.scad` now and `sparge_ring.scad` is deleted, so there is one
+    sparger again. What the swap exposed is that the hole spec it inherited does not distribute:
+    eight 3 mm holes on a 4 mm bore is an **open area ratio of 2.25**, and the bore's own velocity
+    head is 4.54 Pa against 2.48 Pa at a hole. Both fire as departures, every render
+  - **this was true of the old ring too** - it is not a regression, it is a defect that was
+    invisible until something computed it. The holes have always been competing with their own
+    supply; nothing reported open area before
+  - the fix is not one number. Smaller holes give smaller bubbles - 3 mm gives 5.10 mm and 1.2 mm
+    gives 3.76, which is 36 % more interfacial area - but hold the flow, so the COUNT rises, and
+    more holes on the same bore makes the open area ratio worse rather than better. It wants the
+    bore opening up with the hole count coming down in diameter, together, read off
+    `sparger_report()`
+  - **and it collides with a settled decision.** The 8 x 3 mm holes are in the ledger as "for
+    spacing and against fouling, not for even flow" - 3 mm is the least tolerance-sensitive size
+    that still spaces, and a 1.2 mm hole in an algal culture is a hole that blocks. That trade was
+    made before anything could price the mass transfer it costs. It can be priced now, and it
+    should be re-made rather than quietly overturned
+  - what is NOT open: whether the holes break through. `just check-holes` tests every declared hole
+    against the built mesh and was proved to fire on the real defect - 20 of 20 - which `check-mesh`
+    passes happily at 60502 triangles, because a blind hole is a perfectly good solid
+
+- [ ] **`check-holes` is not in `just check`, and that is a cost decision worth revisiting**
+  - it needs a CGAL render, so it is in `check-mesh`'s class - head.scad alone is minutes. The cheap
+    coverage is `custom/sparger.scad` standalone, which cuts the same holes through the same
+    functions in seconds
+  - what would let it into the gate: a probe that does not need a rendered mesh. The claim is
+    geometric - "this point is void" - and the part is a union of primitives, so in principle it can
+    be answered from the CSG without CGAL. Not attempted
 
 - [ ] **decide whether the eccentricity report should reach the two jars that need it**
   - Karcz's eq. (6) is encoded in `utils/stirred_tank.scad` and `head()` consumes it: it takes the

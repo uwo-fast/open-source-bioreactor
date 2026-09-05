@@ -103,6 +103,29 @@ function sparger_pitch_ratio(radius, count, hole_diameter) =
   sparger_ring_pitch(radius, count) / hole_diameter;
 function sparger_pitch_ratio_floor() = 3; // reasoned, not cited
 
+// Where the holes sit on a ring, in degrees. Half a pitch off the feed, so the far side of the
+// ring lands between two of them rather than on one. SHARED by the cut, the split assert and the
+// breakthrough probe - three consumers that must agree about one set of angles.
+function sparger_hole_angles(count, feed_angle = 0) =
+  [for (j = [0:count - 1]) feed_angle + 180 / count + j * 360 / count];
+
+// The radius of a ring's INNER face, which is what an inward hole has to get past. Faceted twice:
+// the section is a polygon reaching across corners, and rotate_extrude chords the sweep so between
+// vertices the face sits nearer the axis than nominal. Getting this wrong by a quarter millimetre
+// is what left twenty blind holes, so it is one expression and the check below tests it.
+function sparger_inner_face_radius(ring_radius, tube, section_facets, sweep_facets) =
+  (ring_radius - sparger_across_corners(tube, section_facets) / 2) * cos(180 / sweep_facets);
+
+// How many facets rotate_extrude will actually use, derived the way OpenSCAD derives it rather than
+// read off $fn - which is zero unless something sets it, and a zero $fn means $fa and $fs decide.
+function sparger_sweep_facets(outer_radius, tube, section_facets) =
+  $fn > 0
+    ? max($fn, 3)
+    : ceil(max(
+        min(360 / $fa, (outer_radius + sparger_across_corners(tube, section_facets) / 2) * 2 * PI / $fs),
+        5
+      ));
+
 // [innermost, outermost] radius the tubes occupy. A tube sparger is ROUND, which is what the old
 // flat section existed to avoid - the annulus between baffles and mouth is millimetres while the
 // room above and below is tens - so the envelope is reported and the vessel decides.
@@ -205,6 +228,8 @@ module sparger_elbow_solid(r, bend, across_flats, facets) {
  * @param support_angles  Bearings of blind sockets that steady the part. ROUND, where the feed is
  *                        hexagonal - see below, it is the only thing that tells them apart.
  * @param split_angle     Total angle of the cleaning gap opposite the feed. 0 leaves it closed.
+ * @param hole_overshoot  How far a hole cuts PAST the inner face. Free - it is cutting culture
+ *                        by then - and it is what keeps breakthrough off floating point.
  * @param bend_radius     Centreline radius of the feed elbow. undef takes 1.5 tube diameters,
  *                        which is the standard pipe-bend minimum and comfortably clears the
  *                        tube's own corners.
@@ -230,6 +255,7 @@ module sparger(
   feed_wall = 1.2,
   support_angles = [],
   bend_radius = undef,
+  hole_overshoot = 0.5,
   split_angle = 0,
   plug_tap_radius = undef,
   plug_depth = 6
@@ -257,6 +283,15 @@ module sparger(
     _wall > 0,
     str("sparger: a ", bore, " mm bore leaves no wall in a ", tube, " mm tube")
   );
+  // The socket has to hold the riser it accepts. Sizing the socket from the riser is what put a
+  // ledge on the tube; sizing the tube from the riser is the same requirement, met once.
+  assert(
+    (tube - feed_bore) / 2 >= feed_wall,
+    str(
+      "sparger: a ", tube, " mm tube leaves ", (tube - feed_bore) / 2, " mm around a ", feed_bore,
+      " mm riser, against a ", feed_wall, " mm wall - size the tube from the riser, not the socket"
+    )
+  );
   assert(
     _bend > _corner_r,
     str(
@@ -279,9 +314,9 @@ module sparger(
   _split_half = split_angle / 2;
   _eaten = [
     for (i = [0:_n - 1])
-      for (j = [0:holes[i] - 1])
+      for (_raw = sparger_hole_angles(holes[i], 0))
         let (
-          _a = (180 / holes[i] + j * 360 / holes[i]) % 360,       // relative to the feed
+          _a = _raw % 360,                                        // relative to the feed
           _d = abs(((_a - 180 + 180 + 720) % 360) - 180),          // ... from the split's centre
           _hw = asin(min(1, (hole_diameter / 2) / radii[i]))
         )
@@ -332,10 +367,13 @@ module sparger(
   // The second is the sweep's. rotate_extrude facets the ring, so between vertices the inner
   // surface sits at r*cos(180/n) - nearer the axis than nominal, so the hole has further to go.
   // Per ring, because it depends on that ring's radius.
-  _sweep_facets = $fn > 0
-    ? max($fn, 3)
-    : ceil(max(min(360 / $fa, (_outer + _ac / 2) * 2 * PI / $fs), 5));
-  function _reach_at(r) = r - (r - _ac / 2) * cos(180 / _sweep_facets);
+  _sweep_facets = sparger_sweep_facets(_outer, tube, section_facets);
+  //
+  // OVERSHOOT is deliberate and free: past the inner face the hole is cutting culture, not part.
+  // Landing exactly ON the face leaves the breakthrough to floating point, which is not a thing to
+  // leave it to on the one feature this component exists for.
+  function _reach_at(r) =
+    r - sparger_inner_face_radius(r, tube, section_facets, _sweep_facets) + hole_overshoot;
 
   difference() {
     union() {
@@ -352,16 +390,19 @@ module sparger(
         sparger_spoke_solid(_feed_r + _bend, _outer, 0, tube, section_facets);
         sparger_elbow_solid(_feed_r, _bend, tube, section_facets);
 
-        // Socket, and HEXAGONAL where the supports below are round, because that is the only thing
-        // that tells them apart once the part is at the bottom of a jar. They are otherwise the
-        // same boss - same bore, same height. The difference is inside, where this one opens into
-        // the tube and a support's pocket is blind. Get it the wrong way round and the gas goes
-        // down a capped tube and back out its own vent into the headspace, while the rotameter
-        // reads flow and the culture gets nothing.
+        // Socket. It is THE TUBE STANDING UP and takes the tube's own section - not a boss sized
+        // to the riser, which is the same physical thing described twice and showed as a 0.2 mm
+        // ledge all round where the two nearly agreed.
+        //
+        // FACETED where the supports below are ROUND, because that is the only thing that tells
+        // them apart once the part is at the bottom of a jar. They are otherwise the same boss -
+        // same bore, same height. The difference is inside, where this one opens into the tube and
+        // a support's pocket is blind. Get it the wrong way round and the gas goes down a capped
+        // tube and back out its own vent into the headspace, while the rotameter reads flow and
+        // the culture gets nothing.
         translate([_feed_r, 0, _bend])
-          cylinder(
-            h = feed_height, d = sparger_across_corners(feed_bore + 2 * feed_wall, 6), $fn = 6
-          );
+          linear_extrude(height = feed_height)
+            sparger_section(tube, section_facets);
       }
 
       // Supports. Blind, round, and identical to the feed otherwise - nothing is bored through, so
@@ -369,8 +410,11 @@ module sparger(
       for (a = support_angles)
         rotate([0, 0, a]) {
           sparger_spoke_solid(_feed_r, _outer, 0, tube, section_facets);
+          // The tube's inscribed circle, so a support is the same size as the feed and differs
+          // only in being ROUND. Written as `tube` rather than as the riser plus a wall, which
+          // gives the same number today and would stop doing so the moment either moved.
           translate([_feed_r, 0, -_ac / 2])
-            cylinder(h = _ac + feed_height, d = feed_bore + 2 * feed_wall);
+            cylinder(h = _ac + feed_height, d = tube);
         }
 
     }
@@ -450,8 +494,8 @@ module sparger(
     // Gas holes. Inward at the impeller, or down at the floor - Birch & Ahmed discharged theirs
     // toward the turbine, which is the "in" case; a vessel with no impeller wants "down".
     for (i = [0:_n - 1])
-      for (j = [0:holes[i] - 1])
-        rotate([0, 0, feed_angle + 180 / holes[i] + j * 360 / holes[i]])
+      for (a = sparger_hole_angles(holes[i], feed_angle))
+        rotate([0, 0, a])
           translate([radii[i], 0, 0])
             if (hole_bearing == "down")
               translate([0, 0, -_ac / 2 - z_fight])
@@ -464,6 +508,37 @@ module sparger(
 
 // The angular length a plug of `depth` occupies on a ring of `radius`.
 function _plug_arc(radius, depth) = depth / radius * 180 / PI;
+
+// ----- the breakthrough claim -----
+
+/**
+ * @brief Emit, per hole, the point that MUST be void if that hole opened.
+ *
+ * The failure this exists to catch: every hole on this part was once cut a quarter of a millimetre
+ * short, so all twenty ended blind. The part still rendered. It was still a 2-manifold. check-mesh
+ * passed it, because a blind hole is a perfectly good solid - and every picture of it looked right,
+ * because a 1.2 mm hole is smaller than a pixel when you photograph a 180 mm ring.
+ *
+ * So the model states the claim and `just check-holes` tests it against the built mesh. The probe
+ * sits just INSIDE the inner face on the hole's own axis - material if a skin remains, void if the
+ * hole is through - and it is derived from the same two functions the cut is, so the claim cannot
+ * drift away from the geometry it describes.
+ */
+module sparger_hole_probes(
+  radii, holes, tube, section_facets = 8, feed_angle = 0, hole_bearing = "in", margin = 0.05
+) {
+  _sf = sparger_sweep_facets(max(radii), tube, section_facets);
+  _ac = sparger_across_corners(tube, section_facets);
+  for (i = [0:len(radii) - 1])
+    for (a = sparger_hole_angles(holes[i], feed_angle))
+      let (
+        _pr = hole_bearing == "down"
+          ? radii[i]
+          : sparger_inner_face_radius(radii[i], tube, section_facets, _sf) + margin,
+        _pz = hole_bearing == "down" ? -_ac / 2 + margin : 0
+      )
+        echo(str("HOLEPROBE|", _pr * cos(a), "|", _pr * sin(a), "|", _pz));
+}
 
 // ----- reporting -----
 
@@ -544,7 +619,8 @@ sparger(
   radii = _ex_radii,
   holes = _ex_holes,
   hole_diameter = 1.2,
-  tube = 6,
+  // the tube is the riser's bore plus a wall, because the feed socket IS this tube standing up
+  tube = 4 + 2 * 1.2,
   bore = 4,
   spoke_angles = [90, 270],
   feed_angle = 240,
@@ -556,7 +632,11 @@ sparger(
   plug_tap_radius = 1.65
 );
 
+sparger_hole_probes(
+  radii = _ex_radii, holes = _ex_holes, tube = 4 + 2 * 1.2, feed_angle = 240
+);
+
 sparger_report(
-  radii = _ex_radii, holes = _ex_holes, hole_diameter = 1.2, tube = 6, bore = 4,
+  radii = _ex_radii, holes = _ex_holes, hole_diameter = 1.2, tube = 4 + 2 * 1.2, bore = 4,
   gas_flow = _ex_flow, paths = 2, holdup = 0.01 // fed at one point, so gas goes both ways round
 );
