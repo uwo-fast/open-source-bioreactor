@@ -267,6 +267,9 @@ module sparger_elbow_solid(r, bend, across_flats, facets) {
  * @param split_angle     Total angle of the cleaning gap opposite the feed. 0 leaves it closed.
  * @param hole_overshoot  How far a hole cuts PAST the inner face. Free - it is cutting culture
  *                        by then - and it is what keeps breakthrough off floating point.
+ * @param show_fluid_path Draw the gas path on its own instead of the part - the bore, the elbow,
+ *                        the socket and every hole, in translucent blue. The same geometry the
+ *                        part is cut with, so what you see is what the gas gets.
  * @param bend_radius     Centreline radius of the feed elbow. undef takes 1.5 tube diameters,
  *                        which is the standard pipe-bend minimum and comfortably clears the
  *                        tube's own corners.
@@ -293,6 +296,7 @@ module sparger(
   support_angles = [],
   bend_radius = undef,
   hole_overshoot = 0.5,
+  show_fluid_path = false,
   split_angle = 0,
   plug_tap_radius = undef,
   plug_depth = 6
@@ -416,7 +420,74 @@ module sparger(
   function _reach_at(r) =
     r - sparger_inner_face_radius(r, tube, section_facets, _sweep_facets) + hole_overshoot;
 
-  difference() {
+  // ----- the gas path, named once -----
+  //
+  // The bore is what makes the part a sparger and it was written four times as a subtrahend -
+  // rings, spokes, the feed run, the holes - with no name for the whole. So there was no way to
+  // ask for it: showing the flow meant a second copy of every one of them, which is the defect
+  // this file's own header warns about. Named, it is subtracted to make the part and drawn on
+  // its own to show what the gas does, from one expression.
+  //
+  // Nested, so it reads the enclosing scope rather than taking fifteen arguments that could each
+  // be passed a different value from the ones the solid was built with.
+  module _fluid_path() {
+      // The bore, through every ring, spoke and elbow. One expression per feature, so a bore can
+      // never disagree with the solid it runs inside.
+      //
+      // Where the ring is split, the bore stops SHORT of each cut face by plug_depth. That is what
+      // leaves solid stock for the screw to bite into - material the ring already has, rather than a
+      // boss added back on afterwards, which would have been a second expression of the same plug.
+      for (i = [0:_n - 1])
+        if (split_angle == 0)
+          sparger_ring_solid(radii[i], bore, bore_facets);
+        else
+          rotate([0, 0, feed_angle + 180 + split_angle / 2 + _plug_arc(radii[i], plug_depth)])
+            rotate_extrude(
+              angle = 360 - split_angle - 2 * _plug_arc(radii[i], plug_depth), convexity = 6
+            )
+              translate([radii[i], 0])
+                sparger_section(bore, bore_facets);
+
+      if (_n > 1)
+        for (a = spoke_angles)
+          sparger_spoke_solid(_inner - z_fight, _outer + z_fight, a, bore, bore_facets);
+
+      rotate([0, 0, feed_angle]) {
+        sparger_spoke_solid(_feed_r + _bend, _outer + z_fight, 0, bore, bore_facets);
+        sparger_elbow_solid(_feed_r, _bend, bore, bore_facets);
+        // and up the socket, meeting the elbow's top
+        translate([_feed_r, 0, _bend])
+          cylinder(h = feed_height + z_fight, d = feed_bore);
+      }
+
+      // Holes along the arms, at equal-area radii between the innermost and outermost ring - the
+      // same rule that places the rings, for the same reason. Always downward: an arm is radial, so
+      // there is no "inward" for it to point, and down is where a floor distributor wants gas.
+      if (spoke_holes > 0 && _n > 1)
+        for (a = spoke_angles)
+          for (r = sparger_equal_area_radii(spoke_holes, _outer, _inner))
+            rotate([0, 0, a])
+              translate([r, 0, -_ac / 2 - z_fight])
+                cylinder(h = _ac / 2 + 2 * z_fight, d = hole_diameter);
+
+      // Gas holes. Inward at the impeller, or down at the floor - Birch & Ahmed discharged theirs
+      // toward the turbine, which is the "in" case; a vessel with no impeller wants "down".
+      for (i = [0:_n - 1])
+        for (a = sparger_hole_angles(holes[i], feed_angle))
+          rotate([0, 0, a])
+            translate([radii[i], 0, 0])
+              if (hole_bearing == "down")
+                translate([0, 0, -_ac / 2 - z_fight])
+                  cylinder(h = _ac / 2 + 2 * z_fight, d = hole_diameter);
+              else
+                rotate([0, -90, 0])
+                  cylinder(h = _reach_at(radii[i]) + z_fight, d = hole_diameter);
+  }
+
+  if (show_fluid_path)
+    color("lightblue", 0.5) _fluid_path();
+  else
+    difference() {
     union() {
       for (r = radii) sparger_ring_solid(r, tube, section_facets);
 
@@ -467,34 +538,7 @@ module sparger(
 
     // ---- everything below is removed ----
 
-    // The bore, through every ring, spoke and elbow. One expression per feature, so a bore can
-    // never disagree with the solid it runs inside.
-    //
-    // Where the ring is split, the bore stops SHORT of each cut face by plug_depth. That is what
-    // leaves solid stock for the screw to bite into - material the ring already has, rather than a
-    // boss added back on afterwards, which would have been a second expression of the same plug.
-    for (i = [0:_n - 1])
-      if (split_angle == 0)
-        sparger_ring_solid(radii[i], bore, bore_facets);
-      else
-        rotate([0, 0, feed_angle + 180 + split_angle / 2 + _plug_arc(radii[i], plug_depth)])
-          rotate_extrude(
-            angle = 360 - split_angle - 2 * _plug_arc(radii[i], plug_depth), convexity = 6
-          )
-            translate([radii[i], 0])
-              sparger_section(bore, bore_facets);
-
-    if (_n > 1)
-      for (a = spoke_angles)
-        sparger_spoke_solid(_inner - z_fight, _outer + z_fight, a, bore, bore_facets);
-
-    rotate([0, 0, feed_angle]) {
-      sparger_spoke_solid(_feed_r + _bend, _outer + z_fight, 0, bore, bore_facets);
-      sparger_elbow_solid(_feed_r, _bend, bore, bore_facets);
-      // and up the socket, meeting the elbow's top
-      translate([_feed_r, 0, _bend])
-        cylinder(h = feed_height + z_fight, d = feed_bore);
-    }
+      _fluid_path();
 
     // A support's pocket stops at the tube's own top face, so the arm below stays solid and a tube
     // dropped in cannot vent into the bore.
@@ -526,30 +570,7 @@ module sparger(
               // The other sign drills both pilots out into the gap, where they hold nothing.
               rotate([-90 * s, 0, 0])
                 cylinder(h = plug_depth + z_fight, r = plug_tap_radius);
-
-    // Holes along the arms, at equal-area radii between the innermost and outermost ring - the
-    // same rule that places the rings, for the same reason. Always downward: an arm is radial, so
-    // there is no "inward" for it to point, and down is where a floor distributor wants gas.
-    if (spoke_holes > 0 && _n > 1)
-      for (a = spoke_angles)
-        for (r = sparger_equal_area_radii(spoke_holes, _outer, _inner))
-          rotate([0, 0, a])
-            translate([r, 0, -_ac / 2 - z_fight])
-              cylinder(h = _ac / 2 + 2 * z_fight, d = hole_diameter);
-
-    // Gas holes. Inward at the impeller, or down at the floor - Birch & Ahmed discharged theirs
-    // toward the turbine, which is the "in" case; a vessel with no impeller wants "down".
-    for (i = [0:_n - 1])
-      for (a = sparger_hole_angles(holes[i], feed_angle))
-        rotate([0, 0, a])
-          translate([radii[i], 0, 0])
-            if (hole_bearing == "down")
-              translate([0, 0, -_ac / 2 - z_fight])
-                cylinder(h = _ac / 2 + 2 * z_fight, d = hole_diameter);
-            else
-              rotate([0, -90, 0])
-                cylinder(h = _reach_at(radii[i]) + z_fight, d = hole_diameter);
-  }
+    }
 }
 
 // The angular length a plug of `depth` occupies on a ring of `radius`.
@@ -677,7 +698,8 @@ sparger(
   split_angle = 14,
   // M4's tap radius, which is what set_screw_tap_radius(set_screw_m4x6_316) returns. Quoted here
   // because this file deliberately does not import the screw registry; head.scad passes the real one.
-  plug_tap_radius = 1.65
+  plug_tap_radius = 1.65,
+  show_fluid_path = false
 );
 
 sparger_hole_probes(
