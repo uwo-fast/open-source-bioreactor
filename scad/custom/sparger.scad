@@ -252,6 +252,10 @@ module sparger_elbow_solid(r, bend, across_flats, facets) {
  * @param section_facets  Facets on the outside. 8 is an octagon; 6 a hexagon.
  * @param bore_facets     Facets in the bore. 0 is a true circle, which is the point of the part.
  * @param spoke_angles    Bearings of the radial arms tying the rings together.
+ * @param spoke_bores     Which arms carry gas. EMPTY BY DEFAULT: an arm's job is to hold the rings
+ *                        concentric, and boring it joins them at a second point, which turns the
+ *                        gas path from a tree into a network and puts a branch in it that no brush
+ *                        can turn into. Name an angle here only when that arm has to carry gas.
  * @param spoke_holes     Holes along EACH arm, placed at equal-area radii the same way the rings
  *                        are. 0 leaves the arms as plumbing. Non-zero turns the part into a
  *                        hub-and-spoke distributor, which is what a vessel with no impeller
@@ -287,6 +291,7 @@ module sparger(
   section_facets = 8,
   bore_facets = 0,
   spoke_angles = [],
+  spoke_bores = [],
   spoke_holes = 0,
   feed_angle = 0,
   feed_radius = undef,
@@ -330,6 +335,19 @@ module sparger(
   );
   // The socket has to hold the riser it accepts. Sizing the socket from the riser is what put a
   // ledge on the tube; sizing the tube from the riser is the same requirement, met once.
+  // An arm with holes in it has to be an arm that carries gas. This is an ASSERT and not a check
+  // because check-holes cannot see it: the probe tests that a hole breaks the OUTER surface, not
+  // that it reaches the bore, so a hole drilled up into a solid arm opens into the culture,
+  // connects to nothing, and passes.
+  _unfed = [for (a = spoke_angles) if (len([for (b = spoke_bores) if (b == a) 1]) == 0) a];
+  assert(
+    spoke_holes == 0 || len(_unfed) == 0,
+    str(
+      "sparger: spoke_holes puts holes on the arm(s) at ", _unfed,
+      " deg, which carry no gas - name them in spoke_bores or drop the holes"
+    )
+  );
+
   assert(
     (tube - feed_bore) / 2 >= feed_wall,
     str(
@@ -448,8 +466,13 @@ module sparger(
               translate([radii[i], 0])
                 sparger_section(bore, bore_facets);
 
+      // Only the arms NAMED as carrying gas. Boring every arm joined the rings at three points
+      // instead of one, so the gas divided by the resistance of a looped network rather than by
+      // the hole counts sparger_area_shares sized - a designed split the topology did not deliver
+      // and nothing reported. It also put 31 mm of bore in branches a brush cannot turn into, on
+      // a part whose reason for existing is that it can be cleaned.
       if (_n > 1)
-        for (a = spoke_angles)
+        for (a = spoke_bores)
           sparger_spoke_solid(_inner - z_fight, _outer + z_fight, a, bore, bore_facets);
 
       rotate([0, 0, feed_angle]) {
