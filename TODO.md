@@ -86,8 +86,13 @@ ledger at the end: decisions that took real work to reach and would otherwise be
   - `sparge_filter_drop_slope = 3.45` kPa per L/min is EXTRAPOLATED from an equivalent 0.2 um PTFE
     disc, not measured, and Cole-Parmer publish no curve for 1594522. It is the largest single term
     in the gas budget, so it is the largest thing in the model taken on an approximation
-  - a water manometer across it at the set flow settles it. Ten minutes, and it turns the whole gas
-    chain from estimated to measured
+  - a water manometer across it settles it, but **NOT at the set flow**, which is what this said
+    until it was costed: 3.45 kPa/L/min at 4.14 L/min is 14.3 kPa, and that is **1.46 m of water
+    column**. Not a bench instrument
+  - **two points at 1 and 2 L/min instead** - 35 and 71 cm of column, both readable on a metre of
+    tube. And two points test more than one does: the model treats the filter as LINEAR because
+    membrane flow at these pressures is viscous, so a second point tests that assumption as well as
+    the slope, and the slope is what the whole gas budget hangs on. Ten minutes either way
   - it is corroborated, not invented: area-correcting Pall's Acro 50 from 19.6 to this filter's
     16.2 cm2 gives 3.02 against the 3.45 used, so the figure sits 14 % conservative
   - **the operational number that falls out: 1.65x of loading headroom.** The filter may rise to
