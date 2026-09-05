@@ -480,7 +480,8 @@ is decided.
 **Two claims in the first draft of this section came from search summaries and were wrong.** Montante
 was recorded as using a pitched blade turbine — it uses a Rushton — and as reporting mixing times
 comparable to baffled, which it does not report at all. Both are corrected below now the papers have
-been read. The mixing-time claim traces to Hall et al. (2004), which is still unread.
+been read. The mixing-time claim traces to Hall et al. (2004), which has since been read too - see
+its entry below, and the eccentricity geometry further down that now rests on it.
 
 **Montante, G.; Bakker, A.; Paglianti, A.; Magelli, F. (2006).** "Effect of the shaft eccentricity
 on the hydrodynamics of unbaffled stirred tanks." *Chemical Engineering Science* 61:2807-2814.
@@ -496,7 +497,8 @@ Moving the shaft to **E = T/4** destroys the double-loop structure and the solid
 it with two vortices — one inclined about 10 deg from vertical toward the bottom, one about 30 deg
 toward the top. The paper is a CFD-validation study and **reports no mixing times and no flow number
 for the eccentric case**, so it establishes that eccentricity changes the flow, not by how much it
-improves mixing. It attributes that improvement to Hall et al. (2004), unread here.
+improves mixing. It attributes that improvement to Hall et al. (2004), which is read and summarised
+below - Montante establishes that eccentricity changes the flow, and Hall is what says by how much.
 Also useful as a modelling caution: k-epsilon predicts unphysical rigid-body rotation in this
 geometry and steady-state RANS misses the vortices entirely; the Reynolds stress model with a
 transient sliding mesh was needed.

@@ -410,13 +410,42 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     against the built mesh and was proved to fire on the real defect - 20 of 20 - which `check-mesh`
     passes happily at 60502 triangles, because a blind hole is a perfectly good solid
 
-- [ ] **`check-holes` is not in `just check`, and that is a cost decision worth revisiting**
-  - it needs a CGAL render, so it is in `check-mesh`'s class - head.scad alone is minutes. The cheap
-    coverage is `custom/sparger.scad` standalone, which cuts the same holes through the same
-    functions in seconds
-  - what would let it into the gate: a probe that does not need a rendered mesh. The claim is
-    geometric - "this point is void" - and the part is a union of primitives, so in principle it can
-    be answered from the CSG without CGAL. Not attempted
+- [ ] **`check-holes` tests that a hole breaks OUT, not that it is FED**
+  - the probe sits just inside the outer face and asks whether that point is void. A hole drilled
+    into a solid arm satisfies that perfectly: it opens into the culture, connects to no bore, and
+    passes clean. So the check covers the failure that shipped - twenty blind holes - and not the
+    mirror of it
+  - the one place that bites today is guarded by an assert instead: `spoke_holes` on an arm absent
+    from `spoke_bores` is refused by `sparger()`, because no check could catch it. That is a patch
+    over a gap rather than a closing of it
+  - what would close it: probe the far end of the hole as well, inside the bore, and require BOTH
+    to be void. Two points per hole instead of one, same machinery. Not attempted
+  - and it is **not in `just check`** - it needs a CGAL render, so it sits in `check-mesh`'s class
+    and head.scad alone is minutes. The cheap coverage is `custom/sparger.scad` standalone, which
+    cuts the same holes through the same functions in seconds. What would let it into the gate is a
+    probe that needs no rendered mesh: the claim is geometric and the part is a union of primitives,
+    so in principle the CSG answers it without CGAL
+
+- [ ] **`sparger_report()` prices the bore with ONE path count, and the part has several**
+  - `paths` is a single number and head passes 2, which describes a ring fed at one point. It is
+    wrong for the feed spoke, which carries the WHOLE flow before it divides, so that segment's bore
+    velocity and velocity head are both under-reported - and those are two of the four departures
+    the report decides
+  - it went unnoticed while every arm was bored, because the network had no single trunk. Making
+    the arms structural gave it one, which is what made the single number visibly insufficient
+  - the honest form is per-segment: the feed run at 1 path, each ring at 2. Small, and it changes
+    what the departures say
+
+- [ ] **the sparger's two sockets are harder to tell apart than they were**
+  - the feed socket takes the tube's own section now rather than being sized from the riser, which
+    fixed a 0.2 mm ledge at the joint and cost the keying. Both sockets are 6.4 mm across the flats;
+    the octagon's corners stand **0.264 mm** proud of the round one, where a hexagon's stood 0.49
+  - it is the only thing telling a live feed from a blind support once the part is at the bottom of
+    a jar, and getting it wrong sends gas down a capped tube and out its vent while the rotameter
+    reads flow. `docs/build.md` now says count the facets rather than glance
+  - what would settle it is a print: hold the two and see whether the difference is findable by
+    hand. If not, the fix is a different tell that does not fight the joint - a collar, a flat, a
+    mark - rather than going back to a socket sized on its own
 
 - [ ] **decide whether the eccentricity report should reach the two jars that need it**
   - Karcz's eq. (6) is encoded in `utils/stirred_tank.scad` and `head()` consumes it: it takes the

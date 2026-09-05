@@ -325,20 +325,25 @@ been priced against the mass transfer it costs, and it should be.
 
 ## 6. Open
 
-- **There is no sparger in the model.** `ports-layout.md` reasons about a sparger sector and bubble
-  trajectories, but air enters through a bayonet tube port and nothing else. Given that bubble
-  rupture is the dominant damage mechanism, this is the largest open item in the reactor's fluid
-  design. Damage originates at the sparger during bubble *formation* rather than at bursting
-  (Barbosa 2003), but **no critical entrance velocity is established** in anything read here — the
+- **What is still open about the sparger is bubble SIZE, not whether one exists.** `head()` builds
+  a tube sparger: one to N concentric rings on equal-area radii, a round bore split opposite the
+  feed and plugged with two screws so a brush passes through it, and holes whose count the duty
+  sets. What it cannot do is make small bubbles. Diameter at formation goes as the CUBE ROOT of
+  hole size — 3 mm gives 5.10 mm and 1.2 mm gives 3.76 — so reaching the 1.56 mm of a microporous
+  sparger would want an 86 micron orifice, which is why those are sintered rather than drilled. The
+  ring as built also runs an **open area ratio of 2.25**, so its holes compete with their own
+  supply. Both are reported on every render and both are live in `TODO.md`.
+  Damage originates at the sparger during bubble *formation* rather than at bursting (Barbosa
+  2003), and **no critical entrance velocity is established** in anything read here — the
   "30–50 m/s" this document carried until 2026-08-13 was not supported by its source, which reports
   0.4–5.4 m/s in its own runs and says the parameter needs more work.
-  **The geometry, though, is now citable.** Oldshue 1997 p. 214: *"A sparge ring about 80 % of the
-  impeller diameter is more effective than an open pipe beneath the impeller or sparge rings larger
-  than the impeller,"* because the gas should enter where it passes straight through the impeller's
-  high-shear zone. On the 94.5 mm impeller that is a **~75.6 mm ring**, and it agrees with Nienow's
-  requirement that the sparger sit below the lower impeller. **The binding problem is vertical
-  room**: the lower impeller sits 0.42 D off the floor, leaving 10 mm of clear space beneath it, so
-  the off-bottom clearance has to be settled before a sparger can be drawn at all.
+  (Superseded — kept for the record. This read "There is no sparger in the model", and went on to
+  size one at Oldshue p. 214's 80 % of the impeller — *"a sparge ring about 80 % of the impeller
+  diameter is more effective than an open pipe beneath the impeller or sparge rings larger than the
+  impeller"* — giving ~75.6 mm on a 94.5 mm impeller, and called the binding problem vertical room
+  under the lower impeller. Both parts are wrong now: the ring is placed by the MOUTH at 1.44 D,
+  because Birch & Ahmed and Rewatkar & Joshi both measure rings LARGER than the impeller to be
+  better, which the settled ledger records as superseding Oldshue outright.)
 - **Off-bottom clearance used to be a consequence of shaft length, and is now a design parameter.**
   The impeller was placed with its bottom flush against a shaft that bottomed out 5 mm over the
   punt, so `C = punt + shaft clearance + height/2` — a *mixing* quantity falling out of *how long

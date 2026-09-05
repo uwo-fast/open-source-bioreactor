@@ -227,11 +227,19 @@ The order is forced by geometry, not preference.
 
 ### Two ways to assemble it wrong that nothing will catch
 
-**The sparger's sockets look identical from above.** The feed socket is a **hexagon** and the
+**The sparger's sockets look identical from above.** The feed socket is an **octagon** and the
 support sockets are **round**, and that is the only thing telling them apart, because you cannot see
 inside a socket at the bottom of a jar. Get it wrong and the gas goes down a capped tube and
 straight back out its own vent hole into the headspace — while the rotameter reads flow and the
 culture gets nothing.
+
+**And the tell is weaker than it was, which is worth knowing before you rely on it.** The feed
+socket used to be a hexagon and is now the tube's own section, so it follows the tube instead of
+being a second size — a good change for the joint, and a worse one for telling sockets apart. Both
+sockets are the same 6.4 mm across the flats; the octagon's corners stand only **0.264 mm** proud of
+the circle, where a hexagon's stood 0.49. Count the facets or feel for the corners rather than
+glancing. (Superseded — kept for the record: this said the feed socket is a hexagon, which it was
+until the socket was made to take the tube's section.)
 
 **The ports are labelled by function for the same reason.** `air_in` and `air_out` have the same
 bore, so marking them by bore alone put `Ø6` on both. A gas line on the wrong one vents into the

@@ -227,6 +227,13 @@ Working it properly then changed the design rather than the number: the radial b
 73 mm of height sits unused. The ring's section became 4 × 10 mm, which is also the reason it is
 printed rather than bent — **a tube is round, and round does not fit**.
 
+(Superseded — kept for the record, because the LESSON stands and the conclusion does not. Reporting
+the fit before drawing the part is what caught the −1.40 mm, and that is why this section exists.
+The 4 × 10 answer was overtaken by a requirement the fit report could not see: a sealed slot cannot
+be cleaned, and on an algal culture that outranks the packaging. The sparger is a round tube now,
+and it fits because the mouth constrains its OUTER edge while nothing constrains the inner one until
+the impeller — so the centreline moves inboard and the band was never the bound this assumed.)
+
 A model whose checks only run after the geometry exists will confirm whatever was built.
 
 ---
