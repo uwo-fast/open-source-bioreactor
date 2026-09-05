@@ -366,6 +366,15 @@ check-holes file="" flags="-D render_all=false -D render_sparger=true":
     for f in $targets; do
         {{OPENSCAD}} {{flags}} -D sparge_hole_probes=true --export-format binstl \
             -o "$tmp/p.stl" "$f" 2>"$tmp/err" >/dev/null
+        # A file that does not RENDER has not passed, it has not been tested. Without this a part
+        # whose assert fires reads as "nothing to say" and the recipe reports ok on a file that
+        # produced no geometry at all - which is how a stale fire-test came back green.
+        if grep -q '^ERROR' "$tmp/err"; then
+            echo "FAIL  $f  does not render, so its holes cannot be checked"
+            grep -m1 '^ERROR' "$tmp/err" | sed 's/.*failed: //; s/ in file.*//' | sed 's/^/        /'
+            failed=1
+            continue
+        fi
         grep -o 'HOLEPROBE|[^"]*' "$tmp/err" > "$tmp/probes" || true
         [ -s "$tmp/probes" ] || continue
         checked=$((checked + 1))
@@ -411,7 +420,7 @@ check-holes file="" flags="-D render_all=false -D render_sparger=true":
     EOF
         then failed=1; fi
     done
-    [ "$checked" = 0 ] && echo "ok    no part declares a hole probe"
+    [ "$checked" = 0 ] && [ "$failed" = 0 ] && echo "ok    no part declares a hole probe"
     exit $failed
 
 # Fail when a part the model PRESCRIBES is not on the purchase list.

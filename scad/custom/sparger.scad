@@ -114,7 +114,7 @@ function sparger_hole_angles(count, feed_angle = 0) =
 // vertices the face sits nearer the axis than nominal. Getting this wrong by a quarter millimetre
 // is what left twenty blind holes, so it is one expression and the check below tests it.
 function sparger_inner_face_radius(ring_radius, tube, section_facets, sweep_facets) =
-  (ring_radius - sparger_across_corners(tube, section_facets) / 2) * cos(180 / sweep_facets);
+  (ring_radius - sparger_face_distance(tube, section_facets, 180)) * cos(180 / sweep_facets);
 
 // How many facets rotate_extrude will actually use, derived the way OpenSCAD derives it rather than
 // read off $fn - which is zero unless something sets it, and a zero $fn means $fa and $fs decide.
@@ -153,10 +153,42 @@ function sparger_departures(orifice_velocity, pitch_ratio, open_area_ratio, bore
 // moves, and the wall is what has to survive a hole being drilled through it.
 function sparger_across_corners(across_flats, facets) = across_flats / cos(180 / facets);
 
+// How far to turn the section so a FLAT lands on the bed instead of an edge. `circle($fn=n)` puts a
+// vertex at 0 degrees, and rotate_extrude maps the section's -y to -z, so an unrotated octagon
+// stands on a corner: the part balances on a line and the first layer is a knife edge. It also put
+// a corner where every gas hole is drilled, against a header claiming each hole meets a flat.
+//
+// Solved so 270 degrees - straight down in the section's frame - is an EDGE MIDPOINT. Every facet
+// count gets a bottom flat; a multiple of four gets flats on all four cardinals, so the holes get
+// one too. A hexagon does not, and drills into a corner - which is a reason to prefer 8 over 6.
+function sparger_section_rotation(facets) =
+  facets == 0
+    ? 0
+    : let (_p = 360 / facets, _r = 270 - 180 / facets) _r - floor(_r / _p) * _p;
+
+// How far the material reaches in a given direction. A polygon is not a circle: a corner reaches
+// across_corners/2 and a flat only across_flats/2, and WHICH ONE a hole is aimed at decides how far
+// it has to cut to break out. Using the corner distance for a hole that meets a flat overshoots
+// harmlessly; using it to place a breakthrough probe puts the probe outside the part, where it is
+// void whether the hole opened or not - a check that cannot fail.
+function sparger_face_distance(across_flats, facets, direction) =
+  facets == 0
+    ? across_flats / 2
+    : let (
+        _p = 360 / facets,
+        _normal = sparger_section_rotation(facets) + 180 / facets,
+        _raw = direction - _normal,
+        _off = _raw - floor(_raw / _p) * _p, // into [0, _p)
+        _d = _off > _p / 2 ? _off - _p : _off // ... and then to the nearest flat
+      )
+        (across_flats / 2) / cos(_d);
+
 // The 2D section, centred. facets = 0 asks for a circle, which is what the bore wants.
 module sparger_section(across_flats, facets) {
   if (facets == 0) circle(d = across_flats);
-  else circle(d = sparger_across_corners(across_flats, facets), $fn = facets);
+  else
+    rotate(sparger_section_rotation(facets))
+      circle(d = sparger_across_corners(across_flats, facets), $fn = facets);
 }
 
 // ----- primitives -----
@@ -172,12 +204,17 @@ module sparger_ring_solid(radius, across_flats, facets) {
 // A straight run along +x, from r0 to r1 at a given bearing. Built as a prism rather than a
 // cylinder so its section matches the ring's exactly - a spoke that was round where the ring is
 // octagonal leaves a step inside the bore, which is where a brush snags.
+//
+// THE QUARTER TURN IS NOT DECORATION. rotate_extrude maps the section's -y to -z, but this
+// extrusion maps the section's +x to -z instead - so the same section that sits flat on the bed as
+// a ring stands on a corner as a spoke. Turning it 90 degrees puts the same flat underneath both.
 module sparger_spoke_solid(r0, r1, angle, across_flats, facets) {
   rotate([0, 0, angle])
     translate([r0, 0, 0])
       rotate([0, 90, 0])
         linear_extrude(height = max(r1 - r0, 0.001))
-          sparger_section(across_flats, facets);
+          rotate(90)
+            sparger_section(across_flats, facets);
 }
 
 /**
@@ -269,6 +306,10 @@ module sparger(
   // clear it, cut it or measure it uses this, not tube - see the hole reach below for what happens
   // when it does not. Defined here because the asserts need it.
   _ac = sparger_across_corners(tube, section_facets);
+  // And how low it actually SITS, which is not the same number: the section is turned so a flat
+  // faces the bed, so the part rests at across_flats/2 while its corners reach across_corners/2
+  // out to the sides.
+  _bottom = sparger_face_distance(tube, section_facets, 270);
   // 1.5 tube diameters on the centreline, the usual floor for a pipe bend. It has to clear the
   // tube's own ACROSS-CORNERS half width or the swept profile crosses the axis and rotate_extrude
   // refuses the part - which is exactly what a bend of one bore radius did on the first render.
@@ -413,8 +454,13 @@ module sparger(
           // The tube's inscribed circle, so a support is the same size as the feed and differs
           // only in being ROUND. Written as `tube` rather than as the riser plus a wall, which
           // gives the same number today and would stop doing so the moment either moved.
-          translate([_feed_r, 0, -_ac / 2])
-            cylinder(h = _ac + feed_height, d = tube);
+          //
+          // AND IT STARTS AT THE TUBE'S BOTTOM FACE, not at its corner radius. Dropped to -_ac/2
+          // it hangs 0.26 mm below the flat the part now stands on, so the whole sparger rests on
+          // its round bosses instead of on its rings. Measured, not guessed: the first-layer
+          // footprint came back 32.1 mm2, which is this boss's disc exactly.
+          translate([_feed_r, 0, -_bottom])
+            cylinder(h = _bottom + _ac / 2 + feed_height, d = tube);
         }
 
     }
@@ -535,7 +581,9 @@ module sparger_hole_probes(
         _pr = hole_bearing == "down"
           ? radii[i]
           : sparger_inner_face_radius(radii[i], tube, section_facets, _sf) + margin,
-        _pz = hole_bearing == "down" ? -_ac / 2 + margin : 0
+        _pz = hole_bearing == "down"
+          ? -sparger_face_distance(tube, section_facets, 270) + margin
+          : 0
       )
         echo(str("HOLEPROBE|", _pr * cos(a), "|", _pr * sin(a), "|", _pz));
 }
