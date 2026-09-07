@@ -418,7 +418,7 @@ if (_rod_d != _bolt_d)
 // this file's, so the division happens here. Reported only - see utils/gasket_load.scad.
 _seating_force = head_gasket_seating_force(
   vessel_opening_diameter(reactor_vessel), vessel_thickness(reactor_vessel),
-  _build_gasket_sheet
+  _build_gasket_sheet, vessel_rim_arc_radius(reactor_vessel)
 );
 echo(str(
   "joint load: ", _seating_force, " N of gasket seating over ", joint_posts, " posts = ",
@@ -541,6 +541,7 @@ if (render_head || render_all) {
       post_pts=bolt_pattern_pts(joint_posts, joint_bolt_circle),
       post_hole_diameter=joint_hole_diameter,
       vessel_profile=vessel_inner_profile(reactor_vessel),
+      lip_arc_radius=vessel_rim_arc_radius(reactor_vessel),
       build=reactor_build
     );
 }

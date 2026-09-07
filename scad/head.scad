@@ -145,11 +145,17 @@ bearing_hole_allowance = 0.2;
 
 /** How the lid seals to the jar.
  * - The pressure boundary is a flat gasket cut from sheet, squeezed between the lid's flange and
- *   the flat land on top of the glass rim. It is recessed rather than clamped flat: the recess
- *   makes its compression a printed dimension instead of a torque guess, and because the recess
- *   swallows the gasket the flange still lands where it did, so the frame stack above is
- *   untouched. The land left either side of the recess bottoms on the glass and stops the bolts
- *   crushing the gasket, over an annulus broad enough that the stress on the glass is nothing.
+ *   the top of the glass. It is recessed rather than clamped flat, which swallows the gasket so
+ *   the flange still lands where it did and the frame stack above is untouched.
+ * - WHAT IT SEATS ON DEPENDS ON THE JAR, and only one of them has a flat. jar_6p5gal is ground and
+ *   presents a flat annulus the gasket is inset into, with a land either side for the flange to
+ *   bottom on. Every other jar is fire-polished and presents a CROWN - see vessel_rim_radius().
+ *   There the gasket covers the lip instead of sitting beside it, and what gets squeezed is the
+ *   band the crown makes as it sinks in, not the gasket's width.
+ * - SO COMPRESSION IS SET BY THE TURN, not by a land bottoming out. docs/build.md already
+ *   instructs the joint as a turn past snug rather than a torque, which is the control that
+ *   survives a curved lip; the land was the backstop, and on four of five jars there is none.
+ *   This is reported rather than asserted, like everything else the gasket model produces.
  * - The plug o-ring is not a second pressure boundary and should not be trusted as one. A radial
  *   seal's squeeze is bore minus groove, so it tracks the jar's bore one for one, and a
  *   commodity jar's bore is not a controlled dimension - half a millimetre on the radius moves
@@ -1045,31 +1051,69 @@ function head_motor_mount_screw_hole_diameter() = screw_clearance_radius(motor_m
 function head_motor_mount_screw_radius() =
   get_base_screw_separation_radius(motor_mount_body_diameter, head_motor_mount_screw_hole_diameter());
 
-// The gasket sits on the flat top of the glass, which runs from the bore out by the wall thickness,
-// inset by a land at each edge for the flange to bottom on. That rim is what is AVAILABLE; the
-// gasket takes the lesser of it and lid_gasket_width_max, and sits against its inner edge, which
-// keeps the seal as near the bore as the land allows.
+// WHICH LIP THIS JAR HAS, which decides how the gasket is sized and what it bears on. A GROUND lip
+// is a flat annulus the gasket insets into with a land at each edge for the flange to bottom on -
+// that is jar_6p5gal and nothing else. A CROWNED lip has no flat and no land, so the gasket covers
+// it and the crown sinks in. The model assumed the first for every jar until they were measured.
+function head_lip_is_flat(rim_arc_radius) = rim_arc_radius == 0;
+
 function head_gasket_rim_width(vessel_wall_thickness) =
   vessel_wall_thickness - 2 * lid_gasket_land_margin;
-function head_gasket_width(vessel_wall_thickness) =
-  min(head_gasket_rim_width(vessel_wall_thickness), lid_gasket_width_max);
-function head_gasket_inner_radius(vessel_opening_diameter) =
-  vessel_opening_diameter / 2 + lid_gasket_land_margin;
-function head_gasket_outer_radius(vessel_opening_diameter, vessel_wall_thickness) =
-  head_gasket_inner_radius(vessel_opening_diameter) + head_gasket_width(vessel_wall_thickness);
+
+// A ground lip gets the old treatment: inset into the flat, capped, sitting as near the bore as
+// the land allows. A CROWNED lip gets covered instead - from the bore out past the lip's own
+// footprint, which is two arc radii - because a gasket beside a crown seals nothing.
+//
+// The width cap does not apply to a crowned lip, and that is not an oversight. It exists because
+// squeezing a wide gasket costs far more than a narrow one; on a crown only the contact band is
+// squeezed, so width and force stop being the same question. See head_lip_contact_width().
+function head_gasket_width(vessel_wall_thickness, rim_arc_radius) =
+  head_lip_is_flat(rim_arc_radius)
+    ? min(head_gasket_rim_width(vessel_wall_thickness), lid_gasket_width_max)
+    : 2 * rim_arc_radius + lid_gasket_land_margin;
+function head_gasket_inner_radius(vessel_opening_diameter, rim_arc_radius) =
+  head_lip_is_flat(rim_arc_radius)
+    ? vessel_opening_diameter / 2 + lid_gasket_land_margin
+    : vessel_opening_diameter / 2;
+function head_gasket_outer_radius(vessel_opening_diameter, vessel_wall_thickness, rim_arc_radius) =
+  head_gasket_inner_radius(vessel_opening_diameter, rim_arc_radius)
+  + head_gasket_width(vessel_wall_thickness, rim_arc_radius);
+
+// WHAT ACTUALLY GETS SQUEEZED. On a flat lip it is the gasket's own width. On a crown it is the
+// band the lip makes as it sinks in - a chord of the lip's arc - so it follows the lip's radius and
+// the sink, and a wider gasket does not widen it. Sink is taken as the same fraction of thickness
+// the recess would have squeezed out on a flat, which is what "25% squeeze" means once there is no
+// land to bottom on.
+function head_lip_sink(sheet) =
+  gasket_sheet_thickness(head_gasket_sheet(sheet)) * lid_gasket_compression;
+function head_lip_contact_width(vessel_wall_thickness, rim_arc_radius, sheet) =
+  head_lip_is_flat(rim_arc_radius)
+    ? head_gasket_width(vessel_wall_thickness, rim_arc_radius)
+    : let (_d = head_lip_sink(sheet))
+        2 * sqrt(max(2 * rim_arc_radius * _d - _d * _d, 0));
+
+// and where that band sits: on a crown it is centred on the crown, not on the gasket.
+function head_lip_contact_mean_diameter(vessel_opening_diameter, vessel_wall_thickness, rim_arc_radius) =
+  head_lip_is_flat(rim_arc_radius)
+    ? head_gasket_inner_radius(vessel_opening_diameter, rim_arc_radius)
+      + head_gasket_outer_radius(vessel_opening_diameter, vessel_wall_thickness, rim_arc_radius)
+    : vessel_opening_diameter + 2 * rim_arc_radius;
 
 // What the joint has to hold. Exported because the gasket is the head's to choose and the bolt
 // count is the assembly's, so the force crosses that boundary as one number - see
 // utils/gasket_load.scad on why it is reported rather than asserted on.
-function head_gasket_mean_diameter(vessel_opening_diameter, vessel_wall_thickness) =
-  head_gasket_inner_radius(vessel_opening_diameter)
-  + head_gasket_outer_radius(vessel_opening_diameter, vessel_wall_thickness);
-function head_gasket_seating_force(vessel_opening_diameter, vessel_wall_thickness, sheet) =
+function head_gasket_mean_diameter(vessel_opening_diameter, vessel_wall_thickness, rim_arc_radius) =
+  head_lip_contact_mean_diameter(vessel_opening_diameter, vessel_wall_thickness, rim_arc_radius);
+
+// Built on the CONTACT band rather than the gasket's width, which on a crowned lip are different
+// numbers. Getting this wrong overstates the force on four of the five jars, and it is the number
+// the joint's bolt count is derived from.
+function head_gasket_seating_force(vessel_opening_diameter, vessel_wall_thickness, sheet, rim_arc_radius) =
   gasket_seating_force(
     gasket_sheet_shore_a(head_gasket_sheet(sheet)),
-    head_gasket_width(vessel_wall_thickness),
+    head_lip_contact_width(vessel_wall_thickness, rim_arc_radius, sheet),
     gasket_sheet_thickness(head_gasket_sheet(sheet)),
-    head_gasket_mean_diameter(vessel_opening_diameter, vessel_wall_thickness),
+    head_gasket_mean_diameter(vessel_opening_diameter, vessel_wall_thickness, rim_arc_radius),
     lid_gasket_compression
   );
 function head_gasket_depth(sheet) = gasket_sheet_thickness(head_gasket_sheet(sheet)) * (1 - lid_gasket_compression);
@@ -1560,7 +1604,7 @@ module head_port_at(i, vessel_opening_diameter, flipped = false) {
       children();
 }
 
-module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter, plug_oring, sheet) {
+module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter, plug_oring, sheet, lip_arc_radius) {
 
   _ports = head_ports_for(vessel_opening_diameter);
   _n = len(_ports);
@@ -1612,9 +1656,9 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
       // rim gasket recess, sunk into the flange's glass-facing face
       translate([0, 0, lid_flange_height - _gasket_depth])
         difference() {
-          cylinder(r=head_gasket_outer_radius(vessel_opening_diameter, vessel_wall_thickness), h=_gasket_depth + z_fight);
+          cylinder(r=head_gasket_outer_radius(vessel_opening_diameter, vessel_wall_thickness, lip_arc_radius), h=_gasket_depth + z_fight);
           translate([0, 0, -z_fight])
-            cylinder(r=head_gasket_inner_radius(vessel_opening_diameter), h=_gasket_depth + z_fight * 3);
+            cylinder(r=head_gasket_inner_radius(vessel_opening_diameter, lip_arc_radius), h=_gasket_depth + z_fight * 3);
         }
 
       // o-ring groove round the plug
@@ -1706,7 +1750,7 @@ module head_port(port, panel_thickness, baffle_width, baffle_length, baffle_segm
   }
 }
 
-module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, vessel_internal_height, vessel_punt_height, joint_outer_diameter, post_pts, post_hole_diameter, vessel_profile, build = []) {
+module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, vessel_internal_height, vessel_punt_height, joint_outer_diameter, post_pts, post_hole_diameter, vessel_profile, lip_arc_radius, build = []) {
 
   // Resolved before anything reads them. An empty build is head.scad's own parameters, which is
   // what this file renders standalone.
@@ -3454,8 +3498,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   );
 
   // --- lid seal ---
-  _gasket_ir = head_gasket_inner_radius(vessel_opening_diameter);
-  _gasket_or = head_gasket_outer_radius(vessel_opening_diameter, vessel_wall_thickness);
+  _gasket_ir = head_gasket_inner_radius(vessel_opening_diameter, lip_arc_radius);
+  _gasket_or = head_gasket_outer_radius(vessel_opening_diameter, vessel_wall_thickness, lip_arc_radius);
   _groove_r = head_plug_oring_groove_radius(vessel_opening_diameter, _build_plug_oring);
   _groove_w = head_plug_groove_width(vessel_opening_diameter, _build_plug_oring);
   // 0% stretch; anything down to this over 1.05 still hugs the groove. With no ring selected there
@@ -3467,9 +3511,10 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     ? vessel_opening_diameter - 2 * oring_gland_depth(_plug_cord_nominal, lid_plug_oring_squeeze)
     : _groove_r * 2;
 
-  _gasket_w = head_gasket_width(vessel_wall_thickness);
+  _gasket_w = head_gasket_width(vessel_wall_thickness, lip_arc_radius);
+  _lip_band = head_lip_contact_width(vessel_wall_thickness, lip_arc_radius, _gasket_sheet);
   _gasket_rim = head_gasket_rim_width(vessel_wall_thickness);
-  _gasket_force = head_gasket_seating_force(vessel_opening_diameter, vessel_wall_thickness, _gasket_sheet);
+  _gasket_force = head_gasket_seating_force(vessel_opening_diameter, vessel_wall_thickness, _gasket_sheet, lip_arc_radius);
 
   echo(str(
     "lid gasket: cut ", _gasket_ir * 2, " x ", _gasket_or * 2, " mm from ",
@@ -3482,11 +3527,28 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // The only load in the reactor, so it is worth saying out loud. Reported and never asserted on:
   // the modulus is correlated from the sheet's hardness rather than measured. See
   // utils/gasket_load.scad.
+  // WHAT THE GASKET ACTUALLY TOUCHES, which is not its own width unless the lip is ground flat.
   echo(str(
-    "lid gasket load: ", _gasket_w, " mm wide on a ", _gasket_rim, " mm rim, ",
-    _gasket_force, " N to hold ", lid_gasket_compression * 100, "% squeeze, ",
+    "lid lip: ",
+    head_lip_is_flat(lip_arc_radius)
+      ? str("GROUND FLAT, ", _gasket_rim, " mm of land once both margins are taken")
+      : str(
+        "crowned on a ", lip_arc_radius, " mm arc standing ",
+        2 * lip_arc_radius - vessel_wall_thickness, " mm proud of the wall - no flat to seat on, so ",
+        "the gasket covers the lip and the crown sinks ", head_lip_sink(_gasket_sheet), " mm into it"
+      ),
+    "; ", _gasket_w, " mm of gasket, ", _lip_band, " mm of contact"
+  ));
+
+  // The only load in the reactor, so it is worth saying out loud. Reported and never asserted on:
+  // the modulus is correlated from the sheet's hardness rather than measured. See
+  // utils/gasket_load.scad. Taken over the CONTACT band, which on a crowned lip is narrower than
+  // the gasket - reading it off the width overstates the area and understates the stress.
+  echo(str(
+    "lid gasket load: ", _lip_band, " mm of contact, ", _gasket_force, " N to hold ",
+    lid_gasket_compression * 100, "% squeeze, ",
     gasket_seat_stress(
-      gasket_sheet_shore_a(_gasket_sheet), _gasket_w,
+      gasket_sheet_shore_a(_gasket_sheet), _lip_band,
       gasket_sheet_thickness(_gasket_sheet), lid_gasket_compression
     ), " MPa on the glass"
   ));
@@ -3494,8 +3556,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   if (_gasket_w < lid_gasket_width_min)
     echo(str(
       "WARNING lid gasket: ", _gasket_w, " mm wide, under the ", lid_gasket_width_min,
-      " mm this lid wants. The jar's ", vessel_wall_thickness, " mm wall leaves only ", _gasket_rim,
-      " mm of rim once both lands are taken. It will be fiddly to cut and may not stay in its recess."
+      " mm this lid wants. It will be fiddly to cut and may not stay in its recess."
     ));
 
   if (_gasket_rim > lid_gasket_width_max)
@@ -3675,7 +3736,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     color(prints2_color)
       union() {
         rotate([0, 180, 0])
-          lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter(_shaft), _build_plug_oring, _gasket_sheet);
+          lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter(_shaft), _build_plug_oring, _gasket_sheet, lip_arc_radius);
         lid_locks();
       }
   }
@@ -3697,7 +3758,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       intersection() {
         union() {
           rotate([0, 180, 0])
-            lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter(_shaft), _build_plug_oring, _gasket_sheet);
+            lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter(_shaft), _build_plug_oring, _gasket_sheet, lip_arc_radius);
           lid_locks();
         }
         head_port_at(_baffle_at[0], vessel_opening_diameter)
@@ -4019,5 +4080,6 @@ head(
   joint_outer_diameter=frame_outer_diameter(vessel_diameter(reactor_vessel), _preview_wall_thickness),
   post_pts=_preview_post_pts,
   post_hole_diameter=frame_rod_hole_diameter(),
-  vessel_profile=vessel_inner_profile(reactor_vessel)
+  vessel_profile=vessel_inner_profile(reactor_vessel),
+  lip_arc_radius=vessel_rim_arc_radius(reactor_vessel)
 );

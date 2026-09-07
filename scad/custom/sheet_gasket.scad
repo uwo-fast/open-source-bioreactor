@@ -5,8 +5,9 @@
  * @copyright 2026
  *
  * Not a catalogue part, which is why it has no registry: only the sheet is bought, and the ring's
- * diameters come from whatever it seals - here the flat land on top of the jar's rim. So the
- * caller passes the cut, and the consumer that knows the vessel derives it.
+ * diameters come from whatever it seals - here the jar's lip, which is flat on one jar and a
+ * rolled crown on the rest. So the caller passes the cut, and the consumer that knows the vessel
+ * derives it.
  *
  * Drawn at its free thickness, like the o-rings: installed it is squeezed into a shallower
  * recess, and the difference standing proud is the compression.
