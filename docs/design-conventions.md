@@ -12,7 +12,7 @@ enters the mouth. The rim is fixed by the jar; the frame's top base is derived *
 
 **What the gasket seats ON is per jar, and only one of them is flat.** `jar_6p5gal_305x470` is
 ground and presents a flat annulus. Every other jar is fire-polished and presents a CROWN — the
-glass rolls over, and on three of them the roll stands proud of the wall as a bead. So there is no
+glass rolls over, and on two of them the roll stands proud of the wall as a bead. So there is no
 land to inset a gasket into and none to bottom the flange on: the gasket covers the lip instead,
 and what gets squeezed is the band the crown makes as it sinks in. (Superseded — kept for the
 record: this read "seats on the flat land on top of the glass", and the model sized the gasket to a

@@ -1102,9 +1102,6 @@ function head_lip_contact_mean_diameter(vessel_opening_diameter, vessel_wall_thi
 // What the joint has to hold. Exported because the gasket is the head's to choose and the bolt
 // count is the assembly's, so the force crosses that boundary as one number - see
 // utils/gasket_load.scad on why it is reported rather than asserted on.
-function head_gasket_mean_diameter(vessel_opening_diameter, vessel_wall_thickness, rim_arc_radius) =
-  head_lip_contact_mean_diameter(vessel_opening_diameter, vessel_wall_thickness, rim_arc_radius);
-
 // Built on the CONTACT band rather than the gasket's width, which on a crowned lip are different
 // numbers. Getting this wrong overstates the force on four of the five jars, and it is the number
 // the joint's bolt count is derived from.
@@ -1113,7 +1110,7 @@ function head_gasket_seating_force(vessel_opening_diameter, vessel_wall_thicknes
     gasket_sheet_shore_a(head_gasket_sheet(sheet)),
     head_lip_contact_width(vessel_wall_thickness, rim_arc_radius, sheet),
     gasket_sheet_thickness(head_gasket_sheet(sheet)),
-    head_gasket_mean_diameter(vessel_opening_diameter, vessel_wall_thickness, rim_arc_radius),
+    head_lip_contact_mean_diameter(vessel_opening_diameter, vessel_wall_thickness, rim_arc_radius),
     lid_gasket_compression
   );
 function head_gasket_depth(sheet) = gasket_sheet_thickness(head_gasket_sheet(sheet)) * (1 - lid_gasket_compression);
@@ -3524,9 +3521,6 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     gasket_sheet_size(_gasket_sheet)[0], " x ", gasket_sheet_size(_gasket_sheet)[1], " mm sheet"
   ));
 
-  // The only load in the reactor, so it is worth saying out loud. Reported and never asserted on:
-  // the modulus is correlated from the sheet's hardness rather than measured. See
-  // utils/gasket_load.scad.
   // WHAT THE GASKET ACTUALLY TOUCHES, which is not its own width unless the lip is ground flat.
   echo(str(
     "lid lip: ",
