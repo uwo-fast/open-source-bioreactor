@@ -349,10 +349,10 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
     `z_fight` in head.scad silently hid every render flag below it, because that file had no marker
     between the internals and the flags. Caught by counting the visible surface, not by reading the
     diff
-  - what is left is that nothing guards this. The dropdowns are checked by `just json` against their
-    registries and cannot drift; the descriptions are prose and the next parameter added will be as
-    silent as these were. The scanner that found them is nine lines of Python - a `check-customizer`
-    recipe would keep it closed
+  - **guarded now.** `just check-customizer` is in the gate and was proved to fire by removing one
+    description: it names the parameter and prints what the UI would have shown in its place. It
+    also settled a question the sweep had only got lucky on - `$`-prefixed names are SPECIAL
+    variables, which the customizer does not offer, so they want no description
 
 
 - [ ] **the sparger's holes are the wrong size, and the model now says so on every render**
