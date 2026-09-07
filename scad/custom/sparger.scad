@@ -348,6 +348,16 @@ module sparger(
     )
   );
 
+  // sparger_hole_probes() walks RINGS only, so spoke holes reach check-holes' report as neither
+  // passed nor failed - they are simply not counted. Said out loud here rather than left to the
+  // probe module's own header, because this is where someone turning them on will be looking.
+  if (spoke_holes > 0)
+    echo(str(
+      "WARNING sparger: ", spoke_holes, " hole(s) per arm on ", len(spoke_angles),
+      " arm(s) are NOT covered by check-holes - it probes rings only, so nothing tests that these ",
+      "break out or reach a bore. The assert above covers only the unbored-arm case"
+    ));
+
   assert(
     (tube - feed_bore) / 2 >= feed_wall,
     str(
