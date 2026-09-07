@@ -3809,6 +3809,17 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
               bayonet_oring(_pi),
               id=(bayonet_gland_outer_radius(_pi) - bayonet_oring_cs_diameter(_pi)) * 2
             );
+
+    // The ROD seal, in the groove that holds it captive. The only ring in the build that seals on a
+    // tube rather than a face, and until now the only one not drawn - so the overlap this block
+    // calls the check was the one check the rod gland never got, on the one gland whose pocket was
+    // open at the bottom. At its registered ID, which is the riser: 0% stretch, and the overlap
+    // with the tube is the 18% radial squeeze head() reports.
+    for (i = [0:_n - 1])
+      if (head_port_carries_riser(_ports[i]))
+        head_port_at(i, vessel_opening_diameter)
+          translate([0, 0, bayonet_bore_gland_centre(tube_port_riser_oring, lid_thickness)])
+            oring(tube_port_riser_oring);
   }
 
   // Port pin halves. Each shares the lock's datum, so it needs no placement beyond its hole

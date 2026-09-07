@@ -112,6 +112,11 @@ function bayonet_bore_gland_length(ring) = oring_gland_width(oring_cross_section
 // Thick enough not to tear off the print, thin enough to push past: 6 layers at 0.2 mm.
 bayonet_bore_gland_lip = 1.2;
 
+// Where the groove's centre sits, measured from the flange's panel-facing face - the same datum the
+// port is placed on, so a caller can draw the ring in it without restating this file's numbers.
+function bayonet_bore_gland_centre(ring, panel_thickness) =
+  -panel_thickness + bayonet_bore_gland_lip + bayonet_bore_gland_length(ring) / 2;
+
 // Derived, not registered: a flange narrower than its own groove is not expressible.
 function bayonet_flange_radius(type) =
   is_undef(bayonet_oring_id(type))
