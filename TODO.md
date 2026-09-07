@@ -1,8 +1,9 @@
 # TODO
 
-Open work only. A finished item is deleted rather than kept ticked - its reasoning is in the commit
-that closed it and in `docs/`, and a page of them buries what is actually left. The exception is the
-ledger at the end: decisions that took real work to reach and would otherwise be quietly redone.
+Open work only. A finished item is deleted rather than kept ticked - a page of them buries what is
+actually left. What was decided, and what this project got wrong on the way, is in
+`docs/decisions.md`; the reasoning behind a closed item is in the commit that closed it and in
+`docs/`.
 
 ## model completeness / enhancement
 
@@ -23,8 +24,6 @@ ledger at the end: decisions that took real work to reach and would otherwise be
   - and the frame needs somewhere to put three of them: pockets, or a rail, or hanging off the
     electronics stand. That is a design decision rather than a parameter, and nothing else waits
     on it - the reference run had the dose pumps disabled throughout
-
-- [ ] replace as many of the "generic" parameter registrations as possible with specific ones for the actual hardware (i.e. mcmaster carr part numbers or best effort for other parts)
 
 - [ ] **measured gas flow** — a reproducibility gap, not a geometry one. **The parts are chosen and in the BOM: Dwyer `VFA-23` bare meter, C$86.22, and a Clippard `MNV-3KP` needle valve, US$15.11, the valve upstream of the meter. What is left is buying them and taking a reading.**
   - the gap it closes: the model states a vvm and no builder can set one. Against the real line the
@@ -59,9 +58,7 @@ ledger at the end: decisions that took real work to reach and would otherwise be
   - **`jar_1gal_155x251`'s probe conflict is the pH probe, not the DO probe.** It was recorded as a
     vertical DO probe through the upper impeller, which is what a flat sweep shows; lean the DO
     probe out and it clears, and the pH probe - vertical by Yokogawa's requirement, and the long one
-    - runs 6.29 mm through the LOWER impeller. No DO lean reaches that. (Superseded — kept for the
-    record. The old reading blamed the DO probe because the only sweep that existed held both leans
-    flat, which is the DO probe's worst case and the pH probe's best.)
+    - runs 6.29 mm through the LOWER impeller. No DO lean reaches that.
   - the answer to both is the narrow-jar agitation question, tracked under "drive and aeration".
     Nothing else in the model is waiting on it
 
@@ -135,67 +132,36 @@ ledger at the end: decisions that took real work to reach and would otherwise be
     the ring's radius is the outermost the mouth allows, so the free variables are the LEAN and the
     ring's height. Both are already parameters
 
-- [ ] **the baffle no longer reaches the blades, and what bought that is baffle AREA**
-  - **the collision is gone, and nothing here fixed it.** The model echoes **4.47731 mm nominal**,
-    less the same 2.27722 mm of lean, so **+2.20009 mm running**, and the echo's own "THE PLATE CAN
-    REACH THE BLADES" branch no longer fires. Checked at `01b9bc2`, the commit that wrote the old
-    reading, where it genuinely echoed 2 mm nominal and **-0.277222 mm running**: the claim was right
-    when made. (Superseded — kept for the record: this item read "jar_10L's baffle can reach the
-    blades, and the next action is a MEASUREMENT", at -0.28 mm running, and called that measurement
-    the thing to do first.)
-  - **what moved is the plate's WIDTH, from 15.3 mm to 10.3454**, which opens the gap by half of
-    what it takes off the plate. The lean did not move at all. So the interference closed itself as a
-    side effect of the plate narrowing, somewhere across the 52 commits since, and no commit set out
-    to close it
-  - **and the price is the warning that was already firing.** Reference projected area went
-    **0.855763 -> 0.578565** of Oldshue's four-at-T/12, a third of the baffling gone, and six plates
-    - the next count that spaces equally on twelve ports - now reaches only **0.867847** where it
-    used to clear the reference outright at 1.28364. A collision was traded for under-baffling, and
-    under-baffling is the failure `docs/agitation.md` says lets the vessel swirl rather than mix
-  - **so the open question is the opposite of the one this item used to ask.** Not "how do we buy
-    clearance" - there is 2.2 mm of it - but whether 0.579 of reference is acceptable, and what the
-    plate is allowed to cost to get it back. Widening it again walks straight back toward the blades,
-    which is why the two belong in one item
-  - thickness does not touch either: it is a tolerance stack, not a stiffness one, and the deflection
-    half is closed (the plate is 10 mm - see `docs/agitation.md`)
-  - **what the number actually is.** 0.2 mm of bayonet play over 18 mm of engagement, levered out
-    205 mm to the lower impeller: an **11.4x amplification**, which is why a fit clearance smaller
-    than a layer height ends up larger than the whole gap. Attacking the amplification is worth more
-    than widening the gap
-  - **but 2.28 mm is bore play ALONE.** The model tilts the plate as if the pin were free to cock
-    inside its bore. It is not: the baffle's flange seats on the lid face across a much larger
-    diameter, and a face contact resists tilt far harder than a bore does - the o-ring under it is
-    the only thing that lets it rock at all. So the real lean is somewhere between 2.28 mm and
-    almost nothing, and **nothing in the model can tell which**
-  - **THE TILT MEASUREMENT IS DROPPED, and it never earned its place.** The model's 2.28 mm is a
-    worst case - bore play alone, with the flange's face contact ignored - so a measurement can only
-    come back at or under it. The clearance already clears AT that worst case, by 2.20 mm. Every
-    outcome therefore led to the same action, which is what makes it not a test. Decided at the
-    bench, 2026-09; the coupon had been printed and the number was still not worth taking.
-    (Superseded — kept for the record: this was "do this first", on the reading that the plate could
-    strike the blades at -0.28 mm running. It was worth doing then. What retired it is the
-    clearance, not the method.)
-  - it comes back only if the plate is widened to buy area back, since that spends the 2.20 mm. At
-    that point the worst case stops being a comfortable margin and the real lean starts mattering.
-    `baffle_port_coupon` was DELETED with the measurement rather than kept against that maybe - it
-    was an intersection of the real lid with a 45 mm disc, so it costs nothing to write again, and a
-    part carried on the manifest for a test nobody is going to run is a part that gets printed by
-    someone reading the list
-  - **the fixes below are stale in their figures** - they were costed against a 15.3 mm plate and a
-    negative running clearance, and both have moved. Kept because the ORDER is still right and the
-    mechanisms still apply, now to buying width back rather than giving it away:
-    - *taper the plate's inner edge with depth* so it matches the lean, which is worst at the bottom
-      and zero at the lid. Buys the clearance for about half the area a uniform cut costs - roughly
-      0.79 of reference against 0.744. New geometry in `bayonet_baffle_port.scad`
-    - *`baffle_impeller_clearance` 2 -> 3*. One line, running clearance +0.72 mm, but width goes
-      15.3 -> 13.3 and area 0.856 -> 0.744, which deepens the under-baffling warning already firing.
-      Trades a warning for a warning
-    - *deepen the bayonet engagement to 36 mm*. Halves the lean, costs no area - but the stack height
-      grows, which pushes the plate from 2 printed pieces to 3 and adds a third dovetail joint, and
+- [ ] **the baffle clears the blades now, and BAFFLE AREA is what paid for it**
+  - **+2.20009 mm running** - 4.47731 nominal less 2.27722 of lean - so the plate cannot reach the
+    impeller and the echo's "THE PLATE CAN REACH THE BLADES" branch does not fire. It closed as a
+    side effect of the plate narrowing 15.3 -> 10.3454 mm, which opens the gap by half what it takes
+    off the plate. No commit set out to close it; see `docs/decisions.md`
+  - **the price was a third of the baffling.** Reference projected area 0.855763 -> **0.578565** of
+    Oldshue's four-at-T/12, and six plates - the next count that spaces equally on twelve ports - now
+    reach only 0.867847 where they used to clear the reference outright at 1.28364. Under-baffling is
+    the failure `docs/agitation.md` says lets the vessel swirl rather than mix
+  - **so the question is whether 0.579 is acceptable, and what may be spent to get it back.** Buying
+    width walks straight back toward the blades, which is why the two are one item. Thickness touches
+    neither: it is a tolerance stack, and the deflection half is closed at a 10 mm plate
+  - **the 2.28 mm lean is a worst case and only matters if the plate widens.** It is bore play alone
+    - 0.2 mm over 18 mm of engagement, levered 205 mm to the lower impeller, an **11.4x
+    amplification** - and the model ignores the flange's face contact, which resists tilt far harder
+    than a bore. The real lean is somewhere between that and almost nothing. The tilt measurement was
+    dropped because every outcome led to the same action; it returns only if the margin is spent
+  - **the fixes, in order of what they cost.** Their figures were costed against a 15.3 mm plate and
+    a negative clearance, so treat them as mechanisms rather than numbers - and now for buying width
+    back rather than giving it away:
+    - *taper the plate's inner edge with depth* so it matches the lean, worst at the bottom and zero
+      at the lid. Buys clearance for about half the area a uniform cut costs. New geometry in
+      `bayonet_baffle_port.scad`
+    - *deepen the bayonet engagement to 36 mm*. Halves the lean and costs no area, but the stack
+      grows, pushing the plate from 2 printed pieces to 3 and adding a third dovetail joint - and
       joints already take 14 % of the deflection
     - *a baffle-only interface row at 0.1 mm allowance*. Free in the model, no area or print cost,
-      but 0.1 mm is a tight printed bayonet fit on the one port that gets twisted by hand at arm's
-      length inside a jar
+      but that is a tight printed bayonet on the one port twisted by hand at arm's length in a jar
+    - *`baffle_impeller_clearance` 2 -> 3*. One line, but it spends area to buy clearance the plate
+      no longer needs - the wrong direction now
 
 - [ ] **the impeller's tip ring cannot print without support, and nothing has asked whether it earns it**
   - it is a 4 x 4 mm annulus tying the four blade tips, sitting inboard of `impeller_radius`. Measured
@@ -209,9 +175,7 @@ ledger at the end: decisions that took real work to reach and would otherwise be
   - **the strike case that kept it has gone.** That jar's baffle running clearance is **+2.20 mm**,
     not the -0.28 it was read at, so no plate reaches the blades on the geometry as it stands and the
     ring's one surviving argument goes with it. It comes back only if the baffle is widened to buy
-    area back - see the baffle item above, where the two are now one question. (Superseded — kept for
-    the record: this read "the same jar's baffle running clearance is -0.28 mm, so a plate CAN reach
-    the blades", and made the ring an impact case no number covered.)
+    area back - see the baffle item above, where the two are now one question.
   - so it is a real decision, not an oversight: pay for support material and a scarred inner face on
     every impeller, or drop the ring and rely on the blade being 100x over-strength against
     everything except a collision the clearance stack no longer allows. **Deciding it is downstream of
@@ -248,10 +212,17 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
   - one paywalled source might yet say something - Kumaresan & Joshi 2006,
     doi:10.1016/j.cej.2005.10.002, worth an interlibrary request
 
-- [ ] settle how the narrow jars are agitated — **the family question these two items answer**
-  - `jar_1p5L` and `jar_1gal_155` cannot carry a top-entry drive on their lids at any mount size, and they cannot hold baffles beside two Ø16 probes at any port count. A stirred version of either would be a centred shaft in an unbaffled vessel, which Montante measured at a flow number 65% below the same impeller baffled - swirl, not mixing
-  - so the answer is not a smaller mount, it is a different mode. Two are on the table below and they are **separate design items, neither scheduled**. Nothing about the current build waits on them
-  - what makes this worth doing rather than dropping the two jars: a family that spans three agitation modes off one lid and one sparger is a stronger claim than one mode across six jars, and it is the claim the paper would actually be making
+## alternative agitation modes
+
+`jar_1p5L` and `jar_1gal_155` cannot carry a top-entry drive on their lids at any mount size, and
+they cannot hold four baffles beside two Ø16 Atlas probes at any port count. A stirred version of
+either would be a centred shaft in an unbaffled vessel - Montante measured that at a flow number
+65 % below the same impeller baffled, which is swirl rather than mixing. So the answer is not a
+smaller mount, it is a different mode.
+
+Neither is scheduled and nothing in the current build waits on them. What makes them worth doing
+rather than dropping the two jars: a family spanning three agitation modes off one lid and one
+sparger is a stronger claim than one mode across six jars, and it is the claim the paper makes.
 
 - [ ] explore an airlift variant of the sparger, with no impeller at all
   - falls out of the port work: mouths under about 98 mm cannot hold four baffles beside two Ø16
@@ -275,19 +246,18 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     gas inside the draft tube, not in a ring at 1.44 D
   - explicitly parked, not scheduled. Nothing here blocks the current build
 
-- [ ] explore a magnetic drive: a DC fan under the jar turning a rotor inside it
-  - a square DC fan below the vessel, a printed hub on its centre boss carrying two magnets facing up, and a magnet inside the vessel - either a stir bar or, better here, a magnet potted into a printed rotor. Nothing crosses the boundary, so it retires the shaft, the coupling, the bearing, the plug seal around the shaft AND the motor mount in one move. The lid becomes ports and a seal
-  - it is the obvious answer at this scale - it is what a lab does - and it is the one mode that removes the constraint rather than working around it
-  - **the punt is what decides it, and no jar here has a flat centre.** The registry: `jar_1p5L` a 15 mm dimple 7 tall on a 4 mm base, `jar_1gal_155` a 73 mm dome 6 tall on 3 mm, `jar_10L` 30 mm and 5 on 5 mm, `jar_6p5gal` a 160 mm dome 15 tall on a 12 mm base, and - missed when this was written - `jar_1gal_180x197` a 100 mm dome 7 tall on 5 mm. A conventional bar straddles all of them
-  - which is why the rotor is the interesting part rather than the magnets: a printed impeller with a central recess that sits OVER the punt and pivots on it, magnets in its rim. The punt stops being an obstacle and becomes the bearing
-  - **but the punt is a shallow CONE, not a dimple**, so that recess is a conical seat rather than a
-    spigot. `vessel_outer_profile()` runs a plateau out to `punt_width/2` and then straight down to
-    the base corner arc's tangent at `[D/2 - corner_radius_base, 0]`: 3.5 deg on `jar_10L`, 10 on
-    `jar_1p5L`, 12.5 on `jar_1gal_155`, 14.3 on `jar_1gal_180`, 33.8 on `jar_6p5gal`
-  - **THERE ARE TWO GAPS, and only the larger one was measured.** The punt is re-entrant - the outer
-    profile starts at `[0, punt_height]`, so the outside of the base at the axis sits that far ABOVE
-    the surface the jar stands on. A driver lying flat on that surface pays wall plus punt; a driver
-    whose hub goes UP INSIDE the punt pays the wall alone:
+- [ ] **explore a magnetic drive: a DC fan under the jar turning a rotor inside it**
+  - a square DC fan below the vessel, a printed hub on its centre boss carrying two magnets facing
+    up, and a magnet potted into a printed rotor inside. Nothing crosses the boundary, so it retires
+    the shaft, coupling, bearing, plug seal AND motor mount in one move - the lid becomes ports and a
+    seal. It is what a lab does at this scale, and the one mode that removes the constraint rather
+    than working around it
+  - **the punt decides it, and it is a shallow CONE rather than a dimple** - so the rotor's seat is a
+    conical one that pivots on the punt, making the obstacle the bearing. Cone angles off
+    `vessel_outer_profile()`: 3.5 deg on `jar_10L`, 10 on `jar_1p5L`, 12.5 on `jar_1gal_155`, 14.3 on
+    `jar_1gal_180`, 33.8 on `jar_6p5gal`. A conventional stir bar straddles all of them
+  - **the gap depends on how the driver sits.** The punt is re-entrant, so a driver lying flat pays
+    wall plus punt while one whose hub nests UP INSIDE it pays the wall alone:
 
     | vessel | flat driver | nested driver | usable radius nested |
     | --- | --- | --- | --- |
@@ -297,56 +267,36 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     | jar_1gal_180x197 | 12.0 | **5.0** | 50.0 |
     | jar_6p5gal_305x470 | 27.0 | **12.0** | 80.0 |
 
-  - **and nesting inverts the ranking.** The punt's WIDTH becomes the asset, because it is both the
-    lever arm and the room for magnets - so `jar_1p5L`, the jar this mode exists for, is the worst of
-    the five at 7.5 mm of usable radius, and `jar_1gal_155x251` is the best by a distance: 36.5 mm
-    through 3 mm of glass. (Superseded — kept for the record. This read "the number that has to be
-    run before any of it: coupling torque across the gap, which is base wall plus punt height plus
-    clearance. That is about 11 mm on `jar_1p5L` and about 27 on `jar_6p5gal`, against the 5-10 mm a
-    lab stir plate typically works through. **Magnetic is most viable exactly where it is most
-    needed** - thin base, small punt - and probably not viable at all on the big jars." Two things
-    were wrong. The definition names three terms and the figures carry two - 11 is 4+7 and 27 is
-    12+15, with no clearance in either - and the flat driver is not the only arrangement. The 5-10 mm
-    is still uncited and stays `reasoned, not cited` until a plate's own spec is read.)
-  - **the torque it has to beat is already in the model**, which this item treated as the unknown.
-    `docs/agitation.md`: the impeller pair draws under **0.067 N·m at 320 rpm** and **0.116 at 420**,
-    against the drive's 0.490 rating. Scaled to the narrow jars at constant D/T and EQUAL TIP SPEED -
-    so torque goes as `v^2 D^3`, not as `D^5` - the tip-speed band 1.26 to 2.03 m/s costs:
+  - **and nesting inverts the ranking**, because the punt's WIDTH is then both lever arm and room for
+    magnets. `jar_1p5L`, the jar this mode exists for, is the worst of the five at 7.5 mm of usable
+    radius; `jar_1gal_155x251` the best by a distance at 36.5 mm through 3 mm of glass
+  - **the torque is already known and the order is millinewton-metres.** Scaled from
+    `docs/agitation.md` at constant D/T and EQUAL TIP SPEED - torque as `v^2 D^3`, not `D^5` - over
+    the 1.26-2.03 m/s band. SCALED, NOT RENDERED: it holds `Po` fixed and a printed rotor is neither
+    `pbt_45_4` nor a pair, so it settles the order and nothing finer:
 
     | vessel | rpm across the band | pair | one rotor |
     | --- | --- | --- | --- |
     | jar_1p5L_109x215 | 528-851 | 4.8-12.3 mN·m | ~2.4-6.2 |
     | jar_1gal_155x251 | 358-577 | 15.3-39.6 mN·m | ~7.6-19.8 |
 
-    SCALED, NOT RENDERED. It holds `Po` and D/T fixed, and a printed rotor is neither `pbt_45_4` nor
-    a pair. What it settles is the ORDER, and the order is millinewton-metres
-  - **the rpm objection was against the wrong band.** 320-420 is the registered DRIVE's band on a
-    94.5 mm impeller in `jar_10L`, not a target the design holds. The target is tip speed, and
-    holding it puts `jar_1p5L` at 528-851 rpm and `jar_1gal_155` at 358-577 - so a 1000-3000 rpm fan
-    is nearer native than it looked. PWM and speed feedback are still wanted; the gap being closed is
-    smaller. (Superseded — kept for the record. This read "a DC fan runs 1000-3000 rpm where this
-    design wants 320-420". The band was quoted off the reference build's drive and applied to jars
-    whose impellers are half the diameter.)
-  - **it also gives eccentricity back, which is the bigger prize.** `docs/ports-layout.md` rules out
-    Hall's off-centre fix - indistinguishable from baffled at equal power, 36 % faster than unbaffled
-    centred - because eccentricity is referenced to the tank diameter while the room for it is set by
-    the mouth, and the motor mount sits in that room: `e = 0.2 T` wants 20.2 mm on `jar_1p5L` where
-    the best any lid offers is 0.5. A magnetic drive puts nothing through the mouth, so the thing
-    that ruled it out is gone
-  - **which surfaces the decision this item does not make: centred or eccentric.** They are different
-    rotors. A centred one pivots on the punt as above and is still a centred impeller in an unbaffled
-    jar - Montante's flow number 0.25, 65 % below baffled, which is the thing the narrow-jar question
-    exists to escape. An eccentric one is Hall's fix and has nothing locating it: at `e = 20.2` on
-    `jar_1p5L` it sits 12.7 mm outboard of a 7.5 mm plateau, about 2.2 mm down a 10 deg slope, on a
-    floor whose high point is the centre it is trying not to occupy. Two cautions ride with it -
-    Galletti reports macro-mixing in an eccentric unbaffled vessel is UNSTEADY, and power consumption
-    RISES with eccentricity, which a low-torque fan is the least able to pay
-  - **and a bottom drive gives ONE impeller**, on the jar least able to spare the second.
-    `jar_1p5L_109x215` is H/T **1.681**, the tallest column in the registry and the one place the
-    count item above says convention most clearly wants a pair. A floor-mounted rotor turns 170 mm of
-    liquid from the bottom. Not a reason against the mode - the number that has to be answered before
-    it is called equivalent
-  - separate design item, not scheduled
+    Those rpm are what holding tip speed asks, which is nearer a fan's native range than the drive's
+    own 320-420 band suggested. PWM and speed feedback are still wanted
+  - **it gives eccentricity back, which is the bigger prize.** `docs/ports-layout.md` rules out
+    Hall's off-centre fix because `e = 0.2 T` wants 20.2 mm on `jar_1p5L` where the best any lid
+    offers is 0.5 - the motor mount is in the room the offset needs. A magnetic drive puts nothing
+    through the mouth, so what ruled it out is gone
+  - **the decision this item does not make: centred or eccentric.** They are different rotors. A
+    centred one is still a centred impeller in an unbaffled jar - Montante's flow number 0.25, which
+    is the thing this question exists to escape. An eccentric one has nothing locating it: at
+    `e = 20.2` on `jar_1p5L` it sits 12.7 mm outboard of a 7.5 mm plateau, 2.2 mm down a 10 deg
+    slope, on a floor whose high point is the centre it is avoiding. Galletti reports eccentric
+    unbaffled macro-mixing is UNSTEADY, and power RISES with eccentricity - which a low-torque fan is
+    least able to pay
+  - **and a bottom drive gives ONE impeller**, on `jar_1p5L` at H/T 1.681 - the tallest column in the
+    registry, turning 170 mm of liquid from the floor. Not a reason against the mode; the number to
+    answer before calling it equivalent
+
 
 ## nice to haves
 
@@ -358,9 +308,8 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
 ## tooling / infrastructure / documentation
 
 - [ ] **FOUR of five jars carry a second impeller the spacing does not support**
-  - re-measured against the rule rather than the old H/T threshold. The band puts bounds on the
-    COUNT - Fitschen eq. (5), `(H-d)/d > n > (H-2d)/(2d)` - and it is written in IMPELLER diameters,
-    not tank diameters, which is where the old reading went wrong:
+  - the band bounds the COUNT - Fitschen eq. (5), `(H-d)/d > n > (H-2d)/(2d)` - and is written in
+    IMPELLER diameters, not tank diameters, which is where the old H/T 1.2 reading went wrong:
 
     | vessel | H_L | d = 0.45 T | H_L/d | H/T | band allows | old H/T 1.2 said |
     | --- | --- | --- | --- | --- | --- | --- |
@@ -370,30 +319,20 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     | jar_1gal_155x251 | 188.59 | 67.19 | 2.807 | 1.263 | **n = 1** | **two** |
     | jar_1p5L_109x215 | 168.70 | 45.55 | 3.704 | 1.667 | n = 1 or 2 | two |
 
-  - **jar_1gal_155x251 moved, and it is the whole point of re-asking.** At H/T 1.263 the old
-    threshold gave it a pair; the band gives it one. `jar_1p5L_109x215` is now the ONLY jar a pair
-    is admissible on, and even there one is allowed too. At this D/T the real crossover is H/T
-    **1.35**, not 1.2 - but quoting it in H/T is the mistake, since that only holds at D/T 0.45
-  - **the correlation with coverage still holds and now runs the other way too**: every jar the band
-    puts at one impeller is a jar the pair is spending coverage on. `jar_1gal_180x197` at 0.107 D
-    against the 0.5 D floor is the worst case, not a separate problem
-  - the count is baked in at two - `impeller_to_render = "both"`, a mirrored pair in the print
-    manifest - and nothing asked whether the vessel wanted two. `head()` now REPORTS the departure
-    on every render; it does not act on it
-  - **what deciding it costs**, which is why it is reported rather than derived: the sparge ring is
-    placed in the GAP between the two impellers, the power reporting is per pair, and the manifest
-    lists an upper and a lower. One impeller unpicks all three. It would also change the reference
-    build, which is physically made with two
-  - **the source question is answered, and the answer is that there is no primary.** Checked against
-    the library: Oldshue's chapter carries no numeric count rule at all, only "as broth becomes more
-    viscous, and tanks become taller, more impellers are used". The equation is Fitschen 2019
-    eq. (5) [PR], which carries it from his [37] = Davis 2010 [TH], which cites Oldshue and Kenty
-    2009, and neither contains it - `docs/references.md` had already verified that for Davis, and
-    the Kenty half was re-checked here. So `stirred_tank_spacing_band()`'s attribution to Fitschen
-    does not move the number off the thesis; it relays it. Recorded in the Fitschen entry
-  - what that changes: nothing may ASSERT on this, and the model reports the bounds instead of
-    testing a magic number. What it does not change is the count, which is still two on every jar
-    - the costs below are why
+  - **`jar_1gal_155x251` is the mover.** At H/T 1.263 the old threshold gave it a pair; the band
+    gives it one. `jar_1p5L_109x215` is now the only jar a pair is admissible on, and one is
+    allowed there too. At this D/T the crossover is H/T **1.35** - but quoting it in H/T is the
+    mistake, since that only holds at D/T 0.45
+  - **it correlates with coverage both ways**: every jar the band puts at one impeller is a jar the
+    pair is spending coverage on. `jar_1gal_180x197` at 0.107 D against the 0.5 D floor is the
+    worst case, not a separate problem
+  - **there is no primary behind the rule**, so nothing may assert on it and `head()` reports the
+    bounds rather than testing a number. Fitschen [PR] relays eq. (5) from Davis [TH], whose own
+    two sources do not contain it, and Oldshue's chapter has no numeric count rule at all. See
+    `docs/decisions.md` and the Fitschen entry in `docs/references.md`
+  - **the count stays two, and this is what changing it costs**: the sparge ring is placed in the
+    GAP between the impellers, the power reporting is per pair, and the manifest lists an upper and
+    a lower. One impeller unpicks all three, and changes the reference build that physically exists
 
 - [ ] **the Customizer shows a line of code, or half a sentence, for most parameters**
   - OpenSCAD parses **only the line immediately above** a variable as its description; a multi-line
@@ -413,8 +352,9 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
 - [ ] **the sparger's holes are the wrong size, and the model now says so on every render**
   - `head()` drives `custom/sparger.scad` now and `sparge_ring.scad` is deleted, so there is one
     sparger again. What the swap exposed is that the hole spec it inherited does not distribute:
-    eight 3 mm holes on a 4 mm bore is an **open area ratio of 2.25**, and the bore's own velocity
-    head is 4.54 Pa against 2.48 Pa at a hole. Both fire as departures, every render
+    eight 3 mm holes on a 4 mm bore is an **open area ratio of 4.5** at the feed run, which every
+    hole sits behind, and 2.25 round each ring. The feed's velocity head is **17.94 Pa** against
+    2.45 Pa at a hole - 7.3x, where the departure threshold is 0.5x. Both fire, every render
   - **this was true of the old ring too** - it is not a regression, it is a defect that was
     invisible until something computed it. The holes have always been competing with their own
     supply; nothing reported open area before
@@ -423,14 +363,14 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     more holes on the same bore makes the open area ratio worse rather than better. It wants the
     bore opening up with the hole count coming down in diameter, together, read off
     `sparger_report()`
-  - **and it collides with a settled decision.** The 8 x 3 mm holes are in the ledger as "for
-    spacing and against fouling, not for even flow" - 3 mm is the least tolerance-sensitive size
+  - **and it collides with a settled decision.** The 8 x 3 mm holes are settled in
+    `docs/decisions.md` as "for spacing and against fouling, not for even flow" - 3 mm is the least tolerance-sensitive size
     that still spaces, and a 1.2 mm hole in an algal culture is a hole that blocks. That trade was
     made before anything could price the mass transfer it costs. It can be priced now, and it
     should be re-made rather than quietly overturned
-  - what is NOT open: whether the holes break through. `just check-holes` tests every declared hole
-    against the built mesh and was proved to fire on the real defect - 20 of 20 - which `check-mesh`
-    passes happily at 60502 triangles, because a blind hole is a perfectly good solid
+  - what is NOT open: whether the holes break through, or are fed. `just check-holes` tests both
+    ends of every declared hole against the built mesh, and each half was proved to fire on a real
+    defect - which `check-mesh` passes happily, because a blind hole is a perfectly good solid
 
 - [ ] **`check-holes` still needs a CGAL render, so it stays outside `just check`**
   - the FED half is closed. Each hole now declares two points - `exit` just inside the discharge
@@ -452,16 +392,6 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     Latent rather than open, since no caller sets it and the assert covers its own failure, but a
     caller that did set it would get holes nothing tests
 
-
-- [ ] **`sparger_report()` prices the bore with ONE path count, and the part has several**
-  - `paths` is a single number and head passes 2, which describes a ring fed at one point. It is
-    wrong for the feed spoke, which carries the WHOLE flow before it divides, so that segment's bore
-    velocity and velocity head are both under-reported - and those are two of the four departures
-    the report decides
-  - it went unnoticed while every arm was bored, because the network had no single trunk. Making
-    the arms structural gave it one, which is what made the single number visibly insufficient
-  - the honest form is per-segment: the feed run at 1 path, each ring at 2. Small, and it changes
-    what the departures say
 
 - [ ] **the sparger's two sockets are harder to tell apart than they were**
   - the feed socket takes the tube's own section now rather than being sized from the riser, which
@@ -501,8 +431,9 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
   - not why `jar_1p5L_109x215` and `jar_1gal_155x251` fail - they fail at any mount size, and
     dropping it to 47.5 still leaves the 1p5L 8.2 mm short - so this is a correctness fix, not a
     fix for those jars
-  - it should read the registered gearbox once the motor is designatable, which is where the
-    campaign sequence puts it
+  - **unblocked**: the motor is designatable now, so it can read the registered gearbox. What it
+    still needs deciding is WHICH gearbox - the selected one, so each build prints its own mount, or
+    the largest registered, so one mount fits every motor. The literal is the second, undeclared
 
 - [ ] **the frame took a different strip light and drew the same geometry**
   - found while changing the fill fraction, which moved `jar_6p5gal_305x470`'s culture from 354.32 to
@@ -548,50 +479,30 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     to it are byte-identical, because the search returns `want` whenever `want` fits - so the pin
     only ever forced an angle the jar refuses. The ceiling is a plain number and now carries
 
-- [ ] **the recess holds three quarters of the rubber, and only one jar escapes it across a land**
-  - what is left of the assembly-torque item, which `docs/build.md` and the `joint tightening` echo
-    closed. The joint is instructed as a TURN rather than a torque - **114.3 deg past snug** on each
-    of the 12 nuts - because force reaches a fastener through a friction coefficient nobody can
-    measure here, while a turn is the gasket's travel over the thread's pitch
-  - **the excess is an IDENTITY, not a measurement.** The recess is cut at `t * (1 - c)` for a sheet
-    of thickness `t` at compression `c`, so the rubber that will not fit is `t * c` - a quarter of
-    the section at `c = 0.25`, whatever the gasket is or how wide it is. On `jar_10L` that is 12.70
-    against 9.525 mm2; on `jar_6p5gal` 9.525 against 7.144. (Superseded — kept for the record: this
-    read "3 x 1.5875 = 4.76 mm2 and the recess's is 3 x 1.19 = 3.57". Those are a 3 mm gasket, which
-    no jar now carries: the flat one takes 6 mm and the crowned ones 8.)
-  - **where it goes is now two different questions, because the lip is.** On `jar_6p5gal`, the only
-    ground one, the pad is squeezed uniformly and the quarter has to leave sideways across the
-    lands - that is the original reading and it still holds there. On a CROWNED lip nothing is
-    uniform: the crown contacts over a **3.238 mm** chord of an 8 mm gasket, so 4.762 mm of gasket
-    width is never touched, and the rubber the crown displaces flows into that instead of over a
-    land. There are no lands on four of five jars to flow over. (Superseded — kept for the record:
-    this read "across the 1 mm bearing lands", which described the geometry the rim rebuild deleted.)
-  - **and the crown's travel is bounded by the same identity.** The gasket stands `t - t(1-c) = t*c`
-    proud of the flange, and the crown sinks `t*c` - the same number, 0.396875 mm, for any `c`. So
-    design compression is reached exactly when the crown has taken up all the proud rubber. Past
-    that it is pressing on rubber the recess confines on three sides, which is the volume wall the
-    flat jar meets immediately
-  - **it fits, on the crowned jars, with room.** The crown displaces about **0.857 mm2** - two
-    thirds of chord by sagitta, an approximation, not an integral - against **1.890 mm2** of proud
-    band free to bulge past the recess mouth. Roughly twice the room it needs. That is the number
-    that would have to be re-run if the sheet, the compression or the lip arc moved
-  - **the load model's objection weakens on a crown and stands on the flat.**
-    `gasket_shape_factor()` is `width / (2 * thickness)`, the FREE-bulge form, and it is now handed
-    the CONTACT BAND rather than the gasket's width. On a crown that band is a chord with unconfined
-    rubber either side, which is close to what free bulge assumes. On `jar_6p5gal` the pad fills its
-    recess and the walls are exactly where it assumes bulging - so the objection is that jar's, and
-    that jar carries the highest load in the registry: **1253.6 N per post and 7.34 MPa on the
-    glass**, against 352.9 N and 2.78 MPa on `jar_10L`. Reported, not asserted, and
-    `gasket_load.scad` already says its figures are for judging a design rather than cutting a part
-    to. The TURN does not depend on any of it. (Superseded — kept for the record: this quoted
-    "291.8 N per post and the 2.51 MPa on the glass", which were the pre-rim figures for a 3 mm
-    gasket on a flat land that four of five jars do not have.)
-  - the usual rule for a confined flat gasket is groove section at or above gasket section, commonly
-    10-25 % over. Widening the recess is what buys that, and on `jar_6p5gal` the lands either side
-    are what it would come out of - it offers 10 mm of rim where the gasket is held to 6. Not
-    chased: it changes the lid, and it is now a one-jar problem rather than a family one. (The rim
-    profile is no longer the blocker it was - the jars have been calipered and the three lip states
-    registered.)
+- [ ] **the recess holds three quarters of the rubber, and it is only a problem on `jar_6p5gal`**
+  - the joint is instructed as a TURN - **114.3 deg past snug** on each of 12 nuts - because force
+    reaches a fastener through a friction coefficient nobody can measure here, while a turn is the
+    gasket's travel over the thread's pitch. That half is closed; this is what is left
+  - **the excess is an IDENTITY.** The recess is cut at `t(1-c)`, so `t*c` will not fit whatever the
+    gasket - a quarter at `c = 0.25`. On `jar_10L` 12.70 against 9.525 mm2, on `jar_6p5gal` 9.525
+    against 7.144
+  - **where it goes splits by lip kind.** On `jar_6p5gal`, the only ground one, the pad is squeezed
+    uniformly and the quarter must leave across the lands. On a crown the contact is a **3.238 mm**
+    chord of an 8 mm gasket, so 4.762 mm of width is never touched and the displaced rubber flows
+    into that - about **0.857 mm2** against **1.890 mm2** free to bulge, roughly twice the room. The
+    0.857 is two thirds of chord by sagitta, an approximation, and is what to re-run if the sheet,
+    the compression or the lip arc moves
+  - **and the crown's travel is bounded by the same identity**: the gasket stands `t*c` proud and the
+    crown sinks `t*c`, so design compression arrives exactly when the crown has taken up all the
+    proud rubber
+  - **the load model's objection is `jar_6p5gal`'s alone now.** `gasket_shape_factor()` is the
+    free-bulge form and is handed the CONTACT band - on a crown that is a chord with unconfined
+    rubber either side, close to what free bulge assumes; on the flat jar the pad fills its recess
+    and the walls are where it assumes bulging. That jar also carries the registry's highest load,
+    **1253.6 N per post and 7.34 MPa**, against 352.9 and 2.78 on `jar_10L`. Reported, not asserted
+  - the fix, if chased, is the usual rule for a confined flat gasket - groove section 10-25 % over
+    the gasket's. Widening the recess buys it out of the lands, and `jar_6p5gal` offers 10 mm of rim
+    where the gasket is held to 6. Not chased: it changes the lid for one jar
 
 - [ ] **four printed parts are on no print list**
   - the cart, the electronics stand, the bottle holder and the peri pump mount each render from a
@@ -606,127 +517,9 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     build that had asked for another one, and that also closed the frame's vessel gap, since the
     frame used to build the jar named in its own preview whatever was selected
 
+
+## long term / post paper submission
+
+Not blocked on anything and not wanted before the paper is out.
+
 - [ ] adopt the Just the Docs OpenSCAD setup for this project, including its web-based OpenSCAD preview
-
-## second hardware revision
-
-- [ ] swap out the threaded rods with printed parts
-
-## settled — do not re-open without new evidence
-
-- **the architecture campaign is done, and these are its refusals.** Eight parts are designated end
-  to end - vessel, shaft, plug o-ring, strip light, gasket sheet, motor, DO probe, pH probe -
-  reaching the geometry, the readbacks and the exported STL. The rules are in
-  `docs/design-conventions.md` ("Three layers, and where a parameter lives", "What the customizer
-  can and cannot carry"), `check-designations` guards the surface, and the registries carry names,
-  part numbers and provenance
-- **REWRAPPING `heat_set_inserts` OR `shaft_couplings` into the `set_screws` shape was refused.**
-  That template wraps because the LIBRARY owns the geometry and the row adds purchase identity;
-  these are the opposite - the project registers the part in NopSCADlib's own schema - so a wrap
-  costs about nine call-site edits in `head.scad` to buy uniformity and nothing else. The insert's
-  fields ride the row's tail instead, starting at [11] because the library reads [9] and [10]
-- **THREADING THE PORT TABLE through its ~53 call sites was refused**, and a guard against the
-  hazard was refused with it. `head_interface_for` gives every probe port `bayonet_std` whatever it
-  carries, so no expressible designation can move an interface, and an equality guard would be a
-  dead assert by the sweep test. **What reopens it** is a designation that can move a port's
-  INTERFACE - a thermocouple thread swap - or one that changes the table's count
-- **do not hoist the remaining BUILD rows mechanically.** `0304a3a`'s arithmetic: five moved
-  declarations bought one carryable number. Relocation without the name-lookup layer multiplies
-  duplicated defaults and carries nothing
-- **do not build `motor_for` / `air_pump_for` / `coupler_for` yet.** Those registries hold 4, 1 and
-  1 rows; a selection over one candidate is a fit check wearing a selector's clothes. Registering
-  rows is the prerequisite, not writing selectors
-
-- **A designation is a STRING, and `"auto"` means derive it.** Not `undef`, which the customizer
-  cannot see at all, and not a numeric sentinel: `0` litres or `-1` degrees is exactly the plausible
-  number that propagates unnoticed, and on a research instrument a negative lean is a value someone
-  could be studying rather than a flag. A string is carried, is visible in the surface, and is
-  consumed by a mode branch that never multiplies it by anything. Rejected outright: numeric
-  sentinels anywhere
-- **Cited bands at the pressure boundary may assert; `reasoned, not cited` limits may not.** The
-  three o-ring checks guard the seal between culture and room and come from gland practice rather
-  than this project's judgement, so they keep refusal authority. The distinction is the provenance,
-  not the severity - which is why the mount slenderness limit loses its
-- **No `builds/` escape file yet.** The only thing that genuinely cannot ride a parameter set is a
-  nested table, and nobody has needed a custom port table - the two registered sets cover all six
-  jars. `-D` is the escape hatch. Revisit only if a custom table becomes recurring; if it is ever
-  adopted it must never be rendered with `-p`, which silently un-pins the file's own assignments
-- **`peri_pump_frame_mount.scad` is left alone deliberately**, `flange_screw_distance = 48.0` and
-  all. It is a stretch goal waiting on a faceplate the bought Kamoer has not got, it blocks nothing,
-  and the campaign has enough surface. See the pump item above for what it actually needs
-
-Each of these was asked and answered. The reasoning is in the commit that closed it and, where it
-outlives the commit, in `docs/`.
-
-- **the motor mount stays at Ø56.** It can go to 42; below that its base inserts hit the bearing
-  pocket. Shrinking buys only eccentricity headroom on a vessel that is baffled anyway, and costs
-  stiffness - deflection goes as the cube of height over diameter
-- **the twelve big ports cannot be spread so that no two are adjacent.** Four baffles equally spaced
-  on twelve ports sit every third port, which leaves no port not adjacent to one. Geometry, not
-  tuning. It becomes possible at three baffles, which is a trade against baffle area recorded in
-  `docs/ports-layout.md`
-- **commodity fasteners carry a STANDARD, not a supplier code.** `ISO 4017 M8x30 A2-70` is buyable
-  anywhere and does not go stale; nothing in the model reads a property of them beyond nominal size
-  and a derived length. The sealing and mount hardware stays pinned by number, because each of those
-  carries something a spec does not
-- **Cooke's blend-time correlation is deliberately absent.** It could not be made to reproduce the
-  figures its own source prints beside it. Ruszkowski's is encoded and was validated first (1.96 s
-  against a published 1.9). See `docs/references.md` before trying it again
-- **the build runs `impeller_pbt_45_4`, not the twisted paddle.** Po and flow number come from
-  Medek's correlation on that geometry; the twisted row stays registered and drawn but has no Po that
-  any correlation reaches
-- **the shaft is 400 mm and must be a ground rotary shaft.** 300 mm does not exist in the catalogue
-  and 200 cannot reach. It runs directly in the 608 bearing's inner race, so plain h9 rod would allow
-  0.043 mm and fret the bore
-- **the sparge ring sits in the gap between the impellers**, from Birch & Ahmed: above an up-pumping
-  impeller, below a down-pumping one. This pair converges, so one ring serves both. Supersedes
-  Oldshue p. 214's 80 %-of-impeller ring, which two experimental studies contradict
-- **the ring's 8 × 3 mm holes are for spacing and against fouling, not for even flow.** Capillary is
-  96 Pa against 2.4 Pa of orifice, so they will not share equally at any count
-- **the working volume is DERIVED from a fraction of capacity, not pinned in litres.** 0.865 of what
-  the jar holds, which is 8.23207 L on jar_10L and scales to every registered vessel. A litre figure
-  is a statement about one jar: 8.25 L left jar_6p5gal_305x470's thermocouple in the headspace and
-  stopped that vessel rendering at all. (Superseded — kept for the record. This read "the working
-  volume is pinned at 8.25 L, not a rounder 8.0. At 8.0 the coverage over the upper impeller falls
-  to 0.479 D against the 0.5 this project holds." The coverage reasoning still stands and is why the
-  fraction is 0.865 rather than the 0.8 convention — 0.8 of capacity gives 0.374 D. What was wrong
-  was the SCOPE: a number chosen for one jar was governing six.)
-- **the riser is welded hard-temper 316, not seamless soft.** Temper does not move the modulus, but a
-  support tube that stays where it is put is the whole point - and it is $22.72/m against $181.42
-- **the plug o-ring cord is 3/32 in, not 1/8.** The groove and the port bores are cut into the same
-  wall, so a fatter cord fouls the bores on every vessel rather than just a tight one
-- **the lid joint is instructed as a TURN, not a torque, and that is not an omission.** 352.9 N per
-  post is 0.56 to 0.85 N.m across the 0.20-0.30 nut factor unlubricated 18-8 spans - a 40 % band
-  from friction alone, on a fastener that galls, at a setting below most torque wrenches. The turn
-  is the gasket's travel over the thread's pitch and has no modulus or friction in it. Both are in
-  `docs/build.md`; the torque is there to say why it is not the instruction
-- **the lid follows the frame's outer diameter, and trimming it buys nothing.** It was cut to 252
-  once - its own floor, being the bolt circle plus a bore plus wall - because 257.40 put it past
-  every 256 mm machine by 1.4 mm. Then the FRAME was measured: its base and top base are 257.40 as
-  well, and its wall cannot come down because the rod bosses want 36.8 mm of it. So the trim thinned
-  the lid's flange and put a 2.7 mm step in the joint to reach a printer the frame ruled out anyway.
-  What can print this is REPORTED by assembly.scad instead of designed to
-- **the baffle cap is a PRINT-QUALITY rule, not a bed one.** It was a literal 170 defended by
-  180 mm machines, which could never have built this reactor at all. It is now a piece's height
-  against three times its own section - a brim as wide as the part on each side - and the piece that
-  binds is the TIP, not the one carrying the port: a flange is a wide foot, so the bare plate is
-  half again as slender. Do not re-derive it from a printer; that is the mistake it replaced
-- **the riser's gland is a counterbore open to the vessel, not an enclosed groove.** A 4 x 1.5 ring
-  is 7 mm across free and cannot be folded through a 4.4 mm bore to reach a groove behind it. Which
-  face it opens at is then forced twice over: headspace pressure drives the cord onto the shoulder
-  rather than out past it, and that face lies on the bed when the pin half is printed, so nothing
-  bridges the bore
-- **lights per cord is registered, and it does NOT decide how many lights there are.** These are
-  sold as a cord and a controller driving a fixed number of tubes, so a layout that is not a whole
-  number of cords buys the next one up. frame() reports the cords a layout needs; the layout stays
-  an illumination decision. Deriving the count from the packaging would be letting the shop set the
-  design, which is the direction the arrow must not point
-- **the baffle's resonance check asks WHERE the mode is crossed, not whether it is near one.** It
-  compared the mode against the excitations at the drive's fastest setting and warned within 30 %,
-  which is right for load and wrong for resonance: a DC motor sweeps every frequency below its
-  maximum, so something is always crossed on the way up. What matters is the SPEED of the crossing
-  and whether the drive is asked to hold it - 264 rpm on the 10 mm plate against a 320-420 band, and
-  the clearance to that band is reported because that is what separates a 10 mm plate from an 11
-- **`check-mesh` is not in `just check`** - it renders solids, which is minutes to tens of minutes.
-  The `$fn=0` second pass IS in `check-scad`, because that recipe is the cheap one. Both were proved
-  to FIRE on a deliberately broken input before being trusted
