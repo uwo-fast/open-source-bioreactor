@@ -28,7 +28,7 @@ ledger at the end: decisions that took real work to reach and would otherwise be
 
 - [ ] **measured gas flow** — a reproducibility gap, not a geometry one. **The parts are chosen and in the BOM: Dwyer `VFA-23` bare meter, C$86.22, and a Clippard `MNV-3KP` needle valve, US$15.11, the valve upstream of the meter. What is left is buying them and taking a reading.**
   - the gap it closes: the model states a vvm and no builder can set one. Against the real line the
-    registered ReSun pump settles at **6.05 L/min** where **0.825-4.125** is wanted, so it runs at
+    registered ReSun pump settles at **6.05 L/min** where **0.823-4.12** is wanted, so it runs at
     a fraction of rating with nothing metering it. That boundary condition is unrepeatable between runs
     and between builders, which is the reproducibility this project claims. Why these parts rather
     than the others is in `docs/procurement.md`
@@ -228,7 +228,7 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
 - [ ] **two things to confirm on the drive before ordering it**
   - the encoder sheet for `motor_36pg_555pm_14_en` tabulates NO gearbox length, so the registered
     **34.5 mm is inferred** from the 3429 sheet at the same 14:1, and the sheet does not dimension
-    the encoder past the can either. Both feed the reactor envelope (579.25 mm) and the cart, which
+    the encoder past the can either. Both feed the reactor envelope (571.25 mm) and the cart, which
     stacks two tiers, so every millimetre counts twice
   - caliper the **bolt circle on the printed mount**: Ø28 with M4 should clear holes cut for the
     36GP's Ø27.6 / 4.2, so the new motor may drop in without a reprint
@@ -397,23 +397,6 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     all is the prior question, and `/* [Hidden] */` is the documented answer
   - the dropdowns are checked by `just json` against their registries, so they cannot drift; the
     descriptions are prose and nothing checks them
-
-- [ ] **stale figures the fill-fraction and working-volume changes left in the docs**
-  - the 8.25 L pin went away in `c8c4bb0` and the fraction changed meaning in `97cb01f`; the prose
-    that quotes those numbers did not move with them. **Each wants checking against a fresh render,
-    not against another document** - several of this repo's worst figures agreed with each other and
-    with nothing else
-  - confirmed stale: `TODO.md:210` says the reactor envelope is 579.25 mm, the model echoes
-    **571.25**; `docs/build.md:417` gives 0.1-0.5 vvm on 8.25 L as 0.825-4.125 L/min, the model
-    echoes **8.2807 L is 0.82807-4.14035 L/min**; `docs/agitation.md:53` puts mean dissipation over
-    8.25 L; `docs/procurement.md:93` carries `**8.25** (pinned)`, which is wrong twice - it is
-    neither 8.25 nor pinned
-  - the two the campaign audit flagged are now checked and corrected, and the audit was right both
-    times. `docs/agitation.md`'s mouth-limited D/T was 0.4875 where 137 on a 280.8 bore is **0.4879**
-    - a wrong fourth digit, not a wrong dimension. The outlet-filter budget was 1.91 kPa/L/min at
-    "55 % of the inlet filter's slope" where `head()` echoes **1.8854** at **0.5465**; it was
-    computed against the retired 8.25 L flow and did not move when the fill fraction did. Fixed at
-    all four sites, and against a fresh render rather than against another document
 
 - [ ] **the sparger's holes are the wrong size, and the model now says so on every render**
   - `head()` drives `custom/sparger.scad` now and `sparge_ring.scad` is deleted, so there is one
@@ -660,7 +643,7 @@ outlives the commit, in `docs/`.
 - **the ring's 8 × 3 mm holes are for spacing and against fouling, not for even flow.** Capillary is
   96 Pa against 2.4 Pa of orifice, so they will not share equally at any count
 - **the working volume is DERIVED from a fraction of capacity, not pinned in litres.** 0.865 of what
-  the jar holds, which is 8.2807 L on jar_10L and scales to every registered vessel. A litre figure
+  the jar holds, which is 8.23207 L on jar_10L and scales to every registered vessel. A litre figure
   is a statement about one jar: 8.25 L left jar_6p5gal_305x470's thermocouple in the headspace and
   stopped that vessel rendering at all. (Superseded — kept for the record. This read "the working
   volume is pinned at 8.25 L, not a rounder 8.0. At 8.0 the coverage over the upper impeller falls

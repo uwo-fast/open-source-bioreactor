@@ -598,7 +598,7 @@ within six points — which is why the correlation is used below rather than Hal
 
 **The departures are larger than Hall's and want stating.** `D = 0.33 T` against 0.45 here; a
 three-bladed **propeller**, or an HE 3, rather than a pitched blade turbine; `H = T` against 1.124;
-and 270 L against 8.25. Worst of all, **`M` has only two values and this design is neither** — the
+and 270 L against 8.23. Worst of all, **`M` has only two values and this design is neither** — the
 build runs a mirrored counter-pumping pair, where eq. (6) offers up-pumping or down-pumping and the
 two branches disagree about the centred case by a factor of nearly two (`Theta` 91.3 against 48.3).
 Every figure quoted from eq. (6) in this document is the **up-pumping** branch, which is the one

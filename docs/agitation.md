@@ -50,8 +50,8 @@ is a rigid-walled green alga, the most shear-tolerant class.
 ## 2. This reactor, in the units that matter
 
 Computed on the 94.5 mm impeller in the 10 L jar, with **Np = 1.498 from Medek's correlation** for
-the registered 45° four-blade pitched turbine, and x = 16. Mean dissipation is over the **8.25 L**
-this build is pinned to by `culture_working_volume`, not over the full jar — which holds 9.57 L brim
+the registered 45° four-blade pitched turbine, and x = 16. Mean dissipation is over the **8.23 L**
+this build DERIVES from `culture_fill_fraction`, not over the full jar — which holds 9.52 L brim
 full. `head()` echoes every figure below at render.
 
 | shaft speed | tip speed | Re | ε̄ (W/m³) | ε_max (W/kg) |
