@@ -647,13 +647,35 @@ module sparger_report(radii, holes, hole_diameter, tube, bore, gas_flow, paths =
   _total = sparger_sum(holes);
   _v = stirred_tank_orifice_velocity(gas_flow, _total, hole_diameter);
   _db = stirred_tank_bubble_diameter(hole_diameter);
-  _bore_v = stirred_tank_sparge_bore_velocity(gas_flow, bore, paths);
-  _open = stirred_tank_sparge_open_area_ratio(_total, hole_diameter, bore, paths);
+  // PER SEGMENT, because one path count cannot describe the whole network. The FEED RUN carries the
+  // entire flow through a single bore with every hole downstream of it; a RING carries only its own
+  // share and is fed at one point, so that share goes `paths` ways. Priced with one number at
+  // `paths` the feed comes out at half its velocity and a quarter of its head - and on a multi-ring
+  // sparger each ring comes out inflated by the share it does not carry.
+  //
+  // The ring's share is read off its HOLE COUNT, which is what the holes were distributed by - see
+  // sparger_holes_per_ring(). So the split the geometry was built to is the split priced here.
+  _feed_v = stirred_tank_sparge_bore_velocity(gas_flow, bore, 1);
+  _feed_open = stirred_tank_sparge_open_area_ratio(_total, hole_diameter, bore, 1);
+  _ring_v = [
+    for (i = [0:_n - 1])
+      stirred_tank_sparge_bore_velocity(gas_flow * holes[i] / _total, bore, paths)
+  ];
+  _ring_open = [
+    for (i = [0:_n - 1]) stirred_tank_sparge_open_area_ratio(holes[i], hole_diameter, bore, paths)
+  ];
+
+  // Judged on the WORST segment, because a departure names something the design violates somewhere.
+  // Taken as a max rather than assumed to be the feed: it is the feed on every layout this file can
+  // currently draw, but a ring fed at more points than the trunk would invert that.
+  _worst_open = max(concat([_feed_open], _ring_open));
+  _worst_head = max(concat([stirred_tank_sparge_bore_head(_feed_v)],
+                           [for (v = _ring_v) stirred_tank_sparge_bore_head(v)]));
   _dep = sparger_departures(
     _v,
     min([for (i = [0:_n - 1]) sparger_pitch_ratio(radii[i], holes[i], hole_diameter)]),
-    _open,
-    stirred_tank_sparge_bore_head(_bore_v),
+    _worst_open,
+    _worst_head,
     stirred_tank_orifice_pressure(_v)
   );
 
@@ -670,10 +692,18 @@ module sparger_report(radii, holes, hole_diameter, tube, bore, gas_flow, paths =
             holdup * 100, "% holdup")
   ));
   echo(str(
-    "sparger bore: ", bore, " mm carrying ", _bore_v, " m/s over ", paths, " path(s); its ",
-    stirred_tank_sparge_bore_head(_bore_v), " Pa of velocity head against ",
-    stirred_tank_orifice_pressure(_v), " Pa at a hole, open area ratio ", _open,
-    _open >= 1 ? " - ABOVE 1, so the holes compete with their own supply" : ""
+    "sparger feed run: ", bore, " mm bore at 1 path carrying ", _feed_v, " m/s; its ",
+    stirred_tank_sparge_bore_head(_feed_v), " Pa of velocity head against ",
+    stirred_tank_orifice_pressure(_v), " Pa at a hole, open area ratio ", _feed_open,
+    " - every hole is downstream of this one bore"
+  ));
+  echo(str(
+    "sparger rings: ", _ring_v, " m/s at ", paths, " path(s) each, open area ratio ", _ring_open,
+    "; ", [for (v = _ring_v) stirred_tank_sparge_bore_head(v)], " Pa of velocity head",
+    _worst_open >= 1
+      ? str(" - open area reaches ", _worst_open, ", ABOVE 1, so the holes compete with their own ",
+            "supply")
+      : ""
   ));
   echo(str(
     "sparger envelope: r ", sparger_tube_envelope(radii, tube, 8),
@@ -691,13 +721,13 @@ module sparger_report(radii, holes, hole_diameter, tube, bore, gas_flow, paths =
 // ----- example usage -----
 //
 // This file is an entry and must emit geometry. The numbers are jar_10L's duty put through
-// utils/sparger.scad rather than typed: 8.2807 L at 0.5 vvm, sparged out to 0.95 of the impeller's
-// own radius. head.scad passes its own when it drives this.
+// utils/sparger.scad rather than typed: 8.23207 L at 0.5 vvm, sparged out to 0.95 of the
+// impeller's own radius. head.scad passes its own when it drives this.
 //
 // They CANNOT be derived here the way the conventions ask - head.scad uses this file, so including
 // it would close a cycle. Check them against head()'s echo before trusting a render.
 _ex_radii = sparger_equal_area_radii(2, 90, 58); // outboard of the 56.9 port circle, so the feed crosses both
-_ex_flow = 4.14035 / 60000; // m^3/s, 0.5 vvm on 8.2807 L
+_ex_flow = 4.11604 / 60000; // m^3/s, 0.5 vvm on 8.23207 L
 // 1.2 mm holes at 3 m/s. The diameter is the lever - it sets bubble size, and bubble size sets
 // kLa - and 3 m/s sits mid-way in the 0.4-5.4 Barbosa actually ran. Both numbers were chosen by
 // reading sparger_report() rather than by taste: 1.5 mm holes at 1.5 m/s wanted 26 of them, which
