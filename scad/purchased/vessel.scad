@@ -50,6 +50,31 @@ function vessel_rim_arc_radius(type) =
 function vessel_lip_tangent_height(type) =
   vessel_height(type) - vessel_rim_arc_radius(type);
 
+// Where the lip's arc leaves the OUTER WALL, and it is not the arc's widest point. The circle is
+// tangent to the bore, so once the bead stands proud its widest point is outboard of the wall and
+// it crosses the wall plane below that. Start the sweep at the crossing: start it at the equator
+// instead and the neck has to flare out to reach it, swelling the whole neck into the lip.
+// cos = (neck_r - centre_x) / arc_r, which reduces to (t - rim) / (t + rim): that is 1, and so a
+// plain 180 degree sweep, when the roll is in line with the wall, and opens up as the bead grows.
+function vessel_rim_arc_start_angle(type) =
+  let (_rim = vessel_rim_radius(type), _t = vessel_thickness(type))
+    is_undef(_rim) ? 0 : -acos((_t - _rim) / (_t + _rim));
+
+// True when some generated point of the outer profile lies BOTH on the lip's circle and on the
+// wall plane - i.e. the roll starts where the neck ends. Vacuously true for a ground lip.
+function vessel_lip_arc_meets_wall(type) =
+  is_undef(vessel_rim_radius(type))
+    ? true
+    : let (
+        _r = vessel_rim_arc_radius(type),
+        _c = [vessel_opening_diameter(type) / 2 + _r, vessel_lip_tangent_height(type)],
+        _nk = vessel_opening_diameter(type) / 2 + vessel_thickness(type)
+      )
+        len([
+          for (q = vessel_outer_profile(type))
+            if (abs(norm(q - _c) - _r) < 1e-4 && abs(q[0] - _nk) < 1e-4) 1
+        ]) > 0;
+
 /**
  * @brief Internal height available to the shaft and impeller: rim down to the top of the punt.
  *
@@ -144,11 +169,12 @@ function vessel_outer_profile(type, arcFn = 64) =
       arc(r=vessel_neck_corner_radius(type) - _t, angle=-90, offsetAngle=270, c=vessel_neck_centre(type), $fn=arcFn),
       is_undef(_rim)
         ? [[_neck_r, vessel_height(type)]]
-        : arc(
-            r=_rim_r, angle=180, offsetAngle=0,
-            c=[vessel_opening_diameter(type) / 2 + _rim_r, vessel_lip_tangent_height(type)],
-            $fn=arcFn
-          )
+        : let (_a0 = vessel_rim_arc_start_angle(type))
+            arc(
+              r=_rim_r, angle=180 - _a0, offsetAngle=_a0,
+              c=[vessel_opening_diameter(type) / 2 + _rim_r, vessel_lip_tangent_height(type)],
+              $fn=arcFn
+            )
     );
 
 // The closed glass section: up the outside, across the rim, down the inside, home along the axis.
@@ -220,6 +246,15 @@ module vessel(
       "vessel(): ", vessel_name(type), " has no room for a neck corner — its opening_diameter is too ",
       "large for the given diameter and corner_radius"
     )
+  );
+
+  // The lip's arc has to MEET THE NECK ON THE WALL. Start it at its widest point instead and the
+  // neck flares out over its whole length to reach it - a shape that still tops out at H and still
+  // stands the registered amount proud, so checking those two proves nothing. Asked of the points
+  // the profile actually generates, not of the formula that generates them.
+  assert(
+    vessel_lip_arc_meets_wall(type),
+    str("vessel(): ", vessel_name(type), "'s lip arc leaves the wall, flaring the neck to reach it")
   );
 
   // the inner profile is offset inward by the wall, so a corner tighter than the wall
