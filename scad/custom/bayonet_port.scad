@@ -103,9 +103,19 @@ bayonet_bore_gland_wall = 1;
 // follows from the ring alone the same way the face one does.
 function bayonet_bore_gland_radius(ring) =
   oring_rod_gland_diameter(oring_inner_diameter(ring), oring_cross_section(ring)) / 2;
-// How far it reaches up from the panel's inner face. Table A's width, used as a depth here: the
-// cord has the same room to spread either way up, and one wall of this gland is the open face.
+// How tall the groove is. Table A's width, used as a depth here: the cord has the same room to
+// spread either way up, and now both walls of this gland are material.
 function bayonet_bore_gland_length(ring) = oring_gland_width(oring_cross_section(ring));
+
+// Material left BELOW the groove, which is what makes the ring captive. The ring is folded and
+// pushed up the bore past this lip; once it is in the groove nothing but a tool gets it out again.
+// Thick enough not to tear off the print, thin enough to push past: 6 layers at 0.2 mm.
+bayonet_bore_gland_lip = 1.2;
+
+// Where the groove's centre sits, measured from the flange's panel-facing face - the same datum the
+// port is placed on, so a caller can draw the ring in it without restating this file's numbers.
+function bayonet_bore_gland_centre(ring, panel_thickness) =
+  -panel_thickness + bayonet_bore_gland_lip + bayonet_bore_gland_length(ring) / 2;
 
 // Derived, not registered: a flange narrower than its own groove is not expressible.
 function bayonet_flange_radius(type) =
@@ -210,6 +220,17 @@ module bayonet_port(
       )
     );
 
+    // The groove is enclosed now, so it has to FIT between the two faces. Open at the inner face it
+    // could not fail this; sunk above a lip it can, on a panel thin enough.
+    assert(
+      bayonet_bore_gland_lip + bayonet_bore_gland_length(bore_oring) < panel_thickness,
+      str(
+        "bayonet_port: a ", bayonet_bore_gland_lip, " mm lip under a ",
+        bayonet_bore_gland_length(bore_oring), " mm groove needs more than ", panel_thickness,
+        " mm of panel - the groove would open through the outer face"
+      )
+    );
+
     assert(
       bayonet_bore_gland_radius(bore_oring) + bayonet_bore_gland_wall <= bayonet_pin_face_radius(type),
       str(
@@ -296,16 +317,27 @@ module bayonet_port(
     if (part == "pin" && center_bore_radius > 0)
       cylinder(h=(panel_thickness + _flange_h) * 3, r=center_bore_radius, center=true);
 
-    // Rod gland: a counterbore at the panel's INNER face, holding a ring that seals on the tube
-    // passing up the bore. Open at that face rather than an enclosed groove, because a ring whose
-    // free outer diameter is most of twice the bore cannot be folded through it to reach one. Which
-    // face it opens at is the whole of the design: the vessel is on that side, so pressure drives
-    // the cord onto the shoulder rather than out past it, and that face is the one on the bed when
-    // the pin is printed, so nothing bridges the bore.
+    // Rod gland: an ENCLOSED groove near the panel's inner face, holding a ring that seals on the
+    // tube passing up the bore. Enclosed because a counterbore open at that face has nothing under
+    // the cord: the vessel is on that side, so a ring that is not held drops into the culture, and
+    // pressure only seats it once there is pressure. A groove closed both sides is held by the lip
+    // when there is none and driven onto the upper shoulder when there is.
+    //
+    // It sits as LOW as the lip allows rather than mid-body, because the annulus below the seal is
+    // an unswept crevice open to the culture - 0.4 mm of slack over however much bore is left under
+    // it. Seal low and that dead leg is the lip; seal high and it is most of the panel.
+    //
+    // (Superseded — kept for the record: this was a counterbore open at the inner face, on three
+    // grounds. That pressure seats the cord there - still true, and truer of a groove. That the
+    // open face is on the bed so nothing bridges the bore - already false, since the shoulder above
+    // the counterbore is itself a 1.03 mm unsupported ledge on a 4x1.5 ring; this moves that
+    // overhang rather than adding one. And that the ring cannot be folded through the bore to reach
+    // an enclosed groove - a 1.5 mm cord doubles to 3.0 mm against a 4.4 mm bore, so it passes,
+    // though it is a tight fold and the bench is what settles whether it is reasonable by hand.)
     if (part == "pin" && !is_undef(bore_oring))
-      translate([0, 0, -panel_thickness - z_fight])
+      translate([0, 0, -panel_thickness + bayonet_bore_gland_lip])
         cylinder(
-          h=bayonet_bore_gland_length(bore_oring) + z_fight,
+          h=bayonet_bore_gland_length(bore_oring),
           r=bayonet_bore_gland_radius(bore_oring)
         );
 

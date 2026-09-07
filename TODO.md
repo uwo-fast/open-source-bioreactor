@@ -100,6 +100,19 @@ ledger at the end: decisions that took real work to reach and would otherwise be
     open and it still will not hold 0.5 vvm" is the replace-the-filter signal, and that belongs in
     the build notes
 
+- [ ] **the tube seal goes IN by hand - what is untested is getting it back OUT**
+  - **the fold-through is settled, on a printed port: the 4x1.5 EPDM folds into the groove fine.**
+    So the enclosed gland stands as built, `bayonet_bore_gland_lip` stays at 1.2 mm, and the lead-in
+    chamfer held in reserve is not needed. That was the open question the geometry could not answer
+    - 1.5 mm of cord doubling to 3.0 against a 4.4 mm bore said it passes, not that it was pleasant
+  - **two things the same print can still answer, and neither is done:** whether passing the steel
+    tube pushes the ring back out of the groove or nicks it on the way, and whether the ring comes
+    back OUT for cleaning or replacement without a tool that scars the bore. Captive cuts both ways,
+    and this part gets autoclaved
+  - if removal turns out to need a pick, that is worth knowing before the build notes tell anyone to
+    do it in a jar at arm's length - it is a maintenance step, not a one-time assembly one
+
+
 - [ ] **where the sparger's gas actually goes, and whether the DO probe should be somewhere else**
   - **the placement is the opposite of what was expected.** The DO probe was thought to sit in a slow
     corner between a baffle and the wall. It does not: its face sits **20.6 mm above the sparge
