@@ -435,22 +435,27 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
     still needs deciding is WHICH gearbox - the selected one, so each build prints its own mount, or
     the largest registered, so one mount fits every motor. The literal is the second, undeclared
 
-- [ ] **the frame took a different strip light and drew the same geometry**
-  - found while changing the fill fraction, which moved `jar_6p5gal_305x470`'s culture from 354.32 to
-    325.267 mm and so moved `strip_light_for()` from `grow_16in` (400 mm, 14.30 wide, 4/cord) to
-    `rwntao_13in` (330 mm, 14.1 wide, 3/cord). `frame()`'s own echo proves it got the new row - "a
-    light that comes 3 to a cord" where it used to say 4 - and the frame's CSG is **byte-identical**,
-    240005 bytes both sides
-  - it is not that the frame ignores the light in general: rendering `frame.scad` directly at the two
-    rows DOES differ, at -114.8 against -44.8 (the 70 mm of length) and -7.15 against -7.05 (the
-    0.2 mm of width). So the frame reads the row on the reference jar and does not on this one
-  - the likely reason is that a 470 mm vessel puts both lights entirely below the top base and the
-    cutout through the lower base is the same either way - in which case the right answer is that
-    nothing is wrong and the frame should SAY the light does not reach its geometry on tall jars.
-    But that is a hypothesis, not a measurement
-  - **what settles it: put the two light rows through `frame()` at this vessel and find the surface
-    that should have moved.** If the pocket genuinely never reaches the bases on a jar this tall,
-    that is a fit worth reporting rather than a silence
+- [ ] **a 330 mm light leaves a 0.067 mm lip of rib across its own channel**
+  - **the silence that filed this item was a measurement artifact, and there is no silence.** The
+    240005-byte identical CSG was rendered with `-D render_all=false`, which propagates into
+    `frame.scad`'s OWN `render_all` in a `use`d file - so `frame()` ran its echoes and emitted
+    nothing, and the one polyhedron in that file was the glass jar. Reproduced byte-for-byte at the
+    commit that filed it. Rendered properly the two rows differ: the lower base and all eight ribs
+    move with the light's WIDTH, 14.7 -> 14.5 mm of cutter, 0.1 mm a side
+  - what the hypothesis got right is the LENGTH. `frame_floor_depth` clamps at a 2 mm minimum, and
+    on this vessel a row would have to exceed **452.15 mm** to beat the clamp - the longest
+    registered is 400. So length reaches nothing here, and the top base is never touched either:
+    the pocket stops **129.5 mm** below it. Both are worth an echo rather than a silence
+  - **and the rib stack is where it bites.** On `frame.scad`'s own preview
+    (`collapse_spacer_z_allow=false`) with `rwntao_13in`, the top rib carries material from
+    z 328.0 to 328.067 that `grow_16in` does not - a blind slot where the part wants a through one.
+    Verified independently of the report that found it, by vertex-z histogram on
+    `rib_to_render=5`. In the assembly the same pocket clears by 1.333 mm, so what PRINTS is right
+  - so it is a preview that misrepresents the part by 0.067 mm, and a margin one rib level from
+    being a real interference. Nothing computes it. What would close it: echo the clearance between
+    the pocket's top and the top rib's upper face, which needs the light's z origin threaded out of
+    `lights()` - it is not currently a number `frame()` holds
+
 
 - [ ] **`check-scad`'s `-D '$fn=0'` pass is not the neutraliser it reads as**
   - the head's own tessellation is settled: `head()` re-asserts `$fn = 0` and `head_fa()`/`head_fs()`
