@@ -238,7 +238,13 @@ shaft_coupler = shaft_coupler_8x8_rigid;
 // diameter short of the floor, not a millimetre. Neither can carry a top-entry drive on its lid at
 // any mount size - see TODO.md, where that is answered by changing the agitation rather than the
 // mount.
-motor_mount_body_diameter = 56;
+// DERIVED, not registered: the gearbox it has to collar plus a wall each side. It was the literal
+// 56 - exactly gearbox_36gp_5p18's 36 mm and two 10 mm walls - which is one physical thing said
+// twice, so a gearbox of another diameter would have left the mount behind. Every registered
+// gearbox is 36 mm today, so nothing moves; what changes is that a fourth one would carry the
+// mount with it.
+function head_motor_mount_body_diameter(gearbox) =
+  gearbox_diameter(gearbox) + 2 * motor_mount_wall_thickness;
 // wall thickness of the mount body; also sets the flange and raised face heights
 motor_mount_wall_thickness = 10;
 // clearance between the telescoping parts, for printed fit
@@ -1027,8 +1033,8 @@ function head_port_circle_radius(vessel_opening_diameter, ports = undef) =
 // The mount's base screws land on one circle in two parts: clearance holes through the mount's
 // flange, insert holes into the lid. Both read this, so the pattern cannot drift between them.
 function head_motor_mount_screw_hole_diameter() = screw_clearance_radius(motor_mount_base_screw) * 2;
-function head_motor_mount_screw_radius() =
-  get_base_screw_separation_radius(motor_mount_body_diameter, head_motor_mount_screw_hole_diameter());
+function head_motor_mount_screw_radius(body_diameter) =
+  get_base_screw_separation_radius(body_diameter, head_motor_mount_screw_hole_diameter());
 
 // WHICH LIP THIS JAR HAS, which decides how the gasket is sized and what it bears on. A GROUND lip
 // is a flat annulus the gasket insets into with a land at each edge for the flange to bottom on -
@@ -1578,7 +1584,7 @@ module head_port_at(i, vessel_opening_diameter, flipped = false) {
       children();
 }
 
-module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter, plug_oring, sheet, lip_arc_radius) {
+module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter, plug_oring, sheet, lip_arc_radius, mount_body_diameter) {
 
   _ports = head_ports_for(vessel_opening_diameter);
   _n = len(_ports);
@@ -1617,7 +1623,7 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
       // the plug is the culture, and the assert in head() is what keeps the two apart.
       for (i = [0:3])
         rotate([0, 0, i * 90])
-          translate([head_motor_mount_screw_radius(), 0, -z_fight / 2])
+          translate([head_motor_mount_screw_radius(mount_body_diameter), 0, -z_fight / 2])
             cylinder(r=insert_hole_radius(motor_mount_base_insert), h=insert_hole_length(motor_mount_base_insert) + z_fight / 2);
 
       // cut out the entry holes for the probes and tubes; the port sizes its own hole so the
@@ -1771,6 +1777,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   // the gearbox carried by the selected motor - single source for gearbox dims
   head_gearbox = dc_motor_gearbox(_motor);
+  _mount_body_d = head_motor_mount_body_diameter(head_gearbox);
 
   // There was an assert here that len(head_ports) equalled the hole count, from when the table and
   // the count were two statements that could drift. They are one now - _n counts the table this lid
@@ -2458,7 +2465,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // of the mount is reacted by this bearing and the gearbox's. Lateral deflection of a thin tube
   // goes as the cube of its slenderness, so height over diameter is the measure. Calibrated
   // against the build in hand, which sits at 2.3 and works.
-  _mount_slenderness = motor_mount_height / motor_mount_body_diameter;
+  _mount_slenderness = motor_mount_height / _mount_body_d;
 
   if (_mount_slenderness > 3)
     echo(str(
@@ -2483,7 +2490,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // impossibility, and a refusal there decides it by default instead of reporting it.
   if (_mount_slenderness > 5)
     echo(str(
-      "WARNING motor mount: ", motor_mount_height, " mm on a ", motor_mount_body_diameter,
+      "WARNING motor mount: ", motor_mount_height, " mm on a ", _mount_body_d,
       " mm body is ", _mount_slenderness, " diameters, past the 5 this model used to refuse at and ",
       "well past the 3 it warns at. A printed telescoping tube that slender will not hold a rigid ",
       "coupling in alignment. Nothing here is measured: the calibration is the build in hand, and ",
@@ -2534,17 +2541,17 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // The screw circle is set by the mount's body and the pocket by the bearing, and the two are
   // chosen independently, so nothing but this stops an insert being sunk into the bearing's wall.
   _insert_to_bearing =
-  head_motor_mount_screw_radius() - insert_outer_d(motor_mount_base_insert) / 2 - (bb_diameter(shaft_bearing) + bearing_hole_allowance) / 2;
+  head_motor_mount_screw_radius(_mount_body_d) - insert_outer_d(motor_mount_base_insert) / 2 - (bb_diameter(shaft_bearing) + bearing_hole_allowance) / 2;
   assert(
     _insert_to_bearing > 0,
     str(
-      "Motor mount inserts on a ", head_motor_mount_screw_radius() * 2, " mm circle overlap the bearing pocket by ",
+      "Motor mount inserts on a ", head_motor_mount_screw_radius(_mount_body_d) * 2, " mm circle overlap the bearing pocket by ",
       -_insert_to_bearing, " mm."
     )
   );
 
   echo(str(
-    "motor mount: 4 x ", heat_set_insert_name(motor_mount_base_insert), " inserts on a ", head_motor_mount_screw_radius() * 2,
+    "motor mount: 4 x ", heat_set_insert_name(motor_mount_base_insert), " inserts on a ", head_motor_mount_screw_radius(_mount_body_d) * 2,
     " mm circle, ", screw_length(motor_mount_base_screw, motor_mount_base_screw_grip(motor_mount_wall_thickness), 0, insert=motor_mount_base_insert),
     " mm M", insert_screw_diameter(motor_mount_base_insert), " screws, ", _insert_floor, " mm of lid left under them, ",
     _insert_to_bearing, " mm to the bearing pocket"
@@ -3428,12 +3435,12 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // port circle comes in far enough that the mount lands on top of the flanges, and the spacing
   // assert above fires first only because such a mouth is crowded anyway. Both radii are measured
   // from the lid's centre, so the check is one subtraction.
-  _mount_to_ports = port_circle_radius - bayonet_flange_radius(head_widest_interface(_ports)) - motor_mount_body_diameter / 2;
+  _mount_to_ports = port_circle_radius - bayonet_flange_radius(head_widest_interface(_ports)) - _mount_body_d / 2;
 
   assert(
     _mount_to_ports >= lid_holes_offset,
     str(
-      "Motor mount is ", motor_mount_body_diameter, " mm across and the port flanges reach in to r ",
+      "Motor mount is ", _mount_body_d, " mm across and the port flanges reach in to r ",
       port_circle_radius - bayonet_flange_radius(head_widest_interface(_ports)), ", leaving ", _mount_to_ports,
       " mm between them; ", lid_holes_offset, " mm is the least this lid keeps."
     )
@@ -3711,7 +3718,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     color(prints2_color)
       union() {
         rotate([0, 180, 0])
-          lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter(_shaft), _build_plug_oring, _gasket_sheet, lip_arc_radius);
+          lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter(_shaft), _build_plug_oring, _gasket_sheet, lip_arc_radius, _mount_body_d);
         lid_locks();
       }
   }
@@ -3839,7 +3846,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     color(prints1_color)
       motor_mount(
         height=motor_mount_height,
-        body_diameter=motor_mount_body_diameter,
+        body_diameter=_mount_body_d,
         wall_thickness=motor_mount_wall_thickness,
         screws_diameter=gearbox_screw_diameter(head_gearbox),
         base_screw_hole_diameter=head_motor_mount_screw_hole_diameter(),
@@ -3861,7 +3868,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   module motor_mount_fastener_at() {
     for (i = [0:3])
       rotate([0, 0, i * 90])
-        translate([head_motor_mount_screw_radius(), 0, 0])
+        translate([head_motor_mount_screw_radius(_mount_body_d), 0, 0])
           children();
   }
 
