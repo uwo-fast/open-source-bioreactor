@@ -401,6 +401,9 @@ impeller_clearance_factor = 0.9;
 // the row carries it as a fraction of diameter so it scales with the impeller rather than staying
 // at whatever this build happened to use. Still UNCHARACTERISED - no citable blade-height ratio
 // exists for a twisted extrusion, and the classic w = D/4 describes flat Rushton blades.
+// A Hidden block INSIDE this section, then the section re-opened. Both markers are deliberate: the
+// customizer merges same-named sections so the UI is unaffected, and keeping these two beside the
+// row they come off is worth more than an unbroken marker. Do not delete either one.
 /* [Hidden] */
 // Both come off the designated impeller row, so neither is a choice - offering them lets a blade
 // count disagree with the impeller it belongs to.
@@ -486,8 +489,8 @@ tube_port_riser_bore = steel_tube_od(sparge_riser_tube) / 2 + 0.2; // 0.2 as the
 // two open holes into the headspace, which is a filter on the air in and none of it on the way out.
 tube_port_riser_oring = oring_4x1p5_epdm;
 
-// The twelve-port table this lid carries, as [function, type, bore, probe] rows. A NESTED table,
-// so no parameter set can carry it - see docs/design-conventions.md on what the customizer holds.
+// The twelve-port table this lid carries, as [function, type, bore RADIUS, probe] rows. A NESTED
+// table, so no parameter set can carry it - see docs/design-conventions.md on what it can hold.
 head_port_set_full = [
   ["air_out",     "tube",         tube_port_riser_bore], //   0 deg
   ["baffle",      "baffle",       0           ], //  30
@@ -849,7 +852,7 @@ baffle_segments = undef;
 // second moment, which is a 14 % tip deflection penalty at one joint and the reason the cap above
 // is not lower. Depth follows from it and the flare, at 4.54 mm.
 baffle_joint_lip = 1.6; // socket wall each side, four perimeters at a 0.4 nozzle
-// socket bore the tail enters, across the flats
+// material left crossing the joint - 4.2 of the plate's 10 mm, cubed into its stiffness ratio
 baffle_joint_neck = 4.2;
 // degrees off vertical - shallow, so engagement is not bought from the neck
 baffle_joint_flare = 10;
@@ -905,7 +908,7 @@ sparge_inner_fraction = 0.35;
 // The cleaning gap opposite the feed, and the screw that plugs each end. A pilot only; the screw
 // cuts its own thread in PETG, which is what the impeller collar already does.
 sparge_split_angle = 14;
-// the screw that caps each cut end of the ring, so a brush can be passed through it
+// caps each cut end of the ring - pull the two and a pipe cleaner goes straight through each half
 sparge_plug_screw = set_screw_m4x6_316;
 /* [Hidden] */
 // Emit the breakthrough probes check-holes tests. Off for a normal render.
@@ -984,11 +987,11 @@ dosing_pump_functions = ["acid", "base"];
 probe_port_collet_wall_thickness = 1.2;
 // grip fit; 0.5 was tried twice and was tight, 0.6 stuck
 probe_port_collet_body_allowance = 0.6;
-// the same fit where the collet meets the probe's connector end
+// the same fit on the hex the probe's connector passes through, one size up from the body
 probe_port_collet_connector_allowance = 0.6;
-// slot between the collet's tabs, which is what lets them close on the probe
+// clearance slot cut around each flex tab, which is what leaves it free to move
 probe_port_collet_tab_gap = 1.0;
-// how far a tab bends inward when the collar is run down over it
+// how far each flex tab is squeezed inward, so the probe is held by spring rather than a press fit
 probe_port_collet_tab_deflection = 0.5;
 // What a galvanic DO probe needs moving past its membrane, mL/min. Atlas state it as a FLOW -
 // "approximately 60 ml/min" - and chart stagnant water taking the reading from 90 % to 20 % in
@@ -1029,7 +1032,7 @@ do_probe_flow_requirement = 60;
 do_probe_port_tilt_max = 4.5;
 // Vertical, and Yokogawa requires it - the pH probe is the one that may not lean
 ph_probe_port_tilt_degrees = 0;
-// length over which the port's bore blends from the collet's section to the lid's
+// the collet's standoff below the coupling, before the probe's own diameter is added to it
 probe_port_transition_length = 25;
 
 /* [Color Parameters] */
