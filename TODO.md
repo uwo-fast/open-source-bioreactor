@@ -100,23 +100,18 @@ ledger at the end: decisions that took real work to reach and would otherwise be
     open and it still will not hold 0.5 vvm" is the replace-the-filter signal, and that belongs in
     the build notes
 
-- [ ] **can the tube seal actually be fitted by hand? a PRINT settles it**
-  - the rod gland is an enclosed groove now, so the ring is captive - it cannot fall into the
-    culture the way the old counterbore let it. The cost is that it has to be got IN: folded and
-    pushed up a 4.4 mm bore past a 1.2 mm lip, into a groove at r 3.23 spanning z -16.80 to -14.55
-  - **geometry says it passes and says nothing about whether it is pleasant.** A 1.5 mm cord doubles
-    to 3.0 mm against a 4.4 mm bore, so there is 1.4 mm to spare - but a 4 mm ID ring folded double
-    bends tighter than its own cord thickness, and EPDM at that radius is stiff. Nothing here can
-    tell whether that is a ten-second job or a swearing match
-  - **do this with a port off the bench print:** fold a `4x1.5 EPDM` in, seat it, then pass the steel
-    tube and check it has not been pushed out of the groove or nicked on the way. Minutes, and the
-    part is already in the manifest
-  - **the fix if it is too tight is a lead-in chamfer on the lip, not a thinner lip.** Thinning trades
-    the problem back for the one just fixed - a lip that lets go is the counterbore again. A chamfer
-    costs nothing structurally and is what makes a ring walk over a shoulder. `bayonet_bore_gland_lip`
-    is a named parameter so the fallback is one number, but reach for the chamfer first
-  - also unmeasured: whether the ring can be got back OUT for cleaning or replacement without a
-    tool that scars the bore. Captive cuts both ways, and this is a part that gets autoclaved
+- [ ] **the tube seal goes IN by hand - what is untested is getting it back OUT**
+  - **the fold-through is settled, on a printed port: the 4x1.5 EPDM folds into the groove fine.**
+    So the enclosed gland stands as built, `bayonet_bore_gland_lip` stays at 1.2 mm, and the lead-in
+    chamfer held in reserve is not needed. That was the open question the geometry could not answer
+    - 1.5 mm of cord doubling to 3.0 against a 4.4 mm bore said it passes, not that it was pleasant
+  - **two things the same print can still answer, and neither is done:** whether passing the steel
+    tube pushes the ring back out of the groove or nicks it on the way, and whether the ring comes
+    back OUT for cleaning or replacement without a tool that scars the bore. Captive cuts both ways,
+    and this part gets autoclaved
+  - if removal turns out to need a pick, that is worth knowing before the build notes tell anyone to
+    do it in a jar at arm's length - it is a maintenance step, not a one-time assembly one
+
 
 - [ ] **where the sparger's gas actually goes, and whether the DO probe should be somewhere else**
   - **the placement is the opposite of what was expected.** The DO probe was thought to sit in a slow
