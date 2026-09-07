@@ -1966,21 +1966,27 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     ));
 
   // WHETHER THIS VESSEL WANTS TWO IMPELLERS AT ALL, which nothing asked before. The lid carries a
-  // mirrored pair on every jar, and the aspect ratio decides whether that is right: a second
-  // impeller is added above about H/T 1.2, and below it one impeller is turning the whole column.
+  // mirrored pair on every jar, and the column decides whether that is right: the spacing band puts
+  // bounds on the COUNT, and a pair outside them is a pair the spacing does not support.
   //
-  // 1.2 is CONVENTION, not a citation - docs/agitation.md records it as such, and no source held
-  // here states it - so this reports and does not warn. It is reported because the departure is not
-  // free: forcing a pair into a short column is what spends the liquid over the upper impeller, and
-  // the two jars whose coverage is comfortable are exactly the two above the threshold.
+  // Asked in liquid height over IMPELLER diameter, which is what the band is written in. This used
+  // to ask it in H/T against 1.2, which no source here stated - and H/T only stands in for the real
+  // variable at one D/T. See stirred_tank_impeller_count_bounds().
+  //
+  // Reported, not warned: the bounds come from a spacing convention, and the departure is not free
+  // in the other direction either - forcing a pair into a short column is what spends the liquid
+  // over the upper impeller.
   _liquid_to_bore = _liquid_height / _vessel_bore;
+  _count_bounds = stirred_tank_impeller_count_bounds(_liquid_height, impeller_diameter);
   echo(str(
-    "impeller count: 2 on H/T ", _liquid_to_bore, ", where convention adds a second above about 1.2",
-    _liquid_to_bore >= 1.2
-      ? " - so the pair is what convention gives this column"
+    "impeller count: 2 on ", _liquid_height / impeller_diameter, " impeller diameters of liquid ",
+    "(H/T ", _liquid_to_bore, "), where the spacing band allows ", _count_bounds[0], " < n < ",
+    _count_bounds[1],
+    stirred_tank_impeller_count_fits(2, _liquid_height, impeller_diameter)
+      ? " - so the pair is what the spacing gives this column"
       : str(
-        " - so this column is SHORT for a pair, and the second impeller is one convention would not ",
-        "add. It costs the coverage above: ", _coverage_ratio, " D against the ",
+        " - so this column is SHORT for a pair, and the second impeller is one the spacing would ",
+        "not add. It costs the coverage above: ", _coverage_ratio, " D against the ",
         stirred_tank_coverage_minimum(), " D floor"
       )
   ));

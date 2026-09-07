@@ -460,7 +460,16 @@ been priced against the mass transfer it costs, and it should be.
   This is structural, not a near miss. Blade height is the only other term in the span, and it is
   the least defensible number in the model — but even at 0.4 D instead of 0.635 the ceiling only
   moves to 0.85 D. **The cause is that the vessel is short for two impellers**: they span 154.5 mm
-  of a 241 mm column, and H/T is 1.124 where convention adds a second impeller above about 1.2.
+  of a 241 mm column, which is **2.48 impeller diameters of liquid** where the 1–2 D spacing band
+  allows `0.24 < n < 1.48` — one impeller, not two. (Superseded — kept for the record: this read
+  "H/T is 1.124 where convention adds a second impeller above about 1.2". Two things were wrong.
+  The threshold was quoted from this document rather than a source, and the variable was the tank
+  diameter where the spacing band is written in IMPELLER diameters — H/T only stands in for it at
+  one D/T, and the vessels behind the convention ran 0.54–0.57 against this build's 0.45. Read
+  properly the same band puts the pair out of reach on **four** of five jars, not two, and the one
+  jar it admits is `jar_1p5L_109x215`. The band itself has no primary — Fitschen relays it from
+  Davis, whose own sources do not carry it — so this is reported and never asserted. See
+  `stirred_tank_impeller_count_bounds()` and the Fitschen entry in `docs/references.md`.)
 - **0.6 D was chosen against a second, independent scale — an uncited one.** Off-bottom clearance
   is more often written C/T, and the quarter-to-third of tank diameter usual for an axial impeller
   maps to **C/D 0.556–0.741** in this bore. *No source held here states that convention* — it is

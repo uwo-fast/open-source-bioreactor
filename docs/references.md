@@ -31,6 +31,14 @@ Tank Reactor." *Chemie Ingenieur Technik* 91(11):1794-1801. [doi:10.1002/cite.20
 D/T 0.3-0.5 and ~0.3 for radial impellers; impeller spacing 1.0-2.0 d; the up-to-35 % power
 penalty for spacing too close. Their own rig ran d/D = 0.33, a radial ratio, so the spacing rule is
 carried from the literature they review rather than measured on an axial impeller.
+**And the literature it is carried from is Davis.** Fitschen's ref for both the 1.0-2.0 d band and
+his eq. (5) impeller-count inequality is his **[37] = Davis (2010)** — the thesis graded unreliable
+below, whose own two refs contain neither claim. So this entry does not re-source the spacing band
+away from that thesis, which is what it was being used for; it relays it. His [33] Uhl & Gray (1966)
+and [35] Hudcova, Machon & Nienow (1989) carry the 35 % power penalty, not the band.
+**Fitschen eq. (5) is still what `stirred_tank_impeller_count_bounds()` implements**, because it is
+the only stated form of the rule anyone here has found and the arithmetic follows from the band
+regardless — but it is reported, never asserted, and there is no primary behind it.
 → `scad/utils/stirred_tank.scad`, `scad/head.scad` impeller guideline block
 
 **Nienow, A.W. (2006).** "Reactor engineering in large scale animal cell culture." *Cytotechnology*
