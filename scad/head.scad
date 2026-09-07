@@ -61,9 +61,18 @@ z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 // Tessellate by feature size, as bayonet_port.scad already does. A flat 128 was wrong at both
 // ends: a 0.21 mm chord on an M8 bore, and 24 such bores were most of the lid's render, against
 // a 6.32 mm chord on the 257 mm flange. Costs 0.0156 mm of undersize on the smallest hole.
+//
+// FUNCTIONS, so head() can re-assert the same two numbers without a second copy of them and
+// without offering either as a customizer parameter. head() has to re-assert: $fn is dynamically
+// scoped and `use` resolves it PER VERSION - 2021.01 takes the callee's file, 2026.09 takes the
+// caller's - so a head rendered from assembly.scad would otherwise tessellate to assembly's flat
+// 64/128 on a newer binary. Measured: 202,158 triangles against 36,974, and -0.038% of volume as
+// the small bores inscribe. Both binaries are on this machine.
+function head_fa() = $preview ? 6 : 2;
+function head_fs() = $preview ? 1.2 : 0.6;
 $fn = 0;
-$fa = $preview ? 6 : 2;
-$fs = $preview ? 1.2 : 0.6;
+$fa = head_fa();
+$fs = head_fs();
 
 // -----
 
@@ -1731,6 +1740,12 @@ module head_port(port, panel_thickness, baffle_width, baffle_length, baffle_segm
 }
 
 module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, vessel_internal_height, vessel_punt_height, joint_outer_diameter, post_pts, post_hole_diameter, vessel_profile, lip_arc_radius, build = []) {
+
+  // THIS FILE'S TESSELLATION, whatever the caller set - see head_fa() above for why it has to be
+  // said twice rather than inherited.
+  $fn = 0;
+  $fa = head_fa();
+  $fs = head_fs();
 
   // Resolved before anything reads them. An empty build is head.scad's own parameters, which is
   // what this file renders standalone.

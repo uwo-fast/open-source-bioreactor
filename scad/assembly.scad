@@ -124,13 +124,13 @@ export_at_origin = false;
 // be handed the caller's - so from this file the assembly was drawn with nothing assigned at all,
 // and anything dividing by $fn got a division by zero. sparge_ring did.
 //
-// It is frame.scad's 64/128 that this matches (frame.scad:20). head.scad does NOT ask for it:
-// head.scad:61 sets $fn = 0 deliberately and tessellates by $fa/$fs, because a flat 128 was wrong
-// at both ends of a lid carrying both M8 bores and a 257 mm flange. Which of the two a head module
-// actually gets depends on the OpenSCAD version - 2021.01 resolves $fn from the module's own file,
-// newer builds pass the caller's - so this line and head.scad:61 disagree about the head's
-// tessellation and the binary picks the winner. check-scad's second pass at -D '$fn=0' covers the
-// crash, not the divergence. Unresolved; see TODO.md.
+// It is frame.scad's 64/128 that this matches (frame.scad:20), and frame.scad is the only thing
+// downstream that takes it. head.scad does NOT ask for it - it sets $fn = 0 and tessellates by
+// $fa/$fs, because a flat 128 was wrong at both ends of a lid carrying both M8 bores and a 257 mm
+// flange - and head() now RE-ASSERTS that inside its own body, so this line cannot reach it on any
+// binary. It used to: $fn is dynamically scoped and `use` resolves it per version, 2021.01 from
+// the callee's file and 2026.09 from the caller's, which put the head at 64 through this file and
+// 0 rendered alone. See head_fa() in head.scad.
 $fn = $preview ? 64 : 128;
 
 // Cut the preview in half to see inside; ignored on a render

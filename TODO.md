@@ -452,19 +452,24 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
     that should have moved.** If the pocket genuinely never reaches the bases on a jar this tall,
     that is a fit worth reporting rather than a silence
 
-- [ ] **`assembly.scad` and `head.scad` disagree about the head's tessellation**
-  - `assembly.scad` sets `$fn = 64/128`; `head.scad:61` sets `$fn = 0` deliberately and tessellates
-    by `$fa`/`$fs`, because a flat 128 was wrong at both ends of a lid carrying M8 bores and a
-    257 mm flange. `$fn` is dynamically scoped, and **which one a head module gets depends on the
-    OpenSCAD version** - 2021.01 resolves it from the module's own file, newer builds pass the
-    caller's. So the head may tessellate differently rendered from `assembly.scad` than rendered
-    alone, and a version bump would silently switch it
-  - `check-scad`'s second pass at `-D '$fn=0'` covers the *crash* this causes, not the divergence
-  - found while correcting `assembly.scad`'s header, which claimed head.scad "asks for" 64/128. The
-    claim is now corrected; the disagreement it was hiding is not resolved
-  - what settles it: decide whose policy governs a head rendered from the assembly, and make the
-    losing file stop asserting one. Measure before choosing - the isolation render attempted during
-    the campaign did not produce a usable comparison
+- [ ] **`check-scad`'s `-D '$fn=0'` pass is not the neutraliser it reads as**
+  - the head's own tessellation is settled: `head()` re-asserts `$fn = 0` and `head_fa()`/`head_fs()`
+    inside its body, so `assembly.scad`'s 64/128 cannot reach it on any binary. Measured on both
+    installed: 2021.01 unchanged, and 2026.09 moves from `$fn = 64` to 0 through the assembly path.
+    It mattered - on the nightly the lid rendered **202,158 triangles against 36,974**, and -0.038 %
+    of volume as the small bores inscribed
+  - **what is left is the check.** `check-scad`'s second pass forces `-D '$fn=0'`, and a command-line
+    `-D` crosses the `use` boundary on BOTH versions where an in-file assignment does not. So that
+    pass does not render what any build renders: it also zeroes `sparger.scad`'s 96 and
+    `bayonet_probe_port.scad`'s 64. Measured on the nightly it gives 38,354 triangles and
+    508,327.683 mm3, matching neither real path
+  - it is still worth having - it covers the CRASH a zero facet count causes - but it is not a
+    tessellation-divergence test and should not be read as one. What would test that is rendering
+    one part both ways and comparing, which is cheap at the CSG level and needs no CGAL
+  - and `OPENSCAD` is unset, so `just` runs 2021.01 while `openscad-nightly` 2026.09 sits on the
+    same machine. The version this project is checked on is whichever binary happens to be first on
+    PATH, which is worth pinning rather than discovering
+
 
 - [ ] **`culture_working_volume` is the one parameter a build still cannot carry**
   - it defaults to `undef`, and the customizer registers a parameter only if it can infer a TYPE, so
