@@ -355,28 +355,32 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
     variables, which the customizer does not offer, so they want no description
 
 
-- [ ] **the sparger's holes are the wrong size, and the model now says so on every render**
-  - `head()` drives `custom/sparger.scad` now and `sparge_ring.scad` is deleted, so there is one
-    sparger again. What the swap exposed is that the hole spec it inherited does not distribute:
-    eight 3 mm holes on a 4 mm bore is an **open area ratio of 4.5** at the feed run, which every
-    hole sits behind, and 2.25 round each ring. The feed's velocity head is **17.94 Pa** against
-    2.45 Pa at a hole - 7.3x, where the departure threshold is 0.5x. Both fire, every render
-  - **this was true of the old ring too** - it is not a regression, it is a defect that was
-    invisible until something computed it. The holes have always been competing with their own
-    supply; nothing reported open area before
-  - the fix is not one number. Smaller holes give smaller bubbles - 3 mm gives 5.10 mm and 1.2 mm
-    gives 3.76, which is 36 % more interfacial area - but hold the flow, so the COUNT rises, and
-    more holes on the same bore makes the open area ratio worse rather than better. It wants the
-    bore opening up with the hole count coming down in diameter, together, read off
-    `sparger_report()`
-  - **and it collides with a settled decision.** The 8 x 3 mm holes are settled in
-    `docs/decisions.md` as "for spacing and against fouling, not for even flow" - 3 mm is the least tolerance-sensitive size
-    that still spaces, and a 1.2 mm hole in an algal culture is a hole that blocks. That trade was
-    made before anything could price the mass transfer it costs. It can be priced now, and it
-    should be re-made rather than quietly overturned
-  - what is NOT open: whether the holes break through, or are fed. `just check-holes` tests both
-    ends of every declared hole against the built mesh, and each half was proved to fire on a real
-    defect - which `check-mesh` passes happily, because a blind hole is a perfectly good solid
+- [ ] **the sparger's holes are not the wrong size - the BORE is, and it is one designation**
+  - priced against the model's own functions rather than argued. Holding the settled 8 x 3 mm spec
+    and sweeping only the bore, at the build's duty of 4.11604 L/min through one ring:
+
+    | bore | feed velocity | open area | velocity head | verdict |
+    | --- | --- | --- | --- | --- |
+    | 4.0 (today) | 5.46 m/s | 4.50 | 17.9 Pa | 2 departures |
+    | 6.0 | 2.43 | 2.00 | 3.5 | 2 departures |
+    | 8.0 | 1.36 | 1.12 | 1.1 | 2 departures |
+    | **8.5** | 1.21 | **1.00** | 0.9 | **clean** |
+    | 10.0 | 0.87 | 0.72 | 0.5 | clean, with margin |
+
+  - **so the settled decision does not have to be re-made.** 3 mm holes for spacing and against
+    fouling stand; a 1.2 mm hole in an algal culture is still a hole that blocks. What was wrong was
+    reading the fix as a hole problem: sweeping hole diameter at bore 4 leaves every size in
+    departure, and sweeping bore at 3 mm clears at 8.5. The count is not the lever either
+  - **and the bore is not a free parameter.** `sparge_bore()` returns
+    `steel_tube_od(sparge_riser_tube)` - one passage, the riser's own - so the change is a
+    DESIGNATION: `steel_tube_welded_4x0p5` to `steel_tube_welded_10x0p5`, McMaster 50415K35, which
+    is already registered. 8 mm is registered too and does not clear; there is no 8.5 row
+  - **what it costs is the cascade, and that is the decision.** The tube goes 6.4 -> 12.4 mm across
+    the flats, which has to clear the baffles and pass the mouth; the riser passes a port bore sized
+    for 4 mm with a 4x1.5 rod gland sized to it; and the riser's own pressure drop, its support tube
+    and its BOM row all follow. None of that is priced yet - what is priced is that the sparger side
+    is one row change and the hole spec survives it
+
 
 - [ ] **`check-holes` still needs a CGAL render, so it stays outside `just check`**
   - the FED half is closed. Each hole now declares two points - `exit` just inside the discharge
