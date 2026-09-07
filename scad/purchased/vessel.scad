@@ -28,7 +28,27 @@ function vessel_corner_radius(type) = type[3][0]; // shoulder-to-body (upper) co
 function vessel_corner_radius_base(type) = type[3][1]; // body-to-base (lower) corner radius
 function vessel_punt_height(type) = type[4][0]; // height the punt rises from the base
 function vessel_punt_width(type) = type[4][1]; // width/diameter of the punt
-function vessel_rim_radius(type) = type[5]; // radius of the rim roll
+// How the glass finishes at the lip, and it says three different things:
+//   undef  a GROUND FLAT lip - the rim is a flat annulus the full width of the wall
+//   0      ROUNDED IN LINE with the wall - the glass rolls over and reaches no further out
+//   r > 0  a ROLLED BEAD standing r proud of the wall's outer face
+// Only jar_6p5gal_305x470 is ground; commodity jars are fire-polished and none of the rest has a
+// flat to seat on, which is what the lid's gasket was sized against until it was measured.
+function vessel_rim_radius(type) = type[5];
+
+// The rim's arc, as ONE construction covering both curved cases: a circle tangent to the bore at
+// the lip, topping out at the rim plane, whose diameter is the wall plus however far the bead
+// stands proud. r = 0 makes that diameter the wall exactly - rounded, reaching no further out -
+// and r > 0 pushes the outer face out by r. A ground lip has no arc and returns 0.
+function vessel_rim_arc_radius(type) =
+  is_undef(vessel_rim_radius(type))
+    ? 0
+    : (vessel_thickness(type) + vessel_rim_radius(type)) / 2;
+
+// Where the bore's wall stops and the lip's curve takes over. A ground lip runs to the rim plane;
+// a curved one stops an arc radius below it, and everything above is the roll.
+function vessel_lip_tangent_height(type) =
+  vessel_height(type) - vessel_rim_arc_radius(type);
 
 /**
  * @brief Internal height available to the shaft and impeller: rim down to the top of the punt.
@@ -95,20 +115,26 @@ function vessel_inner_profile(type, arcFn = 64) =
       arc(r=vessel_corner_radius_base(type) - _t, angle=90, offsetAngle=270, c=vessel_base_centre(type), $fn=arcFn),
       arc(r=vessel_corner_radius(type) - _t, angle=90, offsetAngle=0, c=vessel_shoulder_centre(type), $fn=arcFn),
       arc(r=vessel_neck_corner_radius(type), angle=-90, offsetAngle=270, c=vessel_neck_centre(type), $fn=arcFn),
-      [[vessel_opening_diameter(type) / 2, vessel_height(type)]]
+      [[vessel_opening_diameter(type) / 2, vessel_lip_tangent_height(type)]]
     );
 
 /**
  * @brief The outside, the same way up, ending on the rim.
  *
- * The rim bead is a half round centred on the neck's outer wall and tangent to the rim plane, so
- * it bulges outward without adding height. A registered rim_radius of 0 collapses it to a point,
- * which is what the two jars with a ground rim want.
+ * THE LIP IS A HALF ROUND TANGENT TO THE BORE, not a flat with a bead hung off it. The old profile
+ * drew a flat top the full width of the wall and put the bead below and outboard of it, which is
+ * the shape of no jar in the registry: only jar_6p5gal has a flat, and it has no bead. Everything
+ * else is fire-polished and rolls over. The lid's gasket was sized to seat on that flat, and the
+ * land it was inset from does not exist.
+ *
+ * One arc covers both curved cases - see vessel_rim_arc_radius(). A ground lip omits it and closes
+ * flat across the wall, which is what the section's own straight run between the two profiles does.
  */
 function vessel_outer_profile(type, arcFn = 64) =
   let (
     _t = vessel_thickness(type),
     _rim = vessel_rim_radius(type),
+    _rim_r = vessel_rim_arc_radius(type),
     _neck_r = vessel_opening_diameter(type) / 2 + _t
   )
     concat(
@@ -116,7 +142,13 @@ function vessel_outer_profile(type, arcFn = 64) =
       arc(r=vessel_corner_radius_base(type), angle=90, offsetAngle=270, c=vessel_base_centre(type), $fn=arcFn),
       arc(r=vessel_corner_radius(type), angle=90, offsetAngle=0, c=vessel_shoulder_centre(type), $fn=arcFn),
       arc(r=vessel_neck_corner_radius(type) - _t, angle=-90, offsetAngle=270, c=vessel_neck_centre(type), $fn=arcFn),
-      arc(r=_rim, angle=180, offsetAngle=270, c=[_neck_r, vessel_height(type) - _rim], $fn=arcFn)
+      is_undef(_rim)
+        ? [[_neck_r, vessel_height(type)]]
+        : arc(
+            r=_rim_r, angle=180, offsetAngle=0,
+            c=[vessel_opening_diameter(type) / 2 + _rim_r, vessel_lip_tangent_height(type)],
+            $fn=arcFn
+          )
     );
 
 // The closed glass section: up the outside, across the rim, down the inside, home along the axis.

@@ -15,7 +15,7 @@ jar_1gal_180x197     = ["jar_1gal_180x197",     [197,       180,        5       
 
 // Big Mouth Bubbler EVO 2, 6.5 gallon glass fermentor — OD and height are the listed 12 in
 // and 18.5 in — https://www.northernbrewer.com/products/big-mouth-bubbler-evo-2-6-5-gallon
-jar_6p5gal_305x470   = ["jar_6p5gal_305x470",   [18.5*25.4, 12*25.4,    12       ], [137,         50  ], [50.0,        50.0          ], [15,     160   ], 0    ];
+jar_6p5gal_305x470   = ["jar_6p5gal_305x470",   [18.5*25.4, 12*25.4,    12       ], [137,         50  ], [50.0,        50.0          ], [15,     160  ], undef ];
 
 // Mainstays large straight-sided glass canister, 1.5 L
 // https://www.walmart.ca/en/ip/Main-Stays-Glass-Canister-Large/6000199421846
@@ -26,10 +26,11 @@ jar_1p5L_109x215     = ["jar_1p5L_109x215",     [215,       109.22,     4       
 // Opening is listed as 4" (101.6) but measures 95.8: the bore steps in below the lip and tapers
 // down from there, so the listed figure is the lip, not the bore. Our lid enters the mouth, so
 // the measured bore is the one that governs and the one registered here.
-// rim_rad is 0, not measured: 110/400 is a threaded finish, so the glass ends in a flat sealing
-// face rather than a radially rolled bead. The threads are deliberately not modelled - nothing 
-// here mates with them, and glass thread profiles are a project of their own.
-jar_1gal_155x251     = ["jar_1gal_155x251",     [251,       155.3,      3        ], [95.8,        30  ], [25,          14             ], [6,      73    ], 0    ];
+// rim_rad 0 means the lip rolls over IN LINE with the wall - rounded, reaching no further out than
+// the glass already does. It is not flat: measured, this jar has no flat sealing face, which the
+// 110/400 threaded finish had been taken to imply. The threads are deliberately not modelled -
+// nothing here mates with them, and glass thread profiles are a project of their own.
+jar_1gal_155x251     = ["jar_1gal_155x251",     [251,       155.3,      3        ], [95.8,        30  ], [25,          14             ], [6,      73   ], 0    ];
 
 // The swept list, and only orderable rows go in it - the sweeps build against this, so a
 // placeholder here makes "it builds" cover a jar nobody can buy. generic_vessel stays defined and
