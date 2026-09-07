@@ -154,12 +154,17 @@ ledger at the end: decisions that took real work to reach and would otherwise be
     diameter, and a face contact resists tilt far harder than a bore does - the o-ring under it is
     the only thing that lets it rock at all. So the real lean is somewhere between 2.28 mm and
     almost nothing, and **nothing in the model can tell which**
-  - **the tilt measurement is still worth taking, but it no longer guards a collision.** Print the
-    lid's baffle port and one baffle top segment, seat them, and measure the tilt at a known distance
-    below the lid: twenty minutes, no parts, and it replaces a stacked worst case with a number. What
-    it now settles is how much of the 2.2 mm is real headroom to spend on width. (Superseded — kept
-    for the record: this was "do this first", when the same measurement stood between the model and a
-    plate striking the blades.)
+  - **THE TILT MEASUREMENT IS DROPPED, and it never earned its place.** The model's 2.28 mm is a
+    worst case - bore play alone, with the flange's face contact ignored - so a measurement can only
+    come back at or under it. The clearance already clears AT that worst case, by 2.20 mm. Every
+    outcome therefore led to the same action, which is what makes it not a test. Decided at the
+    bench, 2026-09; the coupon had been printed and the number was still not worth taking.
+    (Superseded — kept for the record: this was "do this first", on the reading that the plate could
+    strike the blades at -0.28 mm running. It was worth doing then. What retired it is the
+    clearance, not the method.)
+  - it comes back only if the plate is widened to buy area back, since that spends the 2.20 mm. At
+    that point the worst case stops being a comfortable margin and the real lean starts mattering -
+    and `baffle_port_coupon` is already in the print manifest for it
   - **the fixes below are stale in their figures** - they were costed against a 15.3 mm plate and a
     negative running clearance, and both have moved. Kept because the ORDER is still right and the
     mechanisms still apply, now to buying width back rather than giving it away:
