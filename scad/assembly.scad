@@ -106,9 +106,13 @@ use <frame.scad>;
 
 /* [Part Render Selection] */
 
+// The glass jar, translucent, so what the printed parts have to fit is visible
 render_vessel = true;
+// The head subassembly: lid, ports, drive, impellers, sparger
 render_head = false;
+// The frame subassembly: bases, ribs, rods, spacers, lights
 render_frame = false;
+// Overrides the three above, which is the whole reactor as a picture
 render_all = true;
 // Parts are exported through THIS file rather than from head.scad, because this is the file that
 // carries a build's designations - head.scad renders standalone with no build and would export the

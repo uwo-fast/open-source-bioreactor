@@ -334,20 +334,26 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
     GAP between the impellers, the power reporting is per pair, and the manifest lists an upper and
     a lower. One impeller unpicks all three, and changes the reference build that physically exists
 
-- [ ] **the Customizer shows a line of code, or half a sentence, for most parameters**
-  - OpenSCAD parses **only the line immediately above** a variable as its description; a multi-line
-    comment block is not read, so the last line of one is what the UI shows. Across the three entry
-    files that is 198 parameters, of which **29 read as a description**: 54 show the previous LINE OF
-    CODE (`render_head` showed `render_vessel = true;`) and 115 show a mid-sentence fragment
-  - `assembly.scad` is fixed - every designation has a generated dropdown, every real parameter a
-    one-line description, and the twelve derived internals are behind `/* [Hidden] */` instead of
-    being offered as knobs. `head.scad` (130 parameters) and `frame.scad` (35) are not
-  - **it is not a mechanical sweep.** The reasoning belongs in the source and should stay; what each
-    parameter needs is one clean line ADDED at the bottom of its block. And most of head.scad's 130
-    are design constants the campaign said are not build choices - offering them in a Customizer at
-    all is the prior question, and `/* [Hidden] */` is the documented answer
-  - the dropdowns are checked by `just json` against their registries, so they cannot drift; the
-    descriptions are prose and nothing checks them
+- [ ] **nothing checks a Customizer description, so they can rot the way figures do**
+  - the sweep is done: `head.scad`, `frame.scad` and `assembly.scad` each have **0 parameters with
+    no description line above**, from 33, 9 and 4. A large share of the fixes were MOVING the
+    author's own trailing comment onto the line above - OpenSCAD reads only that line, so words
+    like "heat-set into the lid, and they stay there once set" already existed where the UI could
+    not see them
+  - what is not a description was hidden rather than written: `impeller_n_fins` and
+    `impeller_twist_ang` come off the designated impeller row, `nut_pocket_diameter` and
+    `nut_height` off `rod_nut`, `reactor_vessel` off the name above it. Offering any of them lets a
+    derived number disagree with what it is derived from. 114 / 31 / 21 are offered now, 23 / 5 / 12
+    hidden
+  - **and `/* [Hidden] */` runs until the NEXT section marker**, which is a trap: putting one above
+    `z_fight` in head.scad silently hid every render flag below it, because that file had no marker
+    between the internals and the flags. Caught by counting the visible surface, not by reading the
+    diff
+  - what is left is that nothing guards this. The dropdowns are checked by `just json` against their
+    registries and cannot drift; the descriptions are prose and the next parameter added will be as
+    silent as these were. The scanner that found them is nine lines of Python - a `check-customizer`
+    recipe would keep it closed
+
 
 - [ ] **the sparger's holes are the wrong size, and the model now says so on every render**
   - `head()` drives `custom/sparger.scad` now and `sparge_ring.scad` is deleted, so there is one

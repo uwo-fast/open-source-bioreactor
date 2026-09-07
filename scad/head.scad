@@ -57,6 +57,7 @@ use <NopSCADlib/vitamins/shaft_coupling.scad>;
 // came out as. use, not include, so none of the frame's geometry comes with them.
 use <frame.scad>;
 
+/* [Hidden] */
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 // Tessellate by feature size, as bayonet_port.scad already does. A flat 128 was wrong at both
 // ends: a 0.21 mm chord on an M8 bore, and 24 such bores were most of the lid's render, against
@@ -74,29 +75,44 @@ $fn = 0;
 $fa = head_fa();
 $fs = head_fs();
 
-// -----
+/* [Part Render Selection] */
 
 // Overrides all other render flags
-render_all = true; // render all components
+render_all = true;
+// The printed lid itself, with its ports, pockets and gasket recess
 render_lid = false;
 
+// The gearmotor, bought, drawn where it sits on its mount
 render_motor = false;
+// The printed mount that stands the motor off the lid
 render_motor_mount = false;
+// Which piece of it, for a per-part export - the mount prints in three
 motor_mount_part_to_render = "all"; // ["all", "base_plate", "face_plate", "middle_stand"]
-render_motor_mount_inserts = false; // heat-set into the lid, and they stay there once set
-render_motor_mount_screws = false; // the screws into them, which come out every service
+// heat-set into the lid, and they stay there once set
+render_motor_mount_inserts = false;
+// the screws into them, which come out every service
+render_motor_mount_screws = false;
+// The bought coupler joining the gearbox shaft to the reactor shaft
 render_shaft_coupler = false;
-render_bearing = false; // the 608 in the lid's pocket
+// the 608 in the lid's pocket
+render_bearing = false;
+// The 316 SS shaft, bought and cut to length
 render_ext_shaft = false;
+// The printed impellers on that shaft
 render_impeller = false;
 // Which of the pair, for a per-part export. They are mirror images and therefore two different
 // parts, so one STL of both is an assembly picture rather than something to print. Same shape as
 // motor_mount_part_to_render above, and useful interactively for the same reason.
 impeller_to_render = "both"; // [both, lower, upper]
-render_set_screws = false; // the grub screws holding each impeller to the shaft
+// the grub screws holding each impeller to the shaft
+render_set_screws = false;
+// The bayonet lock rings alone, for looking at the channels an assembled lid buries
 render_bayonet_lock = false;
+// The pin half of every TUBE port - gas, media, acid, base
 render_tube_pinlock = false;
+// The pin half of the thermocouple port
 render_thermocouple_pinlock = false;
+// The pin half of both Ø16 Atlas probe ports
 render_probe_pinlock = false;
 // Narrows the pin halves above to ONE port, named by function - "air_in", "do_probe", "baffle_1".
 // The type flags render a whole class at once, which is the right thing on screen and the wrong
@@ -106,9 +122,12 @@ port_to_render = "";
 // Which piece of a baffle plate, for the same reason. A plate prints in segments and undef emits
 // them all interlocked, which is the assembled part rather than something to put on a bed.
 baffle_segment_to_render = undef;
-render_probes = false; // the Atlas probes themselves, hanging in their collets
+// the Atlas probes themselves, hanging in their collets
+render_probes = false;
+// The pin half of each baffle port, which the plates hang from
 render_baffle_pinlock = false;
-render_seals = false; // the EPDM parts: rim gasket, plug o-ring, port o-rings
+// the EPDM parts: rim gasket, plug o-ring, port o-rings
+render_seals = false;
 // The culture, at the fill line the volume is reported for. Not in render_all: it is not a part,
 // and translucent or not it stands over everything immersed in it.
 render_culture = false;
@@ -117,7 +136,8 @@ render_culture = false;
 render_gasket_cutter = false;
 // Which of its two discs. "all" stands them side by side, which is the picture, not the print.
 gasket_cutter_part_to_render = "all"; // [all, outer, inner]
-render_sparger = false; // the ring in the inter-impeller gap and its feed arm
+// the ring in the inter-impeller gap and its feed arm
+render_sparger = false;
 // The 316 SS riser and its support, which are BOUGHT and cut to length rather than printed. Their
 // own flag because render_sparger is what a per-part export asks for, and a print file with two
 // steel tubes in it is not a print file - it stood 197 mm tall on a ring whose section is 10.
@@ -381,8 +401,13 @@ impeller_clearance_factor = 0.9;
 // the row carries it as a fraction of diameter so it scales with the impeller rather than staying
 // at whatever this build happened to use. Still UNCHARACTERISED - no citable blade-height ratio
 // exists for a twisted extrusion, and the classic w = D/4 describes flat Rushton blades.
+/* [Hidden] */
+// Both come off the designated impeller row, so neither is a choice - offering them lets a blade
+// count disagree with the impeller it belongs to.
 impeller_n_fins = impeller_blades(head_impeller_type);
 impeller_twist_ang = impeller_twist(head_impeller_type);
+
+/* [Impeller Parameters] */
 // How much culture is in the jar. An operating choice rather than geometry, but not a free one:
 // every process number this model reports is per unit volume, so the fill line sets them all.
 //
@@ -461,6 +486,8 @@ tube_port_riser_bore = steel_tube_od(sparge_riser_tube) / 2 + 0.2; // 0.2 as the
 // two open holes into the headspace, which is a filter on the air in and none of it on the way out.
 tube_port_riser_oring = oring_4x1p5_epdm;
 
+// The twelve-port table this lid carries, as [function, type, bore, probe] rows. A NESTED table,
+// so no parameter set can carry it - see docs/design-conventions.md on what the customizer holds.
 head_port_set_full = [
   ["air_out",     "tube",         tube_port_riser_bore], //   0 deg
   ["baffle",      "baffle",       0           ], //  30
@@ -760,7 +787,8 @@ baffle_length = undef;
 baffle_thickness = 10;
 // printed PETG, for the plate's stiffness. REASONED, NOT CITED - derated from ~2.0 GPa bulk
 baffle_modulus = 1800; // MPa
-baffle_density = 1270; // kg/m^3
+// kg/m^3, PETG
+baffle_density = 1270;
 // height over which the port's round bottom face blends out into the plate
 baffle_transition_height = 10;
 
@@ -821,8 +849,10 @@ baffle_segments = undef;
 // second moment, which is a 14 % tip deflection penalty at one joint and the reason the cap above
 // is not lower. Depth follows from it and the flare, at 4.54 mm.
 baffle_joint_lip = 1.6; // socket wall each side, four perimeters at a 0.4 nozzle
+// socket bore the tail enters, across the flats
 baffle_joint_neck = 4.2;
-baffle_joint_flare = 10; // degrees off vertical - shallow, so engagement is not bought from the neck
+// degrees off vertical - shallow, so engagement is not bought from the neck
+baffle_joint_flare = 10;
 // Slide fit between tail and socket. The butt faces meet with nothing between them, so this is
 // flank clearance only and the plate keeps its length.
 baffle_joint_allowance = 0.1;
@@ -862,7 +892,8 @@ sparge_ring_gap_fraction = 0.5;
 // same physical thing described twice, and it showed: a 6 mm tube under a 6.4 mm socket left a
 // 0.2 mm ledge all the way round the joint.
 sparge_wall = 1.2; // around the bore, and what the socket must keep around the riser it accepts
-sparge_tube_facets = 8; // octagon outside: flats to drill into, and no crown to bridge
+// octagon outside: flats to drill into, and no crown to bridge
+sparge_tube_facets = 8;
 function sparge_bore() = steel_tube_od(sparge_riser_tube); // one passage, the riser's own
 function sparge_tube() = sparge_bore() + 2 * sparge_wall;  // across FLATS
 // How many concentric rings. One is the reference build. Above one they sit on EQUAL AREA, because
@@ -874,6 +905,7 @@ sparge_inner_fraction = 0.35;
 // The cleaning gap opposite the feed, and the screw that plugs each end. A pilot only; the screw
 // cuts its own thread in PETG, which is what the impeller collar already does.
 sparge_split_angle = 14;
+// the screw that caps each cut end of the ring, so a brush can be passed through it
 sparge_plug_screw = set_screw_m4x6_316;
 /* [Hidden] */
 // Emit the breakthrough probes check-holes tests. Off for a normal render.
@@ -950,9 +982,13 @@ dosing_pump_functions = ["acid", "base"];
 // Design choices for the collet. Every hardware dimension comes from the registered probe
 // named in head_ports, so nothing about the probe itself is entered here.
 probe_port_collet_wall_thickness = 1.2;
-probe_port_collet_body_allowance = 0.6; // grip fit; 0.5 was tried twice and was tight, 0.6 stuck
+// grip fit; 0.5 was tried twice and was tight, 0.6 stuck
+probe_port_collet_body_allowance = 0.6;
+// the same fit where the collet meets the probe's connector end
 probe_port_collet_connector_allowance = 0.6;
+// slot between the collet's tabs, which is what lets them close on the probe
 probe_port_collet_tab_gap = 1.0;
+// how far a tab bends inward when the collar is run down over it
 probe_port_collet_tab_deflection = 0.5;
 // What a galvanic DO probe needs moving past its membrane, mL/min. Atlas state it as a FLOW -
 // "approximately 60 ml/min" - and chart stagnant water taking the reading from 90 % to 20 % in
@@ -991,7 +1027,9 @@ do_probe_flow_requirement = 60;
 // Where nothing clears, the search returns 0 rather than a best effort, and the reach asserts below
 // report the real conflict. A guess would bury it.
 do_probe_port_tilt_max = 4.5;
+// Vertical, and Yokogawa requires it - the pH probe is the one that may not lean
 ph_probe_port_tilt_degrees = 0;
+// length over which the port's bore blends from the collet's section to the lid's
 probe_port_transition_length = 25;
 
 /* [Color Parameters] */
