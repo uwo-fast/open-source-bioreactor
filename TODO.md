@@ -135,11 +135,29 @@ ledger at the end: decisions that took real work to reach and would otherwise be
     the ring's radius is the outermost the mouth allows, so the free variables are the LEAN and the
     ring's height. Both are already parameters
 
-- [ ] **jar_10L's baffle can reach the blades, and the next action is a MEASUREMENT**
-  - 2 mm nominal clearance to the impeller, less the 2.28 mm of lean the coupling's 0.2 mm of play
-    allows at the lower impeller, so **-0.28 mm running**. Reported every render, not asserted, and
-    nothing is printed yet. Thickness does not touch it: it is a tolerance stack, not a stiffness
-    one, and the deflection half of this item is closed (the plate is 10 mm - see `docs/agitation.md`)
+- [ ] **the baffle no longer reaches the blades, and what bought that is baffle AREA**
+  - **the collision is gone, and nothing here fixed it.** The model echoes **4.47731 mm nominal**,
+    less the same 2.27722 mm of lean, so **+2.20009 mm running**, and the echo's own "THE PLATE CAN
+    REACH THE BLADES" branch no longer fires. Checked at `01b9bc2`, the commit that wrote the old
+    reading, where it genuinely echoed 2 mm nominal and **-0.277222 mm running**: the claim was right
+    when made. (Superseded — kept for the record: this item read "jar_10L's baffle can reach the
+    blades, and the next action is a MEASUREMENT", at -0.28 mm running, and called that measurement
+    the thing to do first.)
+  - **what moved is the plate's WIDTH, from 15.3 mm to 10.3454**, which opens the gap by half of
+    what it takes off the plate. The lean did not move at all. So the interference closed itself as a
+    side effect of the plate narrowing, somewhere across the 52 commits since, and no commit set out
+    to close it
+  - **and the price is the warning that was already firing.** Reference projected area went
+    **0.855763 -> 0.578565** of Oldshue's four-at-T/12, a third of the baffling gone, and six plates
+    - the next count that spaces equally on twelve ports - now reaches only **0.867847** where it
+    used to clear the reference outright at 1.28364. A collision was traded for under-baffling, and
+    under-baffling is the failure `docs/agitation.md` says lets the vessel swirl rather than mix
+  - **so the open question is the opposite of the one this item used to ask.** Not "how do we buy
+    clearance" - there is 2.2 mm of it - but whether 0.579 of reference is acceptable, and what the
+    plate is allowed to cost to get it back. Widening it again walks straight back toward the blades,
+    which is why the two belong in one item
+  - thickness does not touch either: it is a tolerance stack, not a stiffness one, and the deflection
+    half is closed (the plate is 10 mm - see `docs/agitation.md`)
   - **what the number actually is.** 0.2 mm of bayonet play over 18 mm of engagement, levered out
     205 mm to the lower impeller: an **11.4x amplification**, which is why a fit clearance smaller
     than a layer height ends up larger than the whole gap. Attacking the amplification is worth more
@@ -149,10 +167,23 @@ ledger at the end: decisions that took real work to reach and would otherwise be
     diameter, and a face contact resists tilt far harder than a bore does - the o-ring under it is
     the only thing that lets it rock at all. So the real lean is somewhere between 2.28 mm and
     almost nothing, and **nothing in the model can tell which**
-  - **do this first:** print the lid's baffle port and one baffle top segment, seat them, and measure
-    the tilt at a known distance below the lid. Twenty minutes, no parts, and it replaces a stacked
-    worst case with a number - which is how the rest of this model has been settled
-  - **the fixes, if the measurement confirms it**, in order of what they cost:
+  - **THE TILT MEASUREMENT IS DROPPED, and it never earned its place.** The model's 2.28 mm is a
+    worst case - bore play alone, with the flange's face contact ignored - so a measurement can only
+    come back at or under it. The clearance already clears AT that worst case, by 2.20 mm. Every
+    outcome therefore led to the same action, which is what makes it not a test. Decided at the
+    bench, 2026-09; the coupon had been printed and the number was still not worth taking.
+    (Superseded — kept for the record: this was "do this first", on the reading that the plate could
+    strike the blades at -0.28 mm running. It was worth doing then. What retired it is the
+    clearance, not the method.)
+  - it comes back only if the plate is widened to buy area back, since that spends the 2.20 mm. At
+    that point the worst case stops being a comfortable margin and the real lean starts mattering.
+    `baffle_port_coupon` was DELETED with the measurement rather than kept against that maybe - it
+    was an intersection of the real lid with a 45 mm disc, so it costs nothing to write again, and a
+    part carried on the manifest for a test nobody is going to run is a part that gets printed by
+    someone reading the list
+  - **the fixes below are stale in their figures** - they were costed against a 15.3 mm plate and a
+    negative running clearance, and both have moved. Kept because the ORDER is still right and the
+    mechanisms still apply, now to buying width back rather than giving it away:
     - *taper the plate's inner edge with depth* so it matches the lean, which is worst at the bottom
       and zero at the lid. Buys the clearance for about half the area a uniform cut costs - roughly
       0.79 of reference against 0.744. New geometry in `bayonet_baffle_port.scad`
@@ -175,13 +206,16 @@ ledger at the end: decisions that took real work to reach and would otherwise be
     speed. Root bending is 15.8 N·mm on a section modulus of 50.4 mm3, so **0.31 MPa** - roughly one
     percent of printed PLA cross-layer strength - and the blade's own tip deflects **11 um**. The
     ring is two orders of magnitude past what the fluid asks for
-  - **the strike case is the argument that keeps it.** The same jar's baffle running clearance is
-    -0.28 mm, so a plate CAN reach the blades. A ring ties all four tips so a strike is reacted by
-    the set rather than levering one blade. That is an impact case and no number here covers it
+  - **the strike case that kept it has gone.** That jar's baffle running clearance is **+2.20 mm**,
+    not the -0.28 it was read at, so no plate reaches the blades on the geometry as it stands and the
+    ring's one surviving argument goes with it. It comes back only if the baffle is widened to buy
+    area back - see the baffle item above, where the two are now one question. (Superseded — kept for
+    the record: this read "the same jar's baffle running clearance is -0.28 mm, so a plate CAN reach
+    the blades", and made the ring an impact case no number covered.)
   - so it is a real decision, not an oversight: pay for support material and a scarred inner face on
     every impeller, or drop the ring and rely on the blade being 100x over-strength against
-    everything except a collision the clearance stack already allows. **Deciding it is downstream of
-    deciding the -0.28 mm**, which is the item above
+    everything except a collision the clearance stack no longer allows. **Deciding it is downstream of
+    deciding how much width the baffle takes back**, which is the item above
   - the ring is also not part of the geometry `pbt_45_4`'s power number is defined on. Neither is a
     4 mm plate on a 94.5 mm impeller: **t/D 0.042** against roughly 0.02 for the standard PBT the
     correlations were measured on, and thickness is not a term in Medek's correlation at all. Both
@@ -369,8 +403,8 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     that quotes those numbers did not move with them. **Each wants checking against a fresh render,
     not against another document** - several of this repo's worst figures agreed with each other and
     with nothing else
-  - confirmed stale: `TODO.md:213` says the reactor envelope is 579.25 mm, the model echoes
-    **571.25**; `docs/build.md:401` gives 0.1-0.5 vvm on 8.25 L as 0.825-4.125 L/min, the model
+  - confirmed stale: `TODO.md:210` says the reactor envelope is 579.25 mm, the model echoes
+    **571.25**; `docs/build.md:417` gives 0.1-0.5 vvm on 8.25 L as 0.825-4.125 L/min, the model
     echoes **8.2807 L is 0.82807-4.14035 L/min**; `docs/agitation.md:53` puts mean dissipation over
     8.25 L; `docs/procurement.md:93` carries `**8.25** (pinned)`, which is wrong twice - it is
     neither 8.25 nor pinned
