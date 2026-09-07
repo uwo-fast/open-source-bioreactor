@@ -88,10 +88,11 @@
 
     | vessel | culture | 0.5 vvm |
     | --- | --- | --- |
-    | jar_1p5L_109x215 | 1.35 L | 0.67 L/min |
-    | jar_1gal_155x251 | 3.43 | 1.72 |
-    | jar_10L_220x305 | **8.25** (pinned) | **4.13 L/min** |
-    | jar_6p5gal_305x470 | 22.06 | 11.03 |
+    | jar_1p5L_109x215 | 1.39 L | 0.70 L/min |
+    | jar_1gal_155x251 | 3.35 | 1.67 |
+    | jar_1gal_180x197 | 3.54 | 1.77 |
+    | jar_10L_220x305 | **8.23** | **4.12 L/min** |
+    | jar_6p5gal_305x470 | 20.42 | 10.21 |
 
     The volumes are now integrated over each jar's own wetted profile rather than a cylinder on its
     bore, which moved them 2-3 %. The two columns that used to sit here - head over the ring, and
@@ -99,7 +100,7 @@
     which is only computed for the vessel being built. `head()` echoes them at render.
 
   - **the pump is still not the constraint, but the margin is a fraction of what this said.**
-    Against the whole line it settles at **6.05 L/min** where 4.13 is wanted - not the 60+ this
+    Against the whole line it settles at **6.05 L/min** where 4.12 is wanted - not the 60+ this
     claimed, which counted only the vessel's own 1.1 kPa, and not the **23.1** that replaced it,
     which held back pressure at the design point. The filter is linear in flow, so asking for more
     raises the line; `head()` echoes the 6.05 and says so
@@ -114,18 +115,21 @@
 
     | vessel | needs | scale |
     | --- | --- | --- |
-    | jar_1p5L_109x215 | 0.13-0.67 L/min | 0-1 L/min |
-    | jar_1gal_×2 | 0.34-1.72 | 0-2 L/min |
-    | jar_10L_220x305 | 0.83-4.13 | **0-5 L/min** |
-    | jar_6p5gal_305x470 | 2.21-11.03 | 0-15 L/min |
+    | jar_1p5L_109x215 | 0.14-0.70 L/min | 0-1 L/min |
+    | jar_1gal_×2 | 0.33-1.77 | 0-2 L/min |
+    | jar_10L_220x305 | 0.82-4.12 | **0-5 L/min** |
+    | jar_6p5gal_305x470 | 2.04-10.21 | 0-15 L/min |
 
-  - **buy 0-5 L/min for the 10 L jar**, where 0.83-4.13 sits at 16.5-82.5 % of scale. No single range
-    covers the family — that is a property of an 84:1 spread in culture volume, not a bad choice
+  - **buy 0-5 L/min for the 10 L jar**, where 0.82-4.12 sits at 16.5-82.3 % of scale. No single range
+    covers the family — that is a property of a 73:1 spread between the smallest jar at 0.1 vvm and
+    the largest at 0.5, not a bad choice. (Superseded — kept for the record: this read "an 84:1
+    spread in culture volume". The ratio quoted was always the FLOW spread; culture volume itself
+    spans 14.7:1.)
   - enriching with CO₂ later does not invalidate the meter. A rotameter reads by gas density, and
     0.5 % CO₂ in air changes density by 0.26 %
   - **all three are now bought rather than wanted**, and the whole chain is in
     `purchased-parts.csv`: Dwyer `VFA-23` bare meter, Clippard `MNV-3KP` needle valve dropping
-    **7.9 kPa** at 4.13 L/min (not the 24 this asked for - the filter took most of it), Cole-Parmer
+    **7.9 kPa** at 4.12 L/min (not the 24 this asked for - the filter took most of it), Cole-Parmer
     `5011521` check valve against the 1.0-1.9 kPa of culture head that sits over the ring
   - the valve is the 3° needle rather than the 20° `MNV-4K2` first chosen. Both are Cv 0.094, so
     both sit at about 35 % of travel; what differs is roughly seven times the rotation for the same

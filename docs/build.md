@@ -414,8 +414,8 @@ measured, so the budget moves with it: measure that first, and this number follo
 
 ## Commissioning
 
-**Set the gas rate before anything else.** 0.1–0.5 vvm on 8.25 L is **0.825–4.125 L/min**, which is
-17 % to 83 % of the registered 0–5 L/min meter — both ends on scale, which is what that range buys.
+**Set the gas rate before anything else.** 0.1–0.5 vvm on 8.23 L is **0.823–4.12 L/min**, which is
+16 % to 82 % of the registered 0–5 L/min meter — both ends on scale, which is what that range buys.
 The pump is seven times oversized, so the entire band sits in the first part of the needle valve's
 travel — that is why the valve is a 3° needle and not the 20° one.
 
