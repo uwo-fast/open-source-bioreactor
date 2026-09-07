@@ -275,13 +275,16 @@ run the full height of the frame from the lower base. All twelve are tightened b
 top of the lid flange**, so the operation is the same at every post.
 
 ```
-joint load: 3501.92 N of gasket seating over 12 posts = 291.827 N each, on M8
+joint load: 4234.86 N of gasket seating over 12 posts = 352.905 N each, on M8
 bolts and M8 rods
-lid gasket load: 3 mm wide on a 3 mm rim, 3501.92 N to hold 25% squeeze,
-2.51058 MPa on the glass
+lid lip: crowned on a 3.5 mm arc standing 2 mm proud of the wall - no flat to
+seat on, so the gasket covers the lip and the crown sinks 0.396875 mm into it;
+8 mm of gasket, 3.23766 mm of contact
+lid gasket load: 3.23766 mm of contact, 4234.86 N to hold 25% squeeze,
+2.77566 MPa on the glass
 ```
 
-**291.8 N per post.** An M8 A2-70 proof load is about 16.5 kN, so the joint runs at **1.8 % of
+**352.9 N per post.** An M8 A2-70 proof load is about 16.5 kN, so the joint runs at **2.1 % of
 proof** — the fastener is nowhere near being the limit. A published tightening torque for the same
 bolt is 20–24 N·m. This joint wants something near **0.6**. Torque one of these to fastener spec and
 you put roughly forty times the intended load onto a soda-lime jar.
@@ -327,9 +330,14 @@ the first run.
 
 **Do not tighten until the flange meets the glass.** The recess is 1.19 mm deep for a 1.5875 mm
 sheet, so at the design squeeze the gasket is nominally flush and the flange nominally touches. It
-cannot actually get there: the recess holds three quarters of the rubber's section, elastomer is
-near enough incompressible, and the last quarter has to escape sideways across the 1 mm lands first.
-Flange-on-glass is *past* the design point, not at it.
+cannot actually get there: the recess holds three quarters of the rubber's section and elastomer is
+near enough incompressible, so the last quarter has to escape sideways first. Flange-on-glass is
+*past* the design point, not at it.
+
+**And on every jar but the 6.5 gallon there is no land to stop you.** Those lips are crowned, so the
+flange has nothing to bottom on and the turn is the only thing setting the squeeze — which is why
+this section instructs a turn rather than a torque, and why over-tightening is a real possibility
+rather than a theoretical one. Count the turn.
 
 **Do not substitute a harder gasket without re-deriving the joint.** 60A durometer is what sets the
 ASME VIII-1 gasket factor m = 0.5, and that is what gives twelve posts. At 75A or harder the same
