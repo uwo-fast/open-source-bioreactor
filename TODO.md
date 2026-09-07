@@ -432,21 +432,26 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     against the built mesh and was proved to fire on the real defect - 20 of 20 - which `check-mesh`
     passes happily at 60502 triangles, because a blind hole is a perfectly good solid
 
-- [ ] **`check-holes` tests that a hole breaks OUT, not that it is FED**
-  - the probe sits just inside the outer face and asks whether that point is void. A hole drilled
-    into a solid arm satisfies that perfectly: it opens into the culture, connects to no bore, and
-    passes clean. So the check covers the failure that shipped - twenty blind holes - and not the
-    mirror of it
-  - the one place that bites today is guarded by an assert instead: `spoke_holes` on an arm absent
-    from `spoke_bores` is refused by `sparger()`, because no check could catch it. That is a patch
-    over a gap rather than a closing of it
-  - what would close it: probe the far end of the hole as well, inside the bore, and require BOTH
-    to be void. Two points per hole instead of one, same machinery. Not attempted
-  - and it is **not in `just check`** - it needs a CGAL render, so it sits in `check-mesh`'s class
-    and head.scad alone is minutes. The cheap coverage is `custom/sparger.scad` standalone, which
-    cuts the same holes through the same functions in seconds. What would let it into the gate is a
-    probe that needs no rendered mesh: the claim is geometric and the part is a union of primitives,
-    so in principle the CSG answers it without CGAL
+- [ ] **`check-holes` still needs a CGAL render, so it stays outside `just check`**
+  - the FED half is closed. Each hole now declares two points - `exit` just inside the discharge
+    face, `feed` on the tube's centreline where the bore runs - and both must be void. Proved by
+    injection rather than by passing: a ring bore swept 180 degrees instead of 360 fails 5 of 20
+    holes, every one of them on `feed` and none on `exit`, which is exactly the shape the single
+    probe called clean
+  - **and the live case was not the one this item named.** A hole in a solid arm is `spoke_holes`,
+    which no caller sets and which `sparger()` already refuses. What the feed probe actually catches
+    is on the part as designed: the ring bore stops short of each cut face by `plug_depth` to leave
+    stock for the end screws, so a hole landing in that dead arc breaks the surface perfectly and
+    connects to nothing
+  - what is left is the COST. It needs a CGAL render, so it sits in `check-mesh`'s class and
+    head.scad alone is minutes. The cheap coverage is `custom/sparger.scad` standalone, which cuts
+    the same holes through the same functions in seconds. What would let it into the gate is a probe
+    that needs no rendered mesh: the claim is geometric and the part is a union of primitives, so in
+    principle the CSG answers it without CGAL
+  - still unprobed: `spoke_holes` emits holes the probe module never walks - it iterates rings only.
+    Latent rather than open, since no caller sets it and the assert covers its own failure, but a
+    caller that did set it would get holes nothing tests
+
 
 - [ ] **`sparger_report()` prices the bore with ONE path count, and the part has several**
   - `paths` is a single number and head passes 2, which describes a ring fed at one point. It is

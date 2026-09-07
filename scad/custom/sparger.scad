@@ -602,23 +602,32 @@ function _plug_arc(radius, depth) = depth / radius * 180 / PI;
 // ----- the breakthrough claim -----
 
 /**
- * @brief Emit, per hole, the point that MUST be void if that hole opened.
+ * @brief Emit, per hole, the TWO points that must be void if that hole is a gas path.
  *
  * The failure this exists to catch: every hole on this part was once cut a quarter of a millimetre
  * short, so all twenty ended blind. The part still rendered. It was still a 2-manifold. check-mesh
  * passed it, because a blind hole is a perfectly good solid - and every picture of it looked right,
  * because a 1.2 mm hole is smaller than a pixel when you photograph a 180 mm ring.
  *
- * So the model states the claim and `just check-holes` tests it against the built mesh. The probe
- * sits just INSIDE the inner face on the hole's own axis - material if a skin remains, void if the
- * hole is through - and it is derived from the same two functions the cut is, so the claim cannot
- * drift away from the geometry it describes.
+ * A hole is a path only if BOTH ends are open, and one probe could only ever test one end:
+ *
+ *   exit  just inside the discharge face on the hole's own axis - material if a skin remains,
+ *         void if the hole is through. This is the end that was blind.
+ *   feed  on the tube's own centreline at the same station, which is where the bore runs. Void if
+ *         gas can reach the hole, material if it cannot.
+ *
+ * The feed probe is not hypothetical on a split ring: the bore stops SHORT of each cut face by
+ * plug_depth, so a hole that lands in that dead arc breaks the surface perfectly and connects to
+ * nothing. Exit alone calls that hole good.
+ *
+ * Both are derived from the same functions the cut is, so the claim cannot drift from the geometry
+ * it describes. RING holes only - `spoke_holes` is unprobed either way, and its own failure (holes
+ * on an arm carrying no gas) is refused by an assert in sparger() instead.
  */
 module sparger_hole_probes(
   radii, holes, tube, section_facets = 8, feed_angle = 0, hole_bearing = "in", margin = 0.05
 ) {
   _sf = sparger_sweep_facets(max(radii), tube, section_facets);
-  _ac = sparger_across_corners(tube, section_facets);
   for (i = [0:len(radii) - 1])
     for (a = sparger_hole_angles(holes[i], feed_angle))
       let (
@@ -628,8 +637,10 @@ module sparger_hole_probes(
         _pz = hole_bearing == "down"
           ? -sparger_face_distance(tube, section_facets, 270) + margin
           : 0
-      )
-        echo(str("HOLEPROBE|", _pr * cos(a), "|", _pr * sin(a), "|", _pz));
+      ) {
+        echo(str("HOLEPROBE|exit|", _pr * cos(a), "|", _pr * sin(a), "|", _pz));
+        echo(str("HOLEPROBE|feed|", radii[i] * cos(a), "|", radii[i] * sin(a), "|", 0));
+      }
 }
 
 // ----- reporting -----
