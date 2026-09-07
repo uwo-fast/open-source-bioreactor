@@ -220,7 +220,7 @@ shaft_name = "auto"; // [auto, 8x200_316, 8x400_316, 8x600_316, 8x800_316]
 // The ring centring the lid plug, by registered name. "auto" takes any ring whose free ID lands
 // this jar's groove between zero and five percent stretch. Names are in scad/purchased/orings.scad.
 // The ring centring the lid plug; auto takes one this mouth can stretch onto
-plug_oring_name = "auto"; // [auto, 4x1.5 EPDM, 13x1.5 EPDM, 17x1.5 EPDM, 23x1.5 EPDM, AS568-150, AS568-151, AS568-152, AS568-153, AS568-154, AS568-155, AS568-156, AS568-157, AS568-158, AS568-159, AS568-160, AS568-161, AS568-162, AS568-163, AS568-164, AS568-165, AS568-166, AS568-167, AS568-168, AS568-169, AS568-170, AS568-171]
+plug_oring_name = "auto"; // [auto, 4x1.5 EPDM, 11x1.5 EPDM, 12x1.5 EPDM, 13x1.5 EPDM, 14x1.5 EPDM, 15x1.5 EPDM, 16x1.5 EPDM, 17x1.5 EPDM, 18x1.5 EPDM, 20x1.5 EPDM, 22x1.5 EPDM, 23x1.5 EPDM, 24x1.5 EPDM, 25x1.5 EPDM, 28x1.5 EPDM, 30x1.5 EPDM, AS568-150, AS568-151, AS568-152, AS568-153, AS568-154, AS568-155, AS568-156, AS568-157, AS568-158, AS568-159, AS568-160, AS568-161, AS568-162, AS568-163, AS568-164, AS568-165, AS568-166, AS568-167, AS568-168, AS568-169, AS568-170, AS568-171]
 // The drive motor, by registered name. "auto" takes head.scad's own registered row. The gearbox
 // comes off the motor, so this moves the mount height and the whole drive stack with it - which is
 // why the envelope below reads it back rather than assuming. Names are in

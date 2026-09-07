@@ -575,7 +575,7 @@ check-json:
 # which is the one place a registry's names are still duplicated - a comment cannot be derived, but
 # it can be verified. A designation declared WITHOUT a dropdown is left alone: there is no second
 # copy of the names, so there is nothing to drift. That is the honest trade for a registry too long
-# to list in a comment - the o-ring has 26 rows - and it is why adding a dropdown is safe.
+# to list in a comment - the o-ring has 38 rows - and it is why adding a dropdown is safe.
 json:
     #!/usr/bin/env bash
     set -uo pipefail

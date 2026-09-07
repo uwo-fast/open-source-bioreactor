@@ -26,6 +26,23 @@ oring_23x1p5_epdm      = ["23x1.5 EPDM",   "8785N383",  [23,      1.5 ], "EPDM",
 // Same EPDM 70A line and the same -65 to 300 F as them, one size down the same catalogue page.
 oring_4x1p5_epdm       = ["4x1.5 EPDM",    "8785N364",  [4,       1.5 ], "EPDM",   70,    "Black"];
 
+// The rest of the 1.5 mm line, so a gland can name a size without a trip to the catalogue. Nothing
+// consumes these yet: a row here is an option, and the part that picks one owes the assert that it
+// suits. Same EPDM 70A, -65 to 300 F page as the seals above - a 1289N number differs from an
+// 8785N one only in whether the row also lists SAE J200.
+oring_11x1p5_epdm      = ["11x1.5 EPDM",   "1289N321",  [11,      1.5 ], "EPDM",   70,    "Black"];
+oring_12x1p5_epdm      = ["12x1.5 EPDM",   "1289N322",  [12,      1.5 ], "EPDM",   70,    "Black"];
+oring_14x1p5_epdm      = ["14x1.5 EPDM",   "1289N324",  [14,      1.5 ], "EPDM",   70,    "Black"];
+oring_15x1p5_epdm      = ["15x1.5 EPDM",   "1289N325",  [15,      1.5 ], "EPDM",   70,    "Black"];
+oring_16x1p5_epdm      = ["16x1.5 EPDM",   "1289N326",  [16,      1.5 ], "EPDM",   70,    "Black"];
+oring_18x1p5_epdm      = ["18x1.5 EPDM",   "1289N327",  [18,      1.5 ], "EPDM",   70,    "Black"];
+oring_20x1p5_epdm      = ["20x1.5 EPDM",   "1289N328",  [20,      1.5 ], "EPDM",   70,    "Black"];
+oring_22x1p5_epdm      = ["22x1.5 EPDM",   "8785N382",  [22,      1.5 ], "EPDM",   70,    "Black"];
+oring_24x1p5_epdm      = ["24x1.5 EPDM",   "1289N329",  [24,      1.5 ], "EPDM",   70,    "Black"];
+oring_25x1p5_epdm      = ["25x1.5 EPDM",   "8785N384",  [25,      1.5 ], "EPDM",   70,    "Black"];
+oring_28x1p5_epdm      = ["28x1.5 EPDM",   "8785N387",  [28,      1.5 ], "EPDM",   70,    "Black"];
+oring_30x1p5_epdm      = ["30x1.5 EPDM",   "1289N33",   [30,      1.5 ], "EPDM",   70,    "Black"];
+
 // The lid plug's radial seal, AS568 dash 150 to 171, all 3/32 in (2.62 mm) cord. That width is not
 // a preference: head_plug_oring_cord_limit() caps the cord at 3.05 mm, because the groove and the
 // port bores are cut into the same wall of the plug. The 1/8 in cord the same catalogue stocks is
@@ -64,7 +81,11 @@ oring_as568_169_epdm   = ["AS568-169",     "8785N647",  [190.170, 2.62], "EPDM",
 oring_as568_170_epdm   = ["AS568-170",     "8785N648",  [196.520, 2.62], "EPDM",   70,    "Black"];
 oring_as568_171_epdm   = ["AS568-171",     "8785N649",  [202.870, 2.62], "EPDM",   70,    "Black"];
 
-orings = [oring_4x1p5_epdm, oring_13x1p5_epdm, oring_17x1p5_epdm, oring_23x1p5_epdm, oring_as568_150_epdm, oring_as568_151_epdm, oring_as568_152_epdm,
+orings = [oring_4x1p5_epdm, oring_13x1p5_epdm, oring_17x1p5_epdm, oring_23x1p5_epdm,
+           oring_11x1p5_epdm, oring_12x1p5_epdm, oring_14x1p5_epdm, oring_15x1p5_epdm,
+           oring_16x1p5_epdm, oring_18x1p5_epdm, oring_20x1p5_epdm, oring_22x1p5_epdm,
+           oring_24x1p5_epdm, oring_25x1p5_epdm, oring_28x1p5_epdm, oring_30x1p5_epdm,
+           oring_as568_150_epdm, oring_as568_151_epdm, oring_as568_152_epdm,
            oring_as568_153_epdm, oring_as568_154_epdm, oring_as568_155_epdm, oring_as568_156_epdm,
            oring_as568_157_epdm, oring_as568_158_epdm, oring_as568_159_epdm, oring_as568_160_epdm,
            oring_as568_161_epdm, oring_as568_162_epdm, oring_as568_163_epdm, oring_as568_164_epdm,
