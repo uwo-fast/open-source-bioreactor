@@ -388,10 +388,12 @@ check-holes file="" flags="-D render_all=false -D render_sparger=true":
     tri = np.frombuffer(
         np.frombuffer(raw, dtype=np.uint8).reshape(n, 50)[:, 12:48].tobytes(),
         dtype='<f4').reshape(n, 3, 3).astype(np.float64)
+    # kind is 'exit' (through the discharge face) or 'feed' (on the bore's centreline). A hole is a
+    # gas path only if BOTH are void, and they fail for different reasons, so they are named apart.
     pts = []
     for line in open(probes):
-        _, x, y, z = line.strip().split('|')
-        pts.append((float(x), float(y), float(z)))
+        _, kind, x, y, z = line.strip().split('|')
+        pts.append((kind, float(x), float(y), float(z)))
     # Point in solid by ray parity, Moller-Trumbore. The direction is arbitrary but fixed and
     # irrational-ish, so a ray does not run along an edge or through a vertex and count twice.
     d = np.array([0.3137, 0.5171, 0.7963]); d /= np.linalg.norm(d)
@@ -402,7 +404,7 @@ check-holes file="" flags="-D render_all=false -D render_sparger=true":
     par = np.abs(a) < 1e-12
     inv = np.where(par, 0.0, 1.0 / np.where(par, 1.0, a))
     bad = []
-    for (px, py, pz) in pts:
+    for (kind, px, py, pz) in pts:
         s = np.array([px, py, pz]) - v0
         u = np.einsum('ij,ij->i', s, h) * inv
         q = np.cross(s, e1)
@@ -410,13 +412,17 @@ check-holes file="" flags="-D render_all=false -D render_sparger=true":
         t = np.einsum('ij,ij->i', e2, q) * inv
         hit = (~par) & (u >= 0) & (u <= 1) & (v >= 0) & (u + v <= 1) & (t > 1e-9)
         if int(hit.sum()) % 2 == 1:
-            bad.append((px, py, pz))
+            bad.append((kind, px, py, pz))
+    why = {'exit': 'does not break through the discharge face',
+           'feed': 'is not reached by the bore, so it opens into nothing'}
     if bad:
-        print(f"FAIL  {name}  {len(bad)} of {len(pts)} declared holes do not break through")
-        for b in bad[:5]:
-            print("        solid at (%.3f, %.3f, %.3f), where an open hole would be void" % b)
+        n_holes = sum(1 for k, *_ in pts if k == 'exit')
+        print(f"FAIL  {name}  {len(bad)} of {len(pts)} probes on {n_holes} holes are solid")
+        for k, x, y, z in bad[:5]:
+            print("        %s end solid at (%.3f, %.3f, %.3f) - %s" % (k, x, y, z, why.get(k, k)))
         sys.exit(1)
-    print("ok    %-46s %d holes break through" % (name, len(pts)))
+    n_holes = sum(1 for k, *_ in pts if k == 'exit')
+    print("ok    %-46s %d holes break through and are fed" % (name, n_holes))
     EOF
         then failed=1; fi
     done
