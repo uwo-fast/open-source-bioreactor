@@ -16,23 +16,34 @@ include <NopSCADlib/vitamins/nuts.scad>; // M8_nut type + nut()
 include <NopSCADlib/vitamins/screws.scad>; // M8_hex_screw type + screw_length()
 use <NopSCADlib/vitamins/rod.scad>; // studding()
 
+// Internals, not build choices.
+/* [Hidden] */
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
-// -------
+/* [Part Render Selection] */
 
-render_all = true; // render all components
+// Everything at once, which is the assembly picture rather than a part. It OVERRIDES every flag
+// below, so it has to go off before a single part's own goes on - which is what the print manifest
+// does for each row.
+render_all = true;
+// The lower base, which the jar stands in
 render_base = false;
+// The upper base, which the lid bolts to
 render_upper_base = false;
+// The rib stack that ties the rods between the two bases
 render_ribs = false;
 // Which rib, counted in the order they are emitted, for a per-part export. undef renders the whole
 // set at their own positions, which is the assembly picture rather than something to put on a bed.
 rib_to_render = undef;
+// The threaded rods themselves - bought, so a vitamin rather than a part
 render_rods = false;
+// The printed annuli that set the gap between rib levels on each rod
 render_rodspacers = false;
 // Which rod spacer, for the same reason. There are three runs of four and they are all one part -
 // a plain annulus with nothing to tell them apart - so a per-part export wants any single one.
 rodspacer_to_render = undef;
+// The strip lights, bought and drawn where they sit in their pockets
 render_lights = false;
 
 /* [Vessel Selection] */
@@ -43,6 +54,9 @@ render_lights = false;
 // or a sweep naming another vessel silently got jar_10L's frame. `just json` writes one set per
 // registered vessel from this same registry.
 reactor_vessel_name = "jar_10L_220x305"; // [jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x215, jar_1gal_155x251]
+// Hidden from here to the next marker - it is resolved from the name above, not chosen. The
+// customizer merges same-named sections, so a block inside one costs nothing.
+/* [Hidden] */
 reactor_vessel = vessel_by_name(reactor_vessel_name);
 
 assert(
@@ -91,9 +105,11 @@ threaded_rod_hole_allowance = 1.2;
 // thread left showing above the topmost rod nut; two coarse pitches, from the rod's own diameter
 rod_thread_proud = 2 * bolt_coarse_pitch(threaded_rod_diameter);
 
-// diameter of the nut
+// Derived from the nut, so not choices.
+/* [Hidden] */
+// Both come off rod_nut, so they are not choices: offering them lets a pocket disagree with the
+// nut that has to go in it.
 nut_pocket_diameter = 2 * nut_radius(rod_nut) + nut_pocket_allowance;
-// height of the nut
 nut_height = nut_thickness(rod_nut);
 
 /* [Base Parameters] */

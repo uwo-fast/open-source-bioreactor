@@ -57,37 +57,63 @@ use <NopSCADlib/vitamins/shaft_coupling.scad>;
 // came out as. use, not include, so none of the frame's geometry comes with them.
 use <frame.scad>;
 
+// Internals and tessellation, which are not build choices. See head_fa() below.
+/* [Hidden] */
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 // Tessellate by feature size, as bayonet_port.scad already does. A flat 128 was wrong at both
 // ends: a 0.21 mm chord on an M8 bore, and 24 such bores were most of the lid's render, against
 // a 6.32 mm chord on the 257 mm flange. Costs 0.0156 mm of undersize on the smallest hole.
+//
+// FUNCTIONS, so head() can re-assert the same two numbers without a second copy of them and
+// without offering either as a customizer parameter. head() has to re-assert: $fn is dynamically
+// scoped and `use` resolves it PER VERSION - 2021.01 takes the callee's file, 2026.09 takes the
+// caller's - so a head rendered from assembly.scad would otherwise tessellate to assembly's flat
+// 64/128 on a newer binary. Measured: 202,158 triangles against 36,974, and -0.038% of volume as
+// the small bores inscribe. Both binaries are on this machine.
+function head_fa() = $preview ? 6 : 2;
+function head_fs() = $preview ? 1.2 : 0.6;
 $fn = 0;
-$fa = $preview ? 6 : 2;
-$fs = $preview ? 1.2 : 0.6;
+$fa = head_fa();
+$fs = head_fs();
 
-// -----
+/* [Part Render Selection] */
 
 // Overrides all other render flags
-render_all = true; // render all components
+render_all = true;
+// The printed lid itself, with its ports, pockets and gasket recess
 render_lid = false;
 
+// The gearmotor, bought, drawn where it sits on its mount
 render_motor = false;
+// The printed mount that stands the motor off the lid
 render_motor_mount = false;
+// Which piece of it, for a per-part export - the mount prints in three
 motor_mount_part_to_render = "all"; // ["all", "base_plate", "face_plate", "middle_stand"]
-render_motor_mount_inserts = false; // heat-set into the lid, and they stay there once set
-render_motor_mount_screws = false; // the screws into them, which come out every service
+// heat-set into the lid, and they stay there once set
+render_motor_mount_inserts = false;
+// the screws into them, which come out every service
+render_motor_mount_screws = false;
+// The bought coupler joining the gearbox shaft to the reactor shaft
 render_shaft_coupler = false;
-render_bearing = false; // the 608 in the lid's pocket
+// the 608 in the lid's pocket
+render_bearing = false;
+// The 316 SS shaft, bought and cut to length
 render_ext_shaft = false;
+// The printed impellers on that shaft
 render_impeller = false;
 // Which of the pair, for a per-part export. They are mirror images and therefore two different
 // parts, so one STL of both is an assembly picture rather than something to print. Same shape as
 // motor_mount_part_to_render above, and useful interactively for the same reason.
 impeller_to_render = "both"; // [both, lower, upper]
-render_set_screws = false; // the grub screws holding each impeller to the shaft
+// the grub screws holding each impeller to the shaft
+render_set_screws = false;
+// The bayonet lock rings alone, for looking at the channels an assembled lid buries
 render_bayonet_lock = false;
+// The pin half of every TUBE port - gas, media, acid, base
 render_tube_pinlock = false;
+// The pin half of the thermocouple port
 render_thermocouple_pinlock = false;
+// The pin half of both Ø16 Atlas probe ports
 render_probe_pinlock = false;
 // Narrows the pin halves above to ONE port, named by function - "air_in", "do_probe", "baffle_1".
 // The type flags render a whole class at once, which is the right thing on screen and the wrong
@@ -97,9 +123,12 @@ port_to_render = "";
 // Which piece of a baffle plate, for the same reason. A plate prints in segments and undef emits
 // them all interlocked, which is the assembled part rather than something to put on a bed.
 baffle_segment_to_render = undef;
-render_probes = false; // the Atlas probes themselves, hanging in their collets
+// the Atlas probes themselves, hanging in their collets
+render_probes = false;
+// The pin half of each baffle port, which the plates hang from
 render_baffle_pinlock = false;
-render_seals = false; // the EPDM parts: rim gasket, plug o-ring, port o-rings
+// the EPDM parts: rim gasket, plug o-ring, port o-rings
+render_seals = false;
 // The culture, at the fill line the volume is reported for. Not in render_all: it is not a part,
 // and translucent or not it stands over everything immersed in it.
 render_culture = false;
@@ -108,7 +137,8 @@ render_culture = false;
 render_gasket_cutter = false;
 // Which of its two discs. "all" stands them side by side, which is the picture, not the print.
 gasket_cutter_part_to_render = "all"; // [all, outer, inner]
-render_sparger = false; // the ring in the inter-impeller gap and its feed arm
+// the ring in the inter-impeller gap and its feed arm
+render_sparger = false;
 // The 316 SS riser and its support, which are BOUGHT and cut to length rather than printed. Their
 // own flag because render_sparger is what a per-part export asks for, and a print file with two
 // steel tubes in it is not a print file - it stood 197 mm tall on a ring whose section is 10.
@@ -238,7 +268,13 @@ shaft_coupler = shaft_coupler_8x8_rigid;
 // diameter short of the floor, not a millimetre. Neither can carry a top-entry drive on its lid at
 // any mount size - see TODO.md, where that is answered by changing the agitation rather than the
 // mount.
-motor_mount_body_diameter = 56;
+// DERIVED, not registered: the gearbox it has to collar plus a wall each side. It was the literal
+// 56 - exactly gearbox_36gp_5p18's 36 mm and two 10 mm walls - which is one physical thing said
+// twice, so a gearbox of another diameter would have left the mount behind. Every registered
+// gearbox is 36 mm today, so nothing moves; what changes is that a fourth one would carry the
+// mount with it.
+function head_motor_mount_body_diameter(gearbox) =
+  gearbox_diameter(gearbox) + 2 * motor_mount_wall_thickness;
 // wall thickness of the mount body; also sets the flange and raised face heights
 motor_mount_wall_thickness = 10;
 // clearance between the telescoping parts, for printed fit
@@ -366,28 +402,24 @@ impeller_clearance_factor = 0.9;
 // the row carries it as a fraction of diameter so it scales with the impeller rather than staying
 // at whatever this build happened to use. Still UNCHARACTERISED - no citable blade-height ratio
 // exists for a twisted extrusion, and the classic w = D/4 describes flat Rushton blades.
+// A Hidden block INSIDE this section, then the section re-opened. Both markers are deliberate: the
+// customizer merges same-named sections so the UI is unaffected, and keeping these two beside the
+// row they come off is worth more than an unbroken marker. Do not delete either one.
+/* [Hidden] */
+// Both come off the designated impeller row, so neither is a choice - offering them lets a blade
+// count disagree with the impeller it belongs to.
 impeller_n_fins = impeller_blades(head_impeller_type);
 impeller_twist_ang = impeller_twist(head_impeller_type);
+
+/* [Impeller Parameters] */
 // How much culture is in the jar. An operating choice rather than geometry, but not a free one:
 // every process number this model reports is per unit volume, so the fill line sets them all.
 //
-// TWO WAYS TO SAY IT, and they are not equally good. A WORKING VOLUME in litres is what a person
-// actually pours and what another builder can repeat - "we ran 8.0 L" means the same thing on
-// someone else's jar. A fraction of internal height does not: it lands on a different volume in
-// every vessel, and it is only a proxy for the volume in the first place. So working volume pins
-// it when set, and the fill height is solved back from the jar's own profile.
-//
-// The fraction stays as the DERIVATION, undef working volume, because it is the only one that
-// scales across the registry - a litre figure that suits jar_10L will not fit jar_1p5L, and every
-// registered vessel has to build. 0.8 leaves the usual headspace for foam and gas.
-// SO IT IS UNDEF HERE, and a litre figure is a build's to state. It was pinned at 8.25 - the
-// reference run's jar_10L figure, kept for the record - and a working volume is a statement about
-// ONE jar: 8.25 L is a fifth of jar_6p5gal_305x470, which put its thermocouple in the headspace and
-// stopped that vessel rendering at all. The number was right and the scope was not.
-// On jar_10L the two agree to under half a percent - 8.2808 L against 8.25, coverage over
-// the upper impeller 0.565 D against 0.555, both clear of the 0.5 this project holds - so nothing
-// the reference build prints moves.
-culture_working_volume = undef; // litres; undef derives from the fraction below
+// ONE WAY TO SAY IT. A litre figure is a statement about a single jar - 8.25 L is a fifth of
+// jar_6p5gal_305x470, which put its thermocouple in the headspace and stopped that vessel
+// rendering at all - so the fill is a FRACTION OF CAPACITY, which is the only form that scales
+// across the registry. A run at some other volume states the fraction it works out to. See
+// docs/decisions.md.
 // Fraction of the jar's CAPACITY the culture stands at, and 0.865 rather than a round 0.8 because
 // it is what the reference build runs: 8.2807 L of jar_10L's 9.57306 L. Rounded from the 0.865011
 // that reproduces the old fill line exactly, which lands it 235.997 mm against the 236.000 the
@@ -458,6 +490,8 @@ tube_port_riser_bore = steel_tube_od(sparge_riser_tube) / 2 + 0.2; // 0.2 as the
 // two open holes into the headspace, which is a filter on the air in and none of it on the way out.
 tube_port_riser_oring = oring_4x1p5_epdm;
 
+// The twelve-port table this lid carries, as [function, type, bore RADIUS, probe] rows. A NESTED
+// table, so no parameter set can carry it - see docs/design-conventions.md on what it can hold.
 head_port_set_full = [
   ["air_out",     "tube",         tube_port_riser_bore], //   0 deg
   ["baffle",      "baffle",       0           ], //  30
@@ -757,7 +791,8 @@ baffle_length = undef;
 baffle_thickness = 10;
 // printed PETG, for the plate's stiffness. REASONED, NOT CITED - derated from ~2.0 GPa bulk
 baffle_modulus = 1800; // MPa
-baffle_density = 1270; // kg/m^3
+// kg/m^3, PETG
+baffle_density = 1270;
 // height over which the port's round bottom face blends out into the plate
 baffle_transition_height = 10;
 
@@ -818,8 +853,10 @@ baffle_segments = undef;
 // second moment, which is a 14 % tip deflection penalty at one joint and the reason the cap above
 // is not lower. Depth follows from it and the flare, at 4.54 mm.
 baffle_joint_lip = 1.6; // socket wall each side, four perimeters at a 0.4 nozzle
+// material left crossing the joint - 4.2 of the plate's 10 mm, cubed into its stiffness ratio
 baffle_joint_neck = 4.2;
-baffle_joint_flare = 10; // degrees off vertical - shallow, so engagement is not bought from the neck
+// degrees off vertical - shallow, so engagement is not bought from the neck
+baffle_joint_flare = 10;
 // Slide fit between tail and socket. The butt faces meet with nothing between them, so this is
 // flank clearance only and the plate keeps its length.
 baffle_joint_allowance = 0.1;
@@ -859,7 +896,8 @@ sparge_ring_gap_fraction = 0.5;
 // same physical thing described twice, and it showed: a 6 mm tube under a 6.4 mm socket left a
 // 0.2 mm ledge all the way round the joint.
 sparge_wall = 1.2; // around the bore, and what the socket must keep around the riser it accepts
-sparge_tube_facets = 8; // octagon outside: flats to drill into, and no crown to bridge
+// octagon outside: flats to drill into, and no crown to bridge
+sparge_tube_facets = 8;
 function sparge_bore() = steel_tube_od(sparge_riser_tube); // one passage, the riser's own
 function sparge_tube() = sparge_bore() + 2 * sparge_wall;  // across FLATS
 // How many concentric rings. One is the reference build. Above one they sit on EQUAL AREA, because
@@ -871,7 +909,14 @@ sparge_inner_fraction = 0.35;
 // The cleaning gap opposite the feed, and the screw that plugs each end. A pilot only; the screw
 // cuts its own thread in PETG, which is what the impeller collar already does.
 sparge_split_angle = 14;
+// caps each cut end of the ring - pull the two and a pipe cleaner goes straight through each half
 sparge_plug_screw = set_screw_m4x6_316;
+
+// HIDDEN FROM HERE to the next marker, and deliberately. Eight of what follows cannot be carried
+// by a parameter set at all - clamp, filters, check valve and pumps are registry ROW references,
+// which a .json cannot name, plus two derived values and one undef the customizer cannot type.
+// The rest are settled design constants rather than build choices, which is what /* [Hidden] */ is
+// for. Deleting this marker offers all seventeen as knobs, five of which nothing can set.
 /* [Hidden] */
 // Emit the breakthrough probes check-holes tests. Off for a normal render.
 sparge_hole_probes = false;
@@ -947,9 +992,13 @@ dosing_pump_functions = ["acid", "base"];
 // Design choices for the collet. Every hardware dimension comes from the registered probe
 // named in head_ports, so nothing about the probe itself is entered here.
 probe_port_collet_wall_thickness = 1.2;
-probe_port_collet_body_allowance = 0.6; // grip fit; 0.5 was tried twice and was tight, 0.6 stuck
+// grip fit; 0.5 was tried twice and was tight, 0.6 stuck
+probe_port_collet_body_allowance = 0.6;
+// the same fit on the hex the probe's connector passes through, one size up from the body
 probe_port_collet_connector_allowance = 0.6;
+// clearance slot cut around each flex tab, which is what leaves it free to move
 probe_port_collet_tab_gap = 1.0;
+// how far each flex tab is squeezed inward, so the probe is held by spring rather than a press fit
 probe_port_collet_tab_deflection = 0.5;
 // What a galvanic DO probe needs moving past its membrane, mL/min. Atlas state it as a FLOW -
 // "approximately 60 ml/min" - and chart stagnant water taking the reading from 90 % to 20 % in
@@ -988,7 +1037,9 @@ do_probe_flow_requirement = 60;
 // Where nothing clears, the search returns 0 rather than a best effort, and the reach asserts below
 // report the real conflict. A guess would bury it.
 do_probe_port_tilt_max = 4.5;
+// Vertical, and Yokogawa requires it - the pH probe is the one that may not lean
 ph_probe_port_tilt_degrees = 0;
+// the collet's standoff below the coupling, before the probe's own diameter is added to it
 probe_port_transition_length = 25;
 
 /* [Color Parameters] */
@@ -1039,8 +1090,8 @@ function head_port_circle_radius(vessel_opening_diameter, ports = undef) =
 // The mount's base screws land on one circle in two parts: clearance holes through the mount's
 // flange, insert holes into the lid. Both read this, so the pattern cannot drift between them.
 function head_motor_mount_screw_hole_diameter() = screw_clearance_radius(motor_mount_base_screw) * 2;
-function head_motor_mount_screw_radius() =
-  get_base_screw_separation_radius(motor_mount_body_diameter, head_motor_mount_screw_hole_diameter());
+function head_motor_mount_screw_radius(body_diameter) =
+  get_base_screw_separation_radius(body_diameter, head_motor_mount_screw_hole_diameter());
 
 // WHICH LIP THIS JAR HAS, which decides how the gasket is sized and what it bears on. A GROUND lip
 // is a flat annulus the gasket insets into with a land at each edge for the flange to bottom on -
@@ -1314,12 +1365,10 @@ function head_vessel_capacity(vessel_profile, vessel_internal_height) =
 //
 // Both branches now solve the height from litres, so there is one expression of the fill line and
 // the fraction states the thing a bioprocess actually specifies.
-function head_liquid_height(vessel_internal_height, vessel_profile, working_volume, fill_fraction) =
+function head_liquid_height(vessel_internal_height, vessel_profile, fill_fraction) =
   head_fill_height_for(
     vessel_profile,
-    is_undef(working_volume)
-      ? head_vessel_capacity(vessel_profile, vessel_internal_height) * fill_fraction
-      : working_volume,
+    head_vessel_capacity(vessel_profile, vessel_internal_height) * fill_fraction,
     0, vessel_internal_height
   );
 
@@ -1592,7 +1641,7 @@ module head_port_at(i, vessel_opening_diameter, flipped = false) {
       children();
 }
 
-module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter, plug_oring, sheet, lip_arc_radius) {
+module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter, plug_oring, sheet, lip_arc_radius, mount_body_diameter) {
 
   _ports = head_ports_for(vessel_opening_diameter);
   _n = len(_ports);
@@ -1631,7 +1680,7 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
       // the plug is the culture, and the assert in head() is what keeps the two apart.
       for (i = [0:3])
         rotate([0, 0, i * 90])
-          translate([head_motor_mount_screw_radius(), 0, -z_fight / 2])
+          translate([head_motor_mount_screw_radius(mount_body_diameter), 0, -z_fight / 2])
             cylinder(r=insert_hole_radius(motor_mount_base_insert), h=insert_hole_length(motor_mount_base_insert) + z_fight / 2);
 
       // cut out the entry holes for the probes and tubes; the port sizes its own hole so the
@@ -1740,9 +1789,14 @@ module head_port(port, panel_thickness, baffle_width, baffle_length, baffle_segm
 
 module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, vessel_internal_height, vessel_punt_height, joint_outer_diameter, post_pts, post_hole_diameter, vessel_profile, lip_arc_radius, build = []) {
 
+  // THIS FILE'S TESSELLATION, whatever the caller set - see head_fa() above for why it has to be
+  // said twice rather than inherited.
+  $fn = 0;
+  $fa = head_fa();
+  $fs = head_fs();
+
   // Resolved before anything reads them. An empty build is head.scad's own parameters, which is
   // what this file renders standalone.
-  _build_working_volume = head_build(build, "culture_working_volume", culture_working_volume);
   _build_fill_fraction = head_build(build, "culture_fill_fraction", culture_fill_fraction);
   _build_shaft = head_build(build, "head_shaft", head_shaft);
   _build_plug_oring = head_build(build, "lid_plug_oring", lid_plug_oring);
@@ -1786,6 +1840,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   // the gearbox carried by the selected motor - single source for gearbox dims
   head_gearbox = dc_motor_gearbox(_motor);
+  _mount_body_d = head_motor_mount_body_diameter(head_gearbox);
 
   // There was an assert here that len(head_ports) equalled the hole count, from when the table and
   // the count were two statements that could drift. They are one now - _n counts the table this lid
@@ -1800,7 +1855,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   // Resolved once. head_shaft may pin a row; otherwise the shortest that reaches this vessel.
   _shaft = head_shaft_selected(lid_flange_height, vessel_internal_height, _build_shaft);
-  _liquid_height = head_liquid_height(vessel_internal_height, vessel_profile, _build_working_volume, _build_fill_fraction);
+  _liquid_height = head_liquid_height(vessel_internal_height, vessel_profile, _build_fill_fraction);
 
   // Read off the port table, so it depends on nothing else and can sit this early. It has to:
   // Medek's envelope is conditioned on four baffles and the Po block below is the first consumer.
@@ -2114,9 +2169,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     _culture_volume / _vessel_capacity * 100, "% of capacity and ",
     _liquid_height / vessel_internal_height * 100, "% of the ", vessel_internal_height,
     " mm internal height - ",
-    is_undef(_build_working_volume)
-      ? "DERIVED from culture_fill_fraction, a fraction of what this jar holds, so it scales to every registered vessel; set culture_working_volume to state one run in litres"
-      : "PINNED by culture_working_volume",
+    "DERIVED from culture_fill_fraction, a fraction of what this jar holds, so it scales to every ",
+    "registered vessel",
     ". The jar holds ", _vessel_capacity, " L brim full, and a cylinder on the ", _vessel_bore,
     " mm bore would have called this fill ", PI / 4 * pow(_vessel_bore, 2) * _liquid_height / 1e6, " L"
   ));
@@ -2474,7 +2528,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // of the mount is reacted by this bearing and the gearbox's. Lateral deflection of a thin tube
   // goes as the cube of its slenderness, so height over diameter is the measure. Calibrated
   // against the build in hand, which sits at 2.3 and works.
-  _mount_slenderness = motor_mount_height / motor_mount_body_diameter;
+  _mount_slenderness = motor_mount_height / _mount_body_d;
 
   if (_mount_slenderness > 3)
     echo(str(
@@ -2499,7 +2553,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // impossibility, and a refusal there decides it by default instead of reporting it.
   if (_mount_slenderness > 5)
     echo(str(
-      "WARNING motor mount: ", motor_mount_height, " mm on a ", motor_mount_body_diameter,
+      "WARNING motor mount: ", motor_mount_height, " mm on a ", _mount_body_d,
       " mm body is ", _mount_slenderness, " diameters, past the 5 this model used to refuse at and ",
       "well past the 3 it warns at. A printed telescoping tube that slender will not hold a rigid ",
       "coupling in alignment. Nothing here is measured: the calibration is the build in hand, and ",
@@ -2550,17 +2604,17 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // The screw circle is set by the mount's body and the pocket by the bearing, and the two are
   // chosen independently, so nothing but this stops an insert being sunk into the bearing's wall.
   _insert_to_bearing =
-  head_motor_mount_screw_radius() - insert_outer_d(motor_mount_base_insert) / 2 - (bb_diameter(shaft_bearing) + bearing_hole_allowance) / 2;
+  head_motor_mount_screw_radius(_mount_body_d) - insert_outer_d(motor_mount_base_insert) / 2 - (bb_diameter(shaft_bearing) + bearing_hole_allowance) / 2;
   assert(
     _insert_to_bearing > 0,
     str(
-      "Motor mount inserts on a ", head_motor_mount_screw_radius() * 2, " mm circle overlap the bearing pocket by ",
+      "Motor mount inserts on a ", head_motor_mount_screw_radius(_mount_body_d) * 2, " mm circle overlap the bearing pocket by ",
       -_insert_to_bearing, " mm."
     )
   );
 
   echo(str(
-    "motor mount: 4 x ", heat_set_insert_name(motor_mount_base_insert), " inserts on a ", head_motor_mount_screw_radius() * 2,
+    "motor mount: 4 x ", heat_set_insert_name(motor_mount_base_insert), " inserts on a ", head_motor_mount_screw_radius(_mount_body_d) * 2,
     " mm circle, ", screw_length(motor_mount_base_screw, motor_mount_base_screw_grip(motor_mount_wall_thickness), 0, insert=motor_mount_base_insert),
     " mm M", insert_screw_diameter(motor_mount_base_insert), " screws, ", _insert_floor, " mm of lid left under them, ",
     _insert_to_bearing, " mm to the bearing pocket"
@@ -3444,12 +3498,12 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // port circle comes in far enough that the mount lands on top of the flanges, and the spacing
   // assert above fires first only because such a mouth is crowded anyway. Both radii are measured
   // from the lid's centre, so the check is one subtraction.
-  _mount_to_ports = port_circle_radius - bayonet_flange_radius(head_widest_interface(_ports)) - motor_mount_body_diameter / 2;
+  _mount_to_ports = port_circle_radius - bayonet_flange_radius(head_widest_interface(_ports)) - _mount_body_d / 2;
 
   assert(
     _mount_to_ports >= lid_holes_offset,
     str(
-      "Motor mount is ", motor_mount_body_diameter, " mm across and the port flanges reach in to r ",
+      "Motor mount is ", _mount_body_d, " mm across and the port flanges reach in to r ",
       port_circle_radius - bayonet_flange_radius(head_widest_interface(_ports)), ", leaving ", _mount_to_ports,
       " mm between them; ", lid_holes_offset, " mm is the least this lid keeps."
     )
@@ -3727,7 +3781,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     color(prints2_color)
       union() {
         rotate([0, 180, 0])
-          lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter(_shaft), _build_plug_oring, _gasket_sheet, lip_arc_radius);
+          lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter(_shaft), _build_plug_oring, _gasket_sheet, lip_arc_radius, _mount_body_d);
         lid_locks();
       }
   }
@@ -3855,7 +3909,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     color(prints1_color)
       motor_mount(
         height=motor_mount_height,
-        body_diameter=motor_mount_body_diameter,
+        body_diameter=_mount_body_d,
         wall_thickness=motor_mount_wall_thickness,
         screws_diameter=gearbox_screw_diameter(head_gearbox),
         base_screw_hole_diameter=head_motor_mount_screw_hole_diameter(),
@@ -3877,7 +3931,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   module motor_mount_fastener_at() {
     for (i = [0:3])
       rotate([0, 0, i * 90])
-        translate([head_motor_mount_screw_radius(), 0, 0])
+        translate([head_motor_mount_screw_radius(_mount_body_d), 0, 0])
           children();
   }
 

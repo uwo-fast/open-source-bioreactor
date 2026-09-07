@@ -334,43 +334,65 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
     GAP between the impellers, the power reporting is per pair, and the manifest lists an upper and
     a lower. One impeller unpicks all three, and changes the reference build that physically exists
 
-- [ ] **the Customizer shows a line of code, or half a sentence, for most parameters**
-  - OpenSCAD parses **only the line immediately above** a variable as its description; a multi-line
-    comment block is not read, so the last line of one is what the UI shows. Across the three entry
-    files that is 198 parameters, of which **29 read as a description**: 54 show the previous LINE OF
-    CODE (`render_head` showed `render_vessel = true;`) and 115 show a mid-sentence fragment
-  - `assembly.scad` is fixed - every designation has a generated dropdown, every real parameter a
-    one-line description, and the twelve derived internals are behind `/* [Hidden] */` instead of
-    being offered as knobs. `head.scad` (130 parameters) and `frame.scad` (35) are not
-  - **it is not a mechanical sweep.** The reasoning belongs in the source and should stay; what each
-    parameter needs is one clean line ADDED at the bottom of its block. And most of head.scad's 130
-    are design constants the campaign said are not build choices - offering them in a Customizer at
-    all is the prior question, and `/* [Hidden] */` is the documented answer
-  - the dropdowns are checked by `just json` against their registries, so they cannot drift; the
-    descriptions are prose and nothing checks them
+- [ ] **nothing checks a Customizer description, so they can rot the way figures do**
+  - the sweep is done: `head.scad`, `frame.scad` and `assembly.scad` each have **0 parameters with
+    no description line above**, from 33, 9 and 4. A large share of the fixes were MOVING the
+    author's own trailing comment onto the line above - OpenSCAD reads only that line, so words
+    like "heat-set into the lid, and they stay there once set" already existed where the UI could
+    not see them
+  - what is not a description was hidden rather than written: `impeller_n_fins` and
+    `impeller_twist_ang` come off the designated impeller row, `nut_pocket_diameter` and
+    `nut_height` off `rod_nut`, `reactor_vessel` off the name above it. Offering any of them lets a
+    derived number disagree with what it is derived from. 113 / 31 / 20 are offered now, 20 / 4 / 12 hidden
+  - **and `/* [Hidden] */` runs until the NEXT section marker**, which is a trap: putting one above
+    `z_fight` in head.scad silently hid every render flag below it, because that file had no marker
+    between the internals and the flags. Caught by counting the visible surface, not by reading the
+    diff
+  - **guarded now, for one of the two defects.** `just check-customizer` is in the gate and was
+    proved to fire twice over - on a removed description, and on a `[Hidden]` marker with no comment
+    saying what it hides, which is how one block came to swallow 17 sparger parameters unremarked.
+    It also settled a question the sweep had only got lucky on: `$`-prefixed names are SPECIAL
+    variables, which the customizer does not offer, so they want no description
+  - **the OTHER defect is still open, and the count above hides it.** "0 parameters with no
+    description" means none shows a line of CODE. It does not mean none shows half a sentence -
+    roughly **54** offered parameters still take the last line of a multi-line block, which was the
+    larger half of what this item originally described. `head.scad:107` offers
+    "motor_mount_part_to_render above, and useful interactively for the same reason."
+  - it is NOT gated, deliberately. Detecting a fragment means guessing whether a sentence started on
+    the line before, and a sample says the obvious heuristic is only about half precise -
+    `assembly.scad:167` reads "Height of the lid flange, vessel rim to the top of the lid, in mm",
+    which is a good description the heuristic flags. A check with that false-positive rate gets
+    turned off. What each of the 54 wants is one clean line ADDED at the bottom of its block, read
+    from the block rather than inferred - the descriptions written from inference during this sweep
+    had about a 50 % error rate, and mass-writing 54 more at speed would put in more than it took out
 
-- [ ] **the sparger's holes are the wrong size, and the model now says so on every render**
-  - `head()` drives `custom/sparger.scad` now and `sparge_ring.scad` is deleted, so there is one
-    sparger again. What the swap exposed is that the hole spec it inherited does not distribute:
-    eight 3 mm holes on a 4 mm bore is an **open area ratio of 4.5** at the feed run, which every
-    hole sits behind, and 2.25 round each ring. The feed's velocity head is **17.94 Pa** against
-    2.45 Pa at a hole - 7.3x, where the departure threshold is 0.5x. Both fire, every render
-  - **this was true of the old ring too** - it is not a regression, it is a defect that was
-    invisible until something computed it. The holes have always been competing with their own
-    supply; nothing reported open area before
-  - the fix is not one number. Smaller holes give smaller bubbles - 3 mm gives 5.10 mm and 1.2 mm
-    gives 3.76, which is 36 % more interfacial area - but hold the flow, so the COUNT rises, and
-    more holes on the same bore makes the open area ratio worse rather than better. It wants the
-    bore opening up with the hole count coming down in diameter, together, read off
-    `sparger_report()`
-  - **and it collides with a settled decision.** The 8 x 3 mm holes are settled in
-    `docs/decisions.md` as "for spacing and against fouling, not for even flow" - 3 mm is the least tolerance-sensitive size
-    that still spaces, and a 1.2 mm hole in an algal culture is a hole that blocks. That trade was
-    made before anything could price the mass transfer it costs. It can be priced now, and it
-    should be re-made rather than quietly overturned
-  - what is NOT open: whether the holes break through, or are fed. `just check-holes` tests both
-    ends of every declared hole against the built mesh, and each half was proved to fire on a real
-    defect - which `check-mesh` passes happily, because a blind hole is a perfectly good solid
+
+- [ ] **the sparger's holes are not the wrong size - the BORE is, and it is one designation**
+  - priced against the model's own functions rather than argued. Holding the settled 8 x 3 mm spec
+    and sweeping only the bore, at the build's duty of 4.11604 L/min through one ring:
+
+    | bore | feed velocity | open area | velocity head | verdict |
+    | --- | --- | --- | --- | --- |
+    | 4.0 (today) | 5.46 m/s | 4.50 | 17.9 Pa | 2 departures |
+    | 6.0 | 2.43 | 2.00 | 3.5 | 2 departures |
+    | 8.0 | 1.36 | 1.12 | 1.1 | 2 departures |
+    | **8.5** | 1.21 | **1.00** | 0.9 | **clean** |
+    | 10.0 | 0.87 | 0.72 | 0.5 | clean, with margin |
+
+  - **so the settled decision does not have to be re-made.** 3 mm holes for spacing and against
+    fouling stand; a 1.2 mm hole in an algal culture is still a hole that blocks. What was wrong was
+    reading the fix as a hole problem: sweeping hole diameter at bore 4 leaves every size in
+    departure, and sweeping bore at 3 mm clears at 8.5. The count is not the lever either
+  - **and the bore is not a free parameter.** `sparge_bore()` returns
+    `steel_tube_od(sparge_riser_tube)` - one passage, the riser's own - so the change is a
+    DESIGNATION: `steel_tube_welded_4x0p5` to `steel_tube_welded_10x0p5`, McMaster 50415K35, which
+    is already registered. 8 mm is registered too and does not clear; there is no 8.5 row
+  - **what it costs is the cascade, and that is the decision.** The tube goes 6.4 -> 12.4 mm across
+    the flats, which has to clear the baffles and pass the mouth; the riser passes a port bore sized
+    for 4 mm with a 4x1.5 rod gland sized to it; and the riser's own pressure drop, its support tube
+    and its BOM row all follow. None of that is priced yet - what is priced is that the sparger side
+    is one row change and the hole spec survives it
+
 
 - [ ] **`check-holes` still needs a CGAL render, so it stays outside `just check`**
   - the FED half is closed. Each hole now declares two points - `exit` just inside the discharge
@@ -423,61 +445,46 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
     stand on the lid, and that is the magnetic item under "drive and aeration". Deciding this
     before that one is deciding it backwards
 
-- [ ] **`motor_mount_body_diameter = 56` is a literal that restates a derivation**
-  - it is exactly the largest registered gearbox's 36 mm plus two times the 10 mm
-    `motor_mount_wall_thickness`. One physical thing, two expressions: change the gearbox and the
-    mount body does not follow, and the mount is the part that decides whether a jar can carry a
-    top-entry drive at all
-  - not why `jar_1p5L_109x215` and `jar_1gal_155x251` fail - they fail at any mount size, and
-    dropping it to 47.5 still leaves the 1p5L 8.2 mm short - so this is a correctness fix, not a
-    fix for those jars
-  - **unblocked**: the motor is designatable now, so it can read the registered gearbox. What it
-    still needs deciding is WHICH gearbox - the selected one, so each build prints its own mount, or
-    the largest registered, so one mount fits every motor. The literal is the second, undeclared
+- [ ] **a 330 mm light leaves a 0.067 mm lip of rib across its own channel**
+  - **the silence that filed this item was a measurement artifact, and there is no silence.** The
+    240005-byte identical CSG was rendered with `-D render_all=false`, which propagates into
+    `frame.scad`'s OWN `render_all` in a `use`d file - so `frame()` ran its echoes and emitted
+    nothing, and the one polyhedron in that file was the glass jar. Reproduced byte-for-byte at the
+    commit that filed it. Rendered properly the two rows differ: the lower base and all eight ribs
+    move with the light's WIDTH, 14.7 -> 14.5 mm of cutter, 0.1 mm a side
+  - what the hypothesis got right is the LENGTH. `frame_floor_depth` clamps at a 2 mm minimum, and
+    on this vessel a row would have to exceed **452.15 mm** to beat the clamp - the longest
+    registered is 400. So length reaches nothing here, and the top base is never touched either:
+    the pocket stops **129.5 mm** below it. Both are worth an echo rather than a silence
+  - **and the rib stack is where it bites.** On `frame.scad`'s own preview
+    (`collapse_spacer_z_allow=false`) with `rwntao_13in`, the top rib carries material from
+    z 328.0 to 328.067 that `grow_16in` does not - a blind slot where the part wants a through one.
+    Verified independently of the report that found it, by vertex-z histogram on
+    `rib_to_render=5`. In the assembly the same pocket clears by 1.333 mm, so what PRINTS is right
+  - so it is a preview that misrepresents the part by 0.067 mm, and a margin one rib level from
+    being a real interference. Nothing computes it. What would close it: echo the clearance between
+    the pocket's top and the top rib's upper face, which needs the light's z origin threaded out of
+    `lights()` - it is not currently a number `frame()` holds
 
-- [ ] **the frame took a different strip light and drew the same geometry**
-  - found while changing the fill fraction, which moved `jar_6p5gal_305x470`'s culture from 354.32 to
-    325.267 mm and so moved `strip_light_for()` from `grow_16in` (400 mm, 14.30 wide, 4/cord) to
-    `rwntao_13in` (330 mm, 14.1 wide, 3/cord). `frame()`'s own echo proves it got the new row - "a
-    light that comes 3 to a cord" where it used to say 4 - and the frame's CSG is **byte-identical**,
-    240005 bytes both sides
-  - it is not that the frame ignores the light in general: rendering `frame.scad` directly at the two
-    rows DOES differ, at -114.8 against -44.8 (the 70 mm of length) and -7.15 against -7.05 (the
-    0.2 mm of width). So the frame reads the row on the reference jar and does not on this one
-  - the likely reason is that a 470 mm vessel puts both lights entirely below the top base and the
-    cutout through the lower base is the same either way - in which case the right answer is that
-    nothing is wrong and the frame should SAY the light does not reach its geometry on tall jars.
-    But that is a hypothesis, not a measurement
-  - **what settles it: put the two light rows through `frame()` at this vessel and find the surface
-    that should have moved.** If the pocket genuinely never reaches the bases on a jar this tall,
-    that is a fit worth reporting rather than a silence
 
-- [ ] **`assembly.scad` and `head.scad` disagree about the head's tessellation**
-  - `assembly.scad` sets `$fn = 64/128`; `head.scad:61` sets `$fn = 0` deliberately and tessellates
-    by `$fa`/`$fs`, because a flat 128 was wrong at both ends of a lid carrying M8 bores and a
-    257 mm flange. `$fn` is dynamically scoped, and **which one a head module gets depends on the
-    OpenSCAD version** - 2021.01 resolves it from the module's own file, newer builds pass the
-    caller's. So the head may tessellate differently rendered from `assembly.scad` than rendered
-    alone, and a version bump would silently switch it
-  - `check-scad`'s second pass at `-D '$fn=0'` covers the *crash* this causes, not the divergence
-  - found while correcting `assembly.scad`'s header, which claimed head.scad "asks for" 64/128. The
-    claim is now corrected; the disagreement it was hiding is not resolved
-  - what settles it: decide whose policy governs a head rendered from the assembly, and make the
-    losing file stop asserting one. Measure before choosing - the isolation render attempted during
-    the campaign did not produce a usable comparison
+- [ ] **`check-scad`'s `-D '$fn=0'` pass is not the neutraliser it reads as**
+  - the head's own tessellation is settled: `head()` re-asserts `$fn = 0` and `head_fa()`/`head_fs()`
+    inside its body, so `assembly.scad`'s 64/128 cannot reach it on any binary. Measured on both
+    installed: 2021.01 unchanged, and 2026.09 moves from `$fn = 64` to 0 through the assembly path.
+    It mattered - on the nightly the lid rendered **202,158 triangles against 36,974**, and -0.038 %
+    of volume as the small bores inscribed
+  - **what is left is the check.** `check-scad`'s second pass forces `-D '$fn=0'`, and a command-line
+    `-D` crosses the `use` boundary on BOTH versions where an in-file assignment does not. So that
+    pass does not render what any build renders: it also zeroes `sparger.scad`'s 96 and
+    `bayonet_probe_port.scad`'s 64. Measured on the nightly it gives 38,354 triangles and
+    508,327.683 mm3, matching neither real path
+  - it is still worth having - it covers the CRASH a zero facet count causes - but it is not a
+    tessellation-divergence test and should not be read as one. What would test that is rendering
+    one part both ways and comparing, which is cheap at the CSG level and needs no CGAL
+  - and `OPENSCAD` is unset, so `just` runs 2021.01 while `openscad-nightly` 2026.09 sits on the
+    same machine. The version this project is checked on is whichever binary happens to be first on
+    PATH, which is worth pinning rather than discovering
 
-- [ ] **`culture_working_volume` is the one parameter a build still cannot carry**
-  - it defaults to `undef`, and the customizer registers a parameter only if it can infer a TYPE, so
-    no parameter set can assign it. It derives correctly and is reachable with `-D`, so nothing is
-    blocked - but a run that wants to state litres cannot say so in a .json
-  - the designation answer does not apply: this is a NUMBER, not a name, so there is no registry to
-    look one up in. A sentinel default - 0 litres - is exactly the plausible number
-    `docs/design-conventions.md` says not to register. A companion mode parameter keeps `undef` out
-    of the surface and spends two parameters on one quantity. Neither is obviously right
-  - the probe lean, which used to be the other half of this, is settled: the pin is gone and the
-    CEILING is what a build states. For any angle a jar allows, pinning it and lowering the ceiling
-    to it are byte-identical, because the search returns `want` whenever `want` fits - so the pin
-    only ever forced an angle the jar refuses. The ceiling is a plain number and now carries
 
 - [ ] **the recess holds three quarters of the rubber, and it is only a problem on `jar_6p5gal`**
   - the joint is instructed as a TURN - **114.3 deg past snug** on each of 12 nuts - because force
@@ -504,18 +511,21 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
     the gasket's. Widening the recess buys it out of the lands, and `jar_6p5gal` offers 10 mm of rim
     where the gasket is held to 6. Not chased: it changes the lid for one jar
 
-- [ ] **four printed parts are on no print list**
-  - the cart, the electronics stand, the bottle holder and the peri pump mount each render from a
-    file of their own, and the two manifests live in `head.scad` and `frame.scad`. `check-parts`
-    accounts for every entry file - each is either walked by the export or declared with a reason,
-    and it fails both ways - so the omission is recorded rather than silent. What it is not is
-    fixed: each wants a manifest of its own before it can reach a print list
-  - everything else in this item is done. `just export-parts` writes all 23 parts across both
-    halves as their own STLs, 47 pieces on `jar_10L`, CGAL-rendered on the way past and with a
-    print list beside them. Every part now renders **through `assembly.scad`**, which is what
-    carries a build's designations - exporting from `head.scad` wrote the DEFAULT part under a
-    build that had asked for another one, and that also closed the frame's vessel gap, since the
-    frame used to build the jar named in its own preview whatever was selected
+- [ ] **ONE printed part is on no print list, not four - and two of the four print nothing**
+  - read file by file rather than counted: `bottle_holder.scad` makes a dovetailed sleeve and is the
+    only original printed geometry of the three. `cart.scad` prints NOTHING - bought extrusion,
+    bought NopSCADlib brackets, bought castors, and a translucent envelope that is a picture.
+    `electronics_stand.scad` prints nothing original either: `print_corner` renders a NopSCADlib
+    corner bracket, which is a VITAMIN, so it is a printed substitute for a bought part.
+    `peri_pump_frame_mount.scad` is the fourth and is correctly parked on where the pumps mount
+  - `check-parts` records all four rather than hiding them, and its reasons now say which is which
+  - **so what is left is two questions, neither of them a manifest.** Does the reactor's print list
+    cover an ACCESSORY - the bottle holder is bench furniture, not a reactor part - and is printing
+    a NopSCADlib bracket instead of buying one deliberate? That bracket is on no purchase list and
+    on no print list, so today it is in neither account
+  - the cart's extrusion, brackets and castors are on no purchase list either. `check-bom` passes
+    because these files sit outside its scope, the same way they sit outside `export-parts`. Whether
+    bench furniture belongs in either account is the same question in the other direction
 
 
 ## long term / post paper submission

@@ -106,9 +106,13 @@ use <frame.scad>;
 
 /* [Part Render Selection] */
 
+// The glass jar, translucent, so what the printed parts have to fit is visible
 render_vessel = true;
+// The head subassembly: lid, ports, drive, impellers, sparger
 render_head = false;
+// The frame subassembly: bases, ribs, rods, spacers, lights
 render_frame = false;
+// Overrides the three above, which is the whole reactor as a picture
 render_all = true;
 // Parts are exported through THIS file rather than from head.scad, because this is the file that
 // carries a build's designations - head.scad renders standalone with no build and would export the
@@ -124,13 +128,13 @@ export_at_origin = false;
 // be handed the caller's - so from this file the assembly was drawn with nothing assigned at all,
 // and anything dividing by $fn got a division by zero. sparge_ring did.
 //
-// It is frame.scad's 64/128 that this matches (frame.scad:20). head.scad does NOT ask for it:
-// head.scad:61 sets $fn = 0 deliberately and tessellates by $fa/$fs, because a flat 128 was wrong
-// at both ends of a lid carrying both M8 bores and a 257 mm flange. Which of the two a head module
-// actually gets depends on the OpenSCAD version - 2021.01 resolves $fn from the module's own file,
-// newer builds pass the caller's - so this line and head.scad:61 disagree about the head's
-// tessellation and the binary picks the winner. check-scad's second pass at -D '$fn=0' covers the
-// crash, not the divergence. Unresolved; see TODO.md.
+// It is frame.scad's 64/128 that this matches (frame.scad:20), and frame.scad is the only thing
+// downstream that takes it. head.scad does NOT ask for it - it sets $fn = 0 and tessellates by
+// $fa/$fs, because a flat 128 was wrong at both ends of a lid carrying both M8 bores and a 257 mm
+// flange - and head() now RE-ASSERTS that inside its own body, so this line cannot reach it on any
+// binary. It used to: $fn is dynamically scoped and `use` resolves it per version, 2021.01 from
+// the callee's file and 2026.09 from the caller's, which put the head at 64 through this file and
+// 0 rendered alone. See head_fa() in head.scad.
 $fn = $preview ? 64 : 128;
 
 // Cut the preview in half to see inside; ignored on a render
@@ -203,18 +207,11 @@ joint_bolt = M8_hex_screw;
 // it can infer a TYPE, so a parameter defaulting to `undef` is invisible to `-P`. That is why "auto"
 // is a string and not undef, and it is not the plausible-number sentinel design-conventions.md bans -
 // a string is visible in the surface and is read by a mode branch, never by arithmetic.
-//
-// The two rows still defaulting to undef are numbers, not names, and stay uncarryable until their
-// representation is settled. See TODO.md.
-
-// litres the vessel is run at; undef derives it from the fill fraction below. NOT carryable
-// Litres the vessel is run at; undef derives it from the fill fraction
-culture_working_volume = undef;
-// Fraction of the jar's CAPACITY the culture stands at, when no volume is stated. A fraction of
+// Fraction of the jar's CAPACITY the culture stands at - the ONLY way it is stated. A fraction of
 // volume, not of height - a jar is not a cylinder, and the headspace convention this is measured
 // against is a working-volume one. 0.865 is what the reference build runs; head()'s culture echo
 // reports it against the 0.8 the literature quotes. A plain number, so a parameter set can carry it.
-// Fraction of the jar's CAPACITY the culture fills, when no volume is stated
+// Fraction of the jar's CAPACITY the culture fills; a run at another volume states its fraction
 culture_fill_fraction = 0.865;
 // The impeller shaft, by registered name. "auto" takes the shortest row that reaches this vessel.
 // Names are in scad/purchased/shafts.scad.
@@ -322,7 +319,6 @@ assert(
 // Pairs rather than a positional row: each is optional, and naming one with undef ("derive it")
 // has to stay distinguishable from not naming it at all. head_build() in head.scad reads them.
 reactor_build = [
-  ["culture_working_volume", culture_working_volume],
   ["culture_fill_fraction", culture_fill_fraction],
   ["head_shaft", _build_shaft],
   ["lid_plug_oring", _build_plug_oring],
@@ -334,7 +330,7 @@ reactor_build = [
 ];
 
 _reactor_light = is_undef(_build_light)
-  ? strip_light_for(head_liquid_height(vessel_internal_height(reactor_vessel), vessel_inner_profile(reactor_vessel), culture_working_volume, culture_fill_fraction))
+  ? strip_light_for(head_liquid_height(vessel_internal_height(reactor_vessel), vessel_inner_profile(reactor_vessel), culture_fill_fraction))
   : _build_light;
 
 assert(
@@ -347,7 +343,7 @@ assert(
 // entirely - a 217 mm row under a 236 mm culture built silently. Echoed rather than asserted: an
 // under-lit reactor is buildable and is a choice someone may be making, which is the assert/echo
 // rule, and the light is not a pressure boundary.
-_culture_depth = head_liquid_height(vessel_internal_height(reactor_vessel), vessel_inner_profile(reactor_vessel), culture_working_volume, culture_fill_fraction);
+_culture_depth = head_liquid_height(vessel_internal_height(reactor_vessel), vessel_inner_profile(reactor_vessel), culture_fill_fraction);
 if (strip_light_length(_reactor_light) < _culture_depth)
   echo(str(
     "WARNING lights: ", strip_light_name(_reactor_light), " is ", strip_light_length(_reactor_light),
