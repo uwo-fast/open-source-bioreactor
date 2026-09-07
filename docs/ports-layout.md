@@ -157,7 +157,7 @@ in, outward, away from the shaft. Two reasons it is not zero:
   75°. Which is fortunate, because the pH probe is the long one — the only thing on this lid that
   reaches the sparge ring's height, and at any lean at all it goes through the ring
 
-Both angles are **per-build**, on the same footing as `culture_working_volume`: 4.5° is what
+Both angles are **per-build**, on the same footing as `culture_fill_fraction`: 4.5° is what
 `jar_10L` allows, and `jar_1gal_180x197` is shorter, so its own ceiling is nearer 2.5°.
 `check-vessels` sweeps the registry with both flat, because vertical clears every jar.
 

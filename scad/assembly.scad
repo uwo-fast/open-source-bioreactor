@@ -203,13 +203,6 @@ joint_bolt = M8_hex_screw;
 // it can infer a TYPE, so a parameter defaulting to `undef` is invisible to `-P`. That is why "auto"
 // is a string and not undef, and it is not the plausible-number sentinel design-conventions.md bans -
 // a string is visible in the surface and is read by a mode branch, never by arithmetic.
-//
-// The two rows still defaulting to undef are numbers, not names, and stay uncarryable until their
-// representation is settled. See TODO.md.
-
-// litres the vessel is run at; undef derives it from the fill fraction below. NOT carryable
-// Litres the vessel is run at; undef derives it from the fill fraction
-culture_working_volume = undef;
 // Fraction of the jar's CAPACITY the culture stands at, when no volume is stated. A fraction of
 // volume, not of height - a jar is not a cylinder, and the headspace convention this is measured
 // against is a working-volume one. 0.865 is what the reference build runs; head()'s culture echo
@@ -322,7 +315,6 @@ assert(
 // Pairs rather than a positional row: each is optional, and naming one with undef ("derive it")
 // has to stay distinguishable from not naming it at all. head_build() in head.scad reads them.
 reactor_build = [
-  ["culture_working_volume", culture_working_volume],
   ["culture_fill_fraction", culture_fill_fraction],
   ["head_shaft", _build_shaft],
   ["lid_plug_oring", _build_plug_oring],
@@ -334,7 +326,7 @@ reactor_build = [
 ];
 
 _reactor_light = is_undef(_build_light)
-  ? strip_light_for(head_liquid_height(vessel_internal_height(reactor_vessel), vessel_inner_profile(reactor_vessel), culture_working_volume, culture_fill_fraction))
+  ? strip_light_for(head_liquid_height(vessel_internal_height(reactor_vessel), vessel_inner_profile(reactor_vessel), culture_fill_fraction))
   : _build_light;
 
 assert(
@@ -347,7 +339,7 @@ assert(
 // entirely - a 217 mm row under a 236 mm culture built silently. Echoed rather than asserted: an
 // under-lit reactor is buildable and is a choice someone may be making, which is the assert/echo
 // rule, and the light is not a pressure boundary.
-_culture_depth = head_liquid_height(vessel_internal_height(reactor_vessel), vessel_inner_profile(reactor_vessel), culture_working_volume, culture_fill_fraction);
+_culture_depth = head_liquid_height(vessel_internal_height(reactor_vessel), vessel_inner_profile(reactor_vessel), culture_fill_fraction);
 if (strip_light_length(_reactor_light) < _culture_depth)
   echo(str(
     "WARNING lights: ", strip_light_name(_reactor_light), " is ", strip_light_length(_reactor_light),

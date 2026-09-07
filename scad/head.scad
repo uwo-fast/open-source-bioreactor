@@ -371,23 +371,11 @@ impeller_twist_ang = impeller_twist(head_impeller_type);
 // How much culture is in the jar. An operating choice rather than geometry, but not a free one:
 // every process number this model reports is per unit volume, so the fill line sets them all.
 //
-// TWO WAYS TO SAY IT, and they are not equally good. A WORKING VOLUME in litres is what a person
-// actually pours and what another builder can repeat - "we ran 8.0 L" means the same thing on
-// someone else's jar. A fraction of internal height does not: it lands on a different volume in
-// every vessel, and it is only a proxy for the volume in the first place. So working volume pins
-// it when set, and the fill height is solved back from the jar's own profile.
-//
-// The fraction stays as the DERIVATION, undef working volume, because it is the only one that
-// scales across the registry - a litre figure that suits jar_10L will not fit jar_1p5L, and every
-// registered vessel has to build. 0.8 leaves the usual headspace for foam and gas.
-// SO IT IS UNDEF HERE, and a litre figure is a build's to state. It was pinned at 8.25 - the
-// reference run's jar_10L figure, kept for the record - and a working volume is a statement about
-// ONE jar: 8.25 L is a fifth of jar_6p5gal_305x470, which put its thermocouple in the headspace and
-// stopped that vessel rendering at all. The number was right and the scope was not.
-// On jar_10L the two agree to under half a percent - 8.2808 L against 8.25, coverage over
-// the upper impeller 0.565 D against 0.555, both clear of the 0.5 this project holds - so nothing
-// the reference build prints moves.
-culture_working_volume = undef; // litres; undef derives from the fraction below
+// ONE WAY TO SAY IT. A litre figure is a statement about a single jar - 8.25 L is a fifth of
+// jar_6p5gal_305x470, which put its thermocouple in the headspace and stopped that vessel
+// rendering at all - so the fill is a FRACTION OF CAPACITY, which is the only form that scales
+// across the registry. A run at some other volume states the fraction it works out to. See
+// docs/decisions.md.
 // Fraction of the jar's CAPACITY the culture stands at, and 0.865 rather than a round 0.8 because
 // it is what the reference build runs: 8.2807 L of jar_10L's 9.57306 L. Rounded from the 0.865011
 // that reproduces the old fill line exactly, which lands it 235.997 mm against the 236.000 the
@@ -1314,12 +1302,10 @@ function head_vessel_capacity(vessel_profile, vessel_internal_height) =
 //
 // Both branches now solve the height from litres, so there is one expression of the fill line and
 // the fraction states the thing a bioprocess actually specifies.
-function head_liquid_height(vessel_internal_height, vessel_profile, working_volume, fill_fraction) =
+function head_liquid_height(vessel_internal_height, vessel_profile, fill_fraction) =
   head_fill_height_for(
     vessel_profile,
-    is_undef(working_volume)
-      ? head_vessel_capacity(vessel_profile, vessel_internal_height) * fill_fraction
-      : working_volume,
+    head_vessel_capacity(vessel_profile, vessel_internal_height) * fill_fraction,
     0, vessel_internal_height
   );
 
@@ -1742,7 +1728,6 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   // Resolved before anything reads them. An empty build is head.scad's own parameters, which is
   // what this file renders standalone.
-  _build_working_volume = head_build(build, "culture_working_volume", culture_working_volume);
   _build_fill_fraction = head_build(build, "culture_fill_fraction", culture_fill_fraction);
   _build_shaft = head_build(build, "head_shaft", head_shaft);
   _build_plug_oring = head_build(build, "lid_plug_oring", lid_plug_oring);
@@ -1800,7 +1785,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   // Resolved once. head_shaft may pin a row; otherwise the shortest that reaches this vessel.
   _shaft = head_shaft_selected(lid_flange_height, vessel_internal_height, _build_shaft);
-  _liquid_height = head_liquid_height(vessel_internal_height, vessel_profile, _build_working_volume, _build_fill_fraction);
+  _liquid_height = head_liquid_height(vessel_internal_height, vessel_profile, _build_fill_fraction);
 
   // Read off the port table, so it depends on nothing else and can sit this early. It has to:
   // Medek's envelope is conditioned on four baffles and the Po block below is the first consumer.
@@ -2114,9 +2099,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     _culture_volume / _vessel_capacity * 100, "% of capacity and ",
     _liquid_height / vessel_internal_height * 100, "% of the ", vessel_internal_height,
     " mm internal height - ",
-    is_undef(_build_working_volume)
-      ? "DERIVED from culture_fill_fraction, a fraction of what this jar holds, so it scales to every registered vessel; set culture_working_volume to state one run in litres"
-      : "PINNED by culture_working_volume",
+    "DERIVED from culture_fill_fraction, a fraction of what this jar holds, so it scales to every ",
+    "registered vessel",
     ". The jar holds ", _vessel_capacity, " L brim full, and a cylinder on the ", _vessel_bore,
     " mm bore would have called this fill ", PI / 4 * pow(_vessel_bore, 2) * _liquid_height / 1e6, " L"
   ));
