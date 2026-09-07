@@ -668,9 +668,18 @@ check-parts:
         scad/custom/sparger.scad                    # exported through head's manifest as "sparger";
                                                     # this file's own render is a preview of it
         scad/custom/sheet_gasket.scad               # EPDM cut from a sheet with a knife, not printed
-        scad/bottle_holder.scad                     # bench furniture AROUND the reactor rather than
-        scad/cart.scad                              # part of it. Printed, and on no print list -
-        scad/electronics_stand.scad                 # see TODO.md, they want manifests of their own
+        # Bench furniture AROUND the reactor rather than part of it, and only ONE of the three
+        # makes anything printed - which is not what this list said until it was read.
+        scad/bottle_holder.scad                     # one printed part, a dovetailed sleeve. The
+                                                    # only original printed geometry of the three,
+                                                    # and an accessory rather than a reactor part
+        scad/cart.scad                              # prints NOTHING: bought extrusion, bought
+                                                    # NopSCADlib brackets, bought castors, and a
+                                                    # translucent envelope that is a picture
+        scad/electronics_stand.scad                 # prints nothing original either - print_corner
+                                                    # renders a NopSCADlib BRACKET, which is a
+                                                    # vitamin, so that is a printed substitute for
+                                                    # a bought part. See TODO.md
         scad/custom/peri_pump_frame_mount.scad      # printed and part of the reactor, but waiting on
                                                     # where the bought pumps mount at all
         scad/custom/peri_pump_head.scad             # a stretch goal rather than this build

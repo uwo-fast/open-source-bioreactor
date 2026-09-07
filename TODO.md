@@ -504,18 +504,21 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
     the gasket's. Widening the recess buys it out of the lands, and `jar_6p5gal` offers 10 mm of rim
     where the gasket is held to 6. Not chased: it changes the lid for one jar
 
-- [ ] **four printed parts are on no print list**
-  - the cart, the electronics stand, the bottle holder and the peri pump mount each render from a
-    file of their own, and the two manifests live in `head.scad` and `frame.scad`. `check-parts`
-    accounts for every entry file - each is either walked by the export or declared with a reason,
-    and it fails both ways - so the omission is recorded rather than silent. What it is not is
-    fixed: each wants a manifest of its own before it can reach a print list
-  - everything else in this item is done. `just export-parts` writes all 23 parts across both
-    halves as their own STLs, 47 pieces on `jar_10L`, CGAL-rendered on the way past and with a
-    print list beside them. Every part now renders **through `assembly.scad`**, which is what
-    carries a build's designations - exporting from `head.scad` wrote the DEFAULT part under a
-    build that had asked for another one, and that also closed the frame's vessel gap, since the
-    frame used to build the jar named in its own preview whatever was selected
+- [ ] **ONE printed part is on no print list, not four - and two of the four print nothing**
+  - read file by file rather than counted: `bottle_holder.scad` makes a dovetailed sleeve and is the
+    only original printed geometry of the three. `cart.scad` prints NOTHING - bought extrusion,
+    bought NopSCADlib brackets, bought castors, and a translucent envelope that is a picture.
+    `electronics_stand.scad` prints nothing original either: `print_corner` renders a NopSCADlib
+    corner bracket, which is a VITAMIN, so it is a printed substitute for a bought part.
+    `peri_pump_frame_mount.scad` is the fourth and is correctly parked on where the pumps mount
+  - `check-parts` records all four rather than hiding them, and its reasons now say which is which
+  - **so what is left is two questions, neither of them a manifest.** Does the reactor's print list
+    cover an ACCESSORY - the bottle holder is bench furniture, not a reactor part - and is printing
+    a NopSCADlib bracket instead of buying one deliberate? That bracket is on no purchase list and
+    on no print list, so today it is in neither account
+  - the cart's extrusion, brackets and castors are on no purchase list either. `check-bom` passes
+    because these files sit outside its scope, the same way they sit outside `export-parts`. Whether
+    bench furniture belongs in either account is the same question in the other direction
 
 
 ## long term / post paper submission
