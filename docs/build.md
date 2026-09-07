@@ -292,9 +292,9 @@ you put roughly forty times the intended load onto a soda-lime jar.
 ### Do not reach for a torque wrench
 
 Torque only ever reaches preload through a friction coefficient, and here you cannot know it. Across
-the 0.20–0.30 that an unlubricated stainless nut plausibly spans, 291.8 N is **0.47 to 0.70 N·m** —
+the 0.20–0.30 that an unlubricated stainless nut plausibly spans, 352.9 N is **0.56 to 0.85 N·m** —
 a 40 % band from the friction assumption alone. 18-8 galls, which is exactly what makes that
-coefficient unpredictable, and 0.6 N·m is below the bottom of most torque wrenches anyway.
+coefficient unpredictable, and 0.7 N·m is below the bottom of most torque wrenches anyway.
 
 ### Turn the nut instead
 
@@ -307,8 +307,8 @@ flange takes a little more and then creeps, so go back to them.
 A turn is geometry. The 1/16 in gasket is 1.5875 mm, 25 % squeeze is 0.3969 mm of travel, and an
 M8 × 1.25 thread converts that to **114°**. No modulus and no friction enter it.
 
-The rest of the stack barely moves: at 291.8 N an M8 bolt stretches 0.0008 mm over its 20.4 mm grip
-and a rod 0.0004 mm over the 10.4 mm between its top-base nut and its lid nut — under 0.3 % of the
+The rest of the stack barely moves: at 352.9 N an M8 bolt stretches 0.0010 mm over its 20.4 mm grip
+and a rod 0.0005 mm over the 10.4 mm between its top-base nut and its lid nut — under 0.3 % of the
 gasket's travel either way. The printed flange is the soft part, and it is the one number in this
 section without a source: roughly 0.02 mm under a nut face, from PETG's modulus and a nut's bearing
 area, which is an estimate and not a measurement. So:
@@ -343,11 +343,11 @@ rather than a theoretical one. Count the turn.
 ASME VIII-1 gasket factor m = 0.5, and that is what gives twelve posts. At 75A or harder the same
 lid wants sixteen.
 
-### How good is 291.8 N?
+### How good is 352.9 N?
 
 Not very, and the model says so. `gasket_shape_factor()` is the free-bulge form — it assumes both
 edges of the pad can spread, and the recess walls are exactly where they cannot. The modulus behind
-it is correlated from hardness rather than measured. So 291.8 N and 2.51 MPa are figures for judging
+it is correlated from hardness rather than measured. So 352.9 N and 2.78 MPa are figures for judging
 a design, not for cutting a part to, and `gasket_load.scad` says as much at the top of the file.
 
 **The turn is the more robust of the two**, which is why it is the instruction. It comes from the

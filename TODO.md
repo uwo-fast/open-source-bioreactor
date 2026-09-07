@@ -548,26 +548,50 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     to it are byte-identical, because the search returns `want` whenever `want` fits - so the pin
     only ever forced an angle the jar refuses. The ceiling is a plain number and now carries
 
-- [ ] **the gasket recess holds three quarters of the rubber that has to fit in it**
+- [ ] **the recess holds three quarters of the rubber, and only one jar escapes it across a land**
   - what is left of the assembly-torque item, which `docs/build.md` and the `joint tightening` echo
-    closed. The joint is now instructed as a TURN rather than a torque - 114.3 deg past snug on each
+    closed. The joint is instructed as a TURN rather than a torque - **114.3 deg past snug** on each
     of the 12 nuts - because force reaches a fastener through a friction coefficient nobody can
     measure here, while a turn is the gasket's travel over the thread's pitch
-  - what is NOT closed is the recess's own volume. The gasket's section is 3 x 1.5875 = 4.76 mm2 and
-    the recess's is 3 x 1.19 = 3.57 mm2, so a quarter of the rubber has nowhere to go. Elastomer is
-    near enough incompressible - bulk modulus about 2 GPa against a shear modulus of 1.2 MPa - so the
-    flange cannot reach the glass until that quarter has left the recess sideways across the 1 mm
-    bearing lands, and it would then bottom on extruded rubber rather than on glass
-  - it also disagrees with the load model. `gasket_shape_factor()` is `width / (2 * thickness)`, the
-    FREE-bulge form: it assumes both edges of the pad can bulge, and the recess walls are exactly
-    where they cannot. So the 291.8 N per post and the 2.51 MPa on the glass describe a pad that is
-    not the one drawn - reported, not asserted, and `gasket_load.scad` already says its figures are
-    for judging a design rather than cutting a part to. The TURN does not depend on any of it, which
-    is why that is the number a builder is given
+  - **the excess is an IDENTITY, not a measurement.** The recess is cut at `t * (1 - c)` for a sheet
+    of thickness `t` at compression `c`, so the rubber that will not fit is `t * c` - a quarter of
+    the section at `c = 0.25`, whatever the gasket is or how wide it is. On `jar_10L` that is 12.70
+    against 9.525 mm2; on `jar_6p5gal` 9.525 against 7.144. (Superseded — kept for the record: this
+    read "3 x 1.5875 = 4.76 mm2 and the recess's is 3 x 1.19 = 3.57". Those are a 3 mm gasket, which
+    no jar now carries: the flat one takes 6 mm and the crowned ones 8.)
+  - **where it goes is now two different questions, because the lip is.** On `jar_6p5gal`, the only
+    ground one, the pad is squeezed uniformly and the quarter has to leave sideways across the
+    lands - that is the original reading and it still holds there. On a CROWNED lip nothing is
+    uniform: the crown contacts over a **3.238 mm** chord of an 8 mm gasket, so 4.762 mm of gasket
+    width is never touched, and the rubber the crown displaces flows into that instead of over a
+    land. There are no lands on four of five jars to flow over. (Superseded — kept for the record:
+    this read "across the 1 mm bearing lands", which described the geometry the rim rebuild deleted.)
+  - **and the crown's travel is bounded by the same identity.** The gasket stands `t - t(1-c) = t*c`
+    proud of the flange, and the crown sinks `t*c` - the same number, 0.396875 mm, for any `c`. So
+    design compression is reached exactly when the crown has taken up all the proud rubber. Past
+    that it is pressing on rubber the recess confines on three sides, which is the volume wall the
+    flat jar meets immediately
+  - **it fits, on the crowned jars, with room.** The crown displaces about **0.857 mm2** - two
+    thirds of chord by sagitta, an approximation, not an integral - against **1.890 mm2** of proud
+    band free to bulge past the recess mouth. Roughly twice the room it needs. That is the number
+    that would have to be re-run if the sheet, the compression or the lip arc moved
+  - **the load model's objection weakens on a crown and stands on the flat.**
+    `gasket_shape_factor()` is `width / (2 * thickness)`, the FREE-bulge form, and it is now handed
+    the CONTACT BAND rather than the gasket's width. On a crown that band is a chord with unconfined
+    rubber either side, which is close to what free bulge assumes. On `jar_6p5gal` the pad fills its
+    recess and the walls are exactly where it assumes bulging - so the objection is that jar's, and
+    that jar carries the highest load in the registry: **1253.6 N per post and 7.34 MPa on the
+    glass**, against 352.9 N and 2.78 MPa on `jar_10L`. Reported, not asserted, and
+    `gasket_load.scad` already says its figures are for judging a design rather than cutting a part
+    to. The TURN does not depend on any of it. (Superseded — kept for the record: this quoted
+    "291.8 N per post and the 2.51 MPa on the glass", which were the pre-rim figures for a 3 mm
+    gasket on a flat land that four of five jars do not have.)
   - the usual rule for a confined flat gasket is groove section at or above gasket section, commonly
-    10-25 % over. Widening the recess is what buys that, and the 1 mm lands either side are what it
-    would come out of. Not chased here: it changes the lid, and the rim profile it is all measured
-    against is itself uncalipered - see the caliper item above
+    10-25 % over. Widening the recess is what buys that, and on `jar_6p5gal` the lands either side
+    are what it would come out of - it offers 10 mm of rim where the gasket is held to 6. Not
+    chased: it changes the lid, and it is now a one-jar problem rather than a family one. (The rim
+    profile is no longer the blocker it was - the jars have been calipered and the three lip states
+    registered.)
 
 - [ ] **four printed parts are on no print list**
   - the cart, the electronics stand, the bottle holder and the peri pump mount each render from a
@@ -671,8 +695,8 @@ outlives the commit, in `docs/`.
   support tube that stays where it is put is the whole point - and it is $22.72/m against $181.42
 - **the plug o-ring cord is 3/32 in, not 1/8.** The groove and the port bores are cut into the same
   wall, so a fatter cord fouls the bores on every vessel rather than just a tight one
-- **the lid joint is instructed as a TURN, not a torque, and that is not an omission.** 291.8 N per
-  post is 0.47 to 0.70 N.m across the 0.20-0.30 nut factor unlubricated 18-8 spans - a 40 % band
+- **the lid joint is instructed as a TURN, not a torque, and that is not an omission.** 352.9 N per
+  post is 0.56 to 0.85 N.m across the 0.20-0.30 nut factor unlubricated 18-8 spans - a 40 % band
   from friction alone, on a fastener that galls, at a setting below most torque wrenches. The turn
   is the gasket's travel over the thread's pitch and has no modulus or friction in it. Both are in
   `docs/build.md`; the torque is there to say why it is not the instruction
