@@ -207,11 +207,11 @@ joint_bolt = M8_hex_screw;
 // it can infer a TYPE, so a parameter defaulting to `undef` is invisible to `-P`. That is why "auto"
 // is a string and not undef, and it is not the plausible-number sentinel design-conventions.md bans -
 // a string is visible in the surface and is read by a mode branch, never by arithmetic.
-// Fraction of the jar's CAPACITY the culture stands at, when no volume is stated. A fraction of
+// Fraction of the jar's CAPACITY the culture stands at - the ONLY way it is stated. A fraction of
 // volume, not of height - a jar is not a cylinder, and the headspace convention this is measured
 // against is a working-volume one. 0.865 is what the reference build runs; head()'s culture echo
 // reports it against the 0.8 the literature quotes. A plain number, so a parameter set can carry it.
-// Fraction of the jar's CAPACITY the culture fills, when no volume is stated
+// Fraction of the jar's CAPACITY the culture fills; a run at another volume states its fraction
 culture_fill_fraction = 0.865;
 // The impeller shaft, by registered name. "auto" takes the shortest row that reaches this vessel.
 // Names are in scad/purchased/shafts.scad.

@@ -351,7 +351,9 @@ module sparger(
   // sparger_hole_probes() walks RINGS only, so spoke holes reach check-holes' report as neither
   // passed nor failed - they are simply not counted. Said out loud here rather than left to the
   // probe module's own header, because this is where someone turning them on will be looking.
-  if (spoke_holes > 0)
+  // Gated the way the GEOMETRY is - spoke holes are cut only on a multi-ring sparger with arms to
+  // cut them in, so warning on spoke_holes alone reports holes that were never emitted.
+  if (spoke_holes > 0 && _n > 1 && len(spoke_angles) > 0)
     echo(str(
       "WARNING sparger: ", spoke_holes, " hole(s) per arm on ", len(spoke_angles),
       " arm(s) are NOT covered by check-holes - it probes rings only, so nothing tests that these ",

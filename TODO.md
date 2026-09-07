@@ -343,16 +343,28 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
   - what is not a description was hidden rather than written: `impeller_n_fins` and
     `impeller_twist_ang` come off the designated impeller row, `nut_pocket_diameter` and
     `nut_height` off `rod_nut`, `reactor_vessel` off the name above it. Offering any of them lets a
-    derived number disagree with what it is derived from. 114 / 31 / 21 are offered now, 23 / 5 / 12
-    hidden
+    derived number disagree with what it is derived from. 113 / 31 / 20 are offered now, 20 / 4 / 12 hidden
   - **and `/* [Hidden] */` runs until the NEXT section marker**, which is a trap: putting one above
     `z_fight` in head.scad silently hid every render flag below it, because that file had no marker
     between the internals and the flags. Caught by counting the visible surface, not by reading the
     diff
-  - **guarded now.** `just check-customizer` is in the gate and was proved to fire by removing one
-    description: it names the parameter and prints what the UI would have shown in its place. It
-    also settled a question the sweep had only got lucky on - `$`-prefixed names are SPECIAL
+  - **guarded now, for one of the two defects.** `just check-customizer` is in the gate and was
+    proved to fire twice over - on a removed description, and on a `[Hidden]` marker with no comment
+    saying what it hides, which is how one block came to swallow 17 sparger parameters unremarked.
+    It also settled a question the sweep had only got lucky on: `$`-prefixed names are SPECIAL
     variables, which the customizer does not offer, so they want no description
+  - **the OTHER defect is still open, and the count above hides it.** "0 parameters with no
+    description" means none shows a line of CODE. It does not mean none shows half a sentence -
+    roughly **54** offered parameters still take the last line of a multi-line block, which was the
+    larger half of what this item originally described. `head.scad:107` offers
+    "motor_mount_part_to_render above, and useful interactively for the same reason."
+  - it is NOT gated, deliberately. Detecting a fragment means guessing whether a sentence started on
+    the line before, and a sample says the obvious heuristic is only about half precise -
+    `assembly.scad:167` reads "Height of the lid flange, vessel rim to the top of the lid, in mm",
+    which is a good description the heuristic flags. A check with that false-positive rate gets
+    turned off. What each of the 54 wants is one clean line ADDED at the bottom of its block, read
+    from the block rather than inferred - the descriptions written from inference during this sweep
+    had about a 50 % error rate, and mass-writing 54 more at speed would put in more than it took out
 
 
 - [ ] **the sparger's holes are not the wrong size - the BORE is, and it is one designation**
@@ -433,18 +445,6 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
     stand on the lid, and that is the magnetic item under "drive and aeration". Deciding this
     before that one is deciding it backwards
 
-- [ ] **`motor_mount_body_diameter = 56` is a literal that restates a derivation**
-  - it is exactly the largest registered gearbox's 36 mm plus two times the 10 mm
-    `motor_mount_wall_thickness`. One physical thing, two expressions: change the gearbox and the
-    mount body does not follow, and the mount is the part that decides whether a jar can carry a
-    top-entry drive at all
-  - not why `jar_1p5L_109x215` and `jar_1gal_155x251` fail - they fail at any mount size, and
-    dropping it to 47.5 still leaves the 1p5L 8.2 mm short - so this is a correctness fix, not a
-    fix for those jars
-  - **unblocked**: the motor is designatable now, so it can read the registered gearbox. What it
-    still needs deciding is WHICH gearbox - the selected one, so each build prints its own mount, or
-    the largest registered, so one mount fits every motor. The literal is the second, undeclared
-
 - [ ] **a 330 mm light leaves a 0.067 mm lip of rib across its own channel**
   - **the silence that filed this item was a measurement artifact, and there is no silence.** The
     240005-byte identical CSG was rendered with `-D render_all=false`, which propagates into
@@ -485,19 +485,6 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
     same machine. The version this project is checked on is whichever binary happens to be first on
     PATH, which is worth pinning rather than discovering
 
-
-- [ ] **`culture_working_volume` is the one parameter a build still cannot carry**
-  - it defaults to `undef`, and the customizer registers a parameter only if it can infer a TYPE, so
-    no parameter set can assign it. It derives correctly and is reachable with `-D`, so nothing is
-    blocked - but a run that wants to state litres cannot say so in a .json
-  - the designation answer does not apply: this is a NUMBER, not a name, so there is no registry to
-    look one up in. A sentinel default - 0 litres - is exactly the plausible number
-    `docs/design-conventions.md` says not to register. A companion mode parameter keeps `undef` out
-    of the surface and spends two parameters on one quantity. Neither is obviously right
-  - the probe lean, which used to be the other half of this, is settled: the pin is gone and the
-    CEILING is what a build states. For any angle a jar allows, pinning it and lowering the ceiling
-    to it are byte-identical, because the search returns `want` whenever `want` fits - so the pin
-    only ever forced an angle the jar refuses. The ceiling is a plain number and now carries
 
 - [ ] **the recess holds three quarters of the rubber, and it is only a problem on `jar_6p5gal`**
   - the joint is instructed as a TURN - **114.3 deg past snug** on each of 12 nuts - because force

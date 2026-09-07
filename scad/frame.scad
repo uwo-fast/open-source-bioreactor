@@ -16,14 +16,16 @@ include <NopSCADlib/vitamins/nuts.scad>; // M8_nut type + nut()
 include <NopSCADlib/vitamins/screws.scad>; // M8_hex_screw type + screw_length()
 use <NopSCADlib/vitamins/rod.scad>; // studding()
 
+// Internals, not build choices.
 /* [Hidden] */
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 /* [Part Render Selection] */
 
-// Everything at once, which is the assembly picture rather than a part. Any single flag below
-// overrides it, and that is how the print manifest exports one part at a time.
+// Everything at once, which is the assembly picture rather than a part. It OVERRIDES every flag
+// below, so it has to go off before a single part's own goes on - which is what the print manifest
+// does for each row.
 render_all = true;
 // The lower base, which the jar stands in
 render_base = false;
@@ -103,6 +105,7 @@ threaded_rod_hole_allowance = 1.2;
 // thread left showing above the topmost rod nut; two coarse pitches, from the rod's own diameter
 rod_thread_proud = 2 * bolt_coarse_pitch(threaded_rod_diameter);
 
+// Derived from the nut, so not choices.
 /* [Hidden] */
 // Both come off rod_nut, so they are not choices: offering them lets a pocket disagree with the
 // nut that has to go in it.

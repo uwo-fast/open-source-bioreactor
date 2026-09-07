@@ -57,6 +57,7 @@ use <NopSCADlib/vitamins/shaft_coupling.scad>;
 // came out as. use, not include, so none of the frame's geometry comes with them.
 use <frame.scad>;
 
+// Internals and tessellation, which are not build choices. See head_fa() below.
 /* [Hidden] */
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 // Tessellate by feature size, as bayonet_port.scad already does. A flat 128 was wrong at both
@@ -910,6 +911,12 @@ sparge_inner_fraction = 0.35;
 sparge_split_angle = 14;
 // caps each cut end of the ring - pull the two and a pipe cleaner goes straight through each half
 sparge_plug_screw = set_screw_m4x6_316;
+
+// HIDDEN FROM HERE to the next marker, and deliberately. Eight of what follows cannot be carried
+// by a parameter set at all - clamp, filters, check valve and pumps are registry ROW references,
+// which a .json cannot name, plus two derived values and one undef the customizer cannot type.
+// The rest are settled design constants rather than build choices, which is what /* [Hidden] */ is
+// for. Deleting this marker offers all seventeen as knobs, five of which nothing can set.
 /* [Hidden] */
 // Emit the breakthrough probes check-holes tests. Off for a normal render.
 sparge_hole_probes = false;
