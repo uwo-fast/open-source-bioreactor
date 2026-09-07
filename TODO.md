@@ -357,22 +357,26 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
 
 ## tooling / infrastructure / documentation
 
-- [ ] **three of five jars carry a second impeller convention would not add**
-  - measured across the registry against the threshold `docs/agitation.md` itself names - a second
-    impeller above about H/T 1.2, recorded there as CONVENTION rather than a citation:
+- [ ] **FOUR of five jars carry a second impeller the spacing does not support**
+  - re-measured against the rule rather than the old H/T threshold. The band puts bounds on the
+    COUNT - Fitschen eq. (5), `(H-d)/d > n > (H-2d)/(2d)` - and it is written in IMPELLER diameters,
+    not tank diameters, which is where the old reading went wrong:
 
-    | vessel | bore | liquid | H/T | coverage | by that convention |
-    | --- | --- | --- | --- | --- | --- |
-    | jar_10L_220x305 | 210.0 | 236.0 | 1.124 | 0.565 D | one |
-    | jar_1gal_180x197 | 170.0 | 156.1 | 0.918 | 0.143 D | one |
-    | jar_6p5gal_305x470 | 280.8 | 325.3 | 1.158 | 0.711 D | one |
-    | jar_1p5L_109x215 | 101.2 | 170.2 | 1.681 | 1.888 D | two |
-    | jar_1gal_155x251 | 149.3 | 189.1 | 1.267 | 0.913 D | two |
+    | vessel | H_L | d = 0.45 T | H_L/d | H/T | band allows | old H/T 1.2 said |
+    | --- | --- | --- | --- | --- | --- | --- |
+    | jar_10L_220x305 | 234.59 | 94.50 | 2.482 | 1.117 | n = 1 | one |
+    | jar_1gal_180x197 | 153.36 | 76.50 | 2.005 | 0.902 | n = 1 | one |
+    | jar_6p5gal_305x470 | 325.26 | 126.36 | 2.574 | 1.158 | n = 1 | one |
+    | jar_1gal_155x251 | 188.59 | 67.19 | 2.807 | 1.263 | **n = 1** | **two** |
+    | jar_1p5L_109x215 | 168.70 | 45.55 | 3.704 | 1.667 | n = 1 or 2 | two |
 
-  - **the correlation is exact**: the three short columns are the three with the tightest coverage,
-    and the two above the threshold have room to spare. Forcing a pair into a short column is what
-    spends the liquid over the upper impeller. `jar_1gal_180x197` at 0.143 D against the 0.5 D floor
-    is the worst case, not a separate problem
+  - **jar_1gal_155x251 moved, and it is the whole point of re-asking.** At H/T 1.263 the old
+    threshold gave it a pair; the band gives it one. `jar_1p5L_109x215` is now the ONLY jar a pair
+    is admissible on, and even there one is allowed too. At this D/T the real crossover is H/T
+    **1.35**, not 1.2 - but quoting it in H/T is the mistake, since that only holds at D/T 0.45
+  - **the correlation with coverage still holds and now runs the other way too**: every jar the band
+    puts at one impeller is a jar the pair is spending coverage on. `jar_1gal_180x197` at 0.107 D
+    against the 0.5 D floor is the worst case, not a separate problem
   - the count is baked in at two - `impeller_to_render = "both"`, a mirrored pair in the print
     manifest - and nothing asked whether the vessel wanted two. `head()` now REPORTS the departure
     on every render; it does not act on it
@@ -380,8 +384,16 @@ Follows from the agitation work; the reasoning and citations are in `docs/agitat
     placed in the GAP between the two impellers, the power reporting is per pair, and the manifest
     lists an upper and a lower. One impeller unpicks all three. It would also change the reference
     build, which is physically made with two
-  - the 1.2 is not verified against a source here - it is quoted from this repo's own document. That
-    is the first thing to check before acting on it
+  - **the source question is answered, and the answer is that there is no primary.** Checked against
+    the library: Oldshue's chapter carries no numeric count rule at all, only "as broth becomes more
+    viscous, and tanks become taller, more impellers are used". The equation is Fitschen 2019
+    eq. (5) [PR], which carries it from his [37] = Davis 2010 [TH], which cites Oldshue and Kenty
+    2009, and neither contains it - `docs/references.md` had already verified that for Davis, and
+    the Kenty half was re-checked here. So `stirred_tank_spacing_band()`'s attribution to Fitschen
+    does not move the number off the thesis; it relays it. Recorded in the Fitschen entry
+  - what that changes: nothing may ASSERT on this, and the model reports the bounds instead of
+    testing a magic number. What it does not change is the count, which is still two on every jar
+    - the costs below are why
 
 - [ ] **the Customizer shows a line of code, or half a sentence, for most parameters**
   - OpenSCAD parses **only the line immediately above** a variable as its description; a multi-line

@@ -59,6 +59,33 @@ function stirred_tank_ratio_band() = [0.3, 0.5]; // Fitschen 2019, all impeller 
 function stirred_tank_ratio_band_axial() = [0.4, 0.5]; // Nienow 2006 guideline (a)
 function stirred_tank_spacing_band() = [1.0, 2.0]; // Fitschen 2019, in impeller diameters
 
+// HOW MANY impellers that band implies, which is the same convention read as a count rather than a
+// gap: Fitschen 2019 eq. (5), (H - d)/d > N > (H - 2d)/(2d), from 1-2 d between impellers with the
+// lowest one diameter off the floor.
+//
+// ITS CITATION TRAIL IS CIRCULAR AND ENDS NOWHERE, which is why this reports and never asserts.
+// Fitschen is [PR] but carries the equation from his [37], which is Davis 2010 - the MS thesis
+// docs/references.md grades unreliable for numbers. Davis in turn cites Oldshue and Kenty 2009, and
+// neither contains it; that was verified entry-by-entry in references.md and the Kenty check was
+// repeated here. So the band this repo attributes to Fitschen is Davis's, relayed. There is no
+// primary. It stays because it is the only stated rule anyone here has found, and because the
+// arithmetic is entailed by the spacing band whatever its provenance - not because it is sourced.
+//
+// Note the variable: liquid height over IMPELLER diameter, not over the tank. H/T only stands in
+// for it at a fixed D/T, and Kenty's vessels ran 0.54-0.57 where this one runs 0.45 - which is why
+// a threshold quoted in H/T does not carry between them, and why the 1.2 this replaced was wrong
+// twice over: unsourced, and on the wrong quantity.
+function stirred_tank_impeller_count_bounds(liquid_height, impeller_diameter) =
+  [
+    (liquid_height - 2 * impeller_diameter) / (2 * impeller_diameter),
+    (liquid_height - impeller_diameter) / impeller_diameter
+  ];
+
+// Strict, as the inequality is written: a count ON a bound is a spacing exactly at the band's edge.
+function stirred_tank_impeller_count_fits(count, liquid_height, impeller_diameter) =
+  let (_b = stirred_tank_impeller_count_bounds(liquid_height, impeller_diameter))
+    count > _b[0] && count < _b[1];
+
 // Predicates, so the caller chooses the severity. Inclusive of both ends: the bands are quoted
 // as "between" in the sources, and a value sitting exactly on one is not a departure.
 function stirred_tank_in_band(value, band) = value >= band[0] && value <= band[1];
