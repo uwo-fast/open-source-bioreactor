@@ -163,8 +163,11 @@ ledger at the end: decisions that took real work to reach and would otherwise be
     strike the blades at -0.28 mm running. It was worth doing then. What retired it is the
     clearance, not the method.)
   - it comes back only if the plate is widened to buy area back, since that spends the 2.20 mm. At
-    that point the worst case stops being a comfortable margin and the real lean starts mattering -
-    and `baffle_port_coupon` is already in the print manifest for it
+    that point the worst case stops being a comfortable margin and the real lean starts mattering.
+    `baffle_port_coupon` was DELETED with the measurement rather than kept against that maybe - it
+    was an intersection of the real lid with a 45 mm disc, so it costs nothing to write again, and a
+    part carried on the manifest for a test nobody is going to run is a part that gets printed by
+    someone reading the list
   - **the fixes below are stale in their figures** - they were costed against a 15.3 mm plate and a
     negative running clearance, and both have moved. Kept because the ORDER is still right and the
     mechanisms still apply, now to buying width back rather than giving it away:

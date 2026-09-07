@@ -106,14 +106,6 @@ render_culture = false;
 // The templates the rim gasket is cut with. Deliberately NOT in render_all: it is a tool, and the
 // assembly is the reactor. Turn it on beside render_seals to see the ring against what cuts it.
 render_gasket_cutter = false;
-// A BENCH FIXTURE, not a reactor part, and on the manifest for the same reason the gasket cutter
-// is: it gets printed. It is a disc of the REAL lid cut around one baffle port - an intersection
-// with the lid itself rather than a port modelled again - so it cannot describe a port the lid does
-// not have. It exists to answer the one question the model says it cannot: how much of the baffle's
-// 2.28 mm of predicted lean is bore play and how much the flange face carries. See TODO.md.
-render_baffle_coupon = false;
-// across the disc. Wide enough to hold the port's flange and still be gripped.
-baffle_coupon_diameter = 45;
 // Which of its two discs. "all" stands them side by side, which is the picture, not the print.
 gasket_cutter_part_to_render = "all"; // [all, outer, inner]
 render_sparger = false; // the ring in the inter-impeller gap and its feed arm
@@ -660,7 +652,6 @@ function head_print_parts(vessel_opening_diameter, lid_flange_height, vessel_int
           [str("impeller_", h), 1, str("-D render_impeller=true -D impeller_to_render=\"", h, "\"")],
       ],
       [["sparger", 1, "-D render_sparger=true"]],
-      [["baffle_port_coupon", 1, "-D render_baffle_coupon=true"]],
       // Ports, in the order they sit on the lid. A baffle's plate prints in pieces, so it is that
       // many parts; every other port is one.
       [
@@ -3732,31 +3723,6 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         rotate([0, 180, 0])
           lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter(_shaft), _build_plug_oring, _gasket_sheet, lip_arc_radius);
         lid_locks();
-      }
-  }
-
-  // The coupon: the same lid, intersected with a disc around the first baffle port. Built from
-  // lid_pocketed() and lid_locks() rather than from a second model of a port, so what gets printed
-  // is the lid's own geometry and a measurement taken on it transfers without an argument.
-  //
-  // A jar with no baffle ports has nothing to cut, and says so rather than exporting a blank disc.
-  if (render_baffle_coupon) {
-    assert(
-      len(_baffle_at) > 0,
-      str(
-        "head: this lid carries no baffle port, so there is no coupon to cut from it - ",
-        "the baffle-port coupon is only meaningful on a jar whose lid hangs baffles"
-      )
-    );
-    color(prints2_color)
-      intersection() {
-        union() {
-          rotate([0, 180, 0])
-            lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter(_shaft), _build_plug_oring, _gasket_sheet, lip_arc_radius);
-          lid_locks();
-        }
-        head_port_at(_baffle_at[0], vessel_opening_diameter)
-          cylinder(h = 8 * head_lid_thickness(lid_flange_height), d = baffle_coupon_diameter, center = true);
       }
   }
 
