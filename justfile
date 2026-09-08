@@ -37,7 +37,8 @@ ENTRY_CUSTOMIZED := "scad/assembly.scad scad/head.scad scad/frame.scad"
 ENTRY := "scad/assembly.scad scad/bottle_holder.scad scad/cart.scad scad/electronics_stand.scad \
 scad/frame.scad scad/head.scad scad/custom/bayonet_baffle_port.scad scad/custom/bayonet_port.scad \
 scad/custom/bayonet_probe_port.scad scad/custom/bayonet_thermocouple_port.scad \
-scad/custom/cylindrical_flex_collet.scad scad/custom/gasket_cutter.scad scad/custom/impeller.scad \
+scad/custom/cylindrical_flex_collet.scad scad/custom/gasket_cutter.scad \
+scad/custom/gasket_cutter_v2.scad scad/custom/impeller.scad \
 scad/custom/motor_mount.scad scad/custom/peri_pump_frame_mount.scad \
 scad/custom/peri_pump_head.scad scad/custom/sheet_gasket.scad \
 scad/custom/sparger.scad"
@@ -743,6 +744,11 @@ check-parts:
         scad/custom/peri_pump_frame_mount.scad      # printed and part of the reactor, but waiting on
                                                     # where the bought pumps mount at all
         scad/custom/peri_pump_head.scad             # a stretch goal rather than this build
+        scad/custom/gasket_cutter_v2.scad           # WORK IN PROGRESS - a cutter built around a
+                                                    # standard #11 blade rather than a printed edge.
+                                                    # It renders so it can be previewed while it is
+                                                    # worked on, and reaches no print list because
+                                                    # there is not yet a part to print
     )
     for f in {{ENTRY}}; do
         seen=0
