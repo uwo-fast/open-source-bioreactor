@@ -506,12 +506,12 @@ head_port_set_full = [
   ["temperature", "thermocouple", 3, mcmaster_1245N31_thermocouple_probe], //  90  beside DO, which compensates from it
   ["baffle",      "baffle",       0           ], // 120
   ["ph_probe",    "probe",        0, ph_lab_g2], // 150      away from both dosing lines
-  ["media",       "tube",         1.5         ], // 180      also the spare
+  ["media",       "tube",         tube_port_riser_bore], // 180      also the spare
   ["baffle",      "baffle",       0           ], // 210
   ["air_in",      "tube",         tube_port_riser_bore], // 240   the sparger hangs from this one
-  ["acid",        "tube",         2.4         ], // 270
+  ["acid",        "tube",         tube_port_riser_bore], // 270
   ["baffle",      "baffle",       0           ], // 300
-  ["base",        "tube",         2.4         ], // 330
+  ["base",        "tube",         tube_port_riser_bore], // 330
 ];
 
 // What a narrow jar carries instead. Six ports at 60 degrees, no baffles, no dosing pair - a mouth
@@ -532,7 +532,7 @@ head_port_set_full = [
 head_port_set_reduced = [
   ["do_probe",    "probe",        0, do_lab_g2], //   0 deg  opposite the air inlet
   ["air_out",     "tube",         tube_port_riser_bore], //  60
-  ["media",       "tube",         1.5         ], // 120      also the spare
+  ["media",       "tube",         tube_port_riser_bore], // 120      also the spare
   ["air_in",      "tube",         tube_port_riser_bore], // 180   the sparger hangs from this one
   ["ph_probe",    "probe",        0, ph_lab_g2], // 240
   ["temperature", "thermocouple", 3, mcmaster_3872K129_thermocouple_probe], // 300  beside DO
@@ -741,11 +741,10 @@ function head_port_export_name(ports, i) =
   head_port_function(ports[i]) == "baffle" ? str("baffle_", i) : head_port_function(ports[i]);
 
 // Which ports have a RIGID tube standing in them, and so want a seal around it rather than a bore
-// that only guides it: the sparger's feed, and whatever steadies it. Asked by function, so moving a
-// support to another port takes its gland with it.
-function head_port_carries_riser(port) =
-  let (_f = head_port_function(port))
-    _f == "air_in" || len([for (s = sparge_support_functions) if (s == _f) 1]) > 0;
+// that only guides it. Every tube port does: the sparger's feed, and the rest steadying it. It used
+// to name the feed and consult a list for the others, which is why it took a port rather than a
+// type - the signature stays, because what a port IS remains the question being asked.
+function head_port_carries_riser(port) = head_port_type(port) == "tube";
 
 /* [Baffle Parameters] */
 
@@ -938,14 +937,30 @@ sparge_hole_probes = false;
 // turbine". 3 mm is mid Rewatkar's tested 2-6 and the least tolerance-sensitive that still spaces.
 sparge_hole_diameter = 3;
 sparge_hole_count = 8;
-// Which ports carry a tube down to the ring purely to hold it steady, named by function the way the
-// feed is. One riser leaves the ring on a 1.33 N/mm cantilever - 0.75 mm of sway per newton against
-// 1.7 mm of clearance to the baffles - so two newtons of flow would have it touching.
+// Which ports drop a tube to the ring purely to hold it steady. EVERY tube port but the feed does,
+// where it used to be air_out alone. One tube leaves the ring on a 1.72844 N/mm cantilever -
+// 0.578556 mm of sway per newton against 1.25 mm of clearance to the baffles - so the count is
+// worth caring about, and the stock settles it: a riser is 188.174 mm on jar_10L and steel tube is
+// sold by the metre, so the five the full set wants come off one length with 59 mm spare.
 //
-// air_out is the second because it is the one tube port both the full and the reduced set place
-// 120 degrees from air_in, which is as far apart as either layout allows. Its socket is blind: the
-// tube is capped there and takes a drilled hole higher up, where a vent actually wants to be.
-sparge_support_functions = ["air_out"];
+// It is also the SIMPLER table, which is the better reason. A tube port used to be one of three
+// bores and one of two behaviours; it is one of each now, so a bore, a gland, a ring and a length
+// are the same on every one of them.
+//
+// Each socket is blind but the feed's: the tube is capped there and takes a hole higher up, where
+// that port actually wants to open - air_out in the headspace, the dosing lines just above the ring
+// where the impeller will carry a dose away. Those cuts are a bench operation and are NOT modelled;
+// only air_out's needs a size, because it is the exhaust path and a slot under the tube's own
+// 7.07 mm2 bore would become the restriction. See TODO.md.
+//
+// DERIVED rather than named, and that is not a style choice: it WAS a list of functions, and naming
+// acid and base in it broke the six-port jars, which carry neither - a name no port answers to is
+// an assert, not a no-op. The rule is what the list was trying to spell anyway, so it reads the
+// table, and any lid with any port set answers it correctly.
+function head_sparge_support_ports(vessel_opening_diameter) =
+  let (_p = head_ports_for(vessel_opening_diameter))
+    [for (i = [0:len(_p) - 1])
+      if (head_port_type(_p[i]) == "tube" && head_port_function(_p[i]) != "air_in") i];
 // sparge_riser_tube is registered up in [Port Assignment], because the ports it passes are bored
 // for it and a table cannot read a value set below it.
 // bore of the socket the riser drops into, off the tube itself so the two cannot drift
@@ -2853,23 +2868,20 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   );
 
   _sparge_feed_angle = head_sparge_feed_port(vessel_opening_diameter) * 360 / _n;
-  _sparge_support_angles = [
-    for (f = sparge_support_functions) head_port_index(vessel_opening_diameter, f) * 360 / _n,
-  ];
+  _sparge_support_ports = head_sparge_support_ports(vessel_opening_diameter);
+  _sparge_support_angles = [for (i = _sparge_support_ports) i * 360 / _n];
 
   // A support tube is cut from the riser's own stock, so whichever ports carry one have to pass it.
   // air_out's bore is cut for that tube and cannot fail this; every other port's is registered
   // independently, and moving a support onto one is a one-line edit that nothing else would catch,
   // because the model never draws a tube through a port. Reports the narrowest of them.
-  _support_bores = [
-    for (f = sparge_support_functions)
-      head_port_bore_radius(head_ports_for(vessel_opening_diameter)[head_port_index(vessel_opening_diameter, f)]),
-  ];
+  _support_bores = [for (i = _sparge_support_ports) head_port_bore_radius(_ports[i])];
 
   assert(
     len(_support_bores) == 0 || min(_support_bores) * 2 >= steel_tube_od(sparge_riser_tube),
     str(
-      "sparge support: ", sparge_support_functions, " - the narrowest of those ports bores ",
+      "sparge support: ", [for (i = _sparge_support_ports) head_port_function(_ports[i])],
+      " - the narrowest of those ports bores ",
       min(_support_bores) * 2, " mm and the support tube is ", steel_tube_od(sparge_riser_tube),
       " mm across, so it will not go through"
     )
@@ -3224,7 +3236,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   echo(str(
     "sparge riser seal: ", oring_name(tube_port_riser_oring), " (", oring_part_number(tube_port_riser_oring),
-    ") in each of ", 1 + len(sparge_support_functions), " ports, at ", _riser_seal_stretch * 100,
+    ") in each of ", 1 + len(_sparge_support_ports), " ports, at ", _riser_seal_stretch * 100,
     "% stretch and ", _riser_seal_squeeze * 100, "% squeeze - without it each port is a ",
     PI / 4 * (pow(_riser_port_bore, 2) - pow(steel_tube_od(sparge_riser_tube), 2)),
     " mm2 hole into the headspace, and the sterile filter only covers the way in"
@@ -3243,24 +3255,27 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     for (i = [0:_n - 1])
       if (len([for (f = dosing_pump_functions) if (head_port_function(_ports[i]) == f) 1]) > 0) i
   ];
-  _dosing_tube_od = peri_pump_tube_outer_diameter(head_dosing_pump);
-  _dosing_bore = len(_dosing_ports) == 0
-    ? undef
-    : min([for (i = _dosing_ports) head_port_bore_radius(_ports[i]) * 2]);
+  // The dosing line goes OVER the steel tube's proud end, not into the port's bore. It used to be
+  // the second - the port bored 4.8 mm to take a 5 mm tube with 0.2 mm of interference - and that
+  // ended when every tube port got a riser: the bore now holds the steel and the soft tube grips
+  // its stub, which is what air_in has always done. So the fit is the pump tube's INSIDE against
+  // the riser's OUTSIDE, and it is a stretch rather than a squeeze.
+  _dosing_tube_id = peri_pump_tube_inner_diameter(head_dosing_pump);
+  _riser_od = steel_tube_od(sparge_riser_tube);
 
   if (len(_dosing_ports) > 0)
     echo(str(
-      "dosing: ", peri_pump_name(head_dosing_pump), " pushes ",
-      peri_pump_tube_inner_diameter(head_dosing_pump), " x ", _dosing_tube_od, " mm tube into ",
-      len(_dosing_ports), " ports bored ", _dosing_bore, " mm - ",
-      _dosing_tube_od - _dosing_bore, " mm of interference, which is what grips it"
+      "dosing: ", peri_pump_name(head_dosing_pump), " pulls ",
+      _dosing_tube_id, " x ", peri_pump_tube_outer_diameter(head_dosing_pump), " mm tube over ",
+      len(_dosing_ports), " risers of ", _riser_od, " mm - ", _riser_od - _dosing_tube_id,
+      " mm of interference over ", sparge_riser_proud, " mm of stub, which is what grips it"
     ));
 
-  if (len(_dosing_ports) > 0 && _dosing_tube_od <= _dosing_bore)
+  if (len(_dosing_ports) > 0 && _dosing_tube_id >= _riser_od)
     echo(str(
-      "WARNING dosing: a ", _dosing_tube_od, " mm tube in a ", _dosing_bore,
-      " mm bore is loose, and nothing else holds a dosing line in - it is pushed into the port and ",
-      "gripped by it. Either the port's bore or the pump's tube has moved."
+      "WARNING dosing: a ", _dosing_tube_id, " mm bore over a ", _riser_od,
+      " mm riser is loose, and nothing else holds a dosing line on - it is pushed over the stub and ",
+      "gripped by it. Either the riser or the pump's tube has moved."
     ));
 
   // It is bought as a length of stock and cut, not as a part per tube, so the purchase list needs

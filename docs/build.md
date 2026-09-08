@@ -139,7 +139,7 @@ is set by the rod bosses, so that bought nothing and was undone.
 | Stock | Cut | Yield |
 | --- | --- | --- |
 | M8 threaded rod, DIN 975 A2 | **4 × 322 mm** | buy 1500 mm or more |
-| 316 SS tube 4 × 0.5 mm, `50415K21` | **2 × 186.637 mm** | 373.275 mm from a 500 mm length, 126.7 mm spare |
+| 316 SS tube 4 × 0.5 mm, `50415K21` | **5 × 188.174 mm** | 940.869 mm from a 1000 mm length, 59.1 mm spare |
 | EPDM sheet 1/16 in 60A, `8525T65` | **145 × 151 mm** per lid | 4 per 304.8 mm sheet |
 
 **The rod length follows the jar, not the design.** 322 mm is `jar_10L`; it is 214 mm on
@@ -249,17 +249,27 @@ headspace; a dosing line on the wrong one puts acid where base should go. The ma
 The sparge ring itself cannot be installed rotated: its two sockets are 120° apart, and only one
 rotation puts both under tube ports.
 
-### Drilling the support tube
+### Drilling the support tubes
 
-The support tube is capped where it meets the ring and does its job through a hole you drill. The
-model is the only thing that can dimension that hole, and it does:
+Every tube port but `air_in` takes a support tube: capped where it meets the ring, and doing its job
+through a hole you drill. Four of them on the twelve-port lid, two on the six-port jars. The model is
+the only thing that can dimension that hole, and it does:
 
 ```
-sparge support drilling: a support tube vents through a hole drilled between 38
-and 87.8892 mm from its TOP end - past the lid's inner face, short of the
-culture. Nearer the first number is better; the headspace is there for foam and
-foam finds the lowest hole.
+sparge support drilling: a support tube vents through a hole drilled between
+37.9375 and 88.3443 mm from its TOP end - past the lid's inner face, short of
+the culture. Nearer the first number is better; the headspace is there for foam
+and foam finds the lowest hole. A tube meant to discharge INTO the culture
+instead is drilled past the second.
 ```
+
+**Which end of that window depends on the port.** `air_out` is the exhaust and wants the first
+number — a vent belongs in the headspace. `media`, `acid` and `base` discharge into the culture, so
+they are drilled past the second, and low is better: the dose lands where the impeller will carry it
+away, and the tube below the hole is a dead leg that keeps whatever it is given.
+
+Only `air_out`'s hole has a size to meet. It is the whole exhaust path, so a hole under the tube's
+own 7.07 mm² bore becomes the restriction in the gas line. The three dosing holes meter nothing.
 
 Measured from the **top** end, because that is the end you can reach with the tube in your hand.
 

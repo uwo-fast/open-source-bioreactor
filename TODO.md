@@ -131,6 +131,25 @@ actually left. What was decided, and what this project got wrong on the way, is 
     registered) takes the groove to 1.5 wide and Ø25.2, which buys the width back at 0.25 mm of
     squeeze instead of 0.375
 
+- [ ] **model the support tubes' discharge holes, now that four ports have one**
+  - every tube port but `air_in` drops a 188.174 mm steel tube to the sparge ring and is capped
+    there, so each does its job through a hole drilled up its length. `head()` reports the WINDOW
+    that hole may sit in - 37.9375 to 88.3443 mm from the top for a headspace vent, past the second
+    for a tube discharging into the culture - and `docs/build.md` says which end each port wants
+  - **what is not modelled is the hole itself.** It is a bench operation with a file or a rotary
+    tool, so nothing draws it, nothing checks it, and the tube is drawn as a plain cylinder. That is
+    the honest state and it may be the right one - a hand-cut slot in a bought tube is not obviously
+    the model's business
+  - **only `air_out`'s hole has a size to meet**, and that one does belong to the model: it is the
+    whole exhaust path, so a slot under the tube's own **7.07 mm2** bore becomes the restriction in
+    the gas line and eats into the 1.885 kPa/L/min the outlet filter is budgeted. Worth an echo that
+    prices a given slot area against that budget, the way the filter drop already is. The three
+    dosing holes meter nothing and need no size
+  - unresolved, and cheap to settle at the bench: whether the three dosing stubs want hose clamps.
+    The gas line's 14 are counted on the purchase list; the dosing lines push 3 mm silicone over a
+    4 mm riser, 1 mm of interference over a 14.9375 mm stub, and nothing says whether that holds a
+    pumped line on its own
+
 - [ ] **where the sparger's gas actually goes, and whether the DO probe should be somewhere else**
   - **the placement is the opposite of what was expected.** The DO probe was thought to sit in a slow
     corner between a baffle and the wall. It does not: its face sits **20.6 mm above the sparge

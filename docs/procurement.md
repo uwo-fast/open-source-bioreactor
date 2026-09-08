@@ -172,7 +172,7 @@
     a literal 15 mm proud, justified against "a worm clamp's band is about 9 mm wide" — so once a
     clamp was actually chosen, one band had two numbers. The clamp is registered in
     `scad/purchased/hose_clamps.scad` and `sparge_riser_proud` derives from its **7.9375 mm** band
-    plus 3.5 mm of lead-in either side: **14.9375 mm**, and the riser is 186.637 rather than 186.7.
+    plus 3.5 mm of lead-in either side: **14.9375 mm**, and the riser is 188.174 rather than 186.7.
     The 5/16 in band is also the narrowest McMaster offer this clamp in; the 1/2 in band is 12.7 mm
     and would leave 2.3 mm of lead-in in total
   - **one size covers the whole line**, which the width decides for it: the 5/16 in band's smallest
