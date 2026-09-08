@@ -73,39 +73,60 @@ back wherever it currently sits, so reordering the lid carries the sparger with 
 insists on exactly one match, so a table with two air inlets or none fails loudly rather than
 silently taking the first.
 
-## What the air-out port also carries
+## What the other tube ports also carry
 
-The ring hangs on more than its feed. `sparge_support_functions` names the ports that carry a second
-riser, and it names **`air_out`** — because it is the one tube port that BOTH layouts place 120° from
-`air_in`, which is as far apart as either circle allows.
+The ring hangs on more than its feed. **Every tube port but `air_in` drops a riser to it** — four on
+the twelve-port lid, two on the six-port jars — and the model derives that from the port table rather
+than naming functions, so any lid answers it. It was a named list once, and naming `acid` and `base`
+in it broke the six-port jars, which carry neither.
+
+The stock is what makes it free: a riser is 188.174 mm on `jar_10L` and this tube is sold by the
+metre, so the five the full set wants come off one length with 59 mm spare.
 
 A support riser is the same tube in the same material as the feed, but its socket is **blind**. It
-carries load and no gas, which is what lets it double as the exhaust: the tube is capped at the
-bottom and does its job through a hole drilled higher up, above the culture line. The model is the
-only thing that knows where that line is, so it dimensions the drill in an echo rather than leaving
-a hand operation undimensioned — **38 to 87.9 mm from the tube's TOP end** on `jar_10L`, measured
-from that end because it is the one you can reach with the tube in your hand, past the lid's inner
-face and short of the liquid. Nearer the lid is better: the headspace is there for foam, and foam
-finds the lowest hole. With no support named at all the model warns — the ring would then hang on
-the feed riser alone.
+carries load and no gas, which is what lets it double as whatever its port is for: the tube is capped
+at the bottom and does its job through a hole drilled higher up. The model is the only thing that
+knows where the culture line is, so it dimensions the drill in an echo rather than leaving a hand
+operation undimensioned — **37.9 to 88.3 mm from the tube's TOP end** on `jar_10L`, measured from
+that end because it is the one you can reach with the tube in your hand.
 
-The two sockets are told apart **on the part**, because you cannot see inside one at the bottom of
-a jar: the feed's boss is a **hex** and a support's is round. Otherwise they are the same boss —
-same bore, same height, same arm — and the difference is entirely internal. Sized across the flats,
-so the wall is unchanged and only the corners are new material.
+**Which end of that window depends on the port.** `air_out` is the exhaust and wants the low number,
+past the lid's inner face and short of the liquid: the headspace is there for foam, and foam finds
+the lowest hole. `media`, `acid` and `base` discharge INTO the culture, so they are drilled past the
+far number instead, and low is better — the dose lands where the impeller carries it away, and the
+tube below the hole is a dead leg that keeps whatever it is given.
 
-## The two gas ports are bored for a tube, and sealed around it
+Only `air_out`'s hole has a size to meet, being the whole exhaust path: a slot under the tube's own
+7.07 mm² bore becomes the restriction in the gas line. The three dosing holes meter nothing.
 
-Every other tube port passes **flexible tubing**, which deforms into a printed bore and holds itself
-there. The two gas ports pass a **rigid steel riser**, which does neither, and for a long time they
-were bored as though they did not know the difference: `air_in` and `air_out` each carried a literal
-bore radius of 3 — a hose radius on a port no hose enters, since the supply line pushes over the
-riser's 14.94 mm proud end and is clamped there. So a 4 mm tube hung in a 6 mm hole with **2 mm of
-slack**, neither located nor closed.
+The feed socket is told apart from the supports **on the part**, because you cannot see inside one
+at the bottom of a jar: the feed's boss is an **octagon** and a support's is round. Otherwise they
+are the same boss — same bore, same height, same arm — and the difference is entirely internal.
+Sized across the flats, so the wall is unchanged and only the corners are new material.
 
-Both bores come off `sparge_riser_tube` now, at OD plus 0.2 mm, which is the same allowance the
+**That tell got weaker as the count grew.** There is one feed against four supports on the full lid,
+so there are now four ways to put the gas line on a capped tube rather than one, and the octagon's
+corners stand only 0.264 mm proud of the circle. Count the facets or feel for the corners; do not
+glance. Every socket also carries a 0.5 mm lead-in chamfer, which is about getting five rigid tubes
+into five sockets at once and tells you nothing about which is which.
+
+## Every tube port is bored for a tube, and sealed around it
+
+A tube port used to pass **flexible tubing**, which deforms into a printed bore and holds itself
+there. They all pass a **rigid steel riser** now, which does neither, and for a long time the two gas
+ports were bored as though they did not know the difference: `air_in` and `air_out` each carried a
+literal bore radius of 3 — a hose radius on a port no hose enters, since the supply line pushes over
+the riser's 14.94 mm proud end and is clamped there. So a 4 mm tube hung in a 6 mm hole with **2 mm
+of slack**, neither located nor closed.
+
+Every bore comes off `sparge_riser_tube` now, at OD plus 0.2 mm, which is the same allowance the
 bearing and shaft holes take. Slack **2 mm → 0.4**. That is a guide and nothing more: printed
 plastic on ground steel leaks along the layer lines however close it is cut.
+
+`media`, `acid` and `base` joined them when every tube port got a riser, so all five bore alike and
+all five carry the gland below. What changed for the dosing lines is where they are gripped: the
+soft tube pushes OVER the riser's proud end and is clamped there, as the gas lines always did,
+rather than into the port's own bore.
 
 What closes it is a **rod gland** — the only one in the build, and the opposite of the face seals
 every port already carries. A face seal is chosen by the gland it sits in; this one's **ID is the
@@ -137,11 +158,14 @@ read `O6`, and acid and base are both 2.4 mm and both read `O4.8`. The lid could
 port was the gas line — and dosing acid into the base line is the same mistake with worse
 consequences.
 
-Tube ports now carry their **function and their bore**: `AIR IN O4.4`, `ACID O4.8`. The gas ports
-read 4.4 rather than the 6 above, because their bore is cut for the riser and not for a hose — see
-the section before this one. The ring itself cannot be installed rotated: its two sockets are 120°
-apart, and only one rotation puts both under tube ports; every other lands one on a baffle or a
-probe.
+Tube ports now carry their **function and their bore**: `AIR IN O4.4`, `ACID O4.4`. They read 4.4
+rather than the 6 above because every one of them is cut for the riser and not for a hose — see the
+section before this one. Since they are now all the same, the bore on those marks distinguishes
+nothing and the function word carries it: read the word, not the number.
+
+The ring itself cannot be installed rotated, and is better keyed than it was: it carries a socket
+under every tube port — five on the full lid at 0, 180, 240, 270 and 330° — and that pattern is
+irregular enough that only one rotation puts them all under ports.
 
 ## The probes lean, and only one of them
 
