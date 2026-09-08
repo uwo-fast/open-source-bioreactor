@@ -173,7 +173,19 @@ function stirred_tank_orifice_velocity(gas_flow, count, hole_diameter) =
 // rises while a fixed tolerance does not.
 function stirred_tank_capillary_pressure(hole_diameter) =
   4 * stirred_tank_surface_tension() / (hole_diameter / 1000);
-function stirred_tank_orifice_pressure(velocity) = 0.5 * 1.2 * pow(velocity, 2) / pow(0.6, 2);
+// The two constants the forward and inverse forms share, named so they cannot drift apart. 1.2 and
+// not gas_air_density_at_20c()'s 1.204 because that is what every orifice figure published here was
+// computed with - this names them, it does not re-value them.
+function stirred_tank_orifice_cd() = 0.6;
+function stirred_tank_orifice_density() = 1.2; // kg/m^3, air
+function stirred_tank_orifice_pressure(velocity) =
+  0.5 * stirred_tank_orifice_density() * pow(velocity, 2) / pow(stirred_tank_orifice_cd(), 2);
+
+// Turned round: the area at which a given drop is spent, so a pressure can be a BUDGET rather than
+// a result. What a hand-cut vent has to beat - a slot made with a file is not a dimension the model
+// sets, so the only useful thing it can say is how small is too small.
+function stirred_tank_orifice_area(gas_flow, pressure) =
+  gas_flow / (stirred_tank_orifice_cd() * sqrt(2 * pressure / stirred_tank_orifice_density()));
 
 // ----- what the hole actually makes -----
 //

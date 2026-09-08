@@ -62,7 +62,7 @@ actually left. What was decided, and what this project got wrong on the way, is 
   - the answer to both is the narrow-jar agitation question, tracked under "drive and aeration".
     Nothing else in the model is waiting on it
 
-- [ ] **choose an outlet filter that fits in 1.885 kPa/L/min, because the obvious one does not**
+- [ ] **choose an outlet filter that fits in 1.92464 kPa/L/min, because the obvious one does not**
   - the exhaust is unguarded: the headspace vents through a support tube's bore into the room while
     a 0.2 um filter guards the inlet, which is half the usual arrangement. `head()` says so on every
     render now rather than leaving it to a document
@@ -70,9 +70,25 @@ actually left. What was decided, and what this project got wrong on the way, is 
     is sold in tens - but an outlet filter raises the headspace the sparge holes discharge into. Two
     of them put the line at **31.8 kPa** against a pump that dead-heads at 27, and the reactor
     settles at **3.27 L/min**: 0.5 vvm stops being a setting it can hold
-  - the model reports the budget instead of a part: **at most 1.885 kPa per L/min**, 54.6 % of the
+  - the model reports the budget instead of a part: **at most 1.92464 kPa per L/min**, 55.8 % of the
     inlet filter's slope, so roughly twice the membrane area. `sparge_outlet_filter_drop_slope` is
     undef until something is chosen; set it and head() prices the exhaust into the line
+  - **the budget is GROSS, and the exhaust already spends some of it**: the vent slot and the tube
+    above it cost 2.28-2.68 % before a filter exists, which `head()` now echoes. Small, and it is
+    the whole of what is left rather than a share of it
+  - **and `head_gas_line_pressure()` gets that exhaust wrong in both directions, latently.** With no
+    outlet filter it prices the way out at **zero**, though the tube costs 23.7-55.2 Pa whatever is
+    on the end of it; with one defined it charges a full **188.174 mm** riser where the gas only
+    travels the slot-to-top run of **37.9-88.3 mm**, so it over-counts 2-3.5x. Under 0.5 % of a
+    17368 Pa line either way, and dead code today since nothing sets the filter - but whoever sets
+    it inherits both. Fixing it moves the operating flow, the throttle Cv and this budget, so it is
+    a decision rather than a tidy-up
+  - **and the budget goes NEGATIVE where the pump cannot reach the band at all**, which the echo
+    prints straight: `jar_6p5gal_305x470` reads "an outlet filter may cost at most -2.05574 kPa per
+    L/min". Arithmetic is right and the sentence is not - there is no budget, the line beats the
+    pump, and the throttle warning three echoes down already says so. Pre-existing, found while
+    pricing the vent slot, which guards the same number. One `<= 0` branch, same shape as the one
+    `gas throttle` already has
   - **it moves with the inlet filter's own number**, which is still extrapolated rather than
     measured. Measure that first - the item below - and this budget follows from it
   - a fix that costs nothing in pressure is worth weighing against a filter at all: the exhaust
@@ -161,11 +177,25 @@ actually left. What was decided, and what this project got wrong on the way, is 
     tool, so nothing draws it, nothing checks it, and the tube is drawn as a plain cylinder. That is
     the honest state and it may be the right one - a hand-cut slot in a bought tube is not obviously
     the model's business
-  - **only `air_out`'s hole has a size to meet**, and that one does belong to the model: it is the
-    whole exhaust path, so a slot under the tube's own **7.07 mm2** bore becomes the restriction in
-    the gas line and eats into the 1.885 kPa/L/min the outlet filter is budgeted. Worth an echo that
-    prices a given slot area against that budget, the way the filter drop already is. The three
-    dosing holes meter nothing and need no size
+  - **only `air_out`'s hole had a size to meet, and it is priced now rather than asserted.**
+    `head()` echoes what the exhaust path costs: a slot at the tube's own **7.06858 mm2** bore is
+    156.978 Pa and the tube above it 23.7-55.2 Pa, together 2.28-2.68 % of the 7921.88 Pa the
+    exhaust has to spend - the same Pa the throttle is giving away, since the budget and that drop
+    are one headroom expressed two ways
+  - **the useful half is the FLOOR, and it is not the formality it looked like.** The slot is the
+    whole budget at **0.995034 mm2** on `jar_10L`, a Ø1.12557 mm hole. A normal file cut clears that
+    7.1x over, but a shallow pass that only just breaks the 0.5 mm wall over a couple of
+    millimetres lands on it, so it is a real thing to get wrong. `docs/build.md` says to look
+    through the hole against the light
+  - **the floor is per-jar and the echo derives it**, which is why no size is written into the
+    sentence: 0.995 mm2 here against **0.282709** on `jar_1gal_180x197`, since what sets it is the
+    headroom that jar's own gas line has left. `jar_6p5gal_305x470` has none - its line beats the
+    pump at the top of its band - so the echo says the slot has no size to meet rather than
+    printing the nan a negative budget gives
+  - NOT parameterised, deliberately: a `sparge_vent_slot_area` would need a default that is a guess
+    at a hand-cut window, and a guessed default feeding a reported number is what this project grades
+    as reasoned-not-cited. The floor is checkable with a rule; the slot itself stays the bench's
+  - the three dosing holes meter nothing and need no size
   - settled: the three dosing stubs get hose clamps, 17 on the list where there were 14. Silicone
     over a 4 mm riser measures about 6 mm and SAE 4 closes from 5.6, so it is the same clamp as the
     whole gas line and 2 packs of 10 still cover it

@@ -282,8 +282,32 @@ number — a vent belongs in the headspace. `media`, `acid` and `base` discharge
 they are drilled past the second, and low is better: the dose lands where the impeller will carry it
 away, and the tube below the hole is a dead leg that keeps whatever it is given.
 
-Only `air_out`'s hole has a size to meet. It is the whole exhaust path, so a hole under the tube's
-own 7.07 mm² bore becomes the restriction in the gas line. The three dosing holes meter nothing.
+**Only `air_out`'s hole has a size to meet**, and the model prices it rather than saying it is the
+exhaust path and leaving it there:
+
+```
+gas exhaust slot: air_out vents through a hand-cut hole, so its SIZE is the one
+restriction on the way out that nothing here draws. A slot of the tube's own
+7.06858 mm2 bore costs 156.978 Pa at 4.11604 L/min, and the tube above it another
+23.6947-55.1772 Pa over the 37.9375-88.3443 mm drilling window - together
+2.28068-2.6781% of the 7921.88 Pa the exhaust has to spend. FILE PAST 0.995034 mm2
+- a round hole of 1.12557 mm - or the slot alone is the whole of it. The bore's
+own area clears that 7.10386x over.
+```
+
+**On this jar the floor is about 1 mm², which is a Ø1.13 mm hole** — a slot roughly 2 × 0.5 mm. A
+normal file cut clears it seven times over, and it is *not* too small to miss: a shallow pass that
+only just breaks the 0.5 mm wall over a couple of millimetres lands on the limit. Cut it, then hold
+the tube up to the light and look through the hole before it goes in.
+
+**Read the floor off your own render rather than off this page.** It moves with the jar, because it
+is set by the headroom that jar's gas line has left: 0.995 mm² here against 0.283 mm² on
+`jar_1gal_180x197`. And on `jar_6p5gal_305x470` there is no floor to quote at all — that build
+cannot hold the top of its own aeration band, so the echo says so instead of printing a number.
+
+That 7921.88 Pa is the same pressure the throttle is currently giving away, and the same headroom an
+outlet filter would have to fit inside - so what the slot spends comes off both. The three dosing
+holes meter nothing and need no size.
 
 Measured from the **top** end, because that is the end you can reach with the tube in your hand.
 
@@ -426,8 +450,9 @@ It is not. An outlet filter does not sit between the pump and the sparge holes, 
 headspace those holes discharge into, and the gas has to beat that too. A second identical filter
 puts the line at **31.8 kPa** against a pump that dead-heads at **27** — the reactor would settle at
 **3.27 L/min**, and 0.5 vvm would stop being a setting it can hold. `head()` reports the budget:
-an outlet filter may cost at most **1.885 kPa per L/min**, which is 54.6 % of what the inlet one does,
-so it wants roughly **twice the membrane area** rather than the same part again.
+an outlet filter may cost at most **1.92464 kPa per L/min**, which is 55.8 % of what the inlet one
+does, so it wants roughly **twice the membrane area** rather than the same part again. That budget is
+gross: the vent slot and the tube above it spend 2.3-2.7 % of it before any filter is chosen.
 
 Two numbers behind that are worth knowing. The pump's real ceiling on this line is **6.05 L/min**,
 not the 23 that a back pressure held at the design point suggests — the filter is linear in flow, so

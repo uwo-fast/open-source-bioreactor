@@ -3475,6 +3475,51 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       )
   );
 
+  // WHAT THE WAY OUT COSTS BEFORE ANY FILTER IS CHOSEN. The vent slot is cut with a file, so its
+  // size is the one thing on the exhaust path nothing here draws - and an orifice is unforgiving in
+  // the small direction where a tube is not. Both come out of the headroom the throttle is giving
+  // away, which is why the budget above and that throttle drop are the same number.
+  _vent_bore = steel_tube_id(sparge_riser_tube);
+  _vent_bore_area = PI / 4 * pow(_vent_bore, 2);
+  _vent_budget_pa = _gas_outlet_budget * _gas_band[1] * 1000;
+  _vent_slot_drop =
+    stirred_tank_orifice_pressure(stirred_tank_orifice_velocity(_gas_band[1] / 60000, 1, _vent_bore));
+  _vent_run = [_riser_top_z + lid_thickness, _riser_top_z - _liquid_surface_z];
+  _vent_tube_drop = [for (l = _vent_run) gas_tube_pressure_drop(_gas_band[1], _vent_bore, l)];
+  _vent_min_area = stirred_tank_orifice_area(_gas_band[1] / 60000, _vent_budget_pa) * 1e6;
+  // As a diameter, because the floor is checked against a drill or a rule and not against an area.
+  // DERIVED and not written into the sentence: the floor moves with the jar, 0.995 mm2 on jar_10L
+  // against 0.283 on jar_1gal_180x197, so a size quoted in prose would be right on one of them.
+  _vent_min_diameter = sqrt(4 * _vent_min_area / PI);
+
+  // Only where there is headroom to spend. A budget is what the pump has LEFT, so a line it cannot
+  // beat returns a negative one - and pricing a slot against that gives a nan floor and percentages
+  // with a minus sign, which is arithmetic reporting a design problem in the one form nobody reads.
+  // The throttle warning below already names the cause; this says why the slot has no number.
+  if (len(_sparge_support_angles) > 0)
+    echo(
+      _gas_outlet_budget <= 0
+        ? str(
+          "gas exhaust slot: air_out's hand-cut vent has no size to meet here, because there is no ",
+          "headroom to meet it in - the line already beats the pump at ", _gas_band[1],
+          " L/min and the budget reads ", _gas_outlet_budget, " kPa per L/min. The slot is not what ",
+          "is wrong; see the throttle warning."
+        )
+        : str(
+          "gas exhaust slot: air_out vents through a hand-cut hole, so its SIZE is the one ",
+          "restriction on the way out that nothing here draws. A slot of the tube's own ",
+          _vent_bore_area, " mm2 bore costs ", _vent_slot_drop, " Pa at ", _gas_band[1],
+          " L/min, and the tube above it another ", _vent_tube_drop[0], "-", _vent_tube_drop[1],
+          " Pa over the ", _vent_run[0], "-", _vent_run[1], " mm drilling window - together ",
+          (_vent_slot_drop + _vent_tube_drop[0]) / _vent_budget_pa * 100, "-",
+          (_vent_slot_drop + _vent_tube_drop[1]) / _vent_budget_pa * 100, "% of the ",
+          _vent_budget_pa, " Pa the exhaust has to spend. FILE PAST ", _vent_min_area,
+          " mm2 - a round hole of ", _vent_min_diameter,
+          " mm - or the slot alone is the whole of it. The bore's own area clears that ",
+          _vent_bore_area / _vent_min_area, "x over."
+        )
+    );
+
   // What that throttle is, as a part rather than as a pressure. The filter takes more than half of
   // what the valve would otherwise have had, so this number moved a long way when it landed.
   //
