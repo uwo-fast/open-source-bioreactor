@@ -967,6 +967,12 @@ function head_sparge_support_ports(vessel_opening_diameter) =
 sparge_feed_bore = steel_tube_od(sparge_riser_tube);
 // how far it lands inside the socket
 sparge_riser_insertion = 8;
+// Lead-in at each socket mouth, so a rigid tube finds the hole instead of catching its rim. It
+// matters more than it did: the full lid drops FIVE tubes into five sockets at once, blind, at the
+// bottom of a jar. Bounded by the wall it eats - sparger() asserts it against half of that - and
+// 0.5 leaves 0.7 mm at the mouth against the 1.2 mm the socket keeps lower down. It does NOT open
+// the bore: engagement is the same 8 mm below the chamfer.
+sparge_socket_chamfer = 0.5;
 // The clamp that lands on the riser, and the only reason a hose clamp is a registered part: what
 // the model needs off it is the band's width, and that is what decides how far the tube stands
 // proud. Which clamp, and why this grade, is in docs/procurement.md.
@@ -3499,6 +3505,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
           feed_angle=_sparge_feed_angle,
           feed_radius=port_circle_radius,
           feed_bore=sparge_feed_bore,
+          socket_chamfer=sparge_socket_chamfer,
           support_angles=_sparge_support_angles,
           split_angle=sparge_split_angle,
           plug_tap_radius=set_screw_tap_radius(sparge_plug_screw)

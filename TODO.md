@@ -131,6 +131,27 @@ actually left. What was decided, and what this project got wrong on the way, is 
     registered) takes the groove to 1.5 wide and Ø25.2, which buys the width back at 0.25 mm of
     squeeze instead of 0.375
 
+- [ ] **the sparge socket is cut at the riser's own diameter, with nothing to spare**
+  - `sparge_feed_bore = steel_tube_od(sparge_riser_tube)`, so a Ø4.0 socket receives a Ø4.0 tube.
+    That is the SAME defect the port o-ring gland had - a printed pocket drawn at the nominal size of
+    the bought part it must accept - and it was missed when that one was audited, because the sweep
+    looked for named allowance constants and this is a bore set equal to a diameter
+  - a **0.5 mm lead-in chamfer** is in at every socket mouth, which is what makes a rigid tube FIND
+    the hole. It does not make the hole bigger: below the chamfer the bore is untouched, so if the
+    print comes in under size the tube still will not seat
+  - **the fix is not free, and that is why it is here rather than done.** The socket is deliberately
+    the ring tube's own section - `sparger.scad` says sizing a boss to the riser instead "showed as a
+    0.2 mm ledge all round", which is a defect that was fixed on purpose. So the wall around the
+    socket is `(6.4 - 4)/2 = 1.2`, exactly `feed_wall`, with nothing spare: open the bore to 4.2 and
+    that wall falls to 1.1 and trips `sparger()`'s own assert
+  - **so clearance has to come from the section**, `sparge_tube() = sparge_bore() + 2*sparge_wall`,
+    sized off whichever bore it has to surround rather than off the gas one alone. 6.4 -> 6.6 grows
+    `sparge_tube_extent()`, which shrinks `head_sparge_ring_radius` by about 0.1 mm and moves every
+    hole with it. Small, but it is a geometry ripple and `check-holes` is what would confirm it
+  - **untested either way**: nobody has yet pushed a 4 mm tube into a printed socket. The sparger has
+    been printed; whether the riser seats has not been reported. One bench check settles whether any
+    of this is needed, and it is the same check the gland is waiting on
+
 - [ ] **model the support tubes' discharge holes, now that four ports have one**
   - every tube port but `air_in` drops a 188.174 mm steel tube to the sparge ring and is capped
     there, so each does its job through a hole drilled up its length. `head()` reports the WINDOW
@@ -145,10 +166,9 @@ actually left. What was decided, and what this project got wrong on the way, is 
     the gas line and eats into the 1.885 kPa/L/min the outlet filter is budgeted. Worth an echo that
     prices a given slot area against that budget, the way the filter drop already is. The three
     dosing holes meter nothing and need no size
-  - unresolved, and cheap to settle at the bench: whether the three dosing stubs want hose clamps.
-    The gas line's 14 are counted on the purchase list; the dosing lines push 3 mm silicone over a
-    4 mm riser, 1 mm of interference over a 14.9375 mm stub, and nothing says whether that holds a
-    pumped line on its own
+  - settled: the three dosing stubs get hose clamps, 17 on the list where there were 14. Silicone
+    over a 4 mm riser measures about 6 mm and SAE 4 closes from 5.6, so it is the same clamp as the
+    whole gas line and 2 packs of 10 still cover it
 
 - [ ] **where the sparger's gas actually goes, and whether the DO probe should be somewhere else**
   - **the placement is the opposite of what was expected.** The DO probe was thought to sit in a slow

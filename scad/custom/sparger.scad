@@ -266,6 +266,8 @@ module sparger_elbow_solid(r, bend, across_flats, facets) {
  * @param feed_height     Length of the socket above the elbow's top - which is bend_radius above
  *                        the tube's centreline, not above its top face.
  * @param feed_wall       Wall around the socket bore.
+ * @param socket_chamfer  45 deg lead-in at each socket mouth, feed and support alike. 0 leaves the
+ *                        mouth square.
  * @param support_angles  Bearings of blind sockets that steady the part. ROUND, where the feed is
  *                        hexagonal - see below, it is the only thing that tells them apart.
  * @param split_angle     Total angle of the cleaning gap opposite the feed. 0 leaves it closed.
@@ -298,6 +300,7 @@ module sparger(
   feed_bore = 4,
   feed_height = 8,
   feed_wall = 1.2,
+  socket_chamfer = 0.5,
   support_angles = [],
   bend_radius = undef,
   hole_overshoot = 0.5,
@@ -359,6 +362,17 @@ module sparger(
       " arm(s) are NOT covered by check-holes - it probes rings only, so nothing tests that these ",
       "break out or reach a bore. The assert above covers only the unbored-arm case"
     ));
+
+  // The chamfer eats the socket's wall where it is thinnest - at the mouth - so it is bounded by
+  // what is left there, not by taste. Half the wall keeps as much again under it.
+  assert(
+    socket_chamfer <= (tube - feed_bore) / 4,
+    str(
+      "sparger: a ", socket_chamfer, " mm lead-in opens the socket mouth to ",
+      feed_bore + 2 * socket_chamfer, " mm inside a ", tube, " mm section - that leaves ",
+      (tube - feed_bore - 2 * socket_chamfer) / 2, " mm of wall at the mouth"
+    )
+  );
 
   assert(
     (tube - feed_bore) / 2 >= feed_wall,
@@ -581,6 +595,23 @@ module sparger(
       rotate([0, 0, a])
         translate([_feed_r, 0, _ac / 2])
           cylinder(h = feed_height + z_fight, d = feed_bore);
+
+    // Lead-in at every socket mouth. Each tube port drops a rigid tube, so on the full lid FIVE of
+    // them have to find five sockets at once as the lid comes down, blind, at the bottom of a jar.
+    // A square-edged mouth is not something a tube finds - it is something a tube catches on.
+    //
+    // It widens the mouth and does NOT open the socket up: the bore is unchanged below the chamfer,
+    // so what holds the tube is the same 8 mm of engagement it always was. The two socket tops sit
+    // at different heights - the feed's on the elbow, a support's on the section's own top face -
+    // so each is taken from its own datum rather than from one number that would be wrong for one.
+    if (socket_chamfer > 0)
+      for (s = concat([[feed_angle, _bend]], [for (a = support_angles) [a, _ac / 2]]))
+        rotate([0, 0, s[0]])
+          translate([_feed_r, 0, s[1] + feed_height - socket_chamfer])
+            cylinder(
+              h = socket_chamfer + z_fight,
+              d1 = feed_bore, d2 = feed_bore + 2 * socket_chamfer
+            );
 
     // The cleaning gap, opposite the feed. A pie rather than a box, so both cut faces are radial
     // and a screw entering one is square to it.

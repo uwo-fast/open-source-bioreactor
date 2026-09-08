@@ -192,10 +192,11 @@ shaft nominal and grip was otherwise zero by design.
 | --- | --- |
 | Lid plug, `AS568-160` | **stretched 4.27 %** onto a groove cut from the jar's bore |
 | Port face seals, 12 of them | seated in a gland cut to fit the ring, no stretch |
-| Riser rod seals, `8785N364` ×2 | **0 % stretch** — the ring's ID *is* the 4 mm tube |
+| Riser rod seals, `8785N364` ×5 | **0 % stretch** — the ring's ID *is* the 4 mm tube |
 
-The two rod seals go into a counterbore at the lid's **inner** face, and they go in **before** the
-riser passes through. That face is inaccessible once the lid is on the jar.
+The rod seals go into an enclosed groove just above the lid's **inner** face, and they go in
+**before** the tubes pass through. That face is inaccessible once the lid is on the jar. There is
+one per tube port — five on the full lid, three on the six-port jars.
 
 **The silicone sits differently at every joint, and the risky ones are all downstream.** One bore,
 3/16 in ID, covers the whole run from the meter to the ring: **native** on the check valve's barb,
@@ -243,11 +244,17 @@ until the socket was made to take the tube's section.)
 
 **The ports are labelled by function for the same reason.** `air_in` and `air_out` have the same
 bore, so marking them by bore alone put `Ø6` on both. A gas line on the wrong one vents into the
-headspace; a dosing line on the wrong one puts acid where base should go. The marks now read
-`AIR IN Ø4.4`, `ACID Ø4.8`. Baffle ports are marked with the length of plate they carry.
+headspace; a dosing line on the wrong one puts acid where base should go. The marks read
+`AIR IN Ø4.4`, `ACID Ø4.4`. Baffle ports are marked with the length of plate they carry.
 
-The sparge ring itself cannot be installed rotated: its two sockets are 120° apart, and only one
-rotation puts both under tube ports.
+**Every tube port bores the same Ø4.4 now**, because every one of them passes the same 4 mm riser,
+so the bore on those marks tells you nothing and the function name is carrying all of it. Read the
+word, not the number.
+
+The sparge ring itself cannot be installed rotated, and it is better keyed than it was: it now
+carries a socket under every tube port — five on the full lid at 0, 180, 240, 270 and 330° — and
+that pattern is irregular enough that only one rotation puts them all under ports. On the six-port
+jars it is three.
 
 ### Drilling the support tubes
 
