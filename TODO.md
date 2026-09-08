@@ -204,6 +204,10 @@ actually left. What was decided, and what this project got wrong on the way, is 
   - **so the question is whether 0.579 is acceptable, and what may be spent to get it back.** Buying
     width walks straight back toward the blades, which is why the two are one item. Thickness touches
     neither: it is a tolerance stack, and the deflection half is closed at a 10 mm plate
+  - **the impeller's tip ring was the other half of this and is decided**: off by default, because
+    the load never asked for it and the strike case it was kept on has gone. `impeller_tip_ring`
+    turns it back on, so widening the plate is still open - it just costs a flag now rather than a
+    decision. See `docs/decisions.md`
   - **the 2.28 mm lean is a worst case and only matters if the plate widens.** It is bore play alone
     - 0.2 mm over 18 mm of engagement, levered 205 mm to the lower impeller, an **11.4x
     amplification** - and the model ignores the flange's face contact, which resists tilt far harder
@@ -222,28 +226,6 @@ actually left. What was decided, and what this project got wrong on the way, is 
       but that is a tight printed bayonet on the one port twisted by hand at arm's length in a jar
     - *`baffle_impeller_clearance` 2 -> 3*. One line, but it spends area to buy clearance the plate
       no longer needs - the wrong direction now
-
-- [ ] **the impeller's tip ring cannot print without support, and nothing has asked whether it earns it**
-  - it is a 4 x 4 mm annulus tying the four blade tips, sitting inboard of `impeller_radius`. Measured
-    off the exported blade by sampling its underside all the way round: **86.7 % of the ring floats**,
-    and the longest unsupported span is **61.6 mm**, four times over. A 45 degree blade prints itself;
-    the ring hanging between the blades does not
-  - **the steady load does not need it.** One blade carries about 0.62 N at the 420 rpm no-load
-    speed. Root bending is 15.8 N·mm on a section modulus of 50.4 mm3, so **0.31 MPa** - roughly one
-    percent of printed PLA cross-layer strength - and the blade's own tip deflects **11 um**. The
-    ring is two orders of magnitude past what the fluid asks for
-  - **the strike case that kept it has gone.** That jar's baffle running clearance is **+2.20 mm**,
-    not the -0.28 it was read at, so no plate reaches the blades on the geometry as it stands and the
-    ring's one surviving argument goes with it. It comes back only if the baffle is widened to buy
-    area back - see the baffle item above, where the two are now one question.
-  - so it is a real decision, not an oversight: pay for support material and a scarred inner face on
-    every impeller, or drop the ring and rely on the blade being 100x over-strength against
-    everything except a collision the clearance stack no longer allows. **Deciding it is downstream of
-    deciding how much width the baffle takes back**, which is the item above
-  - the ring is also not part of the geometry `pbt_45_4`'s power number is defined on. Neither is a
-    4 mm plate on a 94.5 mm impeller: **t/D 0.042** against roughly 0.02 for the standard PBT the
-    correlations were measured on, and thickness is not a term in Medek's correlation at all. Both
-    are printed-part departures from a correlated shape, unquantified in the same direction
 
 ## drive and aeration
 

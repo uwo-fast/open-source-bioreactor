@@ -73,6 +73,18 @@ impeller-count threshold, `docs/procurement.md` on the meter spread, `docs/refer
 
 ## Settled — do not re-open without new evidence
 
+- **The impeller's tip ring is OFF by default, and is a flag rather than geometry.** It is a 4 × 4 mm
+  annulus tying the blade tips, and it printed as a floating overhang for most of its circumference —
+  86.7 % of it unsupported, longest span 61.6 mm. Nothing structural asked for it: one blade carries
+  about 0.62 N at the no-load speed, which is 0.31 MPa at the root and 11 µm of tip deflection, two
+  orders of magnitude inside what printed PLA holds, and the blades attach to the hub rather than to
+  each other. The strike-against-a-baffle case that kept it went with the +2.20 mm running clearance
+  (see the correction above). Measured on the exported part: dropping it removes 4328 mm³, a fifth of
+  the impeller, and **does not change the swept diameter** — 94.5001 mm either way, because the blade
+  corners define it and the ring sat inboard of them. It is also not part of the shape `pbt_45_4`'s
+  power number is defined on, so off is the more faithful geometry as well as the more printable one.
+  `impeller_tip_ring = true` restores it if the baffle is ever widened enough to need it.
+
 - **the architecture campaign is done, and these are its refusals.** Eight parts are designated end
   to end - vessel, shaft, plug o-ring, strip light, gasket sheet, motor, DO probe, pH probe -
   reaching the geometry, the readbacks and the exported STL. The rules are in

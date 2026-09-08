@@ -365,6 +365,22 @@ head_impeller_po_fallback = impeller_folded_axial_4;
 
 // width of each fin blade
 impeller_fin_width = 4;
+// Tie the blade tips together with a ring at the top of the blades. OFF, and the print is why:
+// the ring spans between the blades with nothing under it, so most of its circumference is a
+// floating overhang and it wants support material on a part whose inner face is then scarred.
+//
+// It is off rather than absent because the load never asked for it. One blade carries about
+// 0.62 N at the 420 rpm no-load speed; root bending is 15.8 N*mm on a 50.4 mm3 section, so
+// 0.31 MPa - roughly a hundredth of printed PLA across the layers - and the tip deflects 11 um.
+// The blades are attached at the hub, not to each other, so nothing about the part depends on it.
+//
+// The case that kept it was a strike against a baffle, and that case has gone: running clearance
+// is +2.2 mm on this jar, so no plate reaches the blades. Turn it on if the baffle is ever widened
+// to buy back area. It is also not part of the shape pbt_45_4's power number is defined on, so off
+// is the more faithful geometry as well as the more printable one.
+//
+// Ring tying the blade tips; off because it prints as a floating overhang and nothing needs it
+impeller_tip_ring = false;
 // size of the center hub; the set screw threads through it, so it sets the thread engagement
 impeller_hub_radius = 10;
 // the set screw holding each impeller to the shaft
@@ -4085,6 +4101,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
           blade_width=impeller_blade_width
         );
         // Top ring tying the blade tips together, INBOARD of the radius rather than outboard.
+        // Off by default - see impeller_tip_ring for why the load does not ask for it.
         //
         // It used to run from impeller_radius out to impeller_radius + fin_width, which put 4 mm of
         // impeller outside the diameter every correlation is keyed on: the part swept 102.5 mm where
@@ -4094,12 +4111,13 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         //
         // Inboard it still does its job: the blade's far face reaches r 46.55 against the ring's
         // inner edge at 43.25, so they overlap 3.3 mm radially and the full 4 mm axially.
-        translate([0, 0, impeller_height / 2 - impeller_fin_width / 2])
-          linear_extrude(impeller_fin_width, center=true)
-            difference() {
-              circle(r=impeller_radius, $fn=64);
-              circle(r=impeller_radius - impeller_fin_width, $fn=64);
-            }
+        if (impeller_tip_ring)
+          translate([0, 0, impeller_height / 2 - impeller_fin_width / 2])
+            linear_extrude(impeller_fin_width, center=true)
+              difference() {
+                circle(r=impeller_radius, $fn=64);
+                circle(r=impeller_radius - impeller_fin_width, $fn=64);
+              }
         // collar for the set screws, standing clear of the blades
         translate([0, 0, impeller_height / 2 - z_fight])
           difference() {
