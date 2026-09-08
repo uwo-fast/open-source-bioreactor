@@ -192,7 +192,7 @@ impeller sweeps a cylinder, the ring is an annulus — and a port's tilt never l
 
 ## One table does not serve the family
 
-The layout above is a 143 mm mouth's layout. It does not fit the two narrow jars, and no amount of
+The layout above is a 142.2 mm mouth's layout. It does not fit the two narrow jars, and no amount of
 rearranging makes it fit: two Ø16 Atlas probe bodies force a 14.1 mm flange, four baffles force four
 more of them, and six flanges of that size do not go onto a Ø58 port circle in any order. That is
 geometry, not tuning.
@@ -273,7 +273,7 @@ setting it pins a table for an operator who wants a different function in a port
 | `jar_1p5L_109x215` | 87.5 | −14.11 | −9.11 | **+4.95** | reduced |
 | `jar_1gal_155x251` | 95.8 | −11.96 | −6.96 | **+9.10** | reduced |
 | `jar_6p5gal_305x470` | 137.0 | −1.30 | +3.70 | **+29.70** | reduced |
-| `jar_10L_220x305` | 143.0 | **+0.25** | +5.25 | +32.70 | full |
+| `jar_10L_220x305` | 142.2 | **+0.05** | +5.04 | +32.30 | full |
 | `jar_1gal_180x197` | 148.0 | **+1.55** | +6.55 | +35.20 | full |
 | `generic` | 150.0 | **+2.07** | +7.07 | +36.20 | full |
 

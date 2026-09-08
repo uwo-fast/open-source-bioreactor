@@ -62,7 +62,7 @@ actually left. What was decided, and what this project got wrong on the way, is 
   - the answer to both is the narrow-jar agitation question, tracked under "drive and aeration".
     Nothing else in the model is waiting on it
 
-- [ ] **choose an outlet filter that fits in 1.92464 kPa/L/min, because the obvious one does not**
+- [ ] **choose an outlet filter that fits in 1.93365 kPa/L/min, because the obvious one does not**
   - the exhaust is unguarded: the headspace vents through a support tube's bore into the room while
     a 0.2 um filter guards the inlet, which is half the usual arrangement. `head()` says so on every
     render now rather than leaving it to a document
@@ -70,7 +70,7 @@ actually left. What was decided, and what this project got wrong on the way, is 
     is sold in tens - but an outlet filter raises the headspace the sparge holes discharge into. Two
     of them put the line at **31.8 kPa** against a pump that dead-heads at 27, and the reactor
     settles at **3.27 L/min**: 0.5 vvm stops being a setting it can hold
-  - the model reports the budget instead of a part: **at most 1.92464 kPa per L/min**, 55.8 % of the
+  - the model reports the budget instead of a part: **at most 1.93365 kPa per L/min**, 56.0 % of the
     inlet filter's slope, so roughly twice the membrane area. `sparge_outlet_filter_drop_slope` is
     undef until something is chosen; set it and head() prices the exhaust into the line
   - **the budget is GROSS, and the exhaust already spends some of it**: the vent slot and the tube
@@ -137,12 +137,18 @@ actually left. What was decided, and what this project got wrong on the way, is 
     the LID keeps around a bore, and it was also being asked for as the gap between two raised
     FLANGES, where nothing but air is at stake. On `jar_10L` that held the std flanges 2.054 mm apart
     while the lid between their bores measured **4.654**. `lid_flange_gap` splits them, each checked
-    against what it names, and std goes 13.7 -> 14.1 with 1.254 mm still between flanges
+    against what it names, and std goes 13.7 -> 14.1 with 1.0466 mm still between flanges
   - **what is left is a re-print and a bench check.** Nothing here is measured against a printer -
     the 0.2 is this file's own convention and the lips are extrusion counts. Print one std and one
     mini port, fit the 23x1.5 and the 13x1.5, and key the allowance to a caliper reading if either
     is still tight. `output/` is untracked, so re-run `just export-parts` first
-  - still open, and unpriced: whether 1.254 mm between two 5 mm tall flanges is enough to get a
+  - **and the mouth correction spent most of what was left.** The jar measures 142.2 rather than the
+    143 that was noted, so the port circle comes in 0.4 mm and the chord with it: the worst adjacent
+    pair went **1.254 -> 1.0466 mm** against a `lid_flange_gap` of 1.0. `jar_10L` now carries the
+    full twelve-port set on **0.0466 mm** of slack, where it had 0.254. Nothing fails and the gate is
+    green, but this is the number to check before any flange lip grows again - the next set that
+    fits is the six-port one
+  - still open, and unpriced: whether 1.0466 mm between two 5 mm tall flanges is enough to get a
     cloth into. If not, the lever is a thinner cord - a 23x1 EPDM (McMaster 8785N348, same line, not
     registered) takes the groove to 1.5 wide and Ø25.2, which buys the width back at 0.25 mm of
     squeeze instead of 0.375
@@ -171,7 +177,7 @@ actually left. What was decided, and what this project got wrong on the way, is 
 - [ ] **model the support tubes' discharge holes, now that four ports have one**
   - every tube port but `air_in` drops a 188.174 mm steel tube to the sparge ring and is capped
     there, so each does its job through a hole drilled up its length. `head()` reports the WINDOW
-    that hole may sit in - 37.9375 to 88.3443 mm from the top for a headspace vent, past the second
+    that hole may sit in - 37.9375 to 88.6626 mm from the top for a headspace vent, past the second
     for a tube discharging into the culture - and `docs/build.md` says which end each port wants
   - **what is not modelled is the hole itself.** It is a bench operation with a file or a rotary
     tool, so nothing draws it, nothing checks it, and the tube is drawn as a plain cylinder. That is
@@ -179,16 +185,16 @@ actually left. What was decided, and what this project got wrong on the way, is 
     the model's business
   - **only `air_out`'s hole had a size to meet, and it is priced now rather than asserted.**
     `head()` echoes what the exhaust path costs: a slot at the tube's own **7.06858 mm2** bore is
-    156.978 Pa and the tube above it 23.7-55.2 Pa, together 2.28-2.68 % of the 7921.88 Pa the
+    156.558 Pa and the tube above it 23.7-55.3 Pa, together 2.27-2.67 % of the 7948.33 Pa the
     exhaust has to spend - the same Pa the throttle is giving away, since the budget and that drop
     are one headroom expressed two ways
   - **the useful half is the FLOOR, and it is not the formality it looked like.** The slot is the
-    whole budget at **0.995034 mm2** on `jar_10L`, a Ø1.12557 mm hole. A normal file cut clears that
-    7.1x over, but a shallow pass that only just breaks the 0.5 mm wall over a couple of
+    whole budget at **0.992047 mm2** on `jar_10L`, a Ø1.12388 mm hole. A normal file cut clears that
+    7.13x over, but a shallow pass that only just breaks the 0.5 mm wall over a couple of
     millimetres lands on it, so it is a real thing to get wrong. `docs/build.md` says to look
     through the hole against the light
   - **the floor is per-jar and the echo derives it**, which is why no size is written into the
-    sentence: 0.995 mm2 here against **0.282709** on `jar_1gal_180x197`, since what sets it is the
+    sentence: 0.992 mm2 here against **0.282709** on `jar_1gal_180x197`, since what sets it is the
     headroom that jar's own gas line has left. `jar_6p5gal_305x470` has none - its line beats the
     pump at the top of its band - so the echo says the slot has no size to meet rather than
     printing the nan a negative budget gives
@@ -223,13 +229,17 @@ actually left. What was decided, and what this project got wrong on the way, is 
     ring's height. Both are already parameters
 
 - [ ] **the baffle clears the blades now, and BAFFLE AREA is what paid for it**
-  - **+2.20009 mm running** - 4.47731 nominal less 2.27722 of lean - so the plate cannot reach the
+  - **+1.80009 mm running** - 4.07731 nominal less 2.27722 of lean - so the plate cannot reach the
     impeller and the echo's "THE PLATE CAN REACH THE BLADES" branch does not fire. It closed as a
     side effect of the plate narrowing 15.3 -> 10.3454 mm, which opens the gap by half what it takes
     off the plate. No commit set out to close it; see `docs/decisions.md`
-  - **the price was a third of the baffling.** Reference projected area 0.855763 -> **0.578565** of
+  - **the mouth correction took 0.4 mm of it.** 143 was a mis-noted figure and the jar measures
+    142.2, which walks the port circle - and the plates hanging off it - inward while the impeller
+    stays at 94.5. Running clearance went **2.20009 -> 1.80009 mm**, an 18 % cut in the margin this
+    item exists to defend, and it lands before any of the fixes below are priced
+  - **the price was a third of the baffling.** Reference projected area 0.855763 -> **0.578548** of
     Oldshue's four-at-T/12, and six plates - the next count that spaces equally on twelve ports - now
-    reach only 0.867847 where they used to clear the reference outright at 1.28364. Under-baffling is
+    reach only 0.867821 where they used to clear the reference outright at 1.28364. Under-baffling is
     the failure `docs/agitation.md` says lets the vessel swirl rather than mix
   - **so the question is whether 0.579 is acceptable, and what may be spent to get it back.** Buying
     width walks straight back toward the blades, which is why the two are one item. Thickness touches
@@ -459,7 +469,7 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
 
 - [ ] **the sparger's holes are not the wrong size - the BORE is, and it is one designation**
   - priced against the model's own functions rather than argued. Holding the settled 8 x 3 mm spec
-    and sweeping only the bore, at the build's duty of 4.11604 L/min through one ring:
+    and sweeping only the bore, at the build's duty of 4.11052 L/min through one ring:
 
     | bore | feed velocity | open area | velocity head | verdict |
     | --- | --- | --- | --- | --- |

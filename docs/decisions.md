@@ -155,7 +155,7 @@ outlives the commit, in `docs/`.
 - **the ring's 8 × 3 mm holes are for spacing and against fouling, not for even flow.** Capillary is
   96 Pa against 2.4 Pa of orifice, so they will not share equally at any count
 - **the working volume is DERIVED from a fraction of capacity, not pinned in litres.** 0.865 of what
-  the jar holds, which is 8.23207 L on jar_10L and scales to every registered vessel. A litre figure
+  the jar holds, which is 8.22105 L on jar_10L and scales to every registered vessel. A litre figure
   is a statement about one jar: 8.25 L left jar_6p5gal_305x470's thermocouple in the headspace and
   stopped that vessel rendering at all
 - **the riser is welded hard-temper 316, not seamless soft.** Temper does not move the modulus, but a

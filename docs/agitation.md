@@ -248,7 +248,7 @@ it to the 98 mm mouth floor.
 | vessel | mouth | bore | mouth/T | baffles | why not |
 | --- | --- | --- | --- | --- | --- |
 | `jar_1gal_180x197` | 148 | 170 | 0.871 | 4 | — |
-| `jar_10L_220x305` | 143 | 210 | 0.681 | 4 | — |
+| `jar_10L_220x305` | 142.2 | 210 | 0.677 | 4 | — |
 | `jar_6p5gal_305x470` | 137 | 280.8 | **0.488** | 0 | the port circle falls inside the impeller |
 | `jar_1gal_155x251` | 95.8 | 149.3 | 0.642 | 0 | mouth below the flange floor |
 | `jar_1p5L_109x215` | 87.5 | 101.2 | 0.864 | 0 | mouth below the flange floor |
@@ -600,5 +600,5 @@ been priced against the mass transfer it costs, and it should be.
   1.30 mm of tip deflection against a 1.53 mm limit.
 - Their being **partial and inboard** is separately uncited: the relevant papers are paywalled and
   unread. Note that these plates span r 49.3–64.6 mm in a 210 mm bore, so the annulus outboard of
-  them is 40 mm wide and unobstructed — a consequence of having to pass every part through a 143 mm
+  them is 40 mm wide and unobstructed — a consequence of having to pass every part through a 142.2 mm
   mouth, and a difference from the wall-mounted reference case that no source here quantifies.

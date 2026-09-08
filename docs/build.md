@@ -229,7 +229,7 @@ The order is forced by geometry, not preference.
 3. **Then the lid goes onto the jar**, and everything hanging from it passes down through the mouth
    — so *every part of the assembly is level with the mouth at some moment on the way down*. What
    matters is the widest the assembly ever gets, not where it finishes. On `jar_10L` the DO probe's
-   collet is the binding part, reaching 71.18 mm against a 71.5 mm mouth — **0.32 mm to spare**.
+   collet is the binding part, reaching 70.78 mm against a 71.1 mm mouth — **0.32 mm to spare**.
 4. **The probes go in last**, down through the bayonet's bore into the collet. They never pass the
    mouth at all, which is why their length is not part of the clearance above.
 
@@ -271,7 +271,7 @@ the only thing that can dimension that hole, and it does:
 
 ```
 sparge support drilling: a support tube vents through a hole drilled between
-37.9375 and 88.3443 mm from its TOP end - past the lid's inner face, short of
+37.9375 and 88.6626 mm from its TOP end - past the lid's inner face, short of
 the culture. Nearer the first number is better; the headspace is there for foam
 and foam finds the lowest hole. A tube meant to discharge INTO the culture
 instead is drilled past the second.
@@ -288,24 +288,24 @@ exhaust path and leaving it there:
 ```
 gas exhaust slot: air_out vents through a hand-cut hole, so its SIZE is the one
 restriction on the way out that nothing here draws. A slot of the tube's own
-7.06858 mm2 bore costs 156.978 Pa at 4.11604 L/min, and the tube above it another
-23.6947-55.1772 Pa over the 37.9375-88.3443 mm drilling window - together
-2.28068-2.6781% of the 7921.88 Pa the exhaust has to spend. FILE PAST 0.995034 mm2
-- a round hole of 1.12557 mm - or the slot alone is the whole of it. The bore's
-own area clears that 7.10386x over.
+7.06858 mm2 bore costs 156.558 Pa at 4.11052 L/min, and the tube above it another
+23.6629-55.3019 Pa over the 37.9375-88.6626 mm drilling window - together
+2.26741-2.66547% of the 7948.33 Pa the exhaust has to spend. FILE PAST 0.992047 mm2
+- a round hole of 1.12388 mm - or the slot alone is the whole of it. The bore's
+own area clears that 7.12525x over.
 ```
 
-**On this jar the floor is about 1 mm², which is a Ø1.13 mm hole** — a slot roughly 2 × 0.5 mm. A
+**On this jar the floor is about 1 mm², which is a Ø1.12 mm hole** — a slot roughly 2 × 0.5 mm. A
 normal file cut clears it seven times over, and it is *not* too small to miss: a shallow pass that
 only just breaks the 0.5 mm wall over a couple of millimetres lands on the limit. Cut it, then hold
 the tube up to the light and look through the hole before it goes in.
 
 **Read the floor off your own render rather than off this page.** It moves with the jar, because it
-is set by the headroom that jar's gas line has left: 0.995 mm² here against 0.283 mm² on
+is set by the headroom that jar's gas line has left: 0.992 mm² here against 0.283 mm² on
 `jar_1gal_180x197`. And on `jar_6p5gal_305x470` there is no floor to quote at all — that build
 cannot hold the top of its own aeration band, so the echo says so instead of printing a number.
 
-That 7921.88 Pa is the same pressure the throttle is currently giving away, and the same headroom an
+That 7948.33 Pa is the same pressure the throttle is currently giving away, and the same headroom an
 outlet filter would have to fit inside - so what the slot spends comes off both. The three dosing
 holes meter nothing and need no size.
 
@@ -323,16 +323,16 @@ run the full height of the frame from the lower base. All twelve are tightened b
 top of the lid flange**, so the operation is the same at every post.
 
 ```
-joint load: 4234.86 N of gasket seating over 12 posts = 352.905 N each, on M8
+joint load: 4212.27 N of gasket seating over 12 posts = 351.023 N each, on M8
 bolts and M8 rods
 lid lip: crowned on a 3.5 mm arc standing 2 mm proud of the wall - no flat to
 seat on, so the gasket covers the lip and the crown sinks 0.396875 mm into it;
 8 mm of gasket, 3.23766 mm of contact
-lid gasket load: 3.23766 mm of contact, 4234.86 N to hold 25% squeeze,
+lid gasket load: 3.23766 mm of contact, 4212.27 N to hold 25% squeeze,
 2.77566 MPa on the glass
 ```
 
-**352.9 N per post.** An M8 A2-70 proof load is about 16.5 kN, so the joint runs at **2.1 % of
+**351.0 N per post.** An M8 A2-70 proof load is about 16.5 kN, so the joint runs at **2.1 % of
 proof** — the fastener is nowhere near being the limit. A published tightening torque for the same
 bolt is 20–24 N·m. This joint wants something near **0.6**. Torque one of these to fastener spec and
 you put roughly forty times the intended load onto a soda-lime jar.
@@ -340,7 +340,7 @@ you put roughly forty times the intended load onto a soda-lime jar.
 ### Do not reach for a torque wrench
 
 Torque only ever reaches preload through a friction coefficient, and here you cannot know it. Across
-the 0.20–0.30 that an unlubricated stainless nut plausibly spans, 352.9 N is **0.56 to 0.85 N·m** —
+the 0.20–0.30 that an unlubricated stainless nut plausibly spans, 351.0 N is **0.56 to 0.85 N·m** —
 a 40 % band from the friction assumption alone. 18-8 galls, which is exactly what makes that
 coefficient unpredictable, and 0.7 N·m is below the bottom of most torque wrenches anyway.
 
@@ -355,7 +355,7 @@ flange takes a little more and then creeps, so go back to them.
 A turn is geometry. The 1/16 in gasket is 1.5875 mm, 25 % squeeze is 0.3969 mm of travel, and an
 M8 × 1.25 thread converts that to **114°**. No modulus and no friction enter it.
 
-The rest of the stack barely moves: at 352.9 N an M8 bolt stretches 0.0010 mm over its 20.4 mm grip
+The rest of the stack barely moves: at 351.0 N an M8 bolt stretches 0.0010 mm over its 20.4 mm grip
 and a rod 0.0005 mm over the 10.4 mm between its top-base nut and its lid nut — under 0.3 % of the
 gasket's travel either way. The printed flange is the soft part, and it is the one number in this
 section without a source: roughly 0.02 mm under a nut face, from PETG's modulus and a nut's bearing
@@ -391,11 +391,11 @@ rather than a theoretical one. Count the turn.
 ASME VIII-1 gasket factor m = 0.5, and that is what gives twelve posts. At 75A or harder the same
 lid wants sixteen.
 
-### How good is 352.9 N?
+### How good is 351.0 N?
 
 Not very, and the model says so. `gasket_shape_factor()` is the free-bulge form — it assumes both
 edges of the pad can spread, and the recess walls are exactly where they cannot. The modulus behind
-it is correlated from hardness rather than measured. So 352.9 N and 2.78 MPa are figures for judging
+it is correlated from hardness rather than measured. So 351.0 N and 2.78 MPa are figures for judging
 a design, not for cutting a part to, and `gasket_load.scad` says as much at the top of the file.
 
 **The turn is the more robust of the two**, which is why it is the instruction. It comes from the
@@ -450,7 +450,7 @@ It is not. An outlet filter does not sit between the pump and the sparge holes, 
 headspace those holes discharge into, and the gas has to beat that too. A second identical filter
 puts the line at **31.8 kPa** against a pump that dead-heads at **27** — the reactor would settle at
 **3.27 L/min**, and 0.5 vvm would stop being a setting it can hold. `head()` reports the budget:
-an outlet filter may cost at most **1.92464 kPa per L/min**, which is 55.8 % of what the inlet one
+an outlet filter may cost at most **1.93365 kPa per L/min**, which is 56.0 % of what the inlet one
 does, so it wants roughly **twice the membrane area** rather than the same part again. That budget is
 gross: the vent slot and the tube above it spend 2.3-2.7 % of it before any filter is chosen.
 

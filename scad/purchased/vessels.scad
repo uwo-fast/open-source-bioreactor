@@ -8,7 +8,8 @@
 generic_vessel       = ["generic",              [300,       200,        5        ], [150,         10  ], [10.0,        10.0          ], [10,      50    ], 2   ];
 
 // Commodity 10 L airtight soda-lime glass jar — https://www.alibaba.com/product-detail/10-Liter-Glass-Jar-Airtight-Glass_10000010556695.html
-jar_10L_220x305      = ["jar_10L_220x305",      [305,       220,        5        ], [143,         25  ], [25,         12.5           ], [5,      30    ], 2    ];
+// Mouth measured at 142.2, not the 143 carried here until it was checked against the jar.
+jar_10L_220x305      = ["jar_10L_220x305",      [305,       220,        5        ], [142.2,       25  ], [25,         12.5           ], [5,      30    ], 2    ];
 
 // Almcmy 1 gallon glass cookie jar — https://a.co/d/0387jpNx
 jar_1gal_180x197     = ["jar_1gal_180x197",     [197,       180,        5        ], [148,         12.5], [10.0,        12.5          ], [7,     100   ], 2.5   ];
