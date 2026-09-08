@@ -521,6 +521,8 @@ check-bom:
       echo(str("BOM|", oring_part_number(bayonet_oring(i)), "|", bayonet_name(i), " port o-ring"));
     for (q = _p) if (head_port_type(q) == "thermocouple")
       echo(str("BOM|", thermocouple_probe_part_number(head_port_probe(q)), "|thermocouple"));
+    echo(str("BOM|", oring_part_number(bearing_oring), "|bearing rim seal"));
+    echo(str("BOM|", oring_part_number(tube_port_riser_oring), "|riser rod seal"));
     echo(str("BOM|", shaft_part_number(head_shaft_selected(8, vessel_internal_height(_v))), "|impeller shaft"));
     echo(str("BOM|", steel_tube_part_number(sparge_riser_tube), "|sparge riser tube"));
     echo(str("BOM|", hose_clamp_part_number(sparge_riser_clamp), "|riser hose clamp"));

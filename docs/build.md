@@ -186,13 +186,20 @@ and 120°, 5.8 mm of thread through the 8 mm collar above the blades. They are c
 they bite the shaft rather than relying on friction, because the hub bore tapers to exactly the
 shaft nominal and grip was otherwise zero by design.
 
-**The o-rings go in three different ways, and only one of them is stretched.**
+**The o-rings go in four different ways, and only one of them is stretched.**
 
 | Seal | How it seats |
 | --- | --- |
 | Lid plug, `AS568-160` | **stretched 4.27 %** onto a groove cut from the jar's bore |
 | Port face seals, 12 of them | seated in a gland cut to fit the ring, no stretch |
 | Riser rod seals, `8785N364` ×5 | **0 % stretch** — the ring's ID *is* the 4 mm tube |
+| Bearing rim seal, `8785N382` | **0 % stretch** — the ring's ID *is* the 22 mm bearing |
+
+**The bearing seal goes in before the bearing.** Drop the 22×1.5 down the pocket and let it expand
+into the groove at mid-depth, then press the bearing past it. It seals on the bearing's **outer
+race**, which does not turn — the inner race does, and on a 608 both race faces are flush, so a
+gasket under the bearing would be clamped against a rotating steel face. Nothing seats *on* the
+pocket floor: the bearing still bottoms there.
 
 The rod seals go into an enclosed groove just above the lid's **inner** face, and they go in
 **before** the tubes pass through. That face is inaccessible once the lid is on the jar. There is

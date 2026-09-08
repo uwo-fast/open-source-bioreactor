@@ -232,6 +232,32 @@ lid_plug_oring_squeeze = 0.18;
 // a 608 is 22 x 7 on an 8 mm bore, and bearing_hole_allowance is the only allowance over it.
 shaft_bearing = BB608; // McMaster 6153K71, 440C stainless, sealed, trade no. 608-2RS
 
+// The seal on the bearing's OUTER DIAMETER, and the last unsealed hole in this lid. The shaft runs
+// through the plug in a bore 0.2 mm over its own, and that bore opens into this pocket - so the way
+// out of the vessel is up the shaft, across the bearing's face and out around its rim.
+//
+// IT SEALS ON THE OUTER RACE, WHICH IS THE PART THAT DOES NOT TURN. A gasket under the bearing's
+// face was the other candidate and it fails on that: the inner and outer race faces are flush on a
+// 608, so anything spanning the face is clamped against steel turning at the shaft's speed. Keeping
+// clear of it leaves a band from the outer race's bore to the rim - 1.4 mm wide - and that width is
+// read off NopSCADlib's bb_rim, which its own source calls a guesstimate. A radial seal on the rim
+// needs neither: the bearing's OD is a real registered number and the outer race is static.
+//
+// ITS ID IS THE BEARING, 22 on 22, so it seats at 0% stretch - the same relationship the riser's rod
+// seal has with its tube, and head() checks it the same way rather than trusting the pair.
+bearing_oring = oring_22x1p5_epdm;
+
+// A radial gland, so the groove is cut OUTWARD from the pocket wall and the bearing is what the cord
+// is squeezed against. Table A's radial column wants 14-23% at this scale; oring_rod_gland_diameter
+// takes the middle of it.
+function head_bearing_gland_diameter() =
+  oring_rod_gland_diameter(bb_diameter(shaft_bearing), oring_cross_section(bearing_oring));
+// Table A's width, along the pocket rather than across it - the cord has the same room either way up.
+function head_bearing_gland_length() = oring_gland_width(oring_cross_section(bearing_oring));
+// Centred in the pocket's depth, so there is wall either side of it and the bearing is past the ring
+// before it bottoms out.
+function head_bearing_gland_z() = bb_width(shaft_bearing) / 2;
+
 /* [Motor & Gearbox Selection] */
 
 // the registered motor type; the gearbox is taken from the motor's registration
@@ -1725,6 +1751,13 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
           // bearing pocket
           rotate([0, 0, 30])
             cylinder(d=bb_diameter(shaft_bearing) + bearing_hole_allowance, h=bb_width(shaft_bearing) + z_fight);
+
+          // Seal groove around the bearing's rim, cut outward from the pocket wall. The ring is
+          // dropped in first and the bearing pushed past it, which is why the groove sits mid-depth
+          // rather than at the floor: there is pocket wall on both sides to hold the cord in while
+          // the bearing goes by.
+          translate([0, 0, z_fight / 2 + head_bearing_gland_z() - head_bearing_gland_length() / 2])
+            cylinder(d=head_bearing_gland_diameter(), h=head_bearing_gland_length());
         }
 
       // Insert holes for the motor mount, blind: this face carries the mount, the far side of
@@ -2652,17 +2685,54 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     str("Bearing hole allowance of ", bearing_hole_allowance, " mm is negative, so the pocket is cut under the bearing.")
   );
 
+  // The bearing's seal, whose ID IS the bearing: 22 on 22, so it seats at 0% stretch. Checked
+  // against the ring rather than assumed, the same way the riser's rod seal is - the two are the
+  // only radial seals in the build and both are chosen by the part they grip rather than by a gland.
+  _bearing_seal_stretch =
+  oring_stretch(oring_inner_diameter(bearing_oring), bb_diameter(shaft_bearing));
+  assert(
+    _bearing_seal_stretch >= 0,
+    str(
+      "The ", oring_name(bearing_oring), " bearing seal has an ID of ",
+      oring_inner_diameter(bearing_oring), " mm on a ", bb_diameter(shaft_bearing),
+      " mm bearing, so it would have to be compressed onto it rather than seated."
+    )
+  );
+
+  // The groove has to sit inside the pocket with wall left either side, or the bearing goes past
+  // nothing on its way in and the cord has no shoulder to be driven onto.
+  assert(
+    head_bearing_gland_z() - head_bearing_gland_length() / 2 > 0
+      && head_bearing_gland_z() + head_bearing_gland_length() / 2 < bb_width(shaft_bearing),
+    str(
+      "A ", head_bearing_gland_length(), " mm seal groove centred at ", head_bearing_gland_z(),
+      " does not fit inside a ", bb_width(shaft_bearing), " mm pocket."
+    )
+  );
+
   // The screw circle is set by the mount's body and the pocket by the bearing, and the two are
   // chosen independently, so nothing but this stops an insert being sunk into the bearing's wall.
+  // Measured to the SEAL GROOVE, which is wider than the pocket and so is what an insert meets
+  // first - 1.13 mm wider on a side here, and it was the pocket that was checked until the groove
+  // existed.
   _insert_to_bearing =
-  head_motor_mount_screw_radius(_mount_body_d) - insert_outer_d(motor_mount_base_insert) / 2 - (bb_diameter(shaft_bearing) + bearing_hole_allowance) / 2;
+  head_motor_mount_screw_radius(_mount_body_d) - insert_outer_d(motor_mount_base_insert) / 2 - head_bearing_gland_diameter() / 2;
   assert(
     _insert_to_bearing > 0,
     str(
-      "Motor mount inserts on a ", head_motor_mount_screw_radius(_mount_body_d) * 2, " mm circle overlap the bearing pocket by ",
+      "Motor mount inserts on a ", head_motor_mount_screw_radius(_mount_body_d) * 2, " mm circle overlap the bearing seal groove by ",
       -_insert_to_bearing, " mm."
     )
   );
+
+  echo(str(
+    "bearing seal: ", oring_name(bearing_oring), " on the ", bb_name(shaft_bearing), "'s ",
+    bb_diameter(shaft_bearing), " mm rim at ", _bearing_seal_stretch * 100, "% stretch, in a groove to ",
+    head_bearing_gland_diameter(), " mm - ",
+    (oring_cross_section(bearing_oring) - (head_bearing_gland_diameter() - bb_diameter(shaft_bearing)) / 2)
+      / oring_cross_section(bearing_oring) * 100,
+    "% radial squeeze, and ", _insert_to_bearing, " mm from the nearest mount insert"
+  ));
 
   echo(str(
     "motor mount: 4 x ", heat_set_insert_name(motor_mount_base_insert), " inserts on a ", head_motor_mount_screw_radius(_mount_body_d) * 2,
@@ -3904,6 +3974,12 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
         head_port_at(i, vessel_opening_diameter)
           translate([0, 0, bayonet_gland_depth(_pi) - bayonet_oring_cs_diameter(_pi) / 2])
             oring(bayonet_oring(_pi));
+
+    // The bearing's rim seal. In head()'s frame the lid runs DOWNWARD from the mount face at z 0,
+    // so the pocket that lid_pocketed cuts upward from its own zero is negated here. Free size on
+    // the bearing's own diameter, so the overlap with the groove wall is the 18% radial squeeze.
+    translate([0, 0, -head_bearing_gland_z()])
+      oring(bearing_oring);
 
     // The ROD seal, in the groove that holds it captive. The only ring in the build that seals on a
     // tube rather than a face, and until now the only one not drawn - so the overlap this block
