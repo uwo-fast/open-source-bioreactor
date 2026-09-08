@@ -110,6 +110,27 @@ actually left. What was decided, and what this project got wrong on the way, is 
     do it in a jar at arm's length - it is a maintenance step, not a one-time assembly one
 
 
+- [ ] **re-print the ports: the gland was cut with no clearance and the flanges were thin**
+  - found on a printed `baffle_piece_0`: the 23x1.5 would not go into its groove. The gland was cut
+    at exactly the ring's OD - a **26.00 mm groove for a 26.00 mm ring**, 0.00 of clearance - because
+    `oring_gland_od` is a SEALING dimension being used as an assembly one. `bayonet_gland_allowance`
+    is 0.2 now, the same the coupling's own halves get, and the groove measures Ø26.2 on a re-export
+  - **the flange lips were one extrusion**: 0.6 mm at a 0.4 nozzle, on the wall the cord is pressed
+    against. mini and midi are 1.2 now, std 1.0
+  - **what was holding std down was a conflated check, not geometry.** `lid_holes_offset` is the wall
+    the LID keeps around a bore, and it was also being asked for as the gap between two raised
+    FLANGES, where nothing but air is at stake. On `jar_10L` that held the std flanges 2.054 mm apart
+    while the lid between their bores measured **4.654**. `lid_flange_gap` splits them, each checked
+    against what it names, and std goes 13.7 -> 14.1 with 1.254 mm still between flanges
+  - **what is left is a re-print and a bench check.** Nothing here is measured against a printer -
+    the 0.2 is this file's own convention and the lips are extrusion counts. Print one std and one
+    mini port, fit the 23x1.5 and the 13x1.5, and key the allowance to a caliper reading if either
+    is still tight. `output/` is untracked, so re-run `just export-parts` first
+  - still open, and unpriced: whether 1.254 mm between two 5 mm tall flanges is enough to get a
+    cloth into. If not, the lever is a thinner cord - a 23x1 EPDM (McMaster 8785N348, same line, not
+    registered) takes the groove to 1.5 wide and Ø25.2, which buys the width back at 0.25 mm of
+    squeeze instead of 0.375
+
 - [ ] **where the sparger's gas actually goes, and whether the DO probe should be somewhere else**
   - **the placement is the opposite of what was expected.** The DO probe was thought to sit in a slow
     corner between a baffle and the wall. It does not: its face sits **20.6 mm above the sparge

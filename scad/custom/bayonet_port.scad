@@ -89,7 +89,14 @@ function bayonet_port_hole_radius(type) = bayonet_interface_radius(type) + bayon
 // The seal. Squeezed between the flange's underside and the panel's outer face, so it has to
 // encircle the lock's bore and stand entirely on the land outboard of it; see the asserts in
 // bayonet_port. All of it follows from the registered ring - utils/oring_gland.scad has why.
-function bayonet_gland_outer_radius(type) = oring_gland_od(bayonet_oring_id(type), bayonet_oring_cs_diameter(type)) / 2;
+// The groove has to RECEIVE a moulded ring, not just seal it. oring_gland_od is a SEALING
+// dimension - the wall pressure drives the cord onto - so taking it as the cut leaves 0.00 mm to
+// pass a ring whose OD is that number exactly. A printed pocket comes out under size and the ring's
+// own OD tolerance runs the other way, so a 23x1.5 would not go into the 26.00 groove cut for it.
+// Same 0.2 mm this file already allows between the coupling's own mating halves.
+bayonet_gland_allowance = 0.2;
+function bayonet_gland_outer_radius(type) =
+  (oring_gland_od(bayonet_oring_id(type), bayonet_oring_cs_diameter(type)) + bayonet_gland_allowance) / 2;
 function bayonet_gland_width(type) = oring_gland_width(bayonet_oring_cs_diameter(type));
 function bayonet_gland_inner_radius(type) = bayonet_gland_outer_radius(type) - bayonet_gland_width(type);
 function bayonet_gland_depth(type) = oring_gland_depth(bayonet_oring_cs_diameter(type));

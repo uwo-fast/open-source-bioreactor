@@ -160,6 +160,13 @@ lid_radial_allowance = 0.4;
 // minimum wall the lid keeps around a bore: to the plug's edge, to a neighbouring port, and to the
 // flange's outer edge for the joint posts
 lid_holes_offset = 2.0;
+// The gap between two neighbouring FLANGES is not that wall. A flange is a raised feature standing
+// on the lid's OUTER face, so what separates two of them is air - the lid underneath carries its
+// own material between the bores, and that is what lid_holes_offset governs. One number was doing
+// both jobs and the stricter reading won: on jar_10L it held the std flanges 2.054 mm apart while
+// the lid between their bores measured 4.654, and it is what capped flange_lip at a single
+// extrusion. Checked separately now, each against the thing it names.
+lid_flange_gap = 1.0;
 // allowance for the bearing and shaft holes
 bearing_hole_allowance = 0.2;
 
@@ -549,11 +556,18 @@ function head_port_set_fits(vessel_opening_diameter, ports) =
   let (
     _n = len(ports),
     _chord = 2 * head_port_circle_radius(vessel_opening_diameter, ports) * sin(180 / _n)
-  ) min([
+  )
+    min([
       for (i = [0:_n - 1])
         _chord
         - bayonet_flange_radius(head_port_interface(ports[i]))
         - bayonet_flange_radius(head_port_interface(ports[(i + 1) % _n]))
+    ]) >= lid_flange_gap
+    && min([
+      for (i = [0:_n - 1])
+        _chord
+        - bayonet_port_hole_radius(head_port_interface(ports[i]))
+        - bayonet_port_hole_radius(head_port_interface(ports[(i + 1) % _n]))
     ]) >= lid_holes_offset;
 
 function head_port_set_for(vessel_opening_diameter) =
@@ -3488,9 +3502,23 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       - bayonet_flange_radius(head_port_interface(_ports[(i + 1) % _n]))
   ]);
 
+  _bore_gap = min([
+    for (i = [0:_n - 1])
+      2 * port_circle_radius * sin(180 / _n)
+      - bayonet_port_hole_radius(head_port_interface(_ports[i]))
+      - bayonet_port_hole_radius(head_port_interface(_ports[(i + 1) % _n]))
+  ]);
+
   assert(
-    _port_gap >= lid_holes_offset,
-    str(_n, " ports leave ", _port_gap, " mm between flanges on a ", port_circle_radius * 2, " mm circle; ", lid_holes_offset, " mm is the least this lid keeps.")
+    _port_gap >= lid_flange_gap,
+    str(_n, " ports leave ", _port_gap, " mm between flanges on a ", port_circle_radius * 2, " mm circle; ", lid_flange_gap, " mm is the least this lid keeps between two of them.")
+  );
+
+  // The wall the LID keeps, which is a different span from the one above: the bores are narrower
+  // than the flanges standing over them, so this is the material and that was the air.
+  assert(
+    _bore_gap >= lid_holes_offset,
+    str(_n, " ports leave ", _bore_gap, " mm of lid between neighbouring bores; ", lid_holes_offset, " mm is the least this lid keeps.")
   );
 
   // The motor mount stands on the same face as those flanges, so the ports have to clear it going
@@ -3826,15 +3854,18 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     translate([0, 0, -lid_flange_height - lid_plug_height / 2])
       oring(_plug_ring, id=_ring_id);
 
-    // port o-rings, each seated against the outer wall of its gland
+    // Port o-rings, at FREE size and sitting on the groove's floor. Two corrections here: it was
+    // centred in the gland's depth, which buried it in the flange by half the squeeze and left the
+    // other half below the face, so the overlap this block calls the check read 0.1875 mm where the
+    // gland squeezes 0.375. And its diameter was written as the gland's outer wall less a cord,
+    // which was the free ID only while the groove was cut at exactly the ring's OD - now that the
+    // groove carries a fit allowance, that expression would stretch the ring onto a wall it no
+    // longer reaches. The ring is loose in its groove by the allowance until pressure drives it out.
     for (i = [0:_n - 1])
       let (_pi = head_port_interface(_ports[i]))
         head_port_at(i, vessel_opening_diameter)
-          translate([0, 0, bayonet_gland_depth(_pi) / 2])
-            oring(
-              bayonet_oring(_pi),
-              id=(bayonet_gland_outer_radius(_pi) - bayonet_oring_cs_diameter(_pi)) * 2
-            );
+          translate([0, 0, bayonet_gland_depth(_pi) - bayonet_oring_cs_diameter(_pi) / 2])
+            oring(bayonet_oring(_pi));
 
     // The ROD seal, in the groove that holds it captive. The only ring in the build that seals on a
     // tube rather than a face, and until now the only one not drawn - so the overlap this block

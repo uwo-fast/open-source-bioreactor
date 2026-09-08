@@ -677,7 +677,7 @@ bare.
 
 **What the geometry says, with Karcz's correlation applied to it.** Eccentric mounting is real and
 well supported, and this architecture can barely use it. The motor mount is a Ø56 body centred on the
-lid and the port flanges reach inward to `head_port_circle_radius(mouth) − 13.6`, so the room for an
+lid and the port flanges reach inward to `head_port_circle_radius(mouth) − 14.1`, so the room for an
 offset is `Rpc − flange − lid_holes_offset − mount_radius`. On `jar_1p5L` that is already **−12.45 mm**
 and on `jar_1gal_155` **−8.30 mm** — an unasserted collision until `head()` gained the check for it,
 masked before that because the port-spacing assert fires first.

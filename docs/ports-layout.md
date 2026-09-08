@@ -169,20 +169,21 @@ impeller sweeps a cylinder, the ring is an annulus — and a port's tilt never l
 ## One table does not serve the family
 
 The layout above is a 143 mm mouth's layout. It does not fit the two narrow jars, and no amount of
-rearranging makes it fit: two Ø16 Atlas probe bodies force a 13.6 mm flange, four baffles force four
+rearranging makes it fit: two Ø16 Atlas probe bodies force a 14.1 mm flange, four baffles force four
 more of them, and six flanges of that size do not go onto a Ø58 port circle in any order. That is
 geometry, not tuning.
 
 What sets the limit is the **worst adjacent pair**, not the port count:
 
 ```
-2·Rpc·sin(180/n)  ≥  flange_r(i) + flange_r(i+1) + lid_holes_offset
+2·Rpc·sin(180/n)  ≥  flange_r(i) + flange_r(i+1) + lid_flange_gap      (air between flanges)
+2·Rpc·sin(180/n)  ≥  hole_r(i)   + hole_r(i+1)   + lid_holes_offset   (lid wall between bores)
 ```
 
 Three consequences, all invisible while every port was the same size:
 
 1. **Order matters, where there is a choice.** The layout above puts a baffle beside a probe twice,
-   so the binding pair is 13.6 + 13.6 even though half the ports are 1.5–3 mm tubes. On this lid
+   so the binding pair is 14.1 + 14.1 even though half the ports are 1.5–3 mm tubes. On this lid
    there is no choice — see the correction below — but on a lid with fewer baffles there is.
 2. **Big ports must be at most half the count**, or two are forced adjacent and every saving
    elsewhere is wasted. Necessary, not sufficient: equally-spaced baffles can force the adjacency
@@ -192,19 +193,20 @@ Three consequences, all invisible while every port was the same size:
 A flange is as big as it is because of its face seal, not its bore:
 
 ```
-flange_r = (oring_ID + 2·cs)/2 + lip        oring_ID = 2·(lock_bore_r + land + cs/2)
+flange_r = (oring_ID + 2·cs + fit)/2 + lip  oring_ID = 2·(lock_bore_r + land + cs/2)
 ```
 
 That returns 23 mm for the standard interface, which is exactly the registered ring — so it is the
 rule the design already used. Ø16 probe body, 2 mm collet wall each side, Ø20 opening, Ø23 ring,
-13.6 mm flange. **Nothing in that chain has slack**, which is why every limit below traces back to
-the two probes.
+14.1 mm flange. **Nothing in that chain has slack**, which is why every limit below traces back to
+the two probes. `fit` is the 0.2 mm the groove needs to RECEIVE a moulded ring rather than only seal
+it; it was 0 until a printed 23x1.5 would not go into the 26.00 mm groove cut for its 26.00 mm OD.
 
 | interface | iface_r | flange_r | baffle width, 10 mm plate |
 | --- | --- | --- | --- |
-| std | 10 | 13.60 | 17.09 mm |
-| midi | 7 | 10.60 | 9.51 mm |
-| mini | 5 | 8.60 | will not pass — a 10 mm plate in a 9.8 mm bore |
+| std | 10 | 14.10 | 17.09 mm |
+| midi | 7 | 11.30 | 9.51 mm |
+| mini | 5 | 9.30 | will not pass — a 10 mm plate in a 9.8 mm bore |
 
 Baffles cannot be small: the plate drops through the lock bore, so `width = 2·√(bore² − (t/2)²)`.
 
@@ -216,8 +218,8 @@ wrong: they assumed the ports could be arranged freely. They cannot, and the rea
 
 **Four baffles equally spaced on twelve ports sit every third port, which leaves no port that is not
 adjacent to one.** A probe therefore *must* touch a baffle, both are std, and the worst pair is
-13.6 + 13.6 whatever size the tubes are. Mixed port sizes do not move the twelve-port lid at all -
-`jar_10L`'s binding gap is 2.254 mm before and after - and **spreading the big ports so no two touch
+14.1 + 14.1 whatever size the tubes are. Mixed port sizes do not move the twelve-port lid at all -
+`jar_10L`'s binding gap is 1.254 mm before and after - and **spreading the big ports so no two touch
 is not achievable at this port count and baffle spacing.** It is not a thing left to do; it is a
 thing that does not exist.
 
