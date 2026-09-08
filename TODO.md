@@ -345,6 +345,24 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
 - [ ] Add curve / inflection point to holes in bayonet connectors to grip tubes better
   - sehan's idea, currently they grip really tight already so this is just a thought for improving the design if we find the tubes are slipping out too easily in testing; or if we wanted to reduce the interference fit and make it easier to insert the tubes in the first place while keeping them from slipping out
 
+- [ ] back-plug the Atlas probe bore, or accept that the probe body is the seal
+  - the collet's connector hex opens **straight through** the probe bore to atmosphere - 8.6 mm
+    across the flats, **64.05 mm2** - so with no probe in it the port is a hole into the headspace.
+    What closes it is the probe BODY, and that is a grip rather than a seal:
+    `_bp_collet_body_allowance` is 0.6 mm, taken up by sprung tabs. Nothing in the model draws a
+    seal there, checks one, or reports the gap
+  - **low concern, and the reason is bench experience rather than the model**: the probes largely
+    self-seal once the body is seated. This is written down so it is a known open edge rather than
+    something nobody looked at
+  - **the fix, if it is ever wanted, is probably NOT cad.** Hot glue or another temporary seal at
+    the hex is the honest answer for a part that has to come apart to change a probe, and a modelled
+    gland at the connector end would be geometry standing in for a squirt of adhesive. Worth saying
+    out loud so nobody designs one by reflex
+  - it belongs with the sensor-gland item below: both are about the connector end of the probe, and
+    if either is ever done they should be looked at together
+  - the port's OTHER seal is not this one - the bayonet face o-ring closes the flange against the
+    lid and is unaffected
+
 - [ ] optional end styles (sensor gland) for atlas probes to match product more closely
 
 ## tooling / infrastructure / documentation
