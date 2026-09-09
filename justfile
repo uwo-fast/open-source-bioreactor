@@ -66,7 +66,7 @@ setup:
     @scripts/install-libraries.sh
 
 # Everything CI runs.
-check: fmt-check lint check-recipes check-scad check-vessels check-designations check-json check-bom check-parts check-customizer
+check: fmt-check lint check-recipes check-echo check-scad check-vessels check-designations check-json check-bom check-parts check-customizer
 
 # Prettier owns markdown, JSON and YAML; ruff owns the analysis Python. NOTHING formats
 # SCAD - no formatter understands it, and the registries say DO NOT FORMAT in the files
@@ -130,6 +130,19 @@ check-customizer:
 # The list of files that render on their own is exported above rather than passed, because
 # check-mesh reads the same one and a second copy would be a second answer to "what renders".
 #
+# Pins the whole reported surface: 3 entry files x 5 registered vessels, byte for byte. The
+# refactor ahead moves derived numbers between files, and this is the only thing that can say
+# a number did not change while its home did. Cells that ERROR are pinned too - what the model
+# says on the way to failing is also a claim.
+#
+# Fail when any entry file's echo stream moves against its committed transcript.
+check-echo:
+    @scripts/check-echo.sh
+
+# Rewrite the transcripts. Only after reading the diff `just check-echo` printed.
+check-echo-update:
+    @scripts/check-echo.sh --update
+
 # `just` reads only the comment line immediately above a recipe, the same rule the OpenSCAD
 # Customizer uses - so a multi-line block shows its LAST line, and four recipes here once
 # advertised the middle of a sentence. Structural, not a guess at prose: see the script.

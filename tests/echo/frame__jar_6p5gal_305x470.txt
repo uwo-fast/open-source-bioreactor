@@ -1,0 +1,3 @@
+ECHO: "base wall thickness: ", 3.7, " cm"
+ECHO: "base floor: jar lands at r", 102.4, "mm, ring spans r", 87.4, "to r", 152.6, "mm"
+ECHO: "lights: 6 tubes - 3 in each of 2 quadrants - on a light that comes 4 to a cord, so 2 cords and 2 tubes left over"

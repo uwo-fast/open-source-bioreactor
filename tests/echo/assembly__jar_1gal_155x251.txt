@@ -1,0 +1,61 @@
+ECHO: "joint: ", 12, " posts at ", 45.5793, " mm on a ", 174.1, " mm circle"
+ECHO: "joint load: 1034.92 N of gasket seating over 12 posts = 86.2437 N each, on M8 bolts and M8 rods"
+ECHO: "joint tightening: 114.3 deg past snug on each of the 12 nuts, all of which sit on top of the lid - 0.396875 mm of gasket travel on a 1.25 mm pitch. The printed flange takes a little more and then creeps, so go back to them."
+ECHO: "reactor envelope: ", 192.7, " mm dia x ", 527.5, " mm tall"
+ECHO: "printers: the widest printed part is a 192.7 mm disc - the lid, and the frame's base and top base - so this build wants a bed that takes a disc that wide. Registered printers that do: ["prusa_mk3s", "prusa_core_one", "voron_250", "bambu_x1c", "prusa_core_one_l", "bambu_h2d", "sovol_sv08", "voron_350", "prusa_xl"]"
+ECHO: "base wall thickness: ", 3.7, " cm"
+ECHO: "base floor: jar lands at r", 63.65, "mm, ring spans r", 48.65, "to r", 77.85, "mm"
+ECHO: "lights: 6 tubes - 3 in each of 2 quadrants - on a light that comes 4 to a cord, so 2 cords and 2 tubes left over"
+ECHO: "DO probe lean: 4.5 deg - the most of 4.5 deg this jar allows, which is the whole of it"
+ECHO: "vessel fit: a 67.185 mm impeller is feasible in mouths 78 to anything wider (nothing bounds it above); this jar's is 95.8"
+ECHO: "impeller: 67.185 mm in a 149.3 mm bore, D/T 0.45 (band 0.3-0.5, axial 0.4-0.5); spacing 1 D (band 1-2)"
+ECHO: "impeller clearance: centreline 60.4665 mm off the floor = 0.9 D (Oldshue allows 1-2), C/T 0.405; 54.3016 mm under the lower impeller and 60.7734 mm (0.904568 D) of culture over the upper"
+ECHO: "impeller count: 2 on 2.80702 impeller diameters of liquid (H/T 1.26316), where the spacing band allows 0.403511 < n < 1.80702 - so this column is SHORT for a pair, and the second impeller is one the spacing would not add. It costs the coverage above: 0.904568 D against the 0.5 D floor"
+ECHO: "impeller clearance: 0.9 D sits below the 1-2 D Oldshue allows, but that allowance is for fluidfoils and this is a pbt_45_4. The guidance that fits it is Fořt's, who measured better hydraulic efficiency at C/D 1.0 than 0.5; his correlation's own C/D limit is 1.0 and coverage over the upper impeller binds at 1.30457 D. See docs/agitation.md."
+ECHO: "impeller pumping: shaft turns counter-clockwise seen from above, so the lower impeller pumps UP and the upper DOWN and the pair CONVERGES on the 46.8552 mm gap between them"
+ECHO: "impeller set screws: 2 x M4x6 316 (92029A142) at [0, 120] deg, 5.8 mm of thread in a 3.3 mm tap hole, through a 8 mm collar above the blades"
+ECHO: "culture: 3.34624 L standing 188.59 mm deep, 86.5% of capacity and 77.9297% of the 242 mm internal height - DERIVED from culture_fill_fraction, a fraction of what this jar holds, so it scales to every registered vessel. The jar holds 3.86848 L brim full, and a cylinder on the 149.3 mm bore would have called this fill 3.30162 L"
+ECHO: "culture headspace: 0.522245 L of gas space, filling 86.5% of capacity - ABOVE the 0.8 this project's own note called usual, by 6.5 points"
+ECHO: "impeller: pbt_45_4 Po 1.52305 and flow number 0.920058 from Medek's correlation at 45 deg, extrapolated on ["T/D", "H/T", "baffle count"]"
+ECHO: "drive no-load 420 rpm: Re 31476.9, tip 1.47748 m/s, 0.713818 W into 3.34624 L = 213.32 W/m3 mean, 35.3206 W/kg peak, pair under 0.0324593 Nm of 0.4903 Nm rated"
+ECHO: "drive rated 320 rpm: Re 23982.4, tip 1.1257 m/s, 0.315711 W into 3.34624 L = 94.3481 W/m3 mean, 15.6218 W/kg peak, pair under 0.0188426 Nm of 0.4903 Nm rated"
+ECHO: "thermocouple: 3872K129 on 1/8 NPT, 152.4 mm reach, tip 90.9898 mm under the surface with 103.6 mm to the floor"
+ECHO: "probe: do_probe carries DO lab g2, reaching 151.597 mm - tip 90.1865 mm under the surface with 104.403 mm to the floor, leaning 4.5 deg"
+ECHO: "probe: ph_probe carries pH lab g2, reaching 197.438 mm - tip 136.027 mm under the surface with 58.5624 mm to the floor, leaning 0 deg"
+ECHO: "transfer no-load 420 rpm: blend to 95% in 3.62424 s; kLa 0.00886479 1/s coalescing, 0.0235388 1/s not, at 1.59282 mm/s superficial gas"
+ECHO: "transfer rated 320 rpm: blend to 95% in 4.75681 s; kLa 0.0063966 1/s coalescing, 0.0132977 1/s not, at 1.59282 mm/s superficial gas"
+ECHO: "transfer: kLa is van't Riet's air-water correlation, fitted over 500-10000 W/m3, and this vessel runs 94.3481. Read it as an order of magnitude, not a number."
+ECHO: "transfer: blend time is Ruszkowski's, fitted on 0.01-10 m3 fully baffled, and this is 0.00334624 m3. It reproduces Hall's published table at a tenth of that, so the extrapolation is a short one."
+ECHO: "drive encoder: 12 ppr x 2 channels through 14:1 = 672 counts per output turn, resolving 0.892857 rpm over 100 ms"
+ECHO: "shaft: 8x400_316 (1265K66) 7.995-8 mm in a 8 mm bore: -0.007 to 0.005 mm"
+ECHO: "WARNING motor mount: 3.125 diameters tall. The shaft is already the shortest registered row that reaches - 400 mm against the 257.5 this vessel needs. The registry steps 200/400/600/800, so the excess is the step, not a choice; a cut between them would take it out."
+ECHO: "motor mount height: ", 17.5, " cm"
+ECHO: "bearing seal: 22x1.5 EPDM on the 608's 22 mm rim at 0% stretch, in a groove to 24.46 mm - 18% radial squeeze, and 6.02 mm from the nearest mount insert"
+ECHO: "motor mount: 4 x M4x4.7 18-8 inserts on a 42.8 mm circle, 8 mm M4 screws, 13.25 mm of lid left under them, 6.02 mm to the bearing pocket"
+ECHO: "baffles: none on this lid, so the vessel is unbaffled and will swirl rather than mix"
+ECHO: "sparge ring: 86.3727 mm = 1.28559 D (band 1-2, equal-swept-volume 1.41421), 98.059 mm off the floor - 37.5925 above the lower impeller and 29.5925 below the upper"
+ECHO: "sparge ring fits: 8.71519 mm to the baffles, 1.25 mm to the jar's mouth on the way in. A 6.4 mm tube reaching 6.92731 across its corners, on a 4 mm bore of 12.5664 mm2"
+ECHO: "sparger: 1 ring(s) at [43.1863] mm carrying [8] holes of 3 mm - 8 in all, at 0.49312 m/s through them"
+ECHO: "sparger bubbles: 5.09817 mm at formation, 401.915 a second (specific area needs a holdup)"
+ECHO: "sparger feed run: 4 mm bore at 1 path carrying 2.21904 m/s; its 2.96433 Pa of velocity head against 0.405279 Pa at a hole, open area ratio 4.5 - every hole is downstream of this one bore"
+ECHO: "sparger rings: [1.10952] m/s at 2 path(s) each, open area ratio [2.25]; [0.741084] Pa of velocity head - open area reaches 4.5, ABOVE 1, so the holes compete with their own supply"
+ECHO: "sparger envelope: r [39.7227, 46.65] mm, which is what has to clear the baffles and pass the mouth"
+ECHO: "sparger pitch: [11.3062] hole diameters between holes, against a 3 floor that is reasoned, not cited"
+ECHO: "WARNING sparger: extrapolated on ["open area", "bore velocity"]"
+ECHO: "sparge holes: 8 x 3 mm at 33.9185 mm spacing; at 0.5 vvm that is 1.67312 L/min through them at 0.49312 m/s"
+ECHO: "sparge holes: capillary 96 Pa to launch a bubble against 0.405279 Pa to push gas through, so the holes will not all flow evenly - which Rewatkar & Joshi find does not matter near the impeller."
+ECHO: "reach clearance: do_probe's tip passes the upper impeller with 1.88837 mm of radial room, over the -134.513 to -122.184 mm the two share"
+ECHO: "reach clearance: ph_probe's tip passes the lower impeller with -6.2925 mm of radial room, over the -201.698 to -189.369 mm the two share"
+ERROR: Assertion '(_gap > 0)' failed: "ph_probe's tip runs through the lower impeller by 6.2925 mm radially, over the heights they share. Both are drawn, so this is parts in the same space rather than a margin being thin." in file head.scad, line 3158
+TRACE: called by 'assert' in file head.scad, line 3158
+TRACE: called by 'if' in file head.scad, line 3152
+TRACE: called by 'let' in file head.scad, line 3151
+TRACE: called by 'for' in file head.scad, line 3150
+TRACE: called by 'for' in file head.scad, line 3149
+TRACE: called by 'head' in file assembly.scad, line 529
+TRACE: called by 'translate' in file assembly.scad, line 528
+TRACE: called by 'children' in file assembly.scad, line 499
+TRACE: called by 'difference' in file assembly.scad, line 498
+TRACE: called by 'if' in file assembly.scad, line 497
+TRACE: called by 'cross_section' in file assembly.scad, line 527
+TRACE: called by 'if' in file assembly.scad, line 526
