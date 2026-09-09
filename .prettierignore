@@ -15,3 +15,6 @@ analysis/.venv
 .ruff_cache
 .pytest_cache
 node_modules
+
+# Pinned OpenSCAD libraries - upstream code, not ours to format
+.openscad-libraries

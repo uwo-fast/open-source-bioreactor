@@ -1,0 +1,30 @@
+# The OpenSCAD libraries this model needs, and the exact revision of each.
+#
+# Format: <name> <https-url> <ref>
+#
+# `name` is the directory the library is installed as, and it must match what
+# the .scad files `use` or `include` - `NopSCADlib/core.scad` needs the checkout
+# to be called NopSCADlib and nothing else.
+#
+# `ref` IS A TAG OR A COMMIT, NEVER A BRANCH. A library pinned to a branch makes
+# "it renders here" a statement about a moving target, which is the whole reason
+# this file exists: the model built on this machine for months and could not
+# build anywhere else, because these four were installed globally and nothing in
+# the repository said so.
+#
+# scripts/install-libraries.sh reads this. It clones over SSH and falls back to
+# HTTPS, so a machine with a key gets one and a machine without - CI - gets the
+# other, from the same line here.
+#
+# Tags where upstream publishes them, commit SHAs where it does not. Only
+# NopSCADlib tags at all; the other three have no tags and no releases, so a SHA
+# is the only honest pin. Read from the upstream repositories on 2026-09-09.
+#
+# NOTE ON bayonet-lock-scad: custom/bayonet_port.scad asserts it is ">= 0.11.0",
+# but that repository publishes no tags and no releases, so nothing outside the
+# library can check that claim. The SHA below is what the assert passes against.
+
+NopSCADlib          https://github.com/nophead/NopSCADlib.git                v21.41.1
+bayonet-lock-scad   https://github.com/CameronBrooks11/bayonet-lock-scad.git 85c43ae
+FunctionalOpenSCAD  https://github.com/thehans/FunctionalOpenSCAD.git        51588ff
+threads-scad        https://github.com/rcolyer/threads-scad.git              4ae9aeb

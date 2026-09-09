@@ -3,6 +3,13 @@ set dotenv-load := false
 PY := "analysis/.venv/bin/python"
 OPENSCAD := env("OPENSCAD", "openscad")
 
+# Where `just setup` puts the libraries openscad-libraries.txt pins, exported so
+# every recipe's OpenSCAD finds them. PROJECT-LOCAL ON PURPOSE: these four used to
+# come from whatever the machine happened to have installed globally, which is why
+# the model built here and nowhere else. Pointing at the checkout in the repository
+# means a render is reproducible or it fails loudly, with no third answer.
+export OPENSCADPATH := justfile_directory() + "/.openscad-libraries"
+
 # The files that are meant to render on their own. THE LIST IS THE RECORD - a new entry file fails
 # check-scad until it is here, which is the point - and it lives up here because two recipes read
 # it. check-scad asserts that everything else emits NO geometry; check-mesh builds these into
@@ -49,6 +56,15 @@ scad/custom/sparger.scad"
 default:
     @just --list
 
+# Clone the pinned OpenSCAD libraries. SSH first, HTTPS if that fails, so the same
+# line in openscad-libraries.txt serves a keyed workstation and a bare CI runner.
+# Idempotent, so it is cheap in front of a build. The analysis virtualenv is a
+# separate concern and a separate recipe - nothing in `check` needs it.
+#
+# Install the OpenSCAD libraries the model depends on.
+setup:
+    @scripts/install-libraries.sh
+
 # Everything CI runs.
 check: fmt-check lint check-scad check-vessels check-designations check-json check-bom check-parts check-customizer
 
@@ -77,7 +93,7 @@ fmt-check:
 #
 # Lint markdown and the analysis Python.
 lint:
-    npx --yes markdownlint-cli2@0.18.1 "**/*.md" "#analysis/.venv" "#working.tmp" "#output"
+    npx --yes markdownlint-cli2@0.18.1 "**/*.md" "#analysis/.venv" "#working.tmp" "#output" "#.openscad-libraries"
     uvx ruff@0.14.5 check analysis
 
 # The two checks a CGAL render puts out of the gate's reach, which is what makes them

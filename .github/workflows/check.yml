@@ -42,6 +42,11 @@ jobs:
           sudo apt-get install -y --no-install-recommends openscad
           openscad --version
 
+      # Clones the pinned OpenSCAD libraries. The runner has no SSH key, so this
+      # is also the live test of the HTTPS fallback in the installer.
+      - name: Setup
+        run: just setup
+
       - name: Check
         run: just check
 
@@ -56,6 +61,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends openscad
+
+      - name: Setup
+        run: just setup
 
       - name: Test
         run: just test

@@ -27,3 +27,6 @@ __pycache__/
 .ruff_cache/
 .pytest_cache/
 node_modules/
+
+# Project-local OpenSCAD libraries, installed by `just setup` from openscad-libraries.txt
+.openscad-libraries/
