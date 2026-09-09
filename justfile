@@ -502,7 +502,11 @@ check-holes file="" flags="-D render_all=false -D render_sparger=true":
         grep -o 'HOLEPROBE|[^"]*' "$tmp/err" > "$tmp/probes" || true
         [ -s "$tmp/probes" ] || continue
         checked=$((checked + 1))
-        if ! /usr/bin/python3 - "$tmp/p.stl" "$tmp/probes" "$f" <<'EOF'
+        # uv rather than the system python, because this probe needs numpy and nothing
+        # said so - CI has a python3 without it, and the failure was a traceback from
+        # inside a heredoc rather than anything naming a dependency. --with declares it
+        # at the point of use, so the check carries its own requirement.
+        if ! uv run --no-project --quiet --with numpy python - "$tmp/p.stl" "$tmp/probes" "$f" <<'EOF'
     import struct, sys, numpy as np
     stl, probes, name = sys.argv[1], sys.argv[2], sys.argv[3]
     with open(stl, 'rb') as fh:
