@@ -1,3 +1,5 @@
+set dotenv-load := false
+
 PY := "analysis/.venv/bin/python"
 OPENSCAD := env("OPENSCAD", "openscad")
 
@@ -48,7 +50,50 @@ default:
     @just --list
 
 # Everything CI runs.
-check: check-scad check-vessels check-designations check-json check-bom check-parts check-customizer
+check: fmt-check lint check-scad check-vessels check-designations check-json check-bom check-parts check-customizer
+
+# Prettier owns markdown, JSON and YAML; ruff owns the analysis Python. NOTHING formats
+# SCAD - no formatter understands it, and the registries say DO NOT FORMAT in the files
+# themselves because their columns are aligned by hand. purchased-parts.csv is ignored
+# for the same reason, and analysis/runs/*/raw because those are measurements rather
+# than documents: reformatting them would rewrite the record of an experiment.
+#
+# Versions are PINNED. An unpinned `npx prettier` reformats the repo the day upstream
+# changes a default, which turns a style bump into a diff nobody asked for.
+#
+# Format markdown, JSON and the analysis Python in place.
+fmt:
+    npx --yes prettier@3.8.4 --write .
+    uvx ruff@0.14.5 format analysis
+    uvx ruff@0.14.5 check --fix analysis
+
+# Verify formatting without touching anything, which is what `check` needs.
+fmt-check:
+    npx --yes prettier@3.8.4 --check .
+    uvx ruff@0.14.5 format --check analysis
+
+# The negated globs are markdownlint-cli2's own exclude syntax; a .markdownlintignore
+# did not reach working.tmp, which is untracked scratch and not ours to lint.
+#
+# Lint markdown and the analysis Python.
+lint:
+    npx --yes markdownlint-cli2@0.18.1 "**/*.md" "#analysis/.venv" "#working.tmp" "#output"
+    uvx ruff@0.14.5 check analysis
+
+# The two checks a CGAL render puts out of the gate's reach, which is what makes them
+# tests rather than checks: check-mesh builds every entry file into a solid, and
+# check-holes proves each declared gas hole breaks through AND is fed. Minutes, not
+# seconds - so they run here and `check` stays the fast gate.
+#
+# The slow half of verification: mesh validity and gas-hole breakthrough.
+test: check-mesh check-holes
+
+# output/ is the export tree and working.tmp holds scratch; neither is tracked, and
+# nothing else here writes outside them.
+#
+# Remove what the recipes build.
+clean:
+    rm -rf output working.tmp
 
 # Fail when a Customizer parameter has no description the UI can actually show.
 #
@@ -61,6 +106,8 @@ check: check-scad check-vessels check-designations check-json check-bom check-pa
 # A parameter under /* [Hidden] */ is exempt: it is not offered, so it needs no description. That
 # section runs until the NEXT marker, which is the trap this recipe also covers - hiding one
 # internal hid every render flag below it once, because head.scad had no marker between them.
+#
+# Fail when a Customizer parameter has no description the UI can show.
 check-customizer:
     #!/usr/bin/env bash
     set -uo pipefail
@@ -265,8 +312,9 @@ check-vessels:
 # was tried here and reported zero of them. cloc maps .scad natively and reads // and comment blocks
 # the way OpenSCAD does.
 #
-# This recipe does not install anything. cloc is packaged, but what a workstation has belongs in
-# workstation-configs rather than in a repo's build file - see the message below.
+# This recipe does not install anything. cloc is packaged, but which tools a machine carries is a
+# property of that machine rather than of this repository, so it belongs in whatever manifest
+# provisions the machine - see the message below.
 #
 # Report lines of code and comment per language. Needs cloc.
 stats:
@@ -274,9 +322,9 @@ stats:
     set -uo pipefail
     if ! command -v cloc >/dev/null 2>&1; then
         echo "cloc is not installed, so there is nothing to report."
-        echo "        It is packaged - apt has 2.04 - but nothing here installs a tool: add it to"
-        echo "        packages/dev.apt in CameronBrooks11/workstation-configs so every machine gets"
-        echo "        the same one, then run this again."
+        echo "        It is packaged - apt has 2.04 - but nothing here installs a tool. Add it to"
+        echo "        whatever provisions your machines, so they all get the same one, and run this"
+        echo "        again."
         echo "        NOT tokei: trixie's is 12.1.2 and OpenSCAD only landed upstream in 14.0.0, so"
         echo "        it counts none of the SCAD tree, which is the one thing worth counting here."
         exit 1
@@ -300,6 +348,7 @@ analysis-setup:
 # Rebuild every run and method, with verification.
 analysis: analysis-all
 
+# Rebuild every run and method, without the verification pass `analysis` adds.
 analysis-all:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -507,6 +556,8 @@ check-holes file="" flags="-D render_all=false -D render_sparger=true":
 # It compares the part_number FIELD, not the file. A plain grep passes on a number that survives
 # only in a stale URL, which is exactly what the first version did - it reported the purchase list
 # clean while the thermocouple row named a part the model had replaced.
+#
+# Fail when the purchase list misses a part the model prescribes.
 check-bom:
     #!/usr/bin/env bash
     set -uo pipefail
@@ -558,6 +609,8 @@ check-bom:
 # Regenerating is cheap and the files are committed, so a diff means someone added a jar without
 # running `just json` - which would leave the customizer offering a vessel that no longer exists,
 # or hiding one that does.
+#
+# Fail when the committed parameter JSON has drifted from the registries.
 check-json:
     #!/usr/bin/env bash
     set -uo pipefail
@@ -579,6 +632,8 @@ check-json:
 # it can be verified. A designation declared WITHOUT a dropdown is left alone: there is no second
 # copy of the names, so there is nothing to drift. That is the honest trade for a registry too long
 # to list in a comment - the o-ring has 38 rows - and it is why adding a dropdown is safe.
+#
+# Regenerate the Customizer parameter JSON from the registries.
 json:
     #!/usr/bin/env bash
     set -uo pipefail
