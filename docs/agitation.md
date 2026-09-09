@@ -49,8 +49,8 @@ is a rigid-walled green alga, the most shear-tolerant class.
 
 ## 2. This reactor, in the units that matter
 
-Computed on the 94.5 mm impeller in the 10 L jar, with **Np = 1.498 from Medek's correlation** for
-the registered 45° four-blade pitched turbine, and x = 16. Mean dissipation is over the **8.23 L**
+Computed on the 94.5 mm impeller in the 10 L jar, with **Np = 1.497 from Medek's correlation** for
+the registered 45° four-blade pitched turbine, and x = 16. Mean dissipation is over the **8.22 L**
 this build DERIVES from `culture_fill_fraction`, not over the full jar — which holds 9.52 L brim
 full. `head()` echoes every figure below at render.
 
@@ -68,7 +68,7 @@ note calling them conservative; they were optimistic. Np is computed from this i
 geometry by a correlation that states where it is being extrapolated.
 
 Both columns then fell about 7 % when the fill line was pinned to a working volume, and Np went
-1.602 to 1.498. Medek's correlation reads **H/T**, so changing how full the vessel is changes the
+1.602 to 1.497. Medek's correlation reads **H/T**, so changing how full the vessel is changes the
 power number. Neither move is the impeller changing — only what is known about it.
 
 **The vessel is fully turbulent throughout the band.** Every speed above clears both the textbook
@@ -147,7 +147,7 @@ never in danger; the headroom it was chosen on was understated by 8 mm.)
 
 **(Superseded — kept for the record.)** This section describes the constant-pitch helicoid, which
 the model no longer builds: `head()` selects `pbt_45_4`, a flat four-blade 45° pitched turbine, and
-takes `Po 1.49754` from Medek's correlation instead of borrowing 0.99. It is kept because the
+takes `Po 1.49679` from Medek's correlation instead of borrowing 0.99. It is kept because the
 reading in it is *why* the helicoid was abandoned — the twist definition, the direction of its
 effect, and the pitch geometry showing the blade was steeper than 45° at every radius. Nothing
 below describes a part that is printed today.
@@ -168,7 +168,7 @@ largest twist either tested, at hub angles 23° beyond either's range. So the nu
 transfer, but the direction does, and it matters: **Po = 0.99 is borrowed from an untwisted blade,
 so it is likely an over-estimate here**, making the power, dissipation and torque figures of the
 day conservative rather than optimistic. That reasoning held only for the helicoid. On the blade
-actually built, the correlated Po is 1.498 against the borrowed 0.99, so those figures were
+actually built, the correlated Po is 1.497 against the borrowed 0.99, so those figures were
 **optimistic** — see the blade-choice section above, which records the correction.
 
 A second, smaller departure was added deliberately. The hub carries the set screws that hold the
@@ -594,11 +594,11 @@ been priced against the mass transfer it costs, and it should be.
   at **D/T ≤ 0.4305** the impeller stops binding and the plate returns to the full 19.39 mm the bore
   allows, and past D/T 0.54 there is no plate left at all and the model refuses to build.
 - **The plate now hangs the full 280 mm**, as the section above records and as `head()` echoes:
-  `4 x 15.3 x 280 mm (280 mm clears the floor)`. Deflection of a cantilever goes as the fourth power
+  `4 x 10.3454 x 280 mm (280 mm clears the floor)`. Deflection of a cantilever goes as the fourth power
   of its length and the plate's inner edge is 2 mm from a turning impeller, so the length was a
   stiffness question rather than a geometric one — and it is the 10 mm plate that answered it, at
   1.30 mm of tip deflection against a 1.53 mm limit.
 - Their being **partial and inboard** is separately uncited: the relevant papers are paywalled and
-  unread. Note that these plates span r 49.3–64.6 mm in a 210 mm bore, so the annulus outboard of
-  them is 40 mm wide and unobstructed — a consequence of having to pass every part through a 142.2 mm
+  unread. Note that these plates span r 51.33–61.67 mm in a 210 mm bore, so the annulus outboard of
+  them is 43 mm wide and unobstructed — a consequence of having to pass every part through a 142.2 mm
   mouth, and a difference from the wall-mounted reference case that no source here quantifies.

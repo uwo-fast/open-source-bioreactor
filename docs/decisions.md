@@ -50,7 +50,7 @@ impeller-count threshold, `docs/procurement.md` on the meter spread, `docs/refer
   the gasket — but where it goes splits by lip kind, and on a crown it flows into the 4.762 mm of
   the 8 mm gasket the contact chord never touches. The figures quoted a 3 mm gasket no jar carries.
 - **The joint runs at 291.8 N per post and 2.51 MPa.** 352.9 N and 2.78 MPa since the seal moved
-  onto the crown. Worth its own entry because of HOW it survived: the commit that changed the seal
+  onto the crown, and 351.0 N since the mouth measured 142.2 rather than 143. Worth its own entry because of HOW it survived: the commit that changed the seal
   corrected the echo block `docs/build.md` quotes and left every figure derived from it — the torque
   band, the bolt and rod stretch, a section heading, a ledger entry. Updating a quoted number is not
   the same as updating what was computed from it.
@@ -162,8 +162,8 @@ outlives the commit, in `docs/`.
   support tube that stays where it is put is the whole point - and it is $22.72/m against $181.42
 - **the plug o-ring cord is 3/32 in, not 1/8.** The groove and the port bores are cut into the same
   wall, so a fatter cord fouls the bores on every vessel rather than just a tight one
-- **the lid joint is instructed as a TURN, not a torque, and that is not an omission.** 352.9 N per
-  post is 0.56 to 0.85 N.m across the 0.20-0.30 nut factor unlubricated 18-8 spans - a 40 % band
+- **the lid joint is instructed as a TURN, not a torque, and that is not an omission.** 351.0 N per
+  post is 0.56 to 0.84 N.m across the 0.20-0.30 nut factor unlubricated 18-8 spans - a 40 % band
   from friction alone, on a fastener that galls, at a setting below most torque wrenches. The turn
   is the gasket's travel over the thread's pitch and has no modulus or friction in it. Both are in
   `docs/build.md`; the torque is there to say why it is not the instruction

@@ -202,7 +202,7 @@ acceptable is *not knowing* which ones.
 So a check returns the **names** of what it violates, not a boolean:
 
 ```
-impeller: pbt_45_4 Po 1.49833 and flow number 0.893455 from Medek's correlation
+impeller: pbt_45_4 Po 1.49679 and flow number 0.891811 from Medek's correlation
 at 45 deg, extrapolated on ["T/D", "H/T"]
 ```
 

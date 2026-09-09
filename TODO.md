@@ -27,7 +27,7 @@ actually left. What was decided, and what this project got wrong on the way, is 
 
 - [ ] **measured gas flow** — a reproducibility gap, not a geometry one. **The parts are chosen and in the BOM: Dwyer `VFA-23` bare meter, C$86.22, and a Clippard `MNV-3KP` needle valve, US$15.11, the valve upstream of the meter. What is left is buying them and taking a reading.**
   - the gap it closes: the model states a vvm and no builder can set one. Against the real line the
-    registered ReSun pump settles at **6.05 L/min** where **0.823-4.12** is wanted, so it runs at
+    registered ReSun pump settles at **6.05 L/min** where **0.822-4.11** is wanted, so it runs at
     a fraction of rating with nothing metering it. That boundary condition is unrepeatable between runs
     and between builders, which is the reproducibility this project claims. Why these parts rather
     than the others is in `docs/procurement.md`
@@ -611,7 +611,7 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
     free-bulge form and is handed the CONTACT band - on a crown that is a chord with unconfined
     rubber either side, close to what free bulge assumes; on the flat jar the pad fills its recess
     and the walls are where it assumes bulging. That jar also carries the registry's highest load,
-    **1253.6 N per post and 7.34 MPa**, against 352.9 and 2.78 on `jar_10L`. Reported, not asserted
+    **1253.6 N per post and 7.34 MPa**, against 351.0 and 2.78 on `jar_10L`. Reported, not asserted
   - the fix, if chased, is the usual rule for a confined flat gasket - groove section 10-25 % over
     the gasket's. Widening the recess buys it out of the lands, and `jar_6p5gal` offers 10 mm of rim
     where the gasket is held to 6. Not chased: it changes the lid for one jar

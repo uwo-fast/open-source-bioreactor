@@ -929,8 +929,10 @@ baffle_segment_height_ceiling = min([for (p = printers) printer_build_z(p)]) - 1
 //
 // The section is the WIDEST a plate can be - what the port's bore will pass - rather than the width
 // a particular jar ends up with, so the cap is a property of the port and not of the vessel. That
-// is safe rather than convenient: jar_10L's ring pushes its plate to 15.3 mm against the 17.1 the
-// bore allows, and even scaled down by that ratio the cap is 184 mm against a 163 mm piece.
+// choice is load-bearing now rather than merely tidy: jar_10L's ring holds its plate to 10.3454 mm
+// against the 17.0892 the bore allows, and scaled by THAT ratio the term would be 124.14 mm - under
+// the 163 mm piece this jar prints, so grading by the vessel would refuse a part that prints fine.
+// What actually binds here is neither: the printer ceiling clamps 205.07 to 200.
 baffle_segment_height_max =
   min(
     baffle_segment_height_ceiling,

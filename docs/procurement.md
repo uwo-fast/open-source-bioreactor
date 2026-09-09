@@ -238,7 +238,8 @@
   - water- and steam-resistant EPDM, plain backing, black, ASTM D2000
   - 1/16 in thick (1.5875 mm), 12 in x 12 in sheet
   - Durometer 60A, 800 psi maximum, -20 to 220 F
-  - the lid's gasket is cut 145 x 151 mm, so one sheet yields four
+  - the lid's gasket is cut 142.2 x 158.2 mm, so one sheet yields ONE - the 158.2 mm outside
+    diameter will not pair on a 304.8 mm sheet
   - hardness is what sets the joint's bolt count, not just the material: under 75A the ASME
     VIII-1 gasket factor m is 0.5 and the lid takes 12 posts, at or over it m is 1.0 and the
     lid takes 16. `head_gasket_factor()` derives that from the registered row, so buying a

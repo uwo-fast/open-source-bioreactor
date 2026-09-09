@@ -7,7 +7,7 @@
 // so there is no geometry here and the accessors sit beside the rows.
 
 // Sheet size is carried because the cut is large enough for it to matter - the lid's gasket is
-// 145 x 151 mm, so a 12 in square yields four.
+// 142.2 x 158.2 mm on jar_10L, so a 12 in square yields ONE: 2 x 158.2 does not fit 304.8.
 
 //                       ["name"           material  thickness  shore_a  [sheet_w, sheet_l]  part_no]
 
@@ -33,8 +33,8 @@ function gasket_sheet_part_number(type) = type[5]; // what to order it by
 // derived
 // How many blanks of a given cut diameter come off one sheet, laid out in a plain grid - which is
 // what repositioning a template gets you. Nesting would do better and this does not claim it. The
-// registry carried the sheet size for exactly this and nothing read it, so the "yields four" in the
-// note above was a hand figure rather than a derived one; now it is neither hand nor a comment.
+// registry carried the sheet size for exactly this and nothing read it, so the yield in the note
+// above was a hand figure rather than a derived one; now it is neither hand nor a comment.
 function gasket_sheet_yield(type, cut_diameter) =
   floor(gasket_sheet_size(type)[0] / cut_diameter)
   * floor(gasket_sheet_size(type)[1] / cut_diameter);

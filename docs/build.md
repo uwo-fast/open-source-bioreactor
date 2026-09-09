@@ -82,7 +82,7 @@ file says so itself.
 The baffle plates are split so no piece is too slender to print standing:
 
 ```
-baffle print: 2 pieces of 140 mm, tallest standing 163 mm against a 205.07 mm cap
+baffle print: 2 pieces of 140 mm, tallest standing 163 mm against a 200 mm cap
 - which is how slender a piece may be, NOT how tall a bed is; see assembly.scad
 for what can actually print this; the dovetail leaves 4.2 mm of 10 crossing each
 joint, 0.074088 of the plate's second moment
@@ -95,12 +95,15 @@ joints already take 14 % of the tip deflection.
 180 mm machines being "the small end of what anyone building this owns" — and no 180 mm machine was
 ever going to build this reactor, so the number was measuring nothing. It is now a piece's height
 against **three times its own section**: a brim as wide as the part on each side, which is why a
-brim is worth printing on something this slender. On `jar_10L` that comes out at 205 mm against a
-163 mm tallest piece.
+brim is worth printing on something this slender. On `jar_10L` the rule gives **205.07 mm**, and
+the **printer ceiling clamps the cap to 200 mm** — the shortest registered build height less 10 —
+so 200 is what the echo reports, against a 163 mm tallest piece.
 
 The piece that binds is not the obvious one. The piece carrying the port stands on a **27.2 mm
-flange**, which is a wide foot; a tip piece stands on the plate's own **15.3 × 10 mm** section and
-is half again as slender for it. So the rule grades every piece by the plate.
+flange**, which is a wide foot; a tip piece stands on the section alone and is half again as
+slender for it. That section is **17.09 × 10 mm** — the widest plate the port's lock bore will
+pass, not the 10.3454 mm this jar's sparge ring actually leaves — so the cap is a property of the
+port and grades the same on every vessel.
 
 `just export-parts` writes every one of these as its own STL, with a print list beside them, and
 CGAL-renders each on the way past — so a part that is not a valid solid is caught there rather than
@@ -340,7 +343,7 @@ you put roughly forty times the intended load onto a soda-lime jar.
 ### Do not reach for a torque wrench
 
 Torque only ever reaches preload through a friction coefficient, and here you cannot know it. Across
-the 0.20–0.30 that an unlubricated stainless nut plausibly spans, 351.0 N is **0.56 to 0.85 N·m** —
+the 0.20–0.30 that an unlubricated stainless nut plausibly spans, 351.0 N is **0.56 to 0.84 N·m** —
 a 40 % band from the friction assumption alone. 18-8 galls, which is exactly what makes that
 coefficient unpredictable, and 0.7 N·m is below the bottom of most torque wrenches anyway.
 
@@ -463,7 +466,7 @@ measured, so the budget moves with it: measure that first, and this number follo
 
 ## Commissioning
 
-**Set the gas rate before anything else.** 0.1–0.5 vvm on 8.23 L is **0.823–4.12 L/min**, which is
+**Set the gas rate before anything else.** 0.1–0.5 vvm on 8.22 L is **0.822–4.11 L/min**, which is
 16 % to 82 % of the registered 0–5 L/min meter — both ends on scale, which is what that range buys.
 The pump is seven times oversized, so the entire band sits in the first part of the needle valve's
 travel — that is why the valve is a 3° needle and not the 20° one.
