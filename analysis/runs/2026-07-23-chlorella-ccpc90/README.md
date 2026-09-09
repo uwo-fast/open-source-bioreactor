@@ -5,7 +5,7 @@ InfluxDB just before the culture was evacuated and the bench sterilized.
 
 ## Culture
 
-- **Organism:** *Chlorella vulgaris*, strain **CCPC 90**
+- **Organism:** _Chlorella vulgaris_, strain **CCPC 90**
 - **Feed / medium:** 0.2 g/L Miracle-Gro in DI water (unbuffered)
 - **Control:** impeller stirring only; **no active pH control** (dose pumps configured but disabled the entire run)
 - **Vessel / stack:** bioreactor-v1 machine profile; anolis runtime `bioreactor-automation`, providers `bread0` (CRUMBS/I2C actuators) + `ezo0` (Atlas EZO pH/DO probes)
@@ -30,15 +30,15 @@ spans **multiple field types** (`value_double`/`value_int`/`value_bool`/`value_s
 
 ## Files
 
-| Path | What |
-|---|---|
-| `raw/signals_raw_long.csv` | **Master dataset** — all 29 signals, raw events, time-sorted, long/tidy format. 587,061 rows. |
-| `raw/manifests/<device>__<signal>.manifest.json` | Export manifest per signal (query window, selector, row count, content hash). |
-| `raw/export_index.tsv` | device · signal · rows · leaked_hdr(=0) · export_id · manifest_hash. |
-| `pipeline.py` | Rebuilds everything below from the master. |
-| `derived/per_signal/<device>__<signal>.csv` | The master split one file per signal (handy for loading a single series). Git-ignored. |
-| `derived/pivoted_1min.csv` | Sensors resampled onto a shared 1-minute grid. Git-ignored. |
-| `figures/` | Committed plots. |
+| Path                                             | What                                                                                          |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| `raw/signals_raw_long.csv`                       | **Master dataset** — all 29 signals, raw events, time-sorted, long/tidy format. 587,061 rows. |
+| `raw/manifests/<device>__<signal>.manifest.json` | Export manifest per signal (query window, selector, row count, content hash).                 |
+| `raw/export_index.tsv`                           | device · signal · rows · leaked_hdr(=0) · export_id · manifest_hash.                          |
+| `pipeline.py`                                    | Rebuilds everything below from the master.                                                    |
+| `derived/per_signal/<device>__<signal>.csv`      | The master split one file per signal (handy for loading a single series). Git-ignored.        |
+| `derived/pivoted_1min.csv`                       | Sensors resampled onto a shared 1-minute grid. Git-ignored.                                   |
+| `figures/`                                       | Committed plots.                                                                              |
 
 `per_signal/` used to be committed next to the master, which stored all
 587,061 rows twice. It is now regenerated:
@@ -64,20 +64,20 @@ resample/`merge_asof` in pandas).
 
 ### Signal glossary
 
-| signal_id | device | meaning | type |
-|---|---|---|---|
-| `ph_value` | ph0 | pH | double |
-| `do_mg_l` | do0 | dissolved O₂ (mg/L) | double |
-| `do_saturation_pct` | do0 | dissolved O₂ (% sat) | double |
-| `t1_c` | rlht0 | reactor temperature (°C) | double |
-| `t2_c`, `setpoint1_c`, `setpoint2_c` | rlht0 | secondary temp / heater setpoints (unused this run) | double |
-| `relay1_on`, `relay2_on` | rlht0 | heater relays (unused) | bool |
-| `period1_ms`, `period2_ms` | rlht0 | relay PWM periods | uint64 |
-| `motor2_target` / `motor2_value` | **dcmt0** | **impeller** commanded / echoed PWM (0–255) | int64 |
-| `motor1_*` | dcmt0 | dcmt0 channel-1 (sampling; unused) | — |
-| `motor*_*` | **dcmt1** | **dose pumps** (disabled entire run → flat) | — |
-| `motor*_brake`, `estop` | dcmt0/dcmt1 | brake / e-stop state | bool |
-| `mode` | dcmt0/dcmt1/rlht0 | device control mode (`open_loop` etc.) | string |
+| signal_id                            | device            | meaning                                             | type   |
+| ------------------------------------ | ----------------- | --------------------------------------------------- | ------ |
+| `ph_value`                           | ph0               | pH                                                  | double |
+| `do_mg_l`                            | do0               | dissolved O₂ (mg/L)                                 | double |
+| `do_saturation_pct`                  | do0               | dissolved O₂ (% sat)                                | double |
+| `t1_c`                               | rlht0             | reactor temperature (°C)                            | double |
+| `t2_c`, `setpoint1_c`, `setpoint2_c` | rlht0             | secondary temp / heater setpoints (unused this run) | double |
+| `relay1_on`, `relay2_on`             | rlht0             | heater relays (unused)                              | bool   |
+| `period1_ms`, `period2_ms`           | rlht0             | relay PWM periods                                   | uint64 |
+| `motor2_target` / `motor2_value`     | **dcmt0**         | **impeller** commanded / echoed PWM (0–255)         | int64  |
+| `motor1_*`                           | dcmt0             | dcmt0 channel-1 (sampling; unused)                  | —      |
+| `motor*_*`                           | **dcmt1**         | **dose pumps** (disabled entire run → flat)         | —      |
+| `motor*_brake`, `estop`              | dcmt0/dcmt1       | brake / e-stop state                                | bool   |
+| `mode`                               | dcmt0/dcmt1/rlht0 | device control mode (`open_loop` etc.)              | string |
 
 Row counts (raw events over the window): `ph_value` 204,189 · `t1_c` 181,988 ·
 `do_saturation_pct` 97,898 · `do_mg_l` 91,316 · impeller `motor2_*` (dcmt0) ~764 ·

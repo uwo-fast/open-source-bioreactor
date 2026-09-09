@@ -1,7 +1,7 @@
 # Port layout
 
 The lid carries twelve bayonet locks on one circle, 30° apart. They are identical, so what a port
-*is* comes entirely from `head_ports` in `scad/head.scad` — this document is the derivation behind
+_is_ comes entirely from `head_ports` in `scad/head.scad` — this document is the derivation behind
 that table, and the table is the statement of record.
 
 [`ports_layout.drawio`](ports_layout.drawio) is the sketch of the same circle, editable in
@@ -22,20 +22,20 @@ smaller of the two media/spare lines, and the least committed function on the li
 
 ## The layout
 
-| # | angle | port | function |
-| --- | --- | --- | --- |
-| 0 | 0° | tube 3 mm | air out |
-| 1 | 30° | **baffle** | |
-| 2 | 60° | probe | dissolved oxygen |
-| 3 | 90° | thermocouple | temperature |
-| 4 | 120° | **baffle** | |
-| 5 | 150° | probe | pH |
-| 6 | 180° | tube 1.5 mm | media / spare |
-| 7 | 210° | **baffle** | |
-| 8 | 240° | tube 3 mm | air in |
-| 9 | 270° | tube 2.4 mm | acid |
-| 10 | 300° | **baffle** | |
-| 11 | 330° | tube 2.4 mm | base |
+| #   | angle | port         | function         |
+| --- | ----- | ------------ | ---------------- |
+| 0   | 0°    | tube 3 mm    | air out          |
+| 1   | 30°   | **baffle**   |                  |
+| 2   | 60°   | probe        | dissolved oxygen |
+| 3   | 90°   | thermocouple | temperature      |
+| 4   | 120°  | **baffle**   |                  |
+| 5   | 150°  | probe        | pH               |
+| 6   | 180°  | tube 1.5 mm  | media / spare    |
+| 7   | 210°  | **baffle**   |                  |
+| 8   | 240°  | tube 3 mm    | air in           |
+| 9   | 270°  | tube 2.4 mm  | acid             |
+| 10  | 300°  | **baffle**   |                  |
+| 11  | 330°  | tube 2.4 mm  | base             |
 
 ## The heuristics, and where this layout lands against them
 
@@ -142,7 +142,7 @@ the same way. The vessel is on that side, so headspace pressure drives the cord 
 instead of out past it; and that face is the one on the bed when the pin half is printed, so nothing
 bridges the bore.
 
-**Why it is worth a purchased part.** A bioreactor normally filters the air on the way in *and* on
+**Why it is worth a purchased part.** A bioreactor normally filters the air on the way in _and_ on
 the way out, and this build only has the inlet filter. That is worth fixing — but an exhaust filter
 does nothing at all while the lid has open holes beside it. Unsealed, each gas port was a
 **15.7 mm² annulus** against the support tube's **7.07 mm² bore**, so about **82 %** of the exhaust
@@ -226,11 +226,11 @@ rule the design already used. Ø16 probe body, 2 mm collet wall each side, Ø20 
 the two probes. `fit` is the 0.2 mm the groove needs to RECEIVE a moulded ring rather than only seal
 it; it was 0 until a printed 23x1.5 would not go into the 26.00 mm groove cut for its 26.00 mm OD.
 
-| interface | iface_r | flange_r | baffle width, 10 mm plate |
-| --- | --- | --- | --- |
-| std | 10 | 14.10 | 17.09 mm |
-| midi | 7 | 11.30 | 9.51 mm |
-| mini | 5 | 9.30 | will not pass — a 10 mm plate in a 9.8 mm bore |
+| interface | iface_r | flange_r | baffle width, 10 mm plate                      |
+| --------- | ------- | -------- | ---------------------------------------------- |
+| std       | 10      | 14.10    | 17.09 mm                                       |
+| midi      | 7       | 11.30    | 9.51 mm                                        |
+| mini      | 5       | 9.30     | will not pass — a 10 mm plate in a 9.8 mm bore |
 
 Baffles cannot be small: the plate drops through the lock bore, so `width = 2·√(bore² − (t/2)²)`.
 
@@ -241,7 +241,7 @@ reduced set's at 81.6, and claimed that spreading the big ports was worth 19.3 m
 wrong: they assumed the ports could be arranged freely. They cannot, and the reason is the baffles.
 
 **Four baffles equally spaced on twelve ports sit every third port, which leaves no port that is not
-adjacent to one.** A probe therefore *must* touch a baffle, both are std, and the worst pair is
+adjacent to one.** A probe therefore _must_ touch a baffle, both are std, and the worst pair is
 14.1 + 14.1 whatever size the tubes are. Mixed port sizes do not move the twelve-port lid at all -
 `jar_10L`'s binding gap is 1.0466 mm before and after - and **spreading the big ports so no two touch
 is not achievable at this port count and baffle spacing.** It is not a thing left to do; it is a
@@ -264,11 +264,11 @@ What the uniform lid costs is not packing but CLEANING. On the mixed twelve-port
 problem - the four tight gaps were always there - but it does make it the whole lid's rather than a
 corner of it. See TODO.md, which was already asking whether a cloth goes through 1.0466 mm.
 
-| set | ports | functions | worst pair | min mouth |
-| --- | --- | --- | --- | --- |
-| **full** | 12 | 4 baffle, do_probe, ph_probe, temperature, air_in, air_out, media, acid, base | std\|std 27.2 | 142.0 mm |
-| **three-baffle** | 12 | as above with three baffles at 120° | std\|mini 22.2 | 122.7 mm |
-| **reduced** | 6 | do_probe, ph_probe, temperature, air_in, air_out, media | std\|mini 22.2 | 77.6 mm |
+| set              | ports | functions                                                                     | worst pair     | min mouth |
+| ---------------- | ----- | ----------------------------------------------------------------------------- | -------------- | --------- |
+| **full**         | 12    | 4 baffle, do_probe, ph_probe, temperature, air_in, air_out, media, acid, base | std\|std 27.2  | 142.0 mm  |
+| **three-baffle** | 12    | as above with three baffles at 120°                                           | std\|mini 22.2 | 122.7 mm  |
+| **reduced**      | 6     | do_probe, ph_probe, temperature, air_in, air_out, media                       | std\|mini 22.2 | 77.6 mm   |
 
 Dropping to three baffles is what buys the middle row: with three, the ports two steps from each
 baffle are free, so the probes can sit off them and the worst pair becomes std against mini. It costs
@@ -280,14 +280,14 @@ baffle area - the four-plate layout is already at 0.856 of Oldshue's reference, 
 flanges clear each other rather than being told. `head_ports` is the override: undef derives, and
 setting it pins a table for an operator who wants a different function in a port.
 
-| vessel | mouth | full 12 | 3-baffle 12 | reduced 6 | assigned |
-| --- | --- | --- | --- | --- | --- |
-| `jar_1p5L_109x215` | 87.5 | −14.11 | −9.11 | **+4.95** | reduced |
-| `jar_1gal_155x251` | 95.8 | −11.96 | −6.96 | **+9.10** | reduced |
-| `jar_6p5gal_305x470` | 137.0 | −1.30 | +3.70 | **+29.70** | reduced |
-| `jar_10L_220x305` | 142.2 | **+0.05** | +5.04 | +32.30 | full |
-| `jar_1gal_180x197` | 148.0 | **+1.55** | +6.55 | +35.20 | full |
-| `generic` | 150.0 | **+2.07** | +7.07 | +36.20 | full |
+| vessel               | mouth | full 12   | 3-baffle 12 | reduced 6  | assigned |
+| -------------------- | ----- | --------- | ----------- | ---------- | -------- |
+| `jar_1p5L_109x215`   | 87.5  | −14.11    | −9.11       | **+4.95**  | reduced  |
+| `jar_1gal_155x251`   | 95.8  | −11.96    | −6.96       | **+9.10**  | reduced  |
+| `jar_6p5gal_305x470` | 137.0 | −1.30     | +3.70       | **+29.70** | reduced  |
+| `jar_10L_220x305`    | 142.2 | **+0.05** | +5.04       | +32.30     | full     |
+| `jar_1gal_180x197`   | 148.0 | **+1.55** | +6.55       | +35.20     | full     |
+| `generic`            | 150.0 | **+2.07** | +7.07       | +36.20     | full     |
 
 Millimetres of slack in the worst adjacent pair, against the 2 mm the lid keeps.
 
@@ -298,14 +298,14 @@ it stays open: the three-baffle set is not registered, because dropping to three
 a layout already at 0.856 of the reference.
 
 The reduced set keeps both probes, temperature, the gas path in and out, and one liquid line. It
-drops the four baffles and the acid/base pair. What a narrow jar gives up is pH *control*, not pH
+drops the four baffles and the acid/base pair. What a narrow jar gives up is pH _control_, not pH
 measurement. Which functions a given experiment wants is the operator's call; this is the default.
 
 ## Baffles on a narrow jar
 
 **The floor is about 98 mm, and it is not a property of the registered sets.** Sweeping port count
 rather than taking the registered twelve, four baffles cannot sit beside two Ø16 Atlas probes below
-roughly a 98 mm mouth at *any* count — the two probes are the widest pair on the circle and four
+roughly a 98 mm mouth at _any_ count — the two probes are the widest pair on the circle and four
 baffles must space equally around them. The registered sets land above that anyway (142.0 mm full,
 122.7 three-baffle), so nothing in the model computes 98; it is the bound the search ran into, and
 it is why the small jars are unbaffled whatever else is decided rather than pending a cleverer

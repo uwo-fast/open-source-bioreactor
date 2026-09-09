@@ -1,0 +1,17 @@
+# Untracked build output and scratch
+output
+working.tmp
+
+# Raw run data. These are measurements, not documents - reformatting them would
+# rewrite the record of an experiment to satisfy a style rule.
+analysis/runs/*/raw
+analysis/.venv
+
+# Hand-aligned by column and marked DO NOT FORMAT in the files themselves
+*.csv
+
+# Tool caches
+.mypy_cache
+.ruff_cache
+.pytest_cache
+node_modules

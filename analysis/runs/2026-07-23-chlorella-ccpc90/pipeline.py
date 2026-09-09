@@ -53,9 +53,7 @@ def read_master():
     """
     frame = pd.read_csv(MASTER)
     frame["timestamp_text"] = frame["timestamp"]
-    frame["timestamp"] = pd.to_datetime(
-        frame["timestamp"], format="ISO8601", utc=True
-    )
+    frame["timestamp"] = pd.to_datetime(frame["timestamp"], format="ISO8601", utc=True)
     frame["key"] = frame["device_id"] + "__" + frame["signal_id"]
     return frame
 
@@ -127,8 +125,10 @@ def verify(counts):
 
     if failures:
         raise SystemExit(f"{failures} signal(s) failed verification")
-    print(f"  OK   all {len(expected)} signals match export_index row counts "
-          f"({sum(expected.values()):,} rows total)")
+    print(
+        f"  OK   all {len(expected)} signals match export_index row counts "
+        f"({sum(expected.values()):,} rows total)"
+    )
 
 
 def plot(pivoted):
@@ -147,8 +147,14 @@ def plot(pivoted):
     blended = axes[0].get_xaxis_transform()
     for when, name in EVENTS:
         axes[0].annotate(
-            name, xy=(pd.Timestamp(when), 0.97), xycoords=blended,
-            rotation=90, va="top", ha="right", fontsize=8, color="0.3",
+            name,
+            xy=(pd.Timestamp(when), 0.97),
+            xycoords=blended,
+            rotation=90,
+            va="top",
+            ha="right",
+            fontsize=8,
+            color="0.3",
         )
     axes[0].set_title("Chlorella vulgaris CCPC 90 — 2026-07-23 to 07-31")
     axes[2].set_xlabel("Time (UTC)")
@@ -158,8 +164,11 @@ def plot(pivoted):
 
     fig, axis = plt.subplots(figsize=(15, 5))
     axis.step(
-        pivoted.index, pivoted[IMPELLER], where="post",
-        color="tab:orange", label="Impeller PWM (0-255)",
+        pivoted.index,
+        pivoted[IMPELLER],
+        where="post",
+        color="tab:orange",
+        label="Impeller PWM (0-255)",
     )
     axis.set_title("Impeller commanded PWM")
     axis.set_xlabel("Time (UTC)")
@@ -176,7 +185,8 @@ def plot(pivoted):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--verify", action="store_true",
+        "--verify",
+        action="store_true",
         help="cross-check regenerated splits against raw/export_index.tsv",
     )
     args = parser.parse_args()

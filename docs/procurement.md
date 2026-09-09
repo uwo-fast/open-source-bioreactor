@@ -28,7 +28,7 @@
     is written; a full-ceramic or plastic-raced bearing is the usual answer if it becomes a problem.
   - Temperature range -40 to 240 F, i.e. up to 116 C - a **third** independent reason this assembly
     cannot be autoclaved, alongside the soda-lime jar and PETG's ~80 C glass transition.
-  - https://www.mcmaster.com/6153K71/
+  - <https://www.mcmaster.com/6153K71/>
 
 - impeller set screw selection
   - McMaster-Carr 92029A142
@@ -36,7 +36,7 @@
   - four needed: two per impeller at 120 degrees, into the printed PETG hub
   - **the fit it replaces was never an interference fit.** The hub bore tapers from 4.2 mm radius
     at the top to 4.0 at the bottom, and the shaft is supplied at 3.9975-4.0000 mm radius, so at
-    the tightest point the joint is 0 to 0.0025 mm of *clearance*. The parameter is named
+    the tightest point the joint is 0 to 0.0025 mm of _clearance_. The parameter is named
     `impeller_shaft_radius_interference` but geometrically it is draft. Grip was zero by design,
     which is what was observed on the bench
   - a real interference fit would have worked on paper - 0.02 mm radial gives 8 N-m against the
@@ -70,7 +70,7 @@
     counts there is no formula that stays right. Above the blades there is no fin at any angle,
     which is one answer for every row. Confirmed by intersecting the part with a ring just outside
     the hub: four arcs of fin at blade height, and an empty result at collar height
-  - https://www.mcmaster.com/92029A142/
+  - <https://www.mcmaster.com/92029A142/>
   - also registered, not bought: **92029A144** (M4 x 8) for a 12 mm hub radius, and **92029A103**
     (M3 x 6) as the fallback if M4 cannot be tapped. M3 is not the safer choice for being smaller -
     thread shear area goes with circumference, so it needs 8.7 mm of engagement to carry what the
@@ -86,13 +86,13 @@
   - taking the curve as linear between them and the system's static back-pressure as the culture
     head over the sparge ring plus the capillary pressure at a hole, the operating point is:
 
-    | vessel | culture | 0.5 vvm |
-    | --- | --- | --- |
-    | jar_1p5L_109x215 | 1.39 L | 0.70 L/min |
-    | jar_1gal_155x251 | 3.35 | 1.67 |
-    | jar_1gal_180x197 | 3.54 | 1.77 |
-    | jar_10L_220x305 | **8.23** | **4.12 L/min** |
-    | jar_6p5gal_305x470 | 20.42 | 10.21 |
+    | vessel             | culture  | 0.5 vvm        |
+    | ------------------ | -------- | -------------- |
+    | jar_1p5L_109x215   | 1.39 L   | 0.70 L/min     |
+    | jar_1gal_155x251   | 3.35     | 1.67           |
+    | jar_1gal_180x197   | 3.54     | 1.77           |
+    | jar_10L_220x305    | **8.23** | **4.12 L/min** |
+    | jar_6p5gal_305x470 | 20.42    | 10.21          |
 
     The volumes are now integrated over each jar's own wetted profile rather than a cylinder on its
     bore, which moved them 2-3 %. The two columns that used to sit here - head over the ring, and
@@ -113,12 +113,12 @@
     in the budget
   - **range: a rotameter reads 10-100 % of full scale**, so for 0.1-0.5 vvm:
 
-    | vessel | needs | scale |
-    | --- | --- | --- |
-    | jar_1p5L_109x215 | 0.14-0.70 L/min | 0-1 L/min |
-    | jar_1gal_×2 | 0.33-1.77 | 0-2 L/min |
-    | jar_10L_220x305 | 0.82-4.12 | **0-5 L/min** |
-    | jar_6p5gal_305x470 | 2.04-10.21 | 0-15 L/min |
+    | vessel             | needs           | scale         |
+    | ------------------ | --------------- | ------------- |
+    | jar_1p5L_109x215   | 0.14-0.70 L/min | 0-1 L/min     |
+    | jar*1gal*×2        | 0.33-1.77       | 0-2 L/min     |
+    | jar_10L_220x305    | 0.82-4.12       | **0-5 L/min** |
+    | jar_6p5gal_305x470 | 2.04-10.21      | 0-15 L/min    |
 
   - **buy 0-5 L/min for the 10 L jar**, where 0.82-4.12 sits at 16.5-82.3 % of scale. No single range
     covers the family — that is a property of a 73:1 spread between the smallest jar at 0.1 vvm and
@@ -139,7 +139,7 @@
     Cv, and unstated specs are what disqualified the medical and welding flowmeter channels here -
     closing the metering row on one would have been inconsistent with how everything else was picked
   - **what was rejected, and on what.** The workings were working notes; these are the reasons.
-    - *Flowmeter, 13 candidates.* The discriminator was **scale unit and calibration pressure**,
+    - _Flowmeter, 13 candidates._ The discriminator was **scale unit and calibration pressure**,
       not range or price. Five McMaster tubes read **scfh**, which puts a conversion on every
       reading in the paper. The medical channel is referenced at **50 psig** and the welding
       channel at **30**, so both would read about **87 % wrong** at this line's pressure — ruled
@@ -147,7 +147,7 @@
       nearest tube is 8.5 L/min full scale, which costs **±10.4 %** at the design point against
       the Dwyer's ±6.1 %, for 69 % more money. A glass LZB-4WB was cheapest but its listing quotes
       "2.5 %, 4 %, 6 %" across the series without saying which applies to that model.
-    - *Check valve, 13 candidates.* The discriminator was the **flowing drop at 4.087 L/min**,
+    - _Check valve, 13 candidates._ The discriminator was the **flowing drop at 4.087 L/min**,
       which no spec sheet carries — every page quotes only static cracking pressure. Computing it
       from published Cv reorders the field: an Air Logic umbrella at the same nominal cracking
       pressure costs about **0.9 kPa more**, because its flow capacity is a quarter. The
@@ -155,19 +155,18 @@
       in continuously humid air. `5011521` beat US Plastic `22577` **on procurement, not physics**:
       1.85 against 1.78 kPa is inside the error on the filter figure that dominates the budget,
       and it shares a supplier with the sterile filter, so one shipment and one customs clearance.
-    - *Metering valve.* Required Cv moved twice as the line was accounted — **0.020 → 0.0296 →
+    - _Metering valve._ Required Cv moved twice as the line was accounted — **0.020 → 0.0296 →
       0.0333** — which retired two picks. `MNV-2` (Cv 0.032) ended at 92 % of wide open with no
       authority left; an Ideal Valve 52-1-12 (Cv 0.019) **could not reach the design flow at all**.
       `MNV-4K2` was then chosen on Cv alone and retired on the **needle**: Clippard's catalogue
       gives it a 20° taper, coarser than the `MNV-1` already rejected for being coarse.
-
 
 - hose clamp selection
   - McMaster-Carr 5011T141
   - worm-drive hose clamp, 316 stainless band **and** screw, 5/16 in band × 0.023 in, SAE J1508
   - SAE 4: 7/32 in to 5/8 in, i.e. **5.556 to 15.875 mm**; 1/4 in hex, 7.5 in.-lbs maximum torque
   - 14 needed, sold in tens, so 2 packs; US$19.82 a pack
-  - https://www.mcmaster.com/5011T141/
+  - <https://www.mcmaster.com/5011T141/>
   - **the band width was decided by the model, and the model now reads it back.** The riser stood
     a literal 15 mm proud, justified against "a worm clamp's band is about 9 mm wide" — so once a
     clamp was actually chosen, one band had two numbers. The clamp is registered in
@@ -185,7 +184,7 @@
     purchase list and the other three do not
   - **that retires the caution this row used to carry.** The 1/8 in joints were recorded as falling
     below worm-clamp ranges and wanting spring or pinch clips; at 6.35 mm they are inside the range,
-    near the bottom of it but engaged. The joint that can leave the range is the *largest*: 3/8 in
+    near the bottom of it but engaged. The joint that can leave the range is the _largest_: 3/8 in
     line in a 1/8 in wall is 9.525 + 2 × 3.175 = **15.875 mm**, and the SAE 4's upper limit is
     5/8 in, which is **15.875 mm**. Not a tight fit with something in hand — the same number twice,
     on a clamp wound out to its last thread. So `purchased-parts.csv` specifies that run in 1/16 or
@@ -213,7 +212,7 @@
   - 6 in long x 1/8 in diameter grounded 304 stainless probe
   - 4 ft fiberglass cable, 24 AWG, 1/2 in wire leads
   - 0.5 s response time, 900 F maximum temperature
-  - https://www.mcmaster.com/1245N31/
+  - <https://www.mcmaster.com/1245N31/>
   - (Superseded — kept for the record. This was 3872K117, the same probe at 9 in, until the model
     showed a 9 in probe reaching through the jar's floor. Both are registered in
     `purchased/thermocouple_probes.scad`; `head()` selects the 6 in one.)
@@ -225,13 +224,13 @@
   - 2 Ga drill (5.613 mm), 5.740 mm maximum hole, 8 deg taper on the top half
   - 5.72 mm minimum material thickness; the lid gives 18 mm
   - 4 per lid, sold in packs of 10
-  - https://www.mcmaster.com/97163A152/
+  - <https://www.mcmaster.com/97163A152/>
   - brass 94180A351 is the same part in brass and installs more easily, since brass carries
     heat to the plastic far better than stainless does. Passed over here because this face
     sees condensation, splash and wipe-downs, because the brass is not REACH compliant and
     holds a RoHS 6(c) lead exemption, and because at a pack of 100 against a pack of 10 it is
     the dearer buy for a single lid. Worth revisiting for a batch build
-  - https://www.mcmaster.com/94180A351/
+  - <https://www.mcmaster.com/94180A351/>
 
 - rim gasket sheet selection
   - McMaster-Carr 8525T65
@@ -255,14 +254,14 @@
   - the radial perimeter does not have to be accurate - the gasket seals on its AXIAL faces - which
     is why a template and a scalpel are enough and no die is bought. The fixture takes the same
     `(ID, OD, thickness)` `sheet_gasket()` takes and knows nothing else about the jar
-  - https://www.mcmaster.com/8525T65/
+  - <https://www.mcmaster.com/8525T65/>
 
 - current motors in lab
   - 36GP-3530 Planetary Gear DC Motor Torque 50KG (12V 1154 RPM)
   - the listing offers ten 12 V speeds — 8 / 12 / 16 / 28 / 43 / 73 / 120 / 222 / 429 / 1154 rpm —
     and gives no ratio against any of them. 1154 is the top of that list and is unqualified, so it
     is registered as a no-load speed; no rated figure is published for this motor
-  - https://electric-b2c.com/products/36gp-3530-planetary-gear-dc-motor-torque-50kg-12v-24v-reduce-speed-8pm-to-1154rpm-pwm-reverse-forward-electric-12-volt-motor?variant=47572164116673
+  - <https://electric-b2c.com/products/36gp-3530-planetary-gear-dc-motor-torque-50kg-12v-24v-reduce-speed-8pm-to-1154rpm-pwm-reverse-forward-electric-12-volt-motor?variant=47572164116673>
 
 - drive motor for the next build
   - **E-S Motor 36D gearmotor with encoder, RobotShop SKU RM-ESMO-071, mfr 36PG-555PM-14-EN 12V**
@@ -278,7 +277,7 @@
   - chosen because 320–420 rpm spans the whole band `agitation.md` sets and is the only candidate
     reaching the 410 rpm break-even, and because the encoder retires the no-speed-feedback gap that
     band containment was working around
-  - https://ca.robotshop.com/products/e-s-motor-36d-dc-planetary-gearmotor-w-encoder-12v-420rpm
+  - <https://ca.robotshop.com/products/e-s-motor-36d-dc-planetary-gearmotor-w-encoder-12v-420rpm>
   - **two numbers here are inferred, not published.** The encoder sheet tabulates no gearbox length,
     so 34.5 mm is the 36PG-3429 sheet's figure at 14:1; and its drawing's 57 mm spans the whole
     motor block without dimensioning the encoder separately, which is the same 57 mm the plain 555

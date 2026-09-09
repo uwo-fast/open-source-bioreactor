@@ -13,7 +13,6 @@ dropped to NaN, matching the original cleaning step.
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 
 import matplotlib
@@ -81,13 +80,17 @@ def plot(frames):
         plt.close(fig)
 
     fig, axis = plt.subplots(figsize=(10, 6))
-    for (name, frame), colour in zip(frames.items(), ("tab:blue", "tab:red", "tab:green")):
+    for (name, frame), colour in zip(
+        frames.items(), ("tab:blue", "tab:red", "tab:green")
+    ):
         wavelength = frame["Wavelength 1"]
         irradiance = frame["Absolute Irradiance 1"].interpolate()
         mask = wavelength.between(*WAVELENGTH_RANGE)
         axis.plot(
-            wavelength[mask], irradiance[mask],
-            color=colour, label=CONDITIONS[name][1],
+            wavelength[mask],
+            irradiance[mask],
+            color=colour,
+            label=CONDITIONS[name][1],
         )
     axis.set_title("Absolute irradiance vs wavelength — lighting conditions compared")
     axis.set_xlabel("Wavelength (nm)")
@@ -103,27 +106,33 @@ def plot(frames):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--verify", action="store_true",
+        "--verify",
+        action="store_true",
         help="report how many noise samples were dropped per condition",
     )
     args = parser.parse_args()
 
     frames = split_conditions()
     for name, frame in frames.items():
-        print(f"wrote derived/spectroscopy_{name}.csv ({frame.shape[0]:,} rows, "
-              f"{frame.shape[1] // 2} trial(s))")
+        print(
+            f"wrote derived/spectroscopy_{name}.csv ({frame.shape[0]:,} rows, "
+            f"{frame.shape[1] // 2} trial(s))"
+        )
 
     plot(frames)
-    print("wrote figures/" + ", figures/".join(
-        [f"{n}.png" for n in CONDITIONS] + ["combined.png"]
-    ))
+    print(
+        "wrote figures/"
+        + ", figures/".join([f"{n}.png" for n in CONDITIONS] + ["combined.png"])
+    )
 
     if args.verify:
         print("\nnegative (below-detection-floor) samples dropped:")
         for name, frame in frames.items():
             irradiance = frame.filter(like="Absolute Irradiance")
-            print(f"  {name:14s} {int(irradiance.isna().sum().sum()):,} of "
-                  f"{irradiance.size:,}")
+            print(
+                f"  {name:14s} {int(irradiance.isna().sum().sum()):,} of "
+                f"{irradiance.size:,}"
+            )
 
 
 if __name__ == "__main__":

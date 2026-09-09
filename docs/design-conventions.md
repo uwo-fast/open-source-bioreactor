@@ -8,7 +8,7 @@ the failure it exists to prevent. Anything contradicting them is a defect rather
 ## The rim datum
 
 **The lid is located by the glass rim.** Its gasket seats on the top of the glass and its plug
-enters the mouth. The rim is fixed by the jar; the frame's top base is derived *below* it.
+enters the mouth. The rim is fixed by the jar; the frame's top base is derived _below_ it.
 
 **What the gasket seats ON is per jar, and only one of them is flat.** `jar_6p5gal_305x470` is
 ground and presents a flat annulus. Every other jar is fire-polished and presents a CROWN — the
@@ -19,7 +19,7 @@ record: this read "seats on the flat land on top of the glass", and the model si
 flat that four of five jars do not have. It was caught by measuring the jars, not by any check.)
 
 The consequence that matters: the **2.4 mm gap** between the top base's upper face and the lid
-flange's underside is *required*, not slack to be removed. It is the clearance that lets the joint
+flange's underside is _required_, not slack to be removed. It is the clearance that lets the joint
 bolts pull the lid down **into** the vessel rather than bottoming it on the frame. Every span
 crossing the joint has to count it — bolt grips, nut placements, anything measured from one side to
 the other.
@@ -89,10 +89,10 @@ a component's own preferences, which live in its own file. That is right as far 
 misses a third kind, which surfaced when a build's choices had nowhere to be stated.
 
 A **DESIGNATION** is a per-reactor choice: which registered jar, which motor, which probe in which
-port, what fill fraction. It is not a preference — it is about *this* build, not about the design —
+port, what fill fraction. It is not a preference — it is about _this_ build, not about the design —
 and it is not classic coupling, because `assembly.scad` may never consume it. It is forced into the
 entry file anyway, by a platform fact: a customizer parameter set can only assign parameters
-declared in the file being rendered. See *What the customizer can and cannot carry*.
+declared in the file being rendered. See _What the customizer can and cannot carry_.
 
 **Where a parameter lives.** It belongs in `assembly.scad` if any of these hold:
 
@@ -107,7 +107,7 @@ joint geometry, and the search that derives a designation left unstated.
 **A designation travels as a NAME, never as a row.** A parameter set holds values, not references,
 so a registered row cannot be named directly. The form is a string parameter resolved through that
 registry's by-name lookup — `reactor_vessel_name` with `vessel_by_name()` is the pattern — with a
-loud assert on a name nothing matches. `"auto"` means *derive it*.
+loud assert on a name nothing matches. `"auto"` means _derive it_.
 
 That string is not the plausible number this document bans elsewhere. `undef` is unavailable here
 (the customizer cannot see it) and a numeric sentinel would be exactly the plausible value that
@@ -124,8 +124,8 @@ the file that defines the function, not the caller's, so one expression serves b
 preview and the assembled build and the readback cannot disagree with the geometry it describes.
 
 **Pinning does not switch the checks off, it inverts them.** A designated row runs the same fit
-asserts the derived one would have, and the echo reports what was pinned *and what derivation would
-have chosen*. A selection over a registry holding one row says so — "sole registered row,
+asserts the derived one would have, and the echo reports what was pinned _and what derivation would
+have chosen_. A selection over a registry holding one row says so — "sole registered row,
 fit-checked, not chosen" — rather than implying a choice was made.
 
 ---
@@ -168,7 +168,7 @@ design's bill of materials — one expression each, not a menu.
 
 ## A number is a claim, and it carries how good a claim it is
 
-Parametric CAD makes numbers adjustable. It does not make them *true*, and adjustable-but-unfounded
+Parametric CAD makes numbers adjustable. It does not make them _true_, and adjustable-but-unfounded
 is the more dangerous state, because the model looks equally confident either way.
 
 So every quantity in this model is one of four kinds, and which kind it is travels with it:
@@ -184,7 +184,7 @@ So every quantity in this model is one of four kinds, and which kind it is trave
 
 The failure this prevents is a borrowed number acquiring the authority of a measured one by sitting
 in the same table. This model ran for months on `Po = 0.99` borrowed from a differently shaped
-blade, annotated *conservative*; when the correlated value arrived it was **1.602**, so every power,
+blade, annotated _conservative_; when the correlated value arrived it was **1.602**, so every power,
 torque and dissipation figure had been 62 % optimistic while carrying a note saying the opposite.
 
 **A registry row states what a source says, not what the design wants.** Where a source gives a
@@ -197,7 +197,7 @@ band, register the band. Where it gives nothing, register `undef` rather than a 
 
 Every correlation has a validity envelope, and this vessel is outside several of them. That is
 normal for an instrument built from jars rather than from a vendor's catalogue. What is not
-acceptable is *not knowing* which ones.
+acceptable is _not knowing_ which ones.
 
 So a check returns the **names** of what it violates, not a boolean:
 
@@ -212,8 +212,8 @@ them apart or say which to fix. Two of those three departures were removable —
 retired one, D/T would retire another — and that was only visible because they were named.
 
 The same shape applies to bands the design is measured against: echo the value, the band, and the
-source's own framing. Oldshue's `1–2 d` is an **allowance** — *"if the impeller can be placed…
-these impellers offer"* — so falling outside it is reported, not warned. And it is an allowance for
+source's own framing. Oldshue's `1–2 d` is an **allowance** — _"if the impeller can be placed…
+these impellers offer"_ — so falling outside it is reported, not warned. And it is an allowance for
 **fluidfoil** impellers, which this pitched blade is not, so the model says that too rather than
 quietly grading one impeller class against another's guidance.
 
@@ -225,7 +225,7 @@ Register the geometry and its clearances, render, and read them — then draw. T
 cheaper than the part and it is what catches the arithmetic.
 
 The case that made this a rule: a sparge ring was planned at 1.4 D with **1.60 mm** of clearance to
-the baffles. That figure was ring *centreline* to baffle edge; the ring has a 6 mm section, so its
+the baffles. That figure was ring _centreline_ to baffle edge; the ring has a 6 mm section, so its
 inner face is 3 mm further in and the true clearance is **−1.40 mm**. The ring overlapped. Nothing
 about the plan looked wrong — the number was plausible, stated with a unit, and derived from real
 dimensions. The assert caught it on the first render, before any geometry existed.
@@ -269,7 +269,7 @@ None of these were subtle once seen and none were visible while writing the code
 
 **What this costs.** It is verbose, and it is only as good as the checks someone bothered to write —
 a number can be wrong in a way nothing checks, and a reported band is not a promise the value is
-right. `reasoned, not cited` is still a guess; it is only a *labelled* guess. The claim here is
+right. `reasoned, not cited` is still a guess; it is only a _labelled_ guess. The claim here is
 narrow: that labelling which numbers are weak, and naming which conditions are violated, converts a
 class of silent drift into a line of render output.
 
@@ -321,8 +321,8 @@ bounding box were identical across all three and the CSG output hashed identical
 
 So:
 
-- *valid* evidence — CSG diffs, distinct z-levels, bounding boxes, per-feature coordinates
-- *not evidence* — facet counts, STL file size, STL hashes
+- _valid_ evidence — CSG diffs, distinct z-levels, bounding boxes, per-feature coordinates
+- _not evidence_ — facet counts, STL file size, STL hashes
 
 This also rules out STL hashing as a regression check for any future export tooling.
 
@@ -380,7 +380,7 @@ from `$fa`/`$fs` rather than reading `$fn` off the caller.
 ## What the customizer can and cannot carry
 
 Measured on **OpenSCAD 2021.01**, by rendering probes rather than by reading documentation. Every
-rule in *Three layers* rests on these, so a version bump re-runs them before anything else.
+rule in _Three layers_ rests on these, so a version bump re-runs them before anything else.
 
 - **`-D` reaches a `use`d file's globals. `-p`/`-P` does not.** A parameter set assigns only
   parameters declared in the file being rendered; keys naming a `use`d file's globals do nothing,

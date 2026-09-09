@@ -18,25 +18,25 @@ own.
 
 Every run and method directory has the same shape:
 
-| Path | Committed? | What |
-|---|---|---|
-| `README.md` | yes | Provenance, caveats, how to reload. |
-| `raw/` | yes | The original export. **Never edited.** |
-| `pipeline.py` | yes | Rebuilds everything else from `raw/`. |
-| `derived/` | **no** | Intermediates and analysis frames. |
-| `figures/` | yes | Plots. |
+| Path          | Committed? | What                                   |
+| ------------- | ---------- | -------------------------------------- |
+| `README.md`   | yes        | Provenance, caveats, how to reload.    |
+| `raw/`        | yes        | The original export. **Never edited.** |
+| `pipeline.py` | yes        | Rebuilds everything else from `raw/`.  |
+| `derived/`    | **no**     | Intermediates and analysis frames.     |
+| `figures/`    | yes        | Plots.                                 |
 
 ### Runs
 
-| Run | Subject | Span |
-|---|---|---|
-| [`runs/2024-11-19-microalgae`](runs/2024-11-19-microalgae/) | unrecorded microalgae, v1 reactor | 8.9 d |
-| [`runs/2026-07-23-chlorella-ccpc90`](runs/2026-07-23-chlorella-ccpc90/) | *Chlorella vulgaris* CCPC 90 | 8.7 d |
+| Run                                                                     | Subject                           | Span  |
+| ----------------------------------------------------------------------- | --------------------------------- | ----- |
+| [`runs/2024-11-19-microalgae`](runs/2024-11-19-microalgae/)             | unrecorded microalgae, v1 reactor | 8.9 d |
+| [`runs/2026-07-23-chlorella-ccpc90`](runs/2026-07-23-chlorella-ccpc90/) | _Chlorella vulgaris_ CCPC 90      | 8.7 d |
 
 ### Methods
 
-| Method | What |
-|---|---|
+| Method                                                  | What                                   |
+| ------------------------------------------------------- | -------------------------------------- |
 | [`methods/light-irradiance`](methods/light-irradiance/) | LED vs fluorescent spectra, 300–800 nm |
 
 ## The one rule

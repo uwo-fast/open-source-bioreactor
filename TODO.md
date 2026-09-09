@@ -36,10 +36,10 @@ actually left. What was decided, and what this project got wrong on the way, is 
   - **the CO₂ question is answered by a run, not by a calculation.** Air at 0.5 vvm supports about
     0.09 g/L/day on a 30 % utilisation assumption, short of the 1 g/L/day that would need ~0.47 %
     CO₂ - eleven times atmospheric, and there is no CO₂ source in the BOM. But
-    `analysis/runs/2026-07-23-chlorella-ccpc90` grew *C. vulgaris* CCPC 90 for 8.7 days on air alone
+    `analysis/runs/2026-07-23-chlorella-ccpc90` grew _C. vulgaris_ CCPC 90 for 8.7 days on air alone
     with no pH control, and the target is growing Chlorella reproducibly. The nutrient feed does not
     change it: 0.2 g/L Miracle-Gro in DI water, unbuffered, whose urea carbon is worth ~0.035 g/L of
-    biomass *in total* rather than per day. This is not a mixotrophic culture
+    biomass _in total_ rather than per day. This is not a mixotrophic culture
   - **and no sparger geometry is waiting on any of it.** `sparge_design_vvm` appears only inside echo
     strings - 0.1 and 2.0 vvm render byte-identical geometry - and the drawn 8 × 3 mm holes cover
     **0.25-2 vvm** inside the only orifice-velocity range anyone has tested (Barbosa's 0.4-5.4 m/s).
@@ -124,7 +124,6 @@ actually left. What was decided, and what this project got wrong on the way, is 
     and this part gets autoclaved
   - if removal turns out to need a pick, that is worth knowing before the build notes tell anyone to
     do it in a jar at arm's length - it is a maintenance step, not a one-time assembly one
-
 
 - [ ] **re-print the ports: the gland was cut with no clearance and the flanges were thin**
   - found on a printed `baffle_piece_0`: the 23x1.5 would not go into its groove. The gland was cut
@@ -255,21 +254,21 @@ actually left. What was decided, and what this project got wrong on the way, is 
     decision. See `docs/decisions.md`
   - **the 2.28 mm lean is a worst case and only matters if the plate widens.** It is bore play alone
     - 0.2 mm over 18 mm of engagement, levered 205 mm to the lower impeller, an **11.4x
-    amplification** - and the model ignores the flange's face contact, which resists tilt far harder
-    than a bore. The real lean is somewhere between that and almost nothing. The tilt measurement was
-    dropped because every outcome led to the same action; it returns only if the margin is spent
+      amplification** - and the model ignores the flange's face contact, which resists tilt far harder
+      than a bore. The real lean is somewhere between that and almost nothing. The tilt measurement was
+      dropped because every outcome led to the same action; it returns only if the margin is spent
   - **the fixes, in order of what they cost.** Their figures were costed against a 15.3 mm plate and
     a negative clearance, so treat them as mechanisms rather than numbers - and now for buying width
     back rather than giving it away:
-    - *taper the plate's inner edge with depth* so it matches the lean, worst at the bottom and zero
+    - _taper the plate's inner edge with depth_ so it matches the lean, worst at the bottom and zero
       at the lid. Buys clearance for about half the area a uniform cut costs. New geometry in
       `bayonet_baffle_port.scad`
-    - *deepen the bayonet engagement to 36 mm*. Halves the lean and costs no area, but the stack
+    - _deepen the bayonet engagement to 36 mm_. Halves the lean and costs no area, but the stack
       grows, pushing the plate from 2 printed pieces to 3 and adding a third dovetail joint - and
       joints already take 14 % of the deflection
-    - *a baffle-only interface row at 0.1 mm allowance*. Free in the model, no area or print cost,
+    - _a baffle-only interface row at 0.1 mm allowance_. Free in the model, no area or print cost,
       but that is a tight printed bayonet on the one port twisted by hand at arm's length in a jar
-    - *`baffle_impeller_clearance` 2 -> 3*. One line, but it spends area to buy clearance the plate
+    - _`baffle_impeller_clearance` 2 -> 3_. One line, but it spends area to buy clearance the plate
       no longer needs - the wrong direction now
 
 ## drive and aeration
@@ -315,12 +314,12 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
   - falls out of the port work: mouths under about 98 mm cannot hold four baffles beside two Ø16
     Atlas probes at any port count, so the small jars are unbaffled whatever else is decided. See
     `docs/ports-layout.md`, "Baffles on a narrow jar", for where that number comes from
-  - the small jars visibly *do* mix on the air alone. That is not a reason to rely on it. Aeration
+  - the small jars visibly _do_ mix on the air alone. That is not a reason to rely on it. Aeration
     that mixes as a side effect is an uncontrolled variable: the gas rate is then setting both kLa
     and the mixing time, they cannot be varied independently, and nothing in the model would say
     what the vessel is actually doing. Leaning on it would be sloppy in exactly the way this design
     is trying not to be
-  - the honest version is to *design* for it: a real airlift, so the circulation is a geometry we
+  - the honest version is to _design_ for it: a real airlift, so the circulation is a geometry we
     chose and can report. A draft tube gives a defined riser and downcomer, so the circulation
     velocity follows from the gas holdup difference between them rather than from luck
   - it is also the more interesting variant for the paper. An impeller-free vessel drops the motor,
@@ -346,13 +345,13 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
   - **the gap depends on how the driver sits.** The punt is re-entrant, so a driver lying flat pays
     wall plus punt while one whose hub nests UP INSIDE it pays the wall alone:
 
-    | vessel | flat driver | nested driver | usable radius nested |
-    | --- | --- | --- | --- |
-    | jar_1gal_155x251 | 9.0 | **3.0** | 36.5 |
-    | jar_1p5L_109x215 | 11.0 | **4.0** | 7.5 |
-    | jar_10L_220x305 | 10.0 | **5.0** | 15.0 |
-    | jar_1gal_180x197 | 12.0 | **5.0** | 50.0 |
-    | jar_6p5gal_305x470 | 27.0 | **12.0** | 80.0 |
+    | vessel             | flat driver | nested driver | usable radius nested |
+    | ------------------ | ----------- | ------------- | -------------------- |
+    | jar_1gal_155x251   | 9.0         | **3.0**       | 36.5                 |
+    | jar_1p5L_109x215   | 11.0        | **4.0**       | 7.5                  |
+    | jar_10L_220x305    | 10.0        | **5.0**       | 15.0                 |
+    | jar_1gal_180x197   | 12.0        | **5.0**       | 50.0                 |
+    | jar_6p5gal_305x470 | 27.0        | **12.0**      | 80.0                 |
 
   - **and nesting inverts the ranking**, because the punt's WIDTH is then both lever arm and room for
     magnets. `jar_1p5L`, the jar this mode exists for, is the worst of the five at 7.5 mm of usable
@@ -362,13 +361,14 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
     the 1.26-2.03 m/s band. SCALED, NOT RENDERED: it holds `Po` fixed and a printed rotor is neither
     `pbt_45_4` nor a pair, so it settles the order and nothing finer:
 
-    | vessel | rpm across the band | pair | one rotor |
-    | --- | --- | --- | --- |
-    | jar_1p5L_109x215 | 528-851 | 4.8-12.3 mN·m | ~2.4-6.2 |
-    | jar_1gal_155x251 | 358-577 | 15.3-39.6 mN·m | ~7.6-19.8 |
+    | vessel           | rpm across the band | pair           | one rotor |
+    | ---------------- | ------------------- | -------------- | --------- |
+    | jar_1p5L_109x215 | 528-851             | 4.8-12.3 mN·m  | ~2.4-6.2  |
+    | jar_1gal_155x251 | 358-577             | 15.3-39.6 mN·m | ~7.6-19.8 |
 
     Those rpm are what holding tip speed asks, which is nearer a fan's native range than the drive's
     own 320-420 band suggested. PWM and speed feedback are still wanted
+
   - **it gives eccentricity back, which is the bigger prize.** `docs/ports-layout.md` rules out
     Hall's off-centre fix because `e = 0.2 T` wants 20.2 mm on `jar_1p5L` where the best any lid
     offers is 0.5 - the motor mount is in the room the offset needs. A magnetic drive puts nothing
@@ -383,7 +383,6 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
   - **and a bottom drive gives ONE impeller**, on `jar_1p5L` at H/T 1.681 - the tallest column in the
     registry, turning 170 mm of liquid from the floor. Not a reason against the mode; the number to
     answer before calling it equivalent
-
 
 ## nice to haves
 
@@ -416,13 +415,13 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
   - the band bounds the COUNT - Fitschen eq. (5), `(H-d)/d > n > (H-2d)/(2d)` - and is written in
     IMPELLER diameters, not tank diameters, which is where the old H/T 1.2 reading went wrong:
 
-    | vessel | H_L | d = 0.45 T | H_L/d | H/T | band allows | old H/T 1.2 said |
-    | --- | --- | --- | --- | --- | --- | --- |
-    | jar_10L_220x305 | 234.59 | 94.50 | 2.482 | 1.117 | n = 1 | one |
-    | jar_1gal_180x197 | 153.36 | 76.50 | 2.005 | 0.902 | n = 1 | one |
-    | jar_6p5gal_305x470 | 325.26 | 126.36 | 2.574 | 1.158 | n = 1 | one |
-    | jar_1gal_155x251 | 188.59 | 67.19 | 2.807 | 1.263 | **n = 1** | **two** |
-    | jar_1p5L_109x215 | 168.70 | 45.55 | 3.704 | 1.667 | n = 1 or 2 | two |
+    | vessel             | H_L    | d = 0.45 T | H_L/d | H/T   | band allows | old H/T 1.2 said |
+    | ------------------ | ------ | ---------- | ----- | ----- | ----------- | ---------------- |
+    | jar_10L_220x305    | 234.59 | 94.50      | 2.482 | 1.117 | n = 1       | one              |
+    | jar_1gal_180x197   | 153.36 | 76.50      | 2.005 | 0.902 | n = 1       | one              |
+    | jar_6p5gal_305x470 | 325.26 | 126.36     | 2.574 | 1.158 | n = 1       | one              |
+    | jar_1gal_155x251   | 188.59 | 67.19      | 2.807 | 1.263 | **n = 1**   | **two**          |
+    | jar_1p5L_109x215   | 168.70 | 45.55      | 3.704 | 1.667 | n = 1 or 2  | two              |
 
   - **`jar_1gal_155x251` is the mover.** At H/T 1.263 the old threshold gave it a pair; the band
     gives it one. `jar_1p5L_109x215` is now the only jar a pair is admissible on, and one is
@@ -471,18 +470,17 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
     from the block rather than inferred - the descriptions written from inference during this sweep
     had about a 50 % error rate, and mass-writing 54 more at speed would put in more than it took out
 
-
 - [ ] **the sparger's holes are not the wrong size - the BORE is, and it is one designation**
   - priced against the model's own functions rather than argued. Holding the settled 8 x 3 mm spec
     and sweeping only the bore, at the build's duty of 4.11052 L/min through one ring:
 
-    | bore | feed velocity | open area | velocity head | verdict |
-    | --- | --- | --- | --- | --- |
-    | 4.0 (today) | 5.46 m/s | 4.50 | 17.9 Pa | 2 departures |
-    | 6.0 | 2.43 | 2.00 | 3.5 | 2 departures |
-    | 8.0 | 1.36 | 1.12 | 1.1 | 2 departures |
-    | **8.5** | 1.21 | **1.00** | 0.9 | **clean** |
-    | 10.0 | 0.87 | 0.72 | 0.5 | clean, with margin |
+    | bore        | feed velocity | open area | velocity head | verdict            |
+    | ----------- | ------------- | --------- | ------------- | ------------------ |
+    | 4.0 (today) | 5.46 m/s      | 4.50      | 17.9 Pa       | 2 departures       |
+    | 6.0         | 2.43          | 2.00      | 3.5           | 2 departures       |
+    | 8.0         | 1.36          | 1.12      | 1.1           | 2 departures       |
+    | **8.5**     | 1.21          | **1.00**  | 0.9           | **clean**          |
+    | 10.0        | 0.87          | 0.72      | 0.5           | clean, with margin |
 
   - **so the settled decision does not have to be re-made.** 3 mm holes for spacing and against
     fouling stand; a 1.2 mm hole in an algal culture is still a hole that blocks. What was wrong was
@@ -497,7 +495,6 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
     for 4 mm with a 4x1.5 rod gland sized to it; and the riser's own pressure drop, its support tube
     and its BOM row all follow. None of that is priced yet - what is priced is that the sparger side
     is one row change and the hole spec survives it
-
 
 - [ ] **`check-holes` still needs a CGAL render, so it stays outside `just check`**
   - the FED half is closed. Each hole now declares two points - `exit` just inside the discharge
@@ -518,7 +515,6 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
   - still unprobed: `spoke_holes` emits holes the probe module never walks - it iterates rings only.
     Latent rather than open, since no caller sets it and the assert covers its own failure, but a
     caller that did set it would get holes nothing tests
-
 
 - [ ] **the sparger's two sockets are harder to tell apart than they were**
   - the feed socket takes the tube's own section now rather than being sized from the riser, which
@@ -571,7 +567,6 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
     the pocket's top and the top rib's upper face, which needs the light's z origin threaded out of
     `lights()` - it is not currently a number `frame()` holds
 
-
 - [ ] **`check-scad`'s `-D '$fn=0'` pass is not the neutraliser it reads as**
   - the head's own tessellation is settled: `head()` re-asserts `$fn = 0` and `head_fa()`/`head_fs()`
     inside its body, so `assembly.scad`'s 64/128 cannot reach it on any binary. Measured on both
@@ -589,7 +584,6 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
   - and `OPENSCAD` is unset, so `just` runs 2021.01 while `openscad-nightly` 2026.09 sits on the
     same machine. The version this project is checked on is whichever binary happens to be first on
     PATH, which is worth pinning rather than discovering
-
 
 - [ ] **the recess holds three quarters of the rubber, and it is only a problem on `jar_6p5gal`**
   - the joint is instructed as a TURN - **114.3 deg past snug** on each of 12 nuts - because force
@@ -631,7 +625,6 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
   - the cart's extrusion, brackets and castors are on no purchase list either. `check-bom` passes
     because these files sit outside its scope, the same way they sit outside `export-parts`. Whether
     bench furniture belongs in either account is the same question in the other direction
-
 
 ## long term / post paper submission
 

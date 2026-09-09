@@ -49,12 +49,9 @@ BASE = "Thermo 1"
 # cleaned2, which every published figure was built from, are unaffected
 # because that sample fails the 20-45 C filter either way.
 LEGACY_DIGESTS = {
-    "legacy_cleaned0.csv":
-        "b158e35343a163558f3e0513eec296a3b164ae29ec355a3e07fbf4058479a67a",
-    "legacy_cleaned1.csv":
-        "0d2900e53e2a1265169806164790dc7cd7e2c9dad5ae12f00e21d2a7092524c1",
-    "legacy_cleaned2.csv":
-        "91ff8a32d55a1cf14d65584de622efc67b88d66b4683351ef50f9c3a477f3745",
+    "legacy_cleaned0.csv": "b158e35343a163558f3e0513eec296a3b164ae29ec355a3e07fbf4058479a67a",
+    "legacy_cleaned1.csv": "0d2900e53e2a1265169806164790dc7cd7e2c9dad5ae12f00e21d2a7092524c1",
+    "legacy_cleaned2.csv": "91ff8a32d55a1cf14d65584de622efc67b88d66b4683351ef50f9c3a477f3745",
 }
 
 
@@ -111,7 +108,10 @@ def align_by_timestamp(channels, tolerance_s=30):
             continue
         other = clean(label).rename(columns={"value": name})[["time", name]]
         out = pd.merge_asof(
-            out, other, on="time", direction="backward",
+            out,
+            other,
+            on="time",
+            direction="backward",
             tolerance=float(tolerance_s),
         )
     return out.reset_index(drop=True)
@@ -169,7 +169,11 @@ def build_tidy(channels):
 def plot(tidy):
     smoothed = tidy.assign(
         temperature=tidy["temperature"].rolling(30, min_periods=1).mean(),
-        **{"dissolved oxygen": tidy["dissolved oxygen"].rolling(5, min_periods=1).mean()},
+        **{
+            "dissolved oxygen": tidy["dissolved oxygen"]
+            .rolling(5, min_periods=1)
+            .mean()
+        },
         pH=tidy["pH"].rolling(5, min_periods=1).mean(),
     )
 
@@ -190,10 +194,16 @@ def plot(tidy):
     plt.close(fig)
 
     fig, axis = plt.subplots(figsize=(15, 8))
-    for column, colour in (("stirring motor", "tab:orange"), ("sample pump", "tab:purple")):
+    for column, colour in (
+        ("stirring motor", "tab:orange"),
+        ("sample pump", "tab:purple"),
+    ):
         axis.step(
-            tidy["datetime"], tidy[column].astype(int),
-            where="post", label=column.title(), color=colour,
+            tidy["datetime"],
+            tidy[column].astype(int),
+            where="post",
+            label=column.title(),
+            color=colour,
         )
     axis.set_title("2024-11-19 microalgae run — actuators")
     axis.set_xlabel("Time (UTC)")
@@ -208,7 +218,8 @@ def plot(tidy):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--verify", action="store_true",
+        "--verify",
+        action="store_true",
         help="check the rebuilt legacy CSVs against their recorded sha256",
     )
     args = parser.parse_args()

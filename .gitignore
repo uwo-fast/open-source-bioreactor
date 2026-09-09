@@ -21,3 +21,9 @@ analysis/**/derived/
 analysis/.venv/
 __pycache__/
 *.pyc
+
+# Tool caches
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+node_modules/

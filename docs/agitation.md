@@ -17,7 +17,7 @@ Ranked by what the evidence supports:
 5. **Tip speed** — a convenient proxy with no mechanistic standing
 
 **Bubble rupture, not impeller shear, is the dominant damage mechanism.** Sobczuk et al. studied
-*P. tricornutum* and *Porphyridium* on one rig and concluded that mechanical agitation was not the
+_P. tricornutum_ and _Porphyridium_ on one rig and concluded that mechanical agitation was not the
 direct cause of damage — bubbles rupturing at the culture surface were, with the impeller
 implicated only as the thing that generated them. Independently, for mammalian cells, removing the
 gas–liquid interface leaves growth and viability unaffected at 100–450 rpm, at 600 rpm in a
@@ -29,7 +29,7 @@ limit traces to a single measurement on human melanoma cells in 5 % serum, gener
 universal rule in a paper that two sentences later reports 6 m/s causing no measurable harm to a
 hybridoma line. **No tip-speed limit is asserted anywhere in this model, deliberately.**
 
-**For *Chlorella vulgaris* the relevant figure is an optimum, not a threshold.** Leupold et al.
+**For _Chlorella vulgaris_ the relevant figure is an optimum, not a threshold.** Leupold et al.
 measured a peak at **1.26 m/s tip speed (0.45 Pa)** — 4.0 % higher photosynthetic activity and 48 %
 higher growth against unstirred — with activity falling back to the unstirred control by **2.03 m/s
 (0.9 Pa)** and 7–8 % below it by 5.89 m/s. No lethal limit was found at any speed tested. Chlorella
@@ -39,7 +39,7 @@ is a rigid-walled green alga, the most shear-tolerant class.
 > — 1.75 L, mixed by a **spinning plate with skirt** 5 cm off the bottom — not a stirred tank with
 > an impeller. Their tip speed is that plate's rim speed, and the shear it makes lives in a
 > plate-to-wall gap rather than an impeller's discharge jet. **Reading 1.26 and 2.03 m/s as impeller
-> tip speeds is this project's transfer, not their result.** It is the only *Chlorella*-specific
+> tip speeds is this project's transfer, not their result.** It is the only _Chlorella_-specific
 > agitation measurement available, so the band below is built on it anyway — but every speed, every
 > D/T argument and the motor selection itself inherit that assumption. See `docs/references.md` for
 > what the paper actually reports, including that its calibration is direct only to 250 rpm and that
@@ -54,13 +54,13 @@ the registered 45° four-blade pitched turbine, and x = 16. Mean dissipation is 
 this build DERIVES from `culture_fill_fraction`, not over the full jar — which holds 9.52 L brim
 full. `head()` echoes every figure below at render.
 
-| shaft speed | tip speed | Re | ε̄ (W/m³) | ε_max (W/kg) |
-| --- | --- | --- | --- | --- |
-| 255 rpm — Chlorella optimum | 1.26 m/s | 37,800 | 105 | 15.4 |
-| 320 rpm — registered drive, rated | 1.58 m/s | 47,400 | 207 | 30.5 |
-| 410 rpm — break-even | 2.03 m/s | 60,800 | 436 | 64.2 |
-| 420 rpm — registered drive, no-load | 2.08 m/s | 62,300 | 468 | 69.0 |
-| 1154 rpm — 36GP-3530 at full speed | 5.71 m/s | 171,100 | 9,738 | 1,432 |
+| shaft speed                         | tip speed | Re      | ε̄ (W/m³) | ε_max (W/kg) |
+| ----------------------------------- | --------- | ------- | -------- | ------------ |
+| 255 rpm — Chlorella optimum         | 1.26 m/s  | 37,800  | 105      | 15.4         |
+| 320 rpm — registered drive, rated   | 1.58 m/s  | 47,400  | 207      | 30.5         |
+| 410 rpm — break-even                | 2.03 m/s  | 60,800  | 436      | 64.2         |
+| 420 rpm — registered drive, no-load | 2.08 m/s  | 62,300  | 468      | 69.0         |
+| 1154 rpm — 36GP-3530 at full speed  | 5.71 m/s  | 171,100 | 9,738    | 1,432        |
 
 Every figure in that column rose about 51 % when the blade changed, and none of it is the impeller
 getting worse. The old numbers used **Np = 0.99 borrowed from a differently shaped blade**, with a
@@ -85,10 +85,10 @@ stirred tank puts aeration at 29.4–49.1 W/m³ against stirring at 0.65–1.30 
 
 On the 94.5 mm impeller the band worth aiming at is narrow:
 
-| target | tip speed | shaft speed |
-| --- | --- | --- |
-| Chlorella growth optimum | 1.26 m/s | **255 rpm** |
-| break-even, stirring stops paying | 2.03 m/s | **410 rpm** |
+| target                            | tip speed | shaft speed |
+| --------------------------------- | --------- | ----------- |
+| Chlorella growth optimum          | 1.26 m/s  | **255 rpm** |
+| break-even, stirring stops paying | 2.03 m/s  | **410 rpm** |
 
 **The registered drive is the 36PG-555PM-14-EN**, 14:1, rated 320 rpm and no-load 420 rpm — 1.58 to
 2.08 m/s. Of the motors examined it is the only one that reaches the break-even end of the band,
@@ -148,7 +148,7 @@ never in danger; the headroom it was chosen on was understated by 8 mm.)
 **(Superseded — kept for the record.)** This section describes the constant-pitch helicoid, which
 the model no longer builds: `head()` selects `pbt_45_4`, a flat four-blade 45° pitched turbine, and
 takes `Po 1.49679` from Medek's correlation instead of borrowing 0.99. It is kept because the
-reading in it is *why* the helicoid was abandoned — the twist definition, the direction of its
+reading in it is _why_ the helicoid was abandoned — the twist definition, the direction of its
 effect, and the pitch geometry showing the blade was steeper than 45° at every radius. Nothing
 below describes a part that is printed today.
 
@@ -182,7 +182,7 @@ Nothing citable was found for W/D or blade height of a twisted extrusion. The cl
 ratios describe flat Rushton blades and do not apply.
 
 What can honestly be said is derived from the geometry itself. `linear_extrude(twist=)` sweeps a
-**constant-pitch helicoid**, so the parameter is a *pitch* specifier and the blade angle β measured
+**constant-pitch helicoid**, so the parameter is a _pitch_ specifier and the blade angle β measured
 from the plane of rotation varies with radius:
 
 ```text
@@ -227,14 +227,14 @@ At **fixed tip speed**, peak dissipation falls as the impeller grows:
 
 Doubling impeller diameter halves the maximum local energy dissipation, because the same power is
 spread over a swept volume that grows as D³. At **constant power per volume** in a fixed vessel,
-v_tip ∝ D^(−2/3) while pumping Q ∝ D^(4/3) — a larger impeller runs slower at the tip *and* pumps
+`v_tip` ∝ D^(−2/3) while pumping Q ∝ D^(4/3) — a larger impeller runs slower at the tip _and_ pumps
 more. Peak-to-mean dissipation scales as (T/D)³, so moving D/T from 0.33 to 0.50 cuts it by ~3.5×.
 
 This is why shear-sensitive culture wants a large impeller turning slowly, and it runs opposite to
 the intuition that gentler means smaller and faster.
 
 **One caution:** "low shear" impellers are not reliably gentle. A low power number can coexist with
-a *higher* peak dissipation than a Rushton turbine. Size the impeller; do not trust the label.
+a _higher_ peak dissipation than a Rushton turbine. Size the impeller; do not trust the label.
 
 ---
 
@@ -245,23 +245,23 @@ preferential. Three of the five swept vessels carry no baffles, and **they are u
 different reasons** — a distinction `docs/ports-layout.md` did not draw, because it attributes all of
 it to the 98 mm mouth floor.
 
-| vessel | mouth | bore | mouth/T | baffles | why not |
-| --- | --- | --- | --- | --- | --- |
-| `jar_1gal_180x197` | 148 | 170 | 0.871 | 4 | — |
-| `jar_10L_220x305` | 142.2 | 210 | 0.677 | 4 | — |
-| `jar_6p5gal_305x470` | 137 | 280.8 | **0.488** | 0 | the port circle falls inside the impeller |
-| `jar_1gal_155x251` | 95.8 | 149.3 | 0.642 | 0 | mouth below the flange floor |
-| `jar_1p5L_109x215` | 87.5 | 101.2 | 0.864 | 0 | mouth below the flange floor |
+| vessel               | mouth | bore  | mouth/T   | baffles | why not                                   |
+| -------------------- | ----- | ----- | --------- | ------- | ----------------------------------------- |
+| `jar_1gal_180x197`   | 148   | 170   | 0.871     | 4       | —                                         |
+| `jar_10L_220x305`    | 142.2 | 210   | 0.677     | 4       | —                                         |
+| `jar_6p5gal_305x470` | 137   | 280.8 | **0.488** | 0       | the port circle falls inside the impeller |
+| `jar_1gal_155x251`   | 95.8  | 149.3 | 0.642     | 0       | mouth below the flange floor              |
+| `jar_1p5L_109x215`   | 87.5  | 101.2 | 0.864     | 0       | mouth below the flange floor              |
 
 **The absolute floor**, which the ports document already has: below about 98 mm no baffle fits beside
 two Ø16 Atlas probes at any port count. That is `jar_1p5L` and `jar_1gal_155`. Note that `jar_1p5L`
-has a *generous* mouth for its bore — 0.864 — so its problem is absolute size, not proportion.
+has a _generous_ mouth for its bore — 0.864 — so its problem is absolute size, not proportion.
 
 **The ratio bound**, which it did not: `jar_6p5gal`'s mouth is small relative to its BORE, so the
 port circle its lid can offer sits inside the impeller's own sweep. Measured by adding a
 three-baffle set and rendering: the flanges fit — 7, 8 and 9-port sets all clear at a 137 mm mouth,
 and Oldshue sanctions three baffles at equal projected area — and the vessel then failed on
-something else, *"a 126.36 mm impeller leaves no room for a baffle on a 107 mm port circle"*. No port
+something else, _"a 126.36 mm impeller leaves no room for a baffle on a 107 mm port circle"_. No port
 count reaches it; D/T would have to fall to about 0.20 against a 0.3 floor. **This jar cannot carry a
 lid-hung baffle at all**, and the port table is not what stops it.
 
@@ -271,7 +271,7 @@ lid-hung baffle at all**, and the port table is not what stops it.
 
 **Unbaffled eccentric stirred** — `jar_6p5gal`. It is the family's worst case today: the largest
 vessel, unbaffled and centred, which Montante measured at flow number **0.25, 65 % below the same
-impeller baffled**. It cannot be baffled, but it *builds*, it carries a top-entry drive, and it has
+impeller baffled**. It cannot be baffled, but it _builds_, it carries a top-entry drive, and it has
 room to offset one. `head()` prices that room: **10.3 mm today, e/T 0.037, worth 16 %** of the centred
 blend time by Karcz; **25.3 mm** with the mount at the Ø36 floor its own gearbox faceplate allows,
 e/T 0.090, **worth 31 %**. This is a mount change on a jar that already works, not a new mode of
@@ -293,7 +293,7 @@ not arise, because neither can carry a shaft to centre or offset. Four things po
   axial pumping at **0.341 vvm** where the design is 0.5. It is the only vessel in the family that
   floods; the others hold 1.7× to 3.2× headroom. At intended conditions it is a bubble column with a
   spinning obstruction in it.
-- **Measured, on this organism, at this scale.** Uyar 2024 ran *C. sorokiniana* in 2 L
+- **Measured, on this organism, at this scale.** Uyar 2024 ran _C. sorokiniana_ in 2 L
   side-illuminated columns and moved the stirrer from 100 to 200 rpm for **15 %** on kLa and **18 %**
   on mixing time, while the sparger moved kLa **five-fold**. Productivity ranked bubble column 0.097,
   airlift 0.072, stirred tank 0.064 gdw/L·day. The impeller is not what makes a vessel of this size
@@ -333,21 +333,21 @@ been priced against the mass transfer it costs, and it should be.
   sparger would want an 86 micron orifice, which is why those are sintered rather than drilled. The
   ring as built also runs an **open area ratio of 2.25**, so its holes compete with their own
   supply. Both are reported on every render and both are live in `TODO.md`.
-  Damage originates at the sparger during bubble *formation* rather than at bursting (Barbosa
+  Damage originates at the sparger during bubble _formation_ rather than at bursting (Barbosa
   2003), and **no critical entrance velocity is established** in anything read here — the
   "30–50 m/s" this document carried until 2026-08-13 was not supported by its source, which reports
   0.4–5.4 m/s in its own runs and says the parameter needs more work.
   (Superseded — kept for the record. This read "There is no sparger in the model", and went on to
-  size one at Oldshue p. 214's 80 % of the impeller — *"a sparge ring about 80 % of the impeller
+  size one at Oldshue p. 214's 80 % of the impeller — _"a sparge ring about 80 % of the impeller
   diameter is more effective than an open pipe beneath the impeller or sparge rings larger than the
-  impeller"* — giving ~75.6 mm on a 94.5 mm impeller, and called the binding problem vertical room
+  impeller"_ — giving ~75.6 mm on a 94.5 mm impeller, and called the binding problem vertical room
   under the lower impeller. Both parts are wrong now: the ring is placed by the MOUTH at 1.44 D,
   because Birch & Ahmed and Rewatkar & Joshi both measure rings LARGER than the impeller to be
   better, which the settled ledger records as superseding Oldshue outright.)
 - **Off-bottom clearance used to be a consequence of shaft length, and is now a design parameter.**
   The impeller was placed with its bottom flush against a shaft that bottomed out 5 mm over the
-  punt, so `C = punt + shaft clearance + height/2` — a *mixing* quantity falling out of *how long
-  the shaft was*. Raising it therefore meant raising the shaft, which pushed the motor mount up with
+  punt, so `C = punt + shaft clearance + height/2` — a _mixing_ quantity falling out of _how long
+  the shaft was_. Raising it therefore meant raising the shaft, which pushed the motor mount up with
   it, and at 400 mm — the only length McMaster cut that reaches this vessel, since there is no
   300 mm — that took the mount past three diameters of slenderness. The impeller is now placed off
   the floor by `impeller_clearance_factor` and the shaft runs past it down to the punt regardless,
@@ -357,17 +357,17 @@ been priced against the mass transfer it costs, and it should be.
   pumps air. Oldshue's 1.0–2.0 for fluidfoils is therefore reachable up to 1.233, and what buys the
   clearance is submersion, not stack height.
 - **The gas enters between the impellers, and that position is derived rather than chosen.** Birch
-  & Ahmed 1997 set out to fill exactly this gap — their introduction says *"there seems to be no
+  & Ahmed 1997 set out to fill exactly this gap — their introduction says _"there seems to be no
   available information on the influence of sparger location on the gas dispersion performance of
-  upward pumping mixed flow turbines"* — and conclude that *"the direction of flow from these
+  upward pumping mixed flow turbines"_ — and conclude that _"the direction of flow from these
   impellers dictates that the sparger be placed **above the impeller for the PDU**, and **below for
-  the PDD**"*. This pair converges: the lower pumps up, the upper pumps down, so the gap between
+  the PDD**"_. This pair converges: the lower pumps up, the upper pumps down, so the gap between
   them is above one and below the other. **One ring satisfies both.** A diverging pair would need
   two, which is what `head_shaft_rotation` is for and why `head()` warns if it is reversed.
 - **The ring is 1.44 D and its section is not round.** The radial band between the baffles at
   r 64.55 and the jar's mouth at r 71.50 is **6.95 mm**, and a round section of 6 mm has no solution
   in it at any ratio — 4.95 mm is the largest that fits with a millimetre each side. But the squeeze
-  is *entirely* radial: the gap gives 73 mm of height. So the section is **4 mm radial × 10 mm
+  is _entirely_ radial: the gap gives 73 mm of height. So the section is **4 mm radial × 10 mm
   axial**, a 1.6 × 7.6 mm bore of 12.16 mm², about a 6 mm tube's, spending the dimension that is
   free. **This is why the ring is printed and not bent**: a tube is round, and round does not fit.
 - **The feed does not attach at the ring's radius.** A round boss there is wider than the section
@@ -384,10 +384,10 @@ been priced against the mass transfer it costs, and it should be.
   is 1025 Pa of head, plus 96 Pa of capillary at a 3 mm hole. That is about 11 mbar, well inside an
   aquarium pump, but it is the number a pump has to be chosen against and nothing recorded it before.
 - **Hole geometry is for spacing and against fouling, not for even flow.** Rewatkar & Joshi:
-  *"hole size and number of holes have negligible effect when the sparger is located near the
-  impeller."* Worked through, even flow is not achievable anyway — capillary pressure to launch a
+  _"hole size and number of holes have negligible effect when the sparger is located near the
+  impeller."_ Worked through, even flow is not achievable anyway — capillary pressure to launch a
   bubble is 96 Pa against 2.4 Pa to push gas through the hole, so the holes will not share equally
-  at any count, and a fixed tolerance hurts *small* holes most (±0.1 mm is 58 Pa of spread at 1 mm
+  at any count, and a fixed tolerance hurts _small_ holes most (±0.1 mm is 58 Pa of spread at 1 mm
   and 1.6 Pa at 6 mm). Eight at 3 mm.
 - **The blade is a 45° four-blade pitched turbine, and it was chosen for what can be said about
   it.** The alternative was the constant-pitch helicoid this project drew by hand, whose power
@@ -409,53 +409,54 @@ been priced against the mass transfer it costs, and it should be.
   the upper impeller **0.63 → 0.88 D**. The two quantities that were competing all afternoon both
   improved, and the clearance could now be raised to about 0.95 D before coverage binds.
 - **Axial was kept over radial deliberately.** A Rushton would disperse gas better — Oldshue's
-  3× against 8–10× — but a photobioreactor's criterion is Molina Grima's *"frequency of switch"*
+  3× against 8–10× — but a photobioreactor's criterion is Molina Grima's _"frequency of switch"_
   between light and dark, which is pumping, not power. On circulation bought per watt (`N_Q/Po`)
   an axial blade beats a Rushton **4.3×**. And the gas criterion turns out not to bind: the axial
   pair covers 0.5 vvm at 332 rpm and 1.0 vvm at 418, both inside the drive's band.
 - **The clearance is 0.9 D, set from the source the power number comes from.** Fořt tested pitched
-  blade impellers at C/D 0.5 and 1.0 and concluded that *"the impeller hydraulic efficiency exhibits
+  blade impellers at C/D 0.5 and 1.0 and concluded that _"the impeller hydraulic efficiency exhibits
   higher values for impeller off bottom clearance equal to the impeller diameter than for half of
-  this distance, when interference between the bottom and the impeller takes place"* — and his
+  this distance, when interference between the bottom and the impeller takes place"_ — and his
   abstract ties low clearances to solids suspension and higher ones to blending miscible liquids,
   which is this reactor's duty. Medek's correlation reproduces it from the other side, since
   `Po ∝ (C/D)^−0.165` and `N_Q ∝ (C/D)^0.254`:
 
-  | C/D | Po | N_Q | N_Q/Po | vs 0.6 |
-  | --- | --- | --- | --- | --- |
-  | 0.6 | 1.602 | 0.806 | 0.503 | — |
-  | 0.8 | 1.528 | 0.867 | 0.568 | +12.8 % |
+  | C/D     | Po        | N_Q       | N_Q/Po    | vs 0.6      |
+  | ------- | --------- | --------- | --------- | ----------- |
+  | 0.6     | 1.602     | 0.806     | 0.503     | —           |
+  | 0.8     | 1.528     | 0.867     | 0.568     | +12.8 %     |
   | **0.9** | **1.498** | **0.893** | **0.596** | **+18.5 %** |
-  | 1.0 | 1.473 | 0.918 | 0.623 | +23.9 % |
+  | 1.0     | 1.473     | 0.918     | 0.623     | +23.9 %     |
 
   `N_Q/Po` is circulation bought per watt — the light/dark switching criterion again. **0.9 rather
   than 1.0** because 1.0 is the correlation's own C/D limit, leaving no margin on the number the
   whole design now rests on, and because it drops coverage over the upper impeller to 0.48 D. The
   last 4.5 % of efficiency is not worth spending both margins on.
+
 - **Oldshue's 1–2 D no longer applies at all, and that is a class distinction rather than a
-  reinterpretation.** His passage is about *"these fluidfoil impellers"* — the hydrofoil class —
+  reinterpretation.** His passage is about _"these fluidfoil impellers"_ — the hydrofoil class —
   and a pitched blade turbine is a different, older one. Both halves of it, the allowance and the
   coverage caveat about short-circuiting, are fluidfoil statements. `head()` now reports the number
   as context and names Fořt's as the guidance that fits the blade. The 0.5 D coverage floor is kept,
   but on its own footing: a down-pumping impeller near the free surface entrains air, which is true
   of any blade and not Oldshue's to authorise.
-- *(Superseded — kept for the record.)* **The clearance was 0.6 D. Oldshue's 1–2 D is an allowance this vessel cannot reach, which is not
-  the same as a target it misses.** Read the sentence as written: *"**If** the impeller **can** be
+- _(Superseded — kept for the record.)_ **The clearance was 0.6 D. Oldshue's 1–2 D is an allowance this vessel cannot reach, which is not
+  the same as a target it misses.** Read the sentence as written: _"**If** the impeller **can** be
   placed one to two impeller diameters off bottom … these impellers **offer** an excellent flow
-  pattern as well as considerable economies in shaft design."* It rewards being able to sit high;
+  pattern as well as considerable economies in shaft design."_ It rewards being able to sit high;
   it does not instruct you to. `head()` therefore reports the departure rather than warning on it.
   And the sentence has a second half that pulls the other way, in the same paragraph: fluidfoils
-  *"short-circuit the fluid to a relatively low distance above the impeller. Very careful
-  consideration of the coverage over the impeller is important."* Both requirements are Oldshue's,
+  _"short-circuit the fluid to a relatively low distance above the impeller. Very careful
+  consideration of the coverage over the impeller is important."_ Both requirements are Oldshue's,
   and here they do not overlap — the band needs C ≥ 94.5 mm, and keeping half a diameter of liquid
   over the upper impeller needs C ≤ 69.2 mm:
 
-  | C/D | C | under lower | cover over upper |
-  | --- | --- | --- | --- |
-  | 0.423 (as inherited) | 40.0 | 10.0 mm | 76.5 (0.81 D) |
-  | **0.600 (chosen)** | **56.7** | **26.7 mm** | **59.8 (0.63 D)** |
-  | 0.700 | 66.1 | 36.1 mm | 50.4 (0.53 D) |
-  | 1.000 (band floor) | 94.5 | 64.5 mm | 22.0 (0.23 D) |
+  | C/D                  | C        | under lower | cover over upper  |
+  | -------------------- | -------- | ----------- | ----------------- |
+  | 0.423 (as inherited) | 40.0     | 10.0 mm     | 76.5 (0.81 D)     |
+  | **0.600 (chosen)**   | **56.7** | **26.7 mm** | **59.8 (0.63 D)** |
+  | 0.700                | 66.1     | 36.1 mm     | 50.4 (0.53 D)     |
+  | 1.000 (band floor)   | 94.5     | 64.5 mm     | 22.0 (0.23 D)     |
 
   This is structural, not a near miss. Blade height is the only other term in the span, and it is
   the least defensible number in the model — but even at 0.4 D instead of 0.635 the ceiling only
@@ -470,9 +471,10 @@ been priced against the mass transfer it costs, and it should be.
   jar it admits is `jar_1p5L_109x215`. The band itself has no primary — Fitschen relays it from
   Davis, whose own sources do not carry it — so this is reported and never asserted. See
   `stirred_tank_impeller_count_bounds()` and the Fitschen entry in `docs/references.md`.)
+
 - **0.6 D was chosen against a second, independent scale — an uncited one.** Off-bottom clearance
   is more often written C/T, and the quarter-to-third of tank diameter usual for an axial impeller
-  maps to **C/D 0.556–0.741** in this bore. *No source held here states that convention* — it is
+  maps to **C/D 0.556–0.741** in this bore. _No source held here states that convention_ — it is
   not in Oldshue, and it is recorded as convention rather than citation, which is why no band
   function encodes it and nothing warns against it. It is corroboration, not authority: that window
   and the coverage limit agree independently, so the chosen value is reported both ways. 0.6 D is
@@ -501,12 +503,12 @@ been priced against the mass transfer it costs, and it should be.
   six would need the port circle re-derived again.
 - **What limited the depth was dynamics, not strength, and not collision.** Three candidate limits
   were worked and only one binds:
-  - *Collision* does not. The plate bends **tangentially** and the impeller sweeps a circle, so
+  - _Collision_ does not. The plate bends **tangentially** and the impeller sweeps a circle, so
     deflection does not close the 2 mm radial gap to it. This was the constraint assumed at first
     and it is simply the wrong geometry.
-  - *Strength* does not. Root bending stress at full depth is **0.69 MPa against ~50 MPa yield**,
+  - _Strength_ does not. Root bending stress at full depth is **0.69 MPa against ~50 MPa yield**,
     1.4 % — so creep is not a factor either.
-  - *The first bending mode* does. It falls as 1/L², so going from 100 to 280 mm divides it by 7.8.
+  - _The first bending mode_ does. It falls as 1/L², so going from 100 to 280 mm divides it by 7.8.
     A 4 mm plate at full depth lands at **5.4 Hz**, which is shaft rotation at the rated 320 rpm —
     a resonance at the steady operating point, not one passed through on the way up. It also
     deflects 8.9 mm, over half the plate's own width, so it would bend away from the swirl rather
@@ -541,7 +543,7 @@ been priced against the mass transfer it costs, and it should be.
   17.6 at 10, 19.8 at 11, 22.0 at 12. Blade passing is four per revolution and sweeps 0–28 Hz on the
   way to the drive's 420 rpm no-load speed, so it crosses the mode at 231 rpm on a 9 mm plate, 264
   on a 10, 297 on an 11 and **330 on a 12 — inside the 320–420 band the reactor actually runs in**.
-  Only 12 fires the model's resonance warning, which now asks whether a crossing lands *in* the band
+  Only 12 fires the model's resonance warning, which now asks whether a crossing lands _in_ the band
   rather than whether the mode is within 30 % of an excitation at one speed. What separates 10 from
   11 is margin, and `head()` reports it: **10 clears the band by 17.6 %, 11 by only 7.2 %**. With a
   DC motor whose speed is set open-loop, 7 % is not much room for a controller to wander into. 10
@@ -564,11 +566,11 @@ been priced against the mass transfer it costs, and it should be.
   A1 mini) are the small end of what anyone building this owns, and 10 mm leaves room for a brim.
   `baffle_segment_height_max` is the parameter, and raising it costs less than it looks: at a
   250 mm cap `jar_10L` still needs two pieces, because its part is 303 mm whole. What a bigger
-  machine buys is the *short* jar, whose 195 mm part would go on the bed in one. At 170 every
+  machine buys is the _short_ jar, whose 195 mm part would go on the bed in one. At 170 every
   registered vessel comes out in **two pieces** — 140 mm each in `jar_10L`, standing 163 mm with
   the port — and a 470 mm jar would take three.
 - **The slide runs along the plate's width, and that is a load choice.** The swirl pushes on the
-  plate's *face*, so with the slide across the width that load bears on the dovetail's flanks and
+  plate's _face_, so with the slide across the width that load bears on the dovetail's flanks and
   the one axis a sliding dovetail leaves free carries nothing but vibration. Sliding across the
   thickness instead would put the working load directly in the free direction. A blind end stops
   the slide and registers the two pieces in one place; the butt faces meet with nothing between

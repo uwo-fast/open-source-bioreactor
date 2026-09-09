@@ -15,12 +15,12 @@ current export format.
 
 ## Files
 
-| Path | What |
-|---|---|
+| Path                     | What                                               |
+| ------------------------ | -------------------------------------------------- |
 | `raw/microalgae_raw.csv` | The logger export, untouched. 28 MB, 152,712 rows. |
-| `pipeline.py` | Rebuilds everything below from the raw file. |
-| `derived/` | Regenerated, git-ignored. |
-| `figures/` | Committed plots. |
+| `pipeline.py`            | Rebuilds everything below from the raw file.       |
+| `derived/`               | Regenerated, git-ignored.                          |
+| `figures/`               | Committed plots.                                   |
 
 Rebuild with:
 
@@ -38,16 +38,16 @@ own length**, space-padded to the longest:
 time,Air Cal,time,DO Cal,…,time,Thermo 1,time,Dissolved Oxygen,time,pH,time,Stirring,time,Pump 1,…
 ```
 
-Row *i* of `Thermo 1` and row *i* of `pH` are **unrelated samples**. Channel
+Row _i_ of `Thermo 1` and row _i_ of `pH` are **unrelated samples**. Channel
 lengths differ accordingly:
 
-| Channel | Samples | Kept as |
-|---|---|---|
-| `Thermo 1` | 152,615 | `temperature` |
+| Channel            | Samples | Kept as            |
+| ------------------ | ------- | ------------------ |
+| `Thermo 1`         | 152,615 | `temperature`      |
 | `Dissolved Oxygen` | 152,624 | `dissolved oxygen` |
-| `pH` | 152,661 | `pH` |
-| `Stirring` | 152,688 | `stirring motor` |
-| `Pump 1` | 152,712 | `sample pump` |
+| `pH`               | 152,661 | `pH`               |
+| `Stirring`         | 152,688 | `stirring motor`   |
+| `Pump 1`           | 152,712 | `sample pump`      |
 
 The other nine channels are one-shot calibration events (2 samples each) plus
 the unused heating element and pH-control outputs, and are dropped.
@@ -58,12 +58,12 @@ The originally committed `cleaned0/1/2` files were built by stacking the
 channels **by row position**, which silently pairs samples taken minutes
 apart. Measured skew relative to the `Thermo 1` clock:
 
-| Channel | Median | 95th pct | Worst |
-|---|---|---|---|
-| Dissolved Oxygen | −39 s | +0.6 s | −475 s |
-| pH | −154 s | −3.5 s | −513 s |
-| Stirring | −258 s | −43 s | +948 s |
-| Pump 1 | −338 s | −28 s | +948 s |
+| Channel          | Median | 95th pct | Worst  |
+| ---------------- | ------ | -------- | ------ |
+| Dissolved Oxygen | −39 s  | +0.6 s   | −475 s |
+| pH               | −154 s | −3.5 s   | −513 s |
+| Stirring         | −258 s | −43 s    | +948 s |
+| Pump 1           | −338 s | −28 s    | +948 s |
 
 So in every previously published figure from this run, **pH lags its stated
 timestamp by ~2.5 minutes on average and actuator state by ~5 minutes**, with
@@ -94,11 +94,11 @@ duplicated first scan, drop the final row, and uppercase the booleans.
 `python pipeline.py --verify` checks the reconstruction against the sha256 of
 each file as it was committed before the 2026-08 restructure:
 
-| File | sha256 | Status |
-|---|---|---|
+| File                  | sha256      | Status         |
+| --------------------- | ----------- | -------------- |
 | `legacy_cleaned1.csv` | `0d2900e5…` | byte-identical |
 | `legacy_cleaned2.csv` | `91ff8a32…` | byte-identical |
-| `legacy_cleaned0.csv` | `b158e353…` | see below |
+| `legacy_cleaned0.csv` | `b158e353…` | see below      |
 
 `cleaned0` as committed had sha256 `e64c807c…` and differs from the
 reconstruction in **exactly one cell of 915,678**: the spreadsheet rounded a

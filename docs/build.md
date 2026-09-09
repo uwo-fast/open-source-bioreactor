@@ -46,7 +46,7 @@ This is the part of the build nothing else will remind you about.
 **From `head.scad`:**
 
 - the **lid**, one piece — flange, plug, bearing pocket, insert holes, gasket recess, o-ring groove,
-  and all twelve bayonet *lock* halves. The locks are not optional detail: their channels are the
+  and all twelve bayonet _lock_ halves. The locks are not optional detail: their channels are the
   walls of the lid's bores, so a lid exported without them is twelve plain holes that nothing locks
   into
 - the **port pin halves**, one per port — tube ports for `air_in`, `air_out`, `media`, `acid`,
@@ -139,11 +139,11 @@ is set by the rod bosses, so that bought nothing and was undone.
 
 ## What you cut
 
-| Stock | Cut | Yield |
-| --- | --- | --- |
-| M8 threaded rod, DIN 975 A2 | **4 × 322 mm** | buy 1500 mm or more |
-| 316 SS tube 4 × 0.5 mm, `50415K21` | **5 × 188.174 mm** | 940.869 mm from a 1000 mm length, 59.1 mm spare |
-| EPDM sheet 1/16 in 60A, `8525T65` | **145 × 151 mm** per lid | 4 per 304.8 mm sheet |
+| Stock                              | Cut                      | Yield                                           |
+| ---------------------------------- | ------------------------ | ----------------------------------------------- |
+| M8 threaded rod, DIN 975 A2        | **4 × 322 mm**           | buy 1500 mm or more                             |
+| 316 SS tube 4 × 0.5 mm, `50415K21` | **5 × 188.174 mm**       | 940.869 mm from a 1000 mm length, 59.1 mm spare |
+| EPDM sheet 1/16 in 60A, `8525T65`  | **145 × 151 mm** per lid | 4 per 304.8 mm sheet                            |
 
 **The rod length follows the jar, not the design.** 322 mm is `jar_10L`; it is 214 mm on
 `jar_1gal_180` and 487 on `jar_6p5gal`. It is derived as vessel 305 + flange 8 + nut 6.5 + 2.5 mm
@@ -191,17 +191,17 @@ shaft nominal and grip was otherwise zero by design.
 
 **The o-rings go in four different ways, and only one of them is stretched.**
 
-| Seal | How it seats |
-| --- | --- |
-| Lid plug, `AS568-160` | **stretched 4.27 %** onto a groove cut from the jar's bore |
-| Port face seals, 12 of them | seated in a gland cut to fit the ring, no stretch |
-| Riser rod seals, `8785N364` ×5 | **0 % stretch** — the ring's ID *is* the 4 mm tube |
-| Bearing rim seal, `8785N382` | **0 % stretch** — the ring's ID *is* the 22 mm bearing |
+| Seal                           | How it seats                                               |
+| ------------------------------ | ---------------------------------------------------------- |
+| Lid plug, `AS568-160`          | **stretched 4.27 %** onto a groove cut from the jar's bore |
+| Port face seals, 12 of them    | seated in a gland cut to fit the ring, no stretch          |
+| Riser rod seals, `8785N364` ×5 | **0 % stretch** — the ring's ID _is_ the 4 mm tube         |
+| Bearing rim seal, `8785N382`   | **0 % stretch** — the ring's ID _is_ the 22 mm bearing     |
 
 **The bearing seal goes in before the bearing.** Drop the 22×1.5 down the pocket and let it expand
 into the groove at mid-depth, then press the bearing past it. It seals on the bearing's **outer
 race**, which does not turn — the inner race does, and on a 608 both race faces are flush, so a
-gasket under the bearing would be clamped against a rotating steel face. Nothing seats *on* the
+gasket under the bearing would be clamped against a rotating steel face. Nothing seats _on_ the
 pocket floor: the bearing still bottoms there.
 
 The rod seals go into an enclosed groove just above the lid's **inner** face, and they go in
@@ -230,7 +230,7 @@ The order is forced by geometry, not preference.
 2. **Everything that hangs below a port must pass the lock's bore on the way in** — that is what
    sets the baffle plate's width, and the model asserts it.
 3. **Then the lid goes onto the jar**, and everything hanging from it passes down through the mouth
-   — so *every part of the assembly is level with the mouth at some moment on the way down*. What
+   — so _every part of the assembly is level with the mouth at some moment on the way down_. What
    matters is the widest the assembly ever gets, not where it finishes. On `jar_10L` the DO probe's
    collet is the binding part, reaching 70.78 mm against a 71.1 mm mouth — **0.32 mm to spare**.
 4. **The probes go in last**, down through the bayonet's bore into the collet. They never pass the
@@ -299,7 +299,7 @@ own area clears that 7.12525x over.
 ```
 
 **On this jar the floor is about 1 mm², which is a Ø1.12 mm hole** — a slot roughly 2 × 0.5 mm. A
-normal file cut clears it seven times over, and it is *not* too small to miss: a shallow pass that
+normal file cut clears it seven times over, and it is _not_ too small to miss: a shallow pass that
 only just breaks the 0.5 mm wall over a couple of millimetres lands on the limit. Cut it, then hold
 the tube up to the light and look through the hole before it goes in.
 
@@ -383,7 +383,7 @@ the first run.
 sheet, so at the design squeeze the gasket is nominally flush and the flange nominally touches. It
 cannot actually get there: the recess holds three quarters of the rubber's section and elastomer is
 near enough incompressible, so the last quarter has to escape sideways first. Flange-on-glass is
-*past* the design point, not at it.
+_past_ the design point, not at it.
 
 **And on every jar but the 6.5 gallon there is no land to stop you.** Those lips are crowned, so the
 flange has nothing to bottom on and the turn is the only thing setting the squeeze — which is why
@@ -445,7 +445,7 @@ The check valve exists to stop culture siphoning back into the pump when it stop
 optional.
 
 **Nothing filters the way out, and fitting the obvious part would cost you the top of the band.**
-A bioreactor normally filters the air in *and* out. This one filters the inlet and vents the
+A bioreactor normally filters the air in _and_ out. This one filters the inlet and vents the
 headspace through a support tube's bore into the room, so the 0.2 µm filter guards one direction of
 two. The tempting fix is a second `1594522` — the filter is sold in tens, so it looks free.
 
@@ -479,8 +479,8 @@ in the plume, and the fix is a bench one — the port's lean and the ring's heig
 parameters.
 
 **Know the replace-the-filter signal.** The sterile filter can rise about **65 %** — from 14.2 kPa
-to roughly 23.3 — before 0.5 vvm becomes unreachable with the valve wide open. So *valve fully open
-and still short of the rate* is the signal, and it is not a pump problem.
+to roughly 23.3 — before 0.5 vvm becomes unreachable with the valve wide open. So _valve fully open
+and still short of the rate_ is the signal, and it is not a pump problem.
 
 ---
 
