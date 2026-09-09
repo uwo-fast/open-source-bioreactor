@@ -585,8 +585,12 @@ check-bom:
     echo(str("BOM|", check_valve_part_number(sparge_check_valve), "|gas line check valve"));
     SCAD
     {{OPENSCAD}} -o "$tmp/b.csg" "$tmp/b.scad" 2>"$tmp/err" >/dev/null
-    # the part_number COLUMN, so a match cannot come from a stale URL elsewhere in the row
-    {{PY}} -c 'import csv;print("\n".join(r["part_number"].strip() for r in csv.DictReader(open("purchased-parts.csv"))))' > "$tmp/pns"
+    # the part_number COLUMN, so a match cannot come from a stale URL elsewhere in the row.
+    # The system python, not {{PY}}: this reads a CSV with the stdlib and has no business
+    # requiring the analysis venv, which carries pandas and matplotlib and does not exist
+    # on a clean checkout - the gate would have failed on any machine that had not run
+    # `just analysis-setup` first, CI included.
+    /usr/bin/python3 -c 'import csv;print("\n".join(r["part_number"].strip() for r in csv.DictReader(open("purchased-parts.csv"))))' > "$tmp/pns"
     lines=$(grep -oE 'BOM\|[^|]*\|[^"]*' "$tmp/err" || true)
     if [ -z "$lines" ]; then echo "FAIL  could not read what the model prescribes"; exit 1; fi
     failed=0

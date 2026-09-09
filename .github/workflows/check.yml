@@ -1,0 +1,84 @@
+# The gate, run on every push and pull request.
+#
+# `just check` is the same command run locally before a commit, so CI and the bench
+# cannot disagree about what passing means. `just test` is a separate job because it
+# needs a CGAL render of every entry file and takes minutes where check takes seconds -
+# that cost is why those two checks sit outside the gate in the first place.
+#
+# OPENSCAD IS PINNED TO WHAT apt SHIPS. The model asserts its own tessellation, so the
+# binary does not change the geometry, but it does change render times and error text.
+# If a newer OpenSCAD is ever needed, pin a version here rather than tracking a channel.
+
+name: Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: extractions/setup-just@v4
+      - uses: astral-sh/setup-uv@v10.0.1
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+
+      - name: Install OpenSCAD
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends openscad
+          openscad --version
+
+      - name: Check
+        run: just check
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: extractions/setup-just@v4
+
+      - name: Install OpenSCAD
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends openscad
+
+      - name: Test
+        run: just test
+
+  stats:
+    name: stats
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: extractions/setup-just@v4
+
+      - name: Install cloc
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends cloc
+
+      # Fenced, because cloc's output is a fixed-width table and the job summary
+      # renders as Markdown.
+      - name: Stats
+        run: |
+          {
+            echo '### Lines of code'
+            echo '```'
+            just stats
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
