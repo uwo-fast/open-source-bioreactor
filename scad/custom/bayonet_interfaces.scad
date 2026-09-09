@@ -25,20 +25,26 @@ include <../purchased/orings.scad>;
 // as a single extrusion at a 0.4 nozzle. mini and midi are at 1.2, three of them; std is at 1.0.
 //
 // std is the one with a ceiling, and it is the LID that sets it rather than the port: jar_10L's
-// twelve-port circle puts two std flanges adjacent, so the pair shares a 29.4536 mm chord. What
+// twelve-port circle puts two std flanges adjacent, so the pair shares a 29.2466 mm chord. What
 // that chord has to leave is lid_flange_gap - AIR between two raised features - and not
 // lid_holes_offset, which is the wall the lid keeps between the BORES underneath and measures
-// 4.654 mm there whatever the flange does. While one number did both jobs std was capped at r
-// 13.7268 and could not have a second extrusion; separated, it reaches 14.1 with 1.254 mm still
-// between flanges. 1.2 would leave 0.854, which is a gap rather than a margin.
+// 4.44655 mm there whatever the flange does. While one number did both jobs std was capped at r
+// 13.7268 and could not have a second extrusion; separated, it reaches 14.1 with 1.0466 mm still
+// between flanges. 1.2 would leave 0.6466, which is a gap rather than a margin.
 
 //                ["name" [iface_r, shell_t, pin_r, allow], [flange_h, flange_lip], oring,             [n_pins, sweep, pin_dir, turn_dir, key]]
 bayonet_std     = ["std", [10,      2.5,     1.2,   0.2  ], [5,        1.0       ], oring_23x1p5_epdm, [3,      30,    "outer", "CW",     25 ]];
 
 // std is sized for what has to pass through it: a 16 mm Atlas probe body with 2 mm of collet wall
-// either side. Nothing else on the lid needs that. A 2.4 mm dosing line carried the same 14.1 mm
-// flange as a probe, and since what limits a port circle is the worst ADJACENT PAIR of flanges, that
-// was the whole family's smallest mouth - see docs/ports-layout.md.
+// either side. Nothing else on the lid needs that, and where a mouth is tight these buy it back.
+//
+// WHERE THEY DO NOT: the twelve-port lid. Four baffles every third port leave no port that is not
+// adjacent to one, so a probe must touch a baffle, both are std, and the worst pair is 14.1 + 14.1
+// whatever the tubes take - jar_10L reads 1.0466 mm with mini tubes and 1.0466 mm without. So
+// head_interface_for() gives every port std wherever the set still fits that way, and falls back to
+// the smallest that will do only where it does not. Six ports all on std wants an 87.6 mm mouth and
+// jar_1p5L_109x215 has 87.5, which is the one registered vessel that still takes these. See
+// head_ports_uniform() and docs/ports-layout.md.
 //
 // The flange follows the seal rather than the bore, so a smaller interface is only worth having if
 // a smaller ring can still stand outboard of its lock bore. These two can:

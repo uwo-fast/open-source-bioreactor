@@ -594,7 +594,9 @@ function head_port_sets() = [head_port_set_full, head_port_set_reduced];
 // Whether a set's flanges clear each other on this mouth. The chord is the same between every
 // pair and the flanges are not, so what decides it is the worst ADJACENT PAIR - see head()'s own
 // assert, which is this same expression on the set that was chosen.
-function head_port_set_fits(vessel_opening_diameter, ports) =
+// `uniform` asks the same question of a lid that gives every port the std interface - see
+// head_ports_uniform() below for why that is worth asking.
+function head_port_set_fits(vessel_opening_diameter, ports, uniform = false) =
   let (
     _n = len(ports),
     _chord = 2 * head_port_circle_radius(vessel_opening_diameter, ports) * sin(180 / _n)
@@ -602,23 +604,51 @@ function head_port_set_fits(vessel_opening_diameter, ports) =
     min([
       for (i = [0:_n - 1])
         _chord
-        - bayonet_flange_radius(head_port_interface(ports[i]))
-        - bayonet_flange_radius(head_port_interface(ports[(i + 1) % _n]))
+        - bayonet_flange_radius(head_port_interface(ports[i], uniform))
+        - bayonet_flange_radius(head_port_interface(ports[(i + 1) % _n], uniform))
     ]) >= lid_flange_gap
     && min([
       for (i = [0:_n - 1])
         _chord
-        - bayonet_port_hole_radius(head_port_interface(ports[i]))
-        - bayonet_port_hole_radius(head_port_interface(ports[(i + 1) % _n]))
+        - bayonet_port_hole_radius(head_port_interface(ports[i], uniform))
+        - bayonet_port_hole_radius(head_port_interface(ports[(i + 1) % _n], uniform))
     ]) >= lid_holes_offset;
 
+// The widest set that fits AT ALL, which is the mixed reading - a set that will not fit with the
+// smallest interface each port can take will not fit with std on all of them either.
 function head_port_set_for(vessel_opening_diameter) =
   let (_fit = [for (p = head_port_sets()) if (head_port_set_fits(vessel_opening_diameter, p)) p])
     len(_fit) == 0 ? undef : _fit[0];
 
-// The table this lid actually carries, and how many ports are on it.
+/**
+ * @brief Whether this lid can afford ONE interface on every port.
+ *
+ * std is what a probe and a baffle need, so a lid that can afford std everywhere is a lid where any
+ * port takes any function, there is one face o-ring to buy rather than two, and the port table stops
+ * being a statement about flange sizes. That is worth having for its own sake.
+ *
+ * It is usually FREE, and the reason is that the small interfaces were never what bound the circle.
+ * The chord is the same between every adjacent pair, so what decides the fit is the worst pair - and
+ * on the twelve-port lid four baffles and three std ports already sit std-against-std at four
+ * places. Widening the five tube ports adds pairs at that same gap and moves no minimum: jar_10L
+ * reads 1.04655 mm either way.
+ *
+ * Where it is not free is the narrow end, which is the whole reason this is derived and not decided.
+ * The six-port set on jar_1p5L_109x215 goes 5.75 -> 0.95 mm against a lid_flange_gap of 1.0, so that
+ * jar keeps the mixed interfaces and every other registered vessel goes uniform.
+ */
+function head_ports_uniform(vessel_opening_diameter, ports) =
+  head_port_set_fits(vessel_opening_diameter, ports, true);
+
+// The table this lid actually carries, and how many ports are on it. The rows come back with their
+// interface PINNED, because whether this lid is uniform is a property of the lid and not of a port -
+// asking a row on its own would give a different answer per caller.
 function head_ports_for(vessel_opening_diameter) =
-  is_undef(head_ports) ? head_port_set_for(vessel_opening_diameter) : head_ports;
+  let (_set = is_undef(head_ports) ? head_port_set_for(vessel_opening_diameter) : head_ports)
+    is_undef(_set)
+      ? undef
+      : let (_u = head_ports_uniform(vessel_opening_diameter, _set))
+        [for (p = _set) [p[0], p[1], p[2], p[3], head_port_interface(p, _u)]];
 function head_ports_n(vessel_opening_diameter) = len(head_ports_for(vessel_opening_diameter));
 
 // Which bayonet a port mates to. Every port shared one until the family outgrew it: std is sized
@@ -628,8 +658,10 @@ function head_ports_n(vessel_opening_diameter) = len(head_ports_for(vessel_openi
 // Material the pin half keeps around its own bore.
 port_bore_wall = 2;
 
-// Smallest first, so the search below returns the least interface that will do.
-function head_interfaces_by_size() = [bayonet_mini, bayonet_midi, bayonet_std];
+// Smallest first, so the search below returns the least interface that will do - unless the lid can
+// afford std on everything, in which case std is the only candidate and every port matches.
+function head_interfaces_by_size(uniform = false) =
+  uniform ? [bayonet_std] : [bayonet_mini, bayonet_midi, bayonet_std];
 
 // Two ways a port can be too big for an interface, and they are not the same test. What passes
 // THROUGH has to clear the bore; what stands ON TOP has to fit the flange - an NPT mount is bolted
@@ -643,22 +675,29 @@ function head_interface_fits(iface, bore, thread) =
   );
 
 // probe and baffle are fixed by what they carry: a 16 mm Atlas body with its collet, and a plate
-// that has to drop through the lock bore. Everything else takes the smallest that fits, so a 2.4 mm
-// dosing line stops carrying a probe's flange.
-function head_interface_for(type, bore, thread = undef) =
+// that has to drop through the lock bore. Everything else takes the smallest that fits WHEN THE LID
+// HAS TO ECONOMISE - a 2.4 mm dosing line stops carrying a probe's flange only where that buys the
+// port circle something. Where it does not, uniform gives it std like everything else.
+function head_interface_for(type, bore, thread = undef, uniform = false) =
   type == "probe" || type == "baffle"
     ? bayonet_std
-    : let (_fit = [for (i = head_interfaces_by_size()) if (head_interface_fits(i, bore, thread)) i])
+    : let (_fit = [for (i = head_interfaces_by_size(uniform)) if (head_interface_fits(i, bore, thread)) i])
       len(_fit) == 0 ? undef : _fit[0];
 
-function head_port_interface(port) =
-  head_interface_for(
-    head_port_type(port),
-    head_port_bore_radius(port),
-    head_port_type(port) == "thermocouple" && !is_undef(head_port_probe(port))
-      ? thermocouple_probe_thread(head_port_probe(port))
-      : undef
-  );
+// A row that head_ports_for() has resolved carries its own interface, and that pin wins: the lid
+// decided it once, and re-deriving it here would let a caller holding a resolved row disagree with
+// the lid it came off.
+function head_port_interface(port, uniform = false) =
+  !is_undef(head_port_pinned_interface(port))
+    ? head_port_pinned_interface(port)
+    : head_interface_for(
+        head_port_type(port),
+        head_port_bore_radius(port),
+        head_port_type(port) == "thermocouple" && !is_undef(head_port_probe(port))
+          ? thermocouple_probe_thread(head_port_probe(port))
+          : undef,
+        uniform
+      );
 
 // The biggest interface in use. The port circle has to clear the widest through-bore and the plug
 // groove the widest lock, so both derive from this rather than from whichever port is handy.
@@ -672,6 +711,7 @@ function head_port_function(port) = port[0]; // what it is for, and this table's
 function head_port_type(port) = port[1]; // how it is built
 function head_port_bore_radius(port) = port[2]; // through-hole, 0 where nothing passes
 function head_port_probe(port) = port[3]; // registered probe, "probe" entries only
+function head_port_pinned_interface(port) = port[4]; // set by head_ports_for(), undef on a raw row
 
 // Where the port with this purpose sits. Anything that needs a particular port asks for it by what
 // it does rather than by a number, so moving a port around the lid moves everything bound to it and
@@ -3673,6 +3713,22 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     _bore_gap >= lid_holes_offset,
     str(_n, " ports leave ", _bore_gap, " mm of lid between neighbouring bores; ", lid_holes_offset, " mm is the least this lid keeps.")
   );
+
+  // WHICH INTERFACES THIS LID ENDED UP WITH, because the answer is derived and a builder holding
+  // twelve identical ports should be able to see that it was meant. A uniform lid takes one face
+  // o-ring and any port takes any function; a mixed one is a narrow mouth paying for its width.
+  _iface_names = [for (p = _ports) bayonet_name(head_port_interface(p))];
+  _uniform = len([for (nm = _iface_names) if (nm != _iface_names[0]) nm]) == 0;
+
+  echo(str(
+    "port interfaces: ", _uniform ? str("all ", _n, " ports on ", _iface_names[0]) : str(_iface_names),
+    _uniform
+      ? str(" - so one face o-ring covers the lid and any port takes any function. It is free here: ",
+            "the worst adjacent pair is std-against-std whatever the small ports do, and it measures ",
+            _port_gap, " mm against a ", lid_flange_gap, " mm floor")
+      : str(" - this mouth cannot afford std on every port, so each takes the smallest that will do. ",
+            "The worst adjacent pair measures ", _port_gap, " mm against a ", lid_flange_gap, " mm floor")
+  ));
 
   // The motor mount stands on the same face as those flanges, so the ports have to clear it going
   // inward as well as clearing each other going around. Nothing checked this: on a narrow mouth the

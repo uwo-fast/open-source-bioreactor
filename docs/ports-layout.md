@@ -243,14 +243,26 @@ wrong: they assumed the ports could be arranged freely. They cannot, and the rea
 **Four baffles equally spaced on twelve ports sit every third port, which leaves no port that is not
 adjacent to one.** A probe therefore *must* touch a baffle, both are std, and the worst pair is
 14.1 + 14.1 whatever size the tubes are. Mixed port sizes do not move the twelve-port lid at all -
-`jar_10L`'s binding gap is 1.254 mm before and after - and **spreading the big ports so no two touch
+`jar_10L`'s binding gap is 1.0466 mm before and after - and **spreading the big ports so no two touch
 is not achievable at this port count and baffle spacing.** It is not a thing left to do; it is a
 thing that does not exist.
 
+**So the model stops paying for what it does not get.** `head_ports_uniform()` asks whether a lid can
+carry std on every port, and `head_interface_for()` gives it std throughout where the answer is yes.
+On `jar_10L` that is free to the millimetre - every figure `head()` reports is byte-identical either
+way - and it buys a lid where any port takes any function and one face o-ring covers all twelve.
+Five of the six registered vessels come out uniform.
+
 Where mixed sizing does pay is the reduced set, which has no baffles at all. Six ports all on std
-wants an 87.6 mm mouth; `jar_1p5L` has 87.5, and would miss by a tenth of a millimetre. With the
-tubes on mini it wants 77.6 and clears by ten. **The smallest jar in the family is buildable because
-of the mini interface and not otherwise.**
+wants an 87.6 mm mouth; `jar_1p5L` has 87.5, and would miss by a tenth of a millimetre - the model
+measures that miss as a 0.95 mm worst pair against a 1.0 mm floor. With the tubes on mini it wants
+77.6 and clears by ten. **The smallest jar in the family is buildable because of the mini interface
+and not otherwise, and it is now the only registered vessel that uses it.**
+
+What the uniform lid costs is not packing but CLEANING. On the mixed twelve-port lid four gaps are
+1.0466 mm and eight are 5.85 or 10.65; uniform makes all twelve 1.0466. That does not create the
+problem - the four tight gaps were always there - but it does make it the whole lid's rather than a
+corner of it. See TODO.md, which was already asking whether a cloth goes through 1.0466 mm.
 
 | set | ports | functions | worst pair | min mouth |
 | --- | --- | --- | --- | --- |

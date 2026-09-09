@@ -148,6 +148,11 @@ actually left. What was decided, and what this project got wrong on the way, is 
     full twelve-port set on **0.0466 mm** of slack, where it had 0.254. Nothing fails and the gate is
     green, but this is the number to check before any flange lip grows again - the next set that
     fits is the six-port one
+  - **and it is now every gap on the lid, not four of them.** The tube ports were on mini only
+    because the interface was picked per port; the twelve-port circle puts a probe beside a baffle
+    whatever they take, so the small flanges bought nothing and the lid is uniform std now. Packing
+    did not move - 1.0466 mm either way - but the eight roomy gaps of 5.85 and 10.65 mm went with
+    it. That is the trade the uniform lid made, and this is where it lands
   - still open, and unpriced: whether 1.0466 mm between two 5 mm tall flanges is enough to get a
     cloth into. If not, the lever is a thinner cord - a 23x1 EPDM (McMaster 8785N348, same line, not
     registered) takes the groove to 1.5 wide and Ø25.2, which buys the width back at 0.25 mm of
