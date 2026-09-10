@@ -19,7 +19,7 @@ ECHO: "culture headspace: 0.522245 L of gas space, filling 86.5% of capacity - A
 ECHO: "impeller: pbt_45_4 Po 1.52305 and flow number 0.920058 from Medek's correlation at 45 deg, extrapolated on ["T/D", "H/T", "baffle count"]"
 ECHO: "drive no-load 420 rpm: Re 31476.9, tip 1.47748 m/s, 0.713818 W into 3.34624 L = 213.32 W/m3 mean, 35.3206 W/kg peak, pair under 0.0324593 Nm of 0.4903 Nm rated"
 ECHO: "drive rated 320 rpm: Re 23982.4, tip 1.1257 m/s, 0.315711 W into 3.34624 L = 94.3481 W/m3 mean, 15.6218 W/kg peak, pair under 0.0188426 Nm of 0.4903 Nm rated"
-ECHO: "thermocouple: 3872K129 on 1/8 NPT, 152.4 mm reach, tip 90.9898 mm under the surface with 103.6 mm to the floor"
+ECHO: "thermocouple: 3872K129 on 1/8 NPT, tip 134.9 mm below the lid at 50% thread engagement - 73.4898 mm under the surface with 121.1 mm to the floor. Hand-tight to fully in spans 127.4 to 142.4 mm."
 ECHO: "probe: do_probe carries DO lab g2, reaching 151.597 mm - tip 90.1865 mm under the surface with 104.403 mm to the floor, leaning 4.5 deg"
 ECHO: "probe: ph_probe carries pH lab g2, reaching 197.438 mm - tip 136.027 mm under the surface with 58.5624 mm to the floor, leaning 0 deg"
 ECHO: "transfer no-load 420 rpm: blend to 95% in 3.62424 s; kLa 0.00886479 1/s coalescing, 0.0235388 1/s not, at 1.59282 mm/s superficial gas"
@@ -46,12 +46,12 @@ ECHO: "sparge holes: 8 x 3 mm at 33.9185 mm spacing; at 0.5 vvm that is 1.67312 
 ECHO: "sparge holes: capillary 96 Pa to launch a bubble against 0.405279 Pa to push gas through, so the holes will not all flow evenly - which Rewatkar & Joshi find does not matter near the impeller."
 ECHO: "reach clearance: do_probe's tip passes the upper impeller with 1.88837 mm of radial room, over the -134.513 to -122.184 mm the two share"
 ECHO: "reach clearance: ph_probe's tip passes the lower impeller with -6.2925 mm of radial room, over the -201.698 to -189.369 mm the two share"
-ERROR: Assertion '(_gap > 0)' failed: "ph_probe's tip runs through the lower impeller by 6.2925 mm radially, over the heights they share. Both are drawn, so this is parts in the same space rather than a margin being thin." in file head.scad, line 3162
-TRACE: called by 'assert' in file head.scad, line 3162
-TRACE: called by 'if' in file head.scad, line 3156
-TRACE: called by 'let' in file head.scad, line 3155
-TRACE: called by 'for' in file head.scad, line 3154
-TRACE: called by 'for' in file head.scad, line 3153
+ERROR: Assertion '(_gap > 0)' failed: "ph_probe's tip runs through the lower impeller by 6.2925 mm radially, over the heights they share. Both are drawn, so this is parts in the same space rather than a margin being thin." in file head.scad, line 3192
+TRACE: called by 'assert' in file head.scad, line 3192
+TRACE: called by 'if' in file head.scad, line 3186
+TRACE: called by 'let' in file head.scad, line 3185
+TRACE: called by 'for' in file head.scad, line 3184
+TRACE: called by 'for' in file head.scad, line 3183
 TRACE: called by 'head' in file assembly.scad, line 529
 TRACE: called by 'translate' in file assembly.scad, line 528
 TRACE: called by 'children' in file assembly.scad, line 499

@@ -11,7 +11,7 @@ ECHO: "culture headspace: 0.217522 L of gas space, filling 86.5% of capacity - A
 ECHO: "impeller: pbt_45_4 Po 1.58333 and flow number 0.98636 from Medek's correlation at 45 deg, extrapolated on ["T/D", "H/T", "baffle count"]"
 ECHO: "drive no-load 420 rpm: Re 14467.9, tip 1.00167 m/s, 0.106286 W into 1.39375 L = 76.259 W/m3 mean, 16.7141 W/kg peak, pair under 0.00483313 Nm of 0.4903 Nm rated"
 ECHO: "drive rated 320 rpm: Re 11023.2, tip 0.763181 m/s, 0.0470087 W into 1.39375 L = 33.7282 W/m3 mean, 7.39239 W/kg peak, pair under 0.00280563 Nm of 0.4903 Nm rated"
-ECHO: "thermocouple: 3872K129 on 1/8 NPT, 152.4 mm reach, tip 109.104 mm under the surface with 66.6 mm to the floor"
+ECHO: "thermocouple: 3872K129 on 1/8 NPT, tip 134.9 mm below the lid at 50% thread engagement - 91.6036 mm under the surface with 84.1 mm to the floor. Hand-tight to fully in spans 127.4 to 142.4 mm."
 ECHO: "probe: do_probe carries DO lab g2, reaching 151.548 mm - tip 108.251 mm under the surface with 67.4521 mm to the floor, leaning 0.1 deg"
 ECHO: "probe: ph_probe carries pH lab g2, reaching 197.438 mm - tip 154.141 mm under the surface with 21.5624 mm to the floor, leaning 0 deg"
 ECHO: "transfer no-load 420 rpm: blend to 95% in 3.94095 s; kLa 0.00559217 1/s coalescing, 0.0112334 1/s not, at 1.44338 mm/s superficial gas"
@@ -42,7 +42,6 @@ ECHO: "reach clearance: ph_probe's tip passes the lower impeller with 0.3755 mm 
 ECHO: "reach clearance: ph_probe's tip passes the upper impeller with 0.3755 mm of radial room, over the -137.092 to -127.822 mm the two share"
 ECHO: "reach clearance: ph_probe's tip passes the sparge ring with 0.42269 mm of radial room, over the -154.695 to -147.768 mm the two share"
 ECHO: "reach clearance: the thermocouple passes the upper impeller with 4.788 mm of radial room, over the -137.092 to -127.822 mm the two share"
-ECHO: "reach clearance: the thermocouple passes the sparge ring with 4.83519 mm of radial room, over the -154.695 to -147.768 mm the two share"
 ECHO: "DO probe feed no-load 420 rpm: the vessel turns over at 101.676 mm/s mean and the probe needs 8.84194 mm/s past its face - 11.4992x. MEAN, not local: it says the tank moves, not that this corner of it does"
 ECHO: "DO probe feed rated 320 rpm: the vessel turns over at 77.4671 mm/s mean and the probe needs 8.84194 mm/s past its face - 8.76132x. MEAN, not local: it says the tank moves, not that this corner of it does"
 ECHO: "DO probe in the gas: its face sits -0.306001 mm above the sparge ring's centreline and 9.65328 mm off its radius. Where the bubbles actually go is a bench question - the holes point inward, toward the impeller, and the impeller disperses what it catches - so nothing here models it."
@@ -64,6 +63,6 @@ ECHO: "gas supply: ReSun 35W's free flow and dead head cannot be simultaneous - 
 ECHO: "gas against the impeller: axial pumping needs 8x the gas stream's power to hold its flow pattern, which at 420 rpm caps aeration at 0.346212 vvm"
 ECHO: "WARNING gas: 0.5 vvm is above the 0.346212 vvm at which the gas stream starts to negate this impeller's pumping. Run faster, or a radial impeller would take 0.923231 vvm at the same power."
 ECHO: "port interfaces: ["std", "mini", "mini", "mini", "std", "mini"] - this mouth cannot afford std on every port, so each takes the smallest that will do. The worst adjacent pair measures 5.75 mm against a 1 mm floor"
-ERROR: Assertion '(_mount_to_ports >= lid_holes_offset)' failed: "Motor mount is 56 mm across and the port flanges reach in to r 15.05, leaving -12.95 mm between them; 2 mm is the least this lid keeps." in file head.scad, line 3761
-TRACE: called by 'assert' in file head.scad, line 3761
-TRACE: called by 'head' in file head.scad, line 4373
+ERROR: Assertion '(_mount_to_ports >= lid_holes_offset)' failed: "Motor mount is 56 mm across and the port flanges reach in to r 15.05, leaving -12.95 mm between them; 2 mm is the least this lid keeps." in file head.scad, line 3791
+TRACE: called by 'assert' in file head.scad, line 3791
+TRACE: called by 'head' in file head.scad, line 4403

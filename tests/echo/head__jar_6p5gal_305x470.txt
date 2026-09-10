@@ -11,7 +11,7 @@ ECHO: "culture headspace: 3.18678 L of gas space, filling 86.5% of capacity - AB
 ECHO: "impeller: pbt_45_4 Po 1.50469 and flow number 0.900269 from Medek's correlation at 45 deg, extrapolated on ["T/D", "H/T", "baffle count"]"
 ECHO: "drive no-load 420 rpm: Re 111344, tip 2.7788 m/s, 16.5961 W into 20.419 L = 812.778 W/m3 mean, 123.809 W/kg peak, pair under 0.754674 Nm of 0.4903 Nm rated"
 ECHO: "drive rated 320 rpm: Re 84833.6, tip 2.11718 m/s, 7.34022 W into 20.419 L = 359.48 W/m3 mean, 54.7588 W/kg peak, pair under 0.438087 Nm of 0.4903 Nm rated"
-ECHO: "thermocouple: 3872K129 on 1/8 NPT, 152.4 mm reach, tip 26.7627 mm under the surface with 313.5 mm to the floor"
+ECHO: "thermocouple: 3872K129 on 1/8 NPT, tip 134.9 mm below the lid at 50% thread engagement - 9.26267 mm under the surface with 331 mm to the floor. Hand-tight to fully in spans 127.4 to 142.4 mm."
 ECHO: "probe: do_probe carries DO lab g2, reaching 151.597 mm - tip 25.9594 mm under the surface with 314.303 mm to the floor, leaning 4.5 deg"
 ECHO: "probe: ph_probe carries pH lab g2, reaching 197.438 mm - tip 71.8003 mm under the surface with 268.462 mm to the floor, leaning 0 deg"
 ECHO: "transfer no-load 420 rpm: blend to 95% in 3.53558 s; kLa 0.0198814 1/s coalescing, 0.0669583 1/s not, at 2.7477 mm/s superficial gas"

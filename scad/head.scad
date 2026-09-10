@@ -487,6 +487,14 @@ encoder_speed_window = 0.1;
 // height of the thermocouple mount
 thermocouple_mount_height = 20;
 
+// How far the probe threads into that mount, as a fraction of its own threaded body - the two
+// registered probes differ, 20 mm of thread on the 1/2 NPT and 15 on the 1/8. NPT is tapered, so it
+// wedges rather than bottoming out and where it stops is an assembly fact, not a design one: 0.5 is
+// hand-tight on a printed thread, reported from the bench. Wrenching deeper is not worth the risk
+// to a printed boss, and nothing here needs it.
+// Fraction of the probe's threaded body engaged in its mount, 0 to 1.
+thermocouple_thread_engagement = 0.5;
+
 /* [Bayonet Lock Parameters] */
 
 // how to draw each port on its lock: "locked" as assembled, or "entry" as it sits on
@@ -1426,10 +1434,23 @@ function head_probe_tilt_ceiling(probe, vessel_opening_diameter, lid_flange_heig
 
 // The thermocouple hangs straight, and the length that is in the vessel is all sensing tip - its
 // body is up in the NPT boss. So it is one run with no lean.
+// How far below the lid's OUTER face the tip lands - the datum head_floor_depth and the culture
+// surface are already on, so the three are comparable.
+//
+// tip_height is the SHEATH, measured from the end of the threads, so it starts at the boss rather
+// than at the lid: the flange and the mount stand between them and only the engaged part of the
+// thread is won back. Read raw it overstates the depth by 25 mm less whatever is engaged.
+function head_thermocouple_depth(probe, iface, engagement = thermocouple_thread_engagement) =
+  thermocouple_probe_tip_height(probe)
+  - bayonet_flange_height(iface)
+  - thermocouple_mount_height
+  + thermocouple_probe_body_height(probe) * engagement;
+
 function head_thermocouple_run(probe, vessel_opening_diameter, lid_flange_height) =
   [
     [head_port_circle_radius(vessel_opening_diameter), -head_lid_thickness(lid_flange_height)],
-    [head_port_circle_radius(vessel_opening_diameter), -thermocouple_probe_tip_height(probe)],
+    [head_port_circle_radius(vessel_opening_diameter),
+     -head_thermocouple_depth(probe, head_interface_for("thermocouple", 0, thermocouple_probe_thread(probe)))],
     thermocouple_probe_tip_dia(probe) / 2,
   ];
 
@@ -2434,30 +2455,39 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   _tc_port = [for (q = _ports) if (head_port_type(q) == "thermocouple") q];
 
   if (len(_tc_port) > 0) {
-    _tc_reach = thermocouple_probe_tip_height(head_port_probe(_tc_port[0]));
+    _tc_probe = head_port_probe(_tc_port[0]);
+    _tc_iface = head_port_interface(_tc_port[0]);
+    _tc_reach = head_thermocouple_depth(_tc_probe, _tc_iface);
     _tc_floor = head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height);
     _tc_surface = _tc_floor - vessel_punt_height - _liquid_height;
+    // Engagement is what the fitter does, not what this file decides, so both bounds are checked
+    // rather than the one it happens to sit at. They are conservative at OPPOSITE ends: fully in is
+    // the deepest and can reach the floor, barely in is the shallowest and can miss the culture.
+    _tc_deepest = head_thermocouple_depth(_tc_probe, _tc_iface, 1);
+    _tc_shallowest = head_thermocouple_depth(_tc_probe, _tc_iface, 0);
 
     echo(str(
-      "thermocouple: ", thermocouple_probe_part_number(head_port_probe(_tc_port[0])), " on ",
-      npt_thread_name(thermocouple_probe_thread(head_port_probe(_tc_port[0]))),
-      ", ", _tc_reach, " mm reach, tip ", _tc_reach - _tc_surface,
-      " mm under the surface with ", _tc_floor - _tc_reach, " mm to the floor"
+      "thermocouple: ", thermocouple_probe_part_number(_tc_probe), " on ",
+      npt_thread_name(thermocouple_probe_thread(_tc_probe)),
+      ", tip ", _tc_reach, " mm below the lid at ", thermocouple_thread_engagement * 100,
+      "% thread engagement - ", _tc_reach - _tc_surface, " mm under the surface with ",
+      _tc_floor - _tc_reach, " mm to the floor. Hand-tight to fully in spans ",
+      _tc_shallowest, " to ", _tc_deepest, " mm."
     ));
 
     assert(
-      _tc_reach < _tc_floor,
+      _tc_deepest < _tc_floor,
       str(
-        "Thermocouple reaches ", _tc_reach, " mm but the floor is ", _tc_floor,
-        " mm below the lid, so the tip would be ", _tc_reach - _tc_floor, " mm through it."
+        "Thermocouple reaches ", _tc_deepest, " mm fully threaded but the floor is ", _tc_floor,
+        " mm below the lid, so the tip would be ", _tc_deepest - _tc_floor, " mm through it."
       )
     );
 
     assert(
-      _tc_reach > _tc_surface,
+      _tc_shallowest > _tc_surface,
       str(
-        "Thermocouple reaches ", _tc_reach, " mm and the culture starts ", _tc_surface,
-        " mm below the lid, so the tip sits in the headspace and reads gas, not broth."
+        "Thermocouple reaches ", _tc_shallowest, " mm barely threaded and the culture starts ",
+        _tc_surface, " mm below the lid, so the tip can sit in the headspace and read gas, not broth."
       )
     );
   }
