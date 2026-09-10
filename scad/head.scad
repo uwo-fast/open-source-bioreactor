@@ -7,6 +7,7 @@
 */
 
 use <utils/bolt_pattern.scad>;
+use <utils/facets.scad>;
 use <utils/elastomer.scad>;
 use <utils/oring_gland.scad>;
 use <utils/stirred_tank.scad>;
@@ -17,9 +18,6 @@ use <custom/gasket_cutter.scad>;
 
 use <custom/motor_mount.scad>;
 use <custom/bayonet_port.scad>;
-use <custom/bayonet_probe_port.scad>;
-use <custom/bayonet_thermocouple_port.scad>;
-use <custom/bayonet_baffle_port.scad>;
 use <custom/impeller.scad>;
 use <custom/sparger.scad>;
 
@@ -57,7 +55,7 @@ use <NopSCADlib/vitamins/shaft_coupling.scad>;
 // came out as. use, not include, so none of the frame's geometry comes with them.
 use <frame.scad>;
 
-// Internals and tessellation, which are not build choices. See head_fa() below.
+// Internals and tessellation, which are not build choices. See utils/facets.scad.
 /* [Hidden] */
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 // Tessellate by feature size, as bayonet_port.scad already does. A flat 128 was wrong at both
@@ -70,11 +68,9 @@ z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 // caller's - so a head rendered from assembly.scad would otherwise tessellate to assembly's flat
 // 64/128 on a newer binary. Measured: 202,158 triangles against 36,974, and -0.038% of volume as
 // the small bores inscribe. Both binaries are on this machine.
-function head_fa() = $preview ? 6 : 2;
-function head_fs() = $preview ? 1.2 : 0.6;
 $fn = 0;
-$fa = head_fa();
-$fs = head_fs();
+$fa = facet_angle();
+$fs = facet_size();
 
 /* [Part Render Selection] */
 
@@ -1942,11 +1938,11 @@ module head_port(port, panel_thickness, baffle_width, baffle_length, baffle_segm
 
 module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, vessel_internal_height, vessel_punt_height, joint_outer_diameter, post_pts, post_hole_diameter, vessel_profile, lip_arc_radius, build = []) {
 
-  // THIS FILE'S TESSELLATION, whatever the caller set - see head_fa() above for why it has to be
+  // THIS FILE'S TESSELLATION, whatever the caller set - see utils/facets.scad for why it has to be
   // said twice rather than inherited.
   $fn = 0;
-  $fa = head_fa();
-  $fs = head_fs();
+  $fa = facet_angle();
+  $fs = facet_size();
 
   // Resolved before anything reads them. An empty build is head.scad's own parameters, which is
   // what this file renders standalone.

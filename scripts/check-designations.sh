@@ -6,7 +6,7 @@
 
 # A designation is a string a build states and a registry answers to - the vessel, the shaft,
 # the plug o-ring, the light, the two probes. Nothing else in the suite exercises one:
-# check-vessels sweeps jars, check-scad renders defaults, and a lookup that quietly returned
+# check-echo sweeps jars, check-scad renders defaults, and a lookup that quietly returned
 # undef for every name would pass both. That is not hypothetical - nine by_name wrappers shipped
 # once with no `use <../utils/registries.scad>`, every one answering undef, and the round-trip
 # test meant to catch it passed because it included a file whose own `use` leaked the function in.

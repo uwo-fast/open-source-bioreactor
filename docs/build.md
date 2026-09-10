@@ -33,7 +33,7 @@ Three figures in particular are bands rather than measurements, and all three ar
 Two of the six registered vessels do not build at all. Neither `jar_1p5L_109x215` nor
 `jar_1gal_155x251` can carry a top-entry drive on its lid at any mount size, and the second fails
 earlier still — a vertical DO probe runs through the upper impeller, because in a 155 mm bore the
-port circle and the impeller want the same radius. `just check-vessels` records both, and the
+port circle and the impeller want the same radius. `just check-echo` records both, and the
 answer to both is a different agitation mode rather than a smaller part.
 
 ---

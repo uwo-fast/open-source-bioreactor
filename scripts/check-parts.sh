@@ -64,10 +64,11 @@ done
 exported=(scad/head.scad scad/frame.scad)
 not_exported=(
     scad/assembly.scad                          # the whole reactor as a picture, not a part
-    scad/custom/bayonet_baffle_port.scad        # a COMPONENT: head.scad renders it into a
-    scad/custom/bayonet_port.scad               # manifest row of its own, so it reaches a print
-    scad/custom/bayonet_probe_port.scad         # list through head rather than on its own. Its
-    scad/custom/bayonet_thermocouple_port.scad  # standalone render is a preview of the part,
+    scad/custom/bayonet_port.scad               # a COMPONENT, and now all four port kinds: head
+                                                # renders each into a manifest row of its own, so
+                                                # they reach a print list through head rather than
+                                                # on their own. The standalone render previews all
+                                                # four side by side,
     scad/custom/cylindrical_flex_collet.scad    # not a second copy of it
     scad/custom/gasket_cutter.scad
     scad/custom/impeller.scad

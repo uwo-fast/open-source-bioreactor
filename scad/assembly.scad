@@ -134,7 +134,7 @@ export_at_origin = false;
 // flange - and head() now RE-ASSERTS that inside its own body, so this line cannot reach it on any
 // binary. It used to: $fn is dynamically scoped and `use` resolves it per version, 2021.01 from
 // the callee's file and 2026.09 from the caller's, which put the head at 64 through this file and
-// 0 rendered alone. See head_fa() in head.scad.
+// 0 rendered alone. See utils/facets.scad.
 $fn = $preview ? 64 : 128;
 
 // Cut the preview in half to see inside; ignored on a render

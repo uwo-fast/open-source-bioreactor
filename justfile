@@ -44,8 +44,7 @@ export MESH_SKIP := "scad/assembly.scad scad/cart.scad scad/frame.scad scad/head
 ENTRY_CUSTOMIZED := "scad/assembly.scad scad/head.scad scad/frame.scad"
 
 export ENTRY := "scad/assembly.scad scad/bottle_holder.scad scad/cart.scad scad/electronics_stand.scad \
-scad/frame.scad scad/head.scad scad/custom/bayonet_baffle_port.scad scad/custom/bayonet_port.scad \
-scad/custom/bayonet_probe_port.scad scad/custom/bayonet_thermocouple_port.scad \
+scad/frame.scad scad/head.scad scad/custom/bayonet_port.scad \
 scad/custom/cylindrical_flex_collet.scad scad/custom/gasket_cutter.scad \
 scad/custom/gasket_cutter_v2.scad scad/custom/impeller.scad \
 scad/custom/motor_mount.scad scad/custom/peri_pump_frame_mount.scad \
@@ -66,7 +65,7 @@ setup:
     @scripts/install-libraries.sh
 
 # Everything CI runs.
-check: fmt-check lint check-recipes check-echo check-scad check-vessels check-designations check-json check-bom check-parts check-customizer
+check: fmt-check lint check-recipes check-echo check-scad check-designations check-json check-bom check-parts check-customizer
 
 # Prettier owns markdown, JSON and YAML; ruff owns the analysis Python. NOTHING formats
 # SCAD - no formatter understands it, and the registries say DO NOT FORMAT in the files
@@ -132,8 +131,12 @@ check-customizer:
 #
 # Pins the whole reported surface: 3 entry files x 5 registered vessels, byte for byte. The
 # refactor ahead moves derived numbers between files, and this is the only thing that can say
-# a number did not change while its home did. Cells that ERROR are pinned too - what the model
-# says on the way to failing is also a claim.
+# a number did not change while its home did.
+#
+# It also replaces check-vessels, which swept the same 15 cells to ask a weaker question. Cells
+# that ERROR are pinned like any other, so a vessel that stops building AND one that starts both
+# turn this red - and the reason printed is the assert's own message rather than a hand-written
+# list that could go stale against it.
 #
 # Fail when any entry file's echo stream moves against its committed transcript.
 check-echo:
@@ -154,11 +157,6 @@ check-recipes:
 # Evaluate every SCAD file and report anything that does not build.
 check-scad:
     @scripts/check-scad.sh
-
-# Render every entry file against every registered vessel, not just the selected one.
-check-vessels:
-    @scripts/check-vessels.sh
-
 # Lines of code, comment and blank, per language.
 #
 # NOT PART OF `just check`, and not a gate on anything. It reports; a number that cannot fail is
@@ -275,7 +273,7 @@ check-json:
 # OpenSCAD picks up <file>.json automatically, so the presets appear in the customizer's dropdown,
 # and `openscad -p <file>.json -P <vessel> ...` selects one from a script.
 #
-# Generated from the registry rather than written by hand, for the same reason check-vessels sweeps
+# Generated from the registry rather than written by hand, for the same reason check-echo sweeps
 # it: adding a jar should add it everywhere it belongs and nowhere should have to be remembered.
 # The recipe also checks every dropdown annotation in each file against the registry it draws from,
 # which is the one place a registry's names are still duplicated - a comment cannot be derived, but

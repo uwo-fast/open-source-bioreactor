@@ -183,7 +183,7 @@ in, outward, away from the shaft. Two reasons it is not zero:
 
 Both angles are **per-build**, on the same footing as `culture_fill_fraction`: 4.5° is what
 `jar_10L` allows, and `jar_1gal_180x197` is shorter, so its own ceiling is nearer 2.5°.
-`check-vessels` sweeps the registry with both flat, because vertical clears every jar.
+`check-echo` sweeps the registry with both flat, because vertical clears every jar.
 
 What checks this is `scad/utils/meridian.scad`. The vessel's obstructions are axisymmetric — an
 impeller sweeps a cylinder, the ring is an annulus — and a port's tilt never leaves its meridian, so

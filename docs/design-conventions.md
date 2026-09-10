@@ -146,7 +146,7 @@ stable one exists, and `undef` with the reason where it does not; provenance tra
 value; and a `*_by_name()` lookup wherever the part is designatable. Data-only registries — rows
 that carry numbers and draw nothing — are legitimate.
 
-**Only REAL parts go in the swept list.** The list is what `check-vessels` and the sweeps build
+**Only REAL parts go in the swept list.** The list is what `check-echo` and the sweeps build
 against, so what sits in it is a claim about hardware.
 
 A **placeholder** — a row describing nothing anyone ever bought, like `generic_vessel` or a
