@@ -27,8 +27,8 @@
 // would leave every thread undef and every port sized as if it had none.
 include <../utils/npt_threads.scad>;
 
-//                                     ["name"               part_no      thread     [neck_d, neck_h, flats_h, body_h, tip_d,  tip_h,  wire_d, wire_h]]
-generic_thermocouple_probe =           ["generic",           "",          npt_1_2,   [10,     12,     5,       20,     3.5,    115,    2.5,    10    ]];
+//                                       ["name"               part_no      thread     [neck_d, neck_h, flats_h, body_h, tip_d,  tip_h,  wire_d, wire_h]]
+generic_thermocouple_probe =             ["generic",           "",          npt_1_2,   [10,     12,     5,       20,     3.5,    115,    2.5,    10    ]];
 
 // 1/8 NPT male - the small-mount option, and the only one a reduced-size port can take.
 mcmaster_3872K127_thermocouple_probe   = ["mcmaster_3872K127",  "3872K127",  npt_1_8,  [6,      10,     4,       15,     3.175,  76.2,   3,      25   ]];  // 3 in x 1/8 in
