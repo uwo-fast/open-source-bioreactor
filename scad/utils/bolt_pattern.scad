@@ -50,7 +50,7 @@ function bolt_post_spacing(n_posts, pattern_diameter) = PI * pattern_diameter / 
  * @brief ISO 261 coarse thread pitch for a nominal diameter, mm. undef for a size not listed.
  *
  * NopSCADlib's screw rows carry no pitch and a turn past snug needs one - see
- * utils/gasket_load.scad. Looked up from the diameter rather than registered beside the bolt,
+ * utils/elastomer.scad. Looked up from the diameter rather than registered beside the bolt,
  * because a pitch written down next to an M8 stays 1.25 after someone changes the bolt to an M6.
  */
 function bolt_coarse_pitch(diameter) =

@@ -7,11 +7,11 @@
 */
 
 use <utils/bolt_pattern.scad>;
+use <utils/elastomer.scad>;
 use <utils/oring_gland.scad>;
 use <utils/stirred_tank.scad>;
 use <utils/gas_supply.scad>;
 use <utils/meridian.scad>;
-use <utils/gasket_load.scad>;
 use <custom/sheet_gasket.scad>;
 use <custom/gasket_cutter.scad>;
 
@@ -1253,12 +1253,11 @@ function head_gasket_outer_radius(vessel_opening_diameter, vessel_wall_thickness
 // the sink, and a wider gasket does not widen it. Sink is taken as the same fraction of thickness
 // the recess would have squeezed out on a flat, which is what "25% squeeze" means once there is no
 // land to bottom on.
-function head_lip_sink(sheet) =
-  gasket_sheet_thickness(head_gasket_sheet(sheet)) * lid_gasket_compression;
 function head_lip_contact_width(vessel_wall_thickness, rim_arc_radius, sheet) =
   head_lip_is_flat(rim_arc_radius)
     ? head_gasket_width(vessel_wall_thickness, rim_arc_radius)
-    : let (_d = head_lip_sink(sheet))
+    // The crown is rigid, so what it sinks into the gasket is the travel itself.
+    : let (_d = head_gasket_travel(sheet))
         2 * sqrt(max(2 * rim_arc_radius * _d - _d * _d, 0));
 
 // and where that band sits: on a crown it is centred on the crown, not on the gasket.
@@ -1270,7 +1269,7 @@ function head_lip_contact_mean_diameter(vessel_opening_diameter, vessel_wall_thi
 
 // What the joint has to hold. Exported because the gasket is the head's to choose and the bolt
 // count is the assembly's, so the force crosses that boundary as one number - see
-// utils/gasket_load.scad on why it is reported rather than asserted on.
+// utils/elastomer.scad on why it is reported rather than asserted on.
 // Built on the CONTACT band rather than the gasket's width, which on a crowned lip are different
 // numbers. Getting this wrong overstates the force on four of the five jars, and it is the number
 // the joint's bolt count is derived from.
@@ -1285,7 +1284,8 @@ function head_gasket_seating_force(vessel_opening_diameter, vessel_wall_thicknes
 function head_gasket_depth(sheet) = gasket_sheet_thickness(head_gasket_sheet(sheet)) * (1 - lid_gasket_compression);
 // The other part of the same sheet: what the recess keeps against what the joint has to move. Two
 // halves of one thickness, so neither is free to drift from the other.
-function head_gasket_travel(sheet) = gasket_sheet_thickness(head_gasket_sheet(sheet)) * lid_gasket_compression;
+function head_gasket_travel(sheet) =
+  gasket_sheet_thickness(head_gasket_sheet(sheet)) * lid_gasket_compression;
 
 // Gasket factor m, ASME BPVC.VIII.1-2019 Table 2-5.1 p.399, read from the standard: 0 for a
 // self-energizing type (o-rings), 0.50 below 75A Shore, 1.00 at or above. Its y column, the minimum
@@ -1446,11 +1446,13 @@ function head_thermocouple_depth(probe, iface, engagement = thermocouple_thread_
   - thermocouple_mount_height
   + thermocouple_probe_body_height(probe) * engagement;
 
-function head_thermocouple_run(probe, vessel_opening_diameter, lid_flange_height) =
+// Takes the interface the lid PINNED rather than re-deriving one: on jar_6p5gal_305x470 and
+// jar_1gal_155x251 a uniform lid pins std where smallest-that-fits gives mini, and this run feeds
+// the impeller-collision assert. See head_port_interface on why a resolved row's pin wins.
+function head_thermocouple_run(probe, iface, vessel_opening_diameter, lid_flange_height) =
   [
     [head_port_circle_radius(vessel_opening_diameter), -head_lid_thickness(lid_flange_height)],
-    [head_port_circle_radius(vessel_opening_diameter),
-     -head_thermocouple_depth(probe, head_interface_for("thermocouple", 0, thermocouple_probe_thread(probe)))],
+    [head_port_circle_radius(vessel_opening_diameter), -head_thermocouple_depth(probe, iface)],
     thermocouple_probe_tip_dia(probe) / 2,
   ];
 
@@ -2471,8 +2473,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       npt_thread_name(thermocouple_probe_thread(_tc_probe)),
       ", tip ", _tc_reach, " mm below the lid at ", thermocouple_thread_engagement * 100,
       "% thread engagement - ", _tc_reach - _tc_surface, " mm under the surface with ",
-      _tc_floor - _tc_reach, " mm to the floor. Hand-tight to fully in spans ",
-      _tc_shallowest, " to ", _tc_deepest, " mm."
+      _tc_floor - _tc_reach, " mm to the floor. Not threaded at all to fully in spans ",
+      _tc_shallowest, " to ", _tc_deepest, " mm, which is the band the asserts test."
     ));
 
     assert(
@@ -2486,7 +2488,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     assert(
       _tc_shallowest > _tc_surface,
       str(
-        "Thermocouple reaches ", _tc_shallowest, " mm barely threaded and the culture starts ",
+        "Thermocouple reaches ", _tc_shallowest, " mm not threaded in at all, and the culture starts ",
         _tc_surface, " mm below the lid, so the tip can sit in the headspace and read gas, not broth."
       )
     );
@@ -2805,8 +2807,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     "bearing seal: ", oring_name(bearing_oring), " on the ", bb_name(shaft_bearing), "'s ",
     bb_diameter(shaft_bearing), " mm rim at ", _bearing_seal_stretch * 100, "% stretch, in a groove to ",
     head_bearing_gland_diameter(), " mm - ",
-    (oring_cross_section(bearing_oring) - (head_bearing_gland_diameter() - bb_diameter(shaft_bearing)) / 2)
-      / oring_cross_section(bearing_oring) * 100,
+    oring_rod_gland_squeeze(bb_diameter(shaft_bearing), head_bearing_gland_diameter(),
+                  oring_cross_section(bearing_oring)) * 100,
     "% radial squeeze, and ", _insert_to_bearing, " mm from the nearest mount insert"
   ));
 
@@ -3173,7 +3175,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       ? []
       : [[
         "the thermocouple",
-        head_thermocouple_run(head_port_probe(_tc_port[0]), vessel_opening_diameter, lid_flange_height),
+        head_thermocouple_run(head_port_probe(_tc_port[0]), head_port_interface(_tc_port[0]),
+                              vessel_opening_diameter, lid_flange_height),
       ]]
   );
 
@@ -3337,8 +3340,14 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // the lid carries no load and the length inside the lid is supported. Using the whole tube here
   // understated the stiffness by the cube of the ratio.
   _riser_I = steel_tube_second_moment(sparge_riser_tube);
+  // The SUPPORT tube's free span, which is the compliant one: the feed's socket sits higher, so its
+  // tube is shorter and stiffer by the cube of the ratio. Reporting the softer of the two is the
+  // conservative reading of how far the ring can sway.
   _riser_free = -lid_thickness - _sparge_socket_top;
   _riser_k = 3 * steel_tube_modulus() * _riser_I / pow(_riser_free, 3);
+  // What holds the ring when nothing else does, on its own datum rather than a support's.
+  _feed_free = -lid_thickness - _sparge_socket_top_feed;
+  _feed_k = 3 * steel_tube_modulus() * _riser_I / pow(_feed_free, 3);
 
   // Where to drill a support tube, which is a hand operation the model is nonetheless the only
   // thing that can dimension - it is the only one that knows where the culture stops. A support
@@ -3364,8 +3373,9 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   echo(str(
     "sparge support: ", 1 + len(_sparge_support_angles), " tubes at ",
-    concat([_sparge_feed_angle], _sparge_support_angles), " deg; ", _riser_free,
-    " mm of free tube each, so one is ", _riser_k,
+    concat([_sparge_feed_angle], _sparge_support_angles), " deg; the ", len(_sparge_support_angles),
+    " supports have ", _riser_free, " mm of free tube and the feed ", _feed_free,
+    " mm, so a support is ", _riser_k,
     " N/mm, so ", 1 / _riser_k, " mm of sway per newton against ",
     head_ring_baffle_gap(vessel_opening_diameter, impeller_diameter), " mm to the baffles"
   ));
@@ -3373,7 +3383,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   if (len(_sparge_support_angles) == 0)
     echo(str(
       "WARNING sparge support: the ring hangs on the feed riser alone. ",
-      head_ring_baffle_gap(vessel_opening_diameter, impeller_diameter) * _riser_k,
+      head_ring_baffle_gap(vessel_opening_diameter, impeller_diameter) * _feed_k,
       " N sideways closes its gap to the baffles."
     ));
 
@@ -3406,8 +3416,8 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // Measured off the gland the port actually cuts rather than repeating the squeeze it was cut at,
   // and against the TUBE rather than the ring's own ID, which is the diameter it really seals on.
   _riser_seal_squeeze =
-    1 - (bayonet_bore_gland_radius(tube_port_riser_oring) - steel_tube_od(sparge_riser_tube) / 2)
-        / oring_cross_section(tube_port_riser_oring);
+    oring_rod_gland_squeeze(steel_tube_od(sparge_riser_tube), 2 * bayonet_bore_gland_radius(tube_port_riser_oring),
+                  oring_cross_section(tube_port_riser_oring));
 
   _riser_port_bore =
     head_port_bore_radius(head_ports_for(vessel_opening_diameter)[head_sparge_feed_port(vessel_opening_diameter)]) * 2;
@@ -3458,7 +3468,6 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   // It is bought as a length of stock and cut, not as a part per tube, so the purchase list needs
   // the stock and the cut list rather than a quantity - which is what this line gives it.
-  _riser_count = 1 + len(_sparge_support_angles);
   _riser_total = _sparge_feed_length + len(_sparge_support_angles) * _sparge_riser_length;
   _riser_stock = steel_tube_stock_for(_riser_total, 1);
 
@@ -3868,14 +3877,14 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       : str(
         "crowned on a ", lip_arc_radius, " mm arc standing ",
         2 * lip_arc_radius - vessel_wall_thickness, " mm proud of the wall - no flat to seat on, so ",
-        "the gasket covers the lip and the crown sinks ", head_lip_sink(_gasket_sheet), " mm into it"
+        "the gasket covers the lip and the crown sinks ", head_gasket_travel(_gasket_sheet), " mm into it"
       ),
     "; ", _gasket_w, " mm of gasket, ", _lip_band, " mm of contact"
   ));
 
   // The only load in the reactor, so it is worth saying out loud. Reported and never asserted on:
   // the modulus is correlated from the sheet's hardness rather than measured. See
-  // utils/gasket_load.scad. Taken over the CONTACT band, which on a crowned lip is narrower than
+  // utils/elastomer.scad. Taken over the CONTACT band, which on a crowned lip is narrower than
   // the gasket - reading it off the width overstates the area and understates the stress.
   echo(str(
     "lid gasket load: ", _lip_band, " mm of contact, ", _gasket_force, " N to hold ",

@@ -601,7 +601,7 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
   - **and the crown's travel is bounded by the same identity**: the gasket stands `t*c` proud and the
     crown sinks `t*c`, so design compression arrives exactly when the crown has taken up all the
     proud rubber
-  - **the load model's objection is `jar_6p5gal`'s alone now.** `gasket_shape_factor()` is the
+  - **the load model's objection is `jar_6p5gal`'s alone now.** `elastomer_shape_factor()` is the
     free-bulge form and is handed the CONTACT band - on a crown that is a chord with unconfined
     rubber either side, close to what free bulge assumes; on the flat jar the pad fills its recess
     and the walls are where it assumes bulging. That jar also carries the registry's highest load,

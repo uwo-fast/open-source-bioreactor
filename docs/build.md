@@ -396,10 +396,10 @@ lid wants sixteen.
 
 ### How good is 351.0 N?
 
-Not very, and the model says so. `gasket_shape_factor()` is the free-bulge form — it assumes both
+Not very, and the model says so. `elastomer_shape_factor()` is the free-bulge form — it assumes both
 edges of the pad can spread, and the recess walls are exactly where they cannot. The modulus behind
 it is correlated from hardness rather than measured. So 351.0 N and 2.78 MPa are figures for judging
-a design, not for cutting a part to, and `gasket_load.scad` says as much at the top of the file.
+a design, not for cutting a part to, and `elastomer.scad` says as much at the top of the file.
 
 **The turn is the more robust of the two**, which is why it is the instruction. It comes from the
 gasket's thickness and the thread's pitch — neither of which is a correlation.

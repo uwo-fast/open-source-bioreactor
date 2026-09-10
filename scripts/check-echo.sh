@@ -28,7 +28,11 @@ while IFS='|' read -r name row; do
         "$OPENSCAD" -D "reactor_vessel=$row" --export-format echo -o "$tmp/e.txt" "scad/$f.scad" 2>"$tmp/err" >/dev/null
         # A cell that ERRORs still has a transcript worth pinning - it is what the model says on
         # the way to failing, and check-vessels already owns whether it should fail at all.
-        { cat "$tmp/e.txt" 2>/dev/null; grep '^ERROR' "$tmp/err" | sed 's/^/ERROR: /'; } > "$tmp/cell.txt"
+        # --export-format echo writes ERROR and TRACE into the OUTPUT file, not to stderr, so the
+        # transcript is that file alone. Line numbers are normalised out of it: an assert's identity
+        # is its condition and its message, both kept verbatim, where "line 3192" changes for free
+        # whenever a line is added above it - which made step 4 red for moving one line.
+        sed 's/, line [0-9]*/, line N/g' "$tmp/e.txt" > "$tmp/cell.txt" 2>/dev/null
         n=$(grep -c '^ECHO' "$tmp/cell.txt" || true)
         if [ "$update" = 1 ]; then
             cp "$tmp/cell.txt" "$out"

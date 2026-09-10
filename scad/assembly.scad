@@ -96,7 +96,7 @@ include <purchased/strip_lights.scad>;
 include <purchased/printers.scad>;
 
 use <utils/bolt_pattern.scad>;
-use <utils/gasket_load.scad>;
+use <utils/elastomer.scad>;
 
 include <NopSCADlib/core.scad>;
 include <NopSCADlib/vitamins/screws.scad>; // M8_hex_screw type
@@ -411,7 +411,7 @@ if (_rod_d != _bolt_d)
   ));
 
 // What the bolts are actually holding. The head owns the gasket so it owns the force; the count is
-// this file's, so the division happens here. Reported only - see utils/gasket_load.scad.
+// this file's, so the division happens here. Reported only - see utils/elastomer.scad.
 _seating_force = head_gasket_seating_force(
   vessel_opening_diameter(reactor_vessel), vessel_thickness(reactor_vessel),
   _build_gasket_sheet, vessel_rim_arc_radius(reactor_vessel)
@@ -434,7 +434,7 @@ assert(
 );
 
 echo(str(
-  "joint tightening: ", gasket_seating_turn(head_gasket_travel(_build_gasket_sheet), _joint_pitch),
+  "joint tightening: ", 360 * head_gasket_travel(_build_gasket_sheet) / _joint_pitch,
   " deg past snug on each of the ", joint_posts, " nuts, all of which sit on top of the lid - ",
   head_gasket_travel(_build_gasket_sheet), " mm of gasket travel on a ", _joint_pitch,
   " mm pitch. The printed flange takes a little more and then creeps, so go back to them."
