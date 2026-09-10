@@ -153,6 +153,14 @@ function sparger_departures(orifice_velocity, pitch_ratio, open_area_ratio, bore
 // moves, and the wall is what has to survive a hole being drilled through it.
 function sparger_across_corners(across_flats, facets) = across_flats / cos(180 / facets);
 
+// Top face of a socket, which is NOT one number: feed_height is measured from the elbow's top,
+// bend_radius above the tube's centreline, where a support's boss ends at the section's own
+// across-corners half width. See @param feed_height above.
+function sparger_socket_top(tube, facets, feed_height, kind, bend_radius = undef) =
+  (kind == "feed" ? (is_undef(bend_radius) ? 1.5 * tube : bend_radius)
+                  : sparger_across_corners(tube, facets) / 2)
+  + feed_height;
+
 // How far to turn the section so a FLAT lands on the bed instead of an edge. `circle($fn=n)` puts a
 // vertex at 0 degrees, and rotate_extrude maps the section's -y to -z, so an unrotated octagon
 // stands on a corner: the part balances on a line and the first layer is a knife edge. It also put

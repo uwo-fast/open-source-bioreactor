@@ -1559,6 +1559,10 @@ function head_baffle_width(vessel_opening_diameter, impeller_diameter) =
 // have to clear a 1.7 mm baffle gap.
 function sparge_tube_extent() = sparger_across_corners(sparge_tube(), sparge_tube_facets);
 
+// Socket depth, passed to sparger() rather than matched to its default by a second literal - the
+// datum arithmetic below reads the same number the part is built with.
+function sparge_feed_height() = 8;
+
 function head_sparge_ring_radius(mouth) =
   mouth / 2 - sparge_ring_clearance - sparge_tube_extent() / 2;
 
@@ -3277,14 +3281,22 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   // What the riser has to span, and what it costs to push gas down it. The socket's top face is
   // the ring's own top plus the boss standing on it.
-  _sparge_socket_top =
+  // Two datums, not one. This used to take the support boss's top for every tube, which made the
+  // feed riser 6.13634 mm too long - it would bottom out in its own socket and lift the ring.
+  _sparge_ring_top_z =
   -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height)
-  + _sparge_ring_height + sparge_tube_extent() / 2 + 8;
+  + _sparge_ring_height;
+  _sparge_socket_top_feed = _sparge_ring_top_z
+  + sparger_socket_top(sparge_tube(), sparge_tube_facets, sparge_feed_height(), "feed");
+  _sparge_socket_top = _sparge_ring_top_z
+  + sparger_socket_top(sparge_tube(), sparge_tube_facets, sparge_feed_height(), "support");
   // The tube runs from inside its socket to clear of its port. Measured to the PORT's top face and
   // not the lid's, because the flange stands between the two and it is the flange a hose must clear.
   _sparge_port_top = bayonet_flange_height(head_interface_for("tube", steel_tube_od(sparge_riser_tube) / 2));
   _sparge_riser_length =
     _sparge_port_top + sparge_riser_proud - (_sparge_socket_top - sparge_riser_insertion);
+  _sparge_feed_length =
+    _sparge_port_top + sparge_riser_proud - (_sparge_socket_top_feed - sparge_riser_insertion);
   _sparge_submergence = vessel_punt_height + _liquid_height - _sparge_ring_height;
 
   // What holds the ring up, and how much it can still move. One tube is a cantilever; each extra
@@ -3336,8 +3348,10 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
     ));
 
   echo(str(
-    "sparge riser: ", steel_tube_od(sparge_riser_tube), " x ", steel_tube_id(sparge_riser_tube), " mm tube, ", _sparge_riser_length,
-    " mm long - ", sparge_riser_proud, " mm proud of its port for a hose, down to ",
+    "sparge riser: ", steel_tube_od(sparge_riser_tube), " x ", steel_tube_id(sparge_riser_tube), " mm tube; the feed is ",
+    _sparge_feed_length, " mm and each support ", _sparge_riser_length,
+    " mm - the feed socket sits ", _sparge_socket_top_feed - _sparge_socket_top,
+    " mm higher, so its tube is shorter by the same. ", sparge_riser_proud, " mm proud of its port for a hose, down to ",
     sparge_riser_insertion, " mm inside the socket; ",
     head_port_bore_radius(head_ports_for(vessel_opening_diameter)[head_sparge_feed_port(vessel_opening_diameter)]) * 2 - steel_tube_od(sparge_riser_tube),
     " mm of slack through the port's bore"
@@ -3415,17 +3429,18 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // It is bought as a length of stock and cut, not as a part per tube, so the purchase list needs
   // the stock and the cut list rather than a quantity - which is what this line gives it.
   _riser_count = 1 + len(_sparge_support_angles);
-  _riser_stock = steel_tube_stock_for(_sparge_riser_length, _riser_count);
+  _riser_total = _sparge_feed_length + len(_sparge_support_angles) * _sparge_riser_length;
+  _riser_stock = steel_tube_stock_for(_riser_total, 1);
 
   echo(str(
     "sparge tube stock: ", steel_tube_part_number(sparge_riser_tube), ", ",
     steel_tube_material(sparge_riser_tube), " ", steel_tube_construction(sparge_riser_tube),
-    ", ", steel_tube_temper(sparge_riser_tube), " temper; cut ", _riser_count, " x ",
-    _sparge_riser_length, " mm = ", _riser_count * _sparge_riser_length, " mm",
+    ", ", steel_tube_temper(sparge_riser_tube), " temper; cut 1 x ", _sparge_feed_length,
+    " mm and ", len(_sparge_support_angles), " x ", _sparge_riser_length, " mm = ", _riser_total, " mm",
     is_undef(_riser_stock)
       ? " - LONGER THAN ANY STOCK LENGTH, so it needs joining or a different tube"
       : str(" from a ", _riser_stock, " mm length, leaving ",
-            _riser_stock - _riser_count * _sparge_riser_length, " mm spare")
+            _riser_stock - _riser_total, " mm spare")
   ));
 
   echo(str(
@@ -3454,13 +3469,13 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
   // this sum ignored it.
   _gas_filter_drop = gas_filter_pressure_drop(_gas_band[1], gas_filter_drop_slope(sparge_inlet_filter));
   _gas_riser_drop = gas_tube_pressure_drop(
-    _gas_band[1], steel_tube_id(sparge_riser_tube), _sparge_riser_length);
+    _gas_band[1], steel_tube_id(sparge_riser_tube), _sparge_feed_length);
   _gas_check_valve_drop = check_valve_cracking(sparge_check_valve)
     + gas_valve_pressure_drop(_gas_band[1], check_valve_cv(sparge_check_valve), _gas_vessel_pressure);
   // The line, from the one expression of it, so nothing can price it two ways. The terms above are
   // kept for the echo below - they say where it goes - but the total is not re-added here.
   _gas_back_pressure =
-    head_gas_line_pressure(_gas_band[1], _gas_vessel_pressure, _sparge_riser_length);
+    head_gas_line_pressure(_gas_band[1], _gas_vessel_pressure, _sparge_feed_length);
   _gas_outlet_drop = is_undef(sparge_outlet_filter)
     ? 0
     : gas_filter_pressure_drop(_gas_band[1], gas_filter_drop_slope(sparge_outlet_filter)) + _gas_riser_drop;
@@ -3479,7 +3494,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   // The line priced at both ends of the band, so where the pump settles can be asked properly.
   _gas_line = gas_line_secant(
-    _gas_band[0], head_gas_line_pressure(_gas_band[0], _gas_vessel_pressure, _sparge_riser_length),
+    _gas_band[0], head_gas_line_pressure(_gas_band[0], _gas_vessel_pressure, _sparge_feed_length),
     _gas_band[1], _gas_back_pressure);
   _gas_ceiling_flow = gas_operating_flow(_gas_free_flow, _gas_dead_head, _gas_line);
 
@@ -3645,20 +3660,23 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
 
   // The feed riser and the support tubes are the same part in the same material, so they are drawn
   // together - one tube down each of the sparger's ports, whether it carries gas or only load.
-  module _sparge_tube() {
-    translate([port_circle_radius, 0, _sparge_socket_top - sparge_riser_insertion])
+  module _sparge_tube(top, length) {
+    translate([port_circle_radius, 0, top - sparge_riser_insertion])
       difference() {
-        cylinder(h=_sparge_riser_length, d=steel_tube_od(sparge_riser_tube));
+        cylinder(h=length, d=steel_tube_od(sparge_riser_tube));
         translate([0, 0, -z_fight])
-          cylinder(h=_sparge_riser_length + 2 * z_fight, d=steel_tube_id(sparge_riser_tube));
+          cylinder(h=length + 2 * z_fight, d=steel_tube_id(sparge_riser_tube));
       }
   }
 
   if (render_sparge_tubes || render_all)
-    color("grey")
-      for (a = concat([_sparge_feed_angle], _sparge_support_angles))
+    color("grey") {
+      rotate([0, 0, _sparge_feed_angle])
+        _sparge_tube(_sparge_socket_top_feed, _sparge_feed_length);
+      for (a = _sparge_support_angles)
         rotate([0, 0, a])
-          _sparge_tube();
+          _sparge_tube(_sparge_socket_top, _sparge_riser_length);
+    }
 
   if (render_sparger || render_all)
     color(prints2_color)
@@ -3678,6 +3696,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
           feed_angle=_sparge_feed_angle,
           feed_radius=port_circle_radius,
           feed_bore=sparge_feed_bore,
+          feed_height=sparge_feed_height(),
           socket_chamfer=sparge_socket_chamfer,
           support_angles=_sparge_support_angles,
           split_angle=sparge_split_angle,

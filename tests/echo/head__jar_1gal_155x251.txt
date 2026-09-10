@@ -38,10 +38,10 @@ ECHO: "sparge holes: 8 x 3 mm at 33.9185 mm spacing; at 0.5 vvm that is 1.67312 
 ECHO: "sparge holes: capillary 96 Pa to launch a bubble against 0.405279 Pa to push gas through, so the holes will not all flow evenly - which Rewatkar & Joshi find does not matter near the impeller."
 ECHO: "reach clearance: do_probe's tip passes the upper impeller with 1.88837 mm of radial room, over the -134.513 to -122.184 mm the two share"
 ECHO: "reach clearance: ph_probe's tip passes the lower impeller with -6.2925 mm of radial room, over the -201.698 to -189.369 mm the two share"
-ERROR: Assertion '(_gap > 0)' failed: "ph_probe's tip runs through the lower impeller by 6.2925 mm radially, over the heights they share. Both are drawn, so this is parts in the same space rather than a margin being thin." in file head.scad, line 3158
-TRACE: called by 'assert' in file head.scad, line 3158
-TRACE: called by 'if' in file head.scad, line 3152
-TRACE: called by 'let' in file head.scad, line 3151
-TRACE: called by 'for' in file head.scad, line 3150
-TRACE: called by 'for' in file head.scad, line 3149
-TRACE: called by 'head' in file head.scad, line 4354
+ERROR: Assertion '(_gap > 0)' failed: "ph_probe's tip runs through the lower impeller by 6.2925 mm radially, over the heights they share. Both are drawn, so this is parts in the same space rather than a margin being thin." in file head.scad, line 3162
+TRACE: called by 'assert' in file head.scad, line 3162
+TRACE: called by 'if' in file head.scad, line 3156
+TRACE: called by 'let' in file head.scad, line 3155
+TRACE: called by 'for' in file head.scad, line 3154
+TRACE: called by 'for' in file head.scad, line 3153
+TRACE: called by 'head' in file head.scad, line 4373
