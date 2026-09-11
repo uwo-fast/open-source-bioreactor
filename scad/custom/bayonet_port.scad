@@ -33,8 +33,9 @@ include <bayonet_interfaces.scad>
 use <cylindrical_flex_collet.scad>
 use <threads-scad/threads.scad>
 use <../utils/dovetail.scad>
-include <../purchased/atlas_probes.scad>
-include <../utils/npt_threads.scad>
+use <../purchased/atlas_probe.scad>
+use <../purchased/atlas_probes.scad>
+use <../utils/npt_threads.scad>
 
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 
@@ -152,14 +153,11 @@ function bayonet_lock_bore_radius(type) = bayonet_interface_radius(type) + bayon
 function bayonet_entry_rotation(type) =
   (bayonet_turn_direction(type) == "CW") ? bayonet_sweep_angle(type) : -bayonet_sweep_angle(type);
 
-// Example usage (open this file directly to preview)
-// Carries the rod gland, so the sweep in `just check-mesh` renders it: this recipe builds per FILE,
-// and a branch no example reaches is a branch it never sees.
-// Every variant, spaced out. ONE preview for the file, and it has to reach all four: `just
-// check-mesh` builds per FILE, so a branch no example renders is a branch it never sees.
+// Example usage (open this file directly to preview). ONE preview reaching all four variants:
+// `just check-mesh` builds per FILE, so a branch no example renders is a branch it never sees.
 bayonet_port(bayonet_std, part="pin", panel_thickness=18, center_bore_radius=3, bore_oring=oring_4x1p5_epdm, text_labels=true);
-translate([60, 0, 0]) bayonet_probe_port(bayonet_std, ph_lab_g2);
-translate([120, 0, 0]) bayonet_thermocouple_port(bayonet_std);
+translate([60, 0, 0]) bayonet_probe_port(bayonet_std, atlas_probe_by_name("pH lab g2"));
+translate([120, 0, 0]) bayonet_thermocouple_port(bayonet_std, thread=npt_thread_by_name("1/2 NPT"));
 translate([200, 0, 0])
   bayonet_baffle_port(bayonet_std, segments=bayonet_baffle_segments(bayonet_std, 18, 280, 170));
 
@@ -557,7 +555,7 @@ module bayonet_thermocouple_port(
   panel_thickness = 18,
   center_bore_radius = 3,
   mount_height = 20,
-  thread = npt_1_2
+  thread
 ) {
   // Bayonet connector. text_labels stays off: the mount below lands on the flange's outer
   // face at very nearly the flange diameter, so anything engraved there would be buried.

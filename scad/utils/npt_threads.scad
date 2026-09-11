@@ -25,3 +25,7 @@ function npt_thread_pitch(type) = 25.4 / npt_thread_tpi(type); // derived, so th
 // drawn for preview only and nothing derives from it, so it is here to look right rather than to
 // be built to. The 1/2 NPT figure is the one already registered against a real probe.
 function npt_thread_hex_across_flats(type) = type[3];
+
+use <registries.scad>;
+// A row from its name - see registries.scad. A miss returns undef; the consumer asserts.
+function npt_thread_by_name(name) = registry_by_name(npt_threads, name);
