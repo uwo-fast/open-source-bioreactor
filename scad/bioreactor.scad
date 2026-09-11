@@ -142,12 +142,7 @@ cross_section_active = true;
 
 /* [Vessel Selection] */
 
-// the registered vessel; every vessel dimension the head and frame are built against
-// is read back out of this registration via the accessor functions (see purchased/vessel.scad)
-// Which jar this build is for, chosen BY NAME so a customizer parameter set can carry it - a .json
-// holds values, not references, so it cannot name the variable. `just json` writes one set per
-// registered vessel from this same registry.
-// Which jar this build is for
+// Which jar this build is for; a parameter set names it, so it must be a name and not a row
 reactor_vessel_name = "jar_10L_220x305"; // [jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x215, jar_1gal_155x251]
 /* [Light Strip Selection] */
 // This should be made to be driven by the vessel for whatever is optimal; future TODO.

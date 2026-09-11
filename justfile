@@ -116,8 +116,8 @@ clean:
 # OpenSCAD reads ONLY the line immediately above a variable. A multi-line comment block shows its
 # last line, and a trailing comment shows nothing at all - so 46 parameters across the three entry
 # files offered the previous LINE OF CODE as their help text, render_base advising the reader that
-# "render_all = true; // render all components". Prose is not checked by `just json` the way the
-# dropdowns are, so nothing but this stops the next parameter being as silent.
+# "render_all = true; // render all components". check-json covers the dropdowns; this covers the
+# prose.
 #
 # A parameter under /* [Hidden] */ is exempt: it is not offered, so it needs no description. That
 # section runs until the NEXT marker, which is the trap this recipe also covers - hiding one
@@ -260,31 +260,22 @@ check-holes file="" flags="-D render_all=false -D render_sparger=true":
 # Fail when the purchase list misses a part the model prescribes.
 check-bom:
     @scripts/check-bom.sh
-
-# Fail if the generated parameter files are stale or the dropdowns have drifted from the registry.
-# Regenerating is cheap and the files are committed, so a diff means someone added a jar without
-# running `just json` - which would leave the customizer offering a vessel that no longer exists,
-# or hiding one that does.
+# The .json beside each entry file is AUTHORED, never generated: one set per registered vessel,
+# holding only what that build changes from the file's defaults, and growing as a jar earns
+# tweaks. OpenSCAD applies a set on top of the defaults - "only the parameters defined in the
+# dataset are modified" - so a set can be as small as the vessel selector. The GUI reads
+# <file>.json automatically and `-p <file>.json -P <vessel>` selects one from a script.
 #
-# Fail when the committed parameter JSON has drifted from the registries.
+# Fail when a parameter-set file has drifted from its entry file or the registries.
 check-json:
-    @scripts/check-json.sh
+    @scripts/check-json.py {{ENTRY_CUSTOMIZED}}
 
-# Write one customizer parameter set per registered vessel, beside each entry file that takes one.
-# OpenSCAD picks up <file>.json automatically, so the presets appear in the customizer's dropdown,
-# and `openscad -p <file>.json -P <vessel> ...` selects one from a script.
+# The Customizer writes every parameter when it saves, turning a two-line profile into a hundred
+# lines of restated defaults. This strips them back to the deviations. Run it after saving.
 #
-# Generated from the registry rather than written by hand, for the same reason check-echo sweeps
-# it: adding a jar should add it everywhere it belongs and nowhere should have to be remembered.
-# The recipe also checks every dropdown annotation in each file against the registry it draws from,
-# which is the one place a registry's names are still duplicated - a comment cannot be derived, but
-# it can be verified. A designation declared WITHOUT a dropdown is left alone: there is no second
-# copy of the names, so there is nothing to drift. That is the honest trade for a registry too long
-# to list in a comment - the o-ring has 38 rows - and it is why adding a dropdown is safe.
-#
-# Regenerate the Customizer parameter JSON from the registries.
-json:
-    @scripts/gen-parameter-json.sh
+# Strip parameters a set carries at the file's own default.
+json-prune:
+    @scripts/json-prune.py {{ENTRY_CUSTOMIZED}}
 
 # Fail when a render flag in head.scad or frame.scad reaches no row of a print manifest and is not
 # declared here as something nobody prints.
@@ -319,8 +310,8 @@ check-parts:
 #
 # MINUTES, NOT SECONDS: every part re-evaluates the whole of head.scad, about a minute apiece.
 #
-# `just export-parts` takes the vessel the model selects. Naming another uses the parameter sets
-# `just json` writes - and today only the selected one gets all the way through, because the probe
+# `just export-parts` takes the vessel the model selects. Naming another uses bioreactor.json's
+# parameter sets - and today only the selected one gets all the way through, because the probe
 # tilt and the working volume are pinned to it. A jar that fails is reported rather than skipped.
 #
 # Export every printed part as its own STL, with a print list. `just export-parts <vessel>` for one.

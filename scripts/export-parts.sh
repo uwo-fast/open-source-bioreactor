@@ -56,7 +56,7 @@ fi
 
 if [ -n "$label" ] && [ "$label" != "$got" ]; then
     echo "FAIL  no parameter set is named $label - the model resolved $got instead"
-    echo "        the sets come from the vessel registry; run just json after adding a jar"
+    echo "        add a set for it to scad/bioreactor.json"
     exit 1
 fi
 label="$got"

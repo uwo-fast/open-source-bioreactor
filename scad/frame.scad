@@ -48,14 +48,9 @@ render_lights = false;
 
 /* [Vessel Selection] */
 
-// Which jar this frame is built for, chosen BY NAME so a customizer parameter set can carry it - a
-// .json holds values, not references. It was a private `_preview_vessel` below `module dummy()`,
-// which put it outside the customizer block: frame.scad had no parameter set at all, so an export
-// or a sweep naming another vessel silently got jar_10L's frame. `just json` writes one set per
-// registered vessel from this same registry.
+// Which jar this frame is for; a parameter set names it, so it must be a name and not a row
 reactor_vessel_name = "jar_10L_220x305"; // [jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x215, jar_1gal_155x251]
-// Hidden from here to the next marker - it is resolved from the name above, not chosen. The
-// customizer merges same-named sections, so a block inside one costs nothing.
+// resolved from the name, not chosen
 /* [Hidden] */
 reactor_vessel = vessel_by_name(reactor_vessel_name);
 

@@ -18,3 +18,7 @@ node_modules
 
 # Pinned OpenSCAD libraries - upstream code, not ours to format
 .openscad-libraries
+
+# Customizer parameter sets. The OpenSCAD GUI writes these in its own layout on every save;
+# json-prune keeps that layout so a save and a prune do not fight over indentation.
+scad/*.json
