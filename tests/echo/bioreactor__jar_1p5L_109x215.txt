@@ -73,10 +73,10 @@ ECHO: "WARNING gas: 0.5 vvm is above the 0.346212 vvm at which the gas stream st
 ECHO: "port interfaces: ["std", "mini", "mini", "mini", "std", "mini"] - this mouth cannot afford std on every port, so each takes the smallest that will do. The worst adjacent pair measures 5.75 mm against a 1 mm floor"
 ERROR: Assertion '(_mount_to_ports >= lid_holes_offset)' failed: "Motor mount is 56 mm across and the port flanges reach in to r 15.05, leaving -12.95 mm between them; 2 mm is the least this lid keeps." in file head.scad, line N
 TRACE: called by 'assert' in file head.scad, line N
-TRACE: called by 'head' in file assembly.scad, line N
-TRACE: called by 'translate' in file assembly.scad, line N
-TRACE: called by 'children' in file assembly.scad, line N
-TRACE: called by 'difference' in file assembly.scad, line N
-TRACE: called by 'if' in file assembly.scad, line N
-TRACE: called by 'cross_section' in file assembly.scad, line N
-TRACE: called by 'if' in file assembly.scad, line N
+TRACE: called by 'head' in file bioreactor.scad, line N
+TRACE: called by 'translate' in file bioreactor.scad, line N
+TRACE: called by 'children' in file bioreactor.scad, line N
+TRACE: called by 'difference' in file bioreactor.scad, line N
+TRACE: called by 'if' in file bioreactor.scad, line N
+TRACE: called by 'cross_section' in file bioreactor.scad, line N
+TRACE: called by 'if' in file bioreactor.scad, line N

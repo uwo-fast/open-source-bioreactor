@@ -65,7 +65,7 @@ z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 // FUNCTIONS, so head() can re-assert the same two numbers without a second copy of them and
 // without offering either as a customizer parameter. head() has to re-assert: $fn is dynamically
 // scoped and `use` resolves it PER VERSION - 2021.01 takes the callee's file, 2026.09 takes the
-// caller's - so a head rendered from assembly.scad would otherwise tessellate to assembly's flat
+// caller's - so a head rendered from bioreactor.scad would otherwise tessellate to assembly's flat
 // 64/128 on a newer binary. Measured: 202,158 triangles against 36,974, and -0.038% of volume as
 // the small bores inscribe. Both binaries are on this machine.
 $fn = 0;
@@ -904,7 +904,7 @@ baffle_transition_height = 10;
  *   QUALITY cap and not a bed one, which is the correction: it was a literal 170, defended by
  *   180 mm machines being the small end of what a builder owns, and then the frame's bases turned
  *   out to be 257.40 mm across. No 180 mm machine was ever going to build this reactor, so the
- *   number was measuring nothing. What printers can actually build it is REPORTED by assembly.scad
+ *   number was measuring nothing. What printers can actually build it is REPORTED by bioreactor.scad
  *   against scad/purchased/printers.scad, which is where a fact about the world belongs.
  * - It costs less than it looks: at any cap under 303 mm jar_10L needs two pieces, that being its
  *   part whole. What a bigger cap buys is the SHORT jar, whose 195 mm part would go on in one.
@@ -1179,7 +1179,7 @@ module dummy() {
 // WHAT A BUILD CHOOSES, looked up by name.
 //
 // The parameters above are head.scad's own, and they are what it renders standalone. They cannot be
-// reached from assembly.scad: a `use`d file keeps its own scope, and - this is the part that
+// reached from bioreactor.scad: a `use`d file keeps its own scope, and - this is the part that
 // decides the mechanism - `-p`/`-P` only assigns parameters declared in the MAIN file, so a
 // parameter set naming one of them does nothing at all. `-D` does reach them, which is why the
 // sweeps could set them and a .json could not.
@@ -2933,7 +2933,7 @@ module head(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, v
       "baffle print: ", _baffle_segments, " piece", _baffle_segments == 1 ? "" : "s",
       " of ", _baffle_length / _baffle_segments, " mm, tallest standing ", _baffle_piece_height,
       " mm against a ", baffle_segment_height_max,
-      " mm cap - which is how slender a piece may be, NOT how tall a bed is; see assembly.scad for ",
+      " mm cap - which is how slender a piece may be, NOT how tall a bed is; see bioreactor.scad for ",
       "what can actually print this",
       _baffle_piece_height > baffle_segment_height_max
         ? str(" - PINNED AT ", _baffle_segments, ", WHICH THE CAP WOULD NOT HAVE CHOSEN")

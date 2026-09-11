@@ -1,5 +1,5 @@
 /**
- * @file electronics_stand.scad
+ * @file support/electronics_stand.scad
  * @brief Electronics stand subassembly for the open-source-bioreactor
  * @author Cameron K. Brooks
  * @copyright 2026

@@ -3,7 +3,7 @@
 # Diff every entry file's echo stream, on every registered vessel, against a committed
 # transcript. `--update` rewrites the transcripts instead of diffing.
 #
-# NOT with -D render_all=false: that flag reaches assembly.scad's own render_all and takes it
+# NOT with -D render_all=false: that flag reaches bioreactor.scad's own render_all and takes it
 # from 83 echoes to 5, so a baseline captured with it would cover 6% and read as complete.
 set -uo pipefail
 
@@ -23,7 +23,7 @@ rows=$(grep '^ECHO: "V|' "$tmp/rows.err" | sed 's/^ECHO: "V|//; s/"$//')
 failed=0 cells=0 changed=0 known=0
 declare -a known_rows=()
 while IFS='|' read -r name row; do
-    for f in assembly head frame; do
+    for f in bioreactor head frame; do
         cells=$((cells + 1))
         out="$BASE/${f}__${name}.txt"
         "$OPENSCAD" -D "reactor_vessel=$row" --export-format echo -o "$tmp/e.txt" "scad/$f.scad" 2>"$tmp/err" >/dev/null

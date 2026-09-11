@@ -84,20 +84,20 @@ the original was left standing with nothing marking it.
 
 ## Three layers, and where a parameter lives
 
-The model was built on two: things two components must agree on, which live in `assembly.scad`, and
+The model was built on two: things two components must agree on, which live in `bioreactor.scad`, and
 a component's own preferences, which live in its own file. That is right as far as it goes, and it
 misses a third kind, which surfaced when a build's choices had nowhere to be stated.
 
 A **DESIGNATION** is a per-reactor choice: which registered jar, which motor, which probe in which
 port, what fill fraction. It is not a preference — it is about _this_ build, not about the design —
-and it is not classic coupling, because `assembly.scad` may never consume it. It is forced into the
+and it is not classic coupling, because `bioreactor.scad` may never consume it. It is forced into the
 entry file anyway, by a platform fact: a customizer parameter set can only assign parameters
 declared in the file being rendered. See _What the customizer can and cannot carry_.
 
-**Where a parameter lives.** It belongs in `assembly.scad` if any of these hold:
+**Where a parameter lives.** It belongs in `bioreactor.scad` if any of these hold:
 
 - two or more components must agree on it;
-- `assembly.scad` itself consumes it in a derivation — `frame_wall_thickness` feeding
+- `bioreactor.scad` itself consumes it in a derivation — `frame_wall_thickness` feeding
   `joint_outer_diameter`, the fill fraction feeding light selection, the shaft feeding the envelope;
 - it is a designation, a per-reactor choice an operator states.
 
@@ -362,7 +362,7 @@ geometry alone IS a 2-manifold, and what breaks it is `render_seals`, `render_pr
 bearing with its coupling — EPDM in its grooves, Atlas bodies in their collets, a bearing on the
 shaft, every one of them already on `check-parts`' `not_printed` list. So the check failed on
 vitamins the repo had declared are not printed, could never pass, and taught anyone who ran it to
-ignore it. `electronics_stand.scad` was on that list too and is not even slow: 14 s as a picture,
+ignore it. `support/electronics_stand.scad` was on that list too and is not even slow: 14 s as a picture,
 and 4 s as the bracket it prints, which is a clean 2-manifold. It is checked now.
 
 **A check that cannot pass is worse than no check**, because the next real failure reads as more of

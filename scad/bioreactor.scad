@@ -1,5 +1,5 @@
 /**
- * @file assembly.scad
+ * @file bioreactor.scad
  * @brief Assembly for the open-source-bioreactor
  * @author Cameron K. Brooks
  * @copyright 2026
@@ -12,7 +12,7 @@
  * - Frame: Base plate, closure retaining plate with frame tie points, ribs, threaded rods, spacers, and nuts.
  *
  * Project structure:
- * - assembly.scad: This file, which contains the assembly of the bioreactor.
+ * - bioreactor.scad: This file, which contains the assembly of the bioreactor.
  *   - frame.scad: Contains the module for the frame subassembly of the bioreactor.
  *   - head.scad: Contains the module for the head subassembly of the bioreactor.
  *
@@ -195,7 +195,7 @@ joint_bolt = M8_hex_screw;
 // They are declared HERE rather than left in head.scad because a customizer parameter set can only
 // assign parameters of the file it is applied to - `-p`/`-P` does not reach a `use`d file's scope,
 // though `-D` does. So a build is only expressible from the file the build is assembled in, and
-// scad/assembly.json can only carry what this section declares.
+// scad/bioreactor.json can only carry what this section declares.
 //
 // A PART IS DESIGNATED BY ITS REGISTERED NAME, never by its row. A parameter set carries values and
 // not references, so a .json can say "8x400_316" but cannot say the variable of that name - the
@@ -440,10 +440,10 @@ echo(str(
   " mm pitch. The printed flange takes a little more and then creeps, so go back to them."
 ));
 
-// The assembled reactor's envelope, for anything that has to make room for one - cart.scad is the
-// only such thing today. Composed here because the reactor is what this file assembles: the frame
-// sets the width and the depth below the jar, the head's drive stack sets the top. Measured
-// against a mesh export of the whole assembly at 257.400 x 571.250 mm.
+// The assembled reactor's envelope, for anything that has to make room for one -
+// support/equipment_cart.scad is the only such thing today. Composed here because the reactor is
+// what this file assembles: the frame sets the width and the depth below the jar, the head's drive
+// stack sets the top. Measured against a mesh export of the whole assembly at 257.400 x 571.250 mm.
 function reactor_envelope_diameter() = joint_outer_diameter; // the flange circle IS the envelope
 function reactor_envelope_height() =
   frame_floor_depth(vessel_height(reactor_vessel), _reactor_light)

@@ -36,7 +36,7 @@ ECHO: "motor mount: 4 x M4x4.7 18-8 inserts on a 42.8 mm circle, 8 mm M4 screws,
 ECHO: "baffles: 4 x 10.3454 x 172 mm (172 mm clears the floor), 150.357 mm of that submerged; 0.715977 of Oldshue's four-at-T/12 full-depth reference area"
 ECHO: "WARNING baffles: 0.715977 of the reference projected area. Depth is spent - these already hang to the floor limit. Going to 6 plates, the next count that spaces equally on 12 ports, would give 1.07396. Under-baffling lets the vessel swirl rather than mix; see docs/agitation.md."
 ECHO: "baffle plate: 0.249442 N each, deflecting 0.116658 mm at the tip; first mode 50.7772 Hz against 7 Hz shaft and 28 Hz blade passing at 420 rpm - that mode is the solid plate, the joints soften it"
-ECHO: "baffle print: 1 piece of 172 mm, tallest standing 195 mm against a 200 mm cap - which is how slender a piece may be, NOT how tall a bed is; see assembly.scad for what can actually print this"
+ECHO: "baffle print: 1 piece of 172 mm, tallest standing 195 mm against a 200 mm cap - which is how slender a piece may be, NOT how tall a bed is; see bioreactor.scad for what can actually print this"
 ECHO: "baffle clearance: 15.9773 mm nominal to the impeller, less 1.25722 mm the coupling's 0.2 mm of play allows at the lower impeller = 14.7201 mm running"
 ECHO: "baffle resonance: the 50.7772 Hz mode is crossed by the shaft at 3046.63 rpm and by blade passing at 761.658 rpm, against a 320-420 rpm band. Neither is a speed this drive is asked to hold - the nearest clears the band by 81.3472% - though it passes through on the way up, which is a transient rather than a duty."
 ECHO: "sparge ring: 138.573 mm = 1.81141 D (band 1-2, equal-swept-volume 1.41421), 111.1 mm off the floor - 42.25 above the lower impeller and 34.25 below the upper"

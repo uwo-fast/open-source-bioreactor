@@ -52,10 +52,10 @@ TRACE: called by 'if' in file head.scad, line N
 TRACE: called by 'let' in file head.scad, line N
 TRACE: called by 'for' in file head.scad, line N
 TRACE: called by 'for' in file head.scad, line N
-TRACE: called by 'head' in file assembly.scad, line N
-TRACE: called by 'translate' in file assembly.scad, line N
-TRACE: called by 'children' in file assembly.scad, line N
-TRACE: called by 'difference' in file assembly.scad, line N
-TRACE: called by 'if' in file assembly.scad, line N
-TRACE: called by 'cross_section' in file assembly.scad, line N
-TRACE: called by 'if' in file assembly.scad, line N
+TRACE: called by 'head' in file bioreactor.scad, line N
+TRACE: called by 'translate' in file bioreactor.scad, line N
+TRACE: called by 'children' in file bioreactor.scad, line N
+TRACE: called by 'difference' in file bioreactor.scad, line N
+TRACE: called by 'if' in file bioreactor.scad, line N
+TRACE: called by 'cross_section' in file bioreactor.scad, line N
+TRACE: called by 'if' in file bioreactor.scad, line N

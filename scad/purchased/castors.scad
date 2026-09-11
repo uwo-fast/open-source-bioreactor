@@ -6,8 +6,9 @@ generic_castor = ["generic", [60,      60,      46,      46,      6,        4,  
 
 // PRE-REGISTRY. generic_castor is a placeholder, not a product - no source, no part number - so by
 // the swept-list rule it does not belong here. It stays because removing it would leave the list
-// empty, and registering a real castor would decide a purchase nobody has scoped. cart.scad is
-// outside the main build (see MESH_SKIP and the reactor assembly), so nothing waits on it.
+// empty, and registering a real castor would decide a purchase nobody has scoped.
+// support/equipment_cart.scad is outside the main build (see MESH_SKIP and the reactor assembly),
+// so nothing waits on it.
 castors = [generic_castor];
 
 use <castor.scad>

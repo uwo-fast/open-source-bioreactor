@@ -11,7 +11,7 @@ tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
 
 sel=()
 label="${1:-}"
-if [ -n "${1:-}" ]; then sel=(-p scad/assembly.json -P "${1:-}"); fi
+if [ -n "${1:-}" ]; then sel=(-p scad/bioreactor.json -P "${1:-}"); fi
 
 # Ask the model what it prints. Through ASSEMBLY, because that is the file that owns both
 # halves - the flange height and the rod count are chosen there and the head and the frame both
@@ -21,7 +21,7 @@ if [ -n "${1:-}" ]; then sel=(-p scad/assembly.json -P "${1:-}"); fi
 # Each row says which FILE renders it, since that is the one thing a manifest row cannot carry
 # about itself.
 cat > "$tmp/m.scad" <<SCAD
-include <$PWD/scad/assembly.scad>
+include <$PWD/scad/bioreactor.scad>
 _v = reactor_vessel;
 for (p = head_print_parts(vessel_opening_diameter(_v), lid_flange_height,
                           vessel_internal_height(_v), vessel_punt_height(_v)))
@@ -46,7 +46,7 @@ fi
 # unchecked that writes a directory labelled with one jar and full of another one's parts.
 got=$(grep -m1 '^ECHO: "VESSEL|' "$tmp/err" | sed 's/.*VESSEL|//; s/"$//')
 # WHAT THIS BUILD DESIGNATED, reported rather than assumed. These parts now render through
-# assembly.scad so a designation does reach them, and the print list should say which one it
+# bioreactor.scad so a designation does reach them, and the print list should say which one it
 # carries - an STL of a g1 collet and one of a g2 collet look identical in a directory listing.
 pinned=$(grep '^ECHO: "DESIG|' "$tmp/err" | sed 's/.*DESIG|//; s/"$//' | grep -v '|auto$' || true)
 if [ -n "$pinned" ]; then
@@ -76,7 +76,7 @@ while IFS='|' read -r file name qty flags; do
     parts=$((parts + 1))
     pieces=$((pieces + qty))
     out="$dir/$name.stl"
-    # EVERY PART RENDERS THROUGH assembly.scad, whichever half it belongs to. That file is the
+    # EVERY PART RENDERS THROUGH bioreactor.scad, whichever half it belongs to. That file is the
     # one that carries a build's designations - the probes, the shaft, the o-ring, the light -
     # and head.scad's own tail calls head() with no build, so exporting from it wrote the
     # DEFAULT part under a build that had asked for another one. Measured before this changed:
@@ -98,7 +98,7 @@ while IFS='|' read -r file name qty flags; do
     # render_all overrides every other flag, so it has to go off before the row's own go on.
     # export_at_origin puts a head part where head.scad would have put it instead of at its
     # assembled height; it moves the part and does not change its shape.
-    "$OPENSCAD" ${sel[@]+"${sel[@]}"} -D render_all=false "${half[@]}" $flags -o "$out" scad/assembly.scad 2>"$tmp/e" >/dev/null
+    "$OPENSCAD" ${sel[@]+"${sel[@]}"} -D render_all=false "${half[@]}" $flags -o "$out" scad/bioreactor.scad 2>"$tmp/e" >/dev/null
     size=$(stat -c%s "$out" 2>/dev/null || echo 0)
     tris=$(grep -c '^ *facet' "$out" 2>/dev/null || echo 0)
     # The bounding box, because "will this fit my printer" is the question the baffle is split
@@ -135,14 +135,14 @@ done <<< "$rows"
 # in awk.
 #
 # REPORTED, not targeted. The design does not name a printer and bend itself to fit one; it is
-# what it is and this says what that needs. assembly.scad reports the same thing off the
+# what it is and this says what that needs. bioreactor.scad reports the same thing off the
 # geometry, and the two are now measuring the same set of parts - so if they ever disagree, a
 # part has fallen off a manifest. A part that fits NOTHING is the only thing that fails.
 {
     # printers.scad explicitly, not by way of head.scad: the fit rule is this stub's dependency
     # and it should say so rather than lean on another file's include chain.
     printf 'include <%s/scad/purchased/printers.scad>\n' "$PWD"
-    printf 'include <%s/scad/assembly.scad>\n_s = [' "$PWD"
+    printf 'include <%s/scad/bioreactor.scad>\n_s = [' "$PWD"
     while read -r n w d h; do printf '["%s", [%s, %s, %s]],' "$n" "$w" "$d" "$h"; done < "$tmp/sizes"
     printf '];\n'
     printf 'for (s = _s) if (len(printers_fitting(s[1])) == 0) echo(str("NOFIT|", s[0]));\n'
@@ -175,7 +175,7 @@ done
   echo
   echo "**Printers that take every part on this list:** $allfit. Reported, not targeted - the"
   echo "design is what it is and this says what it needs, measured off the meshes below rather"
-  echo "than off the model. \`scad/assembly.scad\` reports the same thing from the geometry and"
+  echo "than off the model. \`scad/bioreactor.scad\` reports the same thing from the geometry and"
   echo "should agree; the two disagreeing means a part is not on this list."
   echo "Volumes: [scad/purchased/printers.scad](../../scad/purchased/printers.scad)."
   echo

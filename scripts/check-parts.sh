@@ -29,7 +29,7 @@ not_printed=(
     render_lights               # vitamin - the LED strips the frame makes room for
 )
 cat > "$tmp/m.scad" <<SCAD
-include <$PWD/scad/assembly.scad>
+include <$PWD/scad/bioreactor.scad>
 _v = reactor_vessel;
 for (p = head_print_parts(vessel_opening_diameter(_v), lid_flange_height,
                           vessel_internal_height(_v), vessel_punt_height(_v)))
@@ -63,7 +63,7 @@ done
 # files of eighteen.
 exported=(scad/head.scad scad/frame.scad)
 not_exported=(
-    scad/assembly.scad                          # the whole reactor as a picture, not a part
+    scad/bioreactor.scad                        # the whole reactor as a picture, not a part
     scad/custom/bayonet_port.scad               # a COMPONENT, and now all four port kinds: head
                                                 # renders each into a manifest row of its own, so
                                                 # they reach a print list through head rather than
@@ -78,13 +78,13 @@ not_exported=(
     scad/custom/sheet_gasket.scad               # EPDM cut from a sheet with a knife, not printed
     # Bench furniture AROUND the reactor rather than part of it, and only ONE of the three
     # makes anything printed - which is not what this list said until it was read.
-    scad/bottle_holder.scad                     # one printed part, a dovetailed sleeve. The
+    scad/support/bottle_holder.scad             # one printed part, a dovetailed sleeve. The
                                                 # only original printed geometry of the three,
                                                 # and an accessory rather than a reactor part
-    scad/cart.scad                              # prints NOTHING: bought extrusion, bought
+    scad/support/equipment_cart.scad            # prints NOTHING: bought extrusion, bought
                                                 # NopSCADlib brackets, bought castors, and a
                                                 # translucent envelope that is a picture
-    scad/electronics_stand.scad                 # prints nothing original either - print_corner
+    scad/support/electronics_stand.scad         # prints nothing original either - print_corner
                                                 # renders a NopSCADlib BRACKET, which is a
                                                 # vitamin, so that is a printed substitute for
                                                 # a bought part. See TODO.md

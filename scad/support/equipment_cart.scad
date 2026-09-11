@@ -1,5 +1,5 @@
 /**
- * @file cart.scad
+ * @file support/equipment_cart.scad
  * @brief Rolling cart for the open-source-bioreactor setup
  * @author Cameron K. Brooks
  * @copyright 2026
@@ -26,12 +26,12 @@ include <NopSCADlib/core.scad>; // core utils (also silences the inch() warning)
 include <NopSCADlib/vitamins/extrusions.scad>; // extrusion types + extrusion()
 include <NopSCADlib/vitamins/extrusion_brackets.scad>; // 3D corner bracket + screws
 
-include <purchased/castors.scad>; // swivel plate castor vitamin
+include <../purchased/castors.scad>; // swivel plate castor vitamin
 
 // The cart has to hold assembled bioreactors, so it reads their envelope back out of the assembly
 // the same way the assembly reads the frame's outer diameter. use, not include, so assembling a
 // reactor is not a side effect of drawing the cart.
-use <assembly.scad>;
+use <../bioreactor.scad>;
 
 $fn = $preview ? 48 : 96;
 

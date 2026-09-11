@@ -6,7 +6,7 @@
  *
  * The vessel is a purchased part (a commodity jar), so its physical dimensions are
  * registered in vessels.scad and read back through the accessors below. It is also the
- * datum the head and frame are dimensioned against; assembly.scad selects a registered
+ * datum the head and frame are dimensioned against; bioreactor.scad selects a registered
  * vessel and passes the coupling scalars (diameter, opening diameter, height, internal
  * height) on to the other subassemblies via these accessors.
  *
@@ -79,7 +79,7 @@ function vessel_lip_arc_meets_wall(type) =
  * @brief Internal height available to the shaft and impeller: rim down to the top of the punt.
  *
  * Derived, not registered — the head needs it to position the impeller and to size the
- * motor mount, and deriving it here keeps that arithmetic out of assembly.scad.
+ * motor mount, and deriving it here keeps that arithmetic out of bioreactor.scad.
  */
 function vessel_internal_height(type) =
   vessel_height(type) - vessel_punt_height(type) - vessel_thickness(type);

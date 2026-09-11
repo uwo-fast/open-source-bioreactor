@@ -12,7 +12,7 @@
 # list is the record of what renders, and it lives in the justfile beside the recipes that
 # read it.
 #
-# Run with default render flags. render_all is declared in assembly.scad, head.scad and
+# Run with default render flags. render_all is declared in bioreactor.scad, head.scad and
 # frame.scad, so -D render_all=false sets all three and leaves 4 of the 36 asserts standing.
 set -uo pipefail
 

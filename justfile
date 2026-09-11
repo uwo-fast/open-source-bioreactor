@@ -23,9 +23,10 @@ export OPENSCADPATH := justfile_directory() + "/.openscad-libraries"
 #                   reaches the pitched blade custom/impeller.scad's own example does not
 #   frame.scad      a CLEAN 2-manifold, 141 s. Skipped for time alone; its parts are in that same
 #                   export
-#   assembly.scad   fifteen minutes without finishing. check-parts already calls it "the whole
+#   bioreactor.scad fifteen minutes without finishing. check-parts already calls it "the whole
 #                   reactor as a picture, not a part"
-#   cart.scad       not a 2-manifold as it previews, 515 s, and its corner bracket has no render of
+#   support/equipment_cart.scad
+#                   not a 2-manifold as it previews, 515 s, and its corner bracket has no render of
 #                   its own to build instead - see TODO.md, these files want manifests
 #
 # THE FAILURES ARE NOT DEFECTS IN ANYTHING PRINTED. head.scad's printed geometry on its own IS a
@@ -37,13 +38,13 @@ export OPENSCADPATH := justfile_directory() + "/.openscad-libraries"
 # has formally declared are not printed. It could not pass, and nothing about it was actionable.
 # (render_motor with its inserts and screws was not measured - the sweep was stopped there.)
 #
-# electronics_stand.scad came OFF this list. It builds in 14 s rather than minutes, and
+# support/electronics_stand.scad came OFF this list. It builds in 14 s rather than minutes, and
 # `-D print_corner=true` gives its printed bracket as a clean 2-manifold in 4. It is checked now.
-export MESH_SKIP := "scad/assembly.scad scad/cart.scad scad/frame.scad scad/head.scad"
+export MESH_SKIP := "scad/bioreactor.scad scad/support/equipment_cart.scad scad/frame.scad scad/head.scad"
 
-ENTRY_CUSTOMIZED := "scad/assembly.scad scad/head.scad scad/frame.scad"
+ENTRY_CUSTOMIZED := "scad/bioreactor.scad scad/head.scad scad/frame.scad"
 
-export ENTRY := "scad/assembly.scad scad/bottle_holder.scad scad/cart.scad scad/electronics_stand.scad \
+export ENTRY := "scad/bioreactor.scad scad/support/bottle_holder.scad scad/support/equipment_cart.scad scad/support/electronics_stand.scad \
 scad/frame.scad scad/head.scad scad/custom/bayonet_port.scad \
 scad/custom/cylindrical_flex_collet.scad scad/custom/gasket_cutter.scad \
 scad/custom/gasket_cutter_v2.scad scad/custom/impeller.scad \

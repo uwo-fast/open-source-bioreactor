@@ -172,7 +172,7 @@ outlives the commit, in `docs/`.
   every 256 mm machine by 1.4 mm. Then the FRAME was measured: its base and top base are 257.40 as
   well, and its wall cannot come down because the rod bosses want 36.8 mm of it. So the trim thinned
   the lid's flange and put a 2.7 mm step in the joint to reach a printer the frame ruled out anyway.
-  What can print this is REPORTED by assembly.scad instead of designed to
+  What can print this is REPORTED by bioreactor.scad instead of designed to
 - **the baffle cap is a PRINT-QUALITY rule, not a bed one.** It was a literal 170 defended by
   180 mm machines, which could never have built this reactor at all. It is now a piece's height
   against three times its own section - a brim as wide as the part on each side - and the piece that

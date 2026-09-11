@@ -24,7 +24,7 @@
 # the lookup reads its argument instead of always handing back a row.
 #
 # Driven by a PARAMETER SET, not by -D, and that is the whole point. -D reaches a `use`d file's
-# globals, so a row for a parameter both assembly.scad and head.scad declare - the lean ceiling,
+# globals, so a row for a parameter both bioreactor.scad and head.scad declare - the lean ceiling,
 # the fill fraction - would pass on the -D leak even with reactor_build broken. -p assigns only
 # the file being rendered, so the value has to travel the build list to be seen. It is also the
 # channel a real build uses.
@@ -41,8 +41,8 @@ matrix=(
     "do_probe_port_tilt_max|2|number"
     "culture_fill_fraction|0.7|number"
 )
-"$OPENSCAD" -o "$tmp/base.csg" scad/assembly.scad 2>"$tmp/be" >/dev/null
-if grep -q '^ERROR' "$tmp/be"; then echo "FAIL  assembly.scad does not build at its defaults"; exit 1; fi
+"$OPENSCAD" -o "$tmp/base.csg" scad/bioreactor.scad 2>"$tmp/be" >/dev/null
+if grep -q '^ERROR' "$tmp/be"; then echo "FAIL  bioreactor.scad does not build at its defaults"; exit 1; fi
 failed=0
 for row in "${matrix[@]}"; do
     param="${row%%|*}"; rest="${row#*|}"; value="${rest%|*}"; want="${rest##*|}"
@@ -51,7 +51,7 @@ for row in "${matrix[@]}"; do
         *)      json_value="\"$value\""; shown="$param=\"$value\"" ;;
     esac
     printf '{"parameterSets":{"t":{"%s":%s}},"fileFormatVersion":"1"}' "$param" "$json_value" > "$tmp/p.json"
-    "$OPENSCAD" -p "$tmp/p.json" -P t -o "$tmp/d.csg" scad/assembly.scad 2>"$tmp/e" >/dev/null
+    "$OPENSCAD" -p "$tmp/p.json" -P t -o "$tmp/d.csg" scad/bioreactor.scad 2>"$tmp/e" >/dev/null
     if grep -q '^ERROR' "$tmp/e"; then
         echo "FAIL  $shown does not build"
         grep -m1 '^ERROR' "$tmp/e" | sed 's/.*failed: //; s/ in file.*//' | sed 's/^/        /'
@@ -66,7 +66,7 @@ for row in "${matrix[@]}"; do
     # registry to be absent from.
     if [ "$want" != number ]; then
         printf '{"parameterSets":{"t":{"%s":"no_such_row"}},"fileFormatVersion":"1"}' "$param" > "$tmp/x.json"
-        "$OPENSCAD" -p "$tmp/x.json" -P t -o "$tmp/x.csg" scad/assembly.scad 2>"$tmp/xe" >/dev/null
+        "$OPENSCAD" -p "$tmp/x.json" -P t -o "$tmp/x.csg" scad/bioreactor.scad 2>"$tmp/xe" >/dev/null
         if ! grep -q '^ERROR' "$tmp/xe"; then
             echo "FAIL  $param accepted a name nothing is registered under"
             failed=1

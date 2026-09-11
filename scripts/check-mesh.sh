@@ -14,7 +14,7 @@ tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
 # render already IS the part. The ones that need it render an assembly to be looked at.
 mesh_flags() {
     case "$1" in
-        scad/electronics_stand.scad) echo "-D print_corner=true" ;;
+        scad/support/electronics_stand.scad) echo "-D print_corner=true" ;;
         *) echo "" ;;
     esac
 }
@@ -23,8 +23,8 @@ mesh_why() {
     case "$1" in
         scad/head.scad)     echo "not a 2-manifold as it previews - export-parts builds its 23 parts" ;;
         scad/frame.scad)    echo "a clean 2-manifold but 141 s - export-parts builds its parts" ;;
-        scad/assembly.scad) echo "the assembled reactor as a picture; nothing is printed from it" ;;
-        scad/cart.scad)     echo "not a 2-manifold as it previews; its bracket has no render of its own" ;;
+        scad/bioreactor.scad) echo "the assembled reactor as a picture; nothing is printed from it" ;;
+        scad/support/equipment_cart.scad)     echo "not a 2-manifold as it previews; its bracket has no render of its own" ;;
         *) echo "" ;;
     esac
 }

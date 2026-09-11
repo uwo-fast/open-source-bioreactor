@@ -7,7 +7,7 @@ break something if you get them wrong.
 **Numbers here come from one of three places, and it is worth knowing which.** Most are quoted from
 the model's own echoes, and those are the authority — this document repeats them for the reference
 build, `jar_10L_220x305`, the vessel the registry selects. Build a different jar and they move,
-sometimes a lot: render `scad/assembly.scad` and read yours back. Some come from the notes on
+sometimes a lot: render `scad/bioreactor.scad` and read yours back. Some come from the notes on
 [`purchased-parts.csv`](../purchased-parts.csv), which is where a bought part's tolerances live. A
 few are worked out here, from the two — the torque band and the stiffness of the bolted stack are
 the only ones that matter — and each of those says so where it appears.
@@ -83,7 +83,7 @@ The baffle plates are split so no piece is too slender to print standing:
 
 ```
 baffle print: 2 pieces of 140 mm, tallest standing 163 mm against a 200 mm cap
-- which is how slender a piece may be, NOT how tall a bed is; see assembly.scad
+- which is how slender a piece may be, NOT how tall a bed is; see bioreactor.scad
 for what can actually print this; the dovetail leaves 4.2 mm of 10 crossing each
 joint, 0.074088 of the plate's second moment
 ```
@@ -116,7 +116,7 @@ It is not everything in this repo that gets printed. The **cart**, the **electro
 manifest, so they appear on no print list. `just check-parts` holds the record of that rather than
 letting it go unnoticed, and giving them manifests is on [`TODO.md`](../TODO.md).
 
-`assembly.scad` reports the printer
+`bioreactor.scad` reports the printer
 answer independently, off the geometry rather than the meshes; the two agreeing is the check that
 nothing has fallen off a manifest.
 
@@ -125,7 +125,7 @@ top base — and they are the widest things in the build by a long way. A disc h
 every angle, so it cannot be turned to fit a narrow bed: what your printer needs is `min(X, Y)` of
 at least 257.40.
 
-`scad/assembly.scad` reports this on every render, against the machines registered in
+`scad/bioreactor.scad` reports this on every render, against the machines registered in
 [`scad/purchased/printers.scad`](../scad/purchased/printers.scad). Today that is the **Prusa CORE
 One L**, the **Bambu H2D**, the **Sovol SV08**, a **Voron 2.4 350** and the **Prusa XL**.
 

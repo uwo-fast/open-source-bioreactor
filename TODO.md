@@ -49,7 +49,7 @@ actually left. What was decided, and what this project got wrong on the way, is 
     CO₂ inventory problem, where the enrichment fraction is a bigger lever on productivity than the
     entire sparger study was
 
-- [ ] **two of the five swept vessels do not render from `assembly.scad`**, and both for the drive
+- [ ] **two of the five swept vessels do not render from `bioreactor.scad`**, and both for the drive
   - `jar_1p5L_109x215`'s port flanges leave 27.1 mm against a 56 mm motor mount; dropping the mount
     to 47.5 - the smallest registered motor plus two walls - still leaves it 8.2 mm short, and D/T
     does not move it. `jar_1gal_155x251` needs D/T under about 0.37 AND a mount under 39.4 mm, and
@@ -439,7 +439,7 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
     a lower. One impeller unpicks all three, and changes the reference build that physically exists
 
 - [ ] **nothing checks a Customizer description, so they can rot the way figures do**
-  - the sweep is done: `head.scad`, `frame.scad` and `assembly.scad` each have **0 parameters with
+  - the sweep is done: `head.scad`, `frame.scad` and `bioreactor.scad` each have **0 parameters with
     no description line above**, from 33, 9 and 4. A large share of the fixes were MOVING the
     author's own trailing comment onto the line above - OpenSCAD reads only that line, so words
     like "heat-set into the lid, and they stay there once set" already existed where the UI could
@@ -464,7 +464,7 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
     "motor_mount_part_to_render above, and useful interactively for the same reason."
   - it is NOT gated, deliberately. Detecting a fragment means guessing whether a sentence started on
     the line before, and a sample says the obvious heuristic is only about half precise -
-    `assembly.scad:167` reads "Height of the lid flange, vessel rim to the top of the lid, in mm",
+    `bioreactor.scad:167` reads "Height of the lid flange, vessel rim to the top of the lid, in mm",
     which is a good description the heuristic flags. A check with that false-positive rate gets
     turned off. What each of the 54 wants is one clean line ADDED at the bottom of its block, read
     from the block rather than inferred - the descriptions written from inference during this sweep
@@ -569,7 +569,7 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
 
 - [ ] **`check-scad`'s `-D '$fn=0'` pass is not the neutraliser it reads as**
   - the head's own tessellation is settled: `head()` re-asserts `$fn = 0` and `head_fa()`/`head_fs()`
-    inside its body, so `assembly.scad`'s 64/128 cannot reach it on any binary. Measured on both
+    inside its body, so `bioreactor.scad`'s 64/128 cannot reach it on any binary. Measured on both
     installed: 2021.01 unchanged, and 2026.09 moves from `$fn = 64` to 0 through the assembly path.
     It mattered - on the nightly the lid rendered **202,158 triangles against 36,974**, and -0.038 %
     of volume as the small bores inscribed
@@ -611,10 +611,10 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
     where the gasket is held to 6. Not chased: it changes the lid for one jar
 
 - [ ] **ONE printed part is on no print list, not four - and two of the four print nothing**
-  - read file by file rather than counted: `bottle_holder.scad` makes a dovetailed sleeve and is the
-    only original printed geometry of the three. `cart.scad` prints NOTHING - bought extrusion,
+  - read file by file rather than counted: `support/bottle_holder.scad` makes a dovetailed sleeve and is the
+    only original printed geometry of the three. `support/equipment_cart.scad` prints NOTHING - bought extrusion,
     bought NopSCADlib brackets, bought castors, and a translucent envelope that is a picture.
-    `electronics_stand.scad` prints nothing original either: `print_corner` renders a NopSCADlib
+    `support/electronics_stand.scad` prints nothing original either: `print_corner` renders a NopSCADlib
     corner bracket, which is a VITAMIN, so it is a printed substitute for a bought part.
     `peri_pump_frame_mount.scad` is the fourth and is correctly parked on where the pumps mount
   - `check-parts` records all four rather than hiding them, and its reasons now say which is which

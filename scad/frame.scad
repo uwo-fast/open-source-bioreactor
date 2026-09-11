@@ -159,7 +159,7 @@ function frame_rod_diameter() = threaded_rod_diameter; // exported so the joint 
 
 // The top base's thickness, exported because the JOINT is a stack of two plates and the ASME bolt
 // spacing rule is driven by the THINNER of them - a thin plate bends between bolts, so it wants
-// more of them. assembly.scad had only the lid flange to hand and used it alone, which is right
+// more of them. bioreactor.scad had only the lid flange to hand and used it alone, which is right
 // only while the flange is the thinner one. It is, at 8 against 10, so nothing moves today; a
 // flange thicker than this base would have derived the count from the plate that does not govern.
 function frame_upper_base_height() = upper_base_height;
