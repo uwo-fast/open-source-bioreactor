@@ -147,9 +147,11 @@ lid_plug_height = 10;
 lid_radial_allowance = 0.4;
 // minimum wall the lid keeps around a bore: to the plug's edge, to a neighbouring port, and to the
 // flange's outer edge for the joint posts
+// Least wall the lid keeps around a bore, in mm
 lid_holes_offset = 2.0;
 // air between two neighbouring flanges, which stand on the lid's outer face; the wall between
 // their bores is lid_holes_offset
+// Least air between two neighbouring port flanges, in mm
 lid_flange_gap = 1.0;
 // allowance for the bearing and shaft holes
 bearing_hole_allowance = 0.2;
@@ -171,6 +173,7 @@ bearing_hole_allowance = 0.2;
 
 // the registered sheet the rim gasket is cut from; its thickness sets the recess depth and its
 // hardness the gasket factor, both read back through head_gasket_factor()
+// The registered sheet the rim gasket is cut from
 lid_gasket_sheet = sheet_epdm_1p6_60a;
 // fraction of that the recess squeezes out; 25% is mid-band for a soft sheet
 lid_gasket_compression = 0.25;
@@ -178,12 +181,14 @@ lid_gasket_compression = 0.25;
 lid_gasket_land_margin = 1.0;
 // Seating force grows with width and stiffness with its square, and all of it lands on glass;
 // six millimetres seals (jar_6p5gal's 12 mm wall would otherwise ask 4.4x the force)
+// Widest the rim gasket is cut, in mm
 lid_gasket_width_max = 6;
 // below this a gasket is fiddly to cut and will not stay in its recess; reported, not enforced
 lid_gasket_width_min = 3;
 // Which ring centres the lid plug. undef derives it: any registered ring whose free ID lands this
 // jar's groove between zero and five percent stretch. The groove is cut from the mouth, so one
 // ring seals one mouth.
+// The ring centring the lid plug; undef derives it from the mouth
 lid_plug_oring = undef;
 // radial squeeze; low in the 14-25% band because a stretched ring thins by about half its stretch
 lid_plug_oring_squeeze = 0.18;
@@ -197,6 +202,7 @@ shaft_bearing = BB608; // McMaster 6153K71, 440C stainless, sealed, trade no. 60
 // rim. On the OUTER race, which does not turn - a 608's race faces are flush, so a face gasket
 // would be clamped against steel turning at shaft speed. Its ID is the bearing, 22 on 22, so it
 // seats at 0% stretch, and head() checks that.
+// The seal on the bearing's outer diameter
 bearing_oring = oring_22x1p5_epdm;
 
 // A radial gland cut outward from the pocket wall, Table A's radial column, centred in the
@@ -219,6 +225,7 @@ function head_motor_selected(motor) = is_undef(motor) ? head_motor : motor;
 shaft_jar_punt_clearance = 5;
 // Which impeller shaft. undef derives it: the shortest registered row that still leaves the
 // coupling something to grip. Length sets how far the shaft protrudes and so the mount's height.
+// The impeller shaft; undef takes the shortest registered row that reaches
 head_shaft = undef;
 // adjust distance between the motor and the shaft coupling
 shaft_shaft_coupling_offset = 0; // can be positive or negative
@@ -240,11 +247,13 @@ motor_mount_coupling_allowance = 0.2;
 motor_mount_facets = 20;
 // heat-set inserts, because the mount comes off at every service and a printed thread would not
 // survive it; the hole and the screw length both come off this row
+// The heat-set insert the mount screws into
 motor_mount_base_insert = insert_m4x4p7_ss;
 // the screw into that insert; its size must match what the insert takes
 motor_mount_base_screw = M4_cap_screw;
 // least lid left under a blind pocket (insert holes, bearing), which is what keeps it from being
 // a leak path into the culture
+// Least lid left under a blind pocket, in mm
 lid_blind_pocket_floor_min = 3.0;
 
 /* [Impeller Parameters] */
@@ -254,14 +263,17 @@ lid_blind_pocket_floor_min = 3.0;
 
 // Impeller diameter as a fraction of the vessel's BORE, which is what D/T means in the literature.
 // 0.45 is mid-band on every citation and is what lets every registered vessel pass its mouth.
+// Impeller diameter as a fraction of the vessel's bore (D/T)
 impeller_bore_ratio = 0.45;
 // The registered impeller type. pbt_45_4 is chosen for what can be said about it: Medek's
 // correlation gives Po and names the conditions this vessel breaks. The hand-drawn twisted
 // paddle stays registered, with no power number anyone can cite.
+// The registered impeller type
 head_impeller_type = impeller_pbt_45_4;
 
 // Where a borrowed power number comes from when the chosen type has none: the nearest measured
 // shape, and an over-estimate since twist lowers Po (Patwardhan, Kumaresan).
+// The row whose power number stands in when the type has none
 head_impeller_po_fallback = impeller_folded_axial_4;
 
 // width of each fin blade
@@ -276,6 +288,7 @@ impeller_set_screw = set_screw_m4x6_316;
 impeller_set_screw_at = [0, 120];
 // hub collar standing above the blades. The set screws thread into this rather than into the hub
 // alongside the fins, which is what keeps them clear of a fin at any count, twist or phase
+// Height of the set-screw collar above the blades, in mm
 impeller_collar_height = 8;
 // added to the tap hole for print calibration; printed holes come out undersize
 impeller_set_screw_allow = 0;
@@ -290,10 +303,12 @@ impeller_spacing_factor = 1.0;
 // design declaration: the pair are mirror images and always oppose, and at +1 the lower pumps up,
 // the upper down, and the flows converge on the gap - the one arrangement where a single sparge
 // ring sits in both discharges (Birch & Ahmed).
+// Which way the shaft turns: +1 counter-clockwise seen from above
 head_shaft_rotation = 1;
 // Lower impeller centreline off the floor, in impeller diameters. Fořt found hydraulic efficiency
 // higher at C/D 1.0 than 0.5; 0.9 keeps margin inside the correlation's own limit and coverage
 // over the upper impeller.
+// Lower impeller centreline off the floor, in impeller diameters
 impeller_clearance_factor = 0.9;
 
 // Derived from the registered row; the section re-opens below so the customizer UI is unaffected
@@ -305,6 +320,7 @@ impeller_twist_ang = impeller_twist(head_impeller_type);
 // Fraction of the jar's CAPACITY the culture stands at - a fraction, so it scales across the
 // registry (docs/decisions.md). 0.865 is what the reference build runs; the literature's 0.8 is
 // reported against, and coverage over the upper impeller is what the margin buys.
+// Fraction of the jar's capacity the culture fills
 culture_fill_fraction = 0.865;
 // Window a shaft speed measurement is averaged over, in seconds; sets what an encoder resolves
 encoder_speed_window = 0.1;
@@ -337,10 +353,12 @@ port_position = "locked"; // [locked, entry]
 // The riser: a rigid tube from the lid port down into the sparge ring's socket, and the only
 // thing holding the ring. Registered, so OD, bore and part number come off one row. Above the
 // port tables because they are bored for it.
+// The registered tube the sparger hangs from
 sparge_riser_tube = steel_tube_welded_4x0p5;
 
 // What the two gas ports are bored to: a guide, not a grip - a ground steel tube does not hold
 // itself in a printed bore the way flexible tubing does
+// Bore radius of the tube ports, cut for the riser, in mm
 tube_port_riser_bore = steel_tube_od(sparge_riser_tube) / 2 + 0.2; // 0.2 as the bearing hole takes
 
 // The rod seal closing that annulus; its ID is the tube's OD, which head() checks
@@ -365,6 +383,7 @@ head_port_set_full = [
 // What a narrow jar carries instead: six ports, no baffles, no dosing pair (pH is measured, not
 // controlled). The two probes are the only std flanges, so they sit opposite; the thermocouple is
 // 1/8 NPT so it fits a mini beside DO. See docs/ports-layout.md.
+// The six-port table a narrow jar carries
 head_port_set_reduced = [
   ["do_probe",    "probe",        0, do_lab_g2], //   0 deg  opposite the air inlet
   ["air_out",     "tube",         tube_port_riser_bore], //  60
@@ -574,10 +593,12 @@ baffle_neck_clearance = 1.5;
 baffle_bore_clearance = 0.2;
 // How far the plate hangs below the port's bottom face. undef hangs it to the floor limit for
 // the jar being built; set a number to pin one, and head() still checks it against the floor.
+// How far the plate hangs below its port, in mm; undef hangs it to the floor limit
 baffle_length = undef;
 // Thickness of the plate: a stiffness and dynamics choice, not strength. 10 is where the tip
 // deflection limit and the blade-passing crossing both clear with margin; thicker raises the mode
 // into the operating band. See docs/agitation.md.
+// Thickness of the baffle plate, in mm
 baffle_thickness = 10;
 // printed PETG, for the plate's stiffness. REASONED, NOT CITED - derated from ~2.0 GPa bulk
 baffle_modulus = 1800; // MPa
@@ -595,12 +616,14 @@ baffle_transition_height = 10;
 baffle_brim_spread = 3;
 // How tall a piece may stand per unit of that footprint; a judgement. Graded on the plate's own
 // section, since a tip piece is more slender than the one carrying the port's flange.
+// How tall a printed piece may stand per unit of footprint
 baffle_slenderness = 4;
 // And a ceiling: the shortest Z any registered printer has, less room for a brim
 baffle_segment_height_ceiling = min([for (p = printers) printer_build_z(p)]) - 10;
 
 // Tallest a printed piece may stand on the bed, the port's own stack included. Graded on the
 // widest plate the port's bore will pass, so the cap is a property of the port, not the vessel.
+// Tallest a printed baffle piece may stand, in mm
 baffle_segment_height_max =
   min(
     baffle_segment_height_ceiling,
@@ -611,6 +634,7 @@ baffle_segment_height_max =
 baffle_segments = undef;
 // The dovetail, sliding along the plate's width and blind at the far end. The neck is the only
 // material crossing the joint plane, so it is the parameter and the depth follows.
+// Socket wall each side of the dovetail, in mm
 baffle_joint_lip = 1.6; // socket wall each side, four perimeters at a 0.4 nozzle
 // material left crossing the joint
 baffle_joint_neck = 4.2;
@@ -633,6 +657,7 @@ sparge_ring_clearance = 1.25;
 sparge_ring_gap_fraction = 0.5;
 // The tube is derived from the riser: the feed socket is this tube standing up, so the bore is the
 // riser's own and the outside is that plus a wall.
+// Wall around the sparger's bore, in mm
 sparge_wall = 1.2; // around the bore, and what the socket must keep around the riser it accepts
 // octagon outside: flats to drill into, and no crown to bridge
 sparge_tube_facets = 8;
@@ -642,6 +667,7 @@ function sparge_tube() = sparge_bore() + 2 * sparge_wall;  // across FLATS
 sparge_ring_count = 1;
 // where the innermost ring sits when there is more than one, as a fraction of the outermost;
 // reasoned, not cited
+// Where the innermost ring sits, as a fraction of the outermost
 sparge_inner_fraction = 0.35;
 // the cleaning gap opposite the feed
 sparge_split_angle = 14;
@@ -701,6 +727,7 @@ dosing_pump_functions = ["acid", "base"];
 
 // Design choices for the collet. Every hardware dimension comes from the registered probe
 // named in head_ports, so nothing about the probe itself is entered here.
+// Wall of the probe collet, in mm
 probe_port_collet_wall_thickness = 1.2;
 // grip fit; 0.5 was tried twice and was tight, 0.6 stuck
 probe_port_collet_body_allowance = 0.6;
@@ -713,15 +740,18 @@ probe_port_collet_tab_deflection = 0.5;
 // What a galvanic DO probe needs moving past its membrane, mL/min: Atlas say "approximately
 // 60 ml/min", and the probe consumes the oxygen it reads. A property of the sensing principle, so
 // here and not in the registry. See docs/references.md.
+// Flow a galvanic DO probe needs past its membrane, mL/min
 do_probe_flow_requirement = 60;
 
 // The DO probe leans outward to shed bubbles off its membrane; the lean is derived, the most of
 // this ceiling the jar's internals allow (scanned, because the bounds close from both sides), and
 // 0 where nothing clears so the reach asserts report the real conflict. 4.5 is reasoned, not cited,
 // and is the most jar_10L takes before the collet stops passing the mouth.
+// Ceiling on how far the DO probe leans out, in degrees
 do_probe_port_tilt_max = 4.5;
 // Vertical: Yokogawa want a pH bulb at least 15 degrees above horizontal, and the long pH probe
 // goes through the sparge ring at any lean
+// How far the pH probe leans, in degrees; vertical
 ph_probe_port_tilt_degrees = 0;
 // the collet's standoff below the coupling, before the probe's own diameter is added to it
 probe_port_transition_length = 25;

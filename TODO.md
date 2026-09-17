@@ -210,11 +210,6 @@ doing is a family spanning three agitation modes off one lid and one sparger.
   - the count stays two: the sparge ring sits in the gap, the power is per pair, the manifest lists
     two, and the reference build physically exists. Changing it unpicks all of that
 
-- [ ] **Customizer descriptions that are a sentence fragment are not gated**
-  - `check-customizer` catches a missing description and a bare `[Hidden]`. It does not catch a
-    description that is the last line of a multi-line block, because a heuristic for that is about
-    half precise. The fix is one clean line at the bottom of each block
-
 - [ ] **the sparger's bore is the departure, not its holes, and it is one designation**
   - at the build's 4.11 L/min through one ring, sweeping the bore with 8 x 3 mm holes held:
 
