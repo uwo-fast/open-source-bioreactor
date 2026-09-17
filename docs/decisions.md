@@ -99,6 +99,10 @@ not stay inline.
 - **Below D/T 0.4305 the lock bore is what caps the baffle's width.** It was, when the impeller
   and the bore were the only bounds; the sparge ring caps it now on every jar, since the room
   outside a baffle does not grow with the mouth.
+- **The full port set's smallest mouth is 130.4 mm and the reduced set's 81.6, and spreading the
+  big ports is worth 19.3 mm.** All three assumed the ports could be arranged freely; four baffles
+  every third port leave no port that is not beside one, so the worst pair is std against std
+  whatever the tubes take. 142.0 and 78.0 mm, which `head()` reports.
 - **A DC fan runs 1000–3000 rpm where this design wants 320–420.** The band was the reference
   build's drive on a 94.5 mm impeller, applied to jars whose impellers are half that. The target is
   tip speed, and holding it puts `jar_1p5L` at 528–851 rpm and `jar_1gal_155` at 358–577 — nearer a
