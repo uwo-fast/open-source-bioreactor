@@ -7,6 +7,16 @@ export OPENSCAD := env("OPENSCAD", "openscad")
 # render is reproducible or fails loudly.
 export OPENSCADPATH := justfile_directory() + "/.openscad-libraries"
 
+# Tool caches live in the repository too, so the gate runs the same on a bench, in CI and in a
+# sandbox that cannot write the home directory. Gitignored.
+export npm_config_cache := justfile_directory() + "/.cache/npm"
+export UV_CACHE_DIR := justfile_directory() + "/.cache/uv"
+export UV_TOOL_DIR := justfile_directory() + "/.cache/uv-tools"
+
+# What the formatters see: the tracked files of the types they own, so a stray in the tree is not
+# the gate's business. .prettierignore still applies.
+FORMATTED := "$(git ls-files '*.md' '*.json' '*.jsonc' '*.yml' '*.yaml')"
+
 # What check-mesh does not build by default, each for its own reason: head.scad and
 # equipment_cart.scad are not 2-manifolds as they preview (vitamins - seals, probes, bearing -
 # break the union, and those are on check-parts' not_printed list); frame.scad is clean but
@@ -42,18 +52,18 @@ check: fmt-check lint check-recipes check-echo check-scad check-designations che
 #
 # Format markdown, JSON and the analysis Python in place.
 fmt:
-    npx --yes prettier@3.8.4 --write .
+    npx --yes prettier@3.8.4 --write {{FORMATTED}}
     uvx ruff@0.14.5 format analysis scripts
     uvx ruff@0.14.5 check --fix analysis scripts
 
 # Verify formatting without touching anything, which is what `check` needs.
 fmt-check:
-    npx --yes prettier@3.8.4 --check .
+    npx --yes prettier@3.8.4 --check {{FORMATTED}}
     uvx ruff@0.14.5 format --check analysis scripts
 
 # Lint markdown and the analysis Python.
 lint:
-    npx --yes markdownlint-cli2@0.18.1 "**/*.md" "#analysis/.venv" "#working.tmp" "#output" "#.openscad-libraries"
+    npx --yes markdownlint-cli2@0.18.1 $(git ls-files '*.md')
     uvx ruff@0.14.5 check analysis scripts
 
 # The two checks a CGAL render puts out of the fast gate's reach: minutes, not seconds.
