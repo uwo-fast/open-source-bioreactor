@@ -9,8 +9,7 @@
  * parameter and nothing else - see docs/architecture.md.
  *
  * CROSS-COUPLING: what two subassemblies must agree on, derived once here and handed down.
- *   vessel -> frame   outer diameter, height
- *   vessel -> head    the registered row
+ *   vessel -> head, frame   the registered row
  *   light  -> frame   the registered strip light row
  *   head  <-> frame   the joint: lid_flange_height (chosen here), the bolt circle, the bore and
  *                     the outer face (read back from frame.scad), and the post pattern
@@ -305,9 +304,7 @@ if (render_vessel || render_all) {
 
 if (render_frame || render_all) {
   frame(
-    vessel_height=vessel_height(reactor_vessel),
-    vessel_outer_diameter=vessel_diameter(reactor_vessel),
-    vessel_corner_radius_base=vessel_corner_radius_base(reactor_vessel),
+    vessel=reactor_vessel,
     light=_reactor_light,
     wall_thickness=frame_wall_thickness,
     lid_flange_height=lid_flange_height,
