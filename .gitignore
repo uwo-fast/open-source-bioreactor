@@ -22,7 +22,8 @@ analysis/.venv/
 __pycache__/
 *.pyc
 
-# Tool caches
+# Tool caches; .cache/ is where the justfile points npm and uv
+.cache/
 .mypy_cache/
 .ruff_cache/
 .pytest_cache/
