@@ -151,7 +151,9 @@ the 0.99 borrowed from an untwisted folded blade was an over-estimate for the he
 height has no source either.
 
 The hub was grown from 7.5 to 10 mm radius (0.159 to 0.212 D) to carry the set screws; that is
-within the 0.2–0.33 D hubs carry in practice.
+within the 0.2–0.33 D hubs carry in practice. The alternative, a local boss leaving the blade
+alone, prints with an overhang and has to be indexed against the blades; the joint was the binding
+problem, and a slipping impeller costs the whole run.
 
 The row stays registered and `head()` still draws it. A bench measurement, `Po = P/(ρN³D⁵)` from
 shaft power at three or four speeds in water, would give it a power number; see `TODO.md`.
@@ -390,15 +392,17 @@ been priced against the mass transfer it costs, and it should be.
   but on its own footing: a down-pumping impeller near the free surface entrains air, which is true
   of any blade and not Oldshue's to authorise.
 - **Oldshue's 1–2 D band and his coverage caveat do not overlap on this vessel.** The band needs
-  C ≥ 94.5 mm and keeping half a diameter of liquid over the upper impeller needs C ≤ 69.2 mm,
-  because the vessel is short for two impellers: they span 154.5 mm of a 241 mm column, 2.48
-  impeller diameters of liquid where the spacing band allows `0.24 < n < 1.48` — one impeller, not
-  two. The band has no primary (Fitschen relays it from Davis, whose sources do not carry it), so
-  `head()` reports it and never asserts. See `stirred_tank_impeller_count_bounds()`.
-- **A second, uncited scale corroborates the clearance.** Off-bottom clearance is more often
-  written C/T, and the quarter-to-third of tank diameter usual for an axial impeller maps to
-  C/D 0.556–0.741 in this bore. No source held here states that convention, so no band function
-  encodes it; the chosen 0.9 D is C/T 0.405.
+  C ≥ 94.5 mm, and keeping half a diameter of liquid over the upper impeller needs C ≤ 89.4 mm on
+  `jar_10L` with the pitched blade (`head()` reports 0.546 D of coverage at the 85.05 mm built).
+  The vessel is short for two impellers: 2.48 impeller diameters of liquid where the spacing band
+  allows `0.24 < n < 1.48` — one impeller, not two. The band has no primary (Fitschen relays it from
+  Davis, whose sources do not carry it), so `head()` reports it and never asserts. See
+  `stirred_tank_impeller_count_bounds()`.
+- **The uncited C/T convention supported 0.6 D and does not reach 0.9 D.** Off-bottom clearance is
+  more often written C/T, and the quarter-to-third of tank diameter usual for an axial impeller
+  maps to C/D 0.556–0.741 in this bore; 0.6 D was C/T 0.27, inside it. The 0.9 D now built is
+  C/T 0.405, above it, and rests on Fořt alone. No source held here states the convention, so no
+  band function encodes it.
 - **The 0.5 D coverage floor is reasoned, not cited.** Oldshue names the concern and gives no
   number. It is the depth below which a down-pumping impeller starts drawing its own discharge back
   off the surface instead of turning the vessel over, and `head()` warns rather than asserts on it.
@@ -446,6 +450,16 @@ been priced against the mass transfer it costs, and it should be.
 - **Added mass is not optional in that calculation.** For a plate this slender the entrained water
   is over twice the PETG's own mass, so leaving it out would overstate the first mode by about 80 %
   and hide exactly the resonance that drove the thickness.
+- **The plate is 10 mm, and the window was one millimetre wide each way.** Stiffness goes as t³
+  and the first mode as t^1.5, so thickening raises the blade-passing crossing toward the 320–420
+  rpm band the drive runs in: on the 15.3 mm plate the mode was 15.4 / 17.6 / 19.8 / 22.0 Hz at
+  9 / 10 / 11 / 12 mm, crossed by blade passing at 231 / 264 / 297 / 330 rpm, so 12 fires the
+  resonance warning and 11 is 23 rpm off the band. At 9 the tip deflected 1.635 mm, past a tenth
+  of the plate; 10 left 15 % under that limit with the crossing 17 % under rated. Since the plate
+  narrowed to 10.35 mm the same 10 mm deflects 1.94 mm, over the tenth-of-width limit `head()`
+  warns on, while the crossing at 287 rpm still clears the band by 10 %; thicker walks the crossing
+  in, so the plate stays at 10 and the warning stands. Joints take a larger share of a stiffer
+  plate, since the dovetail's 4.2 mm neck does not thicken with it.
 - **The deflection all of those numbers came from was wrong, and is corrected.** The closed form in
   `stirred_tank_baffle_deflection()` was only ever checked at zero freeboard, where it happens to
   agree with the right answer at `qL⁴/8EI`; away from there it understated. At the plate's real

@@ -41,7 +41,8 @@ subassembly including the registries it resolves designations from, `bayonet_por
 2. **A designation is resolved where the choice is owned.** `bioreactor.scad` resolves what a build
    states, by name through the registry's `*_by_name()`; a subassembly resolves its own `"auto"`.
    Geometry never browses a registry to decide what it wants. This is why a subassembly may include
-   a registry and a part may not: the subassembly is sometimes the file being rendered.
+   a registry and a part may not: the subassembly is sometimes the file being rendered. A part's
+   standalone preview may `use` a registry to pick its example row by name.
 
 3. **Narrowest coherent interface.** A scalar when the consumer reads one physical fact; the row
    when it depends on the part's identity or several of its fields (a port takes the probe row, a

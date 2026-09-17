@@ -18,7 +18,8 @@ printer_prusa_xl         = ["prusa_xl",         [360,  360,  360]];
 // prusa_mk3s and the XL are what this project's parts were printed on; at 210 mm in Y the mk3s
 // cannot take the lid. voron_250 covers the 2.4 and the Trident; the 350 row is the 2.4.
 // bambu_x1c is also the P1S and X1E. bambu_h2d is the single-nozzle figure, not the 350 headline.
-// A nominal bed is not all usable (purge towers, skirts, clamps); see printer_z_margin in head.scad.
+// A nominal bed is not all usable (purge towers, skirts, clamps); `just export-parts` reports each
+// part's fit.
 
 printers = [printer_prusa_mk3s, printer_prusa_core_one, printer_voron_250, printer_bambu_x1c,
             printer_prusa_core_one_l, printer_bambu_h2d, printer_sovol_sv08, printer_voron_350,

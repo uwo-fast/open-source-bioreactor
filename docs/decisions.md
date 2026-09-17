@@ -74,7 +74,13 @@ not stay inline.
   it was chosen on.
 - **The clearance was 0.6 D, chosen against Oldshue's 1–2 D as an allowance the vessel could not
   reach.** That allowance is for fluidfoils; Fořt's guidance fits a pitched blade and puts it at
-  0.9 D. The uncited C/T quarter-to-third convention corroborates both.
+  0.9 D. The uncited C/T quarter-to-third convention supported 0.6 D (C/T 0.27) and does not reach
+  0.9 D (C/T 0.405).
+- **The eccentricity analysis measured T as the outer diameter.** `docs/references.md`'s e/T
+  table read "Hall's e = 0.2 T needs 21.8 mm on `jar_1p5L`", with every ratio 0.2 × or ÷ the glass
+  rather than the bore - the impeller-ratio defect, recurring in a document after it was fixed in
+  the model. The numerator was lid geometry in mm and never in question; only the denominator
+  moved, 4 to 8 % all one way. The e/T columns are echoed by `head()` now, not transcribed.
 - **The feed socket is a hexagon.** It takes the tube's own octagonal section now; 0.264 mm of
   corner is what tells it from a round support.
 - **Jirout & Rieger's course notes were graded [PR].** Undated teaching material, [TX]; its

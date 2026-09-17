@@ -142,8 +142,7 @@ check-holes file="" flags="-D render_all=false -D render_sparger=true":
     @scripts/check-holes.sh "{{file}}" "{{flags}}"
 
 # Only registries that carry a part number are checked, and only what the reference build
-# selects; it compares the part_number field, not the file. The gasket sheet, the motor and the
-# shaft coupling are not enrolled - see the script.
+# selects; it compares the part_number field, not the file. The script says what is not enrolled.
 #
 # Fail when the purchase list misses a part the model prescribes.
 check-bom:

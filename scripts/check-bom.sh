@@ -2,6 +2,11 @@
 #
 # Fail when the purchase list misses a part the model prescribes.
 #
+# Only registries carrying a part number are enrolled, and only what the reference build
+# selects. Not enrolled: the gasket sheet (not selected per build yet), the drive motor (its CSV
+# part_number is the compound "RM-ESMO-071 (36PG-555PM-14-EN)", which grep -qxF cannot match) and
+# the shaft coupling (uxcell publish no number, so its registry returns undef by design).
+#
 : "${OPENSCAD:=openscad}"
 
 set -uo pipefail

@@ -44,6 +44,9 @@ closed it and in `docs/`.
     filter it prices the way out at zero (the tube costs 23.7-55.2 Pa regardless), and with one it
     charges a full riser where the gas travels 37.9-88.3 mm. Under 0.5 % of the line; dead code
     until something sets the filter
+  - the budget goes negative where the pump cannot reach the band at all, and the echo prints it
+    straight: `jar_6p5gal_305x470` reads "may cost at most -2.05309 kPa per L/min". The throttle
+    warning already says why; this line wants the same `<= 0` branch
   - the budget moves with the inlet filter's slope, which is extrapolated - measure that first
   - a trap or a longer tube would guard against splashback with no drop; a different sterility claim
 
@@ -192,6 +195,9 @@ doing is a family spanning three agitation modes off one lid and one sparger.
   - `custom/bayonet_interfaces.scad` includes `orings.scad` so rows can name their ring - rule 6
     allows it - and `bayonet_port.scad` then includes that file and receives every o-ring as a
     global. Recorded, not yet worth moving
+  - `bayonet_port.scad` `use`s `atlas_probes.scad` for its preview's example probe, as
+    `sheet_gasket.scad` and `peri_pump_frame_mount.scad` do their registries; rule 2 allows a
+    preview that
 
 - [ ] **four of five jars carry a second impeller the spacing does not support**
   - Fitschen eq. (5), `(H-d)/d > n > (H-2d)/(2d)`, in impeller diameters:

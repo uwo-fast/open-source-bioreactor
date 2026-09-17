@@ -694,10 +694,7 @@ What is reachable, by Karcz's equation:
 
 **T is the BORE here**, `vessel_outer_diameter − 2 × vessel_wall_thickness`, which is what T means
 everywhere else in this project: `head.scad`'s D/T is cut from it and so is the H/T the model echoes.
-(The numerator was never in question:
-`Rpc − flange − lid_holes_offset − mount_radius` is lid geometry in mm, so the physical room is
-unchanged and only the denominator moved — 4 to 8 %, all one way, making the target easier to reach
-and the achieved ratio higher.)
+The offset itself, `Rpc − flange − lid_holes_offset − mount_radius`, is lid geometry in mm.
 
 **The gain columns are computed from eq. (6)**, up-pumping branch: `gain = 1 − Theta(2·e/T) /
 Theta(0)`, with `Theta(0) = 91.32`, so this table can be re-derived rather than trusted.

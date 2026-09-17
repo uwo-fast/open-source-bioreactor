@@ -2,6 +2,7 @@
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
 // Rigid tube for what has to hold its shape inside the vessel: the sparge riser and its support.
+// At 4 mm OD the catalogue offers 0.25, 0.4 and 0.5 mm walls; the riser takes the thickest.
 // Welded, hard temper: McMaster's seamless metric straights are soft, and a support tube that
 // takes no permanent set is the point (a weld bead is lost against the 24 kPa the valve burns,
 // and the capped support tube is a dead leg whichever way it is made). 316 because wetted and

@@ -23,9 +23,7 @@ $fn = $preview ? 64 : 128;
 
 /* [Part Render Selection] */
 
-// Everything at once, which is the assembly picture rather than a part. It OVERRIDES every flag
-// below, so it has to go off before a single part's own goes on - which is what the print manifest
-// does for each row.
+// a per-part export turns this off before a part's own flag on, which is what the manifest does
 // Everything at once, the assembly picture; overrides every flag below
 render_all = true;
 // The lower base, which the jar stands in
@@ -34,16 +32,13 @@ render_base = false;
 render_upper_base = false;
 // The rib stack that ties the rods between the two bases
 render_ribs = false;
-// Which rib, counted in the order they are emitted, for a per-part export. undef renders the whole
-// set at their own positions, which is the assembly picture rather than something to put on a bed.
-// Which rib, in emission order, for a per-part export; undef renders the set
+// Which rib, in emission order, for a per-part export; undef renders the set in place
 rib_to_render = undef;
 // The threaded rods themselves - bought, so a vitamin rather than a part
 render_rods = false;
 // The printed annuli that set the gap between rib levels on each rod
 render_rodspacers = false;
-// Which rod spacer, for the same reason. There are three runs of four and they are all one part -
-// a plain annulus with nothing to tell them apart - so a per-part export wants any single one.
+// three runs of four, all one part, so a per-part export wants any single one
 // Which rod spacer, for a per-part export; undef renders them all
 rodspacer_to_render = undef;
 // The strip lights, bought and drawn where they sit in their pockets
@@ -111,8 +106,8 @@ nut_height = nut_thickness(rod_nut);
 // allowance for the jar to fit in the base
 base_jar_fit_allow = 0.4;
 
-// how far the base floor reaches inboard of the circle the jar lands on. reasoned, not cited: the
-// registered base corner radius is eyeballed, so this covers where the glass actually bears
+// reasoned, not cited: the registered base corner radius is eyeballed, so this covers where the
+// glass actually bears
 // How far the base floor reaches inboard of the circle the jar lands on, in mm
 base_jar_support_reach = 15;
 
@@ -124,8 +119,7 @@ upper_base_height = 10;
 rib_base_height = 10;
 // stack a second rib at each level, rotated to close the arc the pair below leaves open
 double_ribs = true;
-// how many rib levels the stack carries. Up here beside double_ribs rather than inside frame(),
-// because frame_print_parts() has to count the ribs and the spacers and cannot see a local.
+// up here rather than inside frame() because frame_print_parts() has to count the ribs
 // How many rib levels the stack carries
 n_rib_levels = 2;
 
