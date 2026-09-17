@@ -109,7 +109,7 @@ brim is worth printing on something this slender. On `jar_10L` the rule gives **
 the **printer ceiling clamps the cap to 200 mm** — the shortest registered build height less 10 —
 so 200 is what the echo reports, against a 163 mm tallest piece.
 
-The piece that binds is not the obvious one. The piece carrying the port stands on a **27.2 mm
+The piece that binds is not the obvious one. The piece carrying the port stands on a **28.2 mm
 flange**, which is a wide foot; a tip piece stands on the section alone and is half again as
 slender for it. That section is **17.09 × 10 mm** — the widest plate the port's lock bore will
 pass, not the 10.3454 mm this jar's sparge ring actually leaves — so the cap is a property of the
@@ -149,11 +149,11 @@ is set by the rod bosses, so that bought nothing and was undone.
 
 ## What you cut
 
-| Stock                              | Cut                      | Yield                                           |
-| ---------------------------------- | ------------------------ | ----------------------------------------------- |
-| M8 threaded rod, DIN 975 A2        | **4 × 322 mm**           | buy 1500 mm or more                             |
-| 316 SS tube 4 × 0.5 mm, `50415K21` | **5 × 188.174 mm**       | 940.869 mm from a 1000 mm length, 59.1 mm spare |
-| EPDM sheet 1/16 in 60A, `8525T65`  | **145 × 151 mm** per lid | 4 per 304.8 mm sheet                            |
+| Stock                              | Cut                          | Yield                                         |
+| ---------------------------------- | ---------------------------- | --------------------------------------------- |
+| M8 threaded rod, DIN 975 A2        | **4 × 322 mm**               | buy 1500 mm or more                           |
+| 316 SS tube 4 × 0.5 mm, `50415K21` | **1 × 182.0 + 4 × 188.2 mm** | 934.7 mm from a 1000 mm length, 65.3 mm spare |
+| EPDM sheet 1/16 in 60A, `8525T65`  | **142.2 × 158.2 mm** per lid | 1 per 304.8 mm sheet                          |
 
 **The rod length follows the jar, not the design.** 322 mm is `jar_10L`; it is 214 mm on
 `jar_1gal_180` and 487 on `jar_6p5gal`. It is derived as vessel 305 + flange 8 + nut 6.5 + 2.5 mm
@@ -203,7 +203,7 @@ shaft nominal and grip was otherwise zero by design.
 
 | Seal                           | How it seats                                               |
 | ------------------------------ | ---------------------------------------------------------- |
-| Lid plug, `AS568-160`          | **stretched 4.27 %** onto a groove cut from the jar's bore |
+| Lid plug, `AS568-160`          | **stretched 3.67 %** onto a groove cut from the jar's bore |
 | Port face seals, 12 of them    | seated in a gland cut to fit the ring, no stretch          |
 | Riser rod seals, `8785N364` ×5 | **0 % stretch** — the ring's ID _is_ the 4 mm tube         |
 | Bearing rim seal, `8785N382`   | **0 % stretch** — the ring's ID _is_ the 22 mm bearing     |
@@ -298,13 +298,11 @@ away, and the tube below the hole is a dead leg that keeps whatever it is given.
 exhaust path and leaving it there:
 
 ```
-gas exhaust slot: air_out vents through a hand-cut hole, so its SIZE is the one
-restriction on the way out that nothing here draws. A slot of the tube's own
-7.06858 mm2 bore costs 156.558 Pa at 4.11052 L/min, and the tube above it another
-23.6629-55.3019 Pa over the 37.9375-88.6626 mm drilling window - together
-2.26741-2.66547% of the 7948.33 Pa the exhaust has to spend. FILE PAST 0.992047 mm2
-- a round hole of 1.12388 mm - or the slot alone is the whole of it. The bore's
-own area clears that 7.12525x over.
+gas exhaust slot: a slot of the tube's own 7.06858 mm2 bore costs 156.558 Pa at
+4.11052 L/min, and the tube above it 23.6629-55.3019 Pa over the 37.9375-88.6626 mm
+drilling window, together 2.26632-2.66418% of the 7952.15 Pa the exhaust has to
+spend; file past 0.991809 mm2 (a 1.12375 mm round hole), which the bore clears
+7.12696x over
 ```
 
 **On this jar the floor is about 1 mm², which is a Ø1.12 mm hole** — a slot roughly 2 × 0.5 mm. A
@@ -317,7 +315,7 @@ is set by the headroom that jar's gas line has left: 0.992 mm² here against 0.2
 `jar_1gal_180x197`. And on `jar_6p5gal_305x470` there is no floor to quote at all — that build
 cannot hold the top of its own aeration band, so the echo says so instead of printing a number.
 
-That 7948.33 Pa is the same pressure the throttle is currently giving away, and the same headroom an
+That 7952.15 Pa is the same pressure the throttle is currently giving away, and the same headroom an
 outlet filter would have to fit inside - so what the slot spends comes off both. The three dosing
 holes meter nothing and need no size.
 
@@ -359,9 +357,8 @@ coefficient unpredictable, and 0.7 N·m is below the bottom of most torque wrenc
 ### Turn the nut instead
 
 ```
-joint tightening: 114.3 deg past snug on each of the 12 nuts, all of which sit on
-top of the lid - 0.396875 mm of gasket travel on a 1.25 mm pitch. The printed
-flange takes a little more and then creeps, so go back to them.
+joint tightening: 114.3 deg past snug on each of the 12 nuts (0.396875 mm of gasket
+travel on a 1.25 mm pitch); the printed flange creeps, so go back to them
 ```
 
 A turn is geometry. The 1/16 in gasket is 1.5875 mm, 25 % squeeze is 0.3969 mm of travel, and an
@@ -462,7 +459,7 @@ It is not. An outlet filter does not sit between the pump and the sparge holes, 
 headspace those holes discharge into, and the gas has to beat that too. A second identical filter
 puts the line at **31.8 kPa** against a pump that dead-heads at **27** — the reactor would settle at
 **3.27 L/min**, and 0.5 vvm would stop being a setting it can hold. `head()` reports the budget:
-an outlet filter may cost at most **1.93365 kPa per L/min**, which is 56.0 % of what the inlet one
+an outlet filter may cost at most **1.93458 kPa per L/min**, which is 56.1 % of what the inlet one
 does, so it wants roughly **twice the membrane area** rather than the same part again. That budget is
 gross: the vent slot and the tube above it spend 2.3-2.7 % of it before any filter is chosen.
 

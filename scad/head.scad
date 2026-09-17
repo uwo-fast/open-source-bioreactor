@@ -419,6 +419,17 @@ function head_port_set_for(vessel_opening_diameter) =
 function head_ports_uniform(vessel_opening_diameter, ports) =
   head_port_set_fits(vessel_opening_diameter, ports, true);
 
+// The smallest mouth a set fits, to 0.01 mm, by bisection: the chord grows with the mouth, so the
+// fit is monotone. undef if it fits nothing under 400 mm. Reported so docs/ports-layout.md can be
+// checked against a render.
+function head_port_set_min_mouth(ports, uniform = false, lo = 40, hi = 400) =
+  !head_port_set_fits(hi, ports, uniform) ? undef
+  : hi - lo <= 0.01 ? hi
+  : let (_mid = (lo + hi) / 2)
+    head_port_set_fits(_mid, ports, uniform)
+      ? head_port_set_min_mouth(ports, uniform, lo, _mid)
+      : head_port_set_min_mouth(ports, uniform, _mid, hi);
+
 // The table this lid carries, each row with its interface pinned: uniformity is a property of the
 // lid, not of a port.
 function head_ports_for(vessel_opening_diameter) =
@@ -2876,6 +2887,14 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     "port interfaces: ", _uniform ? str("all ", _n, " ports on ", _iface_names[0]) : str(_iface_names),
     _uniform ? ", so one face o-ring covers the lid and any port takes any function" : ", the smallest each will take on this mouth",
     "; the worst adjacent pair measures ", _port_gap, " mm against a ", lid_flange_gap, " mm floor"
+  ));
+
+  echo(str(
+    "port layout: ", _n, " ports on a ", port_circle_radius * 2, " mm circle, ",
+    2 * port_circle_radius * sin(180 / _n), " mm chord; the full set fits a mouth from ",
+    head_port_set_min_mouth(head_port_set_full), " mm (", head_port_set_min_mouth(head_port_set_full, true),
+    " uniform std), the reduced set from ", head_port_set_min_mouth(head_port_set_reduced), " mm (",
+    head_port_set_min_mouth(head_port_set_reduced, true), " uniform std); this jar's is ", vessel_opening_diameter
   ));
 
   assert(

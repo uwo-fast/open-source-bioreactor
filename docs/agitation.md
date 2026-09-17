@@ -400,7 +400,7 @@ transcript is `tests/echo/head__jar_10L_220x305.txt`. What was believed before a
   speed agrees within 26 %. No source held here loads a baffle. Added mass is not optional in the
   mode: the entrained water is over twice the PETG's own, and leaving it out overstates the
   frequency by about 80 %.
-- **Partial and inboard is uncited.** The plates span r 51.7–62.1 mm in a 210 mm bore, so the
+- **Partial and inboard is uncited.** The plates span r 51.3–61.7 mm in a 210 mm bore, so the
   annulus outboard of them is 43 mm wide and unobstructed — a consequence of passing every part
   through a 142.2 mm mouth. Inboard baffles are characterised in the literature, not recommended;
   the relevant papers are paywalled and unread (`docs/references.md`).

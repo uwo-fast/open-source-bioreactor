@@ -673,7 +673,7 @@ bare.
 **What the geometry says, with Karcz's correlation applied to it.** Eccentric mounting is real and
 well supported, and this architecture can barely use it. The motor mount is a Ø56 body centred on the
 lid and the port flanges reach inward to `head_port_circle_radius(mouth) − 14.1`, so the room for an
-offset is `Rpc − flange − lid_holes_offset − mount_radius`. On `jar_1p5L` that is already **−12.45 mm**
+offset is `Rpc − flange − lid_holes_offset − mount_radius`. On `jar_1p5L` that is already **−12.95 mm**
 and on `jar_1gal_155` **−8.30 mm** — an unasserted collision until `head()` gained the check for it,
 masked before that because the port-spacing assert fires first.
 
@@ -688,9 +688,9 @@ What is reachable, by Karcz's equation:
 | -------------- | ------- | --------- | ---- | ----------- | ---- |
 | `jar_1p5L`     | 0.864   | 0         | 0%   | 0.005       | 3%   |
 | `jar_1gal_155` | 0.642   | 0         | 0%   | 0.031       | 14%  |
-| `jar_6p5gal`   | 0.488   | 0.037     | 16%  | 0.090       | 31%  |
-| `jar_10L`      | 0.681   | 0.063     | 25%  | 0.135       | 37%  |
-| `jar_1gal_180` | 0.871   | 0.093     | 31%  | 0.181       | 41%  |
+| `jar_6p5gal`   | 0.488   | 0.035     | 16%  | 0.090       | 31%  |
+| `jar_10L`      | 0.681   | 0.059     | 24%  | 0.135       | 37%  |
+| `jar_1gal_180` | 0.871   | 0.090     | 31%  | 0.181       | 41%  |
 
 **T is the BORE here**, `vessel_outer_diameter − 2 × vessel_wall_thickness`, which is what T means
 everywhere else in this project: `head.scad`'s D/T is cut from it and so is the H/T the model echoes.
@@ -702,8 +702,8 @@ Theta(0)`, with `Theta(0) = 91.32`, so this table can be re-derived rather than 
 **The `e/T today` columns are ECHOED BY THE MODEL, not transcribed.** `head()` computes the offset
 the mount leaves — the slack above the minimum its mount-versus-flange assert clears — divides it by
 the bore, and reports the gain with `stirred_tank_eccentric_gain()`, so those two columns can be
-read off a render rather than trusted. The figures above are that echo: 10.3 mm, 13.3 and 15.8, at
-e/T 0.037, 0.063 and 0.093. The two jars showing 0 render no echo at all, because an assert stops
+read off a render rather than trusted. The figures above are that echo: 9.8 mm, 12.4 and 15.3, at
+e/T 0.035, 0.059 and 0.090. The two jars showing 0 render no echo at all, because an assert stops
 them first — the mount on `jar_1p5L`, and the pH probe on `jar_1gal_155x251`, which fails on the
 probe before it reaches the mount it would also fail. Their 0 is reasoning, not a render, and it is
 the same fact said another way: a lid with no room for the mount has none for an offset.
