@@ -51,25 +51,20 @@ is a rigid-walled green alga, the most shear-tolerant class.
 
 Computed on the 94.5 mm impeller in the 10 L jar, with **Np = 1.497 from Medek's correlation** for
 the registered 45° four-blade pitched turbine, and x = 16. Mean dissipation is over the **8.22 L**
-this build DERIVES from `culture_fill_fraction`, not over the full jar — which holds 9.52 L brim
-full. `head()` echoes every figure below at render.
+this build derives from `culture_fill_fraction`, not over the full jar — which holds 9.50 L brim
+full. `head()` reports the two registered-drive rows; the others are computed from the same
+relations at the speeds the Chlorella band asks for.
 
 | shaft speed                         | tip speed | Re      | ε̄ (W/m³) | ε_max (W/kg) |
 | ----------------------------------- | --------- | ------- | -------- | ------------ |
 | 255 rpm — Chlorella optimum         | 1.26 m/s  | 37,800  | 105      | 15.4         |
-| 320 rpm — registered drive, rated   | 1.58 m/s  | 47,400  | 207      | 30.5         |
+| 320 rpm — registered drive, rated   | 1.58 m/s  | 47,400  | 208      | 30.5         |
 | 410 rpm — break-even                | 2.03 m/s  | 60,800  | 436      | 64.2         |
-| 420 rpm — registered drive, no-load | 2.08 m/s  | 62,300  | 468      | 69.0         |
+| 420 rpm — registered drive, no-load | 2.08 m/s  | 62,300  | 470      | 69.0         |
 | 1154 rpm — 36GP-3530 at full speed  | 5.71 m/s  | 171,100 | 9,738    | 1,432        |
 
-Every figure in that column rose about 51 % when the blade changed, and none of it is the impeller
-getting worse. The old numbers used **Np = 0.99 borrowed from a differently shaped blade**, with a
-note calling them conservative; they were optimistic. Np is computed from this impeller's own
-geometry by a correlation that states where it is being extrapolated.
-
-Both columns then fell about 7 % when the fill line was pinned to a working volume, and Np went
-1.602 to 1.497. Medek's correlation reads **H/T**, so changing how full the vessel is changes the
-power number. Neither move is the impeller changing — only what is known about it.
+Np comes from this impeller's own geometry by a correlation that states where it is extrapolated,
+and it reads **H/T**, so the fill line is part of the power number.
 
 **The vessel is fully turbulent throughout the band.** Every speed above clears both the textbook
 Re > 10⁴ threshold and Nienow's stricter 2×10⁴.
@@ -103,8 +98,8 @@ past the 14:1 is 672 quadrature counts per output revolution and resolves about 
 100 ms window, against a band 155 rpm wide. Commanding a speed and measuring it beats choosing a
 motor that cannot miss.
 
-Torque is not what limits the choice. The impeller pair draws under 0.067 N·m at rated and under
-0.116 N·m at no-load against a 0.490 N·m rating — **14 to 24 % of it** — so the shaft runs nearer
+Torque is not what limits the choice. The impeller pair draws under 0.102 N·m at rated and under
+0.176 N·m at no-load against a 0.490 N·m rating — **21 to 36 % of it** — so the shaft runs nearer
 the no-load end than the rated one. That is why the registry carries rated torque and `head()`
 reports the comparison at each speed: it is the fact that says where an unmeasured shaft settles.
 
@@ -230,9 +225,9 @@ lid-hung baffle at all**, and the port table is not what stops it.
 **Unbaffled eccentric stirred** — `jar_6p5gal`. It is the family's worst case today: the largest
 vessel, unbaffled and centred, which Montante measured at flow number **0.25, 65 % below the same
 impeller baffled**. It cannot be baffled, but it _builds_, it carries a top-entry drive, and it has
-room to offset one. `head()` prices that room: **10.3 mm today, e/T 0.037, worth 16 %** of the centred
-blend time by Karcz; **25.3 mm** with the mount at the Ø36 floor its own gearbox faceplate allows,
-e/T 0.090, **worth 31 %**. This is a mount change on a jar that already works, not a new mode of
+room to offset one. `head()` prices that room: **9.8 mm today, e/T 0.035, worth 15.8 %** of the
+centred blend time by Karcz; about **25 mm** with the mount at the Ø36 floor its own gearbox
+faceplate allows, e/T 0.090, **worth 31 %**. This is a mount change on a jar that already works, not a new mode of
 agitation.
 
 What rides with it, and none of it is small: six of the eight Karcz departures fire here and Reynolds
@@ -244,7 +239,7 @@ Hall's measured `e = 0.2 T` stays out of reach at 0.090.
 not arise, because neither can carry a shaft to centre or offset. Four things point the same way:
 
 - **Both build failures are assertions about the top-entry drivetrain.** The mount overlaps the port
-  flanges by 12.45 mm on `jar_1p5L`; the pH probe runs 6.29 mm through the lower impeller on
+  flanges by 12.95 mm on `jar_1p5L`; the pH probe runs 6.29 mm through the lower impeller on
   `jar_1gal_155`. Neither assert would exist in a configuration without that drivetrain, and the
   model has no way to express one — a modelling gap, not a physical result.
 - **`jar_1p5L`'s impeller is already negated at the design aeration rate.** Oldshue's 8× rule caps
@@ -410,23 +405,7 @@ transcript is `tests/echo/head__jar_10L_220x305.txt`. What was believed before a
   through a 142.2 mm mouth. Inboard baffles are characterised in the literature, not recommended;
   the relevant papers are paywalled and unread (`docs/references.md`).
 
-### Splitting the plate so it can be printed
-
-- **It is the tallest thing in the model, and it stands in the port's axis** — the flange, the
-  o-ring groove and the pins all want that — so what bounds a piece is how tall it may stand on
-  its own footprint. The cap is a slenderness rule, four times a three-section brim on the widest
-  plate the bore will pass, clamped by the shortest registered printer's Z: 200 mm here. Every
-  registered vessel comes out in **two pieces**, 140 mm each on `jar_10L`, the tallest standing
-  163 mm with the port on it.
-- **The slide runs along the plate's width, and that is a load choice.** The swirl pushes on the
-  plate's face, so with the slide across the width that load bears on the dovetail's flanks and the
-  one free axis carries only vibration. A blind end registers the pieces; the butt faces meet, so
-  the 0.1 mm allowance is flank clearance only and the plate keeps its length.
-- **What it costs is the neck.** Only the tail crosses the joint plane: 4.2 mm of the plate's 10,
-  0.074 of its second moment, and 0.28 mm of the 1.94 mm tip deflection. The neck is the parameter
-  rather than the tail's depth for that reason, and a shallow 10° flare buys engagement without
-  eating it.
-- **Two things about the joint are not modelled.** The first mode `head()` reports is the solid
-  plate's; the joints soften it by an amount not computed. And a 0.1 mm crevice at the joint sits
-  in the culture, in a vessel that is chemically sterilised rather than autoclaved — a cleaning
-  liability nothing here answers.
+- **The plate prints in two dovetailed pieces**, and the joint is in the deflection above: 4.2 mm
+  of the plate's 10 crosses the joint plane, 0.074 of its second moment, 0.28 mm of the 1.94 mm at
+  the tip. Why it splits where it does, which way the slide runs and what the joint leaves
+  unmodelled is in `docs/build.md`.

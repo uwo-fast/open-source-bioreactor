@@ -133,16 +133,10 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
 ## alternative agitation modes
 
 `jar_1p5L` and `jar_1gal_155` cannot carry a top-entry drive at any mount size, nor four baffles
-beside two Ø16 probes at any port count. A centred shaft in an unbaffled vessel is swirl, not
-mixing (Montante: flow number 65 % below baffled). Neither item is scheduled; what makes them worth
-doing is a family spanning three agitation modes off one lid and one sparger.
+beside two Ø16 probes at any port count. Why, and what the three modes are, is `docs/agitation.md`
+section 5. Neither item is scheduled.
 
 - [ ] **explore an airlift variant, with no impeller**
-  - the small jars visibly mix on air alone, which is an uncontrolled variable, not a design: the
-    gas rate then sets kLa and mixing time together. A draft tube gives a defined riser and
-    downcomer, so the circulation is a geometry we chose and can report
-  - drops the motor, gearbox, shaft, coupling, bearing and seal - most of the cost and nearly all
-    of the contamination risk - and is a normal choice for a photobioreactor
   - needs in the model: a draft tube as a part, riser and downcomer areas, superficial gas
     velocity, a reported circulation time. The sparge ring may not survive it
 

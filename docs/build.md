@@ -82,14 +82,24 @@ file says so itself.
 The baffle plates are split so no piece is too slender to print standing:
 
 ```
-baffle print: 2 pieces of 140 mm, tallest standing 163 mm against a 200 mm cap
-- which is how slender a piece may be, NOT how tall a bed is; see bioreactor.scad
-for what can actually print this; the dovetail leaves 4.2 mm of 10 crossing each
-joint, 0.074088 of the plate's second moment
+baffle print: 2 pieces of 140 mm, tallest standing 163 mm against a 200 mm slenderness cap;
+the dovetail leaves 4.2 mm of 10 crossing each joint, 0.074088 of the plate's second moment
 ```
 
 A larger printer can pin `baffle_segments = 1` and print each plate whole, which is stiffer: the
 joints already take 14 % of the tip deflection.
+
+**The slide runs along the plate's width, and that is a load choice.** The swirl pushes on the
+plate's face, so with the slide across the width that load bears on the dovetail's flanks and the
+one free axis carries only vibration. A blind end registers the pieces; the butt faces meet, so
+the 0.1 mm allowance is flank clearance only and the plate keeps its length. The neck — the only
+material crossing the joint plane — is the parameter rather than the tail's depth, and a shallow
+10° flare buys engagement without eating it.
+
+**Two things about the joint are not modelled.** The first mode `head()` reports is the solid
+plate's; the joints soften it by an amount not computed. And a 0.1 mm crevice at the joint sits in
+the culture, in a vessel that is chemically sterilised rather than autoclaved — a cleaning
+liability nothing here answers.
 
 **That cap is about the part, not about your printer.** It used to be a literal 170, justified by
 180 mm machines being "the small end of what anyone building this owns" — and no 180 mm machine was
