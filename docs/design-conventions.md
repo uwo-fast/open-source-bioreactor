@@ -14,9 +14,7 @@ enters the mouth. The rim is fixed by the jar; the frame's top base is derived _
 ground and presents a flat annulus. Every other jar is fire-polished and presents a CROWN — the
 glass rolls over, and on two of them the roll stands proud of the wall as a bead. So there is no
 land to inset a gasket into and none to bottom the flange on: the gasket covers the lip instead,
-and what gets squeezed is the band the crown makes as it sinks in. (Superseded — kept for the
-record: this read "seats on the flat land on top of the glass", and the model sized the gasket to a
-flat that four of five jars do not have. It was caught by measuring the jars, not by any check.)
+and what gets squeezed is the band the crown makes as it sinks in.
 
 The consequence that matters: the **2.4 mm gap** between the top base's upper face and the lid
 flange's underside is _required_, not slack to be removed. It is the clearance that lets the joint
@@ -234,12 +232,9 @@ Working it properly then changed the design rather than the number: the radial b
 73 mm of height sits unused. The ring's section became 4 × 10 mm, which is also the reason it is
 printed rather than bent — **a tube is round, and round does not fit**.
 
-(Superseded — kept for the record, because the LESSON stands and the conclusion does not. Reporting
-the fit before drawing the part is what caught the −1.40 mm, and that is why this section exists.
-The 4 × 10 answer was overtaken by a requirement the fit report could not see: a sealed slot cannot
-be cleaned, and on an algal culture that outranks the packaging. The sparger is a round tube now,
-and it fits because the mouth constrains its OUTER edge while nothing constrains the inner one until
-the impeller — so the centreline moves inboard and the band was never the bound this assumed.)
+The 4 × 10 section was itself overtaken by a requirement the fit report could not see - a sealed
+slot cannot be cleaned - and the sparger is a round tube now, placed by the mouth; see
+`decisions.md`. The lesson stands: the fit report is what caught the −1.40 mm.
 
 A model whose checks only run after the geometry exists will confirm whatever was built.
 

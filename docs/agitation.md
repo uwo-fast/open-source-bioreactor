@@ -136,69 +136,25 @@ its strong axial motion.
 at 0.4879 with the impeller exactly filling the neck; 0.45 leaves 10.64 mm to pass it through. Every
 other registered jar tolerates 0.64 to 0.87.
 
-The model asserts that the impeller — measured across its fin-top ring, which is what meets the
-neck first — can pass the vessel's opening.
+The model asserts that what the impeller sweeps can pass the vessel's opening.
 
-(Superseded — kept for the record. Those caps read 0.4594, 2.64 mm and 0.59–0.82 for as long as the
-mouth assert charged 8 mm for a tip ring that had been moved inboard of the blades. The ratio was
-never in danger; the headroom it was chosen on was understated by 8 mm.)
+### The helicoid, and why it was abandoned
 
-### Blade twist and height — out of the literature's tested range
+The blade this project first drew, `impeller_twisted_paddle_4`, is a constant-pitch helicoid:
+`linear_extrude(twist=)` is a pitch specifier, so the blade angle β from the plane of rotation
+varies with radius, `tan β = P / (2πr)`, running 83° at the hub to 53° at the tip at 55° of twist.
+That is steeper than 45° everywhere — a twisted paddle biased toward radial pumping, not the axial
+impeller the D/T guidance is written about — and no correlation reaches it: Medek's envelope stops
+at 60°, and the twist papers (Patwardhan & Joshi 1999 §3.4.3, Kumaresan & Joshi 2006 §3.1.3.3)
+tested at most 20° of twist where this is 30° on their definition. Both find twist lowers Po, so
+the 0.99 borrowed from an untwisted folded blade was an over-estimate for the helicoid. Its blade
+height has no source either.
 
-**(Superseded — kept for the record.)** This section describes the constant-pitch helicoid, which
-the model no longer builds: `head()` selects `pbt_45_4`, a flat four-blade 45° pitched turbine, and
-takes `Po 1.49679` from Medek's correlation instead of borrowing 0.99. It is kept because the
-reading in it is _why_ the helicoid was abandoned — the twist definition, the direction of its
-effect, and the pitch geometry showing the blade was steeper than 45° at every radius. Nothing
-below describes a part that is printed today.
+The hub was grown from 7.5 to 10 mm radius (0.159 to 0.212 D) to carry the set screws; that is
+within the 0.2–0.33 D hubs carry in practice.
 
-`impeller_twist_ang` and `impeller_height` remain **uncharacterised for this blade**, but not for
-the reason recorded here until 2026-08-13. That entry said twist had "no citable basis" and that a
-search found nothing giving a value. Both twist papers were obtained and read on that date, and
-both give values.
-
-Patwardhan & Joshi 1999 §3.4.3 and Kumaresan & Joshi 2006 §3.1.3.3 define **blade twist as the hub
-angle minus the tip angle**, and agree on the direction: increasing twist **lowers** the power
-number and the primary flow number, while secondary flow and shear move much less. Patwardhan
-tested 10° and 20° twist on 30°, 45° and 60° blades; Kumaresan tested 10° on a 30° six-blade
-turbine and measured a 3 % drop in secondary flow number and 1 % in averaged shear.
-
-On their definition **this blade is a 30° twist**, 83° at the hub to 53° at the tip — 1.5× the
-largest twist either tested, at hub angles 23° beyond either's range. So the numbers do not
-transfer, but the direction does, and it matters: **Po = 0.99 is borrowed from an untwisted blade,
-so it is likely an over-estimate here**, making the power, dissipation and torque figures of the
-day conservative rather than optimistic. That reasoning held only for the helicoid. On the blade
-actually built, the correlated Po is 1.497 against the borrowed 0.99, so those figures were
-**optimistic** — see the blade-choice section above, which records the correction.
-
-A second, smaller departure was added deliberately. The hub carries the set screws that hold the
-impeller to the shaft, and sizing it for thread engagement grew it from 7.5 to 10 mm radius — from
-0.159 D to 0.212 D, burying 6.3 % more of each blade's span. That is within the 0.2–0.33 D hubs
-carry in practice, and it is a real trade: the alternative was a local boss that left the blade
-alone, at the cost of geometry that prints with an overhang and has to be indexed against the
-blades. The joint was the binding problem, and a slipping impeller costs the whole run.
-
-Nothing citable was found for W/D or blade height of a twisted extrusion. The classic `w = D/4`
-ratios describe flat Rushton blades and do not apply.
-
-What can honestly be said is derived from the geometry itself. `linear_extrude(twist=)` sweeps a
-**constant-pitch helicoid**, so the parameter is a _pitch_ specifier and the blade angle β measured
-from the plane of rotation varies with radius:
-
-```text
-tan β = P / (2πr),   P = axial advance per turn = height × 360/twist
-
-at twist = 55° over a 60 mm impeller:  P = 393 mm,  P/D = 4.2
-   hub 83°     0.4R 73°     0.7R 62°     tip 53°
-```
-
-A flat pitched blade sits at one angle everywhere; the tested turbines are 24°, 35° and 45°. **This
-blade is steeper than 45° at every radius**, making it a twisted paddle biased toward radial pumping
-rather than the axial impeller the D/T guidance is written about. A 45° tip would need ~73° of twist.
-
-**A bench measurement would settle it.** `Po = P/(ρN³D⁵)` from shaft power at three or four known
-speeds in water, repeated across printed variants, gives a real power-number curve for this blade —
-more than the literature currently offers for anyone.
+The row stays registered and `head()` still draws it. A bench measurement, `Po = P/(ρN³D⁵)` from
+shaft power at three or four speeds in water, would give it a power number; see `TODO.md`.
 
 ### Blade count
 
@@ -337,13 +293,6 @@ been priced against the mass transfer it costs, and it should be.
   2003), and **no critical entrance velocity is established** in anything read here — the
   "30–50 m/s" this document carried until 2026-08-13 was not supported by its source, which reports
   0.4–5.4 m/s in its own runs and says the parameter needs more work.
-  (Superseded — kept for the record. This read "There is no sparger in the model", and went on to
-  size one at Oldshue p. 214's 80 % of the impeller — _"a sparge ring about 80 % of the impeller
-  diameter is more effective than an open pipe beneath the impeller or sparge rings larger than the
-  impeller"_ — giving ~75.6 mm on a 94.5 mm impeller, and called the binding problem vertical room
-  under the lower impeller. Both parts are wrong now: the ring is placed by the MOUTH at 1.44 D,
-  because Birch & Ahmed and Rewatkar & Joshi both measure rings LARGER than the impeller to be
-  better, which the settled ledger records as superseding Oldshue outright.)
 - **Off-bottom clearance used to be a consequence of shaft length, and is now a design parameter.**
   The impeller was placed with its bottom flush against a shaft that bottomed out 5 mm over the
   punt, so `C = punt + shaft clearance + height/2` — a _mixing_ quantity falling out of _how long
@@ -440,46 +389,16 @@ been priced against the mass transfer it costs, and it should be.
   as context and names Fořt's as the guidance that fits the blade. The 0.5 D coverage floor is kept,
   but on its own footing: a down-pumping impeller near the free surface entrains air, which is true
   of any blade and not Oldshue's to authorise.
-- _(Superseded — kept for the record.)_ **The clearance was 0.6 D. Oldshue's 1–2 D is an allowance this vessel cannot reach, which is not
-  the same as a target it misses.** Read the sentence as written: _"**If** the impeller **can** be
-  placed one to two impeller diameters off bottom … these impellers **offer** an excellent flow
-  pattern as well as considerable economies in shaft design."_ It rewards being able to sit high;
-  it does not instruct you to. `head()` therefore reports the departure rather than warning on it.
-  And the sentence has a second half that pulls the other way, in the same paragraph: fluidfoils
-  _"short-circuit the fluid to a relatively low distance above the impeller. Very careful
-  consideration of the coverage over the impeller is important."_ Both requirements are Oldshue's,
-  and here they do not overlap — the band needs C ≥ 94.5 mm, and keeping half a diameter of liquid
-  over the upper impeller needs C ≤ 69.2 mm:
-
-  | C/D                  | C        | under lower | cover over upper  |
-  | -------------------- | -------- | ----------- | ----------------- |
-  | 0.423 (as inherited) | 40.0     | 10.0 mm     | 76.5 (0.81 D)     |
-  | **0.600 (chosen)**   | **56.7** | **26.7 mm** | **59.8 (0.63 D)** |
-  | 0.700                | 66.1     | 36.1 mm     | 50.4 (0.53 D)     |
-  | 1.000 (band floor)   | 94.5     | 64.5 mm     | 22.0 (0.23 D)     |
-
-  This is structural, not a near miss. Blade height is the only other term in the span, and it is
-  the least defensible number in the model — but even at 0.4 D instead of 0.635 the ceiling only
-  moves to 0.85 D. **The cause is that the vessel is short for two impellers**: they span 154.5 mm
-  of a 241 mm column, which is **2.48 impeller diameters of liquid** where the 1–2 D spacing band
-  allows `0.24 < n < 1.48` — one impeller, not two. (Superseded — kept for the record: this read
-  "H/T is 1.124 where convention adds a second impeller above about 1.2". Two things were wrong.
-  The threshold was quoted from this document rather than a source, and the variable was the tank
-  diameter where the spacing band is written in IMPELLER diameters — H/T only stands in for it at
-  one D/T, and the vessels behind the convention ran 0.54–0.57 against this build's 0.45. Read
-  properly the same band puts the pair out of reach on **four** of five jars, not two, and the one
-  jar it admits is `jar_1p5L_109x215`. The band itself has no primary — Fitschen relays it from
-  Davis, whose own sources do not carry it — so this is reported and never asserted. See
-  `stirred_tank_impeller_count_bounds()` and the Fitschen entry in `docs/references.md`.)
-
-- **0.6 D was chosen against a second, independent scale — an uncited one.** Off-bottom clearance
-  is more often written C/T, and the quarter-to-third of tank diameter usual for an axial impeller
-  maps to **C/D 0.556–0.741** in this bore. _No source held here states that convention_ — it is
-  not in Oldshue, and it is recorded as convention rather than citation, which is why no band
-  function encodes it and nothing warns against it. It is corroboration, not authority: that window
-  and the coverage limit agree independently, so the chosen value is reported both ways. 0.6 D is
-  **C/T 0.27**, mid that window and below the coverage ceiling with margin. It roughly triples the room under the lower impeller, from
-  10 mm — which fits no sparger at all — to 26.7 mm.
+- **Oldshue's 1–2 D band and his coverage caveat do not overlap on this vessel.** The band needs
+  C ≥ 94.5 mm and keeping half a diameter of liquid over the upper impeller needs C ≤ 69.2 mm,
+  because the vessel is short for two impellers: they span 154.5 mm of a 241 mm column, 2.48
+  impeller diameters of liquid where the spacing band allows `0.24 < n < 1.48` — one impeller, not
+  two. The band has no primary (Fitschen relays it from Davis, whose sources do not carry it), so
+  `head()` reports it and never asserts. See `stirred_tank_impeller_count_bounds()`.
+- **A second, uncited scale corroborates the clearance.** Off-bottom clearance is more often
+  written C/T, and the quarter-to-third of tank diameter usual for an axial impeller maps to
+  C/D 0.556–0.741 in this bore. No source held here states that convention, so no band function
+  encodes it; the chosen 0.9 D is C/T 0.405.
 - **The 0.5 D coverage floor is reasoned, not cited.** Oldshue names the concern and gives no
   number. It is the depth below which a down-pumping impeller starts drawing its own discharge back
   off the surface instead of turning the vessel over, and `head()` warns rather than asserts on it.

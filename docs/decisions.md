@@ -12,8 +12,7 @@ them were not typos but readings that were coherent, agreed with the documents a
 measuring the wrong thing. `TODO.md` carries open work only; nothing here is a task.
 
 A corrected figure in a document or in source is replaced where it sits and recorded here; it does
-not stay inline as a `(Superseded — kept for the record)` block. The blocks that still exist are
-being folded in here as they are met.
+not stay inline.
 
 ## Corrections — readings that were wrong
 
@@ -66,6 +65,24 @@ being folded in here as they are met.
   arrangement: a hub that nests UP INSIDE the punt pays the wall alone, which inverts the ranking,
   because the punt's WIDTH is then both the lever arm and the room for magnets. `jar_1p5L` is the
   worst of the five at 7.5 mm of usable radius; `jar_1gal_155x251` the best at 36.5.
+- **The sparge ring is sized at 80 % of the impeller, after Oldshue p. 214.** Two experimental
+  studies (Birch & Ahmed 1997, Rewatkar & Joshi 1993) find rings larger than the impeller better;
+  the ring is placed by the mouth at 1.44 D. And the flat 4 × 10 section that fit the radial band
+  could not be cleaned, so the sparger is a round tube split opposite the feed.
+- **The mouth assert charged 8 mm for a tip ring that had been moved inboard of the blades.** The
+  D/T caps read 0.4594 and 0.59–0.82 while it did; the ratio was never in danger, only the headroom
+  it was chosen on.
+- **The clearance was 0.6 D, chosen against Oldshue's 1–2 D as an allowance the vessel could not
+  reach.** That allowance is for fluidfoils; Fořt's guidance fits a pitched blade and puts it at
+  0.9 D. The uncited C/T quarter-to-third convention corroborates both.
+- **The feed socket is a hexagon.** It takes the tube's own octagonal section now; 0.264 mm of
+  corner is what tells it from a round support.
+- **Jirout & Rieger's course notes were graded [PR].** Undated teaching material, [TX]; its
+  Np = 0.99 ± 0.04 is the borrowed power number the correlated 1.497 replaced.
+- **The thermocouple was 3872K117, the same probe at 9 in**, until the model showed it reaching
+  through `jar_1gal_180x197`'s floor. `head()` selects the 6 in 1245N31.
+- **The metering range was "an 84:1 spread in culture volume".** The ratio was always the flow
+  spread; culture volume spans 14.7:1.
 - **A DC fan runs 1000–3000 rpm where this design wants 320–420.** The band was the reference
   build's drive on a 94.5 mm impeller, applied to jars whose impellers are half that. The target is
   tip speed, and holding it puts `jar_1p5L` at 528–851 rpm and `jar_1gal_155` at 358–577 — nearer a
