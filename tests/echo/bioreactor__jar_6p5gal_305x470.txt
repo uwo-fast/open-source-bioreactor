@@ -64,6 +64,7 @@ ECHO: "gas metering: 0.1-0.5 vvm on 20.419 L is 2.0419-10.2095 L/min, so a 0-15 
 ECHO: "gas supply: ReSun 35W's free flow and dead head cannot be simultaneous, together 83.5714% of its electrical input; they are read as the ends of its curve"
 ECHO: "gas against the impeller: axial pumping needs 8x the gas stream's power to hold its flow pattern, which at 420 rpm caps aeration at 1.91387 vvm"
 ECHO: "port interfaces: all 6 ports on std, so one face o-ring covers the lid and any port takes any function; the worst adjacent pair measures 25.7 mm against a 1 mm floor"
+ECHO: "port layout: 6 ports on a 107.8 mm circle, 53.9 mm chord; the full set fits a mouth from 142.025 mm (142.025 uniform std), the reduced set from 78.0017 mm (87.6038 uniform std); this jar's is 137"
 ECHO: "eccentricity: the mount leaves 9.8 mm of offset, e/T 0.0349003 against Hall's measured 0.2, worth 15.8419% of the centred blend time on Karcz's up-pumping branch, to an unbaffled vessel (this one carries 0 baffles); extrapolated on ["D/T", "H/T", "scale", "Reynolds", "pumping mode", "impeller type"]"
 ECHO: "lid gasket: cut 139 x 151 mm from EPDM 1/16 60A (1.5875 mm), recess 1.19062 mm deep (25% squeeze); 4 per 304.8 x 304.8 mm sheet"
 ECHO: "lid lip: ground flat, 10 mm of land once both margins are taken; 6 mm of gasket, 6 mm of contact"
