@@ -1,35 +1,23 @@
 // parameters for physical realization of various elastomer o-rings
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
-// A row is what the catalogue lists and nothing more. Where a ring sits and how hard it is squeezed
-// belongs to the gland holding it, which derives from these numbers - see utils/oring_gland.scad.
-// Two directions are in play and both are correct: the port glands are cut to fit their ring, while
-// the lid plug's groove is cut to fit the jar's bore and the ring is stretched onto it.
-
-// Every row carries the number to ORDER it by, because a ring cannot be chosen by measuring the one
-// already fitted: nobody can measure a jar they have not bought, and a second builder cannot measure
-// this bench at all. A row without a number is a hole in the bill of materials, not a part.
+// A row is what the catalogue lists; where a ring sits and how hard it is squeezed belongs to the
+// gland (utils/oring_gland.scad). Port glands are cut to fit their ring; the lid plug's groove is
+// cut to fit the jar's bore and the ring is stretched onto it.
 
 //                        ["name"           part_no      [id,     cs  ], material, shore, colour ]
 
-// Port face seals, one per bayonet port; the gland in bayonet_port.scad is cut for whichever the
-// interface names. All 70A, -65 to 300 F, ASTM D2000. Each has to encircle its coupling's opening
-// and still stand on the land outboard of the lock bore, which is what sets the ID: the rule is
-// ID >= 2*(lock_bore_r + land + cs/2), and bayonet_port() asserts it rather than trusting the row.
+// Port face seals, one per bayonet port, cut for whichever the interface names. All 70A, -65 to
+// 300 F, ASTM D2000. ID >= 2*(lock_bore_r + land + cs/2), which bayonet_port() asserts.
 oring_13x1p5_epdm      = ["13x1.5 EPDM",   "1289N323",  [13,      1.5 ], "EPDM",   70,    "Black"];
 oring_17x1p5_epdm      = ["17x1.5 EPDM",   "8785N378",  [17,      1.5 ], "EPDM",   70,    "Black"];
 oring_23x1p5_epdm      = ["23x1.5 EPDM",   "8785N383",  [23,      1.5 ], "EPDM",   70,    "Black"];
 
-// Rod seal, not a face seal, and the only one here that is: the sparger's riser passes up the bore
-// of its port and this closes the annulus around it. Its ID IS THE TUBE - 4 mm on 4 mm, so it seats
-// at zero stretch - which is why the row cannot be chosen by the gland the way the ones above are.
-// Same EPDM 70A line and the same -65 to 300 F as them, one size down the same catalogue page.
+// Rod seal on the sparge riser: its ID is the tube, 4 on 4, so it seats at zero stretch.
 oring_4x1p5_epdm       = ["4x1.5 EPDM",    "8785N364",  [4,       1.5 ], "EPDM",   70,    "Black"];
 
-// The rest of the 1.5 mm line, so a gland can name a size without a trip to the catalogue. Nothing
-// consumes these yet: a row here is an option, and the part that picks one owes the assert that it
-// suits. Same EPDM 70A, -65 to 300 F page as the seals above - a 1289N number differs from an
-// 8785N one only in whether the row also lists SAE J200.
+// The rest of the 1.5 mm line, same page; a 1289N number differs from an 8785N one only in
+// whether it also lists SAE J200.
 oring_11x1p5_epdm      = ["11x1.5 EPDM",   "1289N321",  [11,      1.5 ], "EPDM",   70,    "Black"];
 oring_12x1p5_epdm      = ["12x1.5 EPDM",   "1289N322",  [12,      1.5 ], "EPDM",   70,    "Black"];
 oring_14x1p5_epdm      = ["14x1.5 EPDM",   "1289N324",  [14,      1.5 ], "EPDM",   70,    "Black"];
@@ -43,20 +31,10 @@ oring_25x1p5_epdm      = ["25x1.5 EPDM",   "8785N384",  [25,      1.5 ], "EPDM",
 oring_28x1p5_epdm      = ["28x1.5 EPDM",   "8785N387",  [28,      1.5 ], "EPDM",   70,    "Black"];
 oring_30x1p5_epdm      = ["30x1.5 EPDM",   "1289N33",   [30,      1.5 ], "EPDM",   70,    "Black"];
 
-// The lid plug's radial seal, AS568 dash 150 to 171, all 3/32 in (2.62 mm) cord. That width is not
-// a preference: head_plug_oring_cord_limit() caps the cord at 3.05 mm, because the groove and the
-// port bores are cut into the same wall of the plug. The 1/8 in cord the same catalogue stocks is
-// 0.48 mm over that ceiling and fouls the bores on every vessel in the family, so it is not an
-// option for this seal on any jar - only for something with no ports beside the groove.
-//
-// Same water- and steam-resistant line as the port seal above: EPDM 70A, -65 to 300 F, ASTM D2000 /
-// SAE AS568 / SAE J200. That covers autoclaving at 121 C with room to spare. The Parker E0603 line
-// (9557K...) lists the identical sizes but only to 250 F, which is the autoclave temperature with
-// no margin at all, and at three times the price.
-//
-// Together these seal a mouth anywhere from 77 to 217 mm, so every registered vessel resolves and
-// most substitutions will too. IDs are the catalogue's inch value times 25.4; the DASH NUMBER is
-// the authoritative identity, so the millimetres here stay checkable against any AS568 table.
+// The lid plug's radial seal, AS568 dash 150 to 171, 3/32 in (2.62 mm) cord: the 1/8 in cord is
+// over head_plug_oring_cord_limit() and fouls the port bores. Same EPDM 70A line, -65 to 300 F.
+// Together they seal a mouth from 77 to 217 mm. IDs are the catalogue's inch value times 25.4;
+// the dash number is the identity.
 
 oring_as568_150_epdm   = ["AS568-150",     "8785N626",  [72.695,  2.62], "EPDM",   70,    "Black"];
 oring_as568_151_epdm   = ["AS568-151",     "8785N627",  [75.870,  2.62], "EPDM",   70,    "Black"];
@@ -92,12 +70,7 @@ orings = [oring_4x1p5_epdm, oring_13x1p5_epdm, oring_17x1p5_epdm, oring_23x1p5_e
            oring_as568_165_epdm, oring_as568_166_epdm, oring_as568_167_epdm, oring_as568_168_epdm,
            oring_as568_169_epdm, oring_as568_170_epdm, oring_as568_171_epdm];
 
-use <oring.scad>; // oring() draws the torus these rows describe
+use <oring.scad>;
 
 use <../utils/registries.scad>;
-// A row from its name - see utils/registries.scad. A miss returns undef; the consumer asserts.
 function oring_by_name(name) = registry_by_name(orings, name);
-
-// example usage - keep commented, this file is include'd and would emit a ring into every
-// consumer (see shaft_couplings.scad for the same note)
-// oring(oring_23x1p5_epdm);

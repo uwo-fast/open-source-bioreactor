@@ -1,14 +1,14 @@
 // parameters for physical realization of various culture vessels (jars)
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
-// The mouth bore is a measured fact, so it is registered here; the shoulder-to-neck corner
-// radius is the eyeballed value and is solved from it by vessel_neck_corner_radius().
+// The mouth bore is measured; the shoulder-to-neck corner radius is eyeballed and solved from it
+// by vessel_neck_corner_radius().
 
 //                     ["name"                  [height,    diameter,   thickness], [opening_dia, neck], [corner_rad, corner_rad_base], [punt_h, punt_w], rim_rad]
 generic_vessel       = ["generic",              [300,       200,        5        ], [150,         10  ], [10.0,        10.0          ], [10,      50    ], 2   ];
 
 // Commodity 10 L airtight soda-lime glass jar — https://www.alibaba.com/product-detail/10-Liter-Glass-Jar-Airtight-Glass_10000010556695.html
-// Mouth measured at 142.2, not the 143 carried here until it was checked against the jar.
+// Mouth measured at 142.2.
 jar_10L_220x305      = ["jar_10L_220x305",      [305,       220,        5        ], [142.2,       25  ], [25,         12.5           ], [5,      30    ], 2    ];
 
 // Almcmy 1 gallon glass cookie jar — https://a.co/d/0387jpNx
@@ -24,27 +24,14 @@ jar_1p5L_109x215     = ["jar_1p5L_109x215",     [215,       109.22,     4       
 
 // Uline S-19317P, 1 gallon wide-mouth glass jar, 110/400 plastic cap
 // https://www.uline.ca/Product/Detail/S-19317P/Jars/Clear-Wide-Mouth-Glass-Jars-1-Gallon-4-Opening-Plastic-Cap
-// Opening is listed as 4" (101.6) but measures 95.8: the bore steps in below the lip and tapers
-// down from there, so the listed figure is the lip, not the bore. Our lid enters the mouth, so
-// the measured bore is the one that governs and the one registered here.
-// rim_rad 0 means the lip rolls over IN LINE with the wall - rounded, reaching no further out than
-// the glass already does. It is not flat: measured, this jar has no flat sealing face, which the
-// 110/400 threaded finish had been taken to imply. The threads are deliberately not modelled -
-// nothing here mates with them, and glass thread profiles are a project of their own.
+// Opening is listed as 4" (101.6) but the bore below the lip measures 95.8, and the lid enters the
+// bore. rim_rad 0: the lip rolls over in line with the wall, with no flat sealing face. The
+// 110/400 threads are not modelled; nothing mates with them.
 jar_1gal_155x251     = ["jar_1gal_155x251",     [251,       155.3,      3        ], [95.8,        30  ], [25,          14             ], [6,      73   ], 0    ];
 
-// The swept list, and only orderable rows go in it - the sweeps build against this, so a
-// placeholder here makes "it builds" cover a jar nobody can buy. generic_vessel stays defined and
-// out of it, which is what atlas_probes and strip_lights already do with their own generic rows.
+// Only orderable rows are swept; generic_vessel stays defined and out of it.
 vessels = [jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x215, jar_1gal_155x251];
 
-// A row from its name. It lives here rather than with the other accessors in vessel.scad because a
-// function resolves globals from its OWN file, and `vessels` is only in scope in this one.
-//
-// It exists because a customizer parameter set carries VALUES, not references: a .json can say
-// "jar_10L_220x305" but it cannot say the variable of that name, and under -p OpenSCAD drops the
-// reference with nothing but an "unknown variable" warning. Selecting by name is what lets one
-// parameter set per vessel drive a build - see the json recipes in the justfile.
 function vessel_by_name(name) = registry_by_name(vessels, name);
 
 use <vessel.scad>;

@@ -4,31 +4,18 @@
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * Not a catalogue part, which is why it has no registry: only the sheet is bought, and the ring's
- * diameters come from whatever it seals - here the jar's lip, which is flat on one jar and a
- * rolled crown on the rest. So the caller passes the cut, and the consumer that knows the vessel
- * derives it.
- *
- * Drawn at its free thickness, like the o-rings: installed it is squeezed into a shallower
- * recess, and the difference standing proud is the compression.
+ * Only the sheet is bought; the ring's diameters come from what it seals, so the caller passes the
+ * cut. Drawn at its free thickness, so what stands proud of the recess is the compression.
  */
 
-include <../purchased/gasket_sheets.scad>; // so the preview derives its thickness, not quotes it
+use <../purchased/gasket_sheets.scad>;
 
 $fn = $preview ? 64 : 128;
 
-// example usage - head.scad passes its own numbers. The thickness comes off the registered sheet
-// because a quoted one goes stale: this read 1.5 while the sheet had been 1.5875 for some time.
+// example usage - head.scad passes its own numbers
 sheet_gasket(inner_diameter=145, outer_diameter=151,
-             thickness=gasket_sheet_thickness(sheet_epdm_1p6_60a));
+             thickness=gasket_sheet_thickness(gasket_sheet_by_name("EPDM 1/16 60A")));
 
-/**
- * @brief A flat annular gasket.
- * @param inner_diameter Cut inside diameter
- * @param outer_diameter Cut outside diameter
- * @param thickness      Thickness of the stock it is cut from
- * @param colour         As supplied
- */
 module sheet_gasket(inner_diameter, outer_diameter, thickness, colour = "Black") {
   assert(
     outer_diameter > inner_diameter,

@@ -1,21 +1,11 @@
 // parameters for physical realization of various strip lights
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
-// All four are USB grow light bars of the same extrusion - the primary difference is length,
-// with widths varying by a couple of tenths. Depth and front radius are the RWNTAO caliper
-// readings, reused across the rows because only length and width were measured on the others.
-
-// PER CORD IS PACKAGING, NOT GEOMETRY, and it is registered because it decides what you buy. These
-// are not sold as tubes: one cord and controller drives a fixed number of them, so a design wanting
-// seven of a three-per-cord light buys nine and wires three controllers. Nothing else in this file
-// is a purchasing fact, which is why it sits outside the dimension vector rather than inside it.
-//
-// It does NOT decide how many lights the frame carries, and the arrow only points one way. How much
-// light the culture gets is an illumination question; how it is packaged is the shop's answer to a
-// question nobody asked. frame() reports the cords a layout needs and leaves the layout alone.
+// All four are USB grow light bars of the same extrusion, differing in length. Depth and front
+// radius are the RWNTAO caliper readings, reused across the rows. per_cord is packaging - one cord
+// and controller drives a fixed number - and decides what you buy, never how many the frame carries.
 
 //                    ["name"         [width, depth, length, radius], per_cord];
-// One per cord, because a generic light is a single tube with no packaging behind it to record.
 generic_strip_light = ["generic",     [14.2,  7.6,   330,    0.5   ], 1       ];
 
 // RWNTAO 13" 3000K full spectrum, 3 tubes per cord, 144 LEDs, dimmable + timer
@@ -36,14 +26,8 @@ grow_8p6in          = ["grow 8.6in",  [14.15, 7.6,   217,    0.5   ], 4       ];
 
 strip_lights = [rwntao_13in, grow_13in, grow_16in, grow_8p6in];
 
-// The shortest registered light that still covers the culture, falling back to the longest if none
-// does. Shortest-that-covers rather than longest-available because a light taller than the vessel
-// is not free: frame_floor_depth() drops the base by whatever the light overhangs, and a 330 mm
-// strip on a 197 mm jar bought 152 mm of empty base. Covering the LIQUID rather than the jar is the
-// point - the light is what the reactor is for, so under-covering is the one thing not to trade.
-//
-// Lives here rather than with the accessors in strip_light.scad because a function resolves globals
-// from its own file, and `strip_lights` is only in scope in this one.
+// The shortest registered light that still covers the culture, or the longest if none does. A
+// light taller than the vessel drops the frame's base by the overhang, so shortest-that-covers.
 function strip_light_for(liquid_height) =
   let (
     _covering = [for (l = strip_lights) if (strip_light_length(l) >= liquid_height) strip_light_length(l)],
@@ -54,10 +38,7 @@ function strip_light_for(liquid_height) =
 use <strip_light.scad>
 
 use <../utils/registries.scad>;
-// A row from its name - see utils/registries.scad. A miss returns undef; the consumer asserts.
 function strip_light_by_name(name) = registry_by_name(strip_lights, name);
 
-// example usage - keep commented, this file is include'd and would emit the lights into
-// every consumer
-// strip_light(rwntao_13in);                                             // registered set
-// translate([30, 0, 0]) strip_light(["custom", [14.1, 7.6, 200, 0.5]]); // direct (inline type)
+// example usage - keep commented, this file is include'd
+// strip_light(rwntao_13in);

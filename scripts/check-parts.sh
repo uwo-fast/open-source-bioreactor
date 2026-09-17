@@ -55,12 +55,8 @@ for f in $(grep -hoE '^render_[a-z_]+' scad/head.scad scad/frame.scad | sort -u)
         failed=1
     fi
 done
-# AND EVERY ENTRY FILE IS ACCOUNTED FOR, which is the other half of the same hole. The two
-# manifests live in head.scad and frame.scad, so a printed part in any OTHER file that renders
-# on its own reaches no print list and nothing notices - true today of the pump mount, the cart,
-# the stand and the bottle holder. This does not put them on a list. It stops the omission being
-# silent, which is what let the print list call itself the whole reactor while covering two
-# files of eighteen.
+# And every entry file is accounted for: the two manifests live in head.scad and frame.scad, so
+# a printed part in any other entry file reaches no print list. This stops that being silent.
 exported=(scad/head.scad scad/frame.scad)
 not_exported=(
     scad/bioreactor.scad                        # the whole reactor as a picture, not a part

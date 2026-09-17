@@ -102,8 +102,6 @@ rod_thread_proud = 2 * bolt_coarse_pitch(threaded_rod_diameter);
 
 // Derived from the nut, so not choices.
 /* [Hidden] */
-// Both come off rod_nut, so they are not choices: offering them lets a pocket disagree with the
-// nut that has to go in it.
 nut_pocket_diameter = 2 * nut_radius(rod_nut) + nut_pocket_allowance;
 nut_height = nut_thickness(rod_nut);
 
@@ -148,40 +146,22 @@ module dummy() {
   // stop the customizer detection from here onwards
 }
 
-// The rod circle is where the frame puts its tie rods, and the lid has to bolt to the same circle,
-// so the assembly reads these back out rather than rebuilding them from the frame's own allowances.
-function frame_rod_diameter() = threaded_rod_diameter; // exported so the joint can check its bolts against it
-
-// The top base's thickness, exported because the JOINT is a stack of two plates and the ASME bolt
-// spacing rule is driven by the THINNER of them - a thin plate bends between bolts, so it wants
-// more of them. bioreactor.scad had only the lid flange to hand and used it alone, which is right
-// only while the flange is the thinner one. It is, at 8 against 10, so nothing moves today; a
-// flange thicker than this base would have derived the count from the plate that does not govern.
+// The joint, read back by bioreactor.scad so the lid is bored to the same circle, bore and face
+// the frame builds. The top base height is exported because the bolt spacing rule is driven by
+// the thinner of the two plates in the joint.
+function frame_rod_diameter() = threaded_rod_diameter;
 function frame_upper_base_height() = upper_base_height;
 function frame_rod_hole_diameter() = threaded_rod_diameter + threaded_rod_hole_allowance;
 function frame_bolt_circle_diameter(vessel_outer_diameter) =
   (vessel_outer_diameter + base_jar_fit_allow) + frame_rod_hole_diameter() * 2;
-
-// The joint's outer face. The wall is material between the jar pocket and the outside, and the
-// pocket carries the fit allowance, so the allowance grows the outside rather than thinning the
-// wall. The lid flange closes the same face, so it reads this rather than rebuilding it from the
-// vessel - which is what left it 0.4 mm short of the frame it lands on.
+// The pocket carries the fit allowance, so the allowance grows the outside rather than thinning
+// the wall.
 function frame_outer_diameter(vessel_outer_diameter, wall_thickness) =
   (vessel_outer_diameter + base_jar_fit_allow) + wall_thickness;
 
-/**
- * @brief Every printed part the frame carries: [name, quantity, the flags that render it alone].
- *
- * The other half of head_print_parts(), and the half that matters most for what a builder needs to
- * own: the base and the top base are as wide as the lid and wider than anything hanging off it, so
- * a print list without them omits the parts that decide the printer. `just export-parts` walks both.
- *
- * THE RIBS ARE ONE PART, EIGHT TIMES, and that took measuring rather than reading. Each is rotated
- * by a multiple of 90 degrees and then bitten by the same lights cutout, and the exported meshes do
- * NOT agree: the vertices land at different radii, because the cut surface tessellates differently
- * at each rotation. Volume, facet count and bounding box all match, and intersecting one with
- * another turned to its angle returns a rib's whole volume - the same solid, meshed two ways.
- */
+// Every printed part the frame carries: [name, quantity, the flags that render it alone]. The
+// other half of head_print_parts(); `just export-parts` walks both. The ribs are one part eight
+// times - their exported meshes differ only by how the lights cutout tessellates at each rotation.
 function frame_print_parts(n_rods) =
   [
     ["frame_base", 1, "-D render_base=true"],
@@ -190,35 +170,23 @@ function frame_print_parts(n_rods) =
     ["frame_rod_spacer", (n_rib_levels + 1) * n_rods, "-D render_rodspacers=true -D rodspacer_to_render=0"],
   ];
 
-// How far the frame reaches below the vessel's bottom. The lights set it: the base floor is
-// whatever is left once a light, a nut and a half for the radial bolt heads, and the top base have
-// been stacked against the vessel's height. Read back out by anything that has to make room for an
-// assembled reactor, since it is the bottom of the envelope.
+// How far the frame reaches below the vessel's bottom: whatever a light, a nut and a half, and the
+// top base stack to past the vessel's height. The bottom of the reactor's envelope.
 _base_floor_height_min = 2; // minimum height of the base floor
 function frame_floor_depth(vessel_height, light) =
   let (delta = (strip_light_length(light) + nut_height * 1.5 + upper_base_height) - vessel_height)
     delta > _base_floor_height_min ? delta : _base_floor_height_min;
 
-// What the assembly would hand this frame. The vessel is chosen above, in the customizer block, so
-// a parameter set can select it; the light, the wall and the flange are the assembly's other
-// choices and the preview picks them here. Everything after that is derived the same way the
-// assembly derives it, rather than quoting the numbers it comes out as.
-// The shortest registered light that covers this jar's culture, derived the way the assembly derives
-// it rather than naming a row.
-//
-// RESTATEMENT, and it will drift. 0.8 is the fraction of INTERNAL HEIGHT the reference build stands
-// at - 236 of 295 mm - and it is not head.scad's culture_fill_fraction, which is 0.865 and is a
-// fraction of the jar's CAPACITY. Multiplying a height by that one would put the fill 19 mm high.
-// The two agree here only because this preview is pinned to jar_10L; on any other jar they do not.
-// Quoted rather than read because frame.scad does not depend on head.scad and should not start to
-// for a preview - see docs/design-conventions.md, "Standalone previews".
+// What the assembly would hand this frame. The preview picks what the assembly chooses (light,
+// wall, flange, rods, bolt) and derives the rest. The 0.8 is a fraction of INTERNAL HEIGHT, not
+// head.scad's culture_fill_fraction (a fraction of capacity); they agree only on jar_10L, and the
+// restatement is deliberate so frame.scad does not read head.scad for a preview.
 _preview_light = strip_light_for(vessel_internal_height(reactor_vessel) * 0.8);
 _preview_wall_thickness = 37;
 _preview_flange_height = 8;
 _preview_n_rods = 4;
 _preview_bolt = M8_hex_screw;
-// the head owns the gasket and hence the factor; standalone there is nobody to ask, so this is the
-// soft-sheet value the registered EPDM gives
+// the head owns the gasket factor; standalone this is the soft-sheet value the registered EPDM gives
 _preview_gasket_factor = 0.5;
 
 _preview_bolt_circle = frame_bolt_circle_diameter(vessel_diameter(reactor_vessel));
@@ -253,11 +221,8 @@ module lights(quadrants, vessel_outer_diameter, light, lights_per_quadrant, occu
   }
 }
 
-// Where a tie rod stands, and which way its features face. Three places cut something at every rod
-// - the rods themselves, the lower base's holes and nut pockets, the top base's - and each built
-// the same rotate-then-translate for itself. The nut pockets are slots rather than bores, so they
-// have to be ORIENTED and not just positioned, which is why this places children rather than
-// returning points.
+// Where a tie rod stands and which way its features face. Places children rather than returning
+// points because the nut pockets are slots and have to be oriented.
 module frame_rod_at(i, n_rods, rod_shift) {
   rotate([0, 0, i * 360 / n_rods])
     translate([rod_shift, 0, 0])
@@ -274,10 +239,8 @@ module frame(vessel_height, vessel_outer_diameter, vessel_corner_radius_base, li
   // diameter of the cutout for the jar
   base_jar_cut_diameter = vessel_outer_diameter + base_jar_fit_allow;
 
-  // The jar's underside dishes up from its base corner, so it lands on ONE circle and the floor
-  // ring has to reach inboard of that. Cut from the jar, not the wall - the wall is set by the
-  // lights and the rods, and deriving the bore from it put jar_6p5gal_305x470's contact circle
-  // 13.2 mm inside the hole, sat on the bore edge up on its own fillet.
+  // The jar's underside dishes up from its base corner, so it lands on one circle and the floor
+  // ring has to reach inboard of that. Cut from the jar, not from the wall.
   _jar_contact_radius = vessel_outer_diameter / 2 - vessel_corner_radius_base;
   _base_center_bore_diameter = (_jar_contact_radius - base_jar_support_reach) * 2;
 
@@ -305,15 +268,12 @@ module frame(vessel_height, vessel_outer_diameter, vessel_corner_radius_base, li
   spacer_joint = collapse_spacer_z_allow ? 0 : spacer_z_allow / 2;
   stack_slack = (spacer_slot_height - spacer_pitch) * (n_rib_levels + 1); // what the collapsed stack gives up, so the top base drops with it
 
-  // The lid is located by the vessel rim, the top base by the collapsed stack below it, so the
-  // two faces do not meet - stack_slack is the clearance between them and that is what lets the
-  // bolts pull the lid down into the vessel rather than bottoming it on the frame. Every span
-  // that crosses the joint therefore has to count it: the bolt grips both parts and the gap.
+  // The lid is located by the rim and the top base by the stack below it, so stack_slack is the
+  // gap between them that lets the bolts pull the lid into the vessel. Every span crossing the
+  // joint counts it.
   bolt_length = screw_length(bolt_screw, upper_base_height + stack_slack + lid_flange_height, 0, nut=true);
 
-  // The rod runs from the base floor up to a nut sitting on top of the lid, which is on the rim
-  // datum, so it clears the gap too. Derived rather than passed in: the caller knows the vessel
-  // and the flange but not the stack, and this is the stack's business.
+  // From the base floor to a nut on top of the lid, which is on the rim datum.
   rod_length = vessel_height + lid_flange_height + nut_height + rod_thread_proud;
 
   // distance from the center of the jar to the threaded rod
@@ -336,23 +296,19 @@ module frame(vessel_height, vessel_outer_diameter, vessel_corner_radius_base, li
     str("The rod is ", threaded_rod_diameter, " mm but its nut is an M", nut_size(rod_nut), ".")
   );
 
-  // The top base carries a nut pocket sunk into its underside, so it has to be deeper than the nut
-  // or the pocket opens out the bottom and merges with the bolt bores into a slot.
+  // The nut pocket is sunk into the top base's underside, so the base has to be deeper than the nut.
   assert(
     upper_base_height > nut_height,
     str("Top base is ", upper_base_height, " mm with a ", nut_height, " mm nut pocket sunk in it.")
   );
 
-  // The gap the joint bolts pull the lid down through. Without it the top base's top face lands on
-  // the rim and the lid bottoms on the frame instead of seating on the glass. Conditional because
-  // this file's own preview passes collapse_spacer_z_allow=false, which sets it to 0 by design.
+  // Without the gap the lid bottoms on the frame instead of seating on the glass. Conditional
+  // because this file's own preview passes collapse_spacer_z_allow=false, which sets it to 0.
   assert(
     !collapse_spacer_z_allow || stack_slack > 0,
     str("The lid-to-top-base gap is ", stack_slack, " mm; the bolts cannot clamp the lid into the vessel without it.")
   );
 
-  // Weak, not dead: it is driven by the jar's diameter against its own base corner, and
-  // jar_1p5L_109x215 is the nearest at a 64.22 mm bore.
   assert(
     _base_center_bore_diameter > 0,
     str(
@@ -373,14 +329,8 @@ module frame(vessel_height, vessel_outer_diameter, vessel_corner_radius_base, li
     _base_center_bore_diameter / 2, "to r", base_jar_cut_diameter / 2, "mm"
   );
 
-  // WHAT THE LAYOUT COSTS TO BUY. The light count is a layout decision - which quadrants carry
-  // lights and how many sit in each - and these do not come as tubes: one cord and controller
-  // drives a fixed number. So a layout that is not a whole number of cords buys the next one up and
-  // leaves the rest in the box, along with a controller it does not need.
-  //
-  // Reported rather than enforced, and the arrow points this way on purpose. How much light the
-  // culture gets is an illumination question; letting the packaging answer it would be letting the
-  // shop set the design. What this does is stop the purchase list being hand-counted.
+  // Lights come as a fixed number to a cord, so a layout that is not a whole number of cords buys
+  // the next one up. Reported, so the purchase list is not hand-counted; never enforced.
   _light_total = len(light_quadrants) * lights_per_quadrant;
   _light_per_cord = strip_light_per_cord(light);
   _light_cords = ceil(_light_total / _light_per_cord);
@@ -408,8 +358,7 @@ module frame(vessel_height, vessel_outer_diameter, vessel_corner_radius_base, li
     }
   }
 
-  // Translate entire frame down by the height of the base floor
-  // Since design is located based on the bottom of the vessel
+  // z = 0 is the bottom of the vessel, so the whole frame drops by its floor
   translate([0, 0, -base_floor_height - z_fight]) {
     if (render_lights || render_all) {
       frame_lights();

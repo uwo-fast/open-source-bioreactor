@@ -8,15 +8,16 @@
  * that the pump's motor bolts through.
  */
 
-include <../purchased/dc_motors.scad>;
+use <../purchased/dc_motors.scad>;
+use <../purchased/dc_motor.scad>;
 
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 /* [Motor Selection] */
 
-// the registered motor this mount collars
-mount_motor = motor_12v_5w;
+// the registered motor this mount collars, for the preview
+mount_motor = dc_motor_by_name("12v_5w");
 
 /* [Peristaltic Pump Side Mount Parameters] */
 

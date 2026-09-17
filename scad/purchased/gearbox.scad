@@ -13,7 +13,7 @@ medium_grey = [0.5, 0.5, 0.5];
 grey = [0.4, 0.4, 0.4];
 dark_grey = [0.3, 0.3, 0.3];
 
-function gearbox_name(type) = type[0]; // the row's identity, and the key a build designates it by
+function gearbox_name(type) = type[0];
 function gearbox_diameter(type) = type[1][0]; // diameter of the gearbox body
 function gearbox_length(type) = type[1][1]; // length of the gearbox body
 function gearbox_output_shaft_dia(type) = type[2][0]; // diameter of the output shaft
@@ -26,10 +26,8 @@ function gearbox_out_boss(type) = type[6]; // [boss_d, boss_l] pilot boss on the
 function gearbox_in_boss(type) = type[7]; // [boss_d, boss_l] recess in the input face, optional
 function gearbox_ratio(type) = type[8]; // reduction, input turns per output turn, optional
 
-// The input pockets are registered at the motor's own boss and shaft dimensions, because that
-// is what they receive, so a motor seats in them face to face and CGAL will not call the union
-// 2-manifold. Opening them by a hair keeps the mesh clean. This is a render allowance, not a
-// fit, which is why it lives here instead of in the registry.
+// The input pockets are registered at the motor's own boss and shaft, so a motor seats face to
+// face and CGAL will not call the union 2-manifold. A render allowance, not a fit.
 gearbox_input_render_allowance = 0.2;
 
 /**
@@ -48,10 +46,8 @@ module gearbox(type) {
   out_boss = gearbox_out_boss(type);
   in_boss = gearbox_in_boss(type);
 
-  // Neither boss counts toward `length`, which stays the body length, the same way dc_motor
-  // keeps the motor's own boss out of its length. The output boss stands the shaft off the
-  // face instead of eating into it, so output_shaft_length remains free length past the boss;
-  // the input boss is a recess, so the input bore has to start below it to reach as deep.
+  // Neither boss counts toward `length`. The output boss stands the shaft off the face; the
+  // input boss is a recess the input bore starts below.
   out_boss_length = is_undef(out_boss) ? 0 : out_boss[1];
   in_boss_depth = is_undef(in_boss) ? 0 : in_boss[1];
 
@@ -113,10 +109,6 @@ module gearbox(type) {
   }
 }
 
-/**
- * @brief Create a basic screw head shape
- * @param diameter The diameter of the screw head
- */
 module screwhead(diameter) {
   union() {
     cylinder(d=diameter, h=diameter / 2);

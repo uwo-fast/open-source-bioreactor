@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 """Fail when a parameter-set file has drifted from the file it belongs to, or from the registries.
 
-The JSON beside each entry file is AUTHORED, not generated: one set per registered vessel, carrying
-only what that vessel's build changes from the file's defaults, and growing as a jar earns tweaks.
-OpenSCAD applies a set on top of the file's defaults ("only the parameters defined in the dataset
-are modified"), so a set can be as small as the vessel selector. This checks and never writes:
+The JSON beside each entry file is authored: one set per registered vessel, carrying only what
+that build changes from the file's defaults. This checks and never writes:
 
   - every registered vessel has a set in every entry file's JSON
   - every parameter a set names exists in that file's Customizer surface

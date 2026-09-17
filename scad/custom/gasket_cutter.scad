@@ -7,21 +7,11 @@
  * A tool, not a part of the reactor. It takes the same three numbers custom/sheet_gasket.scad takes
  * - the cut and the stock it comes from - and knows nothing else about what the ring seals.
  *
- * TWO STAGES, because one template cannot guide both cuts. A template shaped like the gasket would
- * be a wall as wide as the ring - 3 mm on the lid's - standing at the ring's diameter, which is far
- * too slack in its own plane to hold a blade to a line; and bracing it needs material either inside
- * the bore or outside the rim, which is exactly where the blade has to be. So the cuts are taken one
- * at a time, and the second locates off the first:
- *
- *   1. "outer" is a plain disc at the ring's OUTER diameter. Lay it on the sheet, pin it, run a
- *      blade round it. That gives a blank disc and nothing stands outboard to foul the blade.
- *   2. "inner" is a plate bored at the ring's INNER diameter with a counterbore underneath at the
- *      OUTER. The blank drops into the counterbore, which holds it concentric, and the bore guides
- *      the second cut from above. The scrap centre is unheld and does not need to be - the guide is
- *      the bore wall and the rubber under it is clamped.
- *
- * Both parts are discs with a pocket, so both print flat with no bridge and no support, and the
- * concentricity of the finished ring is a printed counterbore rather than the operator's hand.
+ * Two stages, because a template as narrow as the ring is too slack to hold a blade to a line:
+ *   1. "outer" is a plain disc at the ring's outer diameter; pin it, cut round it for a blank.
+ *   2. "inner" is a plate bored at the inner diameter with a counterbore underneath at the outer;
+ *      the blank drops in concentric and the bore guides the second cut.
+ * Both print flat with no support.
  */
 
 $fn = $preview ? 64 : 128;
