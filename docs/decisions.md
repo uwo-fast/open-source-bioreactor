@@ -11,9 +11,9 @@ full, because a figure that survived review is worth more as a warning than as a
 them were not typos but readings that were coherent, agreed with the documents around them, and were
 measuring the wrong thing. `TODO.md` carries open work only; nothing here is a task.
 
-Corrections to a document's own prose stay in that document, marked `(Superseded — kept for the
-record)` where they sit — `docs/design-conventions.md` on the rim datum, `docs/agitation.md` on the
-impeller-count threshold, `docs/procurement.md` on the meter spread, `docs/references.md` on Davis.
+A corrected figure in a document or in source is replaced where it sits and recorded here; it does
+not stay inline as a `(Superseded — kept for the record)` block. The blocks that still exist are
+being folded in here as they are met.
 
 ## Corrections — readings that were wrong
 

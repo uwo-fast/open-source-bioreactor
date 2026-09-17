@@ -411,6 +411,20 @@ sparger is a stronger claim than one mode across six jars, and it is the claim t
 
 ## tooling / infrastructure / documentation
 
+- [ ] **where the tree breaks `docs/architecture.md`**, measured at `1d9a916`
+  - `head()` is analysis and geometry in one module (rule 7): 1,770 lines of derivation, checks
+    and echoes before the first solid at `head.scad:~3720`. Extract a `head_report()` and leave
+    `head()` drawing
+  - `head()` takes seven vessel scalars where it reads seven fields of one row (rule 3). Take the
+    row and the joint: `head(vessel, joint, build)`
+  - `custom/peri_pump_frame_mount.scad` includes `purchased/dc_motors.scad` and picks
+    `motor_12v_5w` itself (rule 2). Take the motor as an argument
+  - `custom/sheet_gasket.scad` includes `purchased/gasket_sheets.scad` for its preview alone. `use`
+    it and pick the example with `gasket_sheet_by_name()`
+  - `custom/bayonet_interfaces.scad` includes `orings.scad` so rows can name their ring - rule 6
+    allows it - and `bayonet_port.scad` then includes that file and receives every o-ring as a
+    global. Recorded, not yet worth moving
+
 - [ ] **FOUR of five jars carry a second impeller the spacing does not support**
   - the band bounds the COUNT - Fitschen eq. (5), `(H-d)/d > n > (H-2d)/(2d)` - and is written in
     IMPELLER diameters, not tank diameters, which is where the old H/T 1.2 reading went wrong:
