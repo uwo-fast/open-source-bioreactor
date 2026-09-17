@@ -14,6 +14,7 @@ bioreactor.scad        the build: designations resolved, coupling derived once, 
   │     ├── purchased/ bought parts: registry rows, accessors, a drawing of the vitamin
   │     └── utils/     standards and laws: thread tables, gland ratios, physics, geometry helpers
 support/               furniture around the reactor; may compose bioreactor.scad, nothing composes it
+_shelf/  _archive/      off the tree; nothing on it imports them
 ```
 
 | Layer           | Holds                                                                 | May import                                                   | May not                                        |

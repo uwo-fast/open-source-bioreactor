@@ -106,7 +106,7 @@ stats:
         echo "cloc is not installed (apt has it); add it to whatever provisions your machines."
         exit 1
     fi
-    cloc --vcs=git --exclude-lang=CSV .
+    cloc --vcs=git --exclude-dir=_archive,_shelf --exclude-lang=CSV .
 
 # Create the analysis virtualenv from analysis/pyproject.toml.
 analysis-setup:

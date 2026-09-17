@@ -54,5 +54,5 @@ while read -r f; do
             printf 'ok    %-46s %s\n' "$f" "$([ "$renders" = 1 ] && echo "$size bytes" || echo 'no geometry')"
         fi
     fi
-done < <(find scad -name '*.scad' | sort)
+done < <(find scad -name '*.scad' -not -path '*/_archive/*' -not -path '*/_shelf/*' | sort)
 exit $failed
