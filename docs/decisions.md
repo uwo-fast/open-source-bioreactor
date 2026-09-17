@@ -89,6 +89,16 @@ not stay inline.
   through `jar_1gal_180x197`'s floor. `head()` selects the 6 in 1245N31.
 - **The metering range was "an 84:1 spread in culture volume".** The ratio was always the flow
   spread; culture volume spans 14.7:1.
+- **The baffle plate was 4 mm, then 8, then 9.** Each step was sized on a closed-form deflection
+  that was only ever checked at zero freeboard and read 23 % low at the plate's real 49 mm; the
+  first mode was the real limit all along, and 10 mm is where the blade-passing crossing clears the
+  drive's band. `stirred_tank_baffle_deflection()` integrates the point-load case now.
+- **The baffle piece cap was 170 mm, "because 180 mm machines are what a builder owns".** No
+  180 mm machine could ever build this reactor: the frame's bases are 257 mm across. The cap is a
+  slenderness rule now, and `bioreactor.scad` reports which registered printers take the build.
+- **Below D/T 0.4305 the lock bore is what caps the baffle's width.** It was, when the impeller
+  and the bore were the only bounds; the sparge ring caps it now on every jar, since the room
+  outside a baffle does not grow with the mouth.
 - **A DC fan runs 1000–3000 rpm where this design wants 320–420.** The band was the reference
   build's drive on a 94.5 mm impeller, applied to jars whose impellers are half that. The target is
   tip speed, and holding it puts `jar_1p5L` at 528–851 rpm and `jar_1gal_155` at 358–577 — nearer a
