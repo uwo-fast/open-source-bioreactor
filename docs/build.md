@@ -249,8 +249,7 @@ socket used to be a hexagon and is now the tube's own section, so it follows the
 being a second size — a good change for the joint, and a worse one for telling sockets apart. Both
 sockets are the same 6.4 mm across the flats; the octagon's corners stand only **0.264 mm** proud of
 the circle, where a hexagon's stood 0.49. Count the facets or feel for the corners rather than
-glancing. (Superseded — kept for the record: this said the feed socket is a hexagon, which it was
-until the socket was made to take the tube's section.)
+glancing.
 
 **The ports are labelled by function for the same reason.** `air_in` and `air_out` have the same
 bore, so marking them by bore alone put `Ø6` on both. A gas line on the wrong one vents into the

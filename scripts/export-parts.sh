@@ -13,13 +13,8 @@ sel=()
 label="${1:-}"
 if [ -n "${1:-}" ]; then sel=(-p scad/bioreactor.json -P "${1:-}"); fi
 
-# Ask the model what it prints. Through ASSEMBLY, because that is the file that owns both
-# halves - the flange height and the rod count are chosen there and the head and the frame both
-# build to them, so asking either one directly would be reading a preview's copy. A stub rather
-# than a render, and with render_all off, so it costs a second where the assembly costs minutes.
-#
-# Each row says which FILE renders it, since that is the one thing a manifest row cannot carry
-# about itself.
+# Ask the model what it prints, through the assembly, which owns both halves. A stub with
+# render_all off, so it costs a second. Each row says which half it belongs to.
 cat > "$tmp/m.scad" <<SCAD
 include <$PWD/scad/bioreactor.scad>
 _v = reactor_vessel;
@@ -76,20 +71,9 @@ while IFS='|' read -r file name qty flags; do
     parts=$((parts + 1))
     pieces=$((pieces + qty))
     out="$dir/$name.stl"
-    # EVERY PART RENDERS THROUGH bioreactor.scad, whichever half it belongs to. That file is the
-    # one that carries a build's designations - the probes, the shaft, the o-ring, the light -
-    # and head.scad's own tail calls head() with no build, so exporting from it wrote the
-    # DEFAULT part under a build that had asked for another one. Measured before this changed:
-    # the do_probe port rendered from head.scad was byte-identical with and without
-    # -D do_probe_name="DO lab g1", while the same designation moved 134 CSG tokens through
-    # assembly.
-    #
-    # It also closes the frame's vessel gap in passing. frame.scad has no parameter set and
-    # built the jar named in its own preview, so a named vessel silently produced another jar's
-    # frame; through assembly the frame gets the selected vessel like everything else.
-    #
-    # The manifest's file column now says which HALF a row belongs to rather than which file
-    # renders it, because that is what decides the render flags.
+    # Every part renders through bioreactor.scad, whichever half it belongs to: that file carries
+    # the build's designations, and head.scad's own tail calls head() with no build. The
+    # manifest's file column says which half a row belongs to, which decides the render flags.
     case "$file" in
         scad/head.scad)  half=(-D render_vessel=false -D render_frame=false -D render_head=true -D export_at_origin=true) ;;
         scad/frame.scad) half=(-D render_vessel=false -D render_head=false -D render_frame=true) ;;
@@ -129,15 +113,8 @@ while IFS='|' read -r file name qty flags; do
     fi
 done <<< "$rows"
 
-# WHICH PRINTERS TAKE THESE, asked of the model rather than worked out here. The rule for
-# whether a box fits a bed lives in purchased/printers.scad and this passes it the sizes that
-# came off the meshes - so the registry decides, and there is no second copy of the arithmetic
-# in awk.
-#
-# REPORTED, not targeted. The design does not name a printer and bend itself to fit one; it is
-# what it is and this says what that needs. bioreactor.scad reports the same thing off the
-# geometry, and the two are now measuring the same set of parts - so if they ever disagree, a
-# part has fallen off a manifest. A part that fits NOTHING is the only thing that fails.
+# Which printers take these, asked of purchased/printers.scad with the sizes off the meshes.
+# Reported, not targeted; a part that fits nothing is the only thing that fails.
 {
     # printers.scad explicitly, not by way of head.scad: the fit rule is this stub's dependency
     # and it should say so rather than lean on another file's include chain.

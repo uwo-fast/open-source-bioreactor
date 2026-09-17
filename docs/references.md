@@ -92,9 +92,6 @@ Named 20+ times across the code and docs and, until now, in no bibliography.
 
 **Jirout, T. & Rieger, F.** "Impeller design for mixing of suspensions." CTU Prague —
 <https://users.fs.cvut.cz/tomas.jirout/vyuka/p2_hmp/chep_vyuka.pdf> **[TX]** · **read**
-(Superseded — kept for the record. Graded **[PR]** until 2026-08-30, which it never was: it is
-undated teaching material from a course directory, as its own note said. Its Np = 0.99 ± 0.04 is
-also the superseded power number — the model takes Po from Medek's correlation via Fořt.)
 Reproduces the above and adds the folded-blade series, including **Np = 0.99 ± 0.04** for a 4-blade
 folded axial impeller — the closest measured analogue to this project's blade.
 → `scad/custom/impellers.scad` `impeller_folded_axial_4`
@@ -194,10 +191,10 @@ The primary behind the numbers `Davis (2010)` relays, retrieved 2026-08-20. What
 - **Sparger, p. 214.** _"A sparge ring about 80 % of the impeller diameter is more effective than
   an open pipe beneath the impeller or sparge rings larger than the impeller… the desired entry
   point for the gas is where it can pass initially through the high shear zone around the
-  impeller."_ **Superseded, and recorded here only because the project sized against it.** Two
-  experimental studies find the opposite — Birch & Ahmed 1997 and Rewatkar & Joshi 1993, both above
-  — and both recommend rings _larger_ than the impeller. What survives is the second half: gas
-  should enter where the impeller immediately works it, which agrees with Nienow 2006.
+  impeller."_ Two experimental studies find the opposite — Birch & Ahmed 1997 and Rewatkar & Joshi
+  1993, both above — and both recommend rings _larger_ than the impeller, which is what the model
+  follows. What survives is the second half: gas should enter where the impeller immediately works
+  it, which agrees with Nienow 2006.
 - **Gas dispersion.** The lower impeller does most of the gas-dispersing work, and a common
   three-impeller power split is 40 % lower / 30 % each upper.
 - **kLa by gassing out, p. 226.** _"an unsteady state reaeration test in which the tank is stripped
@@ -470,10 +467,6 @@ Baffle Clearance on Scale Deposition in an Agitated Vessel." _ACS Omega_ 6(37):2
 Flow accelerating behind a baffle keeps that region from going stagnant, which is why partial
 baffles standing inboard are not purely a loss. → `scad/head.scad` baffle block
 
-(Superseded — kept for the record. This was cited as the bare accession number **PMC8459426**, with
-no author, title, journal or year, while being the only support for the inboard-baffle claim. It is
-the same article: <https://pmc.ncbi.nlm.nih.gov/articles/PMC8459426/>.)
-
 **Note on status:** partial/inboard baffles are _characterised_ in the literature, not
 _recommended_. The relevant papers (_Chem Eng Res Des_ S0263876207730952, _Chem Eng Sci_
 S0009250906007950) are paywalled and unread. This design's three inboard baffles rest on an
@@ -701,24 +694,10 @@ What is reachable, by Karcz's equation:
 
 **T is the BORE here**, `vessel_outer_diameter − 2 × vessel_wall_thickness`, which is what T means
 everywhere else in this project: `head.scad`'s D/T is cut from it and so is the H/T the model echoes.
-(Superseded — kept for the record. This section measured T as the OUTER diameter throughout. It read
-"Hall's e = 0.2 T needs 21.8 mm on `jar_1p5L` and 44.0 mm on `jar_10L`", with mouth/T of 0.80, 0.62,
-0.45, 0.65, 0.82, e/T today of 0, 0, 0.034, 0.060, 0.088 and e/T at best of 0.005, 0.030, 0.083,
-0.129, 0.171 — every one of them 0.2 × or ÷ the glass rather than the bore. It is the defect
-`docs/design-conventions.md` already lists against the impeller ratio, which multiplied the outer
-diameter where D/T means the bore; that one was caught in the model and this one was not, so the two
-disagreed about T while sitting in the same repository. What was NOT wrong is the numerator:
-`Rpc − flange − lid_holes_offset − mount_radius` is lid geometry in mm, so the physical room is
-unchanged and only the denominator moved — 4 to 8 %, all one way, making the target easier to reach
-and the achieved ratio higher.)
+The offset itself, `Rpc − flange − lid_holes_offset − mount_radius`, is lid geometry in mm.
 
-**The gain columns are recomputed from eq. (6)**, up-pumping branch, at the corrected e/T. The
-equation is now written out in the Karcz entry above, so this table can be re-derived rather than
-trusted: `gain = 1 − Theta(2·e/T) / Theta(0)`, with `Theta(0) = 91.32`. Reading the paper also
-validated the arithmetic that was already here — every gain in the superseded column reproduces
-from eq. (6) at the old e/T, and so do the two figures in the Karcz entry, so the only thing that
-was ever wrong in this section was the dimension T was measured on. (Superseded — kept for the
-record: `e/T today` gains read 0%, 0%, 15%, 24%, 30% and `e/T at best` read 3%, 14%, 29%, 37%, 41%.)
+**The gain columns are computed from eq. (6)**, up-pumping branch: `gain = 1 − Theta(2·e/T) /
+Theta(0)`, with `Theta(0) = 91.32`, so this table can be re-derived rather than trusted.
 
 **The `e/T today` columns are ECHOED BY THE MODEL, not transcribed.** `head()` computes the offset
 the mount leaves — the slack above the minimum its mount-versus-flange assert clears — divides it by

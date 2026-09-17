@@ -4,30 +4,18 @@
 #
 : "${OPENSCAD:=openscad}"
 
-# A designation is a string a build states and a registry answers to - the vessel, the shaft,
-# the plug o-ring, the light, the two probes. Nothing else in the suite exercises one:
-# check-echo sweeps jars, check-scad renders defaults, and a lookup that quietly returned
-# undef for every name would pass both. That is not hypothetical - nine by_name wrappers shipped
-# once with no `use <../utils/registries.scad>`, every one answering undef, and the round-trip
-# test meant to catch it passed because it included a file whose own `use` leaked the function in.
+# A designation is a string a build states and a registry answers to. Nothing else in the suite
+# exercises one: a lookup that quietly returned undef for every name would pass check-echo and
+# check-scad both.
 #
-# Two kinds of row, because two things can break:
-#   differs - the value must change the geometry. Proves the designation reaches the model
-#             rather than resolving and being dropped on the floor.
-#   builds  - it must resolve and render. Some designations legitimately cannot move geometry:
-#             every registered AS568 ring shares a 2.62 cord and the groove is cut from the
-#             cord, so pinning a different one changes the stretch and not the shape.
-#   number  - not a name at all. A build parameter that is a plain number carries through the
-#             same build list and can stop reaching the model the same way, so it gets the
-#             differs test - but there is no registry to give it a bad name from.
-# The two name kinds also get a name nothing answers to, which must FAIL - that is what proves
-# the lookup reads its argument instead of always handing back a row.
+# Three kinds of row:
+#   differs - the value must change the geometry, proving the designation reaches the model
+#   builds  - it must resolve and render; some designations legitimately cannot move geometry
+#   number  - a plain build parameter, which gets the differs test and no bad-name test
+# The two name kinds also get a name nothing answers to, which must fail.
 #
-# Driven by a PARAMETER SET, not by -D, and that is the whole point. -D reaches a `use`d file's
-# globals, so a row for a parameter both bioreactor.scad and head.scad declare - the lean ceiling,
-# the fill fraction - would pass on the -D leak even with reactor_build broken. -p assigns only
-# the file being rendered, so the value has to travel the build list to be seen. It is also the
-# channel a real build uses.
+# Driven by a parameter set, not -D: -D reaches a `use`d file's globals and would pass on that
+# leak even with reactor_build broken. -p assigns only the file being rendered.
 set -uo pipefail
 tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
 matrix=(

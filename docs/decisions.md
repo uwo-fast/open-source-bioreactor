@@ -11,9 +11,8 @@ full, because a figure that survived review is worth more as a warning than as a
 them were not typos but readings that were coherent, agreed with the documents around them, and were
 measuring the wrong thing. `TODO.md` carries open work only; nothing here is a task.
 
-Corrections to a document's own prose stay in that document, marked `(Superseded — kept for the
-record)` where they sit — `docs/design-conventions.md` on the rim datum, `docs/agitation.md` on the
-impeller-count threshold, `docs/procurement.md` on the meter spread, `docs/references.md` on Davis.
+A corrected figure in a document or in source is replaced where it sits and recorded here; it does
+not stay inline.
 
 ## Corrections — readings that were wrong
 
@@ -66,6 +65,30 @@ impeller-count threshold, `docs/procurement.md` on the meter spread, `docs/refer
   arrangement: a hub that nests UP INSIDE the punt pays the wall alone, which inverts the ranking,
   because the punt's WIDTH is then both the lever arm and the room for magnets. `jar_1p5L` is the
   worst of the five at 7.5 mm of usable radius; `jar_1gal_155x251` the best at 36.5.
+- **The sparge ring is sized at 80 % of the impeller, after Oldshue p. 214.** Two experimental
+  studies (Birch & Ahmed 1997, Rewatkar & Joshi 1993) find rings larger than the impeller better;
+  the ring is placed by the mouth at 1.44 D. And the flat 4 × 10 section that fit the radial band
+  could not be cleaned, so the sparger is a round tube split opposite the feed.
+- **The mouth assert charged 8 mm for a tip ring that had been moved inboard of the blades.** The
+  D/T caps read 0.4594 and 0.59–0.82 while it did; the ratio was never in danger, only the headroom
+  it was chosen on.
+- **The clearance was 0.6 D, chosen against Oldshue's 1–2 D as an allowance the vessel could not
+  reach.** That allowance is for fluidfoils; Fořt's guidance fits a pitched blade and puts it at
+  0.9 D. The uncited C/T quarter-to-third convention supported 0.6 D (C/T 0.27) and does not reach
+  0.9 D (C/T 0.405).
+- **The eccentricity analysis measured T as the outer diameter.** `docs/references.md`'s e/T
+  table read "Hall's e = 0.2 T needs 21.8 mm on `jar_1p5L`", with every ratio 0.2 × or ÷ the glass
+  rather than the bore - the impeller-ratio defect, recurring in a document after it was fixed in
+  the model. The numerator was lid geometry in mm and never in question; only the denominator
+  moved, 4 to 8 % all one way. The e/T columns are echoed by `head()` now, not transcribed.
+- **The feed socket is a hexagon.** It takes the tube's own octagonal section now; 0.264 mm of
+  corner is what tells it from a round support.
+- **Jirout & Rieger's course notes were graded [PR].** Undated teaching material, [TX]; its
+  Np = 0.99 ± 0.04 is the borrowed power number the correlated 1.497 replaced.
+- **The thermocouple was 3872K117, the same probe at 9 in**, until the model showed it reaching
+  through `jar_1gal_180x197`'s floor. `head()` selects the 6 in 1245N31.
+- **The metering range was "an 84:1 spread in culture volume".** The ratio was always the flow
+  spread; culture volume spans 14.7:1.
 - **A DC fan runs 1000–3000 rpm where this design wants 320–420.** The band was the reference
   build's drive on a 94.5 mm impeller, applied to jars whose impellers are half that. The target is
   tip speed, and holding it puts `jar_1p5L` at 528–851 rpm and `jar_1gal_155` at 358–577 — nearer a

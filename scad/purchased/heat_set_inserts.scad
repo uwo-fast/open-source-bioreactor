@@ -1,42 +1,21 @@
 // parameters for physical realization of heat-set threaded inserts
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
-// Rows carry NopSCADlib's insert schema so its insert(), insert_hole_radius() and
-// insert_hole_length() work on them unchanged - inserts.scad states that copying a row of the
-// same thread size and changing only the length is sufficient, which is what this is. Registered
-// here rather than taken from that library because none of its rows is a part we can buy, and it
-// is the hole the lid gets printed with that has to match the tin.
+// Rows carry NopSCADlib's insert schema so insert(), insert_hole_radius() and insert_hole_length()
+// work on them unchanged. Registered here because none of the library's rows is a part we can buy.
 
 //        length  outer_d  hole_d  screw  barrel_d  ring1_h  ring2_d  ring3_d  pitch  chamfer  part_no      material   pack
 
-// McMaster 97163A152, 18-8 stainless, ASTM A380, M4 x 0.7. The lid's mount screws land in four of
-// these. Stainless over the brass 94180A351: this face sees condensation, splash and wipe-downs,
-// the brass carries a RoHS 6(c) lead exemption and is not REACH compliant, and for a single lid
-// the pack of 10 is the cheaper buy outright. It conducts heat far worse than brass, so it wants
-// a hotter iron and a longer dwell to bond rather than just melt a socket for itself.
-//
-// The catalogue gives installed length and hole, not a profile: it is tapered and knurled where
-// the ring diameters below describe NopSCADlib's straight three-ring body. Length and hole are
-// therefore the real part and the rings are nominal, which is the right way round, because the
-// hole is what gets printed. McMaster's own note makes the taper optional - drill straight, then
-// taper the top half only if you want the insert to self-align going in.
-//
-// Hole: a 2 Ga drill is 5.6134 mm and the catalogue's maximum is 5.7404, so the 5.6 below sits
-// just under the size it is specified against.
-//
-// FIELDS PAST ring3_d. [9] and [10] are NOT free - NopSCADlib reads them as threaded_insert_pitch
-// and threaded_insert_chamfer (vitamins/insert.scad), and this is a heat-fit insert with no outer
-// thread, so they are explicitly undef and the library keeps answering undef for them as it always
-// did. The project's own fields start at [11]. Putting a part number at [9] would have registered
-// it as a thread pitch.
+// McMaster 97163A152, 18-8 stainless, M4 x 0.7; the lid's mount screws land in four. Stainless
+// over brass because the face sees splash and wipe-downs; it wants a hotter iron and longer dwell.
+// Length and hole are the catalogue's (hole 5.6 against a 5.7404 maximum); the ring diameters are
+// NopSCADlib's nominal straight body, not the real tapered knurl. [9] and [10] are the library's
+// thread pitch and chamfer, undef on a heat-fit insert; the project's fields start at [11].
 insert_m4x4p7_ss = ["M4x4.7 18-8", 4.7,  6.3,     5.6,    4,     5.15,     1.0,     6.0,     5.55,    undef, undef,   "97163A152", "18-8 SS", 10];
 
 heat_set_inserts = [insert_m4x4p7_ss];
 
-// The row is NopSCADlib's own insert schema - insert(), insert_hole_radius() and
-// insert_hole_length() read [1] upward - so there is no singular accessor file to put this in and
-// [0] is the one index the library leaves alone. See utils/registries.scad.
-function heat_set_insert_name(type) = type[0]; // the row's identity, and the key a build designates it by
-function heat_set_insert_part_number(type) = type[11]; // what to order it by
+function heat_set_insert_name(type) = type[0];
+function heat_set_insert_part_number(type) = type[11];
 function heat_set_insert_material(type) = type[12];
-function heat_set_insert_pack(type) = type[13]; // how many arrive in the smallest buy
+function heat_set_insert_pack(type) = type[13];

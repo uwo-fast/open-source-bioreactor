@@ -4,16 +4,9 @@
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * The vessel is a purchased part (a commodity jar), so its physical dimensions are
- * registered in vessels.scad and read back through the accessors below. It is also the
- * datum the head and frame are dimensioned against; bioreactor.scad selects a registered
- * vessel and passes the coupling scalars (diameter, opening diameter, height, internal
- * height) on to the other subassemblies via these accessors.
- *
- * The cross-section is built by the functions below rather than inside vessel(), so the wetted
- * shape can be READ as well as drawn: utils/stirred_tank.scad integrates the same points this
- * module revolves. A culture volume that disagreed with the jar holding it would otherwise be
- * invisible, which is what a cylinder standing in for the profile had been.
+ * A commodity jar, registered in vessels.scad and read through the accessors below. It is the
+ * datum the head and frame are dimensioned against. The cross-section is built by functions so
+ * the wetted shape can be read as well as drawn: the culture volume integrates the same points.
  */
 
 use <FunctionalOpenSCAD/functional.scad>;
@@ -28,18 +21,15 @@ function vessel_corner_radius(type) = type[3][0]; // shoulder-to-body (upper) co
 function vessel_corner_radius_base(type) = type[3][1]; // body-to-base (lower) corner radius
 function vessel_punt_height(type) = type[4][0]; // height the punt rises from the base
 function vessel_punt_width(type) = type[4][1]; // width/diameter of the punt
-// How the glass finishes at the lip, and it says three different things:
-//   undef  a GROUND FLAT lip - the rim is a flat annulus the full width of the wall
-//   0      ROUNDED IN LINE with the wall - the glass rolls over and reaches no further out
-//   r > 0  a ROLLED BEAD standing r proud of the wall's outer face
-// Only jar_6p5gal_305x470 is ground; commodity jars are fire-polished and none of the rest has a
-// flat to seat on, which is what the lid's gasket was sized against until it was measured.
+// How the glass finishes at the lip:
+//   undef  a ground flat lip - the rim is a flat annulus the full width of the wall
+//   0      rounded in line with the wall - the glass rolls over and reaches no further out
+//   r > 0  a rolled bead standing r proud of the wall's outer face
+// Only jar_6p5gal_305x470 is ground; the commodity jars are fire-polished.
 function vessel_rim_radius(type) = type[5];
 
-// The rim's arc, as ONE construction covering both curved cases: a circle tangent to the bore at
-// the lip, topping out at the rim plane, whose diameter is the wall plus however far the bead
-// stands proud. r = 0 makes that diameter the wall exactly - rounded, reaching no further out -
-// and r > 0 pushes the outer face out by r. A ground lip has no arc and returns 0.
+// The rim's arc, one construction for both curved cases: a circle tangent to the bore at the lip,
+// topping out at the rim plane, whose diameter is the wall plus the bead. A ground lip returns 0.
 function vessel_rim_arc_radius(type) =
   is_undef(vessel_rim_radius(type))
     ? 0
@@ -50,18 +40,15 @@ function vessel_rim_arc_radius(type) =
 function vessel_lip_tangent_height(type) =
   vessel_height(type) - vessel_rim_arc_radius(type);
 
-// Where the lip's arc leaves the OUTER WALL, and it is not the arc's widest point. The circle is
-// tangent to the bore, so once the bead stands proud its widest point is outboard of the wall and
-// it crosses the wall plane below that. Start the sweep at the crossing: start it at the equator
-// instead and the neck has to flare out to reach it, swelling the whole neck into the lip.
-// cos = (neck_r - centre_x) / arc_r, which reduces to (t - rim) / (t + rim): that is 1, and so a
-// plain 180 degree sweep, when the roll is in line with the wall, and opens up as the bead grows.
+// Where the lip's arc crosses the outer wall plane, which is below its widest point once a bead
+// stands proud; the sweep starts there so the neck does not flare to meet it.
+// cos = (neck_r - centre_x) / arc_r = (t - rim) / (t + rim).
 function vessel_rim_arc_start_angle(type) =
   let (_rim = vessel_rim_radius(type), _t = vessel_thickness(type))
     is_undef(_rim) ? 0 : -acos((_t - _rim) / (_t + _rim));
 
-// True when some generated point of the outer profile lies BOTH on the lip's circle and on the
-// wall plane - i.e. the roll starts where the neck ends. Vacuously true for a ground lip.
+// True when a generated point of the outer profile lies on both the lip's circle and the wall
+// plane - the roll starts where the neck ends. Vacuously true for a ground lip.
 function vessel_lip_arc_meets_wall(type) =
   is_undef(vessel_rim_radius(type))
     ? true
@@ -75,47 +62,27 @@ function vessel_lip_arc_meets_wall(type) =
             if (abs(norm(q - _c) - _r) < 1e-4 && abs(q[0] - _nk) < 1e-4) 1
         ]) > 0;
 
-/**
- * @brief Internal height available to the shaft and impeller: rim down to the top of the punt.
- *
- * Derived, not registered — the head needs it to position the impeller and to size the
- * motor mount, and deriving it here keeps that arithmetic out of bioreactor.scad.
- */
+// Internal height available to the shaft and impeller: rim down to the top of the punt.
 function vessel_internal_height(type) =
   vessel_height(type) - vessel_punt_height(type) - vessel_thickness(type);
 
-/**
- * @brief Shoulder-to-neck corner radius, solved from the registered mouth bore.
- *
- * The neck profile places the mouth inboard of the outer wall by the shoulder corner
- * radius plus the neck corner radius on each side, so the neck radius is whatever is
- * left over. Wall thickness cancels out of the neck-flat point and is intentionally
- * absent. Registering the measured opening and solving this radius (rather than the
- * reverse) keeps the registry holding facts and derives the eyeballed value.
- */
+// Shoulder-to-neck corner radius, solved from the registered mouth bore: the mouth sits inboard
+// of the outer wall by the shoulder radius plus this, so this is what is left over.
 function vessel_neck_corner_radius(type) =
   (vessel_diameter(type) - vessel_opening_diameter(type)) / 2 - vessel_corner_radius(type);
 
 // ----- the cross-section -----
 //
-// UPRIGHT AND BOTTOM-UP. x is radius and y is height above the outside of the base, which is the
-// frame rotate_extrude() works in and the only frame a volume can be integrated in. The section
-// used to be authored MOUTH-DOWN on the -x side and flipped at the end by a 180 degree rotation,
-// so every coordinate carried the sign of that flip and the neck was hung off a rectangle that
-// then had to give back the height it added. That correction - body_height - is gone: the heights
-// below are measured DOWN FROM THE RIM, which is how a jar is dimensioned in the first place.
-//
-// Each corner is ONE centre with two radii, R outside and R - t inside, because the wall is a
-// constant offset. The previous version rounded two rectangles independently and recovered each
-// corner's direction by dividing a coordinate by its own absolute value - undefined on a
-// coordinate of zero - and carried a branch for corners 2 and 3 that its own loop never reached.
+// Upright and bottom-up: x is radius, y is height above the outside of the base, the frame
+// rotate_extrude() works in. Heights are measured down from the rim, as a jar is dimensioned.
+// Each corner is one centre with two radii, R outside and R - t inside.
 
 // Where the straight neck starts, and where the shoulder's inner face tops out under it.
 function vessel_neck_bottom(type) = vessel_height(type) - vessel_neck_height(type);
 function vessel_shoulder_top(type) = vessel_neck_bottom(type) - vessel_neck_corner_radius(type);
 
-// The three corner centres, each shared by the inside and the outside. The neck is the one that
-// curves the other way, so it is the only one whose OUTER radius is the smaller of the pair.
+// The three corner centres, shared by inside and outside. The neck curves the other way, so its
+// outer radius is the smaller of the pair.
 function vessel_base_centre(type) =
   [vessel_diameter(type) / 2 - vessel_corner_radius_base(type), vessel_corner_radius_base(type)];
 function vessel_shoulder_centre(type) =
@@ -126,13 +93,8 @@ function vessel_shoulder_centre(type) =
 function vessel_neck_centre(type) =
   [vessel_diameter(type) / 2 - vessel_corner_radius(type), vessel_neck_bottom(type)];
 
-/**
- * @brief The wetted boundary: axis outward across the floor, up the wall, and out at the rim.
- *
- * Straight runs carry no points of their own, because two consecutive points already are one -
- * the dished floor from the punt out to the base corner, the barrel wall, and the neck bore are
- * all implicit. What is left is the punt plateau and three arcs.
- */
+// The wetted boundary: axis outward across the floor, up the wall, out at the rim. Straight runs
+// are implicit between consecutive points; what is listed is the punt plateau and three arcs.
 function vessel_inner_profile(type, arcFn = 64) =
   let (_t = vessel_thickness(type), _floor = _t + vessel_punt_height(type))
     concat(
@@ -143,18 +105,8 @@ function vessel_inner_profile(type, arcFn = 64) =
       [[vessel_opening_diameter(type) / 2, vessel_lip_tangent_height(type)]]
     );
 
-/**
- * @brief The outside, the same way up, ending on the rim.
- *
- * THE LIP IS A HALF ROUND TANGENT TO THE BORE, not a flat with a bead hung off it. The old profile
- * drew a flat top the full width of the wall and put the bead below and outboard of it, which is
- * the shape of no jar in the registry: only jar_6p5gal has a flat, and it has no bead. Everything
- * else is fire-polished and rolls over. The lid's gasket was sized to seat on that flat, and the
- * land it was inset from does not exist.
- *
- * One arc covers both curved cases - see vessel_rim_arc_radius(). A ground lip omits it and closes
- * flat across the wall, which is what the section's own straight run between the two profiles does.
- */
+// The outside, the same way up, ending on the rim. The lip is a half round tangent to the bore
+// (see vessel_rim_arc_radius()); a ground lip omits the arc and closes flat across the wall.
 function vessel_outer_profile(type, arcFn = 64) =
   let (
     _t = vessel_thickness(type),
@@ -197,15 +149,9 @@ function vessel_profile_below(profile, y) =
         )
   ];
 
-// The volume a profile sweeps about the axis, mm3.
-//
-// A LINE INTEGRAL round the boundary, not discs stacked up the axis, because the profile is not
-// single valued in height: the floor dishes DOWN from the punt plateau to the base corner, so two
-// radii share a height down there and no r(y) exists. Each segment contributes
-// pi/3 * dy * (r1^2 + r1 r2 + r2^2); the free surface adds nothing because dy is zero along it and
-// the axis nothing because r is, which is why summing the wetted run alone closes the region.
-//
-// Exact for the revolve, where a rendered mesh is a 64-gon inscribed in it and so reads 0.16 % low.
+// The volume a profile sweeps about the axis, mm3. A line integral round the boundary, because
+// the floor dishes down from the punt so r(y) is not single valued: each segment contributes
+// pi/3 * dy * (r1^2 + r1 r2 + r2^2), and the free surface and the axis contribute nothing.
 function vessel_swept_volume(profile) =
   len(profile) < 2
     ? 0
@@ -222,14 +168,8 @@ function vessel_swept_volume(profile) =
 function vessel_profile_litres(profile, y) =
   vessel_swept_volume(vessel_profile_below(profile, y)) / 1e6;
 
-/**
- * @brief Create a vessel from a registered type
- * @param type  Registered parameter set (see vessels.scad)
- * @param angle Sweep of the revolve; < 360 gives a cross section
- *
- * The remaining parameters are rendering preferences, not physical facts, so they stay
- * out of the registered type.
- */
+// A vessel from a registered type; angle < 360 gives a cross section. The rest are rendering
+// preferences.
 module vessel(
   type,
   angle = 360,
@@ -248,10 +188,7 @@ module vessel(
     )
   );
 
-  // The lip's arc has to MEET THE NECK ON THE WALL. Start it at its widest point instead and the
-  // neck flares out over its whole length to reach it - a shape that still tops out at H and still
-  // stands the registered amount proud, so checking those two proves nothing. Asked of the points
-  // the profile actually generates, not of the formula that generates them.
+  // Asked of the points the profile generates, not of the formula.
   assert(
     vessel_lip_arc_meets_wall(type),
     str("vessel(): ", vessel_name(type), "'s lip arc leaves the wall, flaring the neck to reach it")
@@ -265,20 +202,17 @@ module vessel(
     str("vessel(): ", vessel_name(type), " has a corner radius smaller than its wall thickness")
   );
 
-  // The NECK corner is the one that assert does not cover, and it is different in kind: a neck
-  // corner tighter than the wall does not invert an arc, it puts the shoulder's outer face above
-  // the neck's bottom, so the outside has to come back down to meet it and the jar carries a notch
-  // round the neck root. Expressible, so reported rather than asserted - and it is an
-  // inconsistency between three measured numbers rather than a part that cannot exist.
+  // A neck corner tighter than the wall puts the shoulder's outer face above the neck's bottom and
+  // the jar carries a notch round the neck root. Expressible, so reported: it is an inconsistency
+  // between three measured numbers.
   if (vessel_neck_corner_radius(type) < vessel_thickness(type))
     echo(str(
       "WARNING vessel: ", vessel_name(type), " has a ", vessel_neck_corner_radius(type),
       " mm neck corner inside a ", vessel_thickness(type), " mm wall, so the shoulder's outer face ",
       "tops out ", vessel_thickness(type) - vessel_neck_corner_radius(type),
-      " mm above the neck and the outside doubles back to reach it. corner_radius at or under ",
+      " mm above the neck and the outside doubles back to reach it; corner_radius at or under ",
       (vessel_diameter(type) - vessel_opening_diameter(type)) / 2 - vessel_thickness(type),
-      " mm clears it; it is registered at ", vessel_corner_radius(type),
-      ". Which of the three is wrong is a caliper question - see TODO.md."
+      " mm clears it (registered ", vessel_corner_radius(type), ")"
     ));
 
   if (show_pts) {

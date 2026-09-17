@@ -1,30 +1,15 @@
 // parameters for physical realization of various thermocouple probes
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
-// All Type K, 304 stainless sheath, grounded junction, 4 ft fiberglass lead, rated to 900 F -
-// far past anything this reactor does, including autoclaving. What separates the rows is the
-// thread they screw into, how far they reach, and how thick the sheath is.
-
-// The row names its NPT thread rather than transcribing the thread's diameter, so the port that
-// cuts it and the probe that screws in read the same row - see utils/npt_threads.scad. The hex
-// and the body follow from that thread, so they are derived in the accessors and are not here.
-
-// Thread size is a geometry decision, not just a plumbing one: a 1/2 NPT mount needs the full-size
-// bayonet, while 1/8 NPT fits a smaller one. On a twelve-port lid that is the difference between
-// seven big ports and six, and so between a 142 mm and a 130 mm smallest mouth - see
-// docs/ports-layout.md.
-
-// INSULATED vs noninsulated is the ungrounded-junction option. It costs more and is worth checking
-// before choosing: a grounded sheath puts the probe electrically in the culture alongside the pH
-// and DO electrodes, which is the classic source of ground-loop error in those readings. Whether
-// this rig needs the isolated variant has NOT been established - flagged, not decided.
-
-// Lengths are the nominal inch immersion depths, 76.2 / 152.4 / 228.6 / 304.8 mm. Pick one that
-// reaches the culture without fouling the impeller; nothing here checks that for you yet.
-
-// The rows name a registered NPT thread rather than transcribing its diameter, so this has to be
-// included here and not left to whoever includes this file - a consumer reaching it through `use`
-// would leave every thread undef and every port sized as if it had none.
+// All Type K, 304 sheath, grounded junction, 4 ft fiberglass lead, rated to 900 F. The rows differ
+// by thread, reach and sheath diameter. The row names its NPT thread (utils/npt_threads.scad), so
+// the port that cuts it and the probe read the same row; hex and body derive from it. A 1/2 NPT
+// mount needs the full-size bayonet, 1/8 fits a smaller one - see docs/ports-layout.md.
+//
+// Ungrounded ("insulated") is the option to check: a grounded sheath puts the probe electrically
+// in the culture beside the pH and DO electrodes, the classic ground-loop source. Not decided.
+//
+// Lengths are the nominal inch immersion depths, 76.2 / 152.4 / 228.6 / 304.8 mm.
 include <../utils/npt_threads.scad>;
 
 //                                       ["name"               part_no      thread     [neck_d, neck_h, flats_h, body_h, tip_d,  tip_h,  wire_d, wire_h]]
@@ -52,11 +37,7 @@ mcmaster_1245N18_thermocouple_probe    = ["mcmaster_1245N18",   "1245N18",   npt
 mcmaster_3872K118_thermocouple_probe   = ["mcmaster_3872K118",  "3872K118",  npt_1_2,  [10,     12,     5,       20,     3.175,  304.8,  3,      25   ]];  // 12 in x 1/8 in
 mcmaster_1245N22_thermocouple_probe    = ["mcmaster_1245N22",   "1245N22",   npt_1_2,  [10,     12,     5,       20,     4.7625, 304.8,  3,      25   ]];  // 12 in x 3/16 in
 
-// The swept list carries REAL parts only. generic_thermocouple_probe stays defined and out of it:
-// its part number is "" because there is nothing to order - it is a shape, not a product - and a
-// placeholder in here would make "it builds" cover a probe nobody can buy. A real part that has
-// been discontinued is a different case and stays swept, with the deviation recorded beside the
-// list. Same treatment as generic_vessel, atlas_probe and generic_strip_light.
+// Real parts only; generic_thermocouple_probe stays defined and out of it.
 thermocouple_probes = [mcmaster_3872K127_thermocouple_probe,
   mcmaster_3872K128_thermocouple_probe, mcmaster_3872K129_thermocouple_probe,
   mcmaster_3872K13_thermocouple_probe, mcmaster_3872K131_thermocouple_probe,
@@ -71,7 +52,6 @@ thermocouple_probes = [mcmaster_3872K127_thermocouple_probe,
 use <thermocouple_probe.scad>;
 
 use <../utils/registries.scad>;
-// A row from its name - see utils/registries.scad. A miss returns undef; the consumer asserts.
 function thermocouple_probe_by_name(name) = registry_by_name(thermocouple_probes, name);
 
 // example usage - keep commented, this file is include'd

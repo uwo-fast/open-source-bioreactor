@@ -1,12 +1,7 @@
 // parameters for the NPT taper threads cut into printed parts
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
-// ASME B1.20.1. A row is the thread itself, not a fitting: the major diameter at the hand-tight
-// plane and the pitch its TPI implies. Everything that cuts one of these reads it from here, so a
-// port and the probe that screws into it cannot disagree about which thread they are.
-
-// Pure data, no geometry, so the accessors live inline - see the note in design-conventions.md
-// about registries that own no part.
+// ASME B1.20.1. A row is the thread itself, not a fitting. Pure data, so the accessors live inline.
 
 //                ["name"      major_d, tpi, hex_af]
 npt_1_8       = ["1/8 NPT",  10.287,  27,  14.3  ];
@@ -21,11 +16,8 @@ function npt_thread_major_diameter(type) = type[1]; // at the hand-tight plane, 
 function npt_thread_tpi(type) = type[2]; // threads per inch
 function npt_thread_pitch(type) = 25.4 / npt_thread_tpi(type); // derived, so the two cannot drift
 
-// Across-flats of the hex a fitting of this size usually carries. BORROWED, not measured: it is
-// drawn for preview only and nothing derives from it, so it is here to look right rather than to
-// be built to. The 1/2 NPT figure is the one already registered against a real probe.
+// Across-flats of the hex a fitting of this size usually carries. Borrowed, for preview only.
 function npt_thread_hex_across_flats(type) = type[3];
 
 use <registries.scad>;
-// A row from its name - see registries.scad. A miss returns undef; the consumer asserts.
 function npt_thread_by_name(name) = registry_by_name(npt_threads, name);

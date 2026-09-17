@@ -10,15 +10,14 @@
 # manifold complaint on stderr is the signal and the file size is the backstop.
 set -uo pipefail
 tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
-# Flags that turn a file's PREVIEW into the part it prints. Most files need none: their default
-# render already IS the part. The ones that need it render an assembly to be looked at.
+# Flags that turn a file's preview into the part it prints, where the default is an assembly.
 mesh_flags() {
     case "$1" in
         scad/support/electronics_stand.scad) echo "-D print_corner=true" ;;
         *) echo "" ;;
     esac
 }
-# Why a file is not built by default. See MESH_SKIP above for how each was measured.
+# Why a file is not built by default; see MESH_SKIP in the justfile.
 mesh_why() {
     case "$1" in
         scad/head.scad)     echo "not a 2-manifold as it previews - export-parts builds its 23 parts" ;;
@@ -30,8 +29,7 @@ mesh_why() {
 }
 if [ -n "${1:-}" ]; then
     targets="${1:-}"
-    # Naming a skipped file builds it anyway, but say first what it will do, so nobody reads a
-    # guaranteed failure as a defect in something they were about to print.
+    # Naming a skipped file builds it anyway, but say first what to expect.
     why=$(mesh_why "${1:-}")
     [ -n "$why" ] && printf 'note  %-46s %s\n' "${1:-}" "$why"
 else

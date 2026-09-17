@@ -122,9 +122,7 @@
 
   - **buy 0-5 L/min for the 10 L jar**, where 0.82-4.12 sits at 16.5-82.3 % of scale. No single range
     covers the family — that is a property of a 73:1 spread between the smallest jar at 0.1 vvm and
-    the largest at 0.5, not a bad choice. (Superseded — kept for the record: this read "an 84:1
-    spread in culture volume". The ratio quoted was always the FLOW spread; culture volume itself
-    spans 14.7:1.)
+    the largest at 0.5, not a bad choice.
   - enriching with CO₂ later does not invalidate the meter. A rotameter reads by gas density, and
     0.5 % CO₂ in air changes density by 0.26 %
   - **all three are now bought rather than wanted**, and the whole chain is in
@@ -213,9 +211,8 @@
   - 4 ft fiberglass cable, 24 AWG, 1/2 in wire leads
   - 0.5 s response time, 900 F maximum temperature
   - <https://www.mcmaster.com/1245N31/>
-  - (Superseded — kept for the record. This was 3872K117, the same probe at 9 in, until the model
-    showed a 9 in probe reaching through the jar's floor. Both are registered in
-    `purchased/thermocouple_probes.scad`; `head()` selects the 6 in one.)
+  - both the 6 in and the 9 in are registered in `purchased/thermocouple_probes.scad`; `head()`
+    selects the 6 in, the 9 in reaching through `jar_1gal_180x197`'s floor
 
 - motor mount insert selection
   - McMaster-Carr 97163A152

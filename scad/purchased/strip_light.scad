@@ -4,19 +4,16 @@
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * This file contains the strip light module for the open-source-bioreactor project.
- *
  */
 
 $fn = $preview ? 64 : 128;
 
-function strip_light_name(type) = type[0]; // the row's identity, and the key a build designates it by
+function strip_light_name(type) = type[0];
 function strip_light_width(type) = type[1][0]; // width of the strip light
 function strip_light_depth(type) = type[1][1]; // depth of the strip light
 function strip_light_length(type) = type[1][2]; // length of the strip light
 function strip_light_radius(type) = type[1][3]; // radius of the curved front, optional
-// How many tubes one cord and controller drives. A packaging fact rather than a dimension, which is
-// why it sits outside the vector above - see the note in strip_lights.scad.
+// How many tubes one cord and controller drives; packaging, not a dimension.
 function strip_light_per_cord(type) = type[2];
 
 /**

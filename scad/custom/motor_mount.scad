@@ -45,10 +45,7 @@ module motor_mount(
 
   motor_screw_diameter = screws_diameter + vertical_hole_allowance;
 
-  // Clearance for a purchased boss entering a printed hole. The hole is cut as a facets-sided
-  // polygon, so it is the inscribed circle the boss has to pass, not the nominal diameter;
-  // sizing off that keeps boss_allowance the real clearance instead of most of it being eaten
-  // by the faceting.
+  // The hole is a facets-sided polygon, so the boss has to pass its inscribed circle.
   motor_boss_hole_diameter = (motor_boss_diameter + boss_allowance) / cos(180 / facets);
 
   raised_face_height = wall_thickness;
@@ -221,19 +218,8 @@ module middle_pipe(
 
 // ----- example values, NOT the bioreactor's mount -----
 //
-// This module is generic - it fits any motor with a round faceplate on a square screw pattern -
-// so what follows is one worked example to preview against, and nothing more. It is not the mount
-// this project builds, and a part exported from this file will not bolt to the lid the assembly
-// drills: the example takes M3 screws throughout, where head.scad drives 4.2 mm gearbox screws
-// and an M4 clearance hole for the base. Measured, standalone against assembly-driven:
-//
-//   coupling screw holes   r 1.55  vs  r 2.15
-//   base screw holes       r 1.70  vs  r 2.20
-//
-// Export the bioreactor's mount from head.scad, which derives all of this from the registered
-// gearbox, insert and screw. Deliberately left as an example rather than wired to those
-// registries: doing that would make this generic part depend on the head that happens to use it,
-// and would restate head.scad's body diameter and wall thickness here as well.
+// A worked example on M3 screws. Export the bioreactor's mount from head.scad, which derives its
+// numbers from the registered gearbox, insert and screw.
 
 _mm_screws_diameter = 3;
 

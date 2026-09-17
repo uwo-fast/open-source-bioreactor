@@ -7,28 +7,13 @@
 
 # $1 one file to probe, empty for all of $ENTRY; $2 the render flags.
 
-# THE FAILURE THIS EXISTS FOR. Every hole on the tube sparger was once cut a quarter of a
-# millimetre short - the section is a polygon quoted across FLATS and its material reaches
-# across CORNERS - so all twenty ended blind. Nothing caught it. The part rendered, it was a
-# clean 2-manifold, `check-mesh` passed it, and every render looked right because a 1.2 mm hole
-# is under a pixel when you photograph a 180 mm ring. A blind hole is a perfectly good solid.
+# A blind hole is a perfectly good solid, so check-mesh cannot catch one. The model states a
+# claim - "if this hole opened, this point is void" - by echoing HOLEPROBE lines, derived from the
+# same functions that cut the hole, and this tests the claim against the built mesh.
 #
-# So this is not a mesh check. The MODEL states a claim - "if this hole opened, this point is
-# void" - by echoing HOLEPROBE lines, and this tests the claim against the built mesh. The probe
-# is derived from the same functions that cut the hole, so it cannot drift away from it.
-#
-# RENDERED IN THE CONFIGURATION THAT MAKES THE PART, not the one that makes the picture -
-# the same lesson 011fea7 wrote into check-mesh. head.scad at its defaults draws the whole lid
-# with its seals, probes and bearing, which check-parts has already declared are not printed and
-# which make it a non-2-manifold; a point-in-solid test against that mesh answers nothing. The
-# default flags below are what the print manifest exports the sparger with.
-#
-# A file that emits no HOLEPROBE is not a failure, it is a file with nothing to say.
-#
-# NOT IN `just check`, for the same reason check-mesh is not: it needs a CGAL render, and
-# head.scad alone is minutes. It is in that recipe's cost class and belongs beside it. The cheap
-# coverage is custom/sparger.scad on its own, which exercises the same cut through the same
-# functions in seconds - run this against head.scad before a print, not on every edit.
+# Rendered in the configuration that makes the part, not the picture: the default flags are what
+# the print manifest exports the sparger with. A file that emits no HOLEPROBE has nothing to say.
+# Not in `just check`: it needs a CGAL render.
 set -uo pipefail
 targets="${1:-}"
 [ -n "$targets" ] || targets="$ENTRY"

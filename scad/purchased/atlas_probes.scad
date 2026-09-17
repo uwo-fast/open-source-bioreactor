@@ -1,26 +1,11 @@
 // parameters for physical realization of various atlas probes
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
-// Four product lines - pH in four grades, DO in two, EC in five, ORP in four. Within a line
-// the upper end is common and the grades differ below it.
-//
-// Every row is the product as its datasheet describes it. Fit is the consuming part's job -
-// bayonet_probe_port carries the collet allowances that absorb product and printer tolerance -
-// so nothing here should be tightened or loosened to make a part fit.
-//
-// The whole probe is four features and each has exactly one group: neck is the strain relief
-// boot, body the cap the collet grips, tip the shaft, and conn_d the connector at the cord end.
-//
-// Atlas states totals as cap + shaft, leaving out the strain relief boot that neck models.
-// Only three sheets dimension that boot - the 8 cm EC and the two full size ORP - all at the
-// 26 mm used here. Those same three are built as boot + black body rather than a 16 mm cap
-// and give no width for the body, so 16.0 is assumed and flagged on each row.
-//
-// Detail this schema does not carry: the DO stepped shafts, where tip_h is the sum of the
-// two segments and the lab's last 7.5 mm is really a 16.4 mm end cap; EC sensing area; and
-// ORP electrode material. That leaves ec_k0p1 / ec_k1 and orp_consumer / orp_lab identical
-// apart from their names. Some sheets also state a total their own components do not sum to
-// - pH lab by 1.8 mm, ORP consumer and lab by 0.6 mm - and the components are registered.
+// Every row is the product as its datasheet describes it; fit is the port's job. neck is the
+// strain relief boot, body the cap the collet grips, tip the shaft, conn_d the cord-end connector.
+// Atlas totals leave the boot out; only three sheets dimension it (26 mm) and those give no body
+// width, so 16.0 is assumed and flagged. Not carried: the DO stepped shafts, EC sensing area, ORP
+// electrode material. Where a sheet's total does not sum, the components are registered.
 
 // atlas_probe is not a real probe, but a placeholder showing the expected format.
 //             ["name"          [neck_d, neck_h, neck_taper_d], [body_d, body_h], [tip_d, tip_h], conn_d, wire_d, accent_color, part_no];
@@ -123,18 +108,11 @@ atlas_probes = [
 
 use <atlas_probe.scad>;
 
-// DEVIATION, recorded: ph_lab_g1 and do_lab_g1 are no longer sold, and are still in use - more than
-// one reactor is being built, across both generations. They stay swept for the same reason the
-// discontinued motor does. The g1 and g2 bodies are NOT interchangeable in a printed collet: pH is
-// 15.6 x 36.0 against 16.0 x 30.2, on a 0.6 mm grip fit, so a lid answers to one generation.
+// ph_lab_g1 and do_lab_g1 are no longer sold and still in use, so they stay swept. g1 and g2
+// bodies are not interchangeable in a printed collet (15.6 x 36.0 against 16.0 x 30.2).
 
 use <../utils/registries.scad>;
-// A row from its name - see utils/registries.scad. A miss returns undef; the consumer asserts.
 function atlas_probe_by_name(name) = registry_by_name(atlas_probes, name);
 
-// example usage - keep commented, this file is include'd and would emit the probes into
-// every consumer (see 1a6df3d)
-// atlas_probe(ph_lab_g2);                       // registered set
-// translate([40, 0, 0]) atlas_probe(do_lab_g2); // registered set
-// translate([80, 0, 0])                      // direct (inline type)
-//   atlas_probe(["custom", [10, 26, 5], [16, 36.2], [12, 115], 8, 3, "Cyan"]);
+// example usage - keep commented, this file is include'd
+// atlas_probe(ph_lab_g2);

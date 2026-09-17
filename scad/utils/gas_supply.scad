@@ -24,75 +24,37 @@ function gas_pump_back_pressure_for(free_flow, dead_head, target_flow) =
 function gas_throttle_pressure(free_flow, dead_head, target_flow, system_pressure) =
   gas_pump_back_pressure_for(free_flow, dead_head, target_flow) - system_pressure;
 
-/**
- * @brief A straight line through two flows the caller has already priced: [slope, offset].
- *
- * What a line COSTS is not fixed - it rises with the flow through it - so anything that asks where
- * a pump settles needs the line as a relation rather than as a number. Two points is enough here
- * because the membrane filter dominates and is linear in flow; the check valve and the tubes bend
- * it slightly, and a secant through them runs a little under, which makes the flow that falls out
- * a little over. About 2 % on this build.
- */
+// A straight line through two flows the caller has already priced: [slope, offset]. Two points
+// is enough because the membrane filter dominates and is linear in flow; the check valve and the
+// tubes bend it about 2 %.
 function gas_line_secant(flow_lo, pressure_lo, flow_hi, pressure_hi) =
   let (_slope = (pressure_hi - pressure_lo) / (flow_hi - flow_lo))
     [_slope, pressure_lo - _slope * flow_lo];
 
-/**
- * @brief Where the pump actually settles: its own curve crossed with the line's, L/min.
- *
- * gas_pump_flow() above answers a DIFFERENT question - what a pump gives against a back pressure
- * held fixed - and a line does not hold still. Asking it with the line's value at the design point
- * prices the line at a flow the pump is not being asked for, and on this build that reads 23 L/min
- * where the crossing is 6. It is the number anyone would use to judge whether there is room for
- * another filter, so it is worth having right.
- */
+// Where the pump settles: its own curve crossed with the line's, L/min. gas_pump_flow() answers
+// a different question - flow against a back pressure held fixed - and a line does not hold still.
 function gas_operating_flow(free_flow, dead_head, line) =
   free_flow * (dead_head - line[1]) / (dead_head + free_flow * line[0]);
 
-/**
- * @brief The most another filter may cost, kPa per L/min, before target_flow stops being reachable.
- *
- * Turned round from the above: a filter adds its slope to the line's, so there is a slope at which
- * the crossing lands exactly on the flow wanted. Anything costlier than this and the top of the
- * aeration band is not a setting the pump can hold, whatever the throttle does.
- */
+// The most another filter may cost, kPa per L/min, before target_flow stops being reachable: the
+// slope at which the crossing lands exactly on the flow wanted.
 function gas_filter_slope_budget(free_flow, dead_head, line, target_flow) =
   ((free_flow * (dead_head - line[1]) / target_flow - dead_head) / free_flow - line[0]) / 1000;
 
-// The plausibility check the ReSun's listing fails. If a pump really delivered its free flow at its
-// dead-head pressure it would be doing this much pneumatic work; compared against the electrical
-// input it says whether the two numbers can be simultaneous. Diaphragm pumps run 10-30 % efficient,
-// so anything approaching 100 % means the catalogue is quoting the ends of a curve.
+// Pneumatic work at free flow AND dead head, over electrical input. Diaphragm pumps run 10-30 %,
+// so anything approaching 100 % means the catalogue quotes the two ends of a curve.
 function gas_pump_implied_efficiency(free_flow, dead_head, power) =
   free_flow / 60000 * dead_head / power;
 
 // ----- what the line itself costs, between the pump and the sparge holes -----
-//
-// The vessel's own back-pressure is only part of what the pump has to beat. The membrane filter and
-// the riser take their share first, and until this landed head() reported the vessel's figure alone
-// as "what the gas supply has to beat", which understated it several times over.
 
 function gas_air_density() = 1.204; // kg/m^3, dry air at 20 C
 function gas_air_viscosity() = 1.81e-5; // Pa s, at 20 C
 
-/**
- * @brief Drop across a membrane filter, Pa.
- *
- * Linear in flow, which is the right model rather than a convenience: flow through a membrane at
- * these pressures is viscous, and Darcy's law makes it proportional. The slope is a property of one
- * filter and belongs to the caller.
- *
- * @param flow  L/min
- * @param slope kPa per L/min
- */
+// Drop across a membrane filter, Pa. Linear in flow (Darcy). flow L/min, slope kPa per L/min.
 function gas_filter_pressure_drop(flow, slope) = slope * flow * 1000;
 
-/**
- * @brief Drop along a length of tube, Pa. Darcy-Weisbach, laminar or Blasius as Reynolds decides.
- * @param flow   L/min
- * @param bore   mm
- * @param length mm
- */
+// Drop along a tube, Pa. Darcy-Weisbach, laminar or Blasius as Reynolds decides. flow L/min, mm.
 function gas_tube_pressure_drop(flow, bore, length) =
   let (
     _d = bore / 1000,
@@ -102,22 +64,9 @@ function gas_tube_pressure_drop(flow, bore, length) =
     _f = _re < 2300 ? 64 / _re : 0.316 / pow(_re, 0.25)
   ) _f * (length / 1000) / _d * gas_air_density() * pow(_v, 2) / 2;
 
-/**
- * @brief Flow coefficient a throttle needs to pass a gas flow at a wanted drop.
- *
- * Cv is how valves are actually sold, so this is what turns "the throttle has to drop N Pa" into a
- * part number. Subcritical compressible flow, in the imperial terms the coefficient is defined in -
- * the conversions live here so no caller does them.
- *
- * @param flow          L/min
- * @param drop          Pa across the valve
- * @param downstream    Pa gauge downstream of it
- * @return Cv
- */
-// The drop a valve of KNOWN Cv costs at a given flow - the inverse of gas_valve_cv() below, and the
-// one a bought valve needs. Sizing a throttle asks "what Cv passes this flow at this drop"; a check
-// valve is already chosen, so the question turns round: its Cv is on the datasheet and the flow is
-// what the vessel wants, and what falls out is what it takes off the line.
+// Subcritical compressible flow through a valve, in the imperial terms Cv is defined in. flow
+// L/min, pressures Pa (downstream is gauge). The drop a valve of known Cv costs, and the Cv a
+// throttle needs for a wanted drop.
 function gas_valve_pressure_drop(flow, cv, downstream) =
   let (_scfm = flow / 28.3168, _p2 = 14.7 + downstream / 6894.76)
     pow(_scfm / (22.67 * cv), 2) * 530 / _p2 * 6894.76;
@@ -129,9 +78,8 @@ function gas_valve_cv(flow, drop, downstream) =
     _p2 = 14.7 + downstream / 6894.76
   ) _scfm / (22.67 * sqrt(_dp * _p2 / 530));
 
-// Rotameters are read against a scale and are not trustworthy near its bottom; 10 % of full scale
-// is the usual limit quoted. So a range [lo, hi] needs a scale at or above hi whose tenth is at or
-// below lo, and a wide enough range has no single scale that covers it.
+// Rotameters are not readable below 10 % of full scale, so a range [lo, hi] needs a scale at or
+// above hi whose tenth is at or below lo.
 function gas_meter_readable_fraction() = 0.1;
 function gas_meter_scales() = [1, 2, 5, 10, 15, 25, 50]; // the sizes these are commonly sold in
 function gas_meter_full_scale(flow_low, flow_high) =

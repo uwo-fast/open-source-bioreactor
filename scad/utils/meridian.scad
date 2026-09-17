@@ -41,27 +41,18 @@ function meridian_radii_between(run, z_low, z_high) =
       : let (_p = meridian_radius_at(run, _lo), _q = meridian_radius_at(run, _hi))
         [min(_p, _q), max(_p, _q)];
 
-// How far a run reaches either side of its axis MEASURED RADIALLY, which is not its radius unless
-// it hangs straight. Cut a leaning cylinder with a horizontal plane and the section is an ellipse
-// whose long axis lies in the lean, so the radial half-width is radius / cos(lean) - the run's own
-// two ends give that ratio as length over rise. Small at the angles a port leans, and exact.
+// How far a run reaches either side of its axis measured radially: a leaning cylinder's horizontal
+// section is an ellipse, so radius / cos(lean), with the ratio taken off the run's own two ends.
 function meridian_half_width(run) =
   let (_dr = run[1][0] - run[0][0], _dz = run[1][1] - run[0][1])
     _dz == 0 ? undef : run[2] * norm([_dr, _dz]) / abs(_dz);
 
-// The widest a run ever gets. Not where it ends up - what has to pass the jar's NECK is the widest
-// point of the whole hanging assembly, because the lid descends through it and every part of the
-// assembly is level with the neck at some moment on the way down.
+// The widest a run ever gets, which is what has to pass the jar's neck on the way in.
 function meridian_max_radius(run) =
   max(run[0][0], run[1][0]) + meridian_half_width(run);
 
-/**
- * @brief Radial gap between a run and an axisymmetric obstacle, over the heights they share.
- *
- * Positive is clearance and negative is interference, the number being how far they overlap
- * radially either way. undef when the two never share a height at all - which is not a large
- * clearance and should not be reported as one, because nothing about the radii was compared.
- */
+// Radial gap between a run and an axisymmetric obstacle over the heights they share: positive is
+// clearance, negative is interference, undef when they never share a height.
 function meridian_clearance(run, obstacle) =
   let (_band = meridian_radii_between(run, obstacle[2], obstacle[3]))
     is_undef(_band)

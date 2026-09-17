@@ -1,21 +1,8 @@
 #!/usr/bin/env bash
 #
-# Install the OpenSCAD libraries openscad-libraries.txt pins, into a directory
-# inside the repository rather than into the machine's global library path.
-#
-# WHY PROJECT-LOCAL. These four were installed globally on the author's
-# workstation and declared nowhere, so the model built there and nowhere else -
-# CI could not render a single port. A checkout beside the source, pinned by
-# this repository, is what makes "it renders" a property of the project.
-#
-# SSH FIRST, HTTPS SECOND, from one line in the list. A machine with a key gets
-# the protocol its keys are for; a machine without one - CI, or a fresh clone by
-# someone who has not set up GitHub - falls back rather than failing. The SSH
-# attempt runs under BatchMode with a short timeout so the fallback is quick
-# instead of hanging on a passphrase or a host-key prompt.
-#
-# Idempotent: a library already at the pinned ref is left alone, so this is
-# cheap to re-run and safe to put in front of every build.
+# Install the OpenSCAD libraries openscad-libraries.txt pins, into a directory inside the
+# repository, so "it renders" is a property of the project. SSH first (BatchMode, short
+# timeout), HTTPS second, from one line in the list. Idempotent.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

@@ -4,14 +4,8 @@
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * A vitamin, the same as the bearing or the probes: bought, not designed, and drawn so the
- * assembly can see where it is and what it is in the way of. The body is a box because a box is
- * what is known - the catalogue gives an outside and nothing else, and a modelled curve would be a
- * guess with the authority of geometry.
- *
- * The printed head that might one day replace it is custom/peri_pump_head.scad.
- *
- * Sets no $fn: there is nothing round here to resolve.
+ * A vitamin, drawn as the box the catalogue gives because that is all that is known. The printed
+ * head that might replace it is custom/peri_pump_head.scad. Sets no $fn.
  */
 
 function peri_pump_name(type) = type[0]; // catalogue name
@@ -23,14 +17,7 @@ function peri_pump_height(type) = type[2][2];
 function peri_pump_tube_inner_diameter(type) = type[3][0]; // the bore it pumps
 function peri_pump_tube_outer_diameter(type) = type[3][1]; // what a port has to grip
 
-/**
- * @brief Draw the pump at its envelope.
- *
- * Origin at the CENTRE OF ITS FOOTPRINT, on the face it stands on, so a caller places it by the
- * face it is mounted against rather than by a corner nobody can find on the real part.
- *
- * @param type Registered parameter set (see peri_pumps.scad)
- */
+// Origin at the centre of its footprint, on the face it stands on.
 module peri_pump(type) {
   color("dimgrey")
     translate([0, 0, peri_pump_height(type) / 2])

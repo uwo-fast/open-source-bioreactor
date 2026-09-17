@@ -1,17 +1,11 @@
 #!/usr/bin/env python3
 """Fail when a Customizer parameter has no description the UI can actually show.
 
-OpenSCAD reads ONLY the line immediately above a variable. A multi-line comment block shows
-its last line, and a trailing comment shows nothing at all - so 46 parameters across the three
-entry files offered the previous LINE OF CODE as their help text, render_base advising the
-reader that "render_all = true; // render all components". Prose is not checked by `just json`
-the way the dropdowns are, so nothing but this stops the next parameter being as silent.
+OpenSCAD reads only the line immediately above a variable, so a multi-line block shows its last
+line and a trailing comment shows nothing. A parameter under /* [Hidden] */ is exempt; that
+section runs until the next marker, so a bare marker is checked too.
 
-A parameter under /* [Hidden] */ is exempt: it is not offered, so it needs no description. That
-section runs until the NEXT marker, which is the trap this also covers - hiding one internal hid
-every render flag below it once, because head.scad had no marker between them.
-
-Takes the entry files to check as arguments; the justfile holds the list.
+Takes the entry files to check as arguments.
 """
 
 import pathlib

@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
 #
 # Diff every entry file's echo stream, on every registered vessel, against a committed
-# transcript. `--update` rewrites the transcripts instead of diffing.
-#
-# NOT with -D render_all=false: that flag reaches bioreactor.scad's own render_all and takes it
-# from 83 echoes to 5, so a baseline captured with it would cover 6% and read as complete.
+# transcript. `--update` rewrites the transcripts instead of diffing. Not with
+# -D render_all=false, which would reach bioreactor.scad's own flag and drop most of the stream.
 set -uo pipefail
 
 : "${OPENSCAD:=openscad}"
@@ -27,16 +25,12 @@ while IFS='|' read -r name row; do
         cells=$((cells + 1))
         out="$BASE/${f}__${name}.txt"
         "$OPENSCAD" -D "reactor_vessel=$row" --export-format echo -o "$tmp/e.txt" "scad/$f.scad" 2>"$tmp/err" >/dev/null
-        # A cell that ERRORs still has a transcript worth pinning - it is what the model says on
-        # the way to failing, and the summary below names which cells those are.
-        # --export-format echo writes ERROR and TRACE into the OUTPUT file, not to stderr, so the
-        # transcript is that file alone. Line numbers are normalised out of it: an assert's identity
-        # is its condition and its message, both kept verbatim, where "line 3192" changes for free
-        # whenever a line is added above it - which made step 4 red for moving one line.
+        # --export-format echo writes ERROR and TRACE into the output file, so the transcript is
+        # that file alone. Line numbers are normalised out: an assert's identity is its condition
+        # and its message.
         sed 's/, line [0-9]*/, line N/g' "$tmp/e.txt" > "$tmp/cell.txt" 2>/dev/null
         n=$(grep -c '^ECHO' "$tmp/cell.txt" || true)
-        # A cell that ERRORs is a vessel this build cannot carry. Recorded here rather than in a
-        # hand-written list: the assert's own message is the reason, and it cannot go stale.
+        # A cell that ERRORs is a vessel this build cannot carry; the assert's message is the reason.
         if grep -q '^ERROR' "$tmp/cell.txt"; then
             known=$((known + 1))
             known_rows+=("$(printf '%-9s %-22s %s' "$f" "$name" \
