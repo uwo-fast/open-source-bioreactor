@@ -10,7 +10,7 @@
  *
  * CROSS-COUPLING: what two subassemblies must agree on, derived once here and handed down.
  *   vessel -> frame   outer diameter, height
- *   vessel -> head    outer diameter, opening, wall, internal height, punt, profile, lip radius
+ *   vessel -> head    the registered row
  *   light  -> frame   the registered strip light row
  *   head  <-> frame   the joint: lid_flange_height (chosen here), the bolt circle, the bore and
  *                     the outer face (read back from frame.scad), and the post pattern
@@ -322,17 +322,11 @@ if (render_head || render_all) {
   cross_section(_section_active)
   translate(export_at_origin ? [0, 0, 0] : [0, 0, vessel_height(reactor_vessel) + lid_flange_height])
     head(
+      vessel=reactor_vessel,
       lid_flange_height=lid_flange_height,
-      vessel_outer_diameter=vessel_diameter(reactor_vessel),
-      vessel_opening_diameter=vessel_opening_diameter(reactor_vessel),
-      vessel_wall_thickness=vessel_thickness(reactor_vessel),
-      vessel_internal_height=vessel_internal_height(reactor_vessel),
-      vessel_punt_height=vessel_punt_height(reactor_vessel),
       joint_outer_diameter=joint_outer_diameter,
       post_pts=bolt_pattern_pts(joint_posts, joint_bolt_circle),
       post_hole_diameter=joint_hole_diameter,
-      vessel_profile=vessel_inner_profile(reactor_vessel),
-      lip_arc_radius=vessel_rim_arc_radius(reactor_vessel),
       build=reactor_build
     );
 }

@@ -184,11 +184,11 @@ doing is a family spanning three agitation modes off one lid and one sparger.
 
 ## tooling / infrastructure / documentation
 
-- [ ] **where the tree breaks `docs/architecture.md`**, measured at `1d9a916`
-  - `head()` is analysis and geometry in one module (rule 7): 1,770 lines of derivation, checks
-    and echoes before the first solid. Extract a `head_report()` and leave `head()` drawing
-  - `head()` takes seven vessel scalars where it reads seven fields of one row (rule 3). Take the
-    row and the joint: `head(vessel, joint, build)`
+- [ ] **where the tree breaks `docs/architecture.md`**
+  - `head()` is one module in three sections - derived, checks and reports, geometry. The checks
+    cannot become a module of their own without restating the derived values, since a module
+    returns nothing; a split by subsystem is the next cut, and it is unsettled how the pieces
+    share head.scad's parameters without reading each other
   - `custom/bayonet_interfaces.scad` includes `orings.scad` so rows can name their ring - rule 6
     allows it - and `bayonet_port.scad` then includes that file and receives every o-ring as a
     global. Recorded, not yet worth moving

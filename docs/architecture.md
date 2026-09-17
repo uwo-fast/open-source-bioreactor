@@ -72,5 +72,7 @@ subassembly including the registries it resolves designations from, `bayonet_por
 - Whether a subassembly resolving names itself (rule 2) is the right price for rendering
   standalone, or whether every name resolves in the entry file and `head.scad` carries a tiny
   profile of its own. The second removes eighteen includes from `head.scad`.
-- How a subassembly splits into files without the pieces reading each other. The first cut is
-  rule 7; the second is by subsystem, where a real boundary shows.
+- How a subassembly splits into files without the pieces reading each other. `head()` is one
+  module in three sections - derived, checks, geometry - because a module returns nothing, so the
+  checks cannot move out without restating what they check. The next cut is by subsystem, where a
+  real boundary shows.
