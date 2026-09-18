@@ -586,25 +586,27 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
       }
   }
 
-  // The fan in its pocket, its screws from below, and the cap and magnets on its hub; the fan is
-  // drawn centred, so it is lifted by half its depth.
-  module frame_stir_fan(fan_part = true, cap_part = false) {
-    _fan_top = _slot_height + _carrier_height;
+  // The fan's face is the carrier's top; the cap stands on its hub.
+  _fan_top = is_undef(_fan) ? undef : _slot_height + _carrier_height;
+
+  // The bought parts: the fan in its pocket (drawn centred, so lifted by half its depth), its
+  // screws from below, and the magnets in the cap's pockets.
+  module frame_stir_fan() {
     translate([0, 0, _fan_top - fan_depth(_fan) / 2]) {
-      if (fan_part) {
-        fan(_fan);
-        // self-tapping into the fan's corners, the usual fan screw; through the lip and half the frame
-        fan_hole_positions(_fan, z=-fan_depth(_fan) / 2 - carrier_lip)
-          rotate([180, 0, 0])
-            screw(fan_screw(_fan), screw_longer_than(carrier_lip + fan_depth(_fan) / 2));
-      }
+      fan(_fan);
+      // self-tapping into the fan's corners, the usual fan screw; through the lip and half the frame
+      fan_hole_positions(_fan, z=-fan_depth(_fan) / 2 - carrier_lip)
+        rotate([180, 0, 0])
+          screw(fan_screw(_fan), screw_longer_than(carrier_lip + fan_depth(_fan) / 2));
     }
     translate([0, 0, _fan_top])
-      if (cap_part)
-        color(prints2_color)
-          magnet_hub_cap(fan_hub(_fan), _magnet);
-      else if (fan_part)
-        magnet_hub_cap(fan_hub(_fan), _magnet, cap=false, magnets=true);
+      magnet_hub_cap(fan_hub(_fan), _magnet, cap=false, magnets=true);
+  }
+
+  module frame_hub_cap() {
+    translate([0, 0, _fan_top])
+      color(prints2_color)
+        magnet_hub_cap(fan_hub(_fan), _magnet);
   }
 
   // z = 0 is the bottom of the vessel, so the whole frame drops by its floor
@@ -688,14 +690,15 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
     }
 
     // the magnetic drive, drawn only when a build takes it; the slot above is cut regardless
-    if (!is_undef(_fan) && (drive == "magnetic" || render_stir_carrier || render_hub_cap || render_stir_fan)) {
-      if (render_stir_carrier || (drive == "magnetic" && render_all))
+    _drive_shown = drive == "magnetic" && render_all;
+    if (!is_undef(_fan)) {
+      if (render_stir_carrier || _drive_shown)
         color(prints2_color)
           frame_stir_carrier();
-      if (render_hub_cap || (drive == "magnetic" && render_all))
-        frame_stir_fan(fan_part=false, cap_part=true);
-      if (render_stir_fan || (drive == "magnetic" && render_all))
-        frame_stir_fan(fan_part=true);
+      if (render_hub_cap || _drive_shown)
+        frame_hub_cap();
+      if (render_stir_fan || _drive_shown)
+        frame_stir_fan();
     }
 
     // top base

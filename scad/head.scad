@@ -2031,23 +2031,25 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
     _bar_reach = stir_bar_length(_stir_bar) / 2;
     _bar_plateau = vessel_punt_width(vessel) / 2;
+    _ring_inner = _sparge_ring_radius - sparge_tube_extent() / 2;
+    _baffle_inner = port_circle_radius - _baffle_width / 2;
 
     echo(str(
       "stir bar: ", stir_bar_name(_stir_bar), " centred on the ", _bar_plateau * 2, " mm punt plateau, ",
       _bar_reach > _bar_plateau ? str("overhanging it by ", _bar_reach - _bar_plateau, " mm each end") : "wholly on it",
-      "; sweeps r ", _bar_reach, " where the sparge ring starts at r ", _sparge_ring_radius - sparge_tube_extent() / 2,
-      _has_baffles ? str(" and the baffles at r ", port_circle_radius - _baffle_width / 2) : "",
+      "; sweeps r ", _bar_reach, " where the sparge ring starts at r ", _ring_inner,
+      _has_baffles ? str(" and the baffles at r ", _baffle_inner) : "",
       "; the sparge ring is still sized on the shaft drive's impeller"
     ));
 
     assert(
-      _bar_reach < _sparge_ring_radius - sparge_tube_extent() / 2,
-      str("A ", stir_bar_length(_stir_bar), " mm stir bar sweeps into the sparge ring at r ", _sparge_ring_radius - sparge_tube_extent() / 2, ".")
+      _bar_reach < _ring_inner,
+      str("A ", stir_bar_length(_stir_bar), " mm stir bar sweeps into the sparge ring at r ", _ring_inner, ".")
     );
 
     assert(
-      !_has_baffles || _bar_reach < port_circle_radius - _baffle_width / 2,
-      str("A ", stir_bar_length(_stir_bar), " mm stir bar sweeps into the baffles at r ", port_circle_radius - _baffle_width / 2, ".")
+      !_has_baffles || _bar_reach < _baffle_inner,
+      str("A ", stir_bar_length(_stir_bar), " mm stir bar sweeps into the baffles at r ", _baffle_inner, ".")
     );
   }
 
