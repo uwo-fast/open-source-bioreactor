@@ -9,9 +9,10 @@ closed it and in `docs/`.
 - [ ] **place the bought pumps in the assembly**
   - the registry half is done: `purchased/peri_pumps.scad` carries the Kamoer NKP-DC-S10B, drawn
     as its envelope, and `head()` checks its tube against the port it enters
-  - `custom/peri_pump_frame_mount.scad` still assumes the old printed head: pockets `frame.scad`
-    does not have, a motor on no purchase list, a faceplate a snap-in Kamoer has not got. A bought
-    unit wants a bracket for a 67 x 55 x 41 body
+  - `custom/peri_pump_frame_mount.scad`'s insert now presses into the frame's empty light pockets
+    (ribbed, sized from the light row), but its flange still assumes the old printed head: a
+    motor on no purchase list, a faceplate a snap-in Kamoer has not got. A bought unit wants a
+    bracket for a 67 x 55 x 41 body on that insert
   - and the frame needs somewhere to put three of them: pockets, a rail, or the electronics stand.
     Nothing else waits on it - the reference run had the dose pumps disabled
 

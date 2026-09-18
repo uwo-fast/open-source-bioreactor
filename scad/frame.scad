@@ -183,6 +183,8 @@ module dummy() {
 // the thinner of the two plates in the joint.
 function frame_rod_diameter() = threaded_rod_diameter;
 function frame_upper_base_height() = upper_base_height;
+// What a light pocket is cut over the light, read by anything else that seats in one.
+function frame_light_pocket_allowance() = light_allow;
 function frame_rod_hole_diameter() = threaded_rod_diameter + threaded_rod_hole_allowance;
 function frame_bolt_circle_diameter(vessel_outer_diameter) =
   (vessel_outer_diameter + base_jar_fit_allow) + frame_rod_hole_diameter() * 2;
