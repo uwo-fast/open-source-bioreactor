@@ -20,11 +20,12 @@ module stir_bar(type) {
   length = stir_bar_length(type);
   diameter = stir_bar_diameter(type);
 
-  // TODO: can this not just be a union of two spheres and a
-  // cylinder? would simpler and prob less computationally expensive
   color("white")
-    hull()
+    union() {
+      rotate([0, 90, 0])
+        cylinder(d=diameter, h=length - diameter, center=true);
       for (s = [-1, 1])
         translate([s * (length - diameter) / 2, 0, 0])
           sphere(d=diameter);
+    }
 }
