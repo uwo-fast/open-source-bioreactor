@@ -235,13 +235,6 @@ section 5. Neither item is scheduled.
     echo. A lid with no room for the mount has none for an offset, so the document's rows read 0
     on reasoning. Left standing; those jars only get an offset under the magnetic drive
 
-- [ ] **a 330 mm light leaves a 0.067 mm lip of rib across its own channel**
-  - on `frame.scad`'s own preview (`collapse_spacer_z_allow=false`) with `rwntao_13in`, the top rib
-    carries material from z 328.0 to 328.067 that a longer light does not: a blind slot where the
-    part wants a through one. In the assembly the pocket clears by 1.333 mm, so what prints is right
-  - what would close it: echo the clearance between the pocket's top and the top rib's upper face,
-    which needs the light's z origin threaded out of `lights()`
-
 - [ ] **`check-scad`'s `-D '$fn=0'` pass is not the tessellation test it reads as**
   - a command-line `-D` crosses the `use` boundary on every version where an in-file assignment
     does not, so that pass also zeroes `sparger.scad`'s 96 and the collet's 64 and renders what no

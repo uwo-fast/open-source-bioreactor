@@ -270,6 +270,20 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
   spacer_joint = collapse_spacer_z_allow ? 0 : spacer_z_allow / 2;
   stack_slack = (spacer_slot_height - spacer_pitch) * (n_rib_levels + 1); // what the collapsed stack gives up, so the top base drops with it
 
+  // Where rib level i (1-based) starts: on the spacer run below it and the levels under that.
+  function rib_level_bottom(i) = lower_base_height + spacer_pitch * i - spacer_joint + rib_level_height * (i - 1);
+
+  // The light pockets end at the light's length, and the cutout runs through every rib level and
+  // the top base. A pocket that ends inside one leaves a lip of it across a slot that wants to be
+  // through, so where the pocket ends is held against each of them.
+  _pocket_top = strip_light_length(light);
+  _pocketed = concat(
+    [for (i = [1:n_rib_levels]) [str("rib level ", i), rib_level_bottom(i), rib_level_bottom(i) + rib_level_height]],
+    [["top base", total_height - stack_slack - upper_base_height, total_height - stack_slack]]
+  );
+  _pocket_lip = [for (p = _pocketed) if (_pocket_top > p[1] && _pocket_top < p[2]) p];
+  _pocket_next = [for (p = _pocketed) if (_pocket_top <= p[1]) p];
+
   // The lid is located by the rim and the top base by the stack below it, so stack_slack is the
   // gap between them that lets the bolts pull the lid into the vessel. Every span crossing the
   // joint counts it.
@@ -330,6 +344,21 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
     "base floor: jar lands at r", _jar_contact_radius, "mm, ring spans r",
     _base_center_bore_diameter / 2, "to r", base_jar_cut_diameter / 2, "mm"
   );
+
+  echo(str(
+    "light pockets: end at z ", _pocket_top, "; ",
+    len(_pocket_lip) > 0
+      ? str("inside the ", _pocket_lip[0][0], ", leaving a ", _pocket_lip[0][2] - _pocket_top, " mm lip of it across a blind slot")
+      : len(_pocket_next) > 0
+        ? str("stopping ", _pocket_next[0][1] - _pocket_top, " mm under the ", _pocket_next[0][0])
+        : "through every rib level and the top base"
+  ));
+
+  if (len(_pocket_lip) > 0)
+    echo(str(
+      "WARNING light pockets: the ", _pocket_lip[0][0], " keeps a ", _pocket_lip[0][2] - _pocket_top,
+      " mm lip over a ", _pocket_top, " mm light; a longer light or a lower stack clears it"
+    ));
 
   // Lights come as a fixed number to a cord, so a layout that is not a whole number of cords buys
   // the next one up. Reported, so the purchase list is not hand-counted; never enforced.
@@ -473,7 +502,7 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
       // create the ribs, one level per rib level
       for (i = [1:n_rib_levels]) {
 
-        rib_pos = lower_base_height + spacer_pitch * i - spacer_joint + rib_level_height * (i - 1);
+        rib_pos = rib_level_bottom(i);
 
         frame_lights_cutout()
 
