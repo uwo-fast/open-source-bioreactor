@@ -63,6 +63,12 @@ multiple of 90° and bitten by the same lights cutout, and the exported meshes d
 cut surface tessellates differently at each angle. Intersecting one with another turned to its angle
 returns a whole rib, so it is one solid meshed two ways.
 
+**The drive decides two of those lists.** `drive_name` in `bioreactor.scad` is `shaft` (above) or
+`magnetic`. Magnetic takes the motor mount and the impellers off the head's list and adds the **stir
+carrier** and the **hub cap** to the frame's; the lid prints without its bearing pocket, shaft bore
+and insert holes. The base is the same part either way — it is slotted for the carrier whichever
+drive a build names, so one base serves both. See [The magnetic drive](#the-magnetic-drive).
+
 **Tools, printed once:** the two halves of the gasket cutter.
 
 Food-grade clear PETG for anything in contact with the culture, grey PETG for structure. The
@@ -228,6 +234,64 @@ figure in [`agitation.md`](agitation.md) is wrong by that much. All four of the 
 check valve twice, the filter twice — are downstream.
 
 ---
+
+## The magnetic drive
+
+A PC fan in a printed carrier hung in the base's bore, two magnets in a cap on its hub, and a PTFE
+stir bar on the jar's punt inside. Nothing passes through the lid. What the model picks and where it
+puts it:
+
+```
+stir drive: fan80x25 in a 164.6 mm carrier 34.5682 mm tall, its top 2.18182 mm under
+the landing plane, hung on its ear 8 mm off the bottom face; the lead leaves through
+the 14.5 mm slot at 135 deg
+stir magnets: 2 x MAG5x8 on the 40 mm hub at 28 mm pitch, faces 1 mm under the punt
+and 6 mm from the floor inside
+stir bar: 38x8 centred on the 30 mm punt plateau, overhanging it by 4 mm each end;
+sweeps r 19 where the sparge ring starts at r 62.9227 and the baffles at r 51.3273
+```
+
+**The fan is picked by rule, not named.** The widest of NopSCADlib's fans whose corners clear the
+carrier's pocket and whose depth fits under the jar, the thinnest of that width: an 80 × 25 on
+`jar_10L`, a 40 × 11 on `jar_1p5L`, and none on `jar_6p5gal` or `jar_1gal_155`, whose floors are
+too shallow for any — those bases get no slot and the echo says so. The magnets and the bar are
+named (`stir_magnet_name`, `stir_bar_name`), because a bench usually has some: the defaults are two
+Ø8 × 5 discs and a 38 mm bar, and the other registered sizes are in `purchased/magnets.scad` and
+`purchased/stir_bars.scad`.
+
+**How high the carrier hangs is set by the magnets, not the fan.** Their faces are held
+`stir_magnet_glass_clearance` (1 mm) under the jar's punt, at the magnets' outer edge where the cone
+comes lowest, and the carrier's top follows down from there — never above the plane the jar lands
+on. That is what "faces 1 mm under the punt and 6 mm from the floor inside" is: 1 mm of air and 5 of
+glass to the culture, with the bar's axis 4 mm above that.
+
+**Assembly, in the order the parts allow:**
+
+1. **Print the carrier top face down** — the lip then bridges only the pocket's corners, and the
+   ear's 45° wedge takes its own overhang. **Fan into the carrier from above**, hub up, and the
+   four fan screws in from below through the lip — they self-tap into the fan's corners, as fan
+   screws do. The lead comes off a corner; leave it hanging.
+2. **Magnets into the cap**, opposite poles up: a bar follows a north and a south, and two norths
+   hold nothing. Press-fit pockets (0.2 mm on the diameter); a drop of adhesive if they are loose.
+   Glue the cap to the hub's face, centred — it is a disc rather than a skirt because a skirt would
+   foul the blade roots.
+3. **Carrier into the bore from above, before the jar.** Turn it until the ear finds the notch at the
+   slot's light position and let it down: the ear lands on the two shoulders beside the wire groove
+   and the carrier hangs from them, 8 mm clear of whatever the frame stands on. The lead runs under
+   the carrier's skirt, along the bench and out through the groove, which joins the light cord notch
+   already cut through the wall.
+4. **Bar into the jar, jar into the base.** The bar sits centred on the punt plateau; the magnets
+   find it through the glass.
+
+**What the base gives up for this:** one T-shaped slot at an empty light position — the cord
+notch's own profile carried across the floor ring to the bore, and above it a notch 3 mm wider each
+side, open at the top, that stops 8 mm short of where the jar lands. Nothing else moves, and the
+slot is cut under the shaft drive too, so a base printed today takes either.
+
+**What it does not do.** The sparge ring, the baffles and the DO probe's lean are still sized and
+placed on the shaft drive's impeller — that geometry is the sparger's basis and stays. The echo says
+so. And nothing here models the coupling: how much torque two Ø8 discs hand a bar through 6 mm is a
+bench measurement, which is why the fan and magnet sizes are parameters rather than answers.
 
 ## Putting the lid together
 

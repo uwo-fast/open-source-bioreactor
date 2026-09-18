@@ -8,6 +8,10 @@
 
 include <purchased/strip_lights.scad>;
 include <purchased/vessels.scad>; // the preview builds against a registered jar, not copied numbers
+include <purchased/fans.scad>; // the fan a magnetic drive turns under the jar, NopSCADlib's rows
+include <purchased/magnets.scad>; // the magnets on its hub, NopSCADlib's rows
+
+use <custom/magnet_hub_cap.scad>;
 
 use <utils/bolt_pattern.scad>;
 
@@ -43,6 +47,12 @@ render_rodspacers = false;
 rodspacer_to_render = undef;
 // The strip lights, bought and drawn where they sit in their pockets
 render_lights = false;
+// The carrier that hangs the stirrer fan in the base bore, for a magnetic drive
+render_stir_carrier = false;
+// The cap on the fan hub that carries the magnets, for a magnetic drive
+render_hub_cap = false;
+// The fan, its screws and the magnets - bought, drawn where the carrier holds them
+render_stir_fan = false;
 
 /* [Vessel Selection] */
 
@@ -123,6 +133,31 @@ double_ribs = true;
 // How many rib levels the stack carries
 n_rib_levels = 2;
 
+/* [Stir Drive Parameters] */
+
+// The base is cut for a magnetic drive whichever drive a build takes, so one base serves both: a
+// fan in a carrier hung in the bore, magnets on its hub, and a slot that lets the lead out and
+// keys the carrier. The fan is picked by rule from the bore, where one fits; the magnets are named.
+
+// The magnets on the hub cap, two of them
+stir_magnet_name = "MAG5x8"; // [MAG5x8, MAGRE6x2p5, MAG8x4x4p2, MAG484]
+// allowance for the carrier to slide in the bore (diametral)
+carrier_fit_allow = 0.4;
+// wall the carrier keeps around the fan's corners
+carrier_wall = 3;
+// allowance for the fan to drop into its pocket
+carrier_fan_allow = 0.4;
+// lip under the fan, which its screws come up through
+carrier_lip = 2;
+// clearance between the magnets' faces and the glass over them; sets how high the carrier hangs
+stir_magnet_glass_clearance = 1;
+// how far the key ear reaches into the base floor, radially
+carrier_key_reach = 8;
+// the shoulder each side of the wire groove that the ear lands on
+carrier_key_shoulder = 3;
+// allowance for the ear in its notch
+carrier_key_allow = 0.4;
+
 /* [Rod Spacer Parameters] */
 
 // thickness of the rod spacer
@@ -159,13 +194,27 @@ function frame_outer_diameter(vessel_outer_diameter, wall_thickness) =
 // Every printed part the frame carries: [name, quantity, the flags that render it alone]. The
 // other half of head_print_parts(); `just export-parts` walks both. The ribs are one part eight
 // times - their exported meshes differ only by how the lights cutout tessellates at each rotation.
-function frame_print_parts(n_rods) =
-  [
-    ["frame_base", 1, "-D render_base=true"],
-    ["frame_upper_base", 1, "-D render_upper_base=true"],
-    ["frame_rib", n_rib_levels * 2 * (double_ribs ? 2 : 1), "-D render_ribs=true -D rib_to_render=0"],
-    ["frame_rod_spacer", (n_rib_levels + 1) * n_rods, "-D render_rodspacers=true -D rodspacer_to_render=0"],
-  ];
+function frame_print_parts(n_rods, drive = "shaft") =
+  concat(
+    [
+      ["frame_base", 1, "-D render_base=true"],
+      ["frame_upper_base", 1, "-D render_upper_base=true"],
+      ["frame_rib", n_rib_levels * 2 * (double_ribs ? 2 : 1), "-D render_ribs=true -D rib_to_render=0"],
+      ["frame_rod_spacer", (n_rib_levels + 1) * n_rods, "-D render_rodspacers=true -D rodspacer_to_render=0"],
+    ],
+    // the drive's own two parts; the base is cut for them whichever drive a build takes
+    drive == "magnetic"
+      ? [
+        ["frame_stir_carrier", 1, "-D render_stir_carrier=true"],
+        ["frame_hub_cap", 1, "-D render_hub_cap=true"],
+      ]
+      : []
+  );
+
+// The bore under the jar: the ring the jar lands on, less what the floor reaches inboard of it.
+// Read by the carrier, so it is derived here once rather than in frame() and again in a part.
+function frame_center_bore_diameter(vessel) =
+  (vessel_diameter(vessel) / 2 - vessel_corner_radius_base(vessel) - base_jar_support_reach) * 2;
 
 // How far the frame reaches below the vessel's bottom: whatever a light, a nut and a half, and the
 // top base stack to past the vessel's height. The bottom of the reactor's envelope.
@@ -192,17 +241,17 @@ _preview_posts = bolt_post_count(
   _preview_flange_height, _preview_gasket_factor
 );
 
+// Where light i of a quadrant's set sits, in degrees from the quadrant's start.
+function light_angle(i, lights_per_quadrant, occupy_angle) =
+  lights_per_quadrant == 1 ? 45
+  : i * (occupy_angle / (lights_per_quadrant - 1)) + (90 - occupy_angle) / 2;
+
 module lights(quadrants, vessel_outer_diameter, light, lights_per_quadrant, occupy_angle, allowance_cutout = undef) {
   for (q = quadrants) {
     rotate([0, 0, (q - 1) * 90]) {
       for (i = [0:lights_per_quadrant - 1]) {
 
-        angle_offset = (90 - occupy_angle) / 2;
-        light_angle =
-          lights_per_quadrant == 1 ? 45
-          : i * (occupy_angle / (lights_per_quadrant - 1)) + angle_offset;
-
-        rotate([0, 0, light_angle])
+        rotate([0, 0, light_angle(i, lights_per_quadrant, occupy_angle)])
           translate([0, vessel_outer_diameter / 2, 0]) if (is_undef(allowance_cutout)) {
             strip_light(light);
           } else {
@@ -226,7 +275,7 @@ module frame_rod_at(i, n_rods, rod_shift) {
       children();
 }
 
-module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts, bolt_screw, collapse_spacer_z_allow=true) {
+module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts, bolt_screw, drive = "shaft", magnet = undef, collapse_spacer_z_allow=true) {
 
   // The vessel's fields, read once.
   vessel_height = vessel_height(vessel);
@@ -244,7 +293,7 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
   // The jar's underside dishes up from its base corner, so it lands on one circle and the floor
   // ring has to reach inboard of that. Cut from the jar, not from the wall.
   _jar_contact_radius = vessel_outer_diameter / 2 - vessel_corner_radius_base;
-  _base_center_bore_diameter = (_jar_contact_radius - base_jar_support_reach) * 2;
+  _base_center_bore_diameter = frame_center_bore_diameter(vessel);
 
   // diameter of the hole for the threaded rod
   threaded_rod_hole_diameter = frame_rod_hole_diameter();
@@ -291,6 +340,43 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
 
   // From the base floor to a nut on top of the lid, which is on the rim datum.
   rod_length = vessel_height + lid_flange_height + nut_height + rod_thread_proud;
+
+  // ----- stir drive -----
+  // The slot takes the middle light position of the first quadrant without lights: its cord notch
+  // is already cut through the wall, so the groove only has to cross the floor ring to the bore.
+  _slot_quadrants = [for (q = [1:4]) if (len([for (l = light_quadrants) if (l == q) l]) == 0) q];
+  _slot_quadrant = len(_slot_quadrants) > 0 ? _slot_quadrants[0] : undef;
+  _slot_angle = is_undef(_slot_quadrant) ? undef
+    : (_slot_quadrant - 1) * 90 + light_angle(floor(lights_per_quadrant / 2), lights_per_quadrant, occupy_angle);
+  _slot_width = strip_light_width(light) + light_allow; // the cord notch's profile, continued
+  _slot_height = strip_light_depth(light) + light_allow;
+
+  // The carrier hangs from an ear that lands on the shoulders beside the groove, so its bottom is
+  // the groove's ceiling and the lead runs under it to the groove. The fan is picked on the room
+  // between that and the landing plane; how high it actually hangs is set by the magnets below.
+  _carrier_diameter = _base_center_bore_diameter - carrier_fit_allow;
+  _fan_room = base_floor_height - _slot_height - carrier_lip;
+  _fan = fan_for(_carrier_diameter - 2 * carrier_wall, _fan_room);
+  _magnet = is_undef(magnet) ? magnet_by_name(stir_magnet_name) : magnet;
+  _hub_cap_pitch = is_undef(_fan) ? undef : hub_cap_pitch(fan_hub(_fan), _magnet);
+  _hub_cap_height = hub_cap_height(_magnet);
+
+  // The jar's underside is flat across the punt plateau and a straight cone from there down to
+  // the landing circle, so it is lowest over a magnet at the magnet's outer edge.
+  _punt_plateau_radius = vessel_punt_width(vessel) / 2;
+  function punt_under(r) =
+    base_floor_height + vessel_punt_height(vessel) * (1 - max(0, r - _punt_plateau_radius) / (_jar_contact_radius - _punt_plateau_radius));
+  _magnet_outer_radius = is_undef(_fan) ? undef : _hub_cap_pitch / 2 + magnet_od(_magnet) / 2;
+
+  // The magnets reach up into the punt to their clearance, the cap stands on the hub and the
+  // hub's face is the fan's, which is the carrier's top; never above the landing plane, since the
+  // bore ends there.
+  _magnet_top = is_undef(_fan) ? undef : punt_under(_magnet_outer_radius) - stir_magnet_glass_clearance;
+  _carrier_top = is_undef(_fan) ? undef : min(base_floor_height, _magnet_top - _hub_cap_height);
+  _carrier_height = is_undef(_fan) ? undef : _carrier_top - _slot_height;
+  _magnet_glass_gap = is_undef(_fan) ? undef : punt_under(_magnet_outer_radius) - (_carrier_top + _hub_cap_height);
+  // and the fan's corners are the widest thing under the cone
+  _fan_corner_gap = is_undef(_fan) ? undef : punt_under(fan_corner_diameter(_fan) / 2) - _carrier_top;
 
   // distance from the center of the jar to the threaded rod
   base_wall_thickness_from_lights = (strip_light_depth(light) * 1.5) * 2; // thinnest part is 50% thicker than the light depth
@@ -389,6 +475,136 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
     }
   }
 
+  assert(
+    !is_undef(_slot_quadrant),
+    "Every quadrant carries lights, so there is no light position free for the stir drive's slot."
+  );
+
+  assert(
+    !is_undef(_magnet),
+    str("No registered magnet is named \"", stir_magnet_name, "\". See scad/purchased/magnets.scad.")
+  );
+
+  // The ear's notch is cut into the floor ring's top, so it has to stop short of where the jar lands.
+  assert(
+    _base_center_bore_diameter / 2 + carrier_key_reach < _jar_contact_radius,
+    str(
+      "The carrier's ear reaches r ", _base_center_bore_diameter / 2 + carrier_key_reach,
+      " mm and the jar lands at r ", _jar_contact_radius, " mm."
+    )
+  );
+
+  if (is_undef(_fan))
+    echo(str(
+      "WARNING stir drive: no registered fan clears a ", _carrier_diameter - 2 * carrier_wall,
+      " mm pocket in ", _fan_room, " mm under this jar, so the base is not slotted and no carrier is drawn"
+    ));
+  else {
+    // Hanging the magnets up to their clearance can pull the carrier down past the fan's room.
+    assert(
+      _carrier_height - carrier_lip >= fan_depth(_fan),
+      str(
+        "The magnets hang the carrier ", _carrier_height, " mm tall and a ", fan_name(_fan), " with its ",
+        carrier_lip, " mm lip wants ", fan_depth(_fan) + carrier_lip, "; a thinner cap or magnet, or less stir_magnet_glass_clearance."
+      )
+    );
+
+    assert(
+      _fan_corner_gap >= stir_magnet_glass_clearance,
+      str("The fan's corners come ", _fan_corner_gap, " mm under the punt cone; the magnets are set to clear it by ", stir_magnet_glass_clearance, ".")
+    );
+
+    echo(str(
+      "stir drive: ", fan_name(_fan), " in a ", _carrier_diameter, " mm carrier ", _carrier_height,
+      " mm tall, its top ", base_floor_height - _carrier_top, " mm under the landing plane, hung on its ear ",
+      _slot_height, " mm off the bottom face; the lead leaves through the ", _slot_width, " mm slot at ", _slot_angle, " deg"
+    ));
+
+    echo(str(
+      "stir magnets: 2 x ", magnet_designation(_magnet), " on the ", fan_hub(_fan), " mm hub at ", _hub_cap_pitch,
+      " mm pitch, faces ", _magnet_glass_gap, " mm under the punt and ",
+      _magnet_glass_gap + vessel_thickness(vessel), " mm from the floor inside"
+    ));
+  }
+
+  // The slot, in the base's own frame: the wire groove is the cord notch's profile carried across
+  // the floor ring to the bore, and above it the notch the ear drops down, a shoulder wider each
+  // side so the ear lands on the groove's ceiling. Only cut where a fan fits, since it serves
+  // the carrier and a floor too shallow for one is too shallow for the slot.
+  module frame_stir_slot() {
+    rotate([0, 0, _slot_angle])
+      translate([0, _base_center_bore_diameter / 2, 0]) {
+        translate([-_slot_width / 2, -z_fight, -z_fight])
+          cube([_slot_width, vessel_outer_diameter / 2 - _base_center_bore_diameter / 2 + 2 * z_fight, _slot_height + z_fight]);
+        translate([-_slot_width / 2 - carrier_key_shoulder, -z_fight, _slot_height])
+          cube([_slot_width + 2 * carrier_key_shoulder, carrier_key_reach + z_fight, base_floor_height - _slot_height + z_fight]);
+      }
+  }
+
+  // The carrier: a cup the fan drops into from above and is screwed to from below, a skirt under
+  // the lip for the lead, and the ear. Bottom at the groove's ceiling, where the ear lands. It
+  // prints top face down, so the lip bridges the pocket's corners and the ear, then at the top,
+  // is backed by a 45 degree wedge instead of hanging in the air.
+  module frame_stir_carrier() {
+    _fan_r = fan_width(_fan) / 2 - fan_hole_pitch(_fan); // the frame's corner radius
+    _ear_width = _slot_width + 2 * carrier_key_shoulder - carrier_key_allow;
+    _ear_reach = carrier_fit_allow / 2 + carrier_key_reach - carrier_key_allow; // past the carrier's face
+
+    translate([0, 0, _slot_height])
+      difference() {
+        union() {
+          cylinder(d=_carrier_diameter, h=_carrier_height);
+          // the ear's section, radial out and up: a block at the edge, rising at 45 deg to the wall
+          rotate([0, 0, _slot_angle])
+            translate([-_ear_width / 2, _carrier_diameter / 2 - carrier_wall, 0])
+              rotate([90, 0, 90]) // the section's x radial, its y up, extruded across the width
+                linear_extrude(_ear_width)
+                  polygon([
+                    [0, 0],
+                    [carrier_wall + _ear_reach, 0],
+                    [carrier_wall + _ear_reach, _slot_height],
+                    [carrier_wall, _slot_height + _ear_reach],
+                    [0, _slot_height + _ear_reach],
+                  ]);
+        }
+
+        // the pocket, the fan's own outline with its corners
+        translate([0, 0, _carrier_height - fan_depth(_fan)])
+          linear_extrude(fan_depth(_fan) + z_fight)
+            offset(r=_fan_r + carrier_fan_allow / 2)
+              square(fan_width(_fan) - 2 * _fan_r, center=true);
+
+        // through the lip: the aperture and the four screw holes
+        translate([0, 0, _carrier_height - fan_depth(_fan) - carrier_lip / 2])
+          fan_holes(_fan, h=carrier_lip + z_fight);
+
+        // the skirt is hollow so the lead can drop out under it
+        translate([0, 0, -z_fight])
+          cylinder(d=_carrier_diameter - 2 * carrier_wall, h=_carrier_height - fan_depth(_fan) - carrier_lip + z_fight);
+      }
+  }
+
+  // The fan in its pocket, its screws from below, and the cap and magnets on its hub; the fan is
+  // drawn centred, so it is lifted by half its depth.
+  module frame_stir_fan(fan_part = true, cap_part = false) {
+    _fan_top = _slot_height + _carrier_height;
+    translate([0, 0, _fan_top - fan_depth(_fan) / 2]) {
+      if (fan_part) {
+        fan(_fan);
+        // self-tapping into the fan's corners, the usual fan screw; through the lip and half the frame
+        fan_hole_positions(_fan, z=-fan_depth(_fan) / 2 - carrier_lip)
+          rotate([180, 0, 0])
+            screw(fan_screw(_fan), screw_longer_than(carrier_lip + fan_depth(_fan) / 2));
+      }
+    }
+    translate([0, 0, _fan_top])
+      if (cap_part)
+        color(prints2_color)
+          magnet_hub_cap(fan_hub(_fan), _magnet);
+      else if (fan_part)
+        magnet_hub_cap(fan_hub(_fan), _magnet, cap=false, magnets=true);
+  }
+
   // z = 0 is the bottom of the vessel, so the whole frame drops by its floor
   translate([0, 0, -base_floor_height - z_fight]) {
     if (render_lights || render_all) {
@@ -443,6 +659,9 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
           difference() {
             cylinder(d=_outer_diameter, h=lower_base_height);
 
+            if (!is_undef(_fan))
+              frame_stir_slot();
+
             // jar cavity above the floor, and the bore that leaves the floor a ring
             translate([0, 0, base_floor_height])
               cylinder(d=base_jar_cut_diameter, h=lower_base_height - base_floor_height + z_fight);
@@ -464,6 +683,17 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
                 }
             }
           }
+    }
+
+    // the magnetic drive, drawn only when a build takes it; the slot above is cut regardless
+    if (!is_undef(_fan) && (drive == "magnetic" || render_stir_carrier || render_hub_cap || render_stir_fan)) {
+      if (render_stir_carrier || (drive == "magnetic" && render_all))
+        color(prints2_color)
+          frame_stir_carrier();
+      if (render_hub_cap || (drive == "magnetic" && render_all))
+        frame_stir_fan(fan_part=false, cap_part=true);
+      if (render_stir_fan || (drive == "magnetic" && render_all))
+        frame_stir_fan(fan_part=true);
     }
 
     // top base

@@ -11,6 +11,7 @@
  * CROSS-COUPLING: what two subassemblies must agree on, derived once here and handed down.
  *   vessel -> head, frame   the registered row
  *   light  -> frame   the registered strip light row
+ *   drive  -> head, frame   shaft or magnetic: the head loses its drive stack, the frame hangs the fan
  *   head  <-> frame   the joint: lid_flange_height (chosen here), the bolt circle, the bore and
  *                     the outer face (read back from frame.scad), and the post pattern
  *   head   -> here    head_gasket_factor(), which sets the joint's bolt count
@@ -24,6 +25,8 @@
 include <purchased/vessels.scad>;
 include <purchased/strip_lights.scad>;
 include <purchased/printers.scad>;
+include <purchased/stir_bars.scad>;
+include <purchased/magnets.scad>;
 
 use <utils/bolt_pattern.scad>;
 use <utils/elastomer.scad>;
@@ -87,6 +90,12 @@ joint_bolt = M8_hex_screw;
 
 // Fraction of the jar's CAPACITY the culture fills; a run at another volume states its fraction
 culture_fill_fraction = 0.865;
+// What turns the culture: a shaft through the lid, or a stir bar following a fan under the base
+drive_name = "shaft"; // [shaft, magnetic]
+// The stir bar a magnetic drive turns; auto takes the head's own row
+stir_bar_name = "auto"; // [auto, 25x8, 38x8, 50x8]
+// The magnets on the fan hub, two; auto takes the frame's own row
+stir_magnet_name = "auto"; // [auto, MAG5x8, MAGRE6x2p5, MAG8x4x4p2, MAG484]
 // The impeller shaft; auto takes the shortest row that reaches this vessel
 shaft_name = "auto"; // [auto, 8x200_316, 8x400_316, 8x600_316, 8x800_316]
 // The ring centring the lid plug; auto takes one this mouth can stretch onto
@@ -158,6 +167,18 @@ assert(
   str("No registered Atlas probe is named \"", ph_probe_name, "\", or it is registered twice. See scad/purchased/atlas_probes.scad.")
 );
 
+_build_stir_bar = stir_bar_name == "auto" ? undef : stir_bar_by_name(stir_bar_name);
+assert(
+  stir_bar_name == "auto" || !is_undef(_build_stir_bar),
+  str("No registered stir bar is named \"", stir_bar_name, "\", or it is registered twice. See scad/purchased/stir_bars.scad.")
+);
+
+_build_magnet = stir_magnet_name == "auto" ? undef : magnet_by_name(stir_magnet_name);
+assert(
+  stir_magnet_name == "auto" || !is_undef(_build_magnet),
+  str("No registered magnet is named \"", stir_magnet_name, "\", or it is registered twice. See scad/purchased/magnets.scad.")
+);
+
 _build_light = strip_light_name == "auto" ? undef : strip_light_by_name(strip_light_name);
 assert(
   strip_light_name == "auto" || !is_undef(_build_light),
@@ -175,6 +196,8 @@ reactor_build = [
   ["lid_gasket_sheet", _build_gasket_sheet],
   ["do_probe", _build_do_probe],
   ["ph_probe", _build_ph_probe],
+  ["drive", drive_name],
+  ["stir_bar", _build_stir_bar],
 ];
 
 _reactor_light = is_undef(_build_light)
@@ -311,6 +334,8 @@ if (render_frame || render_all) {
     n_rods=n_rods,
     bolt_screw=joint_bolt,
     bolt_pts=bolt_pattern_pts(joint_posts, joint_bolt_circle, n_rods),
+    drive=drive_name,
+    magnet=_build_magnet,
     collapse_spacer_z_allow=true
   );
 }

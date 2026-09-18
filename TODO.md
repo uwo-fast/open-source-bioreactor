@@ -133,35 +133,20 @@ section 5. Neither item is scheduled.
   - needs in the model: a draft tube as a part, riser and downcomer areas, superficial gas
     velocity, a reported circulation time. The sparge ring may not survive it
 
-- [ ] **explore a magnetic drive: a DC fan under the jar turning a rotor inside it**
-  - retires the shaft, coupling, bearing, plug seal and mount; the lid becomes ports and a seal.
-    The punt is a shallow cone (3.5 deg on `jar_10L` to 33.8 on `jar_6p5gal`), so a conventional
-    stir bar straddles all of them
-  - the gap depends on how the driver sits: nested up inside the re-entrant punt it pays the wall
-    alone, and nesting inverts the ranking because the punt's width is both lever arm and room for
-    magnets:
-
-    | vessel             | flat driver | nested driver | usable radius nested |
-    | ------------------ | ----------- | ------------- | -------------------- |
-    | jar_1gal_155x251   | 9.0         | **3.0**       | 36.5                 |
-    | jar_1p5L_109x215   | 11.0        | **4.0**       | 7.5                  |
-    | jar_10L_220x305    | 10.0        | **5.0**       | 15.0                 |
-    | jar_1gal_180x197   | 12.0        | **5.0**       | 50.0                 |
-    | jar_6p5gal_305x470 | 27.0        | **12.0**      | 80.0                 |
-
-  - torque at equal tip speed (1.26-2.03 m/s), scaled as `v^2 D^3` with Po held fixed, so the order
-    and nothing finer:
-
-    | vessel           | rpm across the band | pair           | one rotor |
-    | ---------------- | ------------------- | -------------- | --------- |
-    | jar_1p5L_109x215 | 528-851             | 4.8-12.3 mN·m  | ~2.4-6.2  |
-    | jar_1gal_155x251 | 358-577             | 15.3-39.6 mN·m | ~7.6-19.8 |
-
-  - it gives eccentricity back: `e = 0.2 T` wants 20.2 mm on `jar_1p5L` where the lid offers 0.5
-  - undecided: centred or eccentric. Centred is still a centred impeller in an unbaffled jar;
-    eccentric has nothing locating it on a floor whose high point is the centre it avoids, and
-    Galletti finds it unsteady with power rising with eccentricity. And a bottom drive gives one
-    impeller on `jar_1p5L`'s H/T 1.681 column
+- [ ] **the magnetic drive is modelled; what is left is the bench**
+  - `drive_name = "magnetic"` builds it: a fan picked by rule in a carrier hung in the base bore,
+    two magnets in a cap on its hub, a stir bar centred on the punt; the base is slotted for it
+    under either drive. `docs/build.md` has the assembly
+  - nothing models the coupling. How much torque two 8 x 5 discs hand a 38 mm bar through 1 mm of
+    air and 5 of glass, and at what fan speed the bar decouples, are measurements; the sizes are
+    parameters so the answer can be put in. The target is the shaft drive's torque at equal tip
+    speed, `v^2 D^3` scaled: 4.8-12.3 mN.m for the pair on `jar_1p5L`, 15.3-39.6 on `jar_1gal_155`
+  - speed is PWM on the fan's own line and nothing reads it back; a 3-wire fan's tachometer line
+    is the only encoder this drive has
+  - centred, on the punt, was the decision: eccentric has nothing locating it on a floor whose high
+    point is the centre it avoids, and Galletti finds it unsteady with power rising with eccentricity
+  - `jar_6p5gal` and `jar_1gal_155` get no carrier: their floors are 2 mm, so no fan fits under them.
+    A deeper floor is a frame choice those jars have not been given
 
 ## nice to haves
 
@@ -233,7 +218,7 @@ section 5. Neither item is scheduled.
 - [ ] **the eccentricity report cannot reach the two jars it would change a decision about**
   - an assert stops `jar_1p5L_109x215` (the mount) and `jar_1gal_155x251` (the pH probe) before the
     echo. A lid with no room for the mount has none for an offset, so the document's rows read 0
-    on reasoning. Left standing; those jars only get an offset under the magnetic drive
+    on reasoning. Left standing; the magnetic drive those jars would take is centred anyway
 
 - [ ] **`check-scad`'s `-D '$fn=0'` pass is not the tessellation test it reads as**
   - a command-line `-D` crosses the `use` boundary on every version where an in-file assignment
