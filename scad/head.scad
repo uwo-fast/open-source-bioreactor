@@ -1195,9 +1195,11 @@ function head_motor_mount_height(lid_flange_height, vessel_internal_height, shaf
   gearbox_output_shaft_length(dc_motor_gearbox(head_motor_selected(motor)))
   + head_shaft_protrusion(lid_flange_height, vessel_internal_height, shaft) + shaft_shaft_coupling_offset;
 // top of the motor, which is the highest thing on the reactor
-function head_stack_height(lid_flange_height, vessel_internal_height, shaft, motor) =
-  head_motor_mount_height(lid_flange_height, vessel_internal_height, shaft, motor)
-  + dc_motor_length(head_motor_selected(motor)) + gearbox_length(dc_motor_gearbox(head_motor_selected(motor)));
+// The magnetic drive stacks nothing on the lid.
+function head_stack_height(lid_flange_height, vessel_internal_height, shaft, motor, drive = "shaft") =
+  drive != "shaft" ? 0
+  : head_motor_mount_height(lid_flange_height, vessel_internal_height, shaft, motor)
+    + dc_motor_length(head_motor_selected(motor)) + gearbox_length(dc_motor_gearbox(head_motor_selected(motor)));
 // The groove a given ring would get in a given mouth, and how far that stretches it.
 function head_plug_groove_diameter(vessel_opening_diameter, ring) =
   vessel_opening_diameter - 2 * oring_gland_depth(oring_cross_section(ring), lid_plug_oring_squeeze);

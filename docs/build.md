@@ -288,6 +288,9 @@ notch's own profile carried across the floor ring to the bore, and above it a no
 side, open at the top, that stops 8 mm short of where the jar lands. Nothing else moves, and the
 slot is cut under the shaft drive too, so a base printed today takes either.
 
+**Three things it buys** that are on no purchase list yet: the fan, the magnets and the bar. Any of
+the size does, which is why none has a part number; `check-bom` says so in its header.
+
 **What it does not do.** The sparge ring, the baffles and the DO probe's lean are still sized and
 placed on the shaft drive's impeller — that geometry is the sparger's basis and stays. The echo says
 so. And nothing here models the coupling: how much torque two Ø8 discs hand a bar through 6 mm is a

@@ -290,7 +290,7 @@ function reactor_envelope_diameter() = joint_outer_diameter; // the flange circl
 function reactor_envelope_height() =
   frame_floor_depth(vessel_height(reactor_vessel), _reactor_light)
   + vessel_height(reactor_vessel) + lid_flange_height
-  + head_stack_height(lid_flange_height, vessel_internal_height(reactor_vessel), _build_shaft, _build_motor);
+  + head_stack_height(lid_flange_height, vessel_internal_height(reactor_vessel), _build_shaft, _build_motor, drive_name);
 
 echo(str("reactor envelope: ", reactor_envelope_diameter(), " mm dia x ", reactor_envelope_height(), " mm tall"));
 
