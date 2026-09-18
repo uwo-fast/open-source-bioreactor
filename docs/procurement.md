@@ -100,10 +100,10 @@
     which is only computed for the vessel being built. `head()` echoes them at render.
 
   - **the pump is still not the constraint, but the margin is a fraction of what this said.**
-    Against the whole line it settles at **6.05 L/min** where 4.11 is wanted - not the 60+ this
+    Against the whole line it settles at **5.97 L/min** where 4.11 is wanted - not the 60+ this
     claimed, which counted only the vessel's own 1.1 kPa, and not the **23.1** that replaced it,
     which held back pressure at the design point. The filter is linear in flow, so asking for more
-    raises the line; `head()` echoes the 6.05 and says so
+    raises the line; `head()` echoes the 5.97 and says so
   - **and the second bullet here used to be wrong in a way worth keeping visible.** It said the
     filter, the tubing and the orifice "all sit against a valve dropping 24 kPa, so none of them
     move the operating point materially". The sterile filter alone drops **14.2 kPa** - twelve times
@@ -154,7 +154,7 @@
       1.85 against 1.78 kPa is inside the error on the filter figure that dominates the budget,
       and it shares a supplier with the sterile filter, so one shipment and one customs clearance.
     - _Metering valve._ Required Cv moved twice as the line was accounted — **0.020 → 0.0296 →
-      0.0333** — which retired two picks. `MNV-2` (Cv 0.032) ended at 92 % of wide open with no
+      0.0333** (0.0335 once the exhaust was priced in) — which retired two picks. `MNV-2` (Cv 0.032) ended at 92 % of wide open with no
       authority left; an Ideal Valve 52-1-12 (Cv 0.019) **could not reach the design flow at all**.
       `MNV-4K2` was then chosen on Cv alone and retired on the **needle**: Clippard's catalogue
       gives it a 20° taper, coarser than the `MNV-1` already rejected for being coarse.

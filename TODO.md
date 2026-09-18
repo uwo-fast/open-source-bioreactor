@@ -16,7 +16,7 @@ closed it and in `docs/`.
     Nothing else waits on it - the reference run had the dose pumps disabled
 
 - [ ] **measured gas flow**
-  - the model states a vvm and no builder can set one: the ReSun pump settles at 6.05 L/min where
+  - the model states a vvm and no builder can set one: the ReSun pump settles at 5.97 L/min where
     0.822-4.11 is wanted. The parts are in the BOM (Dwyer VFA-23 meter, Clippard MNV-3KP needle
     valve upstream of it; why these, `docs/procurement.md`). What is left is buying them and taking
     a reading
@@ -37,16 +37,9 @@ closed it and in `docs/`.
   - the exhaust is unguarded: the headspace vents through a support tube into the room. A second
     1594522 on the outlet does not work: two put the line at 31.8 kPa against a pump that dead-heads
     at 27, and 0.5 vvm stops being a setting it can hold
-  - `head()` reports the budget instead: at most 1.93365 kPa per L/min on `jar_10L`, 56 % of the
-    inlet filter's slope. The vent slot and the tube already spend 2.3-2.7 % of it. Set
-    `sparge_outlet_filter` and `head()` prices the exhaust into the line
-  - `head_gas_line_pressure()` gets the exhaust wrong in both directions, latently: with no outlet
-    filter it prices the way out at zero (the tube costs 23.7-55.2 Pa regardless), and with one it
-    charges a full riser where the gas travels 37.9-88.3 mm. Under 0.5 % of the line; dead code
-    until something sets the filter
-  - the budget goes negative where the pump cannot reach the band at all, and the echo prints it
-    straight: `jar_6p5gal_305x470` reads "may cost at most -2.05309 kPa per L/min". The throttle
-    warning already says why; this line wants the same `<= 0` branch
+  - `head()` reports the budget instead: at most 1.88304 kPa per L/min on `jar_10L`, 54.6 % of the
+    inlet filter's slope, net of the vent slot and the tube, which are priced into the line. Set
+    `sparge_outlet_filter` and `head()` prices the filter in too
   - the budget moves with the inlet filter's slope, which is extrapolated - measure that first
   - a trap or a longer tube would guard against splashback with no drop; a different sterility claim
 

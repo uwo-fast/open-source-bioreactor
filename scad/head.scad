@@ -502,20 +502,24 @@ function head_port_index(vessel_opening_diameter, fn) =
       str("This lid has ", len(_at), " ports for \"", fn, "\"; looking one up by function needs exactly one.")
     ) _at[0];
 
-// What the line costs at a given flow, Pa, the vessel and any outlet filter included. A function
-// of flow because the filter is linear in it and dominates.
-function head_gas_line_pressure(flow, vessel_pressure, riser_length) =
+// What the way out costs at a given flow, Pa: the hand-cut vent slot as an orifice of the tube's
+// bore, the tube above it, and an outlet filter if one is set. Priced with or without the
+// filter, since the headspace vents through the slot and the tube regardless.
+function head_gas_exhaust_pressure(flow, vent_length) =
+  let (_bore = steel_tube_id(sparge_riser_tube))
+    stirred_tank_orifice_pressure(stirred_tank_orifice_velocity(flow / 60000, 1, _bore))
+    + gas_tube_pressure_drop(flow, _bore, vent_length)
+    + (is_undef(sparge_outlet_filter) ? 0 : gas_filter_pressure_drop(flow, gas_filter_drop_slope(sparge_outlet_filter)));
+
+// What the line costs at a given flow, Pa, the vessel and the way out included. A function of
+// flow because the filter is linear in it and dominates.
+function head_gas_line_pressure(flow, vessel_pressure, riser_length, vent_length) =
   vessel_pressure
   + gas_filter_pressure_drop(flow, gas_filter_drop_slope(sparge_inlet_filter))
   + gas_tube_pressure_drop(flow, steel_tube_id(sparge_riser_tube), riser_length)
   + check_valve_cracking(sparge_check_valve)
   + gas_valve_pressure_drop(flow, check_valve_cv(sparge_check_valve), vessel_pressure)
-  + (
-    is_undef(sparge_outlet_filter)
-      ? 0
-      : gas_filter_pressure_drop(flow, gas_filter_drop_slope(sparge_outlet_filter))
-        + gas_tube_pressure_drop(flow, steel_tube_id(sparge_riser_tube), riser_length)
-  );
+  + head_gas_exhaust_pressure(flow, vent_length);
 
 // The gas comes down whichever port is the air inlet, wherever that ends up sitting.
 function head_sparge_feed_port(vessel_opening_diameter) = head_port_index(vessel_opening_diameter, "air_in");
@@ -1827,19 +1831,22 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _gas_check_valve_drop = check_valve_cracking(sparge_check_valve)
     + gas_valve_pressure_drop(_gas_band[1], check_valve_cv(sparge_check_valve), _gas_vessel_pressure);
 
-  _gas_back_pressure =
-    head_gas_line_pressure(_gas_band[1], _gas_vessel_pressure, _sparge_feed_length);
+  // The vent slot is hand-cut anywhere between the lid's underside and the liquid's surface, so
+  // the tube above it is priced at the longer end of that window.
+  _vent_run = [_riser_top_z + lid_thickness, _riser_top_z - _liquid_surface_z];
+  _gas_vent_length = max(_vent_run);
 
-  _gas_outlet_drop = is_undef(sparge_outlet_filter)
-    ? 0
-    : gas_filter_pressure_drop(_gas_band[1], gas_filter_drop_slope(sparge_outlet_filter)) + _gas_riser_drop;
+  _gas_back_pressure =
+    head_gas_line_pressure(_gas_band[1], _gas_vessel_pressure, _sparge_feed_length, _gas_vent_length);
+
+  _gas_outlet_drop = head_gas_exhaust_pressure(_gas_band[1], _gas_vent_length);
 
   _gas_free_flow = air_pump_free_flow_min(head_air_pump);
   _gas_dead_head = air_pump_dead_head(head_air_pump);
 
   // The line priced at both ends of the band, so where the pump settles can be asked.
   _gas_line = gas_line_secant(
-    _gas_band[0], head_gas_line_pressure(_gas_band[0], _gas_vessel_pressure, _sparge_feed_length),
+    _gas_band[0], head_gas_line_pressure(_gas_band[0], _gas_vessel_pressure, _sparge_feed_length, _gas_vent_length),
     _gas_band[1], _gas_back_pressure);
 
   _gas_ceiling_flow = gas_operating_flow(_gas_free_flow, _gas_dead_head, _gas_line);
@@ -1857,7 +1864,6 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _vent_slot_drop =
     stirred_tank_orifice_pressure(stirred_tank_orifice_velocity(_gas_band[1] / 60000, 1, _vent_bore));
 
-  _vent_run = [_riser_top_z + lid_thickness, _riser_top_z - _liquid_surface_z];
   _vent_tube_drop = [for (l = _vent_run) gas_tube_pressure_drop(_gas_band[1], _vent_bore, l)];
   _vent_min_area = stirred_tank_orifice_area(_gas_band[1] / 60000, _vent_budget_pa) * 1e6;
   _vent_min_diameter = sqrt(4 * _vent_min_area / PI);
@@ -2771,7 +2777,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     "gas line losses: filter ", _gas_filter_drop, " Pa (extrapolated), check valve ", _gas_check_valve_drop,
     " Pa (", check_valve_cracking(sparge_check_valve), " to crack) and riser ", _gas_riser_drop,
     " Pa at ", _gas_band[1], " L/min, on top of the vessel's ", _gas_vessel_pressure,
-    _gas_outlet_drop == 0 ? "" : str(" and ", _gas_outlet_drop, " Pa on the way back out"),
+    " and ", _gas_outlet_drop, " Pa on the way back out (the vent slot and up to ", _gas_vent_length, " mm of tube",
+    is_undef(sparge_outlet_filter) ? ")" : ", and the outlet filter)",
     "; the pump beats ", _gas_back_pressure, " Pa, and the filter alone is ",
     _gas_filter_drop / _gas_vessel_pressure, "x the vessel"
   ));
@@ -2784,9 +2791,16 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     " L/min a back pressure held at the design point suggests)"
   ));
 
+  // A line the pump cannot beat gives a negative budget, which is not a filter to buy.
   echo(
     is_undef(sparge_outlet_filter)
-      ? str(
+      ? _gas_outlet_budget <= 0
+        ? str(
+          "gas exhaust: nothing filters the way out; the headspace vents through a support tube to the room, ",
+          "and no outlet filter fits, because the line already beats the pump at ", _gas_band[1],
+          " L/min; see the throttle warning"
+        )
+        : str(
         "gas exhaust: nothing filters the way out; the headspace vents through a support tube to the room. ",
         "An outlet filter may cost at most ", _gas_outlet_budget, " kPa per L/min before ", _gas_band[1],
         " L/min stops being reachable, ", _gas_outlet_budget / gas_filter_drop_slope(sparge_inlet_filter),
