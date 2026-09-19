@@ -15,6 +15,10 @@
         },
         "jar_6p5gal_305x470": {
             "reactor_vessel_name": "jar_6p5gal_305x470"
+        },
+        "jar_10L_magnetic": {
+            "reactor_vessel_name": "jar_10L_220x305",
+            "drive_name": "magnetic"
         }
     }
 }

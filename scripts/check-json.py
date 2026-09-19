@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Fail when a parameter-set file has drifted from the file it belongs to, or from the registries.
 
-The JSON beside each entry file is authored: one set per registered vessel, carrying only what
-that build changes from the file's defaults. This checks and never writes:
+The JSON beside each entry file is authored: one set per registered vessel, and any further
+build a set names (a vessel plus its designations), each carrying only what it changes from the
+file's defaults. This checks and never writes:
 
   - every registered vessel has a set in every entry file's JSON
   - every parameter a set names exists in that file's Customizer surface
@@ -20,22 +21,25 @@ import sys
 REPO = pathlib.Path(__file__).resolve().parent.parent
 ENTRY = [pathlib.Path(a) for a in sys.argv[1:]]
 
-# Dropdowns that list a registry's names, and whether they also offer "auto".
+# Dropdowns that list a registry's names. "auto" beside them is the file's own business: the
+# assembly offers it where a subassembly derives the row, and the subassembly's file does not.
 DESIGNATIONS = {
-    "reactor_vessel_name": ("vessels", "vessel_name", False),
-    "shaft_name": ("shafts", "shaft_name", True),
-    "strip_light_name": ("strip_lights", "strip_light_name", True),
-    "plug_oring_name": ("orings", "oring_name", True),
-    "do_probe_name": ("atlas_probes", "atlas_probe_name", True),
-    "ph_probe_name": ("atlas_probes", "atlas_probe_name", True),
-    "gasket_sheet_name": ("gasket_sheets", "gasket_sheet_name", True),
-    "motor_name": ("dc_motors", "dc_motor_name", True),
+    "reactor_vessel_name": ("vessels", "vessel_name"),
+    "shaft_name": ("shafts", "shaft_name"),
+    "strip_light_name": ("strip_lights", "strip_light_name"),
+    "plug_oring_name": ("orings", "oring_name"),
+    "do_probe_name": ("atlas_probes", "atlas_probe_name"),
+    "ph_probe_name": ("atlas_probes", "atlas_probe_name"),
+    "gasket_sheet_name": ("gasket_sheets", "gasket_sheet_name"),
+    "motor_name": ("dc_motors", "dc_motor_name"),
+    "stir_bar_name": ("stir_bars", "stir_bar_name"),
+    "stir_magnet_name": ("magnets", "magnet_designation"),
 }
 
 
 def registry_names():
     """Every registry's row names, read from the registries themselves."""
-    pairs = sorted({(r, f) for r, f, _ in DESIGNATIONS.values()})
+    pairs = sorted(set(DESIGNATIONS.values()))
     src = "".join(f"include <{REPO}/scad/purchased/{r}.scad>\n" for r, _ in pairs)
     for reg, fn in pairs:
         src += f'for (x = {reg}) echo(str("N|{reg}|", {fn}(x)));\n'
@@ -77,12 +81,14 @@ if not vessels:
 for scad in ENTRY:
     params = customizer_params(scad)
 
-    for param, (reg, _, auto) in DESIGNATIONS.items():
+    for param, (reg, _) in DESIGNATIONS.items():
         decl = params.get(param)
         if not decl or "[" not in decl:
             continue
-        listed = {s.strip() for s in re.search(r"\[(.*)\]", decl).group(1).split(",")}
-        want = set(names.get(reg, [])) | ({"auto"} if auto else set())
+        listed = {
+            s.strip() for s in re.search(r"\[(.*)\]", decl).group(1).split(",")
+        } - {"auto"}
+        want = set(names.get(reg, []))
         if listed != want:
             print(f"FAIL  {scad}: the {param} dropdown does not match its registry")
             for x in sorted(want - listed):

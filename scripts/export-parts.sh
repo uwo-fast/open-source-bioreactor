@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 #
-# Export every printed part as its own STL, with a print list. $1 one vessel, $2 the output root.
+# Export every printed part as its own STL, with a print list. $1 a build - a parameter set in
+# scad/bioreactor.json, or empty for the file's own defaults - $2 the output root, $3 one part
+# by name, which writes that STL alone and no list.
 #
 : "${OPENSCAD:=openscad}"
 
@@ -9,9 +11,19 @@
 set -uo pipefail
 tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
 
+build="${1:-}"
+only="${3:-}"
 sel=()
-label="${1:-}"
-if [ -n "${1:-}" ]; then sel=(-p scad/bioreactor.json -P "${1:-}"); fi
+if [ -n "$build" ]; then
+    # OpenSCAD ignores a -P naming a set that does not exist and silently falls back to the
+    # file's own defaults, which would write a directory labelled with one build and full of
+    # another's parts. So the set is looked up first.
+    if ! /usr/bin/python3 -c 'import json,sys; sys.exit(sys.argv[2] not in json.load(open(sys.argv[1]))["parameterSets"])' scad/bioreactor.json "$build"; then
+        echo "FAIL  no parameter set is named $build in scad/bioreactor.json"
+        exit 1
+    fi
+    sel=(-p scad/bioreactor.json -P "$build")
+fi
 
 # Ask the model what it prints, through the assembly, which owns both halves. A stub with
 # render_all off, so it costs a second. Each row says which half it belongs to.
@@ -23,41 +35,29 @@ for (p = head_print_parts(vessel_opening_diameter(_v), lid_flange_height,
   echo(str("PART|scad/head.scad|", p[0], "|", p[1], "|", p[2]));
 for (p = frame_print_parts(n_rods, drive_name))
   echo(str("PART|scad/frame.scad|", p[0], "|", p[1], "|", p[2]));
-echo(str("VESSEL|", vessel_name(_v)));
-echo(str("DESIG|shaft_name|", shaft_name));
-echo(str("DESIG|plug_oring_name|", plug_oring_name));
-echo(str("DESIG|strip_light_name|", strip_light_name));
-echo(str("DESIG|do_probe_name|", do_probe_name));
-echo(str("DESIG|ph_probe_name|", ph_probe_name));
 SCAD
-"$OPENSCAD" "${sel[@]}" -D render_all=false -o "$tmp/m.csg" "$tmp/m.scad" 2>"$tmp/err" >/dev/null
+"$OPENSCAD" ${sel[@]+"${sel[@]}"} -D render_all=false -o "$tmp/m.csg" "$tmp/m.scad" 2>"$tmp/err" >/dev/null
 if grep -q '^ERROR' "$tmp/err"; then
-    echo "FAIL  ${label:-the selected vessel} does not resolve, so there is nothing to export"
+    echo "FAIL  ${build:-the default build} does not resolve, so there is nothing to export"
     grep -m1 '^ERROR' "$tmp/err" | sed 's/^/        /'
     exit 1
 fi
-# What the model actually resolved, which is not always what was asked for: OpenSCAD ignores a
-# -P naming a set that does not exist and silently falls back to the file's own defaults. Left
-# unchecked that writes a directory labelled with one jar and full of another one's parts.
-got=$(grep -m1 '^ECHO: "VESSEL|' "$tmp/err" | sed 's/.*VESSEL|//; s/"$//')
-# WHAT THIS BUILD DESIGNATED, reported rather than assumed. These parts now render through
-# bioreactor.scad so a designation does reach them, and the print list should say which one it
-# carries - an STL of a g1 collet and one of a g2 collet look identical in a directory listing.
-pinned=$(grep '^ECHO: "DESIG|' "$tmp/err" | sed 's/.*DESIG|//; s/"$//' | grep -v '|auto$' || true)
-if [ -n "$pinned" ]; then
-    echo "note  this build designates:"
-    echo "$pinned" | sed 's/|/ = /' | sed 's/^/          /'
-fi
-
-if [ -n "$label" ] && [ "$label" != "$got" ]; then
-    echo "FAIL  no parameter set is named $label - the model resolved $got instead"
-    echo "        add a set for it to scad/bioreactor.json"
-    exit 1
-fi
-label="$got"
+# What the build is, in the model's own words: the vessel, the drive and every designation
+# stated rather than left auto. Printed and written into the list, because an STL of a g1
+# collet and one of a g2 collet look identical in a directory listing.
+stated=$(grep -m1 '^ECHO: "build: ' "$tmp/err" | sed 's/^ECHO: "//; s/"$//')
+echo "note  $stated"
 rows=$(grep '^ECHO: "PART|' "$tmp/err" | sed 's/^ECHO: "PART|//; s/"$//')
 if [ -z "$rows" ]; then echo "FAIL  the model lists no printed parts"; exit 1; fi
+if [ -n "$only" ]; then
+    rows=$(grep "|$only|" <<< "$rows" || true)
+    if [ -z "$rows" ]; then
+        echo "FAIL  no part is named $only in this build; the print list names them"
+        exit 1
+    fi
+fi
 
+label="${build:-default}"
 dir="${2:-output}/$label"
 mkdir -p "$dir"
 list="$dir/print-list.md"
@@ -113,6 +113,9 @@ while IFS='|' read -r file name qty flags; do
     fi
 done <<< "$rows"
 
+# One part alone is for looking at it; the list is the whole build's.
+if [ -n "$only" ]; then exit $failed; fi
+
 # Which printers take these, asked of purchased/printers.scad with the sizes off the meshes.
 # Reported, not targeted; a part that fits nothing is the only thing that fails.
 {
@@ -125,7 +128,7 @@ done <<< "$rows"
     printf 'for (s = _s) if (len(printers_fitting(s[1])) == 0) echo(str("NOFIT|", s[0]));\n'
     printf 'echo(str("ALLFIT|", [for (p = printers) if (len([for (s = _s) if (!printer_fits(p, s[1])) 1]) == 0) printer_name(p)]));\n'
 } > "$tmp/fit.scad"
-"$OPENSCAD" "${sel[@]}" -D render_all=false -o "$tmp/fit.csg" "$tmp/fit.scad" 2>"$tmp/fit" >/dev/null
+"$OPENSCAD" ${sel[@]+"${sel[@]}"} -D render_all=false -o "$tmp/fit.csg" "$tmp/fit.scad" 2>"$tmp/fit" >/dev/null
 allfit=$(grep -m1 '^ECHO: "ALLFIT|' "$tmp/fit" | sed 's/.*ALLFIT|//; s/"$//; s/[]["]//g')
 for m in $(grep '^ECHO: "NOFIT|' "$tmp/fit" | sed 's/.*NOFIT|//; s/"$//'); do
     echo "FAIL  $m  fits no registered printer at all - see scad/purchased/printers.scad"
@@ -138,17 +141,19 @@ done
   echo "$pieces pieces, $parts distinct parts. Written by \`just export-parts\`; the model is the"
   echo "authority and this is a transcript of it, so regenerate rather than editing."
   echo
+  echo "**\`$stated\`** — the model's own statement of what this is. A part whose designation"
+  echo "differs from this list's is a different part, whatever its file is called."
+  echo
   echo "Food-grade clear PETG for anything the culture touches, grey PETG for structure -"
   echo "food-grade is a purchasing constraint, not a colour. The gasket cutter"
   echo "is a tool rather than a part of the reactor, and you need it to cut the rim gasket."
   echo "Assembly, and the numbers that go with it, are in [docs/build.md](../../docs/build.md)."
   echo
   echo "**This is the reactor's own parts** - the lid and everything hanging from it, and the"
-  echo "frame's base, top base, ribs and rod spacers. It is NOT everything this repo prints: the"
-  echo "cart, the electronics stand, the bottle holder and the peri pump mount each render from"
-  echo "their own file and reach no manifest, which \`just check-parts\` records rather than"
-  echo "hides. The frame is built at the vessel named in \`frame.scad\`'s own preview, which is"
-  echo "the only jar this exports today anyway."
+  echo "frame's base, top base, ribs and rod spacers, plus the drive's own parts under whichever"
+  echo "drive this build names. It is NOT everything this repo prints: the cart, the electronics"
+  echo "stand, the bottle holder and the peri pump mount each render from their own file and reach"
+  echo "no manifest, which \`just check-parts\` records rather than hides."
   echo
   echo "**Printers that take every part on this list:** $allfit. Reported, not targeted - the"
   echo "design is what it is and this says what it needs, measured off the meshes below rather"
@@ -156,9 +161,10 @@ done
   echo "should agree; the two disagreeing means a part is not on this list."
   echo "Volumes: [scad/purchased/printers.scad](../../scad/purchased/printers.scad)."
   echo
-  echo "Sizes are the exported mesh's own bounding box. Each part is written where it sits in the"
-  echo "assembly rather than at the origin, so let the slicer place it - what the size column is"
-  echo "for is whether it fits the bed at all. The baffle pieces are the ones to watch."
+  echo "Sizes are the exported mesh's own bounding box. A part is written where its own file"
+  echo "draws it - the head's at the lid's datum, the frame's at their height in the stack - so"
+  echo "let the slicer drop it to the bed. What the size column is for is whether it fits the bed"
+  echo "at all. The baffle pieces are the ones to watch."
   echo
   echo '| part | qty | file | size, mm | triangles |'
   echo '| --- | --- | --- | --- | --- |'
