@@ -1,3 +1,4 @@
+ECHO: "build: jar_10L_220x305, shaft drive, 86.5% of capacity; everything else auto"
 ECHO: "joint: 12 posts at 62.5177 mm on a 238.8 mm circle"
 ECHO: "joint load: 4212.27 N of gasket seating over 12 posts = 351.023 N each, on M8 bolts and M8 rods"
 ECHO: "joint tightening: 114.3 deg past snug on each of the 12 nuts (0.396875 mm of gasket travel on a 1.25 mm pitch); the printed flange creeps, so go back to them"

@@ -181,12 +181,20 @@ check-parts:
     @scripts/check-parts.sh
 
 # The complement of the purchase list: head_print_parts() and frame_print_parts() say what is
-# printed, and this renders each part CGAL and checks it for a manifold. About a minute a part.
-# Naming another vessel uses bioreactor.json's parameter sets.
+# printed, and this renders each part CGAL and checks it for a manifold - about nine minutes for
+# the lot, most of it the lid. A build is a parameter set in bioreactor.json: a vessel, and
+# whatever it designates (`jar_10L_magnetic` names the drive).
 #
-# Export every printed part as its own STL, with a print list. `just export-parts <vessel>` for one.
-export-parts vessel="" out="output":
-    @scripts/export-parts.sh "{{vessel}}" "{{out}}"
+# Export every printed part of a build as its own STL, with a print list. `just export-parts jar_10L_magnetic` for that build.
+export-parts build="" out="output":
+    @scripts/export-parts.sh "{{build}}" "{{out}}"
+
+# The same render as export-parts for one row of the print list, which is what iterating on a
+# part before printing it wants. No list is written.
+#
+# Export one printed part by its print-list name, e.g. `just export-part frame_base jar_10L_magnetic`.
+export-part part build="" out="output":
+    @scripts/export-parts.sh "{{build}}" "{{out}}" "{{part}}"
 
 # check-scad exports the CSG tree, so CGAL never runs and a degenerate solid is invisible to it.
 # This builds the entry files into solids. Not part of `check`: minutes, not seconds. What to run

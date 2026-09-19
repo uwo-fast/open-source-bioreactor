@@ -125,7 +125,13 @@ port and grades the same on every vessel.
 CGAL-renders each on the way past — so a part that is not a valid solid is caught there rather than
 in a slicer. It measures each one too, and reports which registered printers take it. It covers the
 reactor's own parts — the lid and everything hanging from it, and the frame's base, top base, ribs
-and rod spacers — which comes to **47 pieces across 23 distinct parts**.
+and rod spacers — which comes to **47 pieces across 23 distinct parts** under the shaft drive.
+
+**A build is a parameter set in `scad/bioreactor.json`**: a vessel and whatever it designates.
+`just export-parts jar_10L_magnetic` exports that one, and the print list opens with the model's
+own statement of what it is (vessel, drive, fill, every designation not left `auto`). To look at
+one part while working on it, `just export-part frame_base jar_10L_magnetic` renders that row alone
+in a few seconds and writes no list.
 
 It is not everything in this repo that gets printed. The **cart**, the **electronics stand**, the
 **bottle holder** and the **peri pump mount** each render from a file of their own and are on no

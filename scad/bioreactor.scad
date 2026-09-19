@@ -219,6 +219,21 @@ if (strip_light_length(_reactor_light) < _culture_depth)
     _culture_depth - strip_light_length(_reactor_light), " mm of it is unlit; auto would take the shortest row that covers it"
   ));
 
+// What this build states, in one line, so a transcript or a print list can say which build it is
+// without listing the parameters itself. "auto" is the subassembly's own choice and is not stated.
+_designated = [
+  for (d = [
+    ["shaft", shaft_name], ["plug o-ring", plug_oring_name], ["motor", motor_name],
+    ["gasket sheet", gasket_sheet_name], ["DO probe", do_probe_name], ["pH probe", ph_probe_name],
+    ["light", strip_light_name], ["stir bar", stir_bar_name], ["magnets", stir_magnet_name],
+  ]) if (d[1] != "auto") str(d[0], " ", d[1])
+];
+function _joined(v, i = 0) = i >= len(v) ? "" : str(i == 0 ? "" : ", ", v[i], _joined(v, i + 1));
+echo(str(
+  "build: ", vessel_name(reactor_vessel), ", ", drive_name, " drive, ", culture_fill_fraction * 100, "% of capacity",
+  len(_designated) == 0 ? "; everything else auto" : str("; designated ", _joined(_designated))
+));
+
 module dummy() {
   // stop the customizer detection from here onwards
 }
