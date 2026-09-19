@@ -27,14 +27,20 @@ not_printed=(
     render_baffle_pinlock       #
     render_rods                 # vitamin - the M8 studding and its nuts, cut from stock
     render_lights               # vitamin - the LED strips the frame makes room for
+    render_stir_fan             # vitamin - the fan, its screws and the magnets in the carrier
+    render_stir_bar             # vitamin - the PTFE bar on the punt
 )
+# Both drives, because each manifest lists only its own drive's parts and a flag has to reach
+# at least one of them.
 cat > "$tmp/m.scad" <<SCAD
 include <$PWD/scad/bioreactor.scad>
 _v = reactor_vessel;
-for (p = head_print_parts(vessel_opening_diameter(_v), lid_flange_height,
-                          vessel_internal_height(_v), vessel_punt_height(_v)))
-  echo(str("PART|", p[2]));
-for (p = frame_print_parts(n_rods)) echo(str("PART|", p[2]));
+for (d = ["shaft", "magnetic"]) {
+  for (p = head_print_parts(vessel_opening_diameter(_v), lid_flange_height,
+                            vessel_internal_height(_v), vessel_punt_height(_v), d))
+    echo(str("PART|", p[2]));
+  for (p = frame_print_parts(n_rods, d)) echo(str("PART|", p[2]));
+}
 SCAD
 "$OPENSCAD" -D render_all=false -o "$tmp/m.csg" "$tmp/m.scad" 2>"$tmp/err" >/dev/null
 manifest=$(grep '^ECHO: "PART|' "$tmp/err" | sed 's/^ECHO: "PART|//; s/"$//')
@@ -71,6 +77,8 @@ not_exported=(
     scad/custom/motor_mount.scad
     scad/custom/sparger.scad                    # exported through head's manifest as "sparger";
                                                 # this file's own render is a preview of it
+    scad/custom/magnet_hub_cap.scad             # exported through frame's manifest as
+                                                # "frame_hub_cap", on the fan the frame chose
     scad/custom/sheet_gasket.scad               # EPDM cut from a sheet with a knife, not printed
     # Bench furniture AROUND the reactor rather than part of it, and only ONE of the three
     # makes anything printed - which is not what this list said until it was read.

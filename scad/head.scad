@@ -31,6 +31,7 @@ include <purchased/heat_set_inserts.scad>;
 include <purchased/steel_tubes.scad>;
 include <purchased/shaft_couplings.scad>;
 include <purchased/shafts.scad>;
+include <purchased/stir_bars.scad>;
 include <purchased/gasket_sheets.scad>;
 include <purchased/printers.scad>;
 include <purchased/hose_clamps.scad>;
@@ -88,6 +89,8 @@ render_bearing = false;
 render_ext_shaft = false;
 // The printed impellers on that shaft
 render_impeller = false;
+// The stir bar on the punt, a vitamin; only with the magnetic drive
+render_stir_bar = false;
 // Which of the pair, for a per-part export; they are mirror images, so two different parts
 impeller_to_render = "both"; // [both, lower, upper]
 // the grub screws holding each impeller to the shaft
@@ -206,6 +209,14 @@ function head_bearing_gland_diameter() =
 function head_bearing_gland_length() = oring_gland_width(oring_cross_section(bearing_oring));
 // centred in the pocket's depth, so there is wall either side
 function head_bearing_gland_z() = bb_width(shaft_bearing) / 2;
+
+/* [Drive Selection] */
+
+// A shaft through the lid, or a stir bar on the punt following magnets on a fan under the base
+// (frame.scad hangs the fan). Magnetic retires the motor, mount, coupling, bearing and its seal.
+head_drive = "shaft"; // [shaft, magnetic]
+// The stir bar a magnetic drive turns, centred on the punt
+head_stir_bar = stir_bar_38x8;
 
 /* [Motor & Gearbox Selection] */
 
@@ -502,39 +513,44 @@ function head_port_index(vessel_opening_diameter, fn) =
       str("This lid has ", len(_at), " ports for \"", fn, "\"; looking one up by function needs exactly one.")
     ) _at[0];
 
-// What the line costs at a given flow, Pa, the vessel and any outlet filter included. A function
-// of flow because the filter is linear in it and dominates.
-function head_gas_line_pressure(flow, vessel_pressure, riser_length) =
+// What the way out costs at a given flow, Pa: the hand-cut vent slot as an orifice of the tube's
+// bore, the tube above it, and an outlet filter if one is set. Priced with or without the
+// filter, since the headspace vents through the slot and the tube regardless.
+function head_gas_exhaust_pressure(flow, vent_length) =
+  let (_bore = steel_tube_id(sparge_riser_tube))
+    stirred_tank_orifice_pressure(stirred_tank_orifice_velocity(flow / 60000, 1, _bore))
+    + gas_tube_pressure_drop(flow, _bore, vent_length)
+    + (is_undef(sparge_outlet_filter) ? 0 : gas_filter_pressure_drop(flow, gas_filter_drop_slope(sparge_outlet_filter)));
+
+// What the line costs at a given flow, Pa, the vessel and the way out included. A function of
+// flow because the filter is linear in it and dominates.
+function head_gas_line_pressure(flow, vessel_pressure, riser_length, vent_length) =
   vessel_pressure
   + gas_filter_pressure_drop(flow, gas_filter_drop_slope(sparge_inlet_filter))
   + gas_tube_pressure_drop(flow, steel_tube_id(sparge_riser_tube), riser_length)
   + check_valve_cracking(sparge_check_valve)
   + gas_valve_pressure_drop(flow, check_valve_cv(sparge_check_valve), vessel_pressure)
-  + (
-    is_undef(sparge_outlet_filter)
-      ? 0
-      : gas_filter_pressure_drop(flow, gas_filter_drop_slope(sparge_outlet_filter))
-        + gas_tube_pressure_drop(flow, steel_tube_id(sparge_riser_tube), riser_length)
-  );
+  + head_gas_exhaust_pressure(flow, vent_length);
 
 // The gas comes down whichever port is the air inlet, wherever that ends up sitting.
 function head_sparge_feed_port(vessel_opening_diameter) = head_port_index(vessel_opening_diameter, "air_in");
 
 // Every printed part this lid carries: [name, quantity, the flags that render it alone]. It
 // varies with the vessel, so it lives here; `just export-parts` walks it.
-function head_print_parts(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height) =
+function head_print_parts(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, drive = "shaft") =
   let (
     _ports = head_ports_for(vessel_opening_diameter),
     _segs = head_baffle_segments(lid_flange_height, vessel_internal_height, vessel_punt_height)
   )
     concat(
       [["lid", 1, "-D render_lid=true"]],
-      [
+      // the shaft drive's parts; a magnetic drive prints the frame's carrier and cap instead
+      drive != "shaft" ? [] : [
         for (m = ["base_plate", "face_plate", "middle_stand"])
           [str("motor_mount_", m), 1, str("-D render_motor_mount=true -D motor_mount_part_to_render=\"", m, "\"")],
       ],
       // Mirror images, so two parts and not one printed twice.
-      [
+      drive != "shaft" ? [] : [
         for (h = ["lower", "upper"])
           [str("impeller_", h), 1, str("-D render_impeller=true -D impeller_to_render=\"", h, "\"")],
       ],
@@ -1179,9 +1195,11 @@ function head_motor_mount_height(lid_flange_height, vessel_internal_height, shaf
   gearbox_output_shaft_length(dc_motor_gearbox(head_motor_selected(motor)))
   + head_shaft_protrusion(lid_flange_height, vessel_internal_height, shaft) + shaft_shaft_coupling_offset;
 // top of the motor, which is the highest thing on the reactor
-function head_stack_height(lid_flange_height, vessel_internal_height, shaft, motor) =
-  head_motor_mount_height(lid_flange_height, vessel_internal_height, shaft, motor)
-  + dc_motor_length(head_motor_selected(motor)) + gearbox_length(dc_motor_gearbox(head_motor_selected(motor)));
+// The magnetic drive stacks nothing on the lid.
+function head_stack_height(lid_flange_height, vessel_internal_height, shaft, motor, drive = "shaft") =
+  drive != "shaft" ? 0
+  : head_motor_mount_height(lid_flange_height, vessel_internal_height, shaft, motor)
+    + dc_motor_length(head_motor_selected(motor)) + gearbox_length(dc_motor_gearbox(head_motor_selected(motor)));
 // The groove a given ring would get in a given mouth, and how far that stretches it.
 function head_plug_groove_diameter(vessel_opening_diameter, ring) =
   vessel_opening_diameter - 2 * oring_gland_depth(oring_cross_section(ring), lid_plug_oring_squeeze);
@@ -1228,7 +1246,7 @@ module head_port_at(i, vessel_opening_diameter, flipped = false) {
       children();
 }
 
-module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter, plug_oring, sheet, lip_arc_radius, mount_body_diameter) {
+module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter, plug_oring, sheet, lip_arc_radius, mount_body_diameter, shaft_drive = true) {
 
   _ports = head_ports_for(vessel_opening_diameter);
   _n = len(_ports);
@@ -1252,7 +1270,8 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
           cylinder(d=head_lid_plug_diameter(vessel_opening_diameter), h=lid_plug_height);
       }
 
-      // cut out the bearing and shaft hole
+      // cut out the bearing and shaft hole; a magnetic drive leaves the lid's centre blank
+      if (shaft_drive)
       translate([0, 0, -z_fight / 2])
         union() {
           // shaft hole
@@ -1269,6 +1288,7 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
         }
 
       // insert holes for the motor mount, blind; the assert in head() keeps them out of the culture
+      if (shaft_drive)
       for (i = [0:3])
         rotate([0, 0, i * 90])
           translate([head_motor_mount_screw_radius(mount_body_diameter), 0, -z_fight / 2])
@@ -1395,6 +1415,11 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _motor = head_motor_selected(head_build(build, "head_motor", head_motor));
   _build_do_probe = head_build(build, "do_probe", undef);
   _build_ph_probe = head_build(build, "ph_probe", undef);
+  _drive = head_build(build, "drive", head_drive);
+  _shaft_drive = _drive == "shaft";
+  // undef from the build means this file's own row, as the motor does
+  _build_stir_bar = head_build(build, "stir_bar", undef);
+  _stir_bar = is_undef(_build_stir_bar) ? head_stir_bar : _build_stir_bar;
 
   // The table this lid carries, resolved once, with a designated probe spliced in. Safe because
   // every "probe" port gets bayonet_std whatever it carries; it would not be safe for a
@@ -1710,8 +1735,20 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   // the blades. A 2D question because the obstacles are axisymmetric - utils/meridian.scad.
   _floor_z = -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height);
 
-  _obstacles = head_reach_obstacles(
-    vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter
+  // The stir bar lies on the punt plateau, sweeping a disc a bar's half-length out; the impellers
+  // are the shaft drive's.
+  _punt_top_z = -head_punt_top_depth(lid_flange_height, vessel_internal_height);
+  _obstacles = concat(
+    [
+      for (o = head_reach_obstacles(
+        vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter
+      ))
+        if (_shaft_drive || o[0] != "lower impeller" && o[0] != "upper impeller") o
+    ],
+    _shaft_drive ? [] : [[
+      "stir bar",
+      [0, stir_bar_length(_stir_bar) / 2, _punt_top_z, _punt_top_z + stir_bar_diameter(_stir_bar)],
+    ]]
   );
 
   _hanging = concat(
@@ -1827,19 +1864,22 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _gas_check_valve_drop = check_valve_cracking(sparge_check_valve)
     + gas_valve_pressure_drop(_gas_band[1], check_valve_cv(sparge_check_valve), _gas_vessel_pressure);
 
-  _gas_back_pressure =
-    head_gas_line_pressure(_gas_band[1], _gas_vessel_pressure, _sparge_feed_length);
+  // The vent slot is hand-cut anywhere between the lid's underside and the liquid's surface, so
+  // the tube above it is priced at the longer end of that window.
+  _vent_run = [_riser_top_z + lid_thickness, _riser_top_z - _liquid_surface_z];
+  _gas_vent_length = max(_vent_run);
 
-  _gas_outlet_drop = is_undef(sparge_outlet_filter)
-    ? 0
-    : gas_filter_pressure_drop(_gas_band[1], gas_filter_drop_slope(sparge_outlet_filter)) + _gas_riser_drop;
+  _gas_back_pressure =
+    head_gas_line_pressure(_gas_band[1], _gas_vessel_pressure, _sparge_feed_length, _gas_vent_length);
+
+  _gas_outlet_drop = head_gas_exhaust_pressure(_gas_band[1], _gas_vent_length);
 
   _gas_free_flow = air_pump_free_flow_min(head_air_pump);
   _gas_dead_head = air_pump_dead_head(head_air_pump);
 
   // The line priced at both ends of the band, so where the pump settles can be asked.
   _gas_line = gas_line_secant(
-    _gas_band[0], head_gas_line_pressure(_gas_band[0], _gas_vessel_pressure, _sparge_feed_length),
+    _gas_band[0], head_gas_line_pressure(_gas_band[0], _gas_vessel_pressure, _sparge_feed_length, _gas_vent_length),
     _gas_band[1], _gas_back_pressure);
 
   _gas_ceiling_flow = gas_operating_flow(_gas_free_flow, _gas_dead_head, _gas_line);
@@ -1857,7 +1897,6 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _vent_slot_drop =
     stirred_tank_orifice_pressure(stirred_tank_orifice_velocity(_gas_band[1] / 60000, 1, _vent_bore));
 
-  _vent_run = [_riser_top_z + lid_thickness, _riser_top_z - _liquid_surface_z];
   _vent_tube_drop = [for (l = _vent_run) gas_tube_pressure_drop(_gas_band[1], _vent_bore, l)];
   _vent_min_area = stirred_tank_orifice_area(_gas_band[1] / 60000, _vent_budget_pa) * 1e6;
   _vent_min_diameter = sqrt(4 * _vent_min_area / PI);
@@ -1976,140 +2015,180 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     )
   );
 
+  assert(
+    _drive == "shaft" || _drive == "magnetic",
+    str("The drive is \"", _drive, "\"; it is shaft or magnetic.")
+  );
+
+  // ----- magnetic drive -----
+  // The bar rides the plateau; what it must miss is what else reaches the floor. The magnets and
+  // the gap through the glass are the frame's, which hangs the fan (frame.scad reports them).
+  if (!_shaft_drive) {
+    assert(
+      !is_undef(_stir_bar),
+      "No stir bar is named for the magnetic drive. See scad/purchased/stir_bars.scad."
+    );
+
+    _bar_reach = stir_bar_length(_stir_bar) / 2;
+    _bar_plateau = vessel_punt_width(vessel) / 2;
+    _ring_inner = _sparge_ring_radius - sparge_tube_extent() / 2;
+    _baffle_inner = port_circle_radius - _baffle_width / 2;
+
+    echo(str(
+      "stir bar: ", stir_bar_name(_stir_bar), " centred on the ", _bar_plateau * 2, " mm punt plateau, ",
+      _bar_reach > _bar_plateau ? str("overhanging it by ", _bar_reach - _bar_plateau, " mm each end") : "wholly on it",
+      "; sweeps r ", _bar_reach, " where the sparge ring starts at r ", _ring_inner,
+      _has_baffles ? str(" and the baffles at r ", _baffle_inner) : "",
+      "; the sparge ring is still sized on the shaft drive's impeller"
+    ));
+
+    assert(
+      _bar_reach < _ring_inner,
+      str("A ", stir_bar_length(_stir_bar), " mm stir bar sweeps into the sparge ring at r ", _ring_inner, ".")
+    );
+
+    assert(
+      !_has_baffles || _bar_reach < _baffle_inner,
+      str("A ", stir_bar_length(_stir_bar), " mm stir bar sweeps into the baffles at r ", _baffle_inner, ".")
+    );
+  }
+
   echo(str(
     "DO probe lean: ", _do_tilt, " deg of a ", _build_do_tilt_max, " deg ceiling",
     _do_tilt < _build_do_tilt_max ? str(", capped ", _build_do_tilt_max - _do_tilt, " deg short by the jar's internals") : ""
   ));
 
-  echo(
-    is_undef(_feasible)
-      ? str("vessel fit: no mouth is feasible for a ", impeller_diameter, " mm impeller at these allowances")
-      : str(
-        "vessel fit: a ", impeller_diameter, " mm impeller is feasible in mouths ", _feasible[0], " to ",
-        // an upper bound at the search ceiling is the search running out, not a constraint
-        _feasible[1] >= head_feasible_mouth_sweep()[1] ? "unbounded" : str(_feasible[1], " mm"),
-        "; this jar's is ", vessel_opening_diameter
+  if (_shaft_drive) {
+    echo(
+      is_undef(_feasible)
+        ? str("vessel fit: no mouth is feasible for a ", impeller_diameter, " mm impeller at these allowances")
+        : str(
+          "vessel fit: a ", impeller_diameter, " mm impeller is feasible in mouths ", _feasible[0], " to ",
+          // an upper bound at the search ceiling is the search running out, not a constraint
+          _feasible[1] >= head_feasible_mouth_sweep()[1] ? "unbounded" : str(_feasible[1], " mm"),
+          "; this jar's is ", vessel_opening_diameter
+        )
+    );
+
+    echo(str(
+      "impeller: ", impeller_diameter, " mm in a ", _vessel_bore, " mm bore, D/T ", _impeller_ratio,
+      " (band ", _ratio_band[0], "-", _ratio_band[1], ", axial ", _ratio_band_axial[0], "-",
+      _ratio_band_axial[1], "); spacing ", impeller_spacing_factor, " D (band ", _spacing_band[0],
+      "-", _spacing_band[1], ")"
+    ));
+
+    if (_swept != impeller_diameter)
+      echo(str(
+        "WARNING impeller: sweeps ", _swept, " mm but Po, D/T and the baffle clearance are computed on ",
+        impeller_diameter, "; D/T is really ", stirred_tank_ratio(_swept, _vessel_bore), " and shaft power ",
+        pow(_swept / impeller_diameter, 5), "x"
+      ));
+
+    echo(str(
+      "impeller clearance: centreline ", _impeller_clearance, " mm off the floor = ",
+      _clearance_ratio, " D (Oldshue allows ", _clearance_band[0], "-", _clearance_band[1], "), C/T ",
+      _impeller_clearance / _vessel_bore, "; ", _sparger_room, " mm under the lower impeller and ",
+      _impeller_coverage, " mm (", _coverage_ratio, " D) of culture over the upper"
+    ));
+
+    if (_coverage_ratio < stirred_tank_coverage_minimum())
+      echo(str(
+        "WARNING impeller coverage: ", _coverage_ratio, " D of liquid over the upper impeller, under the ",
+        stirred_tank_coverage_minimum(), " D floor (Oldshue: fluidfoils short-circuit to a low distance ",
+        "above themselves); lower impeller_clearance_factor"
+      ));
+
+    echo(str(
+      "impeller count: 2 on ", _liquid_height / impeller_diameter, " impeller diameters of liquid (H/T ",
+      _liquid_to_bore, "), where the spacing band allows ", _count_bounds[0], " < n < ", _count_bounds[1],
+      stirred_tank_impeller_count_fits(2, _liquid_height, impeller_diameter)
+        ? ""
+        : str(" - short for a pair, which costs the coverage above: ", _coverage_ratio, " D against the ",
+          stirred_tank_coverage_minimum(), " D floor")
+    ));
+
+    // Oldshue's 1-2 d is a permissive allowance for fluidfoils; what fits a pitched blade is Fořt,
+    // who found hydraulic efficiency higher at C/D 1.0 than 0.5.
+    if (!stirred_tank_in_band(_clearance_ratio, _clearance_band))
+      echo(str(
+        "impeller clearance: ", _clearance_ratio, " D is below Oldshue's ", _clearance_band[0], "-",
+        _clearance_band[1], " D for fluidfoils; this is a ", impeller_name(head_impeller_type),
+        ", where Fořt found efficiency higher at C/D 1.0 than 0.5, and coverage over the upper impeller binds at ",
+        (vessel_punt_height + _liquid_height - impeller_spacing - impeller_height / 2
+          - stirred_tank_coverage_minimum() * impeller_diameter) / impeller_diameter,
+        " D (docs/agitation.md)"
+      ));
+
+    if (!stirred_tank_in_band(_impeller_ratio, _ratio_band))
+      echo(str(
+        "WARNING impeller: D/T of ", _impeller_ratio, " is outside the ", _ratio_band[0], "-", _ratio_band[1],
+        " band; below it the impeller does not move enough fluid, above it an axial impeller loses its axial motion"
+      ));
+
+    if (!stirred_tank_in_band(impeller_spacing_factor, _spacing_band))
+      echo(str(
+        "WARNING impeller: spacing of ", impeller_spacing_factor, " D is outside the ", _spacing_band[0], "-",
+        _spacing_band[1], " D band; too close costs up to 35% of the power imparted, too far mixes the zones poorly"
+      ));
+
+    // Which way the pair pumps, and therefore where gas belongs; the drawn parts do not show it.
+    echo(str(
+      "impeller pumping: shaft turns ", head_shaft_rotation > 0 ? "counter-clockwise" : "clockwise",
+      " seen from above, so the lower impeller pumps ",
+      stirred_tank_lower_pumps_up(head_shaft_rotation) ? "up and the upper down" : "down and the upper up",
+      " and the pair ", stirred_tank_pair_converges(head_shaft_rotation) ? "converges on" : "diverges from",
+      " the ", impeller_spacing - impeller_height - impeller_collar_height, " mm gap between them"
+    ));
+
+    if (!stirred_tank_pair_converges(head_shaft_rotation))
+      echo(str(
+        "WARNING impeller pumping: a diverging pair puts the discharges at opposite ends of the vessel, so no ",
+        "single sparge ring sits in both (Birch & Ahmed); reverse head_shaft_rotation, see docs/agitation.md"
+      ));
+
+    echo(str(
+      "impeller set screws: ", len(impeller_set_screw_at), " x ", set_screw_name(impeller_set_screw),
+      " (", set_screw_part_number(impeller_set_screw), ") at ", impeller_set_screw_at, " deg, ",
+      _set_screw_engagement, " mm of thread in a ", _set_screw_hole,
+      " mm tap hole, through a ", impeller_collar_height, " mm collar above the blades"
+    ));
+
+    // The collar stands in the gap between the impellers.
+    assert(
+      impeller_collar_height < impeller_spacing - impeller_height,
+      str(
+        "The lower impeller's ", impeller_collar_height, " mm collar reaches into the ",
+        impeller_spacing - impeller_height, " mm gap above it."
       )
-  );
+    );
 
-  echo(str(
-    "impeller: ", impeller_diameter, " mm in a ", _vessel_bore, " mm bore, D/T ", _impeller_ratio,
-    " (band ", _ratio_band[0], "-", _ratio_band[1], ", axial ", _ratio_band_axial[0], "-",
-    _ratio_band_axial[1], "); spacing ", impeller_spacing_factor, " D (band ", _spacing_band[0],
-    "-", _spacing_band[1], ")"
-  ));
+    if (impeller_collar_height < _set_screw_hole + 2 * impeller_fin_width / 2)
+      echo(str(
+        "WARNING impeller set screws: a ", impeller_collar_height, " mm collar leaves ",
+        (impeller_collar_height - _set_screw_hole) / 2, " mm of wall each side of a ", _set_screw_hole,
+        " mm hole; raise impeller_collar_height"
+      ));
 
-  if (_swept != impeller_diameter)
-    echo(str(
-      "WARNING impeller: sweeps ", _swept, " mm but Po, D/T and the baffle clearance are computed on ",
-      impeller_diameter, "; D/T is really ", stirred_tank_ratio(_swept, _vessel_bore), " and shaft power ",
-      pow(_swept / impeller_diameter, 5), "x"
-    ));
+    assert(
+      _set_screw_reach <= 0,
+      str(
+        "A ", set_screw_length(impeller_set_screw), " mm set screw in a ", impeller_hub_radius,
+        " mm hub stops ", _set_screw_reach, " mm short of the shaft and holds nothing."
+      )
+    );
 
-  echo(str(
-    "impeller clearance: centreline ", _impeller_clearance, " mm off the floor = ",
-    _clearance_ratio, " D (Oldshue allows ", _clearance_band[0], "-", _clearance_band[1], "), C/T ",
-    _impeller_clearance / _vessel_bore, "; ", _sparger_room, " mm under the lower impeller and ",
-    _impeller_coverage, " mm (", _coverage_ratio, " D) of culture over the upper"
-  ));
+    if (_set_screw_reach < -1)
+      echo(str(
+        "WARNING impeller set screws: the screw stands ", -_set_screw_reach, " mm proud of the hub; a shorter row or a hub of ",
+        shaft_diameter(_shaft) / 2 + set_screw_length(impeller_set_screw), " mm sits flush"
+      ));
 
-  if (_coverage_ratio < stirred_tank_coverage_minimum())
-    echo(str(
-      "WARNING impeller coverage: ", _coverage_ratio, " D of liquid over the upper impeller, under the ",
-      stirred_tank_coverage_minimum(), " D floor (Oldshue: fluidfoils short-circuit to a low distance ",
-      "above themselves); lower impeller_clearance_factor"
-    ));
-
-  echo(str(
-    "impeller count: 2 on ", _liquid_height / impeller_diameter, " impeller diameters of liquid (H/T ",
-    _liquid_to_bore, "), where the spacing band allows ", _count_bounds[0], " < n < ", _count_bounds[1],
-    stirred_tank_impeller_count_fits(2, _liquid_height, impeller_diameter)
-      ? ""
-      : str(" - short for a pair, which costs the coverage above: ", _coverage_ratio, " D against the ",
-        stirred_tank_coverage_minimum(), " D floor")
-  ));
-
-  // Oldshue's 1-2 d is a permissive allowance for fluidfoils; what fits a pitched blade is Fořt,
-  // who found hydraulic efficiency higher at C/D 1.0 than 0.5.
-  if (!stirred_tank_in_band(_clearance_ratio, _clearance_band))
-    echo(str(
-      "impeller clearance: ", _clearance_ratio, " D is below Oldshue's ", _clearance_band[0], "-",
-      _clearance_band[1], " D for fluidfoils; this is a ", impeller_name(head_impeller_type),
-      ", where Fořt found efficiency higher at C/D 1.0 than 0.5, and coverage over the upper impeller binds at ",
-      (vessel_punt_height + _liquid_height - impeller_spacing - impeller_height / 2
-        - stirred_tank_coverage_minimum() * impeller_diameter) / impeller_diameter,
-      " D (docs/agitation.md)"
-    ));
-
-  if (!stirred_tank_in_band(_impeller_ratio, _ratio_band))
-    echo(str(
-      "WARNING impeller: D/T of ", _impeller_ratio, " is outside the ", _ratio_band[0], "-", _ratio_band[1],
-      " band; below it the impeller does not move enough fluid, above it an axial impeller loses its axial motion"
-    ));
-
-  if (!stirred_tank_in_band(impeller_spacing_factor, _spacing_band))
-    echo(str(
-      "WARNING impeller: spacing of ", impeller_spacing_factor, " D is outside the ", _spacing_band[0], "-",
-      _spacing_band[1], " D band; too close costs up to 35% of the power imparted, too far mixes the zones poorly"
-    ));
-
-  // Which way the pair pumps, and therefore where gas belongs; the drawn parts do not show it.
-  echo(str(
-    "impeller pumping: shaft turns ", head_shaft_rotation > 0 ? "counter-clockwise" : "clockwise",
-    " seen from above, so the lower impeller pumps ",
-    stirred_tank_lower_pumps_up(head_shaft_rotation) ? "up and the upper down" : "down and the upper up",
-    " and the pair ", stirred_tank_pair_converges(head_shaft_rotation) ? "converges on" : "diverges from",
-    " the ", impeller_spacing - impeller_height - impeller_collar_height, " mm gap between them"
-  ));
-
-  if (!stirred_tank_pair_converges(head_shaft_rotation))
-    echo(str(
-      "WARNING impeller pumping: a diverging pair puts the discharges at opposite ends of the vessel, so no ",
-      "single sparge ring sits in both (Birch & Ahmed); reverse head_shaft_rotation, see docs/agitation.md"
-    ));
-
-  echo(str(
-    "impeller set screws: ", len(impeller_set_screw_at), " x ", set_screw_name(impeller_set_screw),
-    " (", set_screw_part_number(impeller_set_screw), ") at ", impeller_set_screw_at, " deg, ",
-    _set_screw_engagement, " mm of thread in a ", _set_screw_hole,
-    " mm tap hole, through a ", impeller_collar_height, " mm collar above the blades"
-  ));
-
-  // The collar stands in the gap between the impellers.
-  assert(
-    impeller_collar_height < impeller_spacing - impeller_height,
-    str(
-      "The lower impeller's ", impeller_collar_height, " mm collar reaches into the ",
-      impeller_spacing - impeller_height, " mm gap above it."
-    )
-  );
-
-  if (impeller_collar_height < _set_screw_hole + 2 * impeller_fin_width / 2)
-    echo(str(
-      "WARNING impeller set screws: a ", impeller_collar_height, " mm collar leaves ",
-      (impeller_collar_height - _set_screw_hole) / 2, " mm of wall each side of a ", _set_screw_hole,
-      " mm hole; raise impeller_collar_height"
-    ));
-
-  assert(
-    _set_screw_reach <= 0,
-    str(
-      "A ", set_screw_length(impeller_set_screw), " mm set screw in a ", impeller_hub_radius,
-      " mm hub stops ", _set_screw_reach, " mm short of the shaft and holds nothing."
-    )
-  );
-
-  if (_set_screw_reach < -1)
-    echo(str(
-      "WARNING impeller set screws: the screw stands ", -_set_screw_reach, " mm proud of the hub; a shorter row or a hub of ",
-      shaft_diameter(_shaft) / 2 + set_screw_length(impeller_set_screw), " mm sits flush"
-    ));
-
-  if (_set_screw_engagement < set_screw_diameter(impeller_set_screw))
-    echo(str(
-      "WARNING impeller set screws: ", _set_screw_engagement, " mm of thread is under one ",
-      set_screw_diameter(impeller_set_screw), " mm diameter; in PETG the thread strips before the joint slips, grow impeller_hub_radius"
-    ));
+    if (_set_screw_engagement < set_screw_diameter(impeller_set_screw))
+      echo(str(
+        "WARNING impeller set screws: ", _set_screw_engagement, " mm of thread is under one ",
+        set_screw_diameter(impeller_set_screw), " mm diameter; in PETG the thread strips before the joint slips, grow impeller_hub_radius"
+      ));
+  }
 
   echo(str(
     "culture: ", _culture_volume, " L standing ", _liquid_height, " mm deep, ",
@@ -2124,46 +2203,48 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     _build_fill_fraction > 0.8 ? str(", above the usual 0.8 by ", (_build_fill_fraction - 0.8) * 100, " points") : ""
   ));
 
-  if (_po_measured)
-    echo(str(
-      "impeller: ", impeller_name(head_impeller_type), " Po ", _impeller_po, ", measured",
-      is_undef(impeller_power_number_tol(head_impeller_type))
-        ? " (no uncertainty given)"
-        : str(" +/- ", impeller_power_number_tol(head_impeller_type))
-    ));
-
-  if (_po_borrowed)
-    echo(str(
-      "impeller: ", impeller_name(head_impeller_type), " has no measured power number and no blade angle; borrowing ",
-      _impeller_po, " from ", impeller_name(head_impeller_po_fallback), ", an over-estimate since twist lowers Po"
-    ));
-
-  if (_po_correlated)
-    echo(str(
-      "impeller: ", impeller_name(head_impeller_type), " Po ", _impeller_po,
-      " and flow number ", _impeller_flow_number,
-      " from Medek's correlation at ", impeller_blade_angle(head_impeller_type), " deg, ",
-      len(_medek_departures) == 0
-        ? "inside its validity envelope"
-        : str("extrapolated on ", _medek_departures)
-    ));
-
-  if (len(_drive_speeds) == 0)
-    echo(str("drive: ", dc_motor_name(_motor), " registers no output speed, so no Re or dissipation follows"));
-
-  for (s = _drive_speeds)
-    let (_rpm = s[1], _power = stirred_tank_power(impeller_diameter, _rpm, _impeller_po))
+  if (_shaft_drive) {
+    if (_po_measured)
       echo(str(
-        "drive ", s[0], " ", _rpm, " rpm: Re ", stirred_tank_reynolds(impeller_diameter, _rpm),
-        ", tip ", stirred_tank_tip_speed(impeller_diameter, _rpm), " m/s, ", _power, " W into ",
-        _culture_volume, " L = ", stirred_tank_mean_dissipation(_power, _culture_volume),
-        " W/m3 mean, ", stirred_tank_max_dissipation(impeller_diameter, _rpm, _impeller_po, _impeller_x),
-        " W/kg peak",
-        // twice one impeller's torque: an upper bound on the pair, as P above is a lower one
-        is_undef(_rated_torque) ? "" : str(
-          ", pair under ", 2 * stirred_tank_torque(_power, _rpm), " Nm of ", _rated_torque, " Nm rated"
-        )
+        "impeller: ", impeller_name(head_impeller_type), " Po ", _impeller_po, ", measured",
+        is_undef(impeller_power_number_tol(head_impeller_type))
+          ? " (no uncertainty given)"
+          : str(" +/- ", impeller_power_number_tol(head_impeller_type))
       ));
+
+    if (_po_borrowed)
+      echo(str(
+        "impeller: ", impeller_name(head_impeller_type), " has no measured power number and no blade angle; borrowing ",
+        _impeller_po, " from ", impeller_name(head_impeller_po_fallback), ", an over-estimate since twist lowers Po"
+      ));
+
+    if (_po_correlated)
+      echo(str(
+        "impeller: ", impeller_name(head_impeller_type), " Po ", _impeller_po,
+        " and flow number ", _impeller_flow_number,
+        " from Medek's correlation at ", impeller_blade_angle(head_impeller_type), " deg, ",
+        len(_medek_departures) == 0
+          ? "inside its validity envelope"
+          : str("extrapolated on ", _medek_departures)
+      ));
+
+    if (len(_drive_speeds) == 0)
+      echo(str("drive: ", dc_motor_name(_motor), " registers no output speed, so no Re or dissipation follows"));
+
+    for (s = _drive_speeds)
+      let (_rpm = s[1], _power = stirred_tank_power(impeller_diameter, _rpm, _impeller_po))
+        echo(str(
+          "drive ", s[0], " ", _rpm, " rpm: Re ", stirred_tank_reynolds(impeller_diameter, _rpm),
+          ", tip ", stirred_tank_tip_speed(impeller_diameter, _rpm), " m/s, ", _power, " W into ",
+          _culture_volume, " L = ", stirred_tank_mean_dissipation(_power, _culture_volume),
+          " W/m3 mean, ", stirred_tank_max_dissipation(impeller_diameter, _rpm, _impeller_po, _impeller_x),
+          " W/kg peak",
+          // twice one impeller's torque: an upper bound on the pair, as P above is a lower one
+          is_undef(_rated_torque) ? "" : str(
+            ", pair under ", 2 * stirred_tank_torque(_power, _rpm), " Nm of ", _rated_torque, " Nm rated"
+          )
+        ));
+  }
 
   if (len(_tc_port) > 0) {
     _tc_probe = head_port_probe(_tc_port[0]);
@@ -2233,203 +2314,205 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       );
     }
 
-  // ----- transfer -----
-  // Blend time and kLa, from the specific power above; see utils/stirred_tank.scad for what each
-  // correlation is worth.
-  for (s = _drive_speeds)
-    let (
-      _rpm = s[1],
-      _power = stirred_tank_power(impeller_diameter, _rpm, _impeller_po),
-      _pv = stirred_tank_mean_dissipation(_power, _culture_volume),
-      _us = stirred_tank_superficial_gas_velocity(_sparge_flow, _vessel_bore)
-    )
+  if (_shaft_drive) {
+    // ----- transfer -----
+    // Blend time and kLa, from the specific power above; see utils/stirred_tank.scad for what each
+    // correlation is worth.
+    for (s = _drive_speeds)
+      let (
+        _rpm = s[1],
+        _power = stirred_tank_power(impeller_diameter, _rpm, _impeller_po),
+        _pv = stirred_tank_mean_dissipation(_power, _culture_volume),
+        _us = stirred_tank_superficial_gas_velocity(_sparge_flow, _vessel_bore)
+      )
+        echo(str(
+          "transfer ", s[0], " ", _rpm, " rpm: blend to 95% in ",
+          stirred_tank_blend_time(_vessel_bore, impeller_diameter, _pv), " s; kLa ",
+          stirred_tank_kla_coalescing(_pv, _us), " 1/s coalescing, ",
+          stirred_tank_kla_non_coalescing(_pv, _us), " 1/s not, at ", _us * 1000,
+          " mm/s superficial gas"
+        ));
+
+    if (!is_undef(_pv_rated) && _pv_rated < _kla_band[0])
       echo(str(
-        "transfer ", s[0], " ", _rpm, " rpm: blend to 95% in ",
-        stirred_tank_blend_time(_vessel_bore, impeller_diameter, _pv), " s; kLa ",
-        stirred_tank_kla_coalescing(_pv, _us), " 1/s coalescing, ",
-        stirred_tank_kla_non_coalescing(_pv, _us), " 1/s not, at ", _us * 1000,
-        " mm/s superficial gas"
+        "transfer: kLa is van't Riet's air-water correlation, fitted over ", _kla_band[0], "-", _kla_band[1],
+        " W/m3, and this vessel runs ", _pv_rated, "; an order of magnitude, not a number"
       ));
 
-  if (!is_undef(_pv_rated) && _pv_rated < _kla_band[0])
+    if (_culture_volume / 1000 < _blend_band[0])
+      echo(str(
+        "transfer: blend time is Ruszkowski's, fitted on ", _blend_band[0], "-", _blend_band[1],
+        " m3 fully baffled, and this is ", _culture_volume / 1000, " m3; it reproduces Hall's table at a tenth of that"
+      ));
+
+    if (is_undef(_encoder))
+      echo(str("drive: ", dc_motor_name(_motor), " carries no encoder, so shaft speed is commanded, not measured"));
+    else
+      echo(str(
+        "drive encoder: ", _encoder[0], " ppr x ", _encoder[1], " channels through ",
+        gearbox_ratio(head_gearbox), ":1 = ", _encoder_counts, " counts per output turn, resolving ",
+        60 / (_encoder_counts * encoder_speed_window), " rpm over ", encoder_speed_window * 1000, " ms"
+      ));
+
+    // ----- fit -----
+    assert(
+      impeller_spacing > impeller_height,
+      str("Impellers overlap: ", impeller_spacing, " mm apart but ", impeller_height, " mm tall.")
+    );
+
+    // Below this the lower impeller hangs off the end of its own shaft.
+    assert(
+      _impeller_clearance - impeller_height / 2 >= vessel_punt_height + shaft_jar_punt_clearance,
+      str(
+        "Lower impeller reaches ", _impeller_clearance - impeller_height / 2,
+        " mm off the floor but the shaft stops at ", vessel_punt_height + shaft_jar_punt_clearance,
+        " mm; raise impeller_clearance_factor above ",
+        (vessel_punt_height + shaft_jar_punt_clearance + impeller_height / 2) / impeller_diameter, "."
+      )
+    );
+
+    // An impeller in the headspace pumps air, so this is submersion rather than fit.
+    assert(
+      _impeller_clearance + impeller_spacing + impeller_height / 2 <= vessel_punt_height + _liquid_height,
+      str(
+        "Upper impeller reaches ", _impeller_clearance + impeller_spacing + impeller_height / 2,
+        " mm off the floor, past the ", vessel_punt_height + _liquid_height,
+        " mm of culture there is to cover it."
+      )
+    );
+
+    // Scaled off the bore, but it has to pass the opening.
+    assert(
+      head_mouth_passes_impeller(vessel_opening_diameter, impeller_diameter),
+      str(
+        "Impeller sweeps ", 2 * head_impeller_swept_radius(impeller_diameter), " mm, past the ",
+        vessel_opening_diameter, " mm opening it has to pass through."
+      )
+    );
+
+    assert(
+      shaft_jar_punt_clearance >= 0,
+      str("Shaft is drawn ", -shaft_jar_punt_clearance, " mm into the jar's floor.")
+    );
+
+    // What the shaft leaves above the lid for the coupling to grip.
+    assert(
+      shaft_protrusion >= head_shaft_min_protrusion(),
+      str(
+        "Shaft leaves ", shaft_protrusion, " mm above the lid's outer face and the ",
+        sc_length(shaft_coupler), " mm coupling wants ", head_shaft_min_protrusion(),
+        " to grip. No registered shaft is long enough for a ", vessel_internal_height,
+        " mm vessel; the registry runs to ", max([for (t = shafts) shaft_length(t)]), " mm."
+      )
+    );
+
     echo(str(
-      "transfer: kLa is van't Riet's air-water correlation, fitted over ", _kla_band[0], "-", _kla_band[1],
-      " W/m3, and this vessel runs ", _pv_rated, "; an order of magnitude, not a number"
+      "shaft: ", shaft_name(_shaft), " (", shaft_part_number(_shaft), ") ",
+      shaft_diameter_min(_shaft), "-", shaft_diameter_max(_shaft), " mm in a ",
+      bb_bore(shaft_bearing), " mm bore: ", _fit_tightest, " to ", _fit_loosest, " mm"
     ));
 
-  if (_culture_volume / 1000 < _blend_band[0])
+    assert(
+      sc_diameter1(shaft_coupler) == gearbox_output_shaft_dia(head_gearbox) &&
+      sc_diameter2(shaft_coupler) == shaft_diameter(_shaft),
+      str(
+        "The ", shaft_coupling_name(shaft_coupler), " coupling bores ", sc_diameter1(shaft_coupler), " and ",
+        sc_diameter2(shaft_coupler), " mm, for a ", gearbox_output_shaft_dia(head_gearbox),
+        " mm gearbox shaft and a ", shaft_diameter(_shaft), " mm impeller shaft."
+      )
+    );
+
+    if (_mount_slenderness > 3)
+      echo(str(
+        "WARNING motor mount: ", _mount_slenderness, " diameters tall; ",
+        is_undef(_build_shaft)
+          ? str("the shaft is already the shortest row that reaches (", shaft_length(_shaft), " mm against ",
+            head_shaft_length_needed(lid_flange_height, vessel_internal_height), " needed) and the registry steps by 200")
+          : str("head_shaft pins ", shaft_name(_shaft), " where undef would pick ",
+            shaft_name(head_shaft_for(lid_flange_height, vessel_internal_height)))
+      ));
+
+    if (_mount_slenderness > 5)
+      echo(str(
+        "WARNING motor mount: ", motor_mount_height, " mm on a ", _mount_body_d, " mm body is ", _mount_slenderness,
+        " diameters; a printed telescoping tube that slender will not hold a rigid coupling in alignment"
+      ));
+
+    echo(str("motor mount height: ", motor_mount_height / 10, " cm"));
+
+    // --- motor mount joint ---
+    assert(
+      screw_radius(motor_mount_base_screw) * 2 == insert_screw_diameter(motor_mount_base_insert),
+      str(
+        "The motor mount takes an M", screw_radius(motor_mount_base_screw) * 2, " screw into an insert sized for M",
+        insert_screw_diameter(motor_mount_base_insert), "."
+      )
+    );
+
+    assert(
+      _insert_floor >= lid_blind_pocket_floor_min,
+      str(
+        "A ", heat_set_insert_name(motor_mount_base_insert), " insert leaves ", _insert_floor, " mm of lid before the culture; ",
+        lid_blind_pocket_floor_min, " mm is the least this lid keeps."
+      )
+    );
+
+    assert(
+      _bearing_floor >= lid_blind_pocket_floor_min,
+      str(
+        "A ", bb_name(shaft_bearing), " bearing leaves ", _bearing_floor, " mm of lid before the culture; ",
+        lid_blind_pocket_floor_min, " mm is the least this lid keeps."
+      )
+    );
+
+    assert(
+      bearing_hole_allowance >= 0,
+      str("Bearing hole allowance of ", bearing_hole_allowance, " mm is negative, so the pocket is cut under the bearing.")
+    );
+
+    assert(
+      _bearing_seal_stretch >= 0,
+      str(
+        "The ", oring_name(bearing_oring), " bearing seal has an ID of ",
+        oring_inner_diameter(bearing_oring), " mm on a ", bb_diameter(shaft_bearing),
+        " mm bearing, so it would have to be compressed onto it rather than seated."
+      )
+    );
+
+    // The groove has to sit inside the pocket with wall left either side.
+    assert(
+      head_bearing_gland_z() - head_bearing_gland_length() / 2 > 0
+        && head_bearing_gland_z() + head_bearing_gland_length() / 2 < bb_width(shaft_bearing),
+      str(
+        "A ", head_bearing_gland_length(), " mm seal groove centred at ", head_bearing_gland_z(),
+        " does not fit inside a ", bb_width(shaft_bearing), " mm pocket."
+      )
+    );
+
+    assert(
+      _insert_to_bearing > 0,
+      str(
+        "Motor mount inserts on a ", head_motor_mount_screw_radius(_mount_body_d) * 2, " mm circle overlap the bearing seal groove by ",
+        -_insert_to_bearing, " mm."
+      )
+    );
+
     echo(str(
-      "transfer: blend time is Ruszkowski's, fitted on ", _blend_band[0], "-", _blend_band[1],
-      " m3 fully baffled, and this is ", _culture_volume / 1000, " m3; it reproduces Hall's table at a tenth of that"
+      "bearing seal: ", oring_name(bearing_oring), " on the ", bb_name(shaft_bearing), "'s ",
+      bb_diameter(shaft_bearing), " mm rim at ", _bearing_seal_stretch * 100, "% stretch, in a groove to ",
+      head_bearing_gland_diameter(), " mm, ",
+      oring_rod_gland_squeeze(bb_diameter(shaft_bearing), head_bearing_gland_diameter(),
+                    oring_cross_section(bearing_oring)) * 100,
+      "% radial squeeze, ", _insert_to_bearing, " mm from the nearest mount insert"
     ));
 
-  if (is_undef(_encoder))
-    echo(str("drive: ", dc_motor_name(_motor), " carries no encoder, so shaft speed is commanded, not measured"));
-  else
     echo(str(
-      "drive encoder: ", _encoder[0], " ppr x ", _encoder[1], " channels through ",
-      gearbox_ratio(head_gearbox), ":1 = ", _encoder_counts, " counts per output turn, resolving ",
-      60 / (_encoder_counts * encoder_speed_window), " rpm over ", encoder_speed_window * 1000, " ms"
+      "motor mount: 4 x ", heat_set_insert_name(motor_mount_base_insert), " inserts on a ", head_motor_mount_screw_radius(_mount_body_d) * 2,
+      " mm circle, ", screw_length(motor_mount_base_screw, motor_mount_base_screw_grip(motor_mount_wall_thickness), 0, insert=motor_mount_base_insert),
+      " mm M", insert_screw_diameter(motor_mount_base_insert), " screws, ", _insert_floor, " mm of lid left under them, ",
+      _insert_to_bearing, " mm to the bearing pocket"
     ));
-
-  // ----- fit -----
-  assert(
-    impeller_spacing > impeller_height,
-    str("Impellers overlap: ", impeller_spacing, " mm apart but ", impeller_height, " mm tall.")
-  );
-
-  // Below this the lower impeller hangs off the end of its own shaft.
-  assert(
-    _impeller_clearance - impeller_height / 2 >= vessel_punt_height + shaft_jar_punt_clearance,
-    str(
-      "Lower impeller reaches ", _impeller_clearance - impeller_height / 2,
-      " mm off the floor but the shaft stops at ", vessel_punt_height + shaft_jar_punt_clearance,
-      " mm; raise impeller_clearance_factor above ",
-      (vessel_punt_height + shaft_jar_punt_clearance + impeller_height / 2) / impeller_diameter, "."
-    )
-  );
-
-  // An impeller in the headspace pumps air, so this is submersion rather than fit.
-  assert(
-    _impeller_clearance + impeller_spacing + impeller_height / 2 <= vessel_punt_height + _liquid_height,
-    str(
-      "Upper impeller reaches ", _impeller_clearance + impeller_spacing + impeller_height / 2,
-      " mm off the floor, past the ", vessel_punt_height + _liquid_height,
-      " mm of culture there is to cover it."
-    )
-  );
-
-  // Scaled off the bore, but it has to pass the opening.
-  assert(
-    head_mouth_passes_impeller(vessel_opening_diameter, impeller_diameter),
-    str(
-      "Impeller sweeps ", 2 * head_impeller_swept_radius(impeller_diameter), " mm, past the ",
-      vessel_opening_diameter, " mm opening it has to pass through."
-    )
-  );
-
-  assert(
-    shaft_jar_punt_clearance >= 0,
-    str("Shaft is drawn ", -shaft_jar_punt_clearance, " mm into the jar's floor.")
-  );
-
-  // What the shaft leaves above the lid for the coupling to grip.
-  assert(
-    shaft_protrusion >= head_shaft_min_protrusion(),
-    str(
-      "Shaft leaves ", shaft_protrusion, " mm above the lid's outer face and the ",
-      sc_length(shaft_coupler), " mm coupling wants ", head_shaft_min_protrusion(),
-      " to grip. No registered shaft is long enough for a ", vessel_internal_height,
-      " mm vessel; the registry runs to ", max([for (t = shafts) shaft_length(t)]), " mm."
-    )
-  );
-
-  echo(str(
-    "shaft: ", shaft_name(_shaft), " (", shaft_part_number(_shaft), ") ",
-    shaft_diameter_min(_shaft), "-", shaft_diameter_max(_shaft), " mm in a ",
-    bb_bore(shaft_bearing), " mm bore: ", _fit_tightest, " to ", _fit_loosest, " mm"
-  ));
-
-  assert(
-    sc_diameter1(shaft_coupler) == gearbox_output_shaft_dia(head_gearbox) &&
-    sc_diameter2(shaft_coupler) == shaft_diameter(_shaft),
-    str(
-      "The ", shaft_coupling_name(shaft_coupler), " coupling bores ", sc_diameter1(shaft_coupler), " and ",
-      sc_diameter2(shaft_coupler), " mm, for a ", gearbox_output_shaft_dia(head_gearbox),
-      " mm gearbox shaft and a ", shaft_diameter(_shaft), " mm impeller shaft."
-    )
-  );
-
-  if (_mount_slenderness > 3)
-    echo(str(
-      "WARNING motor mount: ", _mount_slenderness, " diameters tall; ",
-      is_undef(_build_shaft)
-        ? str("the shaft is already the shortest row that reaches (", shaft_length(_shaft), " mm against ",
-          head_shaft_length_needed(lid_flange_height, vessel_internal_height), " needed) and the registry steps by 200")
-        : str("head_shaft pins ", shaft_name(_shaft), " where undef would pick ",
-          shaft_name(head_shaft_for(lid_flange_height, vessel_internal_height)))
-    ));
-
-  if (_mount_slenderness > 5)
-    echo(str(
-      "WARNING motor mount: ", motor_mount_height, " mm on a ", _mount_body_d, " mm body is ", _mount_slenderness,
-      " diameters; a printed telescoping tube that slender will not hold a rigid coupling in alignment"
-    ));
-
-  echo(str("motor mount height: ", motor_mount_height / 10, " cm"));
-
-  // --- motor mount joint ---
-  assert(
-    screw_radius(motor_mount_base_screw) * 2 == insert_screw_diameter(motor_mount_base_insert),
-    str(
-      "The motor mount takes an M", screw_radius(motor_mount_base_screw) * 2, " screw into an insert sized for M",
-      insert_screw_diameter(motor_mount_base_insert), "."
-    )
-  );
-
-  assert(
-    _insert_floor >= lid_blind_pocket_floor_min,
-    str(
-      "A ", heat_set_insert_name(motor_mount_base_insert), " insert leaves ", _insert_floor, " mm of lid before the culture; ",
-      lid_blind_pocket_floor_min, " mm is the least this lid keeps."
-    )
-  );
-
-  assert(
-    _bearing_floor >= lid_blind_pocket_floor_min,
-    str(
-      "A ", bb_name(shaft_bearing), " bearing leaves ", _bearing_floor, " mm of lid before the culture; ",
-      lid_blind_pocket_floor_min, " mm is the least this lid keeps."
-    )
-  );
-
-  assert(
-    bearing_hole_allowance >= 0,
-    str("Bearing hole allowance of ", bearing_hole_allowance, " mm is negative, so the pocket is cut under the bearing.")
-  );
-
-  assert(
-    _bearing_seal_stretch >= 0,
-    str(
-      "The ", oring_name(bearing_oring), " bearing seal has an ID of ",
-      oring_inner_diameter(bearing_oring), " mm on a ", bb_diameter(shaft_bearing),
-      " mm bearing, so it would have to be compressed onto it rather than seated."
-    )
-  );
-
-  // The groove has to sit inside the pocket with wall left either side.
-  assert(
-    head_bearing_gland_z() - head_bearing_gland_length() / 2 > 0
-      && head_bearing_gland_z() + head_bearing_gland_length() / 2 < bb_width(shaft_bearing),
-    str(
-      "A ", head_bearing_gland_length(), " mm seal groove centred at ", head_bearing_gland_z(),
-      " does not fit inside a ", bb_width(shaft_bearing), " mm pocket."
-    )
-  );
-
-  assert(
-    _insert_to_bearing > 0,
-    str(
-      "Motor mount inserts on a ", head_motor_mount_screw_radius(_mount_body_d) * 2, " mm circle overlap the bearing seal groove by ",
-      -_insert_to_bearing, " mm."
-    )
-  );
-
-  echo(str(
-    "bearing seal: ", oring_name(bearing_oring), " on the ", bb_name(shaft_bearing), "'s ",
-    bb_diameter(shaft_bearing), " mm rim at ", _bearing_seal_stretch * 100, "% stretch, in a groove to ",
-    head_bearing_gland_diameter(), " mm, ",
-    oring_rod_gland_squeeze(bb_diameter(shaft_bearing), head_bearing_gland_diameter(),
-                  oring_cross_section(bearing_oring)) * 100,
-    "% radial squeeze, ", _insert_to_bearing, " mm from the nearest mount insert"
-  ));
-
-  echo(str(
-    "motor mount: 4 x ", heat_set_insert_name(motor_mount_base_insert), " inserts on a ", head_motor_mount_screw_radius(_mount_body_d) * 2,
-    " mm circle, ", screw_length(motor_mount_base_screw, motor_mount_base_screw_grip(motor_mount_wall_thickness), 0, insert=motor_mount_base_insert),
-    " mm M", insert_screw_diameter(motor_mount_base_insert), " screws, ", _insert_floor, " mm of lid left under them, ",
-    _insert_to_bearing, " mm to the bearing pocket"
-  ));
+  }
 
   assert(
     !_has_baffles || _baffle_width > 0,
@@ -2615,7 +2698,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           );
         }
 
-  if (len(_do_probe) > 0 && _po_correlated)
+  if (_shaft_drive && len(_do_probe) > 0 && _po_correlated)
     let (
       _do = head_port_probe(_do_probe[0]),
       _face = PI / 4 * pow(atlas_probe_tip_dia(_do), 2),
@@ -2771,7 +2854,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     "gas line losses: filter ", _gas_filter_drop, " Pa (extrapolated), check valve ", _gas_check_valve_drop,
     " Pa (", check_valve_cracking(sparge_check_valve), " to crack) and riser ", _gas_riser_drop,
     " Pa at ", _gas_band[1], " L/min, on top of the vessel's ", _gas_vessel_pressure,
-    _gas_outlet_drop == 0 ? "" : str(" and ", _gas_outlet_drop, " Pa on the way back out"),
+    " and ", _gas_outlet_drop, " Pa on the way back out (the vent slot and up to ", _gas_vent_length, " mm of tube",
+    is_undef(sparge_outlet_filter) ? ")" : ", and the outlet filter)",
     "; the pump beats ", _gas_back_pressure, " Pa, and the filter alone is ",
     _gas_filter_drop / _gas_vessel_pressure, "x the vessel"
   ));
@@ -2784,9 +2868,16 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     " L/min a back pressure held at the design point suggests)"
   ));
 
+  // A line the pump cannot beat gives a negative budget, which is not a filter to buy.
   echo(
     is_undef(sparge_outlet_filter)
-      ? str(
+      ? _gas_outlet_budget <= 0
+        ? str(
+          "gas exhaust: nothing filters the way out; the headspace vents through a support tube to the room, ",
+          "and no outlet filter fits, because the line already beats the pump at ", _gas_band[1],
+          " L/min; see the throttle warning"
+        )
+        : str(
         "gas exhaust: nothing filters the way out; the headspace vents through a support tube to the room. ",
         "An outlet filter may cost at most ", _gas_outlet_budget, " kPa per L/min before ", _gas_band[1],
         " L/min stops being reachable, ", _gas_outlet_budget / gas_filter_drop_slope(sparge_inlet_filter),
@@ -2849,20 +2940,22 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       "% of its electrical input; they are read as the ends of its curve"
     ));
 
-  echo(str(
-    "gas against the impeller: ", impeller_pumping(head_impeller_type), " pumping needs ",
-    stirred_tank_gas_power_ratio(impeller_pumping(head_impeller_type)),
-    "x the gas stream's power to hold its flow pattern, which at ", _baffle_rpm,
-    " rpm caps aeration at ", _gas_ceiling * 60000 / _culture_volume, " vvm"
-  ));
-
-  if (sparge_design_vvm > _gas_ceiling * 60000 / _culture_volume)
+  if (_shaft_drive) {
     echo(str(
-      "WARNING gas: ", sparge_design_vvm, " vvm is above the ", _gas_ceiling * 60000 / _culture_volume,
-      " vvm at which the gas stream negates this impeller's pumping; run faster, or a radial impeller would take ",
-      stirred_tank_gas_flow_ceiling(stirred_tank_power(impeller_diameter, _baffle_rpm, _impeller_po), "radial", _liquid_height)
-      * 60000 / _culture_volume, " vvm at the same power"
+      "gas against the impeller: ", impeller_pumping(head_impeller_type), " pumping needs ",
+      stirred_tank_gas_power_ratio(impeller_pumping(head_impeller_type)),
+      "x the gas stream's power to hold its flow pattern, which at ", _baffle_rpm,
+      " rpm caps aeration at ", _gas_ceiling * 60000 / _culture_volume, " vvm"
     ));
+
+    if (sparge_design_vvm > _gas_ceiling * 60000 / _culture_volume)
+      echo(str(
+        "WARNING gas: ", sparge_design_vvm, " vvm is above the ", _gas_ceiling * 60000 / _culture_volume,
+        " vvm at which the gas stream negates this impeller's pumping; run faster, or a radial impeller would take ",
+        stirred_tank_gas_flow_ceiling(stirred_tank_power(impeller_diameter, _baffle_rpm, _impeller_po), "radial", _liquid_height)
+        * 60000 / _culture_volume, " vvm at the same power"
+      ));
+  }
 
   assert(
     steel_tube_od(sparge_riser_tube) <= head_port_bore_radius(head_ports_for(vessel_opening_diameter)[head_sparge_feed_port(vessel_opening_diameter)]) * 2,
@@ -2897,22 +2990,23 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     head_port_set_min_mouth(head_port_set_reduced, true), " uniform std); this jar's is ", vessel_opening_diameter
   ));
 
-  assert(
-    _mount_to_ports >= lid_holes_offset,
-    str(
-      "Motor mount is ", _mount_body_d, " mm across and the port flanges reach in to r ",
-      port_circle_radius - bayonet_flange_radius(head_widest_interface(_ports)), ", leaving ", _mount_to_ports,
-      " mm between them; ", lid_holes_offset, " mm is the least this lid keeps."
-    )
-  );
+  if (_shaft_drive) {
+    assert(
+      _mount_to_ports >= lid_holes_offset,
+      str(
+        "Motor mount is ", _mount_body_d, " mm across and the port flanges reach in to r ",
+        port_circle_radius - bayonet_flange_radius(head_widest_interface(_ports)), ", leaving ", _mount_to_ports,
+        " mm between them; ", lid_holes_offset, " mm is the least this lid keeps."
+      )
+    );
 
-  echo(str(
-    "eccentricity: the mount leaves ", _eccentricity_room, " mm of offset, e/T ", _eccentricity_ratio,
-    " against Hall's measured 0.2, worth ", 100 * stirred_tank_eccentric_gain(_eccentricity_ratio),
-    "% of the centred blend time on Karcz's up-pumping branch, to an unbaffled vessel (this one carries ",
-    len(_baffle_at), " baffles); extrapolated on ", _karcz_departures
-  ));
-
+    echo(str(
+      "eccentricity: the mount leaves ", _eccentricity_room, " mm of offset, e/T ", _eccentricity_ratio,
+      " against Hall's measured 0.2, worth ", 100 * stirred_tank_eccentric_gain(_eccentricity_ratio),
+      "% of the centred blend time on Karcz's up-pumping branch, to an unbaffled vessel (this one carries ",
+      len(_baffle_at), " baffles); extrapolated on ", _karcz_departures
+    ));
+  }
   assert(
     joint_outer_diameter / 2 >= _post_reach + lid_holes_offset,
     str(
@@ -3127,7 +3221,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     color(prints2_color)
       union() {
         rotate([0, 180, 0])
-          lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter(_shaft), _build_plug_oring, _gasket_sheet, lip_arc_radius, _mount_body_d);
+          lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter(_shaft), _build_plug_oring, _gasket_sheet, lip_arc_radius, _mount_body_d, _shaft_drive);
         lid_locks();
       }
   }
@@ -3175,8 +3269,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
             oring(bayonet_oring(_pi));
 
     // the bearing's rim seal; the lid runs downward from the mount face at z 0
-    translate([0, 0, -head_bearing_gland_z()])
-      oring(bearing_oring);
+    if (_shaft_drive)
+      translate([0, 0, -head_bearing_gland_z()])
+        oring(bearing_oring);
 
     // the rod seal on each riser, in the groove that holds it captive
     for (i = [0:_n - 1])
@@ -3223,8 +3318,13 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
                 rotate([180, 0, 0])
                   atlas_probe(_p);
 
+  // The stir bar, lying on the punt plateau under whatever the lid hangs.
+  if (!_shaft_drive && (render_stir_bar || render_all))
+    translate([0, 0, -head_punt_top_depth(lid_flange_height, vessel_internal_height) + stir_bar_diameter(_stir_bar) / 2])
+      stir_bar(_stir_bar);
+
   // motor and shaft
-  if (render_motor || render_all) {
+  if (_shaft_drive && (render_motor || render_all)) {
 
     // Motor, flipped so it hangs off the top of the mount with the gearbox output face flush on it.
     translate([0, 0, motor_mount_height + dc_motor_length(_motor) + gearbox_length(head_gearbox)])
@@ -3233,7 +3333,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   }
 
   // motor mount; the module does not color itself, so all three telescoping parts take this one
-  if (render_motor_mount || render_all) {
+  if (_shaft_drive && (render_motor_mount || render_all)) {
     color(prints1_color)
       motor_mount(
         height=motor_mount_height,
@@ -3259,22 +3359,22 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   }
 
   // Separate flags: the insert stays in the lid, the screw comes out with the mount.
-  if (render_motor_mount_inserts || render_all)
+  if (_shaft_drive && (render_motor_mount_inserts || render_all))
     motor_mount_fastener_at()
       insert(motor_mount_base_insert);
 
-  if (render_motor_mount_screws || render_all)
+  if (_shaft_drive && (render_motor_mount_screws || render_all))
     motor_mount_fastener_at()
       translate([0, 0, _mm_grip])
         screw(motor_mount_base_screw, screw_length(motor_mount_base_screw, _mm_grip, 0, insert=motor_mount_base_insert));
 
   // The bearing in its pocket; ball_bearing() draws itself centred.
-  if (render_bearing || render_all)
+  if (_shaft_drive && (render_bearing || render_all))
     translate([0, 0, -bb_width(shaft_bearing) / 2])
       ball_bearing(shaft_bearing);
 
   // shaft coupling
-  if (render_shaft_coupler || render_all) {
+  if (_shaft_drive && (render_shaft_coupler || render_all)) {
 
     translate(
       [0, 0, shaft_protrusion + shaft_shaft_coupling_offset / 2]
@@ -3284,7 +3384,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   }
 
   // external shaft
-  if (render_ext_shaft || render_all) {
+  if (_shaft_drive && (render_ext_shaft || render_all)) {
 
     color("grey")
       translate([0, 0, -head_punt_top_depth(lid_flange_height, vessel_internal_height) + shaft_jar_punt_clearance])
@@ -3356,7 +3456,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   }
 
   // impellers
-  if (render_impeller || render_set_screws || render_all) {
+  if (_shaft_drive && (render_impeller || render_set_screws || render_all)) {
     translate([0, 0, -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height) + _impeller_clearance]) {
       if (impeller_to_render != "upper")
         head_impeller_assembly();

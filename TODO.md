@@ -9,14 +9,15 @@ closed it and in `docs/`.
 - [ ] **place the bought pumps in the assembly**
   - the registry half is done: `purchased/peri_pumps.scad` carries the Kamoer NKP-DC-S10B, drawn
     as its envelope, and `head()` checks its tube against the port it enters
-  - `custom/peri_pump_frame_mount.scad` still assumes the old printed head: pockets `frame.scad`
-    does not have, a motor on no purchase list, a faceplate a snap-in Kamoer has not got. A bought
-    unit wants a bracket for a 67 x 55 x 41 body
+  - `custom/peri_pump_frame_mount.scad`'s insert now presses into the frame's empty light pockets
+    (ribbed, sized from the light row), but its flange still assumes the old printed head: a
+    motor on no purchase list, a faceplate a snap-in Kamoer has not got. A bought unit wants a
+    bracket for a 67 x 55 x 41 body on that insert
   - and the frame needs somewhere to put three of them: pockets, a rail, or the electronics stand.
     Nothing else waits on it - the reference run had the dose pumps disabled
 
 - [ ] **measured gas flow**
-  - the model states a vvm and no builder can set one: the ReSun pump settles at 6.05 L/min where
+  - the model states a vvm and no builder can set one: the ReSun pump settles at 5.97 L/min where
     0.822-4.11 is wanted. The parts are in the BOM (Dwyer VFA-23 meter, Clippard MNV-3KP needle
     valve upstream of it; why these, `docs/procurement.md`). What is left is buying them and taking
     a reading
@@ -37,16 +38,9 @@ closed it and in `docs/`.
   - the exhaust is unguarded: the headspace vents through a support tube into the room. A second
     1594522 on the outlet does not work: two put the line at 31.8 kPa against a pump that dead-heads
     at 27, and 0.5 vvm stops being a setting it can hold
-  - `head()` reports the budget instead: at most 1.93365 kPa per L/min on `jar_10L`, 56 % of the
-    inlet filter's slope. The vent slot and the tube already spend 2.3-2.7 % of it. Set
-    `sparge_outlet_filter` and `head()` prices the exhaust into the line
-  - `head_gas_line_pressure()` gets the exhaust wrong in both directions, latently: with no outlet
-    filter it prices the way out at zero (the tube costs 23.7-55.2 Pa regardless), and with one it
-    charges a full riser where the gas travels 37.9-88.3 mm. Under 0.5 % of the line; dead code
-    until something sets the filter
-  - the budget goes negative where the pump cannot reach the band at all, and the echo prints it
-    straight: `jar_6p5gal_305x470` reads "may cost at most -2.05309 kPa per L/min". The throttle
-    warning already says why; this line wants the same `<= 0` branch
+  - `head()` reports the budget instead: at most 1.88304 kPa per L/min on `jar_10L`, 54.6 % of the
+    inlet filter's slope, net of the vent slot and the tube, which are priced into the line. Set
+    `sparge_outlet_filter` and `head()` prices the filter in too
   - the budget moves with the inlet filter's slope, which is extrapolated - measure that first
   - a trap or a longer tube would guard against splashback with no drop; a different sterility claim
 
@@ -140,35 +134,20 @@ section 5. Neither item is scheduled.
   - needs in the model: a draft tube as a part, riser and downcomer areas, superficial gas
     velocity, a reported circulation time. The sparge ring may not survive it
 
-- [ ] **explore a magnetic drive: a DC fan under the jar turning a rotor inside it**
-  - retires the shaft, coupling, bearing, plug seal and mount; the lid becomes ports and a seal.
-    The punt is a shallow cone (3.5 deg on `jar_10L` to 33.8 on `jar_6p5gal`), so a conventional
-    stir bar straddles all of them
-  - the gap depends on how the driver sits: nested up inside the re-entrant punt it pays the wall
-    alone, and nesting inverts the ranking because the punt's width is both lever arm and room for
-    magnets:
-
-    | vessel             | flat driver | nested driver | usable radius nested |
-    | ------------------ | ----------- | ------------- | -------------------- |
-    | jar_1gal_155x251   | 9.0         | **3.0**       | 36.5                 |
-    | jar_1p5L_109x215   | 11.0        | **4.0**       | 7.5                  |
-    | jar_10L_220x305    | 10.0        | **5.0**       | 15.0                 |
-    | jar_1gal_180x197   | 12.0        | **5.0**       | 50.0                 |
-    | jar_6p5gal_305x470 | 27.0        | **12.0**      | 80.0                 |
-
-  - torque at equal tip speed (1.26-2.03 m/s), scaled as `v^2 D^3` with Po held fixed, so the order
-    and nothing finer:
-
-    | vessel           | rpm across the band | pair           | one rotor |
-    | ---------------- | ------------------- | -------------- | --------- |
-    | jar_1p5L_109x215 | 528-851             | 4.8-12.3 mN·m  | ~2.4-6.2  |
-    | jar_1gal_155x251 | 358-577             | 15.3-39.6 mN·m | ~7.6-19.8 |
-
-  - it gives eccentricity back: `e = 0.2 T` wants 20.2 mm on `jar_1p5L` where the lid offers 0.5
-  - undecided: centred or eccentric. Centred is still a centred impeller in an unbaffled jar;
-    eccentric has nothing locating it on a floor whose high point is the centre it avoids, and
-    Galletti finds it unsteady with power rising with eccentricity. And a bottom drive gives one
-    impeller on `jar_1p5L`'s H/T 1.681 column
+- [ ] **the magnetic drive is modelled; what is left is the bench**
+  - `drive_name = "magnetic"` builds it: a fan picked by rule in a carrier hung in the base bore,
+    two magnets in a cap on its hub, a stir bar centred on the punt; the base is slotted for it
+    under either drive. `docs/build.md` has the assembly
+  - nothing models the coupling. How much torque two 8 x 5 discs hand a 38 mm bar through 1 mm of
+    air and 5 of glass, and at what fan speed the bar decouples, are measurements; the sizes are
+    parameters so the answer can be put in. The target is the shaft drive's torque at equal tip
+    speed, `v^2 D^3` scaled: 4.8-12.3 mN.m for the pair on `jar_1p5L`, 15.3-39.6 on `jar_1gal_155`
+  - speed is PWM on the fan's own line and nothing reads it back; a 3-wire fan's tachometer line
+    is the only encoder this drive has
+  - centred, on the punt, was the decision: eccentric has nothing locating it on a floor whose high
+    point is the centre it avoids, and Galletti finds it unsteady with power rising with eccentricity
+  - `jar_6p5gal` and `jar_1gal_155` get no carrier: their floors are 2 mm, so no fan fits under them.
+    A deeper floor is a frame choice those jars have not been given
 
 ## nice to haves
 
@@ -240,14 +219,7 @@ section 5. Neither item is scheduled.
 - [ ] **the eccentricity report cannot reach the two jars it would change a decision about**
   - an assert stops `jar_1p5L_109x215` (the mount) and `jar_1gal_155x251` (the pH probe) before the
     echo. A lid with no room for the mount has none for an offset, so the document's rows read 0
-    on reasoning. Left standing; those jars only get an offset under the magnetic drive
-
-- [ ] **a 330 mm light leaves a 0.067 mm lip of rib across its own channel**
-  - on `frame.scad`'s own preview (`collapse_spacer_z_allow=false`) with `rwntao_13in`, the top rib
-    carries material from z 328.0 to 328.067 that a longer light does not: a blind slot where the
-    part wants a through one. In the assembly the pocket clears by 1.333 mm, so what prints is right
-  - what would close it: echo the clearance between the pocket's top and the top rib's upper face,
-    which needs the light's z origin threaded out of `lights()`
+    on reasoning. Left standing; the magnetic drive those jars would take is centred anyway
 
 - [ ] **`check-scad`'s `-D '$fn=0'` pass is not the tessellation test it reads as**
   - a command-line `-D` crosses the `use` boundary on every version where an in-file assignment
