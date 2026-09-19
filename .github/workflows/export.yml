@@ -1,0 +1,83 @@
+# The STLs, built where anyone can download them.
+#
+# `just export-parts <build>` renders every printed part of a build CGAL, so it is also the only
+# check of the parts that actually print - `just test` skips head.scad and frame.scad, whose
+# previews are not what prints. Nine minutes a build, so it runs on demand and on a tag rather
+# than on every push, one job per build in parallel.
+#
+# The default builds are the ones that resolve. jar_1p5L and jar_1gal_155 stop on an assert in
+# the head (tests/echo pins that), so a run naming them fails, honestly, at the manifest.
+#
+# OpenSCAD is pinned to what apt ships, as in check.yml.
+
+name: Export
+
+on:
+  workflow_dispatch:
+    inputs:
+      builds:
+        description: "Parameter sets in scad/bioreactor.json to export, space separated"
+        default: "jar_10L_220x305 jar_10L_magnetic"
+        required: true
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  builds:
+    name: builds
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.list.outputs.matrix }}
+    steps:
+      # A tag has no input, so it takes the dispatch default. jq turns the list into the JSON a
+      # matrix wants.
+      - id: list
+        env:
+          BUILDS: ${{ github.event.inputs.builds || 'jar_10L_220x305 jar_10L_magnetic' }}
+        run: |
+          echo "matrix=$(printf '%s\n' $BUILDS | jq -Rcn '[inputs]')" >> "$GITHUB_OUTPUT"
+
+  export:
+    name: export ${{ matrix.build }}
+    needs: builds
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        build: ${{ fromJSON(needs.builds.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: extractions/setup-just@v4
+
+      - name: Install OpenSCAD
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends openscad
+          openscad --version
+
+      - name: Setup
+        run: just setup
+
+      # Fails on a part that does not build, is not a 2-manifold, or fits no registered printer.
+      - name: Export
+        run: just export-parts "${{ matrix.build }}" output | tee export.log
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### ${{ matrix.build }}"
+            echo '```'
+            grep -E '^(ok|FAIL|note) ' export.log || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stl-${{ matrix.build }}
+          path: output/${{ matrix.build }}
+          if-no-files-found: error
