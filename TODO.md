@@ -9,10 +9,10 @@ closed it and in `docs/`.
 - [ ] **place the bought pumps in the assembly**
   - the registry half is done: `purchased/peri_pumps.scad` carries the Kamoer NKP-DC-S10B, drawn
     as its envelope, and `head()` checks its tube against the port it enters
-  - `custom/peri_pump_frame_mount.scad`'s insert now presses into the frame's empty light pockets
-    (ribbed, sized from the light row), but its flange still assumes the old printed head: a
-    motor on no purchase list, a faceplate a snap-in Kamoer has not got. A bought unit wants a
-    bracket for a 67 x 55 x 41 body on that insert
+  - `custom/peri_pump_frame_mount.scad`'s insert now clicks into an empty light pocket in a rib
+    (a detent under the rib), but its flange still assumes the old printed head: a motor on no
+    purchase list, a faceplate a snap-in Kamoer has not got. A bought unit wants a bracket for a
+    67 x 55 x 41 body on that insert
   - and the frame needs somewhere to put three of them: pockets, a rail, or the electronics stand.
     Nothing else waits on it - the reference run had the dose pumps disabled
 
@@ -169,8 +169,7 @@ section 5. Neither item is scheduled.
     allows it - and `bayonet_port.scad` then includes that file and receives every o-ring as a
     global. Recorded, not yet worth moving
   - `bayonet_port.scad` `use`s `atlas_probes.scad` for its preview's example probe, as
-    `sheet_gasket.scad` and `peri_pump_frame_mount.scad` do their registries; rule 2 allows a
-    preview that
+    `sheet_gasket.scad` does its registry; rule 2 allows a preview that
 
 - [ ] **four of five jars carry a second impeller the spacing does not support**
   - Fitschen eq. (5), `(H-d)/d > n > (H-2d)/(2d)`, in impeller diameters:
