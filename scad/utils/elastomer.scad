@@ -6,7 +6,7 @@
  * seat relations below them are for an annular gasket, which is the only shape this reactor seats.
  *
  * ALL OF IT IS REPORTED, NEVER ASSERTED ON: the modulus is correlated from hardness rather than
- * measured, so these judge a design rather than cut a part. See docs/design-conventions.md.
+ * measured, so these judge a design rather than cut a part.
  * Sets no $fn.
  */
 

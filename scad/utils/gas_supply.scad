@@ -6,9 +6,9 @@
  * does inside the vessel - orifice velocity, capillary pressure, ring diameter - is the tank's and
  * lives there. Anything about getting gas to that fitting at a known rate is here.
  *
- * Everything below is REASONED, NOT CITED. No source held by this project describes a diaphragm
- * pump's curve or a rotameter's readable span; both are conventions, stated here so a reader can
- * disagree with them rather than having to infer them from a number.
+ * No source held by this project describes a diaphragm pump's curve or a rotameter's readable
+ * span; both are conventions, stated here so a reader can disagree with them rather than having
+ * to infer them from a number.
  */
 
 // A diaphragm pump between its two published points, taken as linear. Real curves sag below a

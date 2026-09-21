@@ -4,16 +4,22 @@
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * WORK IN PROGRESS, not what the build uses: a head of our own that a small motor could drive.
- * Registry and geometry share this file because nothing includes it. Every name carries the
- * peri_pump_head_ prefix; purchased/peri_pump.scad owns peri_pump_*.
+ * WORK IN PROGRESS, AND NOT WHAT THIS BUILD USES. A head of our own that a small motor could
+ * drive. It started as a replica of the bought pump and may yet become a design; it is drawn here
+ * so the idea has somewhere to live and gets rendered.
+ *
+ * ONE FILE, where the repo usually splits a registry from its geometry. Nothing includes this,
+ * so a second file would buy nothing.
+ *
+ * Every name here carries the peri_pump_head_ prefix, because purchased/peri_pump.scad owns
+ * peri_pump_* for the bought unit and OpenSCAD has one flat namespace across includes.
  */
 
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
-// The carrier diameter sets how far the rollers sit from the shaft, and with the roller offset
-// the occlusion diameter.
+// The carrier diameter is a pump dimension, not a motor dimension. It sets how far the rollers sit
+// from the shaft, and together with the roller offset it sets the occlusion diameter.
 
 //                        ["name"     [carrier_dia, carrier_base_th, carrier_allowance], [roller_od, roller_id, roller_len, roller_n, roller_offset], [cassette_h, cassette_wall, cassette_allowance], tube_dia, shaft_bore]
 peri_pump_head_generic = ["generic", [50,          4,               0.2              ], [20,        10,        20,         3,        -1.5         ], [28,         3,             0.3               ], 3,        4         ];

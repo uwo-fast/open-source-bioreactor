@@ -61,11 +61,11 @@ function sparger_hole_count_for_velocity(gas_flow, hole_diameter, velocity) =
 function sparger_holes_per_ring(total, shares) = [for (f = shares) max(1, round(total * f))];
 
 // Centre-to-centre along a ring, and the same in hole diameters: holes closer than a few diameters
-// coalesce as they form. The floor is reasoned, not cited.
+// coalesce as they form.
 function sparger_ring_pitch(radius, count) = 2 * PI * radius / count;
 function sparger_pitch_ratio(radius, count, hole_diameter) =
   sparger_ring_pitch(radius, count) / hole_diameter;
-function sparger_pitch_ratio_floor() = 3; // reasoned, not cited
+function sparger_pitch_ratio_floor() = 3;
 
 // Where the holes sit on a ring, half a pitch off the feed. Shared by the cut, the split assert
 // and the breakthrough probe.
@@ -566,7 +566,7 @@ module sparger_report(radii, holes, hole_diameter, tube, bore, gas_flow, paths =
 
 // ----- example usage -----
 //
-// A 10 L duty at 0.5 vvm, quoted; this file's render is a preview.
+// 8.23207 L at 0.5 vvm, quoted.
 _ex_radii = sparger_equal_area_radii(2, 90, 58);
 _ex_flow = 4.11604 / 60000; // m^3/s, 0.5 vvm on 8.23207 L
 // 1.2 mm holes at 3 m/s, chosen by reading sparger_report()

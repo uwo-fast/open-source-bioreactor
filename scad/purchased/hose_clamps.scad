@@ -1,7 +1,7 @@
 // parameters for physical realization of worm-drive hose clamps
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
-// Band width is the only dimension the model reads; the clamping range is the purchase's.
+// Band width is the only dimension: the clamping range closes on tubing this model never sees.
 
 //                        ["name"          part_no     band_w  material  ]
 clamp_sae4_316_5p16 = ["SAE 4 316 5/16", "5011T141", 7.9375, "316 SS"];

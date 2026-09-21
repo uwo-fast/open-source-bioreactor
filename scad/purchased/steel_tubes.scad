@@ -1,9 +1,10 @@
 // parameters for physical realization of stainless steel tubing
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
-// Rigid tube that has to hold its shape wetted. At 4 mm OD the catalogue offers 0.25, 0.4 and
-// 0.5 mm walls. Welded, hard temper: McMaster's seamless metric straights are soft. 316 because
-// wetted and chemically sterilised. Pressure rating is not registered, and ID is od - 2 * wall.
+// Rigid tube for what has to hold its shape inside the vessel. At 4 mm OD the catalogue offers
+// 0.25, 0.4 and 0.5 mm walls. Welded, hard temper: McMaster's seamless metric straights are soft.
+// 316 because wetted and chemically sterilised. Pressure rating is not registered, and ID is
+// od - 2 * wall exactly.
 
 //                          ["name"           part_no     [od, wall],  material, construction, temper]
 steel_tube_welded_2x0p25  = ["welded_2x0.25", "50415K39", [2,  0.25 ], "316 SS", "welded",     "hard"];

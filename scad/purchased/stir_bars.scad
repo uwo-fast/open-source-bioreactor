@@ -1,8 +1,8 @@
 // parameters for physical realization of magnetic stir bars
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
-// PTFE-coated alnico bars, the plain cylindrical kind. No part number: any bar of the size does,
-// so the purchase list does not enrol these rows.
+// PTFE-coated alnico bars, the plain cylindrical kind. No part number yet: any bar of the size
+// does, and none has been bought, so the purchase list does not enrol these rows.
 
 //                 ["name"    part_no  [length, diameter]]
 stir_bar_25x8    = ["25x8",   undef,   [25,     8       ]];

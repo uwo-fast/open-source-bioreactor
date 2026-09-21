@@ -6,12 +6,12 @@
 
 //                        ["name"           part_no      [id,     cs  ], material, shore, colour ]
 
-// The 1.5 mm cord line. All 70A, -65 to 300 F, ASTM D2000.
+// All 70A, -65 to 300 F, ASTM D2000.
 oring_13x1p5_epdm      = ["13x1.5 EPDM",   "1289N323",  [13,      1.5 ], "EPDM",   70,    "Black"];
 oring_17x1p5_epdm      = ["17x1.5 EPDM",   "8785N378",  [17,      1.5 ], "EPDM",   70,    "Black"];
 oring_23x1p5_epdm      = ["23x1.5 EPDM",   "8785N383",  [23,      1.5 ], "EPDM",   70,    "Black"];
 
-// Seats at zero stretch on a 4 mm rod.
+// Its ID is the tube, 4 on 4, so it seats at zero stretch.
 oring_4x1p5_epdm       = ["4x1.5 EPDM",    "8785N364",  [4,       1.5 ], "EPDM",   70,    "Black"];
 
 // The rest of the 1.5 mm line, same page; a 1289N number differs from an 8785N one only in
@@ -29,7 +29,7 @@ oring_25x1p5_epdm      = ["25x1.5 EPDM",   "8785N384",  [25,      1.5 ], "EPDM",
 oring_28x1p5_epdm      = ["28x1.5 EPDM",   "8785N387",  [28,      1.5 ], "EPDM",   70,    "Black"];
 oring_30x1p5_epdm      = ["30x1.5 EPDM",   "1289N33",   [30,      1.5 ], "EPDM",   70,    "Black"];
 
-// AS568 dash 150 to 171, 3/32 in (2.62 mm) cord, the same EPDM 70A line. IDs are the
+// AS568 dash 150 to 171, 3/32 in (2.62 mm) cord. Same EPDM 70A line, -65 to 300 F. IDs are the
 // catalogue's inch value times 25.4;
 // the dash number is the identity.
 

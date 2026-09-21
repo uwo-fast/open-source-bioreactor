@@ -4,8 +4,7 @@
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * A vitamin, drawn as the box the catalogue gives because that is all that is known. The printed
- * head that might replace it is custom/peri_pump_head.scad. Sets no $fn.
+ * A vitamin, drawn as the box the catalogue gives because that is all that is known. Sets no $fn.
  */
 
 function peri_pump_name(type) = type[0]; // catalogue name

@@ -4,7 +4,7 @@
 // A row is one impeller TYPE: the blade geometry that defines it and the process numbers a
 // stirred-tank calculation needs.
 //   blade_angle  from the plane of rotation; undef on a twisted blade
-//   twist        linear_extrude's pitch specifier; undef on a flat blade (docs/agitation.md)
+//   twist        linear_extrude's pitch specifier; undef on a flat blade
 //   width_ratio  blade height (flat) or extrusion height (twisted) over D; only where sourced.
 //                Fort's families are Czech Standards at h/D = 0.2; the twisted row's is unsourced
 //   Po           turbulent power number, measured; undef rather than guessed
