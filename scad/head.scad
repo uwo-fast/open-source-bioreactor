@@ -51,15 +51,15 @@ include <NopSCADlib/vitamins/ball_bearings.scad>; // BB608 type + bb_diameter()/
 use <NopSCADlib/vitamins/shaft_coupling.scad>;
 
 // Preview only: the standalone preview derives the joint with the frame's own accessors rather
-// than quoting it. See docs/architecture.md rule 1.
+// than quoting it.
 use <frame.scad>;
 
 // Internals and tessellation, which are not build choices. See utils/facets.scad.
 /* [Hidden] */
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 // Tessellate by feature size. head() re-asserts these: $fn is dynamically scoped and `use`
-// resolves it per OpenSCAD version, so a head rendered from bioreactor.scad would otherwise take
-// the assembly's flat 64/128 on a newer binary.
+// resolves it per OpenSCAD version, so a head rendered from another file would otherwise take
+// that file's $fn on a newer binary.
 $fn = 0;
 $fa = facet_angle();
 $fs = facet_size();
@@ -161,10 +161,8 @@ bearing_hole_allowance = 0.2;
 
 /** How the lid seals to the jar.
  * - The pressure boundary is a flat sheet gasket recessed into the lid's flange, squeezed against
- *   the top of the glass. Only jar_6p5gal presents a flat; every other jar is fire-polished and
- *   presents a crown (vessel_rim_radius()), so the gasket covers the lip and what is squeezed is
- *   the band the crown makes. Compression is set by the turn past snug (docs/build.md), not by a
- *   land bottoming out.
+ *   the top of the glass. A fire-polished lip presents a crown (vessel_rim_radius()), so the
+ *   gasket covers the lip and what is squeezed is the band the crown makes.
  * - The plug o-ring centres the plug in the neck and stands behind the gasket against splash. It
  *   is not a pressure boundary: a radial squeeze tracks the jar's bore, which is not a controlled
  *   dimension, so it is sized toward the loose end.
@@ -179,8 +177,7 @@ lid_gasket_sheet = sheet_epdm_1p6_60a;
 lid_gasket_compression = 0.25;
 // land left between the gasket and each edge of the glass's flat top, for the flange to bear on
 lid_gasket_land_margin = 1.0;
-// Seating force grows with width and stiffness with its square, and all of it lands on glass;
-// six millimetres seals (jar_6p5gal's 12 mm wall would otherwise ask 4.4x the force)
+// Seating force grows with width and stiffness with its square, and all of it lands on glass
 // Widest the rim gasket is cut, in mm
 lid_gasket_width_max = 6;
 // below this a gasket is fiddly to cut and will not stay in its recess; reported, not enforced
@@ -212,8 +209,8 @@ function head_bearing_gland_z() = bb_width(shaft_bearing) / 2;
 
 /* [Drive Selection] */
 
-// A shaft through the lid, or a stir bar on the punt following magnets on a fan under the base
-// (frame.scad hangs the fan). Magnetic retires the motor, mount, coupling, bearing and its seal.
+// A shaft through the lid, or a stir bar on the punt following magnets on a fan under the base.
+// Magnetic retires the motor, mount, coupling, bearing and its seal.
 head_drive = "shaft"; // [shaft, magnetic]
 // The stir bar a magnetic drive turns, centred on the punt
 head_stir_bar = stir_bar_38x8;
@@ -240,8 +237,7 @@ shaft_coupler = shaft_coupler_8x8_rigid;
 /* [Motor Mount Parameters] */
 
 // Outer diameter of the mount body: the gearbox it collars plus a wall each side. It could go to
-// 42 before the base inserts meet the bearing pocket, and that does not rescue the narrow jars
-// (TODO.md).
+// 42 before the base inserts meet the bearing pocket.
 function head_motor_mount_body_diameter(gearbox) =
   gearbox_diameter(gearbox) + 2 * motor_mount_wall_thickness;
 // wall thickness of the mount body; also sets the flange and raised face heights
@@ -263,7 +259,7 @@ lid_blind_pocket_floor_min = 3.0;
 /* [Impeller Parameters] */
 
 // The relations and their citations are in utils/stirred_tank.scad; the impeller types and their
-// process numbers in custom/impellers.scad; the design reasoning in docs/agitation.md.
+// process numbers in custom/impellers.scad.
 
 // The bore, not the outer diameter, is what D/T means in the literature. 0.45 is mid-band on every
 // citation and lets every registered vessel pass its mouth.
@@ -281,7 +277,7 @@ head_impeller_po_fallback = impeller_folded_axial_4;
 
 // width of each fin blade
 impeller_fin_width = 4;
-// Ring tying the blade tips; off, it prints as an overhang and nothing needs it (docs/decisions.md)
+// Ring tying the blade tips; off, it prints as an overhang and nothing needs it
 impeller_tip_ring = false;
 // size of the center hub; the set screw threads through it, so it sets the thread engagement
 impeller_hub_radius = 10;
@@ -318,9 +314,8 @@ impeller_n_fins = impeller_blades(head_impeller_type);
 impeller_twist_ang = impeller_twist(head_impeller_type);
 
 /* [Impeller Parameters] */
-// A fraction of capacity, so it scales across the registry (docs/decisions.md). 0.865 is what the
-// reference build runs; the literature's 0.8 is reported against, and coverage over the upper
-// impeller is what the margin buys.
+// A fraction of capacity, so it scales across the registry; the literature's 0.8 is reported
+// against.
 // Fraction of the jar's capacity the culture fills
 culture_fill_fraction = 0.865;
 // Window a shaft speed measurement is averaged over, in seconds; sets what an encoder resolves
@@ -349,7 +344,6 @@ port_position = "locked"; // [locked, entry]
 //   "probe"        -> atlas probe holder (flex collet), bore 0, fourth slot the registered probe
 //   "thermocouple" -> NPT thread mount, bore_radius the through-hole, fourth slot the probe
 //   "baffle"       -> blind port carrying a swirl baffle, bore 0; count must divide the port count
-// Derivation and the checks against it: docs/ports-layout.md.
 
 // A rigid tube from the lid port down into the sparge ring's socket, and the only thing holding
 // the ring. Above the port tables because they are bored for it.
@@ -381,8 +375,7 @@ head_port_set_full = [
 ];
 
 // No baffles and no dosing pair (pH is measured, not controlled). The two probes are the only std
-// flanges, so they sit opposite; the thermocouple is 1/8 NPT so it fits a mini beside DO. See
-// docs/ports-layout.md.
+// flanges, so they sit opposite; the thermocouple is 1/8 NPT so it fits a mini beside DO.
 // The six-port table a narrow jar carries
 head_port_set_reduced = [
   ["do_probe",    "probe",        0, do_lab_g2], //   0 deg  opposite the air inlet
@@ -426,13 +419,12 @@ function head_port_set_for(vessel_opening_diameter) =
 
 // Whether this lid can afford std on every port, so any port takes any function and there is one
 // face o-ring to buy. Usually free, since std-against-std pairs already bind the twelve-port
-// circle; jar_1p5L's six-port set is the one that cannot.
+// circle.
 function head_ports_uniform(vessel_opening_diameter, ports) =
   head_port_set_fits(vessel_opening_diameter, ports, true);
 
 // The smallest mouth a set fits, to 0.01 mm, by bisection: the chord grows with the mouth, so the
-// fit is monotone. undef if it fits nothing under 400 mm. Reported so docs/ports-layout.md can be
-// checked against a render.
+// fit is monotone. undef if it fits nothing under 400 mm.
 function head_port_set_min_mouth(ports, uniform = false, lo = 40, hi = 400) =
   !head_port_set_fits(hi, ports, uniform) ? undef
   : hi - lo <= 0.01 ? hi
@@ -613,11 +605,10 @@ baffle_bore_clearance = 0.2;
 // How far the plate hangs below its port, in mm; undef hangs it to the floor limit
 baffle_length = undef;
 // A stiffness and dynamics choice, not strength: 10 keeps the blade-passing crossing under the
-// drive's band, thicker walks it in and thinner deflects more. head() warns on both. See
-// docs/agitation.md.
+// drive's band, thicker walks it in and thinner deflects more. head() warns on both.
 // Thickness of the baffle plate, in mm
 baffle_thickness = 10;
-// printed PETG, for the plate's stiffness. REASONED, NOT CITED - derated from ~2.0 GPa bulk
+// printed PETG, for the plate's stiffness; derated from ~2.0 GPa bulk
 baffle_modulus = 1800; // MPa
 // kg/m^3, PETG
 baffle_density = 1270;
@@ -682,7 +673,6 @@ function sparge_bore() = steel_tube_od(sparge_riser_tube); // one passage, the r
 function sparge_tube() = sparge_bore() + 2 * sparge_wall;  // across FLATS
 // How many concentric rings; above one they sit on equal area
 sparge_ring_count = 1;
-// reasoned, not cited
 // Where the innermost ring sits when there is more than one, as a fraction of the outermost
 sparge_inner_fraction = 0.35;
 // the cleaning gap opposite the feed
@@ -699,7 +689,7 @@ sparge_hole_probes = false;
 sparge_hole_diameter = 3;
 sparge_hole_count = 8;
 // Which ports drop a tube to the ring to hold it steady: every tube port but the feed. Each is
-// capped at the ring and takes a hole higher up, cut at the bench and not modelled (TODO.md).
+// capped at the ring and takes a hole higher up, cut at the bench and not modelled.
 // Derived from the table, since a narrow jar's port set carries no dosing pair.
 function head_sparge_support_ports(vessel_opening_diameter) =
   let (_p = head_ports_for(vessel_opening_diameter))
@@ -713,7 +703,6 @@ sparge_riser_insertion = 8;
 // against the wall it eats; the bore below is unchanged.
 sparge_socket_chamfer = 0.5;
 // The clamp that lands on the riser; its band width is what sets how far the tube stands proud.
-// Which clamp, docs/procurement.md.
 sparge_riser_clamp = clamp_sae4_316_5p16;
 // bare tube either side of the band, so the clamp lands wholly on the riser
 sparge_riser_clamp_lead_in = 3.5;
@@ -753,14 +742,13 @@ probe_port_collet_tab_gap = 1.0;
 // how far each flex tab is squeezed inward, so the probe is held by spring rather than a press fit
 probe_port_collet_tab_deflection = 0.5;
 // Atlas say "approximately 60 ml/min"; the probe consumes the oxygen it reads. A property of the
-// sensing principle, so here and not in the registry. See docs/references.md.
+// sensing principle, so here and not in the registry.
 // Flow a galvanic DO probe needs past its membrane, mL/min
 do_probe_flow_requirement = 60;
 
 // The DO probe leans outward to shed bubbles off its membrane. The lean is derived: the most of
 // this ceiling the jar's internals allow (scanned, since the bounds close from both sides), and
-// 0 where nothing clears so the reach asserts report the real conflict. 4.5 is reasoned, not
-// cited, and is the most jar_10L takes before the collet stops passing the mouth.
+// 0 where nothing clears so the reach asserts report the real conflict.
 // Ceiling on how far the DO probe leans out, in degrees
 do_probe_port_tilt_max = 4.5;
 // Yokogawa want a pH bulb at least 15 degrees above horizontal, and the long pH probe goes
@@ -1423,7 +1411,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   // The table this lid carries, resolved once, with a designated probe spliced in. Safe because
   // every "probe" port gets bayonet_std whatever it carries; it would not be safe for a
-  // thermocouple, whose interface follows its thread (docs/decisions.md).
+  // thermocouple, whose interface follows its thread.
   _designated = [
     for (p = head_ports_for(vessel_opening_diameter))
       let (
@@ -1600,8 +1588,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   // the height that the motor coupling assembly requires
   motor_mount_height = head_motor_mount_height(lid_flange_height, vessel_internal_height, _build_shaft, _motor);
 
-  // Mount slenderness, height over diameter: reasoned, not cited, calibrated on the build in hand
-  // at 2.3. The coupling is rigid, so the mount's deflection is reacted by the bearings.
+  // Mount slenderness, height over diameter, calibrated at 2.3. The coupling is rigid, so the
+  // mount's deflection is reacted by the bearings.
   _mount_slenderness = motor_mount_height / _mount_body_d;
 
   // The hole is blind because the other side of the plug is the culture.
@@ -1913,7 +1901,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   // ----- port spacing -----
   // Whether that many ports clear each other on the circle: the worst adjacent pair of flanges
-  // decides. See docs/ports-layout.md.
+  // decides.
   _port_gap = min([
     for (i = [0:_n - 1])
       2 * port_circle_radius * sin(180 / _n)
@@ -2022,7 +2010,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   // ----- magnetic drive -----
   // The bar rides the plateau; what it must miss is what else reaches the floor. The magnets and
-  // the gap through the glass are the frame's, which hangs the fan (frame.scad reports them).
+  // the gap through the glass are the frame's, which hangs the fan.
   if (!_shaft_drive) {
     assert(
       !is_undef(_stir_bar),

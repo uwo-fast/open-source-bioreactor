@@ -1,4 +1,5 @@
 ECHO: "base wall thickness: ", 3.7, " cm"
+ECHO: "threaded rod length: ", 214, " mm"
 ECHO: "base floor: jar lands at r", 77.5, "mm, ring spans r", 62.5, "to r", 90.2, "mm"
 ECHO: "light pockets: end at z 217; stopping 9.75 mm under the top base"
 ECHO: "lights: 6 tubes - 3 in each of 2 quadrants - on a light that comes 4 to a cord, so 2 cords and 2 tubes left over"

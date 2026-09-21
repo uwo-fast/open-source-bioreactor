@@ -2,7 +2,7 @@
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
 // Rows carry NopSCADlib's shaft coupling schema so shaft_coupling() and the sc_* accessors work
-// unchanged; the library has no 8-to-8. diameter1 is the gearbox end, diameter2 the impeller end.
+// unchanged; the library has no 8-to-8.
 
 //                         ["name"          length  outer_d  shaft1  shaft2  flexible]
 

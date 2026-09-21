@@ -5,6 +5,7 @@ ECHO: "joint tightening: 114.3 deg past snug on each of the 8 nuts (0.396875 mm 
 ECHO: "reactor envelope: 146.62 mm dia x 549.25 mm tall"
 ECHO: "printers: the widest printed part is a 146.62 mm disc (lid, base, top base); registered printers that take it: ["prusa_mk3s", "prusa_core_one", "voron_250", "bambu_x1c", "prusa_core_one_l", "bambu_h2d", "sovol_sv08", "voron_350", "prusa_xl"]"
 ECHO: "base wall thickness: ", 3.7, " cm"
+ECHO: "threaded rod length: ", 232, " mm"
 ECHO: "base floor: jar lands at r", 47.11, "mm, ring spans r", 32.11, "to r", 54.81, "mm"
 ECHO: "light pockets: end at z 217; stopping 7.35 mm under the top base"
 ECHO: "lights: 6 tubes - 3 in each of 2 quadrants - on a light that comes 4 to a cord, so 2 cords and 2 tubes left over"

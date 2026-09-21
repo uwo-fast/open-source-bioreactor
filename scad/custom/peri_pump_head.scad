@@ -4,31 +4,22 @@
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * WORK IN PROGRESS, AND NOT WHAT THIS BUILD USES. The reactor doses with three bought Kamoer
- * NKP-DC-S10B pumps - see purchased/peri_pumps.scad, which is the part the assembly carries. This
- * is the stretch goal beside it: a head of our own that a small motor could drive, which is why it
- * sits in custom/ rather than purchased/. It started as a replica of the bought pump and may yet
- * become a design; it is drawn here so the idea has somewhere to live and gets rendered.
+ * WORK IN PROGRESS, AND NOT WHAT THIS BUILD USES. A head of our own that a small motor could
+ * drive. It started as a replica of the bought pump and may yet become a design; it is drawn here
+ * so the idea has somewhere to live and gets rendered.
  *
- * ONE FILE, where the repo usually splits a registry from its geometry. The split exists so a
- * registry that gets include'd everywhere does not drag geometry in with it - steel_tubes.scad and
- * printers.scad say as much where they keep their accessors inline. Nothing includes this, and
- * there is one design rather than impellers.scad's two, so a second file would buy nothing.
+ * ONE FILE, where the repo usually splits a registry from its geometry. Nothing includes this,
+ * so a second file would buy nothing.
  *
  * Every name here carries the peri_pump_head_ prefix, because purchased/peri_pump.scad owns
  * peri_pump_* for the bought unit and OpenSCAD has one flat namespace across includes.
- *
- * Note to self: revive and use uniTube project for the tubing modelling? Here and in general?
- * Save for when approaching final design.
  */
 
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 // The carrier diameter is a pump dimension, not a motor dimension. It sets how far the rollers sit
-// from the shaft, and together with the roller offset it sets the occlusion diameter. It has to
-// clear whichever motor drives the head, but that is a coupling check made where the two meet, not
-// a value registered here.
+// from the shaft, and together with the roller offset it sets the occlusion diameter.
 
 //                        ["name"     [carrier_dia, carrier_base_th, carrier_allowance], [roller_od, roller_id, roller_len, roller_n, roller_offset], [cassette_h, cassette_wall, cassette_allowance], tube_dia, shaft_bore]
 peri_pump_head_generic = ["generic", [50,          4,               0.2              ], [20,        10,        20,         3,        -1.5         ], [28,         3,             0.3               ], 3,        4         ];

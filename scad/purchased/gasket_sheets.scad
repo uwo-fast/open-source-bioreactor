@@ -1,9 +1,6 @@
 // parameters for physical realization of sheet gasket stock
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
-// Thickness sets the lid's recess depth and hardness sets the gasket factor the bolt count comes
-// from. Sheet size is carried because a 12 in square yields one jar_10L gasket, not two.
-
 //                       ["name"           material  thickness  shore_a  [sheet_w, sheet_l]  part_no]
 
 // Water- and steam-resistant EPDM, plain backing, ASTM D2000, black, -20 to 220 F, 800 psi.

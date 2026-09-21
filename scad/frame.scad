@@ -116,8 +116,7 @@ nut_height = nut_thickness(rod_nut);
 // allowance for the jar to fit in the base
 base_jar_fit_allow = 0.4;
 
-// reasoned, not cited: the registered base corner radius is eyeballed, so this covers where the
-// glass actually bears
+// the registered base corner radius is eyeballed, so this covers where the glass actually bears
 // How far the base floor reaches inboard of the circle the jar lands on, in mm
 base_jar_support_reach = 15;
 
@@ -178,9 +177,7 @@ module dummy() {
   // stop the customizer detection from here onwards
 }
 
-// The joint, read back by bioreactor.scad so the lid is bored to the same circle, bore and face
-// the frame builds. The top base height is exported because the bolt spacing rule is driven by
-// the thinner of the two plates in the joint.
+// The joint, read back so the lid is bored to the same circle, bore and face the frame builds.
 function frame_rod_diameter() = threaded_rod_diameter;
 function frame_upper_base_height() = upper_base_height;
 function frame_rod_hole_diameter() = threaded_rod_diameter + threaded_rod_hole_allowance;
@@ -224,9 +221,7 @@ function frame_floor_depth(vessel_height, light) =
     delta > _base_floor_height_min ? delta : _base_floor_height_min;
 
 // What the assembly would hand this frame. The preview picks what the assembly chooses (light,
-// wall, flange, rods, bolt) and derives the rest. The 0.8 is a fraction of INTERNAL HEIGHT, not
-// head.scad's culture_fill_fraction (a fraction of capacity); they agree only on jar_10L, and the
-// restatement is deliberate so frame.scad does not read head.scad for a preview.
+// wall, flange, rods, bolt) and derives the rest. The 0.8 is a fraction of INTERNAL HEIGHT.
 _preview_light = strip_light_for(vessel_internal_height(reactor_vessel) * 0.8);
 _preview_wall_thickness = 37;
 _preview_flange_height = 8;
@@ -425,6 +420,8 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
   _outer_diameter = frame_outer_diameter(vessel_outer_diameter, wall_thickness);
 
   echo("base wall thickness: ", _base_wall_thickness / 10, " cm");
+
+  echo("threaded rod length: ", rod_length, " mm");
 
   echo(
     "base floor: jar lands at r", _jar_contact_radius, "mm, ring spans r",

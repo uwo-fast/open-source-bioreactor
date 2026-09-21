@@ -3,7 +3,6 @@
 
 // A bought unit - head, motor and gearbox in one body - drawn as the catalogue's 67 x 55 x 41
 // envelope, unmeasured. Flow, voltage and power are on the purchase list; nothing here doses.
-// custom/peri_pump_head.scad is a printed head of our own, a stretch goal, with its own prefix.
 
 //                        ["name"                part_no          [l,  w,  h ], [tube_id, tube_od]]
 peri_pump_kamoer_nkp   = ["Kamoer NKP-DC-S10B", "NKP-DC-S10B",   [67, 55, 41], [3,       5      ]];

@@ -1,7 +1,6 @@
 // Disc magnets, the rows NopSCADlib carries: MAG5x8 (8 x 5 solid), MAGRE6x2p5 (6 x 2.5),
 // MAG8x4x4p2 and MAG484 (rings). The library draws them; this file only makes the rows a build
-// can designate by name, since most benches have some odd sizes in a drawer and the hub cap
-// pockets whichever is named. No part number: any neodymium disc of the size does.
+// can designate by name. No part number: any neodymium disc of the size does.
 include <NopSCADlib/core.scad>;
 include <NopSCADlib/vitamins/magnets.scad>;
 

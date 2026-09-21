@@ -17,8 +17,7 @@ function fan_corner_diameter(type) =
     2 * sqrt(2) * fan_hole_pitch(type) + 2 * _r;
 
 // The widest registered fan whose corners clear a bore and whose depth fits, the thinnest of
-// that width, or undef if none does. Widest, because the hub sets where the magnets can sit and
-// a wider hub spreads them; thinnest, because the deeper one buys nothing a stirrer needs.
+// that width, or undef if none does.
 function fan_for(bore_diameter, depth) =
   let (
     _fits = [for (f = fans) if (fan_corner_diameter(f) <= bore_diameter && fan_depth(f) <= depth) f],

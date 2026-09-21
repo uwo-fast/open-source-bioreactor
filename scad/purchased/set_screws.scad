@@ -7,16 +7,15 @@
 include <NopSCADlib/core.scad>;
 include <NopSCADlib/vitamins/screws.scad>;
 
-// 316, as the shaft: wetted, and the reactor is chemically sterilised. Cup tip, because it has to
-// bite a B83 shaft once PETG creeps, and a cone tip would fix the impeller's height to a dimple.
+// 316: wetted, and the reactor is chemically sterilised. Cup tip, because it has to bite once
+// PETG creeps.
 
 //                        ["name"      part_no      screw          length  material  hardness  pack]
 
-// Two per impeller at 120 degrees. 6 mm arrives flush at the shaft through a 10 mm hub radius;
-// impeller.scad derives the tapped hole from this row.
+// 6 mm arrives flush at the shaft through a 10 mm hub radius.
 set_screw_m4x6_316   = ["M4x6 316",  "92029A142", M4_grub_screw,  6,      "316 SS", "B80",    50 ];
 
-// For a 12 mm hub radius; stands 2 mm proud of the one drawn today.
+// For a 12 mm hub radius.
 set_screw_m4x8_316   = ["M4x8 316",  "92029A144", M4_grub_screw,  8,      "316 SS", "B80",    25 ];
 
 // Fallback if M4 cannot be tapped; at equal depth it holds three quarters of what an M4 does.

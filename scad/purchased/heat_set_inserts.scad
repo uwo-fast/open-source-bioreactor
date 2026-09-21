@@ -6,8 +6,8 @@
 
 //        length  outer_d  hole_d  screw  barrel_d  ring1_h  ring2_d  ring3_d  pitch  chamfer  part_no      material   pack
 
-// McMaster 97163A152, 18-8 stainless, M4 x 0.7; the lid's mount screws land in four. Stainless
-// over brass because the face sees splash and wipe-downs; it wants a hotter iron and longer dwell.
+// McMaster 97163A152, 18-8 stainless, M4 x 0.7. Stainless over brass because the face sees
+// splash and wipe-downs; it wants a hotter iron and longer dwell.
 // Length and hole are the catalogue's (hole 5.6 against a 5.7404 maximum); the ring diameters are
 // NopSCADlib's nominal straight body, not the real tapered knurl. [9] and [10] are the library's
 // thread pitch and chamfer, undef on a heat-fit insert; the project's fields start at [11].

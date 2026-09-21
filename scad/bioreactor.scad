@@ -6,7 +6,7 @@
  *
  * The reactor is a purchased glass jar (purchased/vessel.scad), a head (head.scad: lid, drive,
  * ports) and a frame (frame.scad: bases, ribs, rods, lights). This file carries two kinds of
- * parameter and nothing else - see docs/architecture.md.
+ * parameter and nothing else.
  *
  * CROSS-COUPLING: what two subassemblies must agree on, derived once here and handed down.
  *   vessel -> head, frame   the registered row
@@ -111,7 +111,7 @@ do_probe_name = "auto"; // [auto, pH mini, pH con, pH lab g1, pH lab g2, pH res,
 // The probe in the pH port; auto takes whatever the port table carries
 ph_probe_name = "auto"; // [auto, pH mini, pH con, pH lab g1, pH lab g2, pH res, DO mini, DO lab g1, DO lab g2, EC mini K1.0, EC K0.1, EC K1.0, EC K10, EC K0.1 8cm, ORP mini, ORP con, ORP lab, ORP gold]
 // The lean is always derived - the most of this the jar's internals allow - so this can only ask
-// for less. It leans to shed bubbles off a galvanic membrane; 4.5 is reasoned, not cited.
+// for less.
 // Ceiling on how far the DO probe leans out, in degrees
 do_probe_port_tilt_max = 4.5;
 
