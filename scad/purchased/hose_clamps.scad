@@ -1,10 +1,7 @@
 // parameters for physical realization of worm-drive hose clamps
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
-// Registered because the sparge riser stands proud of its port by the band's width plus lead-in.
-// Band width is the only dimension: the clamping range closes on tubing this model never sees
-// (why this clamp, docs/procurement.md), and the 7.5 in-lb torque is a bench instruction in
-// docs/build.md.
+// Band width is the only dimension the model reads; the clamping range is the purchase's.
 
 //                        ["name"          part_no     band_w  material  ]
 clamp_sae4_316_5p16 = ["SAE 4 316 5/16", "5011T141", 7.9375, "316 SS"];

@@ -566,9 +566,8 @@ module sparger_report(radii, holes, hole_diameter, tube, bore, gas_flow, paths =
 
 // ----- example usage -----
 //
-// jar_10L's duty, quoted: 8.23207 L at 0.5 vvm. It cannot be derived here because head.scad uses
-// this file. Check against head()'s echo before trusting a render.
-_ex_radii = sparger_equal_area_radii(2, 90, 58); // outboard of the port circle (56.5 on jar_10L), so the feed crosses both
+// A 10 L duty at 0.5 vvm, quoted; this file's render is a preview.
+_ex_radii = sparger_equal_area_radii(2, 90, 58);
 _ex_flow = 4.11604 / 60000; // m^3/s, 0.5 vvm on 8.23207 L
 // 1.2 mm holes at 3 m/s, chosen by reading sparger_report()
 _ex_holes = sparger_holes_per_ring(
@@ -588,8 +587,7 @@ sparger(
   feed_radius = 56.9,
   support_angles = [0],
   split_angle = 14,
-  // M4's tap radius, set_screw_tap_radius(set_screw_m4x6_316); head.scad passes the real one
-  plug_tap_radius = 1.65,
+  plug_tap_radius = 1.65, // an M4 tap
   show_fluid_path = false
 );
 

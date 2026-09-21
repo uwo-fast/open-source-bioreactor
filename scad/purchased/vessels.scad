@@ -24,9 +24,9 @@ jar_1p5L_109x215     = ["jar_1p5L_109x215",     [215,       109.22,     4       
 
 // Uline S-19317P, 1 gallon wide-mouth glass jar, 110/400 plastic cap
 // https://www.uline.ca/Product/Detail/S-19317P/Jars/Clear-Wide-Mouth-Glass-Jars-1-Gallon-4-Opening-Plastic-Cap
-// Opening is listed as 4" (101.6) but the bore below the lip measures 95.8, and the lid enters the
-// bore. rim_rad 0: the lip rolls over in line with the wall, with no flat sealing face. The
-// 110/400 threads are not modelled; nothing mates with them.
+// Opening is listed as 4" (101.6) but the bore below the lip measures 95.8. rim_rad 0: the lip
+// rolls over in line with the wall, with no flat sealing face. The 110/400 threads are not
+// modelled.
 jar_1gal_155x251     = ["jar_1gal_155x251",     [251,       155.3,      3        ], [95.8,        30  ], [25,          14             ], [6,      73   ], 0    ];
 
 // Only orderable rows are swept; generic_vessel stays defined and out of it.

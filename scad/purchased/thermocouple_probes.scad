@@ -2,9 +2,8 @@
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
 // All Type K, 304 sheath, grounded junction, 4 ft fiberglass lead, rated to 900 F. The rows differ
-// by thread, reach and sheath diameter. The row names its NPT thread (utils/npt_threads.scad), so
-// the port that cuts it and the probe read the same row; hex and body derive from it. A 1/2 NPT
-// mount needs the full-size bayonet, 1/8 fits a smaller one - see docs/ports-layout.md.
+// by thread, reach and sheath diameter. The row names its NPT thread (utils/npt_threads.scad);
+// hex and body derive from it.
 //
 // Ungrounded ("insulated") is the option to check: a grounded sheath puts the probe electrically
 // in the culture beside the pH and DO electrodes, the classic ground-loop source. Not decided.

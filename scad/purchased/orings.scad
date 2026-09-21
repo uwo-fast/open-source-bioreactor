@@ -2,18 +2,16 @@
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
 // A row is what the catalogue lists; where a ring sits and how hard it is squeezed belongs to the
-// gland (utils/oring_gland.scad). Port glands are cut to fit their ring; the lid plug's groove is
-// cut to fit the jar's bore and the ring is stretched onto it.
+// gland (utils/oring_gland.scad).
 
 //                        ["name"           part_no      [id,     cs  ], material, shore, colour ]
 
-// Port face seals, one per bayonet port, cut for whichever the interface names. All 70A, -65 to
-// 300 F, ASTM D2000. ID >= 2*(lock_bore_r + land + cs/2), which bayonet_port() asserts.
+// The 1.5 mm cord line. All 70A, -65 to 300 F, ASTM D2000.
 oring_13x1p5_epdm      = ["13x1.5 EPDM",   "1289N323",  [13,      1.5 ], "EPDM",   70,    "Black"];
 oring_17x1p5_epdm      = ["17x1.5 EPDM",   "8785N378",  [17,      1.5 ], "EPDM",   70,    "Black"];
 oring_23x1p5_epdm      = ["23x1.5 EPDM",   "8785N383",  [23,      1.5 ], "EPDM",   70,    "Black"];
 
-// Rod seal on the sparge riser: its ID is the tube, 4 on 4, so it seats at zero stretch.
+// Seats at zero stretch on a 4 mm rod.
 oring_4x1p5_epdm       = ["4x1.5 EPDM",    "8785N364",  [4,       1.5 ], "EPDM",   70,    "Black"];
 
 // The rest of the 1.5 mm line, same page; a 1289N number differs from an 8785N one only in
@@ -31,9 +29,8 @@ oring_25x1p5_epdm      = ["25x1.5 EPDM",   "8785N384",  [25,      1.5 ], "EPDM",
 oring_28x1p5_epdm      = ["28x1.5 EPDM",   "8785N387",  [28,      1.5 ], "EPDM",   70,    "Black"];
 oring_30x1p5_epdm      = ["30x1.5 EPDM",   "1289N33",   [30,      1.5 ], "EPDM",   70,    "Black"];
 
-// The lid plug's radial seal, AS568 dash 150 to 171, 3/32 in (2.62 mm) cord: the 1/8 in cord is
-// over head_plug_oring_cord_limit() and fouls the port bores. Same EPDM 70A line, -65 to 300 F.
-// Together they seal a mouth from 77 to 217 mm. IDs are the catalogue's inch value times 25.4;
+// AS568 dash 150 to 171, 3/32 in (2.62 mm) cord, the same EPDM 70A line. IDs are the
+// catalogue's inch value times 25.4;
 // the dash number is the identity.
 
 oring_as568_150_epdm   = ["AS568-150",     "8785N626",  [72.695,  2.62], "EPDM",   70,    "Black"];

@@ -8,7 +8,7 @@
 //                        ["name"       model                                supply [free_lo, free_hi] dead_head power]
 air_pump_resun_35w      = ["ReSun 35W", "DC 12V aquarium aerator/compressor", 12,   [65,      70     ], 27000,    35];
 
-// No part number: an Amazon listing, nothing stable to register - see docs/procurement.md.
+// No part number: an Amazon listing, nothing stable to register.
 
 air_pumps = [air_pump_resun_35w];
 

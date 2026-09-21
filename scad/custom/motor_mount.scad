@@ -216,10 +216,9 @@ module middle_pipe(
   }
 }
 
-// ----- example values, NOT the bioreactor's mount -----
+// ----- example values -----
 //
-// A worked example on M3 screws. Export the bioreactor's mount from head.scad, which derives its
-// numbers from the registered gearbox, insert and screw.
+// A worked example on M3 screws; this file's render is a preview.
 
 _mm_screws_diameter = 3;
 

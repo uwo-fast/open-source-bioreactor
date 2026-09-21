@@ -5,9 +5,8 @@
  * @copyright 2026
  *
  * A disc the diameter of the hub, glued to its face, with two pockets on a diameter for the
- * magnets: opposite poles up, as far apart as the hub allows, which is what a stir bar follows.
- * A skirt over the hub would foul the blade roots, so it is a disc and an adhesive, as the
- * Pioreactor does it. frame.scad places it on the fan it chose; this file's render is a preview.
+ * magnets, opposite poles up and as far apart as the hub allows. A skirt over the hub would foul
+ * the blade roots, so it is a disc and an adhesive. This file's render is a preview.
  */
 
 include <../purchased/fans.scad>; // fan_hub() of the preview's fan
@@ -18,7 +17,7 @@ $fn = $preview ? 64 : 128;
 
 /* [Preview] */
 
-// The fan the preview caps: the one the jar_10L base takes
+// The fan the preview caps
 cap_fan_name = "fan80x25"; // [fan80x25, fan80x38, fan60x25, fan60x15, fan40x11, fan30x10]
 // The magnets, two of them
 cap_magnet_name = "MAG5x8"; // [MAG5x8, MAGRE6x2p5, MAG8x4x4p2, MAG484]

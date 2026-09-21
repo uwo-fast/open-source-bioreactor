@@ -1,7 +1,7 @@
 // parameters for physical realization of various atlas probes
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
-// Every row is the product as its datasheet describes it; fit is the port's job. neck is the
+// Every row is the product as its datasheet describes it. neck is the
 // strain relief boot, body the cap the collet grips, tip the shaft, conn_d the cord-end connector.
 // Atlas totals leave the boot out; only three sheets dimension it (26 mm) and those give no body
 // width, so 16.0 is assumed and flagged. Not carried: the DO stepped shafts, EC sensing area, ORP
@@ -22,12 +22,8 @@ ph_consumer  = ["pH con",       [9,     6,     8            ], [16.0,   30.2  ],
 
 // https://atlas-scientific.com/probes/ph-probe/
 // https://files.atlas-scientific.com/pH_probe.pdf
-// g2 is the current product and the sheet above.
-// g1 are no longer sold to my knowledge as of 2026-08.
-//
-// BOTH carry ENV-40-PH, and that is not a mistake. Atlas sell the product LINE under one number and
-// the SKU does not distinguish generation - which one arrives depends on when the order was placed.
-// Both generations are owned and in use here, across more than one reactor.
+// g2 is the current product and the sheet above; g1 is no longer sold as of 2026-08. Both carry
+// ENV-40-PH: the SKU names the line, not the generation.
 ph_lab_g1    = ["pH lab g1",    [10,    26,    5            ], [15.6,   36.0  ], [12,    115.0], 8,      2.8,    "Red"       , "ENV-40-PH" ];
 ph_lab_g2    = ["pH lab g2",    [9,     6,     8            ], [16.0,   30.2  ], [12,    115.0], 8,      2.8,    "Red"       , "ENV-40-PH" ];
 
@@ -41,9 +37,8 @@ do_mini      = ["DO mini",      [10,     26,     5           ], [16.0,   36.2  ]
 
 // https://atlas-scientific.com/probes/dissolved-oxygen-probe/
 // https://files.atlas-scientific.com/LG_DO_probe.pdf
-// g2 is the current product and the sheet above.
-// g1 are no longer sold to my knowledge as of 2026-08. Both carry ENV-40-DOX, for the reason on the
-// pH pair above: the SKU names the line, not the generation.
+// g2 is the current product and the sheet above; g1 is no longer sold as of 2026-08. Both carry
+// ENV-40-DOX, as the pH pair.
 do_lab_g1    = ["DO lab g1",    [9,     26,    4.5          ], [16.1,   36.2  ], [12,    64.0 ], 8,      2.6,    "Goldenrod" , "ENV-40-DOX"];
 do_lab_g2    = ["DO lab g2",    [9,     6,     8            ], [16.0,   30.2  ], [12,    69.1 ], 8,      2.6,    "Goldenrod" , "ENV-40-DOX"];
 
@@ -108,8 +103,7 @@ atlas_probes = [
 
 use <atlas_probe.scad>;
 
-// ph_lab_g1 and do_lab_g1 are no longer sold and still in use, so they stay swept. g1 and g2
-// bodies are not interchangeable in a printed collet (15.6 x 36.0 against 16.0 x 30.2).
+// ph_lab_g1 and do_lab_g1 are no longer sold and still in use, so they stay swept.
 
 use <../utils/registries.scad>;
 function atlas_probe_by_name(name) = registry_by_name(atlas_probes, name);

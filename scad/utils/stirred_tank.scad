@@ -61,9 +61,8 @@ function stirred_tank_spacing_band() = [1.0, 2.0]; // Fitschen 2019, in impeller
 
 // How many impellers the spacing band implies: Fitschen 2019 eq. (5), (H - d)/d > N > (H - 2d)/(2d),
 // from 1-2 d between impellers with the lowest one diameter off the floor. Fitschen relays it from
-// Davis 2010, whose own sources do not contain it, so there is no primary and this reports, never
-// asserts (docs/references.md). The variable is liquid height over IMPELLER diameter; H/T only
-// stands in for it at one D/T.
+// Davis 2010, whose own sources do not contain it, so there is no primary. The variable is
+// liquid height over IMPELLER diameter; H/T only stands in for it at one D/T.
 function stirred_tank_impeller_count_bounds(liquid_height, impeller_diameter) =
   [
     (liquid_height - 2 * impeller_diameter) / (2 * impeller_diameter),
@@ -87,7 +86,7 @@ function stirred_tank_in_band(value, band) = value >= band[0] && value <= band[1
 function stirred_tank_clearance(impeller_diameter, factor) = impeller_diameter * factor;
 function stirred_tank_clearance_ratio(clearance, impeller_diameter) = clearance / impeller_diameter;
 // Permissive, not prescriptive: "if the impeller CAN be placed one to two impeller diameters off
-// bottom ... these impellers OFFER an excellent flow pattern". head() reports rather than warns.
+// bottom ... these impellers OFFER an excellent flow pattern".
 function stirred_tank_clearance_band_fluidfoil() = [1.0, 2.0]; // Oldshue 1997 p. 192
 
 // Oldshue's condition pulls the other way: fluidfoils "short-circuit the fluid to a relatively low

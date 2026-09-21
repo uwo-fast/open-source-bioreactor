@@ -4,8 +4,8 @@
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * Uses the bayonet-lock-scad library for the coupling itself and adds what a bioreactor port
- * needs around it: a flange, an o-ring seal, catch pockets and text labels.
+ * Uses the bayonet-lock-scad library for the coupling itself and adds a flange, an o-ring seal,
+ * catch pockets and text labels around it.
  *
  * DATUM: z = 0 is the panel's OUTER face and +z points outward (away from the vessel). Both
  * halves are emitted in that datum, already mated, so a consumer places a complete port with
@@ -279,9 +279,7 @@ module bayonet_port(
     if (part == "pin" && center_bore_radius > 0)
       cylinder(h=(panel_thickness + _flange_h) * 3, r=center_bore_radius, center=true);
 
-    // Rod gland: an enclosed groove near the panel's inner face. Enclosed, because a counterbore
-    // open at that face lets the ring drop into the culture (docs/decisions.md); as low as the lip
-    // allows, because the annulus below the seal is an unswept crevice open to the culture.
+    // Rod gland: an enclosed groove near the panel's inner face, as low as the lip allows.
     if (part == "pin" && !is_undef(bore_oring))
       translate([0, 0, -panel_thickness + bayonet_bore_gland_lip])
         cylinder(
@@ -341,7 +339,7 @@ module bayonet_port(
 // ----- probe port -----
 
 // How far the collet's origin hangs below the port's underside; the tilt wedge is as deep as the
-// body it carries. Exported because head() needs it to say where a tip lands.
+// body it carries.
 function bayonet_probe_port_collet_drop(probe, transition_length) =
   transition_length + atlas_probe_body_dia(probe) / sqrt(3);
 
@@ -498,7 +496,7 @@ module wrapped_text(s, radius, size, depth, angle = 0) {
             text(s[i], size=size, halign="center", valign="center", font="sans");
 }
 
-// Wall the mount keeps outside its thread; a function so head.scad can read it through `use`.
+// Wall the mount keeps outside its thread.
 function npt_mount_wall() = 2;
 
 module npt_thread_mount(thread, height, wall_thickness = npt_mount_wall(), lower_diameter = undef, marks = []) {

@@ -12,7 +12,7 @@ use <../purchased/gasket_sheets.scad>;
 
 $fn = $preview ? 64 : 128;
 
-// example usage - head.scad passes its own numbers
+// example usage
 sheet_gasket(inner_diameter=145, outer_diameter=151,
              thickness=gasket_sheet_thickness(gasket_sheet_by_name("EPDM 1/16 60A")));
 
