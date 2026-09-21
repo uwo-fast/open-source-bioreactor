@@ -1,6 +1,6 @@
 ECHO: "base wall thickness: ", 3.7, " cm"
 ECHO: "threaded rod length: ", 486.9, " mm"
-ECHO: "base floor: jar lands at r", 102.4, "mm, ring spans r", 87.4, "to r", 152.6, "mm"
+ECHO: "base floor: jar lands at r", 102.4, "mm, ring spans r", 87.4, "to r", 152.7, "mm"
 ECHO: "light pockets: end at z 400; stopping 61.9 mm under the top base"
 ECHO: "lights: 6 tubes - 3 in each of 2 quadrants - on a light that comes 4 to a cord, so 2 cords and 2 tubes left over"
 ECHO: "WARNING stir drive: no registered fan clears a 168.4 mm pocket in -8 mm under this jar, so the base is not slotted and no carrier is drawn"

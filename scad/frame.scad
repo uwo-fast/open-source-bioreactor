@@ -114,7 +114,7 @@ nut_height = nut_thickness(rod_nut);
 /* [Base Parameters] */
 
 // allowance for the jar to fit in the base
-base_jar_fit_allow = 0.4;
+base_jar_fit_allow = 0.6;
 
 // the registered base corner radius is eyeballed, so this covers where the glass actually bears
 // How far the base floor reaches inboard of the circle the jar lands on, in mm
@@ -181,12 +181,14 @@ module dummy() {
 function frame_rod_diameter() = threaded_rod_diameter;
 function frame_upper_base_height() = upper_base_height;
 function frame_rod_hole_diameter() = threaded_rod_diameter + threaded_rod_hole_allowance;
+// The pocket the jar sits in, cut in the base, the top base and every rib; the allowance grows
+// the outside rather than thinning the wall.
+function frame_jar_cut_diameter(vessel_outer_diameter) = vessel_outer_diameter + base_jar_fit_allow;
+// The rods stand one hole diameter outside the pocket's wall.
 function frame_bolt_circle_diameter(vessel_outer_diameter) =
-  (vessel_outer_diameter + base_jar_fit_allow) + frame_rod_hole_diameter() * 2;
-// The pocket carries the fit allowance, so the allowance grows the outside rather than thinning
-// the wall.
+  frame_jar_cut_diameter(vessel_outer_diameter) + frame_rod_hole_diameter() * 2;
 function frame_outer_diameter(vessel_outer_diameter, wall_thickness) =
-  (vessel_outer_diameter + base_jar_fit_allow) + wall_thickness;
+  frame_jar_cut_diameter(vessel_outer_diameter) + wall_thickness;
 
 // Every printed part the frame carries: [name, quantity, the flags that render it alone]. The
 // other half of head_print_parts(); `just export-parts` walks both. The ribs are one part eight
@@ -282,8 +284,7 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
   // total height of the assembly
   total_height = vessel_height + base_floor_height;
 
-  // diameter of the cutout for the jar
-  base_jar_cut_diameter = vessel_outer_diameter + base_jar_fit_allow;
+  base_jar_cut_diameter = frame_jar_cut_diameter(vessel_outer_diameter);
 
   // The jar's underside dishes up from its base corner, so it lands on one circle and the floor
   // ring has to reach inboard of that. Cut from the jar, not from the wall.
@@ -414,12 +415,10 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
     )
   );
 
-  _base_wall_thickness = wall_thickness;
-
   // every base closes on this face, and so does the lid flange above them
   _outer_diameter = frame_outer_diameter(vessel_outer_diameter, wall_thickness);
 
-  echo("base wall thickness: ", _base_wall_thickness / 10, " cm");
+  echo("base wall thickness: ", wall_thickness / 10, " cm");
 
   echo("threaded rod length: ", rod_length, " mm");
 
@@ -759,7 +758,7 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
                       for (r = [0:n_rods_ribs - 1])
                         rotate([0, 0, r * 90])
                           translate([base_jar_cut_diameter / 2, 0, 0])
-                            cylinder(d=_base_wall_thickness, h=rib_base_height);
+                            cylinder(d=wall_thickness, h=rib_base_height);
                     }
 
                     for (r = [0:n_rods_ribs - 1])

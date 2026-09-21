@@ -150,19 +150,19 @@ letting it go unnoticed, and giving them manifests is on [`TODO.md`](../TODO.md)
 answer independently, off the geometry rather than the meshes; the two agreeing is the check that
 nothing has fallen off a manifest.
 
-**What you need to own.** Three parts are a **257.40 mm disc** — the lid, and the frame's base and
+**What you need to own.** Three parts are a **257.6 mm disc** — the lid, and the frame's base and
 top base — and they are the widest things in the build by a long way. A disc has the same width at
 every angle, so it cannot be turned to fit a narrow bed: what your printer needs is `min(X, Y)` of
-at least 257.40.
+at least 257.6.
 
 `scad/bioreactor.scad` reports this on every render, against the machines registered in
 [`scad/purchased/printers.scad`](../scad/purchased/printers.scad). Today that is the **Prusa CORE
 One L**, the **Bambu H2D**, the **Sovol SV08**, a **Voron 2.4 350** and the **Prusa XL**.
 
-What misses, and by how little, is worth knowing. A **Bambu X1C** is 256 — short by **1.4 mm**. A
-**Voron 250** is short by 7.4. A **Prusa CORE One** is 250 × 220 and cannot do it at any margin,
+What misses, and by how little, is worth knowing. A **Bambu X1C** is 256 — short by **1.6 mm**. A
+**Voron 250** is short by 7.6. A **Prusa CORE One** is 250 × 220 and cannot do it at any margin,
 because the jar alone is 220 mm across and the lid has to overhang the glass to carry its bolts.
-The lid was briefly trimmed to 252 to reach the X1C; the frame's bases are 257.40 too and its wall
+The lid was briefly trimmed to 252 to reach the X1C; the frame's bases are 257.6 too and its wall
 is set by the rod bosses, so that bought nothing and was undone.
 
 ---
@@ -410,7 +410,7 @@ Measured from the **top** end, because that is the end you can reach with the tu
 
 **This joint is limited by the glass, not by the fastener, and nothing about the hardware says so.**
 
-Twelve posts hold the lid down on a 238.8 mm circle, 62.5 mm apart: **eight M8 bolts and four M8 tie
+Twelve posts hold the lid down on a 239 mm circle, 62.6 mm apart: **eight M8 bolts and four M8 tie
 rods**, the rods occupying every third position. The bolts' heads bear under the top base; the rods
 run the full height of the frame from the lower base. All twelve are tightened by a **nut sitting on
 top of the lid flange**, so the operation is the same at every post.
