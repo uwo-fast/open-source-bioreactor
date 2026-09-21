@@ -747,9 +747,12 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
         for (j = [1:2], k = [0:ribs_per_level - 1])
           // Flat over the three loops, so an export can name one without knowing how they nest.
           if (is_undef(rib_to_render) || rib_to_render == ((i - 1) * 2 + (j - 1)) * ribs_per_level + k) {
+          // Each level turns 90, which would put the pair carrying the empty light pockets under
+          // the other pair's bosses on even levels; the stacking order flips with it, so that
+          // pair is the upper ring at every level and a pump mount can drop into any pocket.
           rotate([0, 0, j * 180 + k * 90])
             rotate([0, 0, i * 90])
-              translate([0, 0, rib_pos + k * rib_base_height])
+              translate([0, 0, rib_pos + ((i + k + 1) % 2) * rib_base_height])
                 color(prints1_color)
                   difference() {
                     union() {
