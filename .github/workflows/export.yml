@@ -2,8 +2,8 @@
 #
 # `just export-parts <build>` renders every printed part of a build CGAL, so it is also the only
 # check of the parts that actually print - `just test` skips head.scad and frame.scad, whose
-# previews are not what prints. Nine minutes a build, so it runs on demand and on a tag rather
-# than on every push, one job per build in parallel.
+# previews are not what prints. Minutes a build even with the parts rendering in parallel, so it
+# runs on demand and on a tag rather than on every push, one job per build.
 #
 # The default builds are the ones that resolve. jar_1p5L and jar_1gal_155 stop on an assert in
 # the head (tests/echo pins that), so a run naming them fails, honestly, at the manifest.

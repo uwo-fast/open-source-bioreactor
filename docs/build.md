@@ -133,6 +133,9 @@ own statement of what it is (vessel, drive, fill, every designation not left `au
 one part while working on it, `just export-part frame_base jar_10L_magnetic` renders that row alone
 in a few seconds and writes no list.
 
+It renders the parts in parallel, every core at once, so the whole list takes about as long as the
+lid alone - a minute and a half here, a few on a small runner.
+
 **Without OpenSCAD:** the Export workflow on GitHub runs the same export on demand and on every
 tag, one job per build, and leaves the STLs and the print list as a downloadable artifact
 (`stl-<build>`) on the run. It is also the only place the parts that print are CGAL-checked in CI —

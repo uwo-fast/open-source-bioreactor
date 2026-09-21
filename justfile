@@ -181,9 +181,10 @@ check-parts:
     @scripts/check-parts.sh
 
 # The complement of the purchase list: head_print_parts() and frame_print_parts() say what is
-# printed, and this renders each part CGAL and checks it for a manifold - about nine minutes for
-# the lot, most of it the lid. A build is a parameter set in bioreactor.json: a vessel, and
-# whatever it designates (`jar_10L_magnetic` names the drive).
+# printed, and this renders each part CGAL and checks it for a manifold, every core at once
+# (JOBS=n for fewer) - about as long as the lid alone, which is a minute and a half. A build is a
+# parameter set in bioreactor.json: a vessel, and whatever it designates (`jar_10L_magnetic`
+# names the drive).
 #
 # Export every printed part of a build as its own STL, with a print list. `just export-parts jar_10L_magnetic` for that build.
 export-parts build="" out="output":
