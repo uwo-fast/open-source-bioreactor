@@ -533,14 +533,15 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
   // the floor ring to the bore, and above it the notch the ear drops down, a shoulder wider each
   // side so the ear lands on the groove's ceiling. Only cut where a fan fits, since it serves
   // the carrier and a floor too shallow for one is too shallow for the slot.
+  // Both run from the axis: a face starting flat at the bore's radius leaves a sliver of the
+  // bore's curve across the slot's edges, and everything inboard of the bore is void anyway.
   module frame_stir_slot() {
-    rotate([0, 0, _slot_angle])
-      translate([0, _base_center_bore_diameter / 2, 0]) {
-        translate([-_slot_width / 2, -z_fight, -z_fight])
-          cube([_slot_width, vessel_outer_diameter / 2 - _base_center_bore_diameter / 2 + 2 * z_fight, _slot_height + z_fight]);
-        translate([-_slot_width / 2 - carrier_key_shoulder, -z_fight, _slot_height])
-          cube([_slot_width + 2 * carrier_key_shoulder, carrier_key_reach + z_fight, base_floor_height - _slot_height + z_fight]);
-      }
+    rotate([0, 0, _slot_angle]) {
+      translate([-_slot_width / 2, 0, -z_fight])
+        cube([_slot_width, vessel_outer_diameter / 2 + z_fight, _slot_height + z_fight]);
+      translate([-_slot_width / 2 - carrier_key_shoulder, 0, _slot_height])
+        cube([_slot_width + 2 * carrier_key_shoulder, _base_center_bore_diameter / 2 + carrier_key_reach, base_floor_height - _slot_height + z_fight]);
+    }
   }
 
   // The carrier: a cup the fan drops into from above and is screwed to from below, a skirt under
