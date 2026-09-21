@@ -64,10 +64,13 @@ cut surface tessellates differently at each angle. Intersecting one with another
 returns a whole rib, so it is one solid meshed two ways.
 
 **The drive decides two of those lists.** `drive_name` in `bioreactor.scad` is `shaft` (above) or
-`magnetic`. Magnetic takes the motor mount and the impellers off the head's list and adds the **stir
-carrier** and the **hub cap** to the frame's; the lid prints without its bearing pocket, shaft bore
-and insert holes. The base is the same part either way — it is slotted for the carrier whichever
-drive a build names, so one base serves both. See [The magnetic drive](#the-magnetic-drive).
+`magnetic`. Magnetic takes the motor mount and the impellers off the head's list, adds a **bearing
+blank** in their place, and adds the **stir carrier** and the **hub cap** to the frame's. The lid
+and the base are the same parts either way: the lid keeps its bearing pocket, bore and inserts and
+the blank plugs them - its boss is the bearing's size, sealed by the pocket's own o-ring, its pin
+fills the shaft bore, and its flange bolts to the four inserts with the mount's own screws - and
+the base is slotted for the carrier whichever drive a build names. See
+[The magnetic drive](#the-magnetic-drive).
 
 **Tools, printed once:** the two halves of the gasket cutter.
 
@@ -296,6 +299,8 @@ glass to the culture, with the bar's axis 4 mm above that.
    already cut through the wall.
 4. **Bar into the jar, jar into the base.** The bar sits centred on the punt plateau; the magnets
    find it through the glass.
+5. **Blank onto the lid.** The 22×1.5 ring goes in the pocket's groove as it would for the bearing;
+   the blank's boss pushes past it, the pin down the bore, and four M4 screws into the inserts.
 
 **What the base gives up for this:** one T-shaped slot at an empty light position — the cord
 notch's own profile carried across the floor ring to the bore, and above it a notch 3 mm wider each
