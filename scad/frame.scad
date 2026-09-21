@@ -421,6 +421,8 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
 
   echo("base wall thickness: ", _base_wall_thickness / 10, " cm");
 
+  echo("threaded rod length: ", rod_length, " mm");
+
   echo(
     "base floor: jar lands at r", _jar_contact_radius, "mm, ring spans r",
     _base_center_bore_diameter / 2, "to r", base_jar_cut_diameter / 2, "mm"
