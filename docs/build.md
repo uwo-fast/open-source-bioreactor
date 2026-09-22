@@ -292,22 +292,28 @@ glass to the culture, with the bar's axis 4 mm above that.
 
 **Assembly, in the order the parts allow:**
 
-1. **Print the carrier top face down** — the lip then bridges only the pocket's corners, and the
-   ear's 45° wedge takes its own overhang. **Fan into the carrier from above**, hub up, and the
-   four fan screws in from below through the lip — they self-tap into the fan's corners, as fan
-   screws do. The lead comes off a corner; leave it hanging.
-2. **Magnets into the cap**, opposite poles up: a bar follows a north and a south, and two norths
+1. **Print the carrier pocket up, as it is modelled** — there is nothing to support: it is solid
+   under the fan, every wall is vertical and the ear's wedge slopes upward.
+2. **Four nuts into the traps in the bottom face**, then the **fan into the pocket from above**,
+   hub up, with its lead on the side the pocket wall is cut down — that side faces the base's
+   slot. Four M4 × 35 screws down through the fan's own corner holes into those nuts: one driver,
+   from above, and the nuts cannot turn. The fan is bolted rather than screwed into its own
+   plastic, so it comes apart as many times as you like. The lead lies in the 8 mm cut above the
+   3 mm seat, wherever it leaves the fan, and drops down the notch in the middle of that side.
+   The heads stand 2.2 mm on the fan with 2.57 mm to the glass; the nuts and the last 4 mm of
+   thread sit under the carrier, in the 8 mm the ear holds it clear by.
+3. **Magnets into the cap**, opposite poles up: a bar follows a north and a south, and two norths
    hold nothing. Press-fit pockets (0.2 mm on the diameter); a drop of adhesive if they are loose.
    Glue the cap to the hub's face, centred — it is a disc rather than a skirt because a skirt would
    foul the blade roots.
-3. **Carrier into the bore from above, before the jar.** Turn it until the ear finds the notch at the
-   slot's light position and let it down: the ear lands on the two shoulders beside the wire groove
-   and the carrier hangs from them, 8 mm clear of whatever the frame stands on. The lead runs under
-   the carrier's skirt, along the bench and out through the groove, which joins the light cord notch
-   already cut through the wall.
-4. **Bar into the jar, jar into the base.** The bar sits centred on the punt plateau; the magnets
+4. **Carrier into the bore from above, before the jar.** Turn it until the ear finds the notch at
+   the slot's light position and let it down: the ear lands on the two shoulders beside the wire
+   groove and the carrier hangs from them, 8 mm clear of whatever the frame stands on. The lead
+   comes down the notch between the ear's two legs and straight into the groove, which joins the
+   light cord notch already cut through the wall.
+5. **Bar into the jar, jar into the base.** The bar sits centred on the punt plateau; the magnets
    find it through the glass.
-5. **Blank onto the lid.** The 22×1.5 ring goes in the pocket's groove as it would for the bearing;
+6. **Blank onto the lid.** The 22×1.5 ring goes in the pocket's groove as it would for the bearing;
    the blank's boss pushes past it, the pin down the bore, and four M4 screws into the inserts.
 
 **What the base gives up for this:** one T-shaped slot at an empty light position — the cord
