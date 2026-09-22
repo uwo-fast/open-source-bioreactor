@@ -530,7 +530,10 @@ function sparge_arm_pitch(reach, holes, bend, end_depth) = sparge_arm_bored(reac
  * @param feed_height     Length of the socket above the elbow's top.
  * @param socket_chamfer  45 deg lead-in at the socket mouth.
  * @param bend_radius     Centreline radius of the elbow. undef takes 1.5 tube diameters.
- * @param end_depth       Solid left at the closed end.
+ * @param end_depth       Solid left at the end, which the end screw bites into.
+ * @param plug_tap_radius Radius of a pilot from the end face into the bore, as the ring's: a
+ *                        brush goes through it and a set screw self-taps in to plug it. undef
+ *                        leaves the end solid.
  * @param socket_boss     Across flats of a boss round the socket, the tube's own section grown
  *                        for a screw to bite through, reached by a 45 deg taper from the elbow;
  *                        undef leaves the socket the tube's own section.
@@ -540,8 +543,8 @@ function sparge_arm_pitch(reach, holes, bend, end_depth) = sparge_arm_bored(reac
  */
 module sparge_arm(
   reach, holes, hole_diameter, tube, bore, section_facets = 8, feed_bore = 4, feed_height = 8,
-  socket_chamfer = 0.5, bend_radius = undef, end_depth = 4, socket_boss = undef,
-  screw_tap_radius = undef, show_fluid_path = false
+  socket_chamfer = 0.5, bend_radius = undef, end_depth = 4, plug_tap_radius = undef,
+  socket_boss = undef, screw_tap_radius = undef, show_fluid_path = false
 ) {
   _ac = sparger_across_corners(tube, section_facets);
   _bend = is_undef(bend_radius) ? 1.5 * tube : bend_radius;
@@ -605,6 +608,11 @@ module sparge_arm(
       if (socket_chamfer > 0)
         translate([0, 0, _bend + feed_height - socket_chamfer])
           cylinder(h = socket_chamfer + z_fight, d1 = feed_bore, d2 = feed_bore + 2 * socket_chamfer);
+      // the end pilot, along the bore, out through the end face
+      if (!is_undef(plug_tap_radius))
+        translate([reach - end_depth - z_fight, 0, 0])
+          rotate([0, 90, 0])
+            cylinder(h = end_depth + 2 * z_fight, r = plug_tap_radius);
       // the pilot, radial through a flat of the boss to the side of the run, so the screw is
       // reachable; at the middle of the boss's straight run
       if (!is_undef(screw_tap_radius))

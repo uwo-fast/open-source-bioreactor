@@ -673,8 +673,9 @@ head_sparger = "auto"; // [auto, ring, cap]
 sparge_cap_drop = 10;
 // what the arm's end keeps clear of the shaft, in mm
 sparge_cap_shaft_clearance = 5;
-// solid left at the arm's closed end, in mm
-sparge_cap_end = 4;
+// solid at the arm's end, which its plug screw bites into; the end is open through a pilot, as
+// the ring's, so a brush passes and the screw plugs it
+sparge_cap_end = 6;
 // clearance the ring keeps to the baffles inboard and the mouth it passes; a static fit
 sparge_ring_clearance = 1.25;
 // where the ring sits in the gap: 0 at the lower impeller's collar, 1 at the upper impeller
@@ -2780,7 +2781,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       "sparge arm socket: ", sparge_feed_bore, " mm bore, ", sparge_socket_allow, " mm over the riser, ",
       sparge_cap_socket_depth, " mm deep in a ", sparge_feed_bore + 2 * sparge_cap_boss_wall, " mm boss of the tube's own section; one ",
       set_screw_name(sparge_cap_screw), " (", set_screw_part_number(sparge_cap_screw),
-      ") through its ", sparge_cap_boss_wall, " mm wall bites the riser by ", _cap_bite, " mm"
+      ") through its ", sparge_cap_boss_wall, " mm wall bites the riser by ", _cap_bite, " mm; the end is open through a ",
+      2 * set_screw_tap_radius(sparge_plug_screw), " mm pilot in ", sparge_cap_end, " mm of stock and plugged by another"
     ));
 
     if (sparge_hole_probes)
@@ -3335,6 +3337,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
               feed_height=sparge_cap_socket_depth,
               socket_chamfer=sparge_socket_chamfer,
               end_depth=sparge_cap_end,
+              plug_tap_radius=set_screw_tap_radius(sparge_plug_screw),
               socket_boss=sparge_feed_bore + 2 * sparge_cap_boss_wall,
               screw_tap_radius=set_screw_tap_radius(sparge_cap_screw)
             );
