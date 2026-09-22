@@ -38,14 +38,32 @@ ECHO: "sparge ring: the ring is what caps the baffles, kept without it so the pl
 ECHO: "sparge holes: capillary 96 Pa to launch a bubble against 3.23028 Pa to push gas through, so the holes will not all flow evenly, which Rewatkar & Joshi find does not matter near the impeller"
 ECHO: "reach clearance: do_probe's collet passes the upper impeller with 14.2689 mm of radial room, over the -61.4736 to -47.8264 mm the two share"
 ECHO: "reach clearance: do_probe's tip passes the lower impeller with 23.4995 mm of radial room, over the -137.974 to -124.326 mm the two share"
-ECHO: "reach clearance: do_probe's tip passes the sparge arm with 0.474339 mm of radial room, over the -151.437 to -144.51 mm the two share"
 ECHO: "reach clearance: ph_probe's collet passes the upper impeller with 11.95 mm of radial room, over the -61.4736 to -47.8264 mm the two share"
 ECHO: "reach clearance: ph_probe's tip passes the lower impeller with 15.15 mm of radial room, over the -137.974 to -124.326 mm the two share"
-ECHO: "reach clearance: ph_probe's tip passes the sparge arm with -9.46366 mm of radial room, over the -151.437 to -144.51 mm the two share"
-ERROR: Assertion '(_gap > 0)' failed: "ph_probe's tip runs through the sparge arm by 9.46366 mm radially, over the heights they share." in file head.scad, line N
-TRACE: called by 'assert' in file head.scad, line N
-TRACE: called by 'if' in file head.scad, line N
-TRACE: called by 'let' in file head.scad, line N
-TRACE: called by 'for' in file head.scad, line N
-TRACE: called by 'for' in file head.scad, line N
-TRACE: called by 'head' in file head.scad, line N
+ECHO: "reach clearance: the thermocouple passes the lower impeller with 19.5625 mm of radial room, over the -137.974 to -124.326 mm the two share"
+ECHO: "reach clearance: the thermocouple passes the upper impeller with 19.5625 mm of radial room, over the -61.4736 to -47.8264 mm the two share"
+ECHO: "DO probe feed no-load 420 rpm: the vessel turns over at 146.38 mm/s mean and the probe needs 8.84194 mm/s past its face, 16.5552x; mean, not local"
+ECHO: "DO probe feed rated 320 rpm: the vessel turns over at 111.528 mm/s mean and the probe needs 8.84194 mm/s past its face, 12.6135x; mean, not local"
+ECHO: "port fit: do_probe's collet reaches 73.6842 mm from the axis leaning 4.5 deg, and the mouth is 74 mm, 0.315836 mm to spare on the way in"
+ECHO: "port fit: ph_probe's collet reaches 68.6 mm from the axis leaning 0 deg, and the mouth is 74 mm, 5.4 mm to spare on the way in"
+ECHO: "sparge support drilling: a support tube vents through a hole drilled between 37.9375 and 59.5804 mm from its top end (past the lid's inner face, short of the culture); nearer the first is better"
+ECHO: "sparge riser: 4 x 3 mm tube; the feed is 158.311 mm and each dosing or vent tube 105.374 mm (the feed socket sits 52.9372 mm lower); 14.9375 mm proud of its port, 12 mm inside the socket, 0.4 mm of slack through the port's bore"
+ECHO: "sparge riser seal: 4x1.5 EPDM (8785N364) in each of 5 ports, at 0% stretch and 18% squeeze; without it each port is a 2.63894 mm2 hole into the headspace"
+ECHO: "dosing: Kamoer NKP-DC-S10B pulls 3 x 5 mm tube over 2 risers of 4 mm, 1 mm of interference over 14.9375 mm of stub"
+ECHO: "sparge tube stock: 50415K21, 316 SS welded, hard temper; cut 1 x 158.311 mm and 4 x 105.374 mm = 579.806 mm from a 1000 mm length, leaving 420.194 mm spare"
+ECHO: "sparge back-pressure: 108.331 mm of culture over the arm is 1060.81 Pa, plus 96 Pa of capillary = 1156.81 Pa the gas supply has to beat before anything bubbles"
+ECHO: "gas line losses: filter 6111.11 Pa (extrapolated), check valve 1370.96 Pa (1241 to crack) and riser 42.5515 Pa at 1.77134 L/min, on top of the vessel's 1156.81 and 45.0868 Pa on the way back out (the vent slot and up to 59.5804 mm of tube); the pump beats 8726.51 Pa, and the filter alone is 5.28272x the vessel"
+ECHO: "gas supply: ReSun 35W settles at 6.14899 L/min against this line, where 1.77134 L/min is wanted, so a throttle has to drop 17537.7 Pa on top of the line's own (not the 43.9917 L/min a back pressure held at the design point suggests)"
+ECHO: "gas exhaust: nothing filters the way out; the headspace vents through a support tube to the room. An outlet filter may cost at most 9.90084 kPa per L/min before 1.77134 L/min stops being reachable, 2.86981 of what the inlet filter costs"
+ECHO: "gas exhaust slot: a slot of the tube's own 7.06858 mm2 bore costs 29.0725 Pa at 1.77134 L/min, and the tube above it 10.197-16.0143 Pa over the 37.9375-59.5804 mm drilling window, together 0.223915-0.257085% of the 17537.7 Pa the exhaust has to spend; file past 0.287798 mm2 (a 0.605339 mm round hole), which the bore clears 24.5609x over"
+ECHO: "gas throttle: a valve of Cv 0.00996833 passes 1.77134 L/min at that drop; sold Cv should be 2-4x it so the setting sits mid-travel"
+ECHO: "gas metering: 0.1-0.5 vvm on 3.54267 L is 0.354267-1.77134 L/min, so a 0-2 L/min rotameter"
+ECHO: "gas supply: ReSun 35W's free flow and dead head cannot be simultaneous, together 83.5714% of its electrical input; they are read as the ends of its curve"
+ECHO: "gas against the impeller: axial pumping needs 8x the gas stream's power to hold its flow pattern, which at 420 rpm caps aeration at 1.8374 vvm"
+ECHO: "port interfaces: all 12 ports on std, so one face o-ring covers the lid and any port takes any function; the worst adjacent pair measures 2.5477 mm against a 1 mm floor"
+ECHO: "port layout: 12 ports on a 118.8 mm circle, 30.7477 mm chord; the full set fits a mouth from 142.025 mm (142.025 uniform std), the reduced set from 78.0017 mm (87.6038 uniform std); this jar's is 148"
+ECHO: "eccentricity: the mount leaves 15.3 mm of offset, e/T 0.09 against Hall's measured 0.2, worth 30.6959% of the centred blend time on Karcz's up-pumping branch, to an unbaffled vessel (this one carries 4 baffles); extrapolated on ["D/T", "H/T", "scale", "baffle count", "pumping mode", "impeller type"]"
+ECHO: "lid gasket: cut 148 x 165 mm from EPDM 1/16 60A (1.5875 mm), recess 1.19062 mm deep (25% squeeze); 1 per 304.8 x 304.8 mm sheet"
+ECHO: "lid lip: crowned on a 3.75 mm arc standing 2.5 mm proud of the wall, so the gasket covers the lip and the crown sinks 0.396875 mm into it; 8.5 mm of gasket, 3.35801 mm of contact"
+ECHO: "lid gasket load: 3.35801 mm of contact, 4786.15 N to hold 25% squeeze, 2.91759 MPa on the glass"
+ECHO: "plug o-ring: AS568-161 at 3.10913% stretch; the groove takes ID 143.703 mm down to 136.86 mm (0-5% stretch)"

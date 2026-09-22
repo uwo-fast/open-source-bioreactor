@@ -32,11 +32,28 @@ ECHO: "sparge holes: capillary 96 Pa to launch a bubble against 4.49978 Pa to pu
 ECHO: "reach clearance: do_probe's tip passes the upper impeller with 9.00012 mm of radial room, over the -137.092 to -127.822 mm the two share"
 ECHO: "reach clearance: ph_probe's tip passes the lower impeller with 0.3755 mm of radial room, over the -182.641 to -173.371 mm the two share"
 ECHO: "reach clearance: ph_probe's tip passes the upper impeller with 0.3755 mm of radial room, over the -137.092 to -127.822 mm the two share"
-ECHO: "reach clearance: ph_probe's tip passes the sparge arm with -9.46366 mm of radial room, over the -196.105 to -189.177 mm the two share"
-ERROR: Assertion '(_gap > 0)' failed: "ph_probe's tip runs through the sparge arm by 9.46366 mm radially, over the heights they share." in file head.scad, line N
+ECHO: "reach clearance: the thermocouple passes the upper impeller with 4.788 mm of radial room, over the -137.092 to -127.822 mm the two share"
+ECHO: "DO probe feed no-load 420 rpm: the vessel turns over at 101.676 mm/s mean and the probe needs 8.84194 mm/s past its face, 11.4992x; mean, not local"
+ECHO: "DO probe feed rated 320 rpm: the vessel turns over at 77.4671 mm/s mean and the probe needs 8.84194 mm/s past its face, 8.76132x; mean, not local"
+ECHO: "port fit: do_probe's collet reaches 43.4342 mm from the axis leaning 4.5 deg, and the mouth is 43.75 mm, 0.315836 mm to spare on the way in"
+ECHO: "port fit: ph_probe's collet reaches 38.35 mm from the axis leaning 0 deg, and the mouth is 43.75 mm, 5.4 mm to spare on the way in"
+ECHO: "sparge support drilling: a support tube vents through a hole drilled between 37.9375 and 63.2339 mm from its top end (past the lid's inner face, short of the culture); nearer the first is better"
+ECHO: "sparge riser: 4 x 3 mm tube; the feed is 202.978 mm and each dosing or vent tube 167.705 mm (the feed socket sits 35.2732 mm lower); 14.9375 mm proud of its port, 12 mm inside the socket, 0.4 mm of slack through the port's bore"
+ECHO: "sparge riser seal: 4x1.5 EPDM (8785N364) in each of 3 ports, at 0% stretch and 18% squeeze; without it each port is a 2.63894 mm2 hole into the headspace"
+ECHO: "sparge tube stock: 50415K21, 316 SS welded, hard temper; cut 1 x 202.978 mm and 2 x 167.705 mm = 538.389 mm from a 1000 mm length, leaving 461.611 mm spare"
+ECHO: "sparge back-pressure: 149.345 mm of culture over the arm is 1462.43 Pa, plus 96 Pa of capillary = 1558.43 Pa the gas supply has to beat before anything bubbles"
+ECHO: "gas line losses: filter 2404.22 Pa (extrapolated), check valve 1261.04 Pa (1241 to crack) and riser 21.4638 Pa at 0.696875 L/min, on top of the vessel's 1558.43 and 11.1864 Pa on the way back out (the vent slot and up to 63.2339 mm of tube); the pump beats 5256.34 Pa, and the filter alone is 1.54272x the vessel"
+ECHO: "gas supply: ReSun 35W settles at 6.13103 L/min against this line, where 0.696875 L/min is wanted, so a throttle has to drop 21454.2 Pa on top of the line's own (not the 52.3459 L/min a back pressure held at the design point suggests)"
+ECHO: "gas exhaust: nothing filters the way out; the headspace vents through a support tube to the room. An outlet filter may cost at most 30.7863 kPa per L/min before 0.696875 L/min stops being reachable, 8.92356 of what the inlet filter costs"
+ECHO: "gas exhaust slot: a slot of the tube's own 7.06858 mm2 bore costs 4.49978 Pa at 0.696875 L/min, and the tube above it 4.01168-6.68663 Pa over the 37.9375-63.2339 mm drilling window, together 0.0396727-0.0521409% of the 21454.2 Pa the exhaust has to spend; file past 0.10237 mm2 (a 0.361028 mm round hole), which the bore clears 69.0495x over"
+ECHO: "gas throttle: a valve of Cv 0.00360299 passes 0.696875 L/min at that drop; sold Cv should be 2-4x it so the setting sits mid-travel"
+ECHO: "gas metering: 0.1-0.5 vvm on 1.39375 L is 0.139375-0.696875 L/min, so a 0-1 L/min rotameter"
+ECHO: "gas supply: ReSun 35W's free flow and dead head cannot be simultaneous, together 83.5714% of its electrical input; they are read as the ends of its curve"
+ECHO: "gas against the impeller: axial pumping needs 8x the gas stream's power to hold its flow pattern, which at 420 rpm caps aeration at 0.346212 vvm"
+ECHO: "WARNING gas: 0.5 vvm is above the 0.346212 vvm at which the gas stream negates this impeller's pumping; run faster, or a radial impeller would take 0.923231 vvm at the same power"
+ECHO: "port interfaces: ["std", "mini", "mini", "mini", "std", "mini"], the smallest each will take on this mouth; the worst adjacent pair measures 5.75 mm against a 1 mm floor"
+ECHO: "port layout: 6 ports on a 58.3 mm circle, 29.15 mm chord; the full set fits a mouth from 142.025 mm (142.025 uniform std), the reduced set from 78.0017 mm (87.6038 uniform std); this jar's is 87.5"
+ERROR: Assertion '(_mount_to_ports >= lid_holes_offset)' failed: "Motor mount is 56 mm across and the port flanges reach in to r 15.05, leaving -12.95 mm between them; 2 mm is the least this lid keeps." in file head.scad, line N
 TRACE: called by 'assert' in file head.scad, line N
 TRACE: called by 'if' in file head.scad, line N
-TRACE: called by 'let' in file head.scad, line N
-TRACE: called by 'for' in file head.scad, line N
-TRACE: called by 'for' in file head.scad, line N
 TRACE: called by 'head' in file head.scad, line N

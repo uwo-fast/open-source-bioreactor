@@ -936,10 +936,12 @@ function head_sparge_cap_reach(mouth, shaft_diameter) =
 function head_sparge_cap_holes(reach) =
   max(1, floor(sparge_arm_bored(reach, sparger_bend(sparge_tube()), sparger_plug_depth()) / (sparger_pitch_ratio_floor() * sparge_hole_diameter)));
 
-// Everything axisymmetric a hanging run has to miss, as annuli in the (radius, height) half-plane.
-// See utils/meridian.scad for why that is enough. The arm is one bearing, not a ring; it is
-// held as an annulus over its radial span, which is conservative.
-function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, sparger = "ring", shaft_diameter = 8) =
+// Everything AXISYMMETRIC a hanging run has to miss, as annuli in the (radius, height)
+// half-plane. See utils/meridian.scad for why that is enough. The arm is not on the list: it
+// stands at the air inlet's bearing alone, where nothing else hangs, so an annulus over its
+// radial span would report a collision with every probe at every other port. What it does have
+// to miss is checked where it is placed - the floor, the shaft and the stir bar.
+function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, sparger = "ring") =
   let (
     _floor_z = -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height),
     _swept = head_impeller_swept_radius(impeller_diameter),
@@ -947,36 +949,28 @@ function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel
     _height = impeller_axial_span(head_impeller_type, impeller_diameter, impeller_fin_width),
     _spacing = stirred_tank_impeller_spacing(impeller_diameter, impeller_spacing_factor),
     _ring_r = head_sparge_ring_radius(vessel_opening_diameter),
-    _ring_z = head_sparge_ring_z(impeller_diameter),
-    _cap_z = head_sparge_cap_z(impeller_diameter),
-    _cap_r = head_port_circle_radius(vessel_opening_diameter),
-    _cap_reach = head_sparge_cap_reach(vessel_opening_diameter, shaft_diameter)
+    _ring_z = head_sparge_ring_z(impeller_diameter)
   )
-    [
+    concat(
       [
-        "lower impeller",
-        [0, _swept, _floor_z + _clearance - _height / 2, _floor_z + _clearance + _height / 2],
-      ],
-      [
-        "upper impeller",
-        [0, _swept,
-         _floor_z + _clearance + _spacing - _height / 2,
-         _floor_z + _clearance + _spacing + _height / 2],
-      ],
-      sparger == "ring"
-        ? [
-          "sparge ring",
-          [_ring_r - sparge_tube_extent() / 2, _ring_r + sparge_tube_extent() / 2,
-           _floor_z + _ring_z - sparge_tube_extent() / 2,
-           _floor_z + _ring_z + sparge_tube_extent() / 2],
-        ]
-        : [
-          "sparge arm",
-          [_cap_r - _cap_reach, _cap_r + sparge_tube_extent() / 2,
-           _floor_z + _cap_z - sparge_tube_extent() / 2,
-           _floor_z + _cap_z + sparge_tube_extent() / 2],
+        [
+          "lower impeller",
+          [0, _swept, _floor_z + _clearance - _height / 2, _floor_z + _clearance + _height / 2],
         ],
-    ];
+        [
+          "upper impeller",
+          [0, _swept,
+           _floor_z + _clearance + _spacing - _height / 2,
+           _floor_z + _clearance + _spacing + _height / 2],
+        ],
+      ],
+      sparger != "ring" ? [] : [[
+        "sparge ring",
+        [_ring_r - sparge_tube_extent() / 2, _ring_r + sparge_tube_extent() / 2,
+         _floor_z + _ring_z - sparge_tube_extent() / 2,
+         _floor_z + _ring_z + sparge_tube_extent() / 2],
+      ]]
+    );
 
 // Does a probe at this lean clear the vessel's internals AND still pass the mouth on the way in?
 function head_probe_lean_fits(probe, vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, tilt, sparger = "ring") =
@@ -1784,8 +1778,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _obstacles = concat(
     [
       for (o = head_reach_obstacles(
-        vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter,
-        _sparger, shaft_diameter(_shaft)
+        vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, _sparger
       ))
         if (_shaft_drive || o[0] != "lower impeller" && o[0] != "upper impeller") o
     ],
@@ -2736,10 +2729,28 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         " D band; the mouth places it, so this jar's mouth and bore are too far apart for a ring that suits both"
       ));
   } else {
-    // The arm has to stay off the floor and, under a shaft, off the shaft.
+    // The arm stands at the air inlet's bearing alone, so what it has to miss is checked here
+    // rather than in the axisymmetric obstacle list: the floor under it, the shaft it reaches
+    // toward, and the lower impeller it hangs beneath.
     assert(
       _cap_z - sparge_tube_extent() / 2 > vessel_punt_height,
       str("The sparge arm's underside is ", _cap_z - sparge_tube_extent() / 2, " mm off the floor, under the ", vessel_punt_height, " mm punt.")
+    );
+
+    assert(
+      !_shaft_drive || port_circle_radius - _cap_reach - sparge_tube_extent() / 2 > shaft_diameter(_shaft) / 2,
+      str(
+        "The sparge arm reaches r ", port_circle_radius - _cap_reach - sparge_tube_extent() / 2,
+        " and the ", shaft_diameter(_shaft), " mm shaft's surface is at r ", shaft_diameter(_shaft) / 2, "."
+      )
+    );
+
+    assert(
+      _cap_z + sparge_tube_extent() / 2 < _impeller_clearance - impeller_height / 2,
+      str(
+        "The sparge arm's top is ", _cap_z + sparge_tube_extent() / 2, " mm off the floor and the lower impeller's blades start at ",
+        _impeller_clearance - impeller_height / 2, "; lower it with sparge_cap_drop."
+      )
     );
 
     assert(
