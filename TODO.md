@@ -146,13 +146,17 @@ section 5. Neither item is scheduled.
   - nothing models the coupling. How much torque two 8 x 5 discs hand a 38 mm bar through 1 mm of
     air and 5 of glass, and at what fan speed the bar decouples, are measurements; the sizes are
     parameters so the answer can be put in. The target is the shaft drive's torque at equal tip
-    speed, `v^2 D^3` scaled: 4.8-12.3 mN.m for the pair on `jar_1p5L`, 15.3-39.6 on `jar_1gal_155`
+    speed, `v^2 D^3` scaled: 4.8-12.3 mN.m for a pair on `jar_1p5L`, 15.3-39.6 on `jar_1gal_155`.
+    Both are targets rather than builds - neither jar can host a carrier, see below
   - speed is PWM on the fan's own line and nothing reads it back; a 3-wire fan's tachometer line
     is the only encoder this drive has
   - centred, on the punt, was the decision: eccentric has nothing locating it on a floor whose high
     point is the centre it avoids, and Galletti finds it unsteady with power rising with eccentricity
-  - `jar_6p5gal` and `jar_1gal_155` get no carrier: their floors are 2 mm, so no fan fits under them.
-    A deeper floor is a frame choice those jars have not been given
+  - `jar_6p5gal`, `jar_1gal_155` and `jar_1p5L` get no carrier. The first two have 2 mm floors, so
+    nothing fits under them at all. `jar_1p5L` has 7.75 mm once the fan's joint is reserved under
+    the fan, and no registered fan clears its 57.82 mm pocket in that; before the joint it took a
+    40 x 11. A deeper floor is a frame choice those jars have not been given, and it is the choice
+    that matters most here: two of these three are the jars this mode exists for
 
 ## nice to haves
 
