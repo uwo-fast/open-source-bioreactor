@@ -531,7 +531,8 @@ function sparge_arm_pitch(reach, holes, bend, end_depth) = sparge_arm_bored(reac
  * @param socket_chamfer  45 deg lead-in at the socket mouth.
  * @param bend_radius     Centreline radius of the elbow. undef takes 1.5 tube diameters.
  * @param end_depth       Solid left at the closed end.
- * @param socket_boss     Diameter of a round boss round the socket, for a screw to bite through;
+ * @param socket_boss     Across flats of a boss round the socket, the tube's own section grown
+ *                        for a screw to bite through, reached by a 45 deg taper from the elbow;
  *                        undef leaves the socket the tube's own section.
  * @param screw_tap_radius Radius of a radial pilot through that boss, at mid depth, for a set
  *                        screw to self-tap into and grip the riser; undef leaves none.
@@ -546,10 +547,15 @@ module sparge_arm(
   _bend = is_undef(bend_radius) ? 1.5 * tube : bend_radius;
   _bored = sparge_arm_bored(reach, _bend, end_depth);
   _boss = is_undef(socket_boss) ? tube : socket_boss;
+  _taper = (_boss - tube) / 2;
 
   assert(
     is_undef(screw_tap_radius) || !is_undef(socket_boss),
     "sparge_arm: a screw pilot needs a socket_boss to run through"
+  );
+  assert(
+    _taper < feed_height / 2,
+    str("sparge_arm: a ", _boss, " mm boss on a ", tube, " mm tube tapers over ", _taper, " mm, most of a ", feed_height, " mm socket")
   );
 
   assert(
@@ -586,16 +592,23 @@ module sparge_arm(
           if (is_undef(socket_boss))
             linear_extrude(height = feed_height)
               sparger_section(tube, section_facets);
-          else
-            cylinder(h = feed_height, d = _boss);
+          else {
+            // the same section, tapered up to the boss at 45 deg, then straight
+            linear_extrude(height = _taper, scale = _boss / tube)
+              sparger_section(tube, section_facets);
+            translate([0, 0, _taper])
+              linear_extrude(height = feed_height - _taper)
+                sparger_section(_boss, section_facets);
+          }
       }
       _fluid_path();
       if (socket_chamfer > 0)
         translate([0, 0, _bend + feed_height - socket_chamfer])
           cylinder(h = socket_chamfer + z_fight, d1 = feed_bore, d2 = feed_bore + 2 * socket_chamfer);
-      // the pilot, radial through the boss to the side of the run, so the screw is reachable
+      // the pilot, radial through a flat of the boss to the side of the run, so the screw is
+      // reachable; at the middle of the boss's straight run
       if (!is_undef(screw_tap_radius))
-        translate([0, 0, _bend + feed_height / 2])
+        translate([0, 0, _bend + _taper + (feed_height - _taper) / 2])
           rotate([-90, 0, 0])
             cylinder(h = _boss / 2 + z_fight, r = screw_tap_radius);
     }

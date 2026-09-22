@@ -2778,8 +2778,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
     echo(str(
       "sparge arm socket: ", sparge_feed_bore, " mm bore, ", sparge_socket_allow, " mm over the riser, ",
-      sparge_cap_socket_depth, " mm deep; one ", set_screw_name(sparge_cap_screw), " (", set_screw_part_number(sparge_cap_screw),
-      ") through a ", sparge_cap_boss_wall, " mm boss wall bites the riser by ", _cap_bite, " mm at mid depth"
+      sparge_cap_socket_depth, " mm deep in a ", sparge_feed_bore + 2 * sparge_cap_boss_wall, " mm boss of the tube's own section; one ",
+      set_screw_name(sparge_cap_screw), " (", set_screw_part_number(sparge_cap_screw),
+      ") through its ", sparge_cap_boss_wall, " mm wall bites the riser by ", _cap_bite, " mm"
     ));
 
     if (sparge_hole_probes)
