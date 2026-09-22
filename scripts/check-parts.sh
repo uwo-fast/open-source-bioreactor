@@ -37,7 +37,7 @@ include <$PWD/scad/bioreactor.scad>
 _v = reactor_vessel;
 for (d = ["shaft", "magnetic"]) {
   for (p = head_print_parts(vessel_opening_diameter(_v), lid_flange_height,
-                            vessel_internal_height(_v), vessel_punt_height(_v), d))
+                            vessel_internal_height(_v), vessel_punt_height(_v), d, sparger_name == "auto" ? "cap" : sparger_name))
     echo(str("PART|", p[2]));
   for (p = frame_print_parts(n_rods, d)) echo(str("PART|", p[2]));
 }

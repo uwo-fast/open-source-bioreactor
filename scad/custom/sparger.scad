@@ -482,8 +482,11 @@ function _plug_arc(radius, depth) = depth / radius * 180 / PI;
 // centreline at the same station. A blind hole is a perfectly good solid, so check-mesh cannot
 // catch it; and on a split ring a hole in the dead arc beside a plug breaks out and connects to
 // nothing, which is why both ends are probed. Derived from the same functions as the cut.
+// `origin` is where the caller placed the part; a probe echoed in the part's own frame while the
+// mesh sits elsewhere lands in empty space and cannot fail.
 module sparger_hole_probes(
-  radii, holes, tube, section_facets = 8, feed_angle = 0, hole_bearing = "in", margin = 0.05
+  radii, holes, tube, section_facets = 8, feed_angle = 0, hole_bearing = "in", margin = 0.05,
+  origin = [0, 0, 0]
 ) {
   _sf = sparger_sweep_facets(max(radii), tube, section_facets);
   for (i = [0:len(radii) - 1])
@@ -496,9 +499,121 @@ module sparger_hole_probes(
           ? -sparger_face_distance(tube, section_facets, 270) + margin
           : 0
       ) {
-        echo(str("HOLEPROBE|exit|", _pr * cos(a), "|", _pr * sin(a), "|", _pz));
-        echo(str("HOLEPROBE|feed|", radii[i] * cos(a), "|", radii[i] * sin(a), "|", 0));
+        echo(str("HOLEPROBE|exit|", origin[0] + _pr * cos(a), "|", origin[1] + _pr * sin(a), "|", origin[2] + _pz));
+        echo(str("HOLEPROBE|feed|", origin[0] + radii[i] * cos(a), "|", origin[1] + radii[i] * sin(a), "|", origin[2]));
       }
+}
+
+// ----- the arm -----
+//
+// The ring's feed without the ring: a socket, the elbow, and one straight run with its holes
+// underneath, closed at the end. In its own frame the socket stands on the z axis and the run
+// goes out along +x at z = 0, so a caller turns it to point where it likes.
+
+// `reach` is from the socket's axis to the closed end, which is what a caller places; the bored
+// run is what is left after the elbow and the end.
+function sparge_arm_bored(reach, bend, end_depth) = reach - bend - end_depth;
+// Where the holes sit along the run, from the socket's axis: evenly over the bored length.
+function sparge_arm_hole_positions(reach, holes, bend, end_depth) =
+  [for (i = [0:holes - 1]) bend + (i + 0.5) * sparge_arm_bored(reach, bend, end_depth) / holes];
+function sparge_arm_pitch(reach, holes, bend, end_depth) = sparge_arm_bored(reach, bend, end_depth) / holes;
+
+/**
+ * @brief One arm: socket, elbow, a straight bored run with holes down, a closed end.
+ * @param reach           From the socket's axis to the closed end, along +x.
+ * @param holes           Gas holes along the run.
+ * @param hole_diameter   Gas hole diameter.
+ * @param tube            Tube outside, across flats.
+ * @param bore            Tube bore diameter.
+ * @param section_facets  Facets on the outside.
+ * @param feed_bore       Socket bore, sized to the riser it accepts.
+ * @param feed_height     Length of the socket above the elbow's top.
+ * @param socket_chamfer  45 deg lead-in at the socket mouth.
+ * @param bend_radius     Centreline radius of the elbow. undef takes 1.5 tube diameters.
+ * @param end_depth       Solid left at the closed end.
+ * @param show_fluid_path Draw the gas path on its own.
+ */
+module sparge_arm(
+  reach, holes, hole_diameter, tube, bore, section_facets = 8, feed_bore = 4, feed_height = 8,
+  socket_chamfer = 0.5, bend_radius = undef, end_depth = 4, show_fluid_path = false
+) {
+  _ac = sparger_across_corners(tube, section_facets);
+  _bend = is_undef(bend_radius) ? 1.5 * tube : bend_radius;
+  _bored = sparge_arm_bored(reach, _bend, end_depth);
+
+  assert(
+    hole_diameter < bore,
+    str("sparge_arm: a ", hole_diameter, " mm hole does not open into a ", bore, " mm bore")
+  );
+  assert(
+    _bored > holes * hole_diameter,
+    str("sparge_arm: ", holes, " holes of ", hole_diameter, " mm do not fit along ", _bored, " mm of bore")
+  );
+  assert(
+    socket_chamfer <= (tube - feed_bore) / 4,
+    str("sparge_arm: a ", socket_chamfer, " mm lead-in leaves too little wall at the socket mouth of a ", tube, " mm section")
+  );
+
+  module _fluid_path() {
+    sparger_spoke_solid(_bend - z_fight, _bend + _bored, 0, bore, 0);
+    sparger_elbow_solid(0, _bend, bore, 0);
+    translate([0, 0, _bend])
+      cylinder(h = feed_height + z_fight, d = feed_bore);
+    for (x = sparge_arm_hole_positions(reach, holes, _bend, end_depth))
+      translate([x, 0, -_ac / 2 - z_fight])
+        cylinder(h = _ac / 2 + 2 * z_fight, d = hole_diameter);
+  }
+
+  if (show_fluid_path)
+    color("lightblue", 0.5) _fluid_path();
+  else
+    difference() {
+      union() {
+        sparger_spoke_solid(_bend, reach, 0, tube, section_facets);
+        sparger_elbow_solid(0, _bend, tube, section_facets);
+        translate([0, 0, _bend])
+          linear_extrude(height = feed_height)
+            sparger_section(tube, section_facets);
+      }
+      _fluid_path();
+      if (socket_chamfer > 0)
+        translate([0, 0, _bend + feed_height - socket_chamfer])
+          cylinder(h = socket_chamfer + z_fight, d1 = feed_bore, d2 = feed_bore + 2 * socket_chamfer);
+    }
+}
+
+// The arm's probes for check-holes, in the mesh's frame: the arm at `origin`, its run turned
+// `bearing` degrees from +x.
+module sparge_arm_hole_probes(
+  reach, holes, tube, section_facets = 8, bend_radius = undef, end_depth = 4, margin = 0.05,
+  origin = [0, 0, 0], bearing = 0
+) {
+  _bend = is_undef(bend_radius) ? 1.5 * tube : bend_radius;
+  _pz = -sparger_face_distance(tube, section_facets, 270) + margin;
+  for (x = sparge_arm_hole_positions(reach, holes, _bend, end_depth)) {
+    echo(str("HOLEPROBE|exit|", origin[0] + x * cos(bearing), "|", origin[1] + x * sin(bearing), "|", origin[2] + _pz));
+    echo(str("HOLEPROBE|feed|", origin[0] + x * cos(bearing), "|", origin[1] + x * sin(bearing), "|", origin[2]));
+  }
+}
+
+// What the arm does to the gas, from the same arguments the geometry was given.
+module sparge_arm_report(reach, holes, hole_diameter, tube, bore, gas_flow, bend_radius = undef, end_depth = 4) {
+  _bend = is_undef(bend_radius) ? 1.5 * tube : bend_radius;
+  _v = stirred_tank_orifice_velocity(gas_flow, holes, hole_diameter);
+  _db = stirred_tank_bubble_diameter(hole_diameter);
+  _bore_v = stirred_tank_sparge_bore_velocity(gas_flow, bore, 1);
+  _open = stirred_tank_sparge_open_area_ratio(holes, hole_diameter, bore, 1);
+  _pitch = sparge_arm_pitch(reach, holes, _bend, end_depth) / hole_diameter;
+  _dep = sparger_departures(_v, _pitch, _open, stirred_tank_sparge_bore_head(_bore_v), stirred_tank_orifice_pressure(_v));
+
+  echo(str(
+    "sparge arm: ", holes, " holes of ", hole_diameter, " mm along ", sparge_arm_bored(reach, _bend, end_depth), " mm at ",
+    _pitch, " hole diameters, ", _v, " m/s each; bubbles ", _db, " mm at formation, ",
+    stirred_tank_bubble_rate(gas_flow, _db), " a second; the ", bore, " mm bore carries ", _bore_v,
+    " m/s, open area ratio ", _open
+  ));
+  if (len(_dep) > 0)
+    echo(str("WARNING sparge arm: extrapolated on ", _dep));
 }
 
 // ----- reporting -----

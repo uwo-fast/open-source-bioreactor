@@ -284,6 +284,32 @@ transcript is `tests/echo/head__jar_10L_220x305.txt`. What was believed before a
 
 ### Sparger
 
+Two spargers share the riser from the `air_in` port, and a build names one (`sparger_name`): the
+**arm** is the default under the shaft and magnetic drives, and the **ring** is kept for the
+airlift mode that does not exist yet. What `head()` reports for each follows.
+
+#### The arm
+
+- **One straight run under the lower impeller, holes down.** The ring's feed without the ring:
+  the same socket and elbow, then a run turned inward from the port circle at r 56.5 to end 5 mm
+  short of the shaft at r 9, 66.95 mm off the floor — 10 mm under the lower impeller's blades, so
+  the bubbles rise into it. That is where the stirred-tank literature puts a sparger; Birch &
+  Ahmed's argument for a ring between the impellers stays with the ring below.
+- **Three 3 mm holes, the same size as the ring's for the same anti-fouling reason**, at 3.8 hole
+  diameters along the 33.9 mm of bore past the elbow, 3.23 m/s each at 0.5 vvm — inside Barbosa's
+  0.4–5.4 m/s.
+  Bubbles are 5.10 mm at formation, as the ring's; nothing about the arm changes what a 3 mm hole
+  makes.
+- **The bore is the same departure**: 5.45 m/s in the feed run, open area ratio 1.68, and
+  `head()` names both.
+- **The gas supply has to beat 1783 Pa before anything bubbles**: 172.3 mm of culture over the arm
+  plus 96 Pa of capillary — 680 Pa more than the ring asked, since the arm sits 69 mm lower.
+- **The baffles keep the ring's width, 10.35 mm, under the arm too**, so one set of plates prints
+  once. The arm would let them go to 14.5, and at 2 mm nominal to the impeller against 2.28 mm of
+  coupling lean that plate can touch the blades; widening them is its own decision.
+
+#### The ring
+
 - **A tube ring at 1.405 D, placed by the mouth.** Birch & Ahmed 1997 tested a ring at 1.4 D — the
   radius at which the annulus outboard of the impeller encloses the volume it sweeps — and found
   better power draw and delayed flooding; Rewatkar & Joshi 1993 recommend a large ring outright.

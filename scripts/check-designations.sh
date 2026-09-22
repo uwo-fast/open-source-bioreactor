@@ -28,6 +28,7 @@ matrix=(
     "motor_name|36PG-3429-5.2|differs"
     "do_probe_port_tilt_max|2|number"
     "drive_name|magnetic|differs"
+    "sparger_name|ring|differs"
     "stir_bar_name|50x8|builds"
     "stir_magnet_name|MAGRE6x2p5|builds"
     "culture_fill_fraction|0.7|number"
