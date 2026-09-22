@@ -34,11 +34,11 @@
   - McMaster-Carr 92029A142
   - 316 stainless cup-tip set screw, M4 x 0.7 x 6 mm, 2 mm hex socket, Rockwell B80, pack of 50
   - four needed: two per impeller at 120 degrees, into the printed PETG hub
-  - **the fit it replaces was never an interference fit.** The hub bore tapers from 4.2 mm radius
-    at the top to 4.0 at the bottom, and the shaft is supplied at 3.9975-4.0000 mm radius, so at
-    the tightest point the joint is 0 to 0.0025 mm of _clearance_. The parameter is named
-    `impeller_shaft_radius_interference` but geometrically it is draft. Grip was zero by design,
-    which is what was observed on the bench
+  - **the fit they replace was never an interference fit.** The hub bore used to taper from 8.4 mm
+    to 8.0 over the hub's height against a shaft supplied at 7.995-8.000, so at the tightest point
+    the joint was 0 to 0.005 mm of _clearance_: grip was zero by design, which is what was
+    observed on the bench, and the taper still had to be driven to depth. The bore is straight at
+    8.4 now (`impeller_shaft_draft` is 0), which is a slip fit, and the screws are the whole joint
   - a real interference fit would have worked on paper - 0.02 mm radial gives 8 N-m against the
     0.034 N-m one impeller asks - but it fails on everything else. 8 MPa of sustained hoop stress
     in PETG at 30-37 C, wet, for weeks will creep and relax; a printed 8 mm bore is not repeatable

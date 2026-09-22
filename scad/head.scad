@@ -296,10 +296,11 @@ impeller_set_screw_at = [0, 120];
 impeller_collar_height = 8;
 // added to the tap hole for print calibration; printed holes come out undersize
 impeller_set_screw_allow = 0;
-// allowance for the shaft hole
+// allowance for the shaft hole, diametral; the bore is a slip fit and the set screws locate it
 impeller_shaft_allow = 0.4;
-// the amount the radius decreases from top to bottom to create a draft for the shaft hole
-impeller_shaft_radius_interference = 0.2;
+// How much the bore narrows from top to bottom, diametral. Off: two impellers have to be located
+// along one shaft, and a tapered bore has to be driven to its depth rather than set there.
+impeller_shaft_draft = 0;
 // centre to centre spacing of the two impellers, in impeller diameters
 impeller_spacing_factor = 1.0;
 
@@ -1511,6 +1512,11 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   // radius of the shaft hole in the impeller
   impeller_shaft_hole_radius = (shaft_diameter(_shaft) + impeller_shaft_allow) / 2;
+
+  // What the bore leaves on the shaft it slides over, as the bearing's fit is quoted: the bore's
+  // narrow end against the shaft's high limit, and its wide end against the low one.
+  _bore_tightest = impeller_shaft_hole_radius * 2 - impeller_shaft_draft - shaft_diameter_max(_shaft);
+  _bore_loosest = impeller_shaft_hole_radius * 2 - shaft_diameter_min(_shaft);
   impeller_spacing = stirred_tank_impeller_spacing(impeller_diameter, impeller_spacing_factor);
 
   // Where this build sits against the literature. Reported, not asserted.
@@ -2201,6 +2207,24 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       _set_screw_engagement, " mm of thread in a ", _set_screw_hole,
       " mm tap hole, through a ", impeller_collar_height, " mm collar above the blades"
     ));
+
+    // Two impellers are located along one shaft, so the bore slides and the screws hold.
+    echo(str(
+      "impeller bore: ", impeller_shaft_hole_radius * 2, " mm",
+      impeller_shaft_draft == 0
+        ? " straight"
+        : str(" narrowing to ", impeller_shaft_hole_radius * 2 - impeller_shaft_draft, " at the bottom"),
+      " over a ", shaft_diameter_min(_shaft), "-", shaft_diameter_max(_shaft), " mm shaft: ",
+      _bore_tightest, " to ", _bore_loosest, " mm of slack, before print shrinkage"
+    ));
+
+    assert(
+      _bore_tightest > 0,
+      str(
+        "The impeller bore closes on the shaft by ", -_bore_tightest,
+        " mm, so it has to be driven on rather than slid; raise impeller_shaft_allow or lower impeller_shaft_draft."
+      )
+    );
 
     // The collar stands in the gap between the impellers.
     assert(
@@ -3597,7 +3621,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           fin_width=impeller_fin_width,
           center_hub_radius=impeller_hub_radius,
           center_hole_radius=impeller_shaft_hole_radius,
-          center_hole_radius_lower=impeller_shaft_hole_radius - impeller_shaft_radius_interference,
+          center_hole_radius_lower=impeller_shaft_hole_radius - impeller_shaft_draft / 2,
           blade_pitch=impeller_is_twisted(head_impeller_type) ? undef : impeller_blade_angle(head_impeller_type),
           blade_width=impeller_blade_width
         );

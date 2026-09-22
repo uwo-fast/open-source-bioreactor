@@ -217,11 +217,18 @@ into them come out every time the mount does. The insert only offers 4.7 mm of t
 screw bottoms out instead of clamping, and the screw is 18-8 into 18-8 — take care not to round the
 socket.
 
+**The impeller bore is a slip fit, and the set screws are what locate it.** The bore is 8.4 mm
+straight through on an 8 mm shaft — 0.4 to 0.405 mm of slack before print shrinkage — so an
+impeller slides to its height and is fixed there. It used to taper to the shaft's nominal over the
+hub's height, which is a fit you drive on: tolerable with one impeller sitting at the bottom of
+the shaft, wrong with two that each have a height to hold. Open the bore with a reamer or a drill
+if your printer closes it up; `head()` reports the slack it was cut for.
+
 **The impeller set screws cut their own thread.** The hole is printed at the 3.3 mm tap size and no
 thread is modelled; printed holes come out undersize, so expect to open one. Two per impeller at 0
 and 120°, 5.8 mm of thread through the 8 mm collar above the blades. They are cup-point on purpose:
-they bite the shaft rather than relying on friction, because the hub bore tapers to exactly the
-shaft nominal and grip was otherwise zero by design.
+they bite the shaft rather than relying on friction, which is all that holds the impeller once the
+bore slides.
 
 **The o-rings go in four different ways, and only one of them is stretched.**
 

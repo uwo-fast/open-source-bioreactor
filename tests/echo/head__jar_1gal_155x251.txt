@@ -5,6 +5,7 @@ ECHO: "impeller count: 2 on 2.80702 impeller diameters of liquid (H/T 1.26316), 
 ECHO: "impeller clearance: 0.9 D is below Oldshue's 1-2 D for fluidfoils; this is a pbt_45_4, where Fořt found efficiency higher at C/D 1.0 than 0.5, and coverage over the upper impeller binds at 1.30457 D (docs/agitation.md)"
 ECHO: "impeller pumping: shaft turns counter-clockwise seen from above, so the lower impeller pumps up and the upper down and the pair converges on the 46.8552 mm gap between them"
 ECHO: "impeller set screws: 2 x M4x6 316 (92029A142) at [0, 120] deg, 5.8 mm of thread in a 3.3 mm tap hole, through a 8 mm collar above the blades"
+ECHO: "impeller bore: 8.4 mm straight over a 7.995-8 mm shaft: 0.4 to 0.405 mm of slack, before print shrinkage"
 ECHO: "culture: 3.34624 L standing 188.59 mm deep, 86.5% of the 3.86848 L capacity and 77.9297% of the 242 mm internal height"
 ECHO: "culture headspace: 0.522245 L of gas space at 86.5% of capacity, above the usual 0.8 by 6.5 points"
 ECHO: "impeller: pbt_45_4 Po 1.52305 and flow number 0.920058 from Medek's correlation at 45 deg, extrapolated on ["T/D", "H/T", "baffle count"]"
