@@ -137,6 +137,8 @@ n_rib_levels = 2;
 // The base is cut for a magnetic drive whichever drive a build takes, so one base serves both: a
 // fan in a carrier hung in the bore, magnets on its hub, and a slot that lets the lead out and
 // keys the carrier. The fan is picked by rule from the bore, where one fits; the magnets are named.
+// The floor under the jar is sunk for that fan on the same terms, so the option survives a build
+// that does not use it.
 
 // The magnets on the hub cap, two of them
 stir_magnet_name = "MAG5x8"; // [MAG5x8, MAGRE6x2p5, MAG8x4x4p2, MAG484]
@@ -176,6 +178,12 @@ carrier_fan_recess = 0;
 carrier_fastener_allow = 0.2;
 // clearance between the magnets' faces and the glass over them; sets how high the carrier hangs
 stir_magnet_glass_clearance = 1;
+// A magnetic build sinks the floor under the jar until the fan and the magnets fit. Past this
+// much added depth the base is mostly floor, and a base that deep wants hollowing out, which it
+// does not get here; a build that would need more keeps the light's floor and says what it would
+// have taken.
+// the most a drive may add to the floor, in mm
+carrier_floor_lift_max = 10;
 // how far the key ear reaches into the base floor, radially
 carrier_key_reach = 8;
 // the shoulder each side of the wire groove that the ear lands on
@@ -241,12 +249,50 @@ function frame_print_parts(n_rods, drive = "shaft") =
 function frame_center_bore_diameter(vessel) =
   (vessel_diameter(vessel) / 2 - vessel_corner_radius_base(vessel) - base_jar_support_reach) * 2;
 
-// How far the frame reaches below the vessel's bottom: whatever a light, a nut and a half, and the
-// top base stack to past the vessel's height. The bottom of the reactor's envelope.
+// How far the frame has to reach below the vessel's bottom for the light: whatever a light, a nut
+// and a half, and the top base stack to past the vessel's height. One of the two claims on the
+// floor, not the floor itself - frame_base_floor() settles it.
 _base_floor_height_min = 2; // minimum height of the base floor
-function frame_floor_depth(vessel_height, light) =
+function frame_light_floor(vessel_height, light) =
   let (delta = (strip_light_length(light) + nut_height * 1.5 + upper_base_height) - vessel_height)
     delta > _base_floor_height_min ? delta : _base_floor_height_min;
+
+// How far the jar's underside rises above the plane it lands on, at a radius: flat across the
+// punt's plateau, then a straight cone down to the landing circle.
+function frame_punt_rise(vessel, r) =
+  let (
+    _plateau = vessel_punt_width(vessel) / 2,
+    _contact = vessel_diameter(vessel) / 2 - vessel_corner_radius_base(vessel)
+  ) vessel_punt_height(vessel) * (1 - max(0, r - _plateau) / (_contact - _plateau));
+
+// What a magnetic drive wants under the jar. The fan is chosen on the bore and the magnets, which
+// is what the coupling depends on, and the floor follows it rather than the other way round: the
+// fan's depth, the gap the ear holds the carrier clear by, the material under the fan, and where
+// the punt does not already lift the magnets to their clearance, enough more to lift the whole
+// carrier - it may not stand above the plane the jar lands on. undef where no fan in the bore can
+// carry the magnets at all, which no floor would fix.
+function frame_magnetic_floor(vessel, light, magnet = undef) =
+  let (
+    _m = is_undef(magnet) ? magnet_by_name(stir_magnet_name) : magnet,
+    _pocket = frame_center_bore_diameter(vessel) - carrier_fit_allow - 2 * carrier_wall,
+    _f = fan_for(_pocket, min_hub = hub_cap_min_hub(_m))
+  )
+    is_undef(_f) ? undef
+    : let (
+        _r = hub_cap_pitch(fan_hub(_f), _m) / 2 + magnet_od(_m) / 2,
+        _lift = max(0, stir_magnet_glass_clearance + hub_cap_height(_m) - frame_punt_rise(vessel, _r))
+      ) fan_depth(_f) + strip_light_depth(light) + light_allow
+        + carrier_lip + carrier_fan_recess + _lift;
+
+// The floor a frame gets: the deeper of what the light stack leaves and what a magnetic drive
+// wants, so long as the drive does not ask for more than carrier_floor_lift_max over the light's.
+// Not a function of the drive a build names - the base is one print for either. The bottom of the
+// reactor's envelope, so the assembly reads it too.
+function frame_base_floor(vessel, light, magnet = undef) =
+  let (
+    _light = frame_light_floor(vessel_height(vessel), light),
+    _drive = frame_magnetic_floor(vessel, light, magnet)
+  ) is_undef(_drive) || _drive - _light > carrier_floor_lift_max ? _light : max(_light, _drive);
 
 // What the assembly would hand this frame. The preview picks what the assembly chooses (light,
 // wall, flange, rods, bolt) and derives the rest. The 0.8 is a fraction of INTERNAL HEIGHT.
@@ -305,7 +351,8 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
   vessel_outer_diameter = vessel_diameter(vessel);
   vessel_corner_radius_base = vessel_corner_radius_base(vessel);
 
-  base_floor_height = frame_floor_depth(vessel_height, light);
+  _magnet = is_undef(magnet) ? magnet_by_name(stir_magnet_name) : magnet;
+  base_floor_height = frame_base_floor(vessel, light, _magnet);
 
   // total height of the assembly
   total_height = vessel_height + base_floor_height;
@@ -376,7 +423,6 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
   // The carrier hangs from an ear that lands on the shoulders beside the groove, so its bottom is
   // the groove's ceiling and the lead runs under it to the groove. The fan is picked on the room
   // between that and the landing plane; how high it actually hangs is set by the magnets below.
-  _magnet = is_undef(magnet) ? magnet_by_name(stir_magnet_name) : magnet;
   _carrier_diameter = _base_center_bore_diameter - carrier_fit_allow;
   _fan_room = base_floor_height - _slot_height - carrier_lip - carrier_fan_recess;
   // A fan whose hub cannot carry the magnets is no use however well it fits the bore.
@@ -384,11 +430,9 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
   _hub_cap_pitch = is_undef(_fan) ? undef : hub_cap_pitch(fan_hub(_fan), _magnet);
   _hub_cap_height = hub_cap_height(_magnet);
 
-  // The jar's underside is flat across the punt plateau and a straight cone from there down to
-  // the landing circle, so it is lowest over a magnet at the magnet's outer edge.
-  _punt_plateau_radius = vessel_punt_width(vessel) / 2;
-  function punt_under(r) =
-    base_floor_height + vessel_punt_height(vessel) * (1 - max(0, r - _punt_plateau_radius) / (_jar_contact_radius - _punt_plateau_radius));
+  // The punt rises away from the landing circle, so it is lowest over a magnet at the magnet's
+  // outer edge, which is where the clearance is measured.
+  function punt_under(r) = base_floor_height + frame_punt_rise(vessel, r);
   _magnet_outer_radius = is_undef(_fan) ? undef : _hub_cap_pitch / 2 + magnet_od(_magnet) / 2;
 
   // The magnets reach up into the punt to their clearance, the cap stands on the hub and the
@@ -554,10 +598,14 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
     )
   );
 
+  _wanted_floor = frame_magnetic_floor(vessel, light, _magnet);
   if (is_undef(_fan))
     echo(str(
       "WARNING stir drive: no registered fan clears a ", _carrier_diameter - 2 * carrier_wall,
-      " mm pocket in ", _fan_room, " mm under this jar, so the base is not slotted and no carrier is drawn"
+      " mm pocket in ", _fan_room, " mm under this jar, so the base is not slotted and no carrier is drawn",
+      is_undef(_wanted_floor) ? "; no fan in this bore can carry the magnets, whatever the floor"
+        : str("; a ", _wanted_floor, " mm floor would - ", _wanted_floor - base_floor_height,
+              " mm more than the light leaves, where carrier_floor_lift_max allows ", carrier_floor_lift_max)
     ));
   else {
     // Hanging the magnets up to their clearance can pull the carrier down past the fan's room.

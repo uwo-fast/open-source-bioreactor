@@ -307,7 +307,7 @@ echo(str(
 // The assembled envelope, for anything that has to make room for one (support/equipment_cart.scad).
 function reactor_envelope_diameter() = joint_outer_diameter; // the flange circle IS the envelope
 function reactor_envelope_height() =
-  frame_floor_depth(vessel_height(reactor_vessel), _reactor_light)
+  frame_base_floor(reactor_vessel, _reactor_light, _build_magnet)
   + vessel_height(reactor_vessel) + lid_flange_height
   + head_stack_height(lid_flange_height, vessel_internal_height(reactor_vessel), _build_shaft, _build_motor, drive_name);
 

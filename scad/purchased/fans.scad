@@ -16,16 +16,20 @@ function fan_corner_diameter(type) =
   let (_r = fan_width(type) / 2 - fan_hole_pitch(type))
     2 * sqrt(2) * fan_hole_pitch(type) + 2 * _r;
 
-// The widest registered fan whose corners clear a bore, whose depth fits, and whose hub is at
-// least min_hub across; the thinnest of that width, or undef if none does.
-function fan_for(bore_diameter, depth, min_hub = 0) =
+// The registered fan with the widest hub whose corners clear a bore, whose depth fits, and whose
+// hub is at least min_hub across; the thinnest of that hub, or undef if none does. The hub is the
+// sort key rather than the frame, because the hub is the face anything mounts to and a wider frame
+// around a smaller hub offers none of it. Leave depth undef to ask only what the bore admits.
+function fan_for(bore_diameter, depth = undef, min_hub = 0) =
   let (
     _fits = [
       for (f = fans)
-        if (fan_corner_diameter(f) <= bore_diameter && fan_depth(f) <= depth && fan_hub(f) >= min_hub) f
+        if (fan_corner_diameter(f) <= bore_diameter
+            && (is_undef(depth) || fan_depth(f) <= depth)
+            && fan_hub(f) >= min_hub) f
     ],
-    _widest = len(_fits) == 0 ? undef : max([for (f = _fits) fan_width(f)]),
-    _wide = [for (f = _fits) if (fan_width(f) == _widest) f],
-    _thinnest = len(_wide) == 0 ? undef : min([for (f = _wide) fan_depth(f)]),
-    _match = [for (f = _wide) if (fan_depth(f) == _thinnest) f]
+    _widest = len(_fits) == 0 ? undef : max([for (f = _fits) fan_hub(f)]),
+    _hubbed = [for (f = _fits) if (fan_hub(f) == _widest) f],
+    _thinnest = len(_hubbed) == 0 ? undef : min([for (f = _hubbed) fan_depth(f)]),
+    _match = [for (f = _hubbed) if (fan_depth(f) == _thinnest) f]
   ) len(_match) == 0 ? undef : _match[0];

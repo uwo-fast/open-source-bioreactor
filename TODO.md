@@ -146,17 +146,35 @@ section 5. Neither item is scheduled.
   - nothing models the coupling. How much torque two 8 x 5 discs hand a 38 mm bar through 1 mm of
     air and 5 of glass, and at what fan speed the bar decouples, are measurements; the sizes are
     parameters so the answer can be put in. The target is the shaft drive's torque at equal tip
-    speed, `v^2 D^3` scaled: 4.8-12.3 mN.m for a pair on `jar_1p5L`, 15.3-39.6 on `jar_1gal_155`.
-    Both are targets rather than builds - neither jar can host a carrier, see below
+    speed, `v^2 D^3` scaled: 4.8-12.3 mN.m for the pair on `jar_1p5L`, 15.3-39.6 on `jar_1gal_155`
   - speed is PWM on the fan's own line and nothing reads it back; a 3-wire fan's tachometer line
     is the only encoder this drive has
   - centred, on the punt, was the decision: eccentric has nothing locating it on a floor whose high
     point is the centre it avoids, and Galletti finds it unsteady with power rising with eccentricity
-  - `jar_6p5gal`, `jar_1gal_155` and `jar_1p5L` get no carrier. The first two have 2 mm floors, so
-    nothing fits under them at all. `jar_1p5L` has 7.75 mm once the fan's joint is reserved under
-    the fan, and no registered fan clears its 57.82 mm pocket in that; before the joint it took a
-    40 x 11. A deeper floor is a frame choice those jars have not been given, and it is the choice
-    that matters most here: two of these three are the jars this mode exists for
+  - the floor under the jar is sunk for the fan the bore admits, so a jar whose light happens to
+    be short is not left without a drive. `jar_1p5L` is 3.78 mm deeper for it and gains a carrier;
+    `jar_6p5gal` and `jar_1gal_155` want far more than `carrier_floor_lift_max` allows and get
+    none. Each of those two has its own item below
+
+- [ ] **`jar_1gal_155` wants a magnetic drive and a 40 mm floor, and a base that deep wants hollowing**
+  - it is one of the two jars that cannot carry a top-entry drive, and its coupling geometry is the
+    best of any registered jar: a 3 mm wall and a 6 mm punt put the magnets 4 mm from the culture,
+    against 6 mm on `jar_10L`
+  - the floor it wants is 40 mm against the 2 the light leaves. Measured on the exported part, that
+    takes the base from 234 to 1000 cm3 of solid - plus 766, or 327% - because the base is drawn
+    solid, so the added depth is an annulus across the whole footprint rather than a sump under
+    the jar. The reactor also stands 261 mm to 299
+  - so the work is to hollow or rib a deep base first, then raise `carrier_floor_lift_max`. Nothing
+    else follows: `rod_length` carries no floor term, so the rods do not move
+
+- [ ] **`jar_6p5gal` is not a floor problem and a deeper floor will not fix it**
+  - its punt rises 15 mm at the magnets' radius and the carrier may not stand above the plane the
+    jar lands on, so the magnets sit 9 mm under the punt whatever the floor does. With a 12 mm wall
+    that is 21 mm to the culture, against 4-6 mm on every other jar
+  - a 39 mm floor would seat a 120 x 25 at a 29 mm pitch, the best pitch of any jar, and it would
+    still be coupling across those 21 mm
+  - the two things that would change it: let the bore and the carrier rise into the punt's void,
+    which is free space today and would give 13 mm; or larger magnets. Both are their own decision
 
 ## nice to haves
 

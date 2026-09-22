@@ -19,6 +19,10 @@
         "jar_10L_magnetic": {
             "reactor_vessel_name": "jar_10L_220x305",
             "drive_name": "magnetic"
+        },
+        "jar_1p5L_magnetic": {
+            "reactor_vessel_name": "jar_1p5L_109x215",
+            "drive_name": "magnetic"
         }
     }
 }

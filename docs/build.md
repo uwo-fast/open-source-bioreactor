@@ -283,21 +283,36 @@ sweeps r 19 under the sparge arm, 55.49 mm over it and the baffles at r 51.3273;
 sparger is still placed on the shaft drive's impeller
 ```
 
-**The fan is picked by rule, not named.** The widest of NopSCADlib's fans whose corners clear the
-carrier's pocket, whose depth fits under the jar with the joint's own depth reserved, and whose hub
-is wide enough to carry the magnets; the thinnest of that width. An 80 × 25 on `jar_10L` and on
-`jar_1gal_180`, and none on `jar_6p5gal`, `jar_1gal_155` or `jar_1p5L` — those floors are too
-shallow for any fan that leaves room for the joint, so those bases get no slot and the echo says
-so. The magnets and the bar are
-named (`stir_magnet_name`, `stir_bar_name`), because a bench usually has some: the defaults are two
-Ø8 × 5 discs and a 38 mm bar, and the other registered sizes are in `purchased/magnets.scad` and
-`purchased/stir_bars.scad`.
+**The fan is picked by rule, not named.** Of NopSCADlib's fans, the one with the widest hub whose
+corners clear the carrier's pocket and whose depth fits under the jar with the joint's own depth
+reserved; the thinnest of that hub. The hub is the sort key because it is what the magnets are
+carried on, and a wider frame around a smaller hub buys nothing. An 80 × 25 on `jar_10L` and
+`jar_1gal_180`, a 40 × 11 on `jar_1p5L`, and none on `jar_6p5gal` or `jar_1gal_155`. The magnets
+and the bar are named (`stir_magnet_name`, `stir_bar_name`), because a bench usually has some: the
+defaults are two Ø8 × 5 discs and a 38 mm bar, and the other registered sizes are in
+`purchased/magnets.scad` and `purchased/stir_bars.scad`.
+
+**The floor under the jar is sunk for that fan, up to a point.** The frame reaches below the jar by
+whatever the light stack overshoots its height by — an accident of which light the jar took, which
+left the drive at its mercy. The floor now takes the deeper of that and what the fan and the magnets
+need, so a jar whose light happens to be short still gets a drive. `jar_1p5L` is 3.78 mm deeper for
+it and gains a carrier; nothing else moves, because the other four already had more floor than their
+fan wanted or want far more than they can have. `carrier_floor_lift_max` (10 mm) is that limit: past
+it a base is mostly added floor, and a base that deep wants hollowing out, which it does not get
+here. `jar_6p5gal` and `jar_1gal_155` are held there — the echo names the floor each would need. The
+floor does not depend on which drive a build names, so the base is still one print for either.
 
 **How high the carrier hangs is set by the magnets, not the fan.** Their faces are held
 `stir_magnet_glass_clearance` (1 mm) under the jar's punt, at the magnets' outer edge where the cone
 comes lowest, and the carrier's top follows down from there — never above the plane the jar lands
 on. That is what "faces 1 mm under the punt and 6 mm from the floor inside" is: 1 mm of air and 5 of
 glass to the culture, with the bar's axis 4 mm above that.
+
+That ceiling is why a deeper floor does not help every jar. Where the punt rises further than the
+magnets and their cap need, the carrier stops at the landing plane and the magnets sit lower than
+their clearance however deep the floor goes. On `jar_6p5gal` the punt rises 15 mm at the magnets, so
+they would sit 9 mm under it, and its 12 mm wall puts them 21 mm from the culture against 4-6 mm on
+every other jar. Floor depth is not that jar's problem.
 
 **Assembly, in the order the parts allow:**
 
