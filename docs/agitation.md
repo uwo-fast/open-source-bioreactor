@@ -295,12 +295,12 @@ airlift mode that does not exist yet. What `head()` reports for each follows.
   short of the shaft at r 9, 66.95 mm off the floor — 10 mm under the lower impeller's blades, so
   the bubbles rise into it. That is where the stirred-tank literature puts a sparger; Birch &
   Ahmed's argument for a ring between the impellers stays with the ring below.
-- **Three 3 mm holes, the same size as the ring's for the same anti-fouling reason**, at 3.8 hole
-  diameters along the 33.9 mm of bore past the elbow, 3.23 m/s each at 0.5 vvm — inside Barbosa's
-  0.4–5.4 m/s.
+- **Three 3 mm holes, the same size as the ring's for the same anti-fouling reason**, at 3.5 hole
+  diameters along the 31.9 mm of bore between the elbow and the end plug, 3.23 m/s each at
+  0.5 vvm — inside Barbosa's 0.4–5.4 m/s.
   Bubbles are 5.10 mm at formation, as the ring's; nothing about the arm changes what a 3 mm hole
   makes.
-- **The bore is the same departure**: 5.45 m/s in the feed run, open area ratio 1.68, and
+- **The bore is the same departure**: 5.45 m/s in the feed run, open area ratio 1.6875, and
   `head()` names both.
 - **The gas supply has to beat 1783 Pa before anything bubbles**: 172.3 mm of culture over the arm
   plus 96 Pa of capillary — 680 Pa more than the ring asked, since the arm sits 69 mm lower.

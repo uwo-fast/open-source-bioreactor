@@ -328,9 +328,9 @@ socket into.
 sparge arm: from the air inlet's riser at r 56.5 in to r 9, 66.9536 mm off the floor,
 10 mm under the lower impeller's blades, 5 mm short of the shaft; at 0.5 vvm that is
 4.11052 L/min
-sparge arm: 3 holes of 3 mm along 33.9 mm at 3.76667 hole diameters, 3.23067 m/s each;
+sparge arm: 3 holes of 3 mm along 31.9 mm at 3.54444 hole diameters, 3.23067 m/s each;
 bubbles 5.09817 mm at formation, 987.426 a second; the 4 mm bore carries 5.45175 m/s,
-open area ratio 1.68
+open area ratio 1.6875
 ```
 
 **The arm is the ring's feed without the ring**: the same socket the riser drops into, the same
