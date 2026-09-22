@@ -340,6 +340,13 @@ sparger goes in the stirred-tank literature; the ring sat between the impellers 
 argument, and that argument stays with the ring. Same 3 mm holes as the ring, same anti-fouling
 reason; the count follows the arm's length at the pitch floor.
 
+**How the riser is held.** Every socket is bored 0.2 mm over the 4 mm tube — a slip fit, since a
+printed bore at the tube's own size is a press fit and the ring's five blind sockets cannot take
+one. The ring rests on its five tubes and needs nothing more. The arm hangs on one, so its socket
+is 12 mm deep with a boss round it, and the same M4×6 316 set screw that plugs the ring's ends
+self-taps into a pilot in that boss and bites the tube by 3 mm: seat the arm, point it at the
+shaft, and drive the screw.
+
 **The baffles keep the ring's width under either sparger**, so one set of plates prints once. The
 arm would let them widen from 10.35 to 14.5 mm — but at 2 mm nominal to the impeller against the
 2.28 mm of lean the port coupling allows, a 14.5 mm plate can touch the blades. Widening them is

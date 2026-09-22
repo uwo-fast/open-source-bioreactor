@@ -40,6 +40,7 @@ ECHO: "baffles: none on this lid, so the vessel is unbaffled and will swirl rath
 ECHO: "sparge arm: from the air inlet's riser at r 29.15 in to r 9, 26.3591 mm off the floor, 10 mm under the lower impeller's blades, 5 mm short of the shaft; at 0.5 vvm that is 0.696875 L/min"
 ECHO: "sparge arm: 1 holes of 3 mm along 6.55 mm at 2.18333 hole diameters, 1.64313 m/s each; bubbles 5.09817 mm at formation, 167.403 a second; the 4 mm bore carries 0.92426 m/s, open area ratio 0.5625"
 ECHO: "WARNING sparge arm: extrapolated on ["hole pitch"]"
+ECHO: "sparge arm socket: 4.2 mm bore, 0.2 mm over the riser, 12 mm deep; one M4x6 316 (92029A142) through a 3 mm boss wall bites the riser by 3 mm at mid depth"
 ECHO: "sparge holes: capillary 96 Pa to launch a bubble against 4.49978 Pa to push gas through, so the holes will not all flow evenly, which Rewatkar & Joshi find does not matter near the impeller"
 ECHO: "reach clearance: do_probe's tip passes the upper impeller with 9.00012 mm of radial room, over the -137.092 to -127.822 mm the two share"
 ECHO: "reach clearance: ph_probe's tip passes the lower impeller with 0.3755 mm of radial room, over the -182.641 to -173.371 mm the two share"

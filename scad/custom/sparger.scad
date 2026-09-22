@@ -531,15 +531,26 @@ function sparge_arm_pitch(reach, holes, bend, end_depth) = sparge_arm_bored(reac
  * @param socket_chamfer  45 deg lead-in at the socket mouth.
  * @param bend_radius     Centreline radius of the elbow. undef takes 1.5 tube diameters.
  * @param end_depth       Solid left at the closed end.
+ * @param socket_boss     Diameter of a round boss round the socket, for a screw to bite through;
+ *                        undef leaves the socket the tube's own section.
+ * @param screw_tap_radius Radius of a radial pilot through that boss, at mid depth, for a set
+ *                        screw to self-tap into and grip the riser; undef leaves none.
  * @param show_fluid_path Draw the gas path on its own.
  */
 module sparge_arm(
   reach, holes, hole_diameter, tube, bore, section_facets = 8, feed_bore = 4, feed_height = 8,
-  socket_chamfer = 0.5, bend_radius = undef, end_depth = 4, show_fluid_path = false
+  socket_chamfer = 0.5, bend_radius = undef, end_depth = 4, socket_boss = undef,
+  screw_tap_radius = undef, show_fluid_path = false
 ) {
   _ac = sparger_across_corners(tube, section_facets);
   _bend = is_undef(bend_radius) ? 1.5 * tube : bend_radius;
   _bored = sparge_arm_bored(reach, _bend, end_depth);
+  _boss = is_undef(socket_boss) ? tube : socket_boss;
+
+  assert(
+    is_undef(screw_tap_radius) || !is_undef(socket_boss),
+    "sparge_arm: a screw pilot needs a socket_boss to run through"
+  );
 
   assert(
     hole_diameter < bore,
@@ -572,13 +583,21 @@ module sparge_arm(
         sparger_spoke_solid(_bend, reach, 0, tube, section_facets);
         sparger_elbow_solid(0, _bend, tube, section_facets);
         translate([0, 0, _bend])
-          linear_extrude(height = feed_height)
-            sparger_section(tube, section_facets);
+          if (is_undef(socket_boss))
+            linear_extrude(height = feed_height)
+              sparger_section(tube, section_facets);
+          else
+            cylinder(h = feed_height, d = _boss);
       }
       _fluid_path();
       if (socket_chamfer > 0)
         translate([0, 0, _bend + feed_height - socket_chamfer])
           cylinder(h = socket_chamfer + z_fight, d1 = feed_bore, d2 = feed_bore + 2 * socket_chamfer);
+      // the pilot, radial through the boss to the side of the run, so the screw is reachable
+      if (!is_undef(screw_tap_radius))
+        translate([0, 0, _bend + feed_height / 2])
+          rotate([-90, 0, 0])
+            cylinder(h = _boss / 2 + z_fight, r = screw_tap_radius);
     }
 }
 

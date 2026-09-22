@@ -30,6 +30,7 @@ echo(str("BOM|", steel_tube_part_number(sparge_riser_tube), "|sparge riser tube"
 echo(str("BOM|", hose_clamp_part_number(sparge_riser_clamp), "|riser hose clamp"));
 echo(str("BOM|", peri_pump_part_number(head_dosing_pump), "|dosing pump"));
 echo(str("BOM|", set_screw_part_number(impeller_set_screw), "|impeller set screw"));
+echo(str("BOM|", set_screw_part_number(sparge_cap_screw), "|sparge arm set screw"));
 echo(str("BOM|", heat_set_insert_part_number(motor_mount_base_insert), "|motor mount heat-set insert"));
 echo(str("BOM|", gas_filter_part_number(sparge_inlet_filter), "|sterile inlet filter"));
 echo(str("BOM|", check_valve_part_number(sparge_check_valve), "|gas line check valve"));
