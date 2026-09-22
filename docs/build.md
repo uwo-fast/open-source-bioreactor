@@ -30,7 +30,7 @@ Three figures in particular are bands rather than measurements, and all three ar
 - the **baffle's lean under load**, reported as a worst case that the model itself says is a worst
   case
 
-Two of the six registered vessels do not build at all. Neither `jar_1p5L_109x215` nor
+Two of the five registered vessels do not build at all. Neither `jar_1p5L_109x215` nor
 `jar_1gal_155x251` can carry a top-entry drive on its lid at any mount size, and the second fails
 earlier still — a vertical DO probe runs through the upper impeller, because in a 155 mm bore the
 port circle and the impeller want the same radius. `just check-echo` records both, and the
@@ -268,18 +268,27 @@ puts it:
 
 ```
 stir drive: fan80x25 in a 164.6 mm carrier 34.5682 mm tall, its top 2.18182 mm under
-the landing plane, hung on its ear 8 mm off the bottom face; the lead leaves through
-the 14.5 mm slot at 135 deg
+the landing plane, hung on its ear 8 mm off the bottom face; the fan is turned 45 deg
+to put a flat on the slot's bearing, and the lead leaves its 8 mm notch there for the
+14.5 mm slot at 135 deg
+fan joint: 4 x M4 x 35 mm down through the fan into nuts in 4.2 mm hex pockets at the
+carrier's bottom face, 5.36818 mm of carrier over them; the head stands 2.2 mm on the
+fan, 2.82678 mm under the glass
+fan joint, head down: an M4 x 35 mm cap screw up from the pocket to a nut on the fan
+stands 1.43182 mm over that nut, 0.394962 mm under the glass
 stir magnets: 2 x MAG5x8 on the 40 mm hub at 28 mm pitch, faces 1 mm under the punt
 and 6 mm from the floor inside
 stir bar: 38x8 centred on the 30 mm punt plateau, overhanging it by 4 mm each end;
-sweeps r 19 under the sparge arm, 55.49 mm over it and the baffles at r 51.3273
+sweeps r 19 under the sparge arm, 55.49 mm over it and the baffles at r 51.3273; the
+sparger is still placed on the shaft drive's impeller
 ```
 
 **The fan is picked by rule, not named.** The widest of NopSCADlib's fans whose corners clear the
-carrier's pocket and whose depth fits under the jar, the thinnest of that width: an 80 × 25 on
-`jar_10L`, a 40 × 11 on `jar_1p5L`, and none on `jar_6p5gal` or `jar_1gal_155`, whose floors are
-too shallow for any — those bases get no slot and the echo says so. The magnets and the bar are
+carrier's pocket, whose depth fits under the jar with the joint's own depth reserved, and whose hub
+is wide enough to carry the magnets; the thinnest of that width. An 80 × 25 on `jar_10L` and on
+`jar_1gal_180`, and none on `jar_6p5gal`, `jar_1gal_155` or `jar_1p5L` — those floors are too
+shallow for any fan that leaves room for the joint, so those bases get no slot and the echo says
+so. The magnets and the bar are
 named (`stir_magnet_name`, `stir_bar_name`), because a bench usually has some: the defaults are two
 Ø8 × 5 discs and a 38 mm bar, and the other registered sizes are in `purchased/magnets.scad` and
 `purchased/stir_bars.scad`.
@@ -294,14 +303,23 @@ glass to the culture, with the bar's axis 4 mm above that.
 
 1. **Print the carrier pocket up, as it is modelled** — there is nothing to support: it is solid
    under the fan, every wall is vertical and the ear's wedge slopes upward.
-2. **Four nuts into the traps in the bottom face**, then the **fan into the pocket from above**,
-   hub up, with its lead on the side the pocket wall is cut down — that side faces the base's
-   slot. Four M4 × 35 screws down through the fan's own corner holes into those nuts: one driver,
-   from above, and the nuts cannot turn. The fan is bolted rather than screwed into its own
-   plastic, so it comes apart as many times as you like. The lead lies in the 8 mm cut above the
-   3 mm seat, wherever it leaves the fan, and drops down the notch in the middle of that side.
-   The heads stand 2.2 mm on the fan with 2.57 mm to the glass; the nuts and the last 4 mm of
+2. **Four nuts into the hex pockets in the bottom face**, then the **fan into the pocket from
+   above**, hub up, with its lead on the side the pocket wall is cut down — that side faces the
+   base's slot. Four M4 × 35 screws down through the fan's own corner holes into those nuts: one
+   driver, from above, and the nuts cannot turn. The fan is bolted rather than screwed into its
+   own plastic, so it comes apart as many times as you like. The lead lies in the 8 mm cut above
+   the 3 mm seat, wherever it leaves the fan, and drops down the notch in the middle of that side.
+   The heads stand 2.2 mm on the fan with 2.83 mm to the glass; the nuts and the last 4 mm of
    thread sit under the carrier, in the 8 mm the ear holds it clear by.
+
+   The pocket is cut to the larger of an M4 nut and an M4 cap head, so **the joint also runs the
+   other way up** — cap screw up from the pocket, nut on the fan's face, hex key from below and a
+   spanner on top. Nothing about the print changes. Whether it closes does change with the jar,
+   because the screw comes in 5 mm steps and the remainder stands over the nut: on `jar_10L` an
+   M4 × 35 leaves 0.39 mm to the glass, and on `jar_1gal_180` the same screw is 0.59 mm into it
+   and would have to be shortened. The `fan joint, head down` echo gives that number for the build
+   in front of you. Build it heads up unless you have a reason not to.
+
 3. **Magnets into the cap**, opposite poles up: a bar follows a north and a south, and two norths
    hold nothing. Press-fit pockets (0.2 mm on the diameter); a drop of adhesive if they are loose.
    Glue the cap to the hub's face, centred — it is a disc rather than a skirt because a skirt would

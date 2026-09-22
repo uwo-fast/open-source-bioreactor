@@ -146,8 +146,8 @@ carrier_fit_allow = 0.4;
 carrier_wall = 3;
 // allowance for the fan to drop into its pocket
 carrier_fan_allow = 0.4;
-// Least material under the fan: the nut trap is sunk into it and what is left over the nut is
-// what the screw clamps, so fan selection reserves this whole depth.
+// Least material under the fan: the fastener's pocket is sunk into it and what is left over the
+// pocket is what the screw clamps, so fan selection reserves this whole depth.
 // least material under the fan, in mm
 carrier_lip = 6;
 // The fan's lead leaves at a corner of its frame, which sits on the pocket's wall rather than
@@ -169,9 +169,11 @@ carrier_fan_seat = 3;
 // how far the fan is recessed below the carrier's top, in mm
 carrier_fan_recess = 0;
 // The fan is bolted rather than screwed into its own plastic: its own screw down through it, and
-// a nut held in a hex trap in the carrier's bottom face so one driver from above does the job.
-// allowance on the trap's depth over the nut, in mm
-carrier_nut_trap_allow = 0.2;
+// a nut held in a hex pocket in the carrier's bottom face so one driver from above does the job.
+// The pocket is cut to whichever of that nut and a cap head of the same size is the larger, so
+// the joint runs the other way up - head underneath, nut on the fan - off the same print.
+// allowance on the pocket over the fastener it holds, in mm
+carrier_fastener_allow = 0.2;
 // clearance between the magnets' faces and the glass over them; sets how high the carrier hangs
 stir_magnet_glass_clearance = 1;
 // how far the key ear reaches into the base floor, radially
@@ -400,16 +402,35 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
   _magnet_glass_gap = is_undef(_fan) ? undef : punt_under(_magnet_outer_radius) - (_carrier_top + _hub_cap_height);
   // and the fan's corners are the widest thing under the cone
   _fan_corner_gap = is_undef(_fan) ? undef : punt_under(fan_corner_diameter(_fan) / 2) - _carrier_top;
+  // The fasteners stand on the fan's face at the screw circle, which is inside the corners, so
+  // the cone is that much higher over them.
+  _fastener_gap = is_undef(_fan) ? undef
+    : carrier_fan_recess + punt_under(fan_hole_pitch(_fan) * sqrt(2)) - _carrier_top;
 
-  // The fan's joint: its own screw through it, into a nut trapped under the carrier. The stack
-  // the screw clamps is the fan and what is left of the carrier over the trap.
+  // The fan's joint: its own screw through it, into a nut held under the carrier. The stack the
+  // screw clamps is the fan and what is left of the carrier over the pocket.
   _fan_screw = is_undef(_fan) ? undef : fan_screw(_fan);
   _fan_nut = is_undef(_fan) ? undef : screw_nut(_fan_screw);
-  _nut_trap_depth = is_undef(_fan) ? undef : nut_thickness(_fan_nut) + carrier_nut_trap_allow;
+  // The pocket is cut to hold either end of the joint, so it takes the larger of the two.
+  _fan_cap = is_undef(_fan) ? undef : alternate_screw(hs_cap, _fan_screw);
+  _fastener_flat_r = is_undef(_fan) ? undef
+    : max(nut_flat_radius(_fan_nut), screw_head_radius(_fan_cap)) + carrier_fastener_allow / 2;
+  _fastener_depth = is_undef(_fan) ? undef
+    : max(nut_thickness(_fan_nut), screw_head_height(_fan_cap)) + carrier_fastener_allow;
   _fan_under = is_undef(_fan) ? undef : _carrier_height - fan_depth(_fan) - carrier_fan_recess;
-  _nut_trap_ceiling = is_undef(_fan) ? undef : _fan_under - _nut_trap_depth;
+  // The nut seats against the pocket's ceiling, so that ceiling is the grip either way up and
+  // the depth the head wants over the nut's is air.
+  _fastener_ceiling = is_undef(_fan) ? undef : _fan_under - _fastener_depth;
   _fan_screw_length = is_undef(_fan) ? undef
-    : screw_length(_fan_screw, fan_depth(_fan) + _nut_trap_ceiling, 0, nut=true);
+    : screw_length(_fan_screw, fan_depth(_fan) + _fastener_ceiling, 0, nut=true);
+
+  // The other way up: the head in the pocket and the nut on the fan's face. The run is the same
+  // grip plus the nut, and a standard length rarely lands on it, so the remainder stands proud.
+  _cap_run = is_undef(_fan) ? undef : _fastener_ceiling + fan_depth(_fan) + nut_thickness(_fan_nut);
+  _cap_length = is_undef(_fan) ? undef : screw_longer_than(_cap_run);
+  _cap_proud = is_undef(_fan) ? undef : _cap_length - _cap_run;
+  _cap_clear = is_undef(_fan) ? undef
+    : _fastener_gap - nut_thickness(_fan_nut) - _cap_proud;
 
   // distance from the center of the jar to the threaded rod
   base_wall_thickness_from_lights = (strip_light_depth(light) * 1.5) * 2; // thinnest part is 50% thicker than the light depth
@@ -555,18 +576,27 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
     );
 
     assert(
-      _nut_trap_ceiling > 0,
+      _fastener_ceiling > 0,
       str(
-        "An M", nut_size(_fan_nut), " nut trap ", _nut_trap_depth, " mm deep leaves ", _nut_trap_ceiling,
+        "An M", nut_size(_fan_nut), " pocket ", _fastener_depth, " mm deep leaves ", _fastener_ceiling,
         " mm of carrier over it; recess the fan less, or take a thinner fan."
       )
     );
 
     echo(str(
       "fan joint: 4 x M", screw_radius(_fan_screw) * 2, " x ", _fan_screw_length,
-      " mm down through the fan into nuts in ", _nut_trap_depth, " mm traps at the carrier's bottom face, ",
-      _nut_trap_ceiling, " mm of carrier over them; the head stands ", screw_head_height(_fan_screw),
-      " mm on the fan, ", carrier_fan_recess + _fan_corner_gap - screw_head_height(_fan_screw), " mm under the glass"
+      " mm down through the fan into nuts in ", _fastener_depth, " mm hex pockets at the carrier's bottom face, ",
+      _fastener_ceiling, " mm of carrier over them; the head stands ", screw_head_height(_fan_screw),
+      " mm on the fan, ", _fastener_gap - screw_head_height(_fan_screw), " mm under the glass"
+    ));
+
+    // The pocket holds a cap head too, so the joint can be built upside down. Whether that closes
+    // is the length grid's business, not the pocket's, so report what it would take.
+    echo(str(
+      "fan joint, head down: an M", screw_radius(_fan_cap) * 2, " x ", _cap_length,
+      " mm cap screw up from the pocket to a nut on the fan stands ", _cap_proud, " mm over that nut, ",
+      _cap_clear >= 0 ? str(_cap_clear, " mm under the glass")
+                      : str(-_cap_clear, " mm into it - shorten the screw, or build it the other way up")
     ));
 
     assert(
@@ -580,13 +610,6 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
       _slot_height, " mm off the bottom face; the fan is turned ", _fan_turn,
       " deg to put a flat on the slot's bearing, and the lead leaves its ", carrier_lead_width,
       " mm notch there for the ", _slot_width, " mm slot at ", _slot_angle, " deg"
-    ));
-
-    // What stands on the fan's top face has the recess plus what the cone leaves at the screws.
-    echo(str(
-      "fan fasteners: the fan is ", carrier_fan_recess, " mm under the carrier's top and the punt is ",
-      punt_under(fan_hole_pitch(_fan) * sqrt(2)) - _carrier_top, " mm over it at the screw circle, so a head or a nut has ",
-      carrier_fan_recess + punt_under(fan_hole_pitch(_fan) * sqrt(2)) - _carrier_top, " mm"
     ));
 
     echo(str(
@@ -616,6 +639,7 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
   // fan it is solid but for the fan's own holes: the ear holds the whole part clear of the
   // bottom face, so the lead has that gap to run in and a hollow here would only be a roof to
   // bridge.
+
   // A flat onto the slot's bearing, so the lead leaves there and drops straight into the groove.
   // The square repeats every 90 degrees, which is the whole of the turn.
   _fan_turn = is_undef(_slot_angle) ? undef : _slot_angle % 90;
@@ -653,18 +677,19 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
               offset(r=_fan_r + carrier_fan_allow / 2)
                 square(fan_width(_fan) - 2 * _fan_r, center=true);
 
-        // The fan's own holes, cut clean through what is under it: the four screw holes, so a
-        // screw and a driver reach the fan from below, and the aperture with them. Vertical, so
-        // nothing bridges.
+        // The fan's aperture, cut clean through what is under it so the blades draw through the
+        // carrier. Vertical, so nothing bridges.
         translate([0, 0, _pocket_floor / 2])
           rotate([0, 0, _fan_turn])
             fan_holes(_fan, screws=false, h=_pocket_floor + z_fight);
 
-        // and at each corner, the screw's clearance hole with a hex trap for its nut, open at the
-        // bottom face so the nut goes in before the fan does
+        // and at each corner, the screw's clearance hole through what is under the fan, with the
+        // hex pocket at the bottom face that holds whichever end of the joint goes underneath
         rotate([0, 0, _fan_turn])
-          fan_hole_positions(_fan, z=0)
-            nut_trap(_fan_screw, _fan_nut, depth=_nut_trap_depth);
+          fan_hole_positions(_fan, z=-z_fight) {
+            cylinder(r=screw_clearance_radius(_fan_screw), h=_pocket_floor + 2 * z_fight);
+            cylinder(r=_fastener_flat_r / cos(30), h=_fastener_depth + z_fight, $fn=6);
+          }
 
         // The lead's notch: a slot from the fan's flat out to the carrier's face, the full
         // height of the part, so the wire leaves the pocket sideways and drops straight into the
@@ -692,8 +717,8 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
   // the cap is the recess taller and the magnets land where they would have anyway.
   _fan_top = is_undef(_fan) ? undef : _slot_height + _carrier_height - carrier_fan_recess;
 
-  // The bought parts: the fan in its pocket (drawn centred, so lifted by half its depth), its
-  // screws from below, and the magnets in the cap's pockets.
+  // The bought parts: the fan in its pocket (drawn centred, so lifted by half its depth), the
+  // screws down through it, their nuts underneath, and the magnets in the cap's pockets.
   module frame_stir_fan() {
     translate([0, 0, _fan_top - fan_depth(_fan) / 2])
       rotate([0, 0, _fan_turn]) {
@@ -702,10 +727,10 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
         fan_hole_positions(_fan, z=fan_depth(_fan) / 2)
           screw(_fan_screw, _fan_screw_length);
       }
-    // the nuts, in their traps at the carrier's bottom face
+    // the nuts, drawn where the screw pulls them: up against the pockets' ceilings
     translate([0, 0, _slot_height])
       rotate([0, 0, _fan_turn])
-        fan_hole_positions(_fan, z=0)
+        fan_hole_positions(_fan, z=_fastener_depth - nut_thickness(_fan_nut))
           nut(_fan_nut);
     translate([0, 0, _fan_top])
       magnet_hub_cap(fan_hub(_fan), _magnet, pedestal=carrier_fan_recess, cap=false, magnets=true);
