@@ -55,7 +55,8 @@ This is the part of the build nothing else will remind you about.
 - the **baffle ports and plates** — one plate per baffle port, each split into dovetailed pieces
 - the **motor mount**, in three parts: base plate, face plate, middle stand
 - **two impellers**
-- the **sparge ring**
+- the **sparger** — the arm, or the ring if the build names it (`sparger_name`; see
+  [The sparger](#the-sparger))
 
 **From `frame.scad`:** the base, the top base, **eight ribs** and **twelve rod spacers**. The ribs
 are one part printed eight times, which took measuring rather than reading — each is rotated by a
@@ -265,7 +266,7 @@ the 14.5 mm slot at 135 deg
 stir magnets: 2 x MAG5x8 on the 40 mm hub at 28 mm pitch, faces 1 mm under the punt
 and 6 mm from the floor inside
 stir bar: 38x8 centred on the 30 mm punt plateau, overhanging it by 4 mm each end;
-sweeps r 19 where the sparge ring starts at r 62.9227 and the baffles at r 51.3273
+sweeps r 19 under the sparge arm, 55.49 mm over it and the baffles at r 51.3273
 ```
 
 **The fan is picked by rule, not named.** The widest of NopSCADlib's fans whose corners clear the
@@ -310,10 +311,51 @@ slot is cut under the shaft drive too, so a base printed today takes either.
 **Three things it buys** that are on no purchase list yet: the fan, the magnets and the bar. Any of
 the size does, which is why none has a part number; `check-bom` says so in its header.
 
-**What it does not do.** The sparge ring, the baffles and the DO probe's lean are still sized and
-placed on the shaft drive's impeller — that geometry is the sparger's basis and stays. The echo says
-so. And nothing here models the coupling: how much torque two Ø8 discs hand a bar through 6 mm is a
+**What it does not do.** The sparger, the baffles and the DO probe's lean are still sized and
+placed on the shaft drive's impeller — that geometry is their basis and stays. The echo says so.
+And nothing here models the coupling: how much torque two Ø8 discs hand a bar through 6 mm is a
 bench measurement, which is why the fan and magnet sizes are parameters rather than answers.
+
+## The sparger
+
+Two spargers, one build parameter: `sparger_name` is `cap` — an **arm** — or `ring`, and `auto` is
+the arm. The ring is the airlift's, once that mode exists; the shaft and magnetic builds run the
+arm. Both hang off the same riser from the `air_in` port, and the other four tubes stay whichever
+is fitted — they are the dosing and vent lines, and under the arm they simply have nothing to
+socket into.
+
+```
+sparge arm: from the air inlet's riser at r 56.5 in to r 9, 66.9536 mm off the floor,
+10 mm under the lower impeller's blades, 5 mm short of the shaft; at 0.5 vvm that is
+4.11052 L/min
+sparge arm: 3 holes of 3 mm along 31.9 mm at 3.54444 hole diameters, 3.23067 m/s each;
+bubbles 5.09817 mm at formation, 987.426 a second; the 4 mm bore carries 5.45175 m/s,
+open area ratio 1.6875
+```
+
+**The arm is the ring's feed without the ring**: the same socket the riser drops into, the same
+elbow, and one straight run turned inward to end 5 mm short of the shaft, holes drilled down so the
+bubbles rise into the lower impeller. It sits 10 mm under that impeller's blades, which is where a
+sparger goes in the stirred-tank literature; the ring sat between the impellers on Birch & Ahmed's
+argument, and that argument stays with the ring. Same 3 mm holes as the ring, same anti-fouling
+reason; the count follows the arm's length at the pitch floor.
+
+**How the riser is held.** Every socket is bored 0.2 mm over the 4 mm tube — a slip fit, since a
+printed bore at the tube's own size is a press fit and the ring's five blind sockets cannot take
+one. Every socket is 12 mm deep. The ring rests on its five tubes and needs nothing more. The arm
+hangs on one, so its socket carries a boss, and the same M4×6 316 set screw that plugs the ring's
+ends self-taps into a pilot in that boss and bites the tube by 3 mm: seat the arm, point it at the
+shaft, and drive the screw. The arm's end is open through a pilot like the ring's, so a brush
+passes, and a second of those screws plugs it.
+
+**The baffles keep the ring's width under either sparger**, so one set of plates prints once. The
+arm would let them widen from 10.35 to 14.5 mm — but at 2 mm nominal to the impeller against the
+2.28 mm of lean the port coupling allows, a 14.5 mm plate can touch the blades. Widening them is
+its own decision, and `baffle_impeller_clearance` is the number to raise first.
+
+**Check-holes covers whichever is built.** The head's hole probes used to be echoed in the part's
+own frame while the mesh sat 170 mm lower, so they landed in empty space and passed without
+testing anything; they are placed with the part now, for the ring and the arm both.
 
 ## Putting the lid together
 
@@ -334,7 +376,8 @@ The order is forced by geometry, not preference.
 
 ### Two ways to assemble it wrong that nothing will catch
 
-**The sparger's sockets look identical from above.** The feed socket is an **octagon** and the
+**The ring's sockets look identical from above.** (The arm has one socket, and this does not
+arise.) The feed socket is an **octagon** and the
 support sockets are **round**, and that is the only thing telling them apart, because you cannot see
 inside a socket at the bottom of a jar. Get it wrong and the gas goes down a capped tube and
 straight back out its own vent hole into the headspace — while the rotameter reads flow and the
@@ -565,7 +608,7 @@ measured, so the budget moves with it: measure that first, and this number follo
 The pump is seven times oversized, so the entire band sits in the first part of the needle valve's
 travel — that is why the valve is a 3° needle and not the 20° one.
 
-**Watch the DO trace on the first run.** The DO probe's face sits 20.6 mm above the sparge ring's
+**Watch the DO trace on the first run, with the ring.** The DO probe's face sits 20.6 mm above the sparge ring's
 centreline and 0.87 mm off its radius, which is directly over a ring of bubbles. A galvanic probe
 reads high with a bubble on the membrane and low with nothing moving past, so this is the one
 placement that can be wrong in both directions. A characteristically spiky trace means the probe is

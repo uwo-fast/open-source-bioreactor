@@ -92,6 +92,8 @@ joint_bolt = M8_hex_screw;
 culture_fill_fraction = 0.865;
 // What turns the culture: a shaft through the lid, or a stir bar following a fan under the base
 drive_name = "shaft"; // [shaft, magnetic]
+// What the gas comes out of: a ring between the impellers, or an arm under the lower one; auto is the arm
+sparger_name = "auto"; // [auto, ring, cap]
 // The stir bar a magnetic drive turns; auto takes the head's own row
 stir_bar_name = "auto"; // [auto, 25x8, 38x8, 50x8]
 // The magnets on the fan hub, two; auto takes the frame's own row
@@ -198,6 +200,7 @@ reactor_build = [
   ["ph_probe", _build_ph_probe],
   ["drive", drive_name],
   ["stir_bar", _build_stir_bar],
+  ["sparger", sparger_name],
 ];
 
 _reactor_light = is_undef(_build_light)
@@ -226,6 +229,7 @@ _designated = [
     ["shaft", shaft_name], ["plug o-ring", plug_oring_name], ["motor", motor_name],
     ["gasket sheet", gasket_sheet_name], ["DO probe", do_probe_name], ["pH probe", ph_probe_name],
     ["light", strip_light_name], ["stir bar", stir_bar_name], ["magnets", stir_magnet_name],
+    ["sparger", sparger_name],
   ]) if (d[1] != "auto") str(d[0], " ", d[1])
 ];
 function _joined(v, i = 0) = i >= len(v) ? "" : str(i == 0 ? "" : ", ", v[i], _joined(v, i + 1));

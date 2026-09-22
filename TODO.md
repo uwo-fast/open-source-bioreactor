@@ -132,7 +132,12 @@ section 5. Neither item is scheduled.
 
 - [ ] **explore an airlift variant, with no impeller**
   - needs in the model: a draft tube as a part, riser and downcomer areas, superficial gas
-    velocity, a reported circulation time. The sparge ring may not survive it
+    velocity, a reported circulation time. The sparge ring is this mode's sparger; the shaft and
+    magnetic builds run the arm (`sparger_name`)
+  - and the arm is the wrong sparger for the two jars this mode is FOR. Its reach is the port
+    circle less the shaft, which on `jar_1gal_155` leaves 8.7 mm of bore and one hole at 2.9 hole
+    diameters, on `jar_1p5L` 4.6 mm and 1.5 - both under the pitch floor, which head() warns on.
+    Those jars want the ring, a stone, or an arm placed off something other than the shaft
 
 - [ ] **the magnetic drive is modelled; what is left is the bench**
   - `drive_name = "magnetic"` builds it: a fan picked by rule in a carrier hung in the base bore,
