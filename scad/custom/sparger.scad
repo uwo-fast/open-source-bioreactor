@@ -105,10 +105,15 @@ function sparger_departures(orifice_velocity, pitch_ratio, open_area_ratio, bore
 // Quoted across flats, so the wall does not move with the facet count.
 function sparger_across_corners(across_flats, facets) = across_flats / cos(180 / facets);
 
+// The elbow's centreline radius: 1.5 tube diameters, the usual floor for a pipe bend.
+function sparger_bend(tube) = 1.5 * tube;
+// Solid each end carries for its plug screw to bite into.
+function sparger_plug_depth() = 6;
+
 // Top face of a socket: feed_height above the elbow's top for the feed, above the section's
 // across-corners half width for a support.
 function sparger_socket_top(tube, facets, feed_height, kind, bend_radius = undef) =
-  (kind == "feed" ? (is_undef(bend_radius) ? 1.5 * tube : bend_radius)
+  (kind == "feed" ? (is_undef(bend_radius) ? sparger_bend(tube) : bend_radius)
                   : sparger_across_corners(tube, facets) / 2)
   + feed_height;
 
@@ -231,7 +236,7 @@ module sparger(
   show_fluid_path = false,
   split_angle = 0,
   plug_tap_radius = undef,
-  plug_depth = 6
+  plug_depth = sparger_plug_depth()
 ) {
   _n = len(radii);
   _outer = max(radii);
@@ -241,9 +246,9 @@ module sparger(
   // where the material reaches, and how low the part sits on its bottom flat
   _ac = sparger_across_corners(tube, section_facets);
   _bottom = sparger_face_distance(tube, section_facets, 270);
-  // 1.5 tube diameters, the usual floor for a pipe bend; it has to clear the tube's own corners
+  // the bend has to clear the tube's own corners
   _corner_r = sparger_across_corners(tube, section_facets) / 2;
-  _bend = is_undef(bend_radius) ? 1.5 * tube : bend_radius;
+  _bend = is_undef(bend_radius) ? sparger_bend(tube) : bend_radius;
 
   assert(
     len(holes) == _n,
@@ -529,7 +534,7 @@ function sparge_arm_pitch(reach, holes, bend, end_depth) = sparge_arm_bored(reac
  * @param feed_bore       Socket bore, sized to the riser it accepts.
  * @param feed_height     Length of the socket above the elbow's top.
  * @param socket_chamfer  45 deg lead-in at the socket mouth.
- * @param bend_radius     Centreline radius of the elbow. undef takes 1.5 tube diameters.
+ * @param bend_radius     Centreline radius of the elbow. undef takes sparger_bend().
  * @param end_depth       Solid left at the end, which the end screw bites into.
  * @param plug_tap_radius Radius of a pilot from the end face into the bore, as the ring's: a
  *                        brush goes through it and a set screw self-taps in to plug it. undef
@@ -543,11 +548,11 @@ function sparge_arm_pitch(reach, holes, bend, end_depth) = sparge_arm_bored(reac
  */
 module sparge_arm(
   reach, holes, hole_diameter, tube, bore, section_facets = 8, feed_bore = 4, feed_height = 8,
-  socket_chamfer = 0.5, bend_radius = undef, end_depth = 4, plug_tap_radius = undef,
+  socket_chamfer = 0.5, bend_radius = undef, end_depth = sparger_plug_depth(), plug_tap_radius = undef,
   socket_boss = undef, screw_tap_radius = undef, show_fluid_path = false
 ) {
   _ac = sparger_across_corners(tube, section_facets);
-  _bend = is_undef(bend_radius) ? 1.5 * tube : bend_radius;
+  _bend = is_undef(bend_radius) ? sparger_bend(tube) : bend_radius;
   _bored = sparge_arm_bored(reach, _bend, end_depth);
   _boss = is_undef(socket_boss) ? tube : socket_boss;
   _taper = (_boss - tube) / 2;
@@ -625,10 +630,10 @@ module sparge_arm(
 // The arm's probes for check-holes, in the mesh's frame: the arm at `origin`, its run turned
 // `bearing` degrees from +x.
 module sparge_arm_hole_probes(
-  reach, holes, tube, section_facets = 8, bend_radius = undef, end_depth = 4, margin = 0.05,
+  reach, holes, tube, section_facets = 8, bend_radius = undef, end_depth = sparger_plug_depth(), margin = 0.05,
   origin = [0, 0, 0], bearing = 0
 ) {
-  _bend = is_undef(bend_radius) ? 1.5 * tube : bend_radius;
+  _bend = is_undef(bend_radius) ? sparger_bend(tube) : bend_radius;
   _pz = -sparger_face_distance(tube, section_facets, 270) + margin;
   for (x = sparge_arm_hole_positions(reach, holes, _bend, end_depth)) {
     echo(str("HOLEPROBE|exit|", origin[0] + x * cos(bearing), "|", origin[1] + x * sin(bearing), "|", origin[2] + _pz));
@@ -637,8 +642,8 @@ module sparge_arm_hole_probes(
 }
 
 // What the arm does to the gas, from the same arguments the geometry was given.
-module sparge_arm_report(reach, holes, hole_diameter, tube, bore, gas_flow, bend_radius = undef, end_depth = 4) {
-  _bend = is_undef(bend_radius) ? 1.5 * tube : bend_radius;
+module sparge_arm_report(reach, holes, hole_diameter, tube, bore, gas_flow, bend_radius = undef, end_depth = sparger_plug_depth()) {
+  _bend = is_undef(bend_radius) ? sparger_bend(tube) : bend_radius;
   _v = stirred_tank_orifice_velocity(gas_flow, holes, hole_diameter);
   _db = stirred_tank_bubble_diameter(hole_diameter);
   _bore_v = stirred_tank_sparge_bore_velocity(gas_flow, bore, 1);
