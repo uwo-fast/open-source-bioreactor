@@ -23,8 +23,10 @@
 # NOTE ON bayonet-lock-scad: custom/bayonet_port.scad asserts it is ">= 0.11.0",
 # but that repository publishes no tags and no releases, so nothing outside the
 # library can check that claim. The SHA below is what the assert passes against.
+# It is also what tests/seams.txt is measured against: 0.11.1 stopped the lock's
+# entry transition leaving coincident faces, and the lid closes cleanly from it.
 
 NopSCADlib          https://github.com/nophead/NopSCADlib.git                v21.41.1
-bayonet-lock-scad   https://github.com/CameronBrooks11/bayonet-lock-scad.git 85c43ae
+bayonet-lock-scad   https://github.com/CameronBrooks11/bayonet-lock-scad.git 95953cc
 FunctionalOpenSCAD  https://github.com/thehans/FunctionalOpenSCAD.git        51588ff
 threads-scad        https://github.com/rcolyer/threads-scad.git              4ae9aeb

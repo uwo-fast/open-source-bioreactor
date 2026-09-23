@@ -187,24 +187,6 @@ section 5. Neither item is scheduled.
 
 ## tooling / infrastructure / documentation
 
-- [ ] **the pinned bayonet library leaves coincident faces in every lid, and the fix is one line**
-  - `bayonet_lock.scad` builds the channel's rounded entry as
-    `difference() { sphere(_channel_radius); cylinder(h = _channel_radius * 2, r = _channel_radius * 2); }`.
-    The cutting cylinder's base plane passes exactly through the sphere's centre, exactly through
-    the swept torus's cross-section centre and exactly through the entry shaft's base - three
-    surfaces meeting on one circle - and the renderer keeps the contact as coincident faces
-  - the cut is redundant: the sphere's upper half is already inside the entry shaft unioned beside
-    it. Replacing the whole `difference()` with a bare `sphere(_channel_radius)` clears every one.
-    Measured on 12 locks: 6 non-manifold edges and 3 repeated triangles become none, and the solid
-    is the same to eight figures - 35620.17720 mm3 against 35620.17691, identical bounding box
-  - reproduce with three lines: `use <custom/bayonet_port.scad>`, `include <custom/bayonet_interfaces.scad>`,
-    then 12 copies of `bayonet_port(type = bayonet_std, part = "lock", panel_thickness = 18)` on a
-    56.5 mm circle. One copy alone is clean; it takes two or more before the renderer trips
-  - the library is fetched at a pinned commit and `.openscad-libraries/` is gitignored, so there is
-    nothing to patch in this repository. Upstream, or a fork and a new pin - that is a decision,
-    not a chore. `tests/seams.txt` pins what it costs in the meantime: zero-volume fins in a closed
-    mesh, which slicers drop
-
 - [ ] **the probe port's transition lands exactly on the collet, and the obvious fix costs material**
   - `bayonet_probe_port`'s transition cone ends at exactly `-_transition_length`, which is exactly
     where the collet begins, at exactly the same diameter. Same defect as the three that are fixed,

@@ -6,12 +6,9 @@
 # Rewrite with `just check-seams-update`, and read the diff before keeping it.
 #
 # All of these are one shape of defect - two solids meeting exactly face to face, so the
-# renderer keeps the shared face instead of merging it. The lids' come from the pinned
-# bayonet-lock library, which is fetched rather than vendored, so that fix is upstream;
-# the probes' come from the transition meeting the collet. TODO.md carries both.
-jar_10L_220x305 lid 6 3
-jar_10L_magnetic lid 6 3
+# renderer keeps the shared face instead of merging it, and what is left comes from the
+# probe port's transition meeting the collet. TODO.md carries why the obvious overlap
+# there costs material.
 jar_1gal_180x197 port_do_probe 1 1
-jar_1p5L_magnetic lid 2 1
 jar_1p5L_magnetic port_do_probe 2 2
 jar_6p5gal_305x470 port_do_probe 2 2
