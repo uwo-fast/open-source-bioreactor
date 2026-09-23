@@ -601,9 +601,15 @@ module sparge_arm(
             linear_extrude(height = feed_height)
               sparger_section(tube, section_facets);
           else {
-            // the same section, tapered up to the boss at 45 deg, then straight
-            linear_extrude(height = _taper, scale = _boss / tube)
-              sparger_section(tube, section_facets);
+            // The same section, tapered up to the boss at 45 deg, then straight. The taper starts
+            // a hair inside the elbow rather than on its end face: two solids that meet exactly
+            // face to face share that face, and the renderer keeps it as a pair of coincident
+            // triangles instead of merging them. Extended back along its own cone, so the taper
+            // is the same cone it always was and the lead is buried in the elbow.
+            let (_lead = 0.01, _base = tube - _lead * (_boss - tube) / _taper)
+              translate([0, 0, -_lead])
+                linear_extrude(height = _taper + _lead, scale = _boss / _base)
+                  sparger_section(_base, section_facets);
             translate([0, 0, _taper])
               linear_extrude(height = feed_height - _taper)
                 sparger_section(_boss, section_facets);

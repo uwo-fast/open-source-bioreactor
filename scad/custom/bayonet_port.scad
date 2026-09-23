@@ -376,6 +376,13 @@ module bayonet_probe_port(
   // The transitions mate to the bayonet at its interface (mating) surface, less the allowance.
   _bayonet_diameter = 2 * interface_radius - allowance;
   _transition_length = bayonet_probe_port_collet_drop(probe, transition_length);
+  // The wedge fills the lean's gap between the coupling's underside and the holder's top, and its
+  // two flat faces are exactly those. Two solids that meet exactly face to face share that face,
+  // and the renderer keeps it as a pair of coincident triangles rather than merging them, so the
+  // wedge is swept this much past each end and buried in solid instead. Both neighbours are full
+  // circles of the wedge's own radius there, so it adds nothing to the part.
+  // how far past each end the wedge sweeps, in degrees
+  _wedge_lead = 0.05;
 
   union() {
 
@@ -399,18 +406,20 @@ module bayonet_probe_port(
 
     // Tilt wedge, on the side the probe leans AWAY from - it fills the trailing gap - so it is
     // the mirror of the lean and the two flip together. The hex cut has no side.
-    difference() {
-      mirror([1, 0, 0])
-        rotate([-90, 0, 0]) {
-          rotate_extrude(angle=tilt_degrees, convexity=10)
-            difference() {
-              circle(d=_bayonet_diameter);
-              translate([-_bayonet_diameter / 2, 0, 0])
-                square([_bayonet_diameter, _bayonet_diameter * 2], center=true);
+    if (tilt_degrees > 0)
+      difference() {
+        mirror([1, 0, 0])
+          rotate([-90, 0, 0])
+            rotate([0, 0, -_wedge_lead]) {
+              rotate_extrude(angle=tilt_degrees + 2 * _wedge_lead, convexity=10)
+                difference() {
+                  circle(d=_bayonet_diameter);
+                  translate([-_bayonet_diameter / 2, 0, 0])
+                    square([_bayonet_diameter, _bayonet_diameter * 2], center=true);
+                }
             }
-        }
-      cylinder(h=1000, d=_hex_diameter, center=true, $fn=6);
-    }
+        cylinder(h=1000, d=_hex_diameter, center=true, $fn=6);
+      }
 
     // Probe holder, leaning toward +X: a point L below the pivot lands at +L*sin(tilt)
     rotate([0, -tilt_degrees, 0]) {

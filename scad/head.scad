@@ -3633,13 +3633,17 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
                 circle(r=impeller_radius, $fn=64);
                 circle(r=impeller_radius - impeller_fin_width, $fn=64);
               }
-        // collar for the set screws, standing clear of the blades
-        translate([0, 0, impeller_height / 2 - z_fight])
-          difference() {
-            cylinder(r=impeller_hub_radius, h=impeller_collar_height + z_fight, $fn=64);
-            translate([0, 0, -z_fight])
-              cylinder(r=impeller_shaft_hole_radius, h=impeller_collar_height + 3 * z_fight, $fn=64);
-          }
+        // Collar for the set screws, standing clear of the blades. It starts inside the body
+        // rather than on its face: a collar that lands exactly on that face shares it with the
+        // hub, and the renderer keeps the shared ring rather than merging the two. Its top is
+        // where it always was, and the lead is buried in the hub it already matches.
+        let (_lead = impeller_collar_height / 10)
+          translate([0, 0, impeller_height / 2 - _lead])
+            difference() {
+              cylinder(r=impeller_hub_radius, h=impeller_collar_height + _lead, $fn=64);
+              translate([0, 0, -_lead])
+                cylinder(r=impeller_shaft_hole_radius, h=impeller_collar_height + 3 * _lead, $fn=64);
+            }
       }
         head_impeller_set_screw_holes();
       }
