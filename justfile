@@ -68,8 +68,8 @@ lint:
 
 # The two checks a CGAL render puts out of the fast gate's reach: minutes, not seconds.
 #
-# The slow half of verification: mesh validity and gas-hole breakthrough.
-test: check-mesh check-holes
+# The slow half of verification: mesh validity, breakthrough and the exported meshes' seams.
+test: check-mesh check-holes check-seams
 
 # Remove what the recipes build.
 clean:
@@ -92,6 +92,18 @@ check-echo:
 # Rewrite the transcripts. Only after reading the diff `just check-echo` printed.
 check-echo-update:
     @scripts/check-echo.sh --update
+
+# Exports every build and measures how well each part's mesh closes. OpenSCAD's own 2-manifold
+# complaint is about the CSG result, not the file it writes, so a tangency that tessellates into
+# coincident faces passes it and reaches the slicer; this asks the STL.
+#
+# Fail when a part's seams move against tests/seams.txt, or when any part has a hole.
+check-seams:
+    @scripts/check-seams.sh
+
+# Rewrite tests/seams.txt. Only after reading the diff `just check-seams` printed.
+check-seams-update:
+    @scripts/check-seams.sh --update
 
 # `just` shows only the comment line immediately above a recipe, so a description has to be last
 # in its block.

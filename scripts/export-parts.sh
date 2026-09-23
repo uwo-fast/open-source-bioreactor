@@ -17,6 +17,7 @@ tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
 
 build="${1:-}"
 only="${3:-}"
+: "${SEAMS:=tests/seams.txt}"
 # A string, not an array, because the render below runs in a child shell and an array cannot be
 # exported; set names are identifiers, so word splitting is safe.
 sel=""
@@ -63,6 +64,14 @@ if [ -n "$only" ]; then
         exit 1
     fi
 fi
+
+# Seams this project cannot close, pinned by measurement rather than by hand. A line is
+# "<build> <part> <over> <dup>"; SEAMS names the file and scripts/check-seams.sh rewrites it.
+# An open edge is never pinned - that is a hole, and a hole is always this project's problem.
+seam_pinned() {
+    [ -r "$SEAMS" ] || return 1
+    grep -qxF "${build:-default} $1 $3 $4" "$SEAMS"
+}
 
 label="${build:-default}"
 dir="${2:-output}/$label"
@@ -115,6 +124,10 @@ while IFS='|' read -r file name qty flags; do
         }
     } END { if (n) printf "%.2f %.2f %.2f", x2-x1, y2-y1, z2-z1 }' "$out" 2>/dev/null)
     box=$(echo "$raw" | awk '{ printf "%.0f x %.0f x %.0f", $1, $2, $3 }')
+    # How well the written mesh closes. OpenSCAD's own "not a valid 2-manifold" is about the CSG
+    # result, not the file it then writes, so a tangency that tessellates into coincident faces
+    # passes it and reaches the slicer.
+    read -r _ open_edges over_edges dup_faces <<< "$(scripts/stl-seams.sh "$out" 2>/dev/null)"
     if grep -q '^ERROR\|^no render flags' "$tmp/e"; then
         echo "FAIL  $name"; grep -m1 '^ERROR\|^no render flags' "$tmp/e" | sed 's/^/        /'; failed=1
         printf '| %s | %s | — | — | **did not build** |\n' "$name" "$qty" >> "$tmp/rows.md"
@@ -124,6 +137,23 @@ while IFS='|' read -r file name qty flags; do
     elif [ "$size" -le 1 ]; then
         echo "FAIL  $name  rendered nothing"; failed=1
         printf '| %s | %s | — | — | **rendered nothing** |\n' "$name" "$qty" >> "$tmp/rows.md"
+    elif [ "${open_edges:-0}" -gt 0 ] || [ "${over_edges:-0}" -gt 0 ] || [ "${dup_faces:-0}" -gt 0 ]; then
+        # What was measured, for scripts/check-seams.sh to pin. Only the parts that do not close;
+        # a build whose every part closes contributes nothing.
+        [ -n "${SEAMS_SEEN:-}" ] && echo "${build:-default} $name $over_edges $dup_faces" >> "$SEAMS_SEEN"
+        # A seam this project cannot close from here passes only at the count it was pinned at.
+        # One more, or a hole, and it fails like anything else.
+        if [ "${open_edges:-0}" -eq 0 ] && seam_pinned "$name" "$open_edges" "$over_edges" "$dup_faces"; then
+            printf 'note  %-28s x%-3s %-16s %s triangles, %s coincident edges (%s)\n' \
+                "$name" "$qty" "$box mm" "$tris" "$over_edges" "$SEAMS"
+            printf '| %s | %s | `%s.stl` | %s | %s (%s coincident edges) |\n' \
+                "$name" "$qty" "$name" "$box" "$tris" "$over_edges" >> "$tmp/rows.md"
+            echo "$name $raw" >> "$tmp/sizes"
+        else
+            echo "FAIL  $name  the mesh does not close: $open_edges edges on one face, $over_edges on more than two, $dup_faces repeated triangles"; failed=1
+            printf '| %s | %s | `%s.stl` | %s | **does not close: %s/%s/%s** |\n' \
+                "$name" "$qty" "$name" "$box" "$open_edges" "$over_edges" "$dup_faces" >> "$tmp/rows.md"
+        fi
     else
         printf 'ok    %-28s x%-3s %-16s %s triangles\n' "$name" "$qty" "$box mm" "$tris"
         printf '| %s | %s | `%s.stl` | %s | %s |\n' "$name" "$qty" "$name" "$box" "$tris" >> "$tmp/rows.md"
