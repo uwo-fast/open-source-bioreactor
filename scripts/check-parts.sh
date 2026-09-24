@@ -100,6 +100,8 @@ not_exported=(
     scad/custom/peri_pump_head.scad             # a stretch goal rather than this build
     scad/custom/exhaust_condenser.scad          # printed from its own file while it is proved
                                                 # on jar_10L; head does not place it yet
+    scad/custom/gl_port_cap.scad                # the inlet humidifier's cap: a bottle, not the
+                                                # reactor, so no manifest of the reactor's has it
     scad/custom/gasket_cutter_v2.scad           # WORK IN PROGRESS - a cutter built around a
                                                 # standard #11 blade rather than a printed edge.
                                                 # It renders so it can be previewed while it is
