@@ -47,12 +47,17 @@ gasket_cutter(inner_diameter=145, outer_diameter=151, thickness=1.5875);
  * @param seat_lead      Flare at the counterbore's mouth, which is what lets the plate be lowered
  *                       onto a blank lying on the base instead of the blank being loaded into an
  *                       upturned plate and the pair turned over
- * @param clamp_radius   Radius the clamp screws sit on, the same for every gasket
+ * @param clamp_radius   Radius the clamp screws sit on, the same for every gasket. The default
+ *                       clears the largest ring any registered vessel asks for, which is cut at
+ *                       r 78, and it is what sets the inner plate's size; a base for one jar can
+ *                       bring it in and take both plates down with it
  * @param clamp_travel   Half the slot length the base gives those screws
  * @param platen_height  Base thickness; the blade comes through the rubber into it
  * @param platen_bore    Hole through the middle of the base. Nothing is cut inboard of the
  *                       smallest inner diameter, so the platen only has to be continuous under
- *                       the two cut circles; the middle is carried on spokes instead
+ *                       the two cut circles; the middle is carried on spokes instead. The default
+ *                       clears the smallest ring any registered vessel asks for, which is cut at
+ *                       r 43.75; a base for one jar can take a much larger bore
  * @param hub_radius     Material around the base's central nut, where stage 1 screws down
  * @param spoke_width    The three ribs that carry that hub
  * @param nut_across_flats Clamp nut, across the flats
@@ -75,7 +80,7 @@ module gasket_cutter(
   clamp_radius = gasket_cutter_clamp_radius,
   clamp_travel = gasket_cutter_clamp_travel,
   platen_height = 8,
-  platen_bore = 62,
+  platen_bore = 36,
   hub_radius = 12,
   spoke_width = 14,
   nut_across_flats = 7,
