@@ -98,8 +98,6 @@ not_exported=(
     scad/custom/peri_pump_frame_mount.scad      # printed and part of the reactor, but waiting on
                                                 # where the bought pumps mount at all
     scad/custom/peri_pump_head.scad             # a stretch goal rather than this build
-    scad/custom/exhaust_condenser.scad          # printed from its own file while it is proved
-                                                # on jar_10L; head does not place it yet
     scad/custom/gl_port_cap.scad                # the inlet humidifier's cap: a bottle, not the
                                                 # reactor, so no manifest of the reactor's has it
     scad/custom/condenser_cold_finger.scad      # the condenser variants under test, each printed
