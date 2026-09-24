@@ -98,6 +98,8 @@ not_exported=(
     scad/custom/peri_pump_frame_mount.scad      # printed and part of the reactor, but waiting on
                                                 # where the bought pumps mount at all
     scad/custom/peri_pump_head.scad             # a stretch goal rather than this build
+    scad/custom/exhaust_condenser.scad          # printed from its own file while it is proved
+                                                # on jar_10L; head does not place it yet
     scad/custom/gasket_cutter_v2.scad           # WORK IN PROGRESS - a cutter built around a
                                                 # standard #11 blade rather than a printed edge.
                                                 # It renders so it can be previewed while it is
