@@ -28,6 +28,7 @@
  */
 
 use <../utils/facets.scad>
+use <../utils/section.scad>
 use <bayonet_port.scad>
 include <bayonet_interfaces.scad>
 
@@ -38,8 +39,15 @@ $fn = 0;
 $fa = facet_angle();
 $fs = facet_size();
 
-// example usage: the jar_10L lid's air_out port, which is std
-exhaust_condenser(bayonet_std);
+// Cut the preview open to see inside; ignored on a render
+cross_section_active = true;
+// How much the cut leaves: 0.5 is a half, 0.75 removes a quarter
+cross_section_keep = 0.5;
+
+// example usage: the jar_10L lid's air_out port, which is std. The cut starts at 0 degrees, so its
+// face runs through the outlet.
+section(keep=cross_section_keep, size=300, active=cross_section_active && $preview)
+  exhaust_condenser(bayonet_std);
 exhaust_condenser_report(bayonet_std, flow_lpm=4.11);
 
 // How far the body sinks into the flange, so the two overlap rather than meet face to face.
