@@ -580,9 +580,10 @@ function head_print_parts(vessel_opening_diameter, lid_flange_height, vessel_int
                 ),
               ],
           ],
-      // A tool, not a reactor part, but the rim gasket cannot be cut without it
+      // A tool, not a reactor part, but the rim gasket cannot be cut without it. The base is the
+      // same print for every gasket; the other two follow the cut.
       [
-        for (g = ["outer", "inner"])
+        for (g = ["outer", "inner", "base"])
           [str("gasket_cutter_", g), 1, str("-D render_gasket_cutter=true -D gasket_cutter_part_to_render=\"", g, "\"")],
       ]
     );

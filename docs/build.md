@@ -73,7 +73,9 @@ fills the shaft bore, and its flange bolts to the four inserts with the mount's 
 the base is slotted for the carrier whichever drive a build names. See
 [The magnetic drive](#the-magnetic-drive).
 
-**Tools, printed once:** the two halves of the gasket cutter.
+**Tools, printed once:** the three parts of the gasket cutter. The base is printed once for good —
+it is the same for every gasket; the outer disc and inner plate follow the cut and are reprinted
+when the vessel changes.
 
 Food-grade clear PETG for anything in contact with the culture, grey PETG for structure. The
 food-grade qualifier is a purchasing constraint, not a colour: a clear spool is not automatically
@@ -190,9 +192,28 @@ published; check its blade actually reaches 3 mm before relying on it. A round n
 same job on two cuts. A jeweller's saw in a mitre jig avoids the problem instead of correcting it,
 because a saw does not roll the wall in the first place.
 
-Cut the rim gasket with the printed two-stage cutter rather than by hand: the outer disc guides the
-first cut, then the blank drops into a counterbore under the inner plate whose bore guides the
-second. The concentricity of the finished ring is then a printed counterbore rather than your hand.
+Cut the rim gasket with the printed cutter rather than by hand. Everything happens on the base,
+which is the cutting surface, carries the nuts and is what both stages screw to, so nothing has to
+be lined up on a board by eye.
+
+1. **Three M4 nuts into the channels** on the base's underside, and one into the hex pocket at its
+   centre. They cannot turn, and they slide along their channels, which is what lets one base serve
+   every gasket size.
+2. **First cut.** Lay the sheet on the base, put the outer disc on it, and run a screw through the
+   disc's centre into the central nut. Cut round the disc. The screw pierces the sheet at its
+   centre, which is waste — the inner cut removes it.
+3. **Second cut.** Leave a short screw standing in the centre and drop the blank over it, or just
+   lay the blank on the base. Lower the inner plate onto it: the counterbore's mouth is flared, so
+   it shepherds the blank into its seat as it comes down. Run the three clamp screws through the
+   plate, through the base's slots, into the nuts. Cut down the bore.
+
+The plate stands `grip` (0.4 mm) proud of its seat, so it closes on rubber and pinches the blank
+rather than resting on the base. The concentricity of the finished ring is a printed counterbore
+rather than your hand.
+
+> Earlier versions had no base: the blank was loaded into an upturned plate and the pair turned
+> over onto a board, which is awkward and drops the blank. The flare at the counterbore's mouth is
+> what removes that step, and the base is what removes the board.
 
 ---
 
