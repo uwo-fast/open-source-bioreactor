@@ -31,7 +31,7 @@ ENTRY_CUSTOMIZED := "scad/bioreactor.scad scad/head.scad scad/frame.scad"
 export ENTRY := "scad/bioreactor.scad scad/support/bottle_holder.scad scad/support/equipment_cart.scad scad/support/electronics_stand.scad \
 scad/frame.scad scad/head.scad scad/custom/bayonet_port.scad \
 scad/custom/cylindrical_flex_collet.scad scad/custom/exhaust_condenser.scad scad/custom/gasket_cutter.scad scad/custom/gl_port_cap.scad \
-scad/custom/condenser_cold_finger.scad \
+scad/custom/condenser_cold_finger.scad scad/custom/condenser_coil.scad \
 scad/custom/gasket_cutter_v2.scad scad/custom/impeller.scad \
 scad/custom/motor_mount.scad scad/custom/magnet_hub_cap.scad scad/custom/bearing_blank.scad scad/custom/peri_pump_frame_mount.scad \
 scad/custom/peri_pump_head.scad scad/custom/sheet_gasket.scad \
