@@ -30,6 +30,7 @@ include <purchased/magnets.scad>;
 
 use <utils/bolt_pattern.scad>;
 use <utils/elastomer.scad>;
+use <utils/section.scad>;
 
 include <NopSCADlib/core.scad>;
 include <NopSCADlib/vitamins/screws.scad>; // M8_hex_screw type
@@ -56,8 +57,10 @@ export_at_origin = false;
 // own from $fa/$fs and re-asserts it inside head(), so this cannot reach it - see utils/facets.scad.
 $fn = $preview ? 64 : 128;
 
-// Cut the preview in half to see inside; ignored on a render
+// Cut the preview open to see inside; ignored on a render
 cross_section_active = true;
+// How much of the assembly the cut leaves: 0.5 is a half, 0.75 removes a quarter
+cross_section_keep = 0.5;
 
 /* [Vessel Selection] */
 
@@ -324,27 +327,19 @@ echo(str("printers: the widest printed part is a ", _widest_printed, " mm disc (
 if (len(_printers_fitting) == 0)
   echo(str("WARNING printers: no registered printer takes a ", _widest_printed, " mm disc; see scad/purchased/printers.scad"));
 
-// The vessel sections itself by revolving through 180 degrees, keeping +y; the head is cut to the
-// same half. Preview only: a part exported half-cut would be silently wrong.
+// The vessel sections itself by revolving less far, which is cheaper than cutting it; the head and
+// the frame are cut to the same sector. utils/section.scad keeps the sector from 0 degrees, which
+// is where the vessel's own sweep starts, so the three agree without being told about each other.
+// Preview only: a part exported with a wedge missing would be silently wrong.
 _section_active = cross_section_active && $preview;
-
-module cross_section(active) {
-  _s = vessel_height(reactor_vessel) * 2; // comfortably past anything the head reaches
-
-  if (active)
-    difference() {
-      children();
-      translate([-_s, -_s, -_s]) cube([_s * 2, _s, _s * 2]);
-    }
-  else
-    children();
-}
+_section_size = vessel_height(reactor_vessel) * 2; // comfortably past anything the assembly reaches
 
 if (render_vessel || render_all) {
-  vessel(reactor_vessel, angle=(_section_active ? 180 : 360));
+  vessel(reactor_vessel, angle=(_section_active ? cross_section_keep * 360 : 360));
 }
 
 if (render_frame || render_all) {
+  section(keep=cross_section_keep, size=_section_size, active=_section_active)
   frame(
     vessel=reactor_vessel,
     light=_reactor_light,
@@ -360,7 +355,7 @@ if (render_frame || render_all) {
 }
 
 if (render_head || render_all) {
-  cross_section(_section_active)
+  section(keep=cross_section_keep, size=_section_size, active=_section_active)
   translate(export_at_origin ? [0, 0, 0] : [0, 0, vessel_height(reactor_vessel) + lid_flange_height])
     head(
       vessel=reactor_vessel,

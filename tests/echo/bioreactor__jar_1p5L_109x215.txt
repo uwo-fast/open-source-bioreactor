@@ -74,8 +74,8 @@ TRACE: called by 'assert' in file head.scad, line N
 TRACE: called by 'if' in file head.scad, line N
 TRACE: called by 'head' in file bioreactor.scad, line N
 TRACE: called by 'translate' in file bioreactor.scad, line N
-TRACE: called by 'children' in file bioreactor.scad, line N
-TRACE: called by 'difference' in file bioreactor.scad, line N
-TRACE: called by 'if' in file bioreactor.scad, line N
-TRACE: called by 'cross_section' in file bioreactor.scad, line N
+TRACE: called by 'children' in file section.scad, line N
+TRACE: called by 'difference' in file section.scad, line N
+TRACE: called by 'if' in file section.scad, line N
+TRACE: called by 'section' in file bioreactor.scad, line N
 TRACE: called by 'if' in file bioreactor.scad, line N
