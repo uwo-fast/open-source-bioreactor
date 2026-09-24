@@ -18,6 +18,14 @@ oring_4x1p5_epdm       = ["4x1.5 EPDM",    "8785N364",  [4,       1.5 ], "EPDM",
 // whether it also lists SAE J200.
 oring_11x1p5_epdm      = ["11x1.5 EPDM",   "1289N321",  [11,      1.5 ], "EPDM",   70,    "Black"];
 oring_12x1p5_epdm      = ["12x1.5 EPDM",   "1289N322",  [12,      1.5 ], "EPDM",   70,    "Black"];
+
+// The 1.5 mm line stops at 30, so the condenser coil's head, which needs a ring near 42, takes the
+// 2 mm line's. Kept out of `orings` below, which the lid's plug search and its Customizer list are
+// both built from.
+oring_42x2_epdm        = ["42x2 EPDM",     "8785N431",  [42,      2   ], "EPDM",   70,    "Black"];
+// The rod seal on the condenser coil's 3/16 in (4.76 mm) aluminum tube: its ID under the tube, at 6%
+// stretch. Out of `orings` for the same reason.
+oring_4p5x1p5_epdm     = ["4.5x1.5 EPDM",  "1289N315",  [4.5,     1.5 ], "EPDM",   70,    "Black"];
 oring_14x1p5_epdm      = ["14x1.5 EPDM",   "1289N324",  [14,      1.5 ], "EPDM",   70,    "Black"];
 oring_15x1p5_epdm      = ["15x1.5 EPDM",   "1289N325",  [15,      1.5 ], "EPDM",   70,    "Black"];
 oring_16x1p5_epdm      = ["16x1.5 EPDM",   "1289N326",  [16,      1.5 ], "EPDM",   70,    "Black"];
