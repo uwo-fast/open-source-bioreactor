@@ -8,20 +8,19 @@
  * down its middle. Exhaust rises through the bore into a funnel, then up the annulus between the
  * well and the shell, and leaves by a barb under the roof. Water condenses on both walls and runs
  * back down the funnel and the bore into the vessel, against the gas: the bore is sized so the gas
- * is slow enough for it to.
+ * is slow enough for it to condense.
  *
- *      barb  ___________
- *        \  |  | well|  |      the well is open at the top and closed below: left empty the
- *         \ |  |     |  |      shell and the well both cool to the room; filled with cold water
- *           |  |     |  |      or ice, the well is a cold finger below room temperature
- *           |  |     |  |
- *           |   \   /   |
- *            \   \ /   /       funnel and well tip at 45 degrees, one gap apart
- *             \       /
- *              |     |         neck, lifting the shell clear of the neighbouring ports
- *            __|     |__
- *           |  flange   |      z = 0 is the panel's outer face, as for every bayonet_port
- *              |coupl|
+ *             __       __
+ *            |  |     |  |===     barb, just under the roof
+ *            |  | well|  |        the well is open at the top and closed below: left empty the
+ *            |  |     |  |        shell and the well both cool to the room; filled with cold water
+ *            |   \   /   |        or ice, the well is a cold finger below room temperature
+ *             \   \ /   /         funnel and well tip at 45 degrees, one gap apart
+ *              \       /
+ *               |     |           neck, lifting the shell clear of the neighbouring ports
+ *             __|     |__
+ *            |___     ___|        flange; z = 0 is the panel's outer face, as for every bayonet_port
+ *               |     |           the coupling, in the lid's port
  *
  * Every downward-facing surface is at 45 degrees or is the roof, so it prints standing on the
  * roof, well mouth down; the barb may not rise past the roof for the same reason.
