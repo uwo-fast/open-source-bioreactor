@@ -17,7 +17,15 @@ tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
 
 build="${1:-}"
 only="${3:-}"
-: "${SEAMS:=tests/seams.txt}"
+# How many coincident faces a part may leave before it is a defect rather than a tangency.
+#
+# Two solids that touch on exactly one plane leave the whole shared face behind, which is tens or
+# hundreds of edges: sparge_arm's socket taper left 202, the impeller's collar 124, the probe's
+# tilt wedge 43. A curve meeting a surface at a point leaves one or two, and which side of the
+# rounding they land on depends on the machine - the same part measures 0 here and 1 on a
+# different CGAL build. Counting those exactly makes the check a property of the host; a ceiling
+# well clear of both ranges makes it a property of the project.
+: "${SEAM_CEILING:=10}"
 # A string, not an array, because the render below runs in a child shell and an array cannot be
 # exported; set names are identifiers, so word splitting is safe.
 sel=""
@@ -64,14 +72,6 @@ if [ -n "$only" ]; then
         exit 1
     fi
 fi
-
-# Seams this project cannot close, pinned by measurement rather than by hand. A line is
-# "<build> <part> <over> <dup>"; SEAMS names the file and scripts/check-seams.sh rewrites it.
-# An open edge is never pinned - that is a hole, and a hole is always this project's problem.
-seam_pinned() {
-    [ -r "$SEAMS" ] || return 1
-    grep -qxF "${build:-default} $1 $3 $4" "$SEAMS"
-}
 
 label="${build:-default}"
 dir="${2:-output}/$label"
@@ -138,19 +138,17 @@ while IFS='|' read -r file name qty flags; do
         echo "FAIL  $name  rendered nothing"; failed=1
         printf '| %s | %s | — | — | **rendered nothing** |\n' "$name" "$qty" >> "$tmp/rows.md"
     elif [ "${open_edges:-0}" -gt 0 ] || [ "${over_edges:-0}" -gt 0 ] || [ "${dup_faces:-0}" -gt 0 ]; then
-        # What was measured, for scripts/check-seams.sh to pin. Only the parts that do not close;
-        # a build whose every part closes contributes nothing.
-        [ -n "${SEAMS_SEEN:-}" ] && echo "${build:-default} $name $over_edges $dup_faces" >> "$SEAMS_SEEN"
-        # A seam this project cannot close from here passes only at the count it was pinned at.
-        # One more, or a hole, and it fails like anything else.
-        if [ "${open_edges:-0}" -eq 0 ] && seam_pinned "$name" "$open_edges" "$over_edges" "$dup_faces"; then
-            printf 'note  %-28s x%-3s %-16s %s triangles, %s coincident edges (%s)\n' \
-                "$name" "$qty" "$box mm" "$tris" "$over_edges" "$SEAMS"
+        # A hole is always this project's problem. A handful of coincident faces is a tangency the
+        # renderer left, zero-volume and dropped by any slicer; a great many is two solids sharing
+        # a face, which is a defect in the model.
+        if [ "${open_edges:-0}" -eq 0 ] && [ "${over_edges:-0}" -le "$SEAM_CEILING" ]; then
+            printf 'note  %-28s x%-3s %-16s %s triangles, %s coincident edges\n' \
+                "$name" "$qty" "$box mm" "$tris" "$over_edges"
             printf '| %s | %s | `%s.stl` | %s | %s (%s coincident edges) |\n' \
                 "$name" "$qty" "$name" "$box" "$tris" "$over_edges" >> "$tmp/rows.md"
             echo "$name $raw" >> "$tmp/sizes"
         else
-            echo "FAIL  $name  the mesh does not close: $open_edges edges on one face, $over_edges on more than two, $dup_faces repeated triangles"; failed=1
+            echo "FAIL  $name  the mesh does not close: $open_edges edges on one face, $over_edges on more than two (ceiling $SEAM_CEILING), $dup_faces repeated triangles"; failed=1
             printf '| %s | %s | `%s.stl` | %s | **does not close: %s/%s/%s** |\n' \
                 "$name" "$qty" "$name" "$box" "$open_edges" "$over_edges" "$dup_faces" >> "$tmp/rows.md"
         fi

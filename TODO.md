@@ -193,7 +193,7 @@ section 5. Neither item is scheduled.
     prefer: here `fc-match sans` gives Noto Sans, with Liberation Sans also installed. The CI
     artifact's lettering was seen to differ from the bench's for exactly this reason
   - pinning it to one installed face makes the exported STL the same everywhere. It moves every
-    port's mesh, so it wants its own commit and a `just check-seams-update` after
+    port's mesh, so it wants its own commit
   - it is cosmetic - the lettering says which port is which - but a figure that changes with the
     machine is the kind of thing this project pins everywhere else
 
@@ -202,14 +202,6 @@ section 5. Neither item is scheduled.
     `jar_1gal_180_magnetic`, so that jar's magnetic parts cannot be exported by name. It takes an
     80 x 25 at a 28 mm pitch, the same coupling as `jar_10L`, and needs no model change - one
     entry in the parameter set
-
-- [ ] **`just test` roughly doubled when `check-seams` joined it**
-  - `check-seams` exports every part of all seven builds to measure the meshes, which is the only
-    way to ask the question, and that is about twenty minutes of wall time on twelve cores against
-    the eighteen `check-mesh` and `check-holes` already took. Observed, not benchmarked
-  - the options are to leave it, to pull it out of `test` into a recipe of its own, or to have it
-    render only the builds whose parts changed. The last is the only one that keeps the cover and
-    the cost, and it needs a way to know what changed
 
 - [ ] **the probe port's transition lands exactly on the collet, and the obvious fix costs material**
   - `bayonet_probe_port`'s transition cone ends at exactly `-_transition_length`, which is exactly
@@ -223,7 +215,10 @@ section 5. Neither item is scheduled.
   - the direction that costs nothing is to carry the _collet_ up into the cone instead: the cone is
     wider there and solid, so the overlap adds no volume. That means reaching into
     `cylindrical_flex_collet`, whose body length also places its tabs, so it is not a one-liner
-  - what is left is two triangles of zero volume in a closed mesh, pinned in `tests/seams.txt`
+  - what is left is one or two triangles of zero volume in a closed mesh, and which side of the
+    rounding they land on depends on the machine: the same part measures none here and one on the
+    CI runner's CGAL. `export-parts` notes them and passes; it fails on a count that could only
+    come from two solids sharing a face
 
 - [ ] **where the tree breaks `docs/architecture.md`**
   - `head()` is one module in three sections - derived, checks and reports, geometry. The checks
