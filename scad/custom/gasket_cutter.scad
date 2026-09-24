@@ -24,10 +24,14 @@
 $fn = $preview ? 64 : 128;
 
 // Where every stage clamps to the base. Fixed, not derived from the gasket, so one base serves
-// every size; it has to clear the largest outer diameter the base is built for.
+// every size. A slot may never lie under a cut, and the registered vessels' cuts fall in two
+// groups - r 43.75 to 51.9 for the small jars, r 69.5 to 82.5 for the large - so there are two
+// clamp circles: one in the gap between the groups, which the small gaskets use and which keeps
+// their plates small, and one outboard of everything, which the large ones use.
 gasket_cutter_clamp_radius = 92;
-// Half the travel the base's slots allow the clamp screws, either side of that radius.
 gasket_cutter_clamp_travel = 5;
+gasket_cutter_clamp_inner_radius = 61;
+gasket_cutter_clamp_inner_travel = 3;
 
 gasket_cutter(inner_diameter=145, outer_diameter=151, thickness=1.5875);
 
@@ -47,11 +51,14 @@ gasket_cutter(inner_diameter=145, outer_diameter=151, thickness=1.5875);
  * @param seat_lead      Flare at the counterbore's mouth, which is what lets the plate be lowered
  *                       onto a blank lying on the base instead of the blank being loaded into an
  *                       upturned plate and the pair turned over
- * @param clamp_radius   Radius the clamp screws sit on, the same for every gasket. The default
- *                       clears the largest ring any registered vessel asks for, which is cut at
- *                       r 78, and it is what sets the inner plate's size; a base for one jar can
- *                       bring it in and take both plates down with it
+ * @param clamp_radius   Outer clamp circle, outboard of every registered vessel's cut. Gaskets
+ *                       too large for the inner circle use this one
  * @param clamp_travel   Half the slot length the base gives those screws
+ * @param clamp_inner_radius Inner clamp circle, in the gap between the small jars' cuts and the
+ *                       large ones'. A gasket whose outer cut clears it clamps here instead, which
+ *                       is what keeps a small gasket's plate small
+ * @param clamp_inner_travel Half the slot length on that circle, shorter than the outer one
+ *                       because the gap it sits in is only 17.6 mm wide
  * @param platen_height  Base thickness; the blade comes through the rubber into it
  * @param platen_bore    Hole through the middle of the base. Nothing is cut inboard of the
  *                       smallest inner diameter, so the platen only has to be continuous under
@@ -79,6 +86,8 @@ module gasket_cutter(
   seat_lead = 1.5,
   clamp_radius = gasket_cutter_clamp_radius,
   clamp_travel = gasket_cutter_clamp_travel,
+  clamp_inner_radius = gasket_cutter_clamp_inner_radius,
+  clamp_inner_travel = gasket_cutter_clamp_inner_travel,
   platen_height = 8,
   platen_bore = 36,
   hub_radius = 12,
@@ -100,12 +109,20 @@ module gasket_cutter(
     inner_diameter > pin_diameter + 2 * rim,
     str("gasket_cutter: a ", inner_diameter, " mm bore has no room for a ", rim, " mm rim and a pin.")
   );
-  // A slot inboard of the cut is a void under the rubber, so the clamp circle has to clear the
-  // whole blank, not just the finished ring.
+  // A slot anywhere under a cut is a void with rubber over it, so BOTH circles have to miss the
+  // band this gasket is cut in - the one it clamps on and the one it does not.
   assert(
-    clamp_radius - clamp_travel - pin_diameter / 2 > outer_diameter / 2,
+    _inner_slot_hi < inner_diameter / 2 || _inner_slot_lo > outer_diameter / 2,
     str(
-      "gasket_cutter: the clamp slots reach r ", clamp_radius - clamp_travel - pin_diameter / 2,
+      "gasket_cutter: the inner clamp slots span r ", _inner_slot_lo, " to ", _inner_slot_hi,
+      " mm and this ring is cut from r ", inner_diameter / 2, " to ", outer_diameter / 2,
+      " mm; move gasket_cutter_clamp_inner_radius out of that band."
+    )
+  );
+  assert(
+    _outer_slot_lo > outer_diameter / 2,
+    str(
+      "gasket_cutter: the outer clamp slots reach r ", _outer_slot_lo,
       " mm and the blank is cut at r ", outer_diameter / 2, " mm; raise gasket_cutter_clamp_radius."
     )
   );
@@ -123,9 +140,15 @@ module gasket_cutter(
   );
 
   _seat_depth = thickness - grip; // the blank stands proud by grip, so the plate lands on rubber
-  // The plate reaches the clamp circle whatever the gasket, so every size screws to the same base.
-  _plate_d = max(outer_diameter + 2 * rim, 2 * (clamp_radius + rim));
-  _screw_r = clamp_radius;
+  // A slot's whole length has to miss this gasket's cuts, and the plate needs full thickness where
+  // the screw goes through, which is outboard of the counterbore. The inner circle is taken when
+  // the blank clears it, because it keeps a small gasket's plate small.
+  _inner_slot_lo = clamp_inner_radius - clamp_inner_travel - pin_diameter / 2;
+  _inner_slot_hi = clamp_inner_radius + clamp_inner_travel + pin_diameter / 2;
+  _outer_slot_lo = clamp_radius - clamp_travel - pin_diameter / 2;
+  _uses_inner = outer_diameter / 2 < _inner_slot_lo;
+  _screw_r = _uses_inner ? clamp_inner_radius : clamp_radius;
+  _plate_d = max(outer_diameter + 2 * rim, 2 * (_screw_r + rim));
   _platen_d = 2 * (clamp_radius + clamp_travel + rim);
   _nut_w = nut_across_flats + nut_clearance;
   _nut_h = nut_height + nut_clearance;
@@ -179,9 +202,9 @@ module gasket_cutter(
   // left standing there also centres the blank for stage 2 - the hole it makes is inside the bore,
   // so it leaves with the waste.
   module _base() {
-    module _slot(w, h) {
+    module _slot(r, travel, w, h) {
       hull()
-        for (x = [clamp_radius - clamp_travel, clamp_radius + clamp_travel])
+        for (x = [r - travel, r + travel])
           translate([x, 0, 0]) cylinder(d=w, h=h);
     }
     // Everything the blade meets, and nothing else: the ring between the two cut circles, the rim
@@ -204,10 +227,11 @@ module gasket_cutter(
       difference() {
         _spider();
         for (i = [0:2])
-          rotate([0, 0, i * 120]) {
-            translate([0, 0, -1]) _slot(pin_diameter, platen_height + 2);
-            translate([0, 0, -1]) _slot(_nut_w, _nut_h + 1);
-          }
+          rotate([0, 0, i * 120])
+            for (c = [[clamp_radius, clamp_travel], [clamp_inner_radius, clamp_inner_travel]]) {
+              translate([0, 0, -1]) _slot(c[0], c[1], pin_diameter, platen_height + 2);
+              translate([0, 0, -1]) _slot(c[0], c[1], _nut_w, _nut_h + 1);
+            }
         translate([0, 0, -1]) cylinder(d=pin_diameter, h=platen_height + 2);
         translate([0, 0, -1]) cylinder(d=_nut_w / cos(30), h=_nut_h + 1, $fn=6);
       }

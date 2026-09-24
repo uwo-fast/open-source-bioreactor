@@ -207,6 +207,10 @@ be lined up on a board by eye.
    it shepherds the blank into its seat as it comes down. Run the three clamp screws through the
    plate, through the base's slots, into the nuts. Cut down the bore.
 
+   The base has two rings of slots. A plate reaches whichever one clears its own blank — the inner
+   ring for the small jars, the outer for the large — so the nuts move to match the plate you
+   printed, and the ring the plate does not use stays clear of every cut.
+
 The plate stands `grip` (0.4 mm) proud of its seat, so it closes on rubber and pinches the blank
 rather than resting on the base. The concentricity of the finished ring is a printed counterbore
 rather than your hand.
