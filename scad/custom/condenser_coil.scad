@@ -4,14 +4,18 @@
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * Two printed parts and a length of soft tubing. The body is condenser_body with an outlet barb
- * under its rim and a bayonet lock in the rim. The head is the bayonet's pin: the tube's two ends
- * pass rod seals in it, and a cylinder hanging from it is the coil's former. The feed runs down
- * inside the former and turns out through a slot at its foot into the coil, which winds up its
- * outside, located by notched combs, to a window near the top where it turns back in to its seal.
- * In at the bottom, so the coil runs full and air is pushed out at the top.
+ * Two printed parts, a length of soft tubing, and two printed tools to shape it. The body is
+ * condenser_body with an outlet barb under its rim and a bayonet lock in the rim. The head is the
+ * bayonet's pin: the tube's two ends pass rod seals in it, and a solid former hanging from it
+ * fills the middle of the coil, so the gas has to pass the coil rather than go up past it.
  *
- * The former also closes the middle, so the gas has to pass the coil rather than go up past it.
+ * The coil is not wound on the head. It is wound on the mandrel, whose core is the former's
+ * radius, and unscrewed off; each end then turns inward and up around the bending puck, both
+ * bends in open space at a radius the tube takes. The two ends come out vertical and parallel, so
+ * the finished coil slides up onto the former, the bottom end in an open groove along it, and both
+ * ends into their seals. The head never takes a bending load. Coolant goes in the bottom end and
+ * out the top, so the coil runs full and air is pushed out at the top.
+ *
  * Only the tubing holds water, so a porous print can leak gas, never coolant into the culture.
  * A quarter turn lifts head, former and coil out together, and the shell is a plain tube to clean.
  *
@@ -22,8 +26,8 @@
  *         |   |          \    |
  *         | o |           o   |===   outlet barb, just under the rim
  *         | o |           o   |
- *         | o |           o   |      coil turns (o) wound on the head's former; the feed
- *         | o |           o   |      runs down inside it and out into the bottom turn
+ *         | o |           o   |      coil turns (o) round the head's former; the bottom end
+ *         | o |           o   |      comes back up inside them to its seal
  *         | o |___________o   |
  *          \                 /       funnel
  *            \             /
@@ -32,7 +36,8 @@
  *           |___         ___|        flange; z = 0 is the lid's outer face
  *              |         |           the coupling, in the lid's port
  *
- * The body prints standing on its rim, the head on its flange with the former rising from it.
+ * The body prints standing on its rim, the head on its flange with the former rising from it, the
+ * mandrel standing on its end and the puck flat.
  */
 
 use <../utils/facets.scad>
@@ -50,7 +55,7 @@ $fa = facet_angle();
 $fs = facet_size();
 
 // What the standalone file draws: the assembly, or one printed part in its print orientation
-part = "assembly"; // [assembly, body, head]
+part = "assembly"; // [assembly, body, head, coil, mandrel, puck]
 // Cut the assembly's preview open to see inside; ignored on a render
 cross_section_active = true;
 // How much the cut leaves: 0.5 is a half, 0.75 removes a quarter
@@ -63,6 +68,16 @@ if (part == "body")
 else if (part == "head")
   translate([0, 0, bayonet_flange_height(bayonet_xl)]) rotate([180, 0, 0])
     condenser_coil_head(tube_od=_tube_od, ring=oring_4p5x1p5_epdm);
+else if (part == "coil")
+  // the formed tube alone, in the head's datum (the rim's top face at z = 0), bought, not printed
+  condenser_coil_tubing(
+    condenser_coil_mandrel_radius, _tube_od, condenser_coil_bend_radius, condenser_coil_pitch, condenser_coil_turns,
+    -condenser_coil_rim - condenser_coil_top_gap, bayonet_flange_height(bayonet_xl) + 15
+  );
+else if (part == "mandrel")
+  condenser_coil_mandrel(_tube_od);
+else if (part == "puck")
+  condenser_coil_puck(_tube_od);
 else
   section(keep=cross_section_keep, size=400, active=cross_section_active && $preview)
     condenser_coil_assembly(bayonet_std, _tube_od, oring_4p5x1p5_epdm);
@@ -75,41 +90,36 @@ condenser_coil_neck = 30; // straight neck above the flange
 condenser_coil_shell = 38; // inside of the shell, a little over the coil
 condenser_coil_shell_length = 175; // straight shell up to the rim
 condenser_coil_rim = 10; // the rim, which is the head's panel
-condenser_coil_port_offset = 7; // the tube ends' distance from the axis, inside the former
-condenser_coil_former_wall = 1.6;
+condenser_coil_mandrel_radius = 13; // the coil's inside, and so the former's radius
+condenser_coil_bend_radius = 9.5; // both end bends; about twice a 3/16 in tube's diameter
 condenser_coil_pitch = 11;
-condenser_coil_turns = 11.5;
-condenser_coil_top_gap = 12; // coupling's bottom to the top turn's centre
+condenser_coil_turns = 12; // whole, so both ends leave at the same angle and mirror each other
+condenser_coil_top_gap = 16; // coupling's bottom to the top turn's centre, room for the top bends
 
 // ----- the coil -----
 
 // How long a coil of this many turns is along its axis, from the lowest turn's centre to the top one's.
 function condenser_coil_height(turns, pitch) = turns * pitch;
 
-// Tubing the coil takes, turns plus the straight feed down the middle and the two bends, roughly.
-function condenser_coil_tube_length(turns, coil_diameter, pitch, feed_length) =
-  turns * sqrt((PI * coil_diameter) ^ 2 + pitch ^ 2) + feed_length + PI * coil_diameter / 2;
+// The coil's centreline, the tube wound on the mandrel's core.
+function condenser_coil_radius(mandrel_radius, tube_od) = mandrel_radius + tube_od / 2;
 
-// The former's inside clears the feed; its outside is the coil's inside.
-function condenser_coil_former_inner_radius(port_offset, tube_od) = port_offset + tube_od / 2 + 0.5;
-function condenser_coil_former_outer_radius(port_offset, tube_od, former_wall) =
-  condenser_coil_former_inner_radius(port_offset, tube_od) + former_wall;
+// Where an end's vertical leg stands, in the frame where its turn leaves at angle 0: it carries on
+// along the tangent, turns inward through a quarter circle, then up through another. side is -1
+// for the bottom end, which leaves against the winding, and +1 for the top end, which leaves with it.
+function condenser_coil_leg(mandrel_radius, tube_od, bend_radius, side) =
+  [condenser_coil_radius(mandrel_radius, tube_od) - 2 * bend_radius, side * bend_radius];
 
-// The coil's centreline, the tube lying on the former.
-function condenser_coil_radius(port_offset, tube_od, former_wall) =
-  condenser_coil_former_outer_radius(port_offset, tube_od, former_wall) + tube_od / 2 + 0.2;
-
-// Where each comb stands, clear of the slot at 0 degrees and the window at 180.
-function condenser_coil_comb_angles() = [60, 180 + 60, 180 - 60];
+// Tubing the coil takes: the turns, the two legs up to the head, and the four quarter bends.
+function condenser_coil_tube_length(turns, coil_radius, pitch, legs, bend_radius) =
+  turns * sqrt((2 * PI * coil_radius) ^ 2 + pitch ^ 2) + legs + 2 * PI * bend_radius;
 
 // The rod seal's captive lip, as bayonet_port cuts it; a variable there, so read back through its
 // centre function rather than restated.
 function condenser_coil_gland_lip(ring) = bayonet_bore_gland_centre(ring, 0) - bayonet_bore_gland_length(ring) / 2;
 
-// How far below the rim's top face the former ends: the head's coupling, the gap to the top turn,
-// the coil, a pitch under it for the feed to turn out, and the tube's own half.
-function condenser_coil_former_depth(rim, top_gap, turns, pitch, tube_od) =
-  rim + top_gap + condenser_coil_height(turns, pitch) + pitch + tube_od / 2 + 1;
+// The bottom turn's centre, below the rim's top face.
+function condenser_coil_bottom_z(rim, top_gap, turns, pitch) = -rim - top_gap - condenser_coil_height(turns, pitch);
 
 // ----- body -----
 
@@ -195,70 +205,83 @@ module condenser_coil_body(
   }
 }
 
+
 // ----- head -----
 
 /**
  * The head in the rim's datum: z = 0 is the rim's top face, the flange above it and the former
  * hanging below the coupling.
  *
- * @param head_type    Registered bayonet interface it locks with
- * @param rim          Rim thickness, the coupling's length
- * @param tube_od      Coolant tubing's outside diameter
- * @param ring         Registered o-ring sealing each tube end, its ID at or under tube_od
- * @param port_offset  The two tube ends' distance from the axis, both inside the former
- * @param former_wall  Wall of the former
- * @param pitch        Rise per turn; at least twice the capillary length over the tube, so water
- *                     does not bridge between turns
- * @param turns        Turns of coil; a half over a whole number, so the coil starts at 0 degrees
- *                     at the slot and ends at 180 at the window
- * @param top_gap      From the coupling's bottom to the top turn's centre, where the top end
- *                     turns in through the window to its seal
- * @param comb_width   Tangential width of each comb
+ * @param head_type       Registered bayonet interface it locks with
+ * @param rim             Rim thickness, the coupling's length
+ * @param tube_od         Coolant tubing's outside diameter
+ * @param ring            Registered o-ring sealing each tube end, its ID at or under tube_od
+ * @param mandrel_radius  The coil's inside; the former is fit_clearance under it, so a wound coil
+ *                        slides on even if it does not spring open at all
+ * @param bend_radius     The end bends' radius, which sets where the legs stand
+ * @param pitch           Rise per turn; at least twice the capillary length over the tube, so water
+ *                        does not bridge between turns
+ * @param turns           Turns of coil, whole
+ * @param top_gap         From the coupling's bottom to the top turn's centre
+ * @param fit_clearance   How far the former stands inside the coil
  */
 module condenser_coil_head(
   head_type = bayonet_xl,
   rim = condenser_coil_rim,
   tube_od = 4.7625,
   ring = oring_4p5x1p5_epdm,
-  port_offset = condenser_coil_port_offset,
-  former_wall = condenser_coil_former_wall,
+  mandrel_radius = condenser_coil_mandrel_radius,
+  bend_radius = condenser_coil_bend_radius,
   pitch = condenser_coil_pitch,
   turns = condenser_coil_turns,
   top_gap = condenser_coil_top_gap,
-  comb_width = 2.4
+  fit_clearance = 0.3
 ) {
   _fh = bayonet_flange_height(head_type);
+  _former_r = mandrel_radius - fit_clearance;
   _rt = tube_od / 2;
-  _bore_r = _rt + 0.2;
-  _fi = condenser_coil_former_inner_radius(port_offset, tube_od);
-  _fo = condenser_coil_former_outer_radius(port_offset, tube_od, former_wall);
-  _rc = condenser_coil_radius(port_offset, tube_od, former_wall);
-  _comb_out = _rc + _rt + 0.2;
-  _z_top_turn = -rim - top_gap;
-  _h = condenser_coil_height(turns, pitch);
-  _z_bottom = _z_top_turn - _h;
-  _former_bottom = -condenser_coil_former_depth(rim, top_gap, turns, pitch, tube_od);
-  _notch_h = tube_od + 0.4;
+  _rc = condenser_coil_radius(mandrel_radius, tube_od);
+  _bottom_leg = condenser_coil_leg(mandrel_radius, tube_od, bend_radius, -1);
+  _top_leg = condenser_coil_leg(mandrel_radius, tube_od, bend_radius, 1);
+  _leg_r = norm(_bottom_leg);
+  _z_top = -rim - top_gap;
+  _z_bottom = condenser_coil_bottom_z(rim, top_gap, turns, pitch);
   _core_r = bayonet_interface_radius(head_type) - bayonet_pin_radius(head_type);
-  _opening = tube_od + 1;
+  _groove_r = _rt + 0.3;
+
+  // The former: full radius where it carries the coil, from above the bottom end's up-bend to below
+  // the top end's inward turn, then 45 degrees in to a neck the top bends clear.
+  // the up-bend swings across the axis's own line at one bend radius from it, nearer than the leg
+  _neck_r = min(_leg_r, bend_radius) - _rt - 0.4;
+  _body_bottom = _z_bottom + bend_radius + _rt + 0.5;
+  _cone_top = _z_top - _rt - 0.5;
+  _body_top = _cone_top - (_former_r - _neck_r);
 
   assert(
-    _comb_out < bayonet_pin_face_radius(head_type),
-    str("condenser_coil_head: the coil, r ", _comb_out, ", will not pass the lock's bore")
+    _rc + _rt < bayonet_pin_face_radius(head_type) - 0.5,
+    str("condenser_coil_head: the coil, r ", _rc + _rt, ", will not pass the lock's bore")
   );
   assert(
-    oring_inner_diameter(ring) <= tube_od && 2 * _bore_r > oring_inner_diameter(ring),
+    _leg_r + _rt + 0.3 <= mandrel_radius,
+    str(
+      "condenser_coil_head: a leg at r ", _leg_r, " rubs the coil's inside; bend_radius ", bend_radius,
+      " is too large for a ", mandrel_radius, " mm mandrel"
+    )
+  );
+  assert(
+    bend_radius >= 1.8 * tube_od,
+    str("condenser_coil_head: a ", bend_radius, " mm bend is under 1.8 x the tube's ", tube_od, " mm, too tight to form")
+  );
+  assert(
+    oring_inner_diameter(ring) <= tube_od && 2 * (_rt + 0.2) > oring_inner_diameter(ring),
     str("condenser_coil_head: a ", oring_name(ring), " does not seal on a ", tube_od, " mm tube")
   );
   assert(
-    port_offset + bayonet_bore_gland_radius(ring) + 1 <= _core_r
-    && port_offset > bayonet_bore_gland_radius(ring) + 0.5,
-    str("condenser_coil_head: seals at r ", port_offset, " break out of the coupling or into each other")
+    _leg_r + bayonet_bore_gland_radius(ring) + 1 <= _core_r
+    && norm(_top_leg - _bottom_leg) >= 2 * bayonet_bore_gland_radius(ring) + 1,
+    str("condenser_coil_head: seals at r ", _leg_r, " break out of the coupling or into each other")
   );
-  assert(
-    turns - floor(turns) == 0.5,
-    str("condenser_coil_head: ", turns, " turns ends the coil on the slot's side instead of at the window")
-  );
+  assert(turns == floor(turns), str("condenser_coil_head: ", turns, " turns leaves the ends at different angles"));
   assert(
     pitch - tube_od >= 2 * 2.7,
     str(
@@ -266,64 +289,50 @@ module condenser_coil_head(
       " capillary length, so condensate bridges them"
     )
   );
+  assert(_body_top > _body_bottom, "condenser_coil_head: too few turns to leave the former any length");
 
   difference() {
     union() {
       bayonet_port(type=head_type, part="pin", panel_thickness=rim, catch_pockets=false);
-
-      // The former, from the coupling's bottom down past the feed's turn
-      translate([0, 0, _former_bottom])
-        difference() {
-          cylinder(h=-rim - _former_bottom + 0.5, r=_fo);
-          translate([0, 0, -1]) cylinder(h=-rim - _former_bottom + 2.5, r=_fi);
-        }
-
-      // Combs on the former, notched where the coil crosses each: the coil starts at 0 degrees and
-      // rises a pitch per turn, so at this comb it is a/360 of a pitch above each whole turn
-      for (a = condenser_coil_comb_angles())
-        rotate([0, 0, a])
-          difference() {
-            translate([_fo - 0.5, -comb_width / 2, _former_bottom])
-              cube([_comb_out - _fo + 0.5, comb_width, -rim - _former_bottom + 0.5]);
-            for (k = [0:ceil(turns)])
-              let (z = _z_bottom + (k + a / 360) * pitch)
-                if (z < _z_top_turn + _notch_h / 2)
-                  translate([_fo - 0.01, -comb_width, z - _notch_h / 2])
-                    cube([_comb_out, comb_width * 2, _notch_h]);
-          }
+      rotate_extrude()
+        polygon(
+          [
+            [0, _body_bottom],
+            [_former_r, _body_bottom],
+            [_former_r, _body_top],
+            [_neck_r, _cone_top],
+            [_neck_r, -rim + 0.5],
+            [0, -rim + 0.5],
+          ]
+        );
     }
 
-    // Slot at 0 degrees, open at the former's foot, where the feed turns out into the coil
-    translate([_fi - 1, -_opening / 2, _former_bottom - 1])
-      cube([former_wall + 2, _opening, _z_bottom + _rt + 0.5 - _former_bottom + 1]);
-    // Window at 180 degrees, where the top end turns back in to its seal
-    rotate([0, 0, 180])
-      translate([_fi - 1, -_opening / 2, _z_top_turn - _rt - 0.5])
-        cube([former_wall + 2, _opening, 4 + tube_od + 1]);
+    // The bottom end's groove, open to the outside so the leg drops in as the coil slides on
+    hull()
+      for (r = [0, _former_r])
+        translate(concat(_bottom_leg * (1 + r / _leg_r), [_body_bottom - 1]))
+          cylinder(h=_cone_top - _body_bottom + 2, r=_groove_r);
 
     // The tube ends: bores through the head, rod seals near the coupling's bottom
-    for (x = [port_offset, -port_offset])
-      translate([x, 0, 0]) {
-        translate([0, 0, -rim - 1]) cylinder(h=rim + _fh + 2, r=_bore_r);
+    for (leg = [_bottom_leg, _top_leg])
+      translate(concat(leg, [0])) {
+        translate([0, 0, -rim - 1]) cylinder(h=rim + _fh + 2, r=_rt + 0.2);
         translate([0, 0, -rim + condenser_coil_gland_lip(ring)])
           cylinder(h=bayonet_bore_gland_length(ring), r=bayonet_bore_gland_radius(ring));
       }
   }
 }
 
-// ----- assembly -----
+// ----- tools -----
 
-// A round tube wound on a helix: `turns` turns from angle 0 at z = 0, rising a pitch per turn.
-// Swept as a polyhedron, its section a circle in the plane through the axis.
-module condenser_coil_helix(radius, tube_od, pitch, turns) {
-  _m = 16; // points round the section
-  _n = ceil(turns * 72);
+// A section in (r, z) swept along a helix: `turns` turns from angle 0 at z = 0, rising a pitch per turn.
+module condenser_coil_helix_sweep(section, pitch, turns, steps_per_turn = 72) {
+  _m = len(section);
+  _n = ceil(turns * steps_per_turn);
   _pts = [
     for (i = [0:_n])
       let (a = 360 * turns * i / _n, dz = pitch * turns * i / _n)
-        for (j = [0:_m - 1])
-          let (t = 360 * j / _m, r = radius + tube_od / 2 * cos(t))
-            [r * cos(a), r * sin(a), dz + tube_od / 2 * sin(t)],
+        for (p = section) [p[0] * cos(a), p[0] * sin(a), p[1] + dz],
   ];
   _faces = concat(
     [[for (j = [_m - 1:-1:0]) j]],
@@ -337,41 +346,110 @@ module condenser_coil_helix(radius, tube_od, pitch, turns) {
   polyhedron(points=_pts, faces=_faces, convexity=4);
 }
 
-// The coolant tubing, for the picture and the clash check: the feed down inside the former, the
-// coil from 0 degrees, the top end in and up from 180.
-module condenser_coil_tubing(port_offset, coil_radius, tube_od, pitch, turns, z_top_turn, z_ends) {
-  _h = condenser_coil_height(turns, pitch);
-  _z_bottom = z_top_turn - _h;
+/**
+ * The winding mandrel, standing on its foot: a core at the coil's inside radius, and a helical ridge
+ * between the turns that sets the pitch. The ridge's underside is 45 degrees, so it prints standing.
+ * Wind with a straight tail at each end, then unscrew the coil off. A hex on top takes a spanner or
+ * a drill chuck; the cross hole near the foot takes a tie that holds the starting tail.
+ */
+module condenser_coil_mandrel(
+  tube_od,
+  mandrel_radius = condenser_coil_mandrel_radius,
+  pitch = condenser_coil_pitch,
+  turns = condenser_coil_turns,
+  grip = 16
+) {
+  _rt = tube_od / 2;
+  _length = condenser_coil_height(turns, pitch) + 2 * pitch;
+  _w = pitch - tube_od - 0.4; // the ridge's root, leaving the tube 0.4 of play
+  _ridge = [
+    [mandrel_radius - 0.5, -_w / 2],
+    [mandrel_radius + _rt, -_w / 2 + _rt + 0.5],
+    [mandrel_radius + _rt, _w / 2],
+    [mandrel_radius - 0.5, _w / 2],
+  ];
+
+  difference() {
+    union() {
+      cylinder(h=_length, r=mandrel_radius);
+      // The ridge sits half a pitch off the tube's centreline, from one pitch up to one from the top
+      translate([0, 0, pitch * 1.5]) condenser_coil_helix_sweep(_ridge, pitch, turns - 1);
+      translate([0, 0, _length - 0.5]) cylinder(h=grip + 0.5, d=grip / cos(30), $fn=6);
+    }
+    translate([0, 0, pitch]) rotate([90, 0, 0]) cylinder(h=mandrel_radius * 3, d=3.2, center=true);
+  }
+}
+
+/**
+ * The bending puck, lying flat: a disc whose rim groove is the bend radius at the tube's centre, and
+ * a straight lead-in that holds the tube square while it is pulled round. Both ends of the coil take
+ * two quarter bends round it, the first inward, the second up.
+ */
+module condenser_coil_puck(tube_od, bend_radius = condenser_coil_bend_radius, lead = 30) {
+  _rt = tube_od / 2;
+  _h = tube_od + 4;
+
+  difference() {
+    union() {
+      cylinder(h=_h, r=bend_radius + _rt * 0.6);
+      translate([0, -bend_radius - _rt * 0.6, 0]) cube([lead, 2 * (bend_radius + _rt * 0.6), _h]);
+    }
+    // The groove: a 90 degree V round the rim and along the lead-in, which prints without support
+    // and holds the tube on two lines
+    translate([0, 0, _h / 2])
+      rotate([0, 0, 90]) // round the disc's free half only, not through the lead-in
+        rotate_extrude(angle=180) translate([bend_radius, 0]) rotate(45) square(tube_od * 0.75, center=true);
+    translate([0, -bend_radius, _h / 2]) rotate([0, 90, 0]) rotate(45) cube([tube_od * 0.75, tube_od * 0.75, lead * 3], center=true);
+  }
+}
+
+// ----- assembly -----
+
+// Tube along a chain of points, for the picture and the clash check.
+module condenser_coil_chain(pts, tube_od) {
+  for (i = [0:len(pts) - 2])
+    hull() {
+      translate(pts[i]) sphere(d=tube_od);
+      translate(pts[i + 1]) sphere(d=tube_od);
+    }
+}
+
+// The coil as it is formed: the turns, and at each end the inward and upward quarter bends to a
+// vertical leg reaching z_ends.
+module condenser_coil_tubing(mandrel_radius, tube_od, bend_radius, pitch, turns, z_top_turn, z_ends) {
+  _rc = condenser_coil_radius(mandrel_radius, tube_od);
+  _r = bend_radius;
+  _z_bottom = z_top_turn - condenser_coil_height(turns, pitch);
 
   color("LightSkyBlue", 0.8) {
-    translate([port_offset, 0, _z_bottom - pitch]) cylinder(h=z_ends - _z_bottom + pitch, d=tube_od);
-    hull() {
-      translate([port_offset, 0, _z_bottom - pitch]) sphere(d=tube_od);
-      translate([coil_radius, 0, _z_bottom]) sphere(d=tube_od);
-    }
-    translate([0, 0, _z_bottom]) condenser_coil_helix(coil_radius, tube_od, pitch, turns);
-    hull() {
-      translate([-coil_radius, 0, z_top_turn]) sphere(d=tube_od);
-      translate([-port_offset, 0, z_top_turn + 4]) sphere(d=tube_od);
-    }
-    translate([-port_offset, 0, z_top_turn + 4]) cylinder(h=z_ends - z_top_turn - 4, d=tube_od);
+    translate([0, 0, _z_bottom])
+      condenser_coil_helix_sweep([for (j = [0:15]) [_rc + tube_od / 2 * cos(22.5 * j), tube_od / 2 * sin(22.5 * j)]], pitch, turns);
+    for (end = [[-1, _z_bottom], [1, z_top_turn]])
+      let (s = end[0], z = end[1])
+        condenser_coil_chain(
+          concat(
+            [for (f = [0:5:90]) [_rc - _r + _r * cos(f), s * _r * sin(f), z]],
+            [for (f = [5:5:90]) [_rc - _r - _r * sin(f), s * _r, z + _r - _r * cos(f)]],
+            [[_rc - 2 * _r, s * _r, z_ends]]
+          ),
+          tube_od
+        );
   }
 }
 
 // Body, head and tubing as assembled, in the lid's datum.
 module condenser_coil_assembly(
   type, tube_od, ring, head_type = bayonet_xl, rim = condenser_coil_rim, top_gap = condenser_coil_top_gap,
-  turns = condenser_coil_turns, pitch = condenser_coil_pitch, port_offset = condenser_coil_port_offset,
-  former_wall = condenser_coil_former_wall
+  turns = condenser_coil_turns, pitch = condenser_coil_pitch, mandrel_radius = condenser_coil_mandrel_radius,
+  bend_radius = condenser_coil_bend_radius
 ) {
   _z_rim = condenser_coil_rim_top_z(type);
 
   condenser_coil_body(type, head_type);
   translate([0, 0, _z_rim]) {
-    condenser_coil_head(head_type, rim, tube_od, ring, port_offset, former_wall, pitch, turns, top_gap);
+    condenser_coil_head(head_type, rim, tube_od, ring, mandrel_radius, bend_radius, pitch, turns, top_gap);
     condenser_coil_tubing(
-      port_offset, condenser_coil_radius(port_offset, tube_od, former_wall), tube_od, pitch, turns, -rim - top_gap,
-      bayonet_flange_height(head_type) + 15
+      mandrel_radius, tube_od, bend_radius, pitch, turns, -rim - top_gap, bayonet_flange_height(head_type) + 15
     );
   }
 }
@@ -379,21 +457,22 @@ module condenser_coil_assembly(
 // Coil geometry and the tubing to buy.
 module condenser_coil_report(
   type, tube_od, head_type = bayonet_xl, pitch = condenser_coil_pitch, turns = condenser_coil_turns,
-  rim = condenser_coil_rim, top_gap = condenser_coil_top_gap, port_offset = condenser_coil_port_offset,
-  former_wall = condenser_coil_former_wall
+  rim = condenser_coil_rim, top_gap = condenser_coil_top_gap, mandrel_radius = condenser_coil_mandrel_radius,
+  bend_radius = condenser_coil_bend_radius
 ) {
-  _rc = condenser_coil_radius(port_offset, tube_od, former_wall);
-  _h = condenser_coil_height(turns, pitch);
+  _rc = condenser_coil_radius(mandrel_radius, tube_od);
   _z_rim = condenser_coil_rim_top_z(type);
   _z_funnel = condenser_body_funnel_top_z(type, condenser_coil_bore, condenser_coil_neck, condenser_coil_shell);
+  _z_bottom = _z_rim + condenser_coil_bottom_z(rim, top_gap, turns, pitch);
+  _legs = (_z_rim + bayonet_flange_height(head_type) + 15 - (_z_bottom + bend_radius))
+    + (bayonet_flange_height(head_type) + 15 + rim + top_gap - bend_radius);
   echo(
     str(
-      "condenser coil: ", turns, " turns of ", tube_od, " mm tubing on a Ø", 2 * _rc, " centreline (bend radius ",
-      _rc / tube_od, " x OD) at ", pitch, " mm pitch, ", _h, " mm of coil; about ",
-      round(condenser_coil_tube_length(turns, 2 * _rc, pitch, _h + 60) / 10) / 100,
-      " m of tubing with the feed and tails; head sealed by a ", oring_name(bayonet_oring(head_type)),
-      "; rim ", _z_rim, " mm above the lid, the former ending ",
-      _z_rim - condenser_coil_former_depth(rim, top_gap, turns, pitch, tube_od) - _z_funnel, " mm above the funnel"
+      "condenser coil: ", turns, " turns of ", tube_od, " mm tubing on a Ø", 2 * mandrel_radius, " mandrel (centreline bend ",
+      _rc / tube_od, " x OD) at ", pitch, " mm pitch, the ends bent at ", bend_radius, " mm (", bend_radius / tube_od,
+      " x OD); about ", round(condenser_coil_tube_length(turns, _rc, pitch, _legs, bend_radius) / 10) / 100,
+      " m of tubing with 15 mm tails; head sealed by a ", oring_name(bayonet_oring(head_type)), "; rim ", _z_rim,
+      " mm above the lid, the tube's lowest point ", _z_bottom - tube_od / 2 - _z_funnel, " mm above the funnel"
     )
   );
 }
