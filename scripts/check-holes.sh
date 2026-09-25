@@ -15,6 +15,9 @@
 # the print manifest exports the sparger with. A file that emits no HOLEPROBE has nothing to say.
 # Not in `just check`: it needs a CGAL render.
 set -uo pipefail
+# "No probe lines" is also what a binary that renders nothing says.
+source "$(dirname "$0")/openscad-canary.sh"
+openscad_canary
 targets="${1:-}"
 [ -n "$targets" ] || targets="$ENTRY"
 tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT

@@ -14,6 +14,9 @@
 set -uo pipefail
 
 : "${OPENSCAD:=openscad}"
+# A file meant to emit nothing passes on a binary that emits nothing, so prove it renders first.
+source "$(dirname "$0")/openscad-canary.sh"
+openscad_canary
 : "${ENTRY:?the justfile exports the list of files that render on their own}"
 
 entry=($ENTRY)
