@@ -369,6 +369,14 @@ because a `nan` propagates into a comparison that is simply false. `check-scad` 
 **`-D '$fn=0'`**, which is what an unset viewport actually is, and geometry derives its facet count
 from `$fa`/`$fs` rather than reading `$fn` off the caller.
 
+**A clash check on a stand-in shape proves only the stand-in.** The condenser coil's preview tube was
+a horizontal disc swept round the helix, a 0.4 mm ribbon in section, and a collision test passed on
+it that a round tube would have failed; the printed head then cracked where the real tube would not
+bend. Draw what is checked from the part's real section, and prove the check can fail by moving the
+thing it guards - half a pitch, a few degrees - and watching it report. And a fit is not the only
+question for something bent or wound: it has to be formable, at a radius the material takes, and
+never against a printed part.
+
 ---
 
 ## What the customizer can and cannot carry

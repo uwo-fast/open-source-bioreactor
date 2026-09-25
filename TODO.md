@@ -329,6 +329,17 @@ section 5. Neither item is scheduled.
   - the questions: does the reactor's print list cover an accessory, and is printing that bracket
     deliberate? The cart's extrusion, brackets and castors are on no purchase list either
 
+- [ ] **designations for the pump and the inlet filter, if builds start to differ**
+  - `head.scad` assigns fifteen hardware rows directly (`head_air_pump`, `sparge_inlet_filter`,
+    `sparge_check_valve`, the clamps and inserts among them) that no parameter set can change
+  - the pump and the filter drive the gas budget, so they are the ones worth a `_name` designation
+    first. Left until a build needs it
+
+- [ ] **registry rows are read by position and not checked for shape**
+  - `registry_by_name` checks the name only. A missing field shows as an undef warning, which
+    `check-scad` fails on, but two fields of the same type swapped would pass
+  - low risk; a row-length assert in each `_by_name` wrapper would close most of it
+
 ## long term / post paper submission
 
 - [ ] adopt the Just the Docs OpenSCAD setup for this project, including its web-based preview
