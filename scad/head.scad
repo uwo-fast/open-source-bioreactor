@@ -86,7 +86,7 @@ render_motor_mount_screws = false;
 render_shaft_coupler = false;
 // the 608 in the lid's pocket
 render_bearing = false;
-// The 316 SS shaft, bought and cut to length
+// The 316 SS shaft, bought at a stock length; the motor mount's height takes up the surplus
 render_ext_shaft = false;
 // The printed impellers on that shaft
 render_impeller = false;
