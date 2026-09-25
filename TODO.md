@@ -17,7 +17,7 @@ closed it and in `docs/`.
     Nothing else waits on it - the reference run had the dose pumps disabled
 
 - [ ] **measured gas flow**
-  - the model states a vvm and no builder can set one: the ReSun pump settles at 5.97 L/min where
+  - the model states a vvm and no builder can set one: the ReSun pump settles at 5.80 L/min where
     0.822-4.11 is wanted. The parts are in the BOM (Dwyer VFA-23 meter, Clippard MNV-3KP needle
     valve upstream of it; why these, `docs/procurement.md`). What is left is buying them and taking
     a reading
@@ -36,9 +36,9 @@ closed it and in `docs/`.
 
 - [ ] **choose an outlet filter that fits in the budget `head()` reports**
   - the exhaust is unguarded: the headspace vents through a support tube into the room. A second
-    1594522 on the outlet does not work: two put the line at 31.8 kPa against a pump that dead-heads
-    at 27, and 0.5 vvm stops being a setting it can hold
-  - `head()` reports the budget instead: at most 1.88304 kPa per L/min on `jar_10L`, 54.6 % of the
+    1594522 on the outlet does not work: two put the line at 32.5 kPa against a pump that dead-heads
+    at 27 and it settles at 3.17 L/min, and 0.5 vvm stops being a setting it can hold
+  - `head()` reports the budget instead: at most 1.70844 kPa per L/min on `jar_10L`, 49.5 % of the
     inlet filter's slope, net of the vent slot and the tube, which are priced into the line. Set
     `sparge_outlet_filter` and `head()` prices the filter in too
   - the budget moves with the inlet filter's slope, which is extrapolated - measure that first
@@ -82,9 +82,9 @@ closed it and in `docs/`.
   - every tube port but `air_in` is capped at the ring and vents through a hole drilled up its
     length. `head()` reports the window (37.9-88.7 mm from the top on `jar_10L`) and `docs/build.md`
     says which end each port wants; the hole itself is a bench operation and is not drawn
-  - only `air_out`'s hole has a size to meet, and `head()` prices it: the floor is 0.992 mm2 on
-    `jar_10L`, 0.283 on `jar_1gal_180x197`, none on `jar_6p5gal` (its line beats the pump). A normal
-    file cut clears it 7x; a shallow pass that just breaks the wall does not
+  - only `air_out`'s hole has a size to meet, and `head()` prices it: the floor is 1.055 mm2 on
+    `jar_10L`, 0.288 on `jar_1gal_180x197`, none on `jar_6p5gal` (its line beats the pump). A normal
+    file cut clears it nearly 7x; a shallow pass that just breaks the wall does not
   - not parameterised on purpose: a default for a hand-cut window would be a guess
 
 - [ ] **where the sparger's gas actually goes, and whether the DO probe should move**
