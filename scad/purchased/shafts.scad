@@ -6,8 +6,8 @@
 // transition fit (0.005 clearance to 0.007 interference), which a rotating inner ring wants; h9
 // rod would allow 0.043 of slop.
 //
-// 316 because the shaft is wetted and the reactor is chemically sterilised (hypochlorite), which
-// 303/304 do not stand up to. NopSCADlib's rod() draws the geometry; the rows are ours.
+// 316 because the shaft is wetted and the reactor is chemically sterilised (7.5 % hydrogen peroxide;
+// bleach only on the glass vessel, whose chloride 303/304 do not stand up to). NopSCADlib's rod() draws the geometry; the rows are ours.
 
 //                  ["name"        part_no    [dia, dia_tol_lo, dia_tol_hi]   [length, len_tol], material, straightness_per_300]
 shaft_8x200_316   = ["8x200_316",  "1265K64", [8,   -0.005,      0         ], [200,    0.25    ], "316 SS", 0.18];

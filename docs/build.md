@@ -231,10 +231,11 @@ not a workaround for a wrong hole. The shaft is 7.995–8 mm in an 8 mm bore, so
 0.007 mm interference to 0.005 mm clearance; the pocket in the lid is 22.2 mm for a 22 mm outside
 diameter. The joint feeling tight on assembly is the intended condition.
 
-> **The bearing is the weak link against bleach.** 440C and Buna-N are both poor against
-> hypochlorite, and this reactor is chemically sterilised rather than autoclaved. The shaft is 316
-> precisely for that reason. The bearing sits in a blind lid pocket and is not submerged — keep it
-> that way.
+> **The bearing is the weak link against the sterilant.** This reactor is chemically sterilised
+> rather than autoclaved: 7.5 % hydrogen peroxide for everything but the pH and DO probes, and bleach
+> or chlorite only ever on the glass vessel. 440C is not rated for bleach and Buna-N is poor against
+> oxidisers, peroxide among them; the shaft is 316 for that reason. The bearing sits in a blind lid
+> pocket and is not submerged — keep it that way, and keep it out of the vessel's bleach step.
 
 **Heat-set the four M4 inserts into the lid from the mount face.** 4.7 mm of insert into a 5.6 mm
 hole, with 13.25 mm of lid left beneath them. The inserts go in once and stay; the M4 × 8 screws

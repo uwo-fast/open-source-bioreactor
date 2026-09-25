@@ -21,11 +21,14 @@
   - **Materials caution: 440C is not bleach-resistant.** McMaster's own note says these bearings
     "will weaken when exposed to salt water and harsh chemicals, such as bleach", and the seals are
     Buna-N, which is likewise poor against oxidisers. This reactor cannot be autoclaved, so it is
-    chemically sterilised - and the shaft was deliberately specified in 316 for exactly that
-    reason. The bearing is the weaker half of that pair. It sits in a blind pocket in the lid
-    rather than submerged, so it meets vapour and splash rather than the culture, but a soak or a
-    flood-through of hypochlorite would reach it. Worth resolving when the sterilisation protocol
-    is written; a full-ceramic or plastic-raced bearing is the usual answer if it becomes a problem.
+    chemically sterilised - 7.5 % hydrogen peroxide for everything but the pH and DO probes, which
+    are cleaned by hand (sometimes with IPA), and bleach or chlorite only ever on the glass vessel -
+    and the shaft was deliberately specified in 316 for exactly that reason. The bearing is the
+    weaker half of that pair. It sits in a blind pocket in the lid rather than submerged, so it
+    meets vapour and splash rather than the culture, but a soak or a flood-through of peroxide
+    would reach it, and so would bleach if the lid ever went through the vessel's step. How 440C
+    and Buna-N stand repeated 7.5 % peroxide is not recorded; a full-ceramic or plastic-raced
+    bearing is the usual answer if it becomes a problem.
   - Temperature range -40 to 240 F, i.e. up to 116 C - a **third** independent reason this assembly
     cannot be autoclaved, alongside the soda-lime jar and PETG's ~80 C glass transition.
   - <https://www.mcmaster.com/6153K71/>
