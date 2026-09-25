@@ -68,6 +68,19 @@ else
     condenser_coil_assembly(bayonet_std, _tube_od, oring_4p5x1p5_epdm);
 condenser_coil_report(bayonet_std, _tube_od);
 
+// The defaults every module and helper below starts from, named once so the print, assembly and
+// report helpers cannot drift from the parts they draw.
+condenser_coil_bore = 12; // gas up, condensate down, through the pin and neck
+condenser_coil_neck = 30; // straight neck above the flange
+condenser_coil_shell = 38; // inside of the shell, a little over the coil
+condenser_coil_shell_length = 175; // straight shell up to the rim
+condenser_coil_rim = 10; // the rim, which is the head's panel
+condenser_coil_port_offset = 7; // the tube ends' distance from the axis, inside the former
+condenser_coil_former_wall = 1.6;
+condenser_coil_pitch = 11;
+condenser_coil_turns = 11.5;
+condenser_coil_top_gap = 12; // coupling's bottom to the top turn's centre
+
 // ----- the coil -----
 
 // How long a coil of this many turns is along its axis, from the lowest turn's centre to the top one's.
@@ -102,7 +115,8 @@ function condenser_coil_former_depth(rim, top_gap, turns, pitch, tube_od) =
 
 // Where the rim's top face, the head's panel, stands above the lid.
 function condenser_coil_rim_top_z(
-  type, bore_diameter = 12, neck_height = 30, shell_inner_diameter = 38, shell_length = 175, rim = 10
+  type, bore_diameter = condenser_coil_bore, neck_height = condenser_coil_neck,
+  shell_inner_diameter = condenser_coil_shell, shell_length = condenser_coil_shell_length, rim = condenser_coil_rim
 ) = condenser_body_top_z(type, bore_diameter, neck_height, shell_inner_diameter, shell_length) + rim;
 
 /**
@@ -121,12 +135,12 @@ function condenser_coil_rim_top_z(
 module condenser_coil_body(
   type,
   head_type = bayonet_xl,
-  bore_diameter = 12,
-  neck_height = 30,
-  shell_inner_diameter = 38,
-  shell_length = 175,
+  bore_diameter = condenser_coil_bore,
+  neck_height = condenser_coil_neck,
+  shell_inner_diameter = condenser_coil_shell,
+  shell_length = condenser_coil_shell_length,
   wall = 2,
-  rim = 10,
+  rim = condenser_coil_rim,
   hose_inner_diameter = 6.35,
   outlet_bore_diameter = 4.5,
   outlet_drop = 14
@@ -203,14 +217,14 @@ module condenser_coil_body(
  */
 module condenser_coil_head(
   head_type = bayonet_xl,
-  rim = 10,
+  rim = condenser_coil_rim,
   tube_od = 4.7625,
   ring = oring_4p5x1p5_epdm,
-  port_offset = 7,
-  former_wall = 1.6,
-  pitch = 11,
-  turns = 11.5,
-  top_gap = 12,
+  port_offset = condenser_coil_port_offset,
+  former_wall = condenser_coil_former_wall,
+  pitch = condenser_coil_pitch,
+  turns = condenser_coil_turns,
+  top_gap = condenser_coil_top_gap,
   comb_width = 2.4
 ) {
   _fh = bayonet_flange_height(head_type);
@@ -346,8 +360,9 @@ module condenser_coil_tubing(port_offset, coil_radius, tube_od, pitch, turns, z_
 
 // Body, head and tubing as assembled, in the lid's datum.
 module condenser_coil_assembly(
-  type, tube_od, ring, head_type = bayonet_xl, rim = 10, top_gap = 12, turns = 11.5, pitch = 11, port_offset = 7,
-  former_wall = 1.6
+  type, tube_od, ring, head_type = bayonet_xl, rim = condenser_coil_rim, top_gap = condenser_coil_top_gap,
+  turns = condenser_coil_turns, pitch = condenser_coil_pitch, port_offset = condenser_coil_port_offset,
+  former_wall = condenser_coil_former_wall
 ) {
   _z_rim = condenser_coil_rim_top_z(type);
 
@@ -363,13 +378,14 @@ module condenser_coil_assembly(
 
 // Coil geometry and the tubing to buy.
 module condenser_coil_report(
-  type, tube_od, head_type = bayonet_xl, pitch = 11, turns = 11.5, rim = 10, top_gap = 12, port_offset = 7,
-  former_wall = 1.6
+  type, tube_od, head_type = bayonet_xl, pitch = condenser_coil_pitch, turns = condenser_coil_turns,
+  rim = condenser_coil_rim, top_gap = condenser_coil_top_gap, port_offset = condenser_coil_port_offset,
+  former_wall = condenser_coil_former_wall
 ) {
   _rc = condenser_coil_radius(port_offset, tube_od, former_wall);
   _h = condenser_coil_height(turns, pitch);
   _z_rim = condenser_coil_rim_top_z(type);
-  _z_funnel = condenser_body_funnel_top_z(type, 12, 30, 38);
+  _z_funnel = condenser_body_funnel_top_z(type, condenser_coil_bore, condenser_coil_neck, condenser_coil_shell);
   echo(
     str(
       "condenser coil: ", turns, " turns of ", tube_od, " mm tubing on a Ø", 2 * _rc, " centreline (bend radius ",

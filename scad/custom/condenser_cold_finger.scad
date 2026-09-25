@@ -68,7 +68,10 @@ cross_section_keep = 0.5;
 
 // example usage: the jar_10L lid's air_out port, which is std
 if (assembly == "monolithic" && part == "body")
-  translate([0, 0, condenser_body_top_z(bayonet_std, 12, 30, 44, 150) + 2])
+  translate([0, 0, condenser_body_top_z(
+    bayonet_std, condenser_cold_finger_bore, condenser_cold_finger_neck, condenser_cold_finger_mono_shell,
+    condenser_cold_finger_cooled
+  ) + condenser_cold_finger_wall])
     rotate([180, 0, 0]) condenser_cold_finger_monolithic(bayonet_std);
 else if (assembly == "monolithic")
   section(keep=cross_section_keep, size=300, active=cross_section_active && $preview)
@@ -90,6 +93,19 @@ else
 
 // ----- dimensions -----
 
+// The defaults every module and helper below starts from, named once so the print, assembly and
+// report helpers cannot drift from the parts they draw.
+condenser_cold_finger_bore = 12; // gas up, condensate down, through the pin and neck
+condenser_cold_finger_neck = 30; // straight neck above the flange
+condenser_cold_finger_wall = 2;
+condenser_cold_finger_cooled = 150; // straight annulus above the funnel
+condenser_cold_finger_split_shell = 40; // inside of the split body's shell
+condenser_cold_finger_roof = 10; // the split body's roof, which is the well's panel
+condenser_cold_finger_collar = 14; // the flow head's collar, where the overflow leaves
+condenser_cold_finger_head_top = 6; // the flow head's top, carrying the dip tube's seal
+condenser_cold_finger_mono_shell = 44; // inside of the one-piece shell
+condenser_cold_finger_mono_well = 32; // outside of the one-piece well
+
 // The rod seal's captive lip, as bayonet_port cuts it; a variable there, so read back through its
 // centre function rather than restated.
 function condenser_cold_finger_gland_lip(ring) = bayonet_bore_gland_centre(ring, 0) - bayonet_bore_gland_length(ring) / 2;
@@ -99,7 +115,9 @@ function condenser_cold_finger_well_od(well_type) = 2 * bayonet_pin_face_radius(
 
 // Where the roof's top face, the well's panel, stands above the lid.
 function condenser_cold_finger_roof_top_z(
-  type, bore_diameter = 12, neck_height = 30, shell_inner_diameter = 40, cooled_length = 150, roof = 10
+  type, bore_diameter = condenser_cold_finger_bore, neck_height = condenser_cold_finger_neck,
+  shell_inner_diameter = condenser_cold_finger_split_shell, cooled_length = condenser_cold_finger_cooled,
+  roof = condenser_cold_finger_roof
 ) = condenser_body_top_z(type, bore_diameter, neck_height, shell_inner_diameter, cooled_length) + roof;
 
 // The well's tip, in the lid's datum: one gap off the funnel, measured normal to both cones.
@@ -125,12 +143,12 @@ function condenser_cold_finger_tip_z(type, bore_diameter, neck_height, shell_inn
 module condenser_cold_finger_body(
   type,
   well_type = bayonet_large,
-  bore_diameter = 12,
-  neck_height = 30,
-  shell_inner_diameter = 40,
-  cooled_length = 150,
-  wall = 2,
-  roof = 10,
+  bore_diameter = condenser_cold_finger_bore,
+  neck_height = condenser_cold_finger_neck,
+  shell_inner_diameter = condenser_cold_finger_split_shell,
+  cooled_length = condenser_cold_finger_cooled,
+  wall = condenser_cold_finger_wall,
+  roof = condenser_cold_finger_roof,
   stub_height = 15,
   hose_inner_diameter = 6.35,
   outlet_bore_diameter = 4.5
@@ -210,12 +228,12 @@ module condenser_cold_finger_body(
 module condenser_cold_finger_insert(
   well_type,
   tip_z,
-  roof = 10,
-  wall = 2,
+  roof = condenser_cold_finger_roof,
+  wall = condenser_cold_finger_wall,
   well_mode = "open",
   dip_ring = oring_4x1p5_epdm,
-  head_top = 6,
-  collar = 14,
+  head_top = condenser_cold_finger_head_top,
+  collar = condenser_cold_finger_collar,
   hose_inner_diameter = 6.35,
   overflow_bore = 4.5
 ) {
@@ -312,16 +330,23 @@ module condenser_cold_finger_lid(well_type, spigot = 6, clearance = 0.25) {
 
 // The insert as it prints: on its flange ("open") or its head ("flow").
 module condenser_cold_finger_insert_printed(type, well_mode, well_type = bayonet_large) {
-  _tip = condenser_cold_finger_tip_z(type, 12, 30, 40, condenser_cold_finger_well_od(well_type))
+  _tip = condenser_cold_finger_tip_z(
+    type, condenser_cold_finger_bore, condenser_cold_finger_neck, condenser_cold_finger_split_shell,
+    condenser_cold_finger_well_od(well_type)
+  )
     - condenser_cold_finger_roof_top_z(type);
-  _top = bayonet_flange_height(well_type) + (well_mode == "flow" ? 14 + 6 : 0);
+  _top = bayonet_flange_height(well_type)
+    + (well_mode == "flow" ? condenser_cold_finger_collar + condenser_cold_finger_head_top : 0);
   translate([0, 0, _top]) rotate([180, 0, 0]) condenser_cold_finger_insert(well_type, _tip, well_mode=well_mode);
 }
 
 // Body and insert as assembled, in the lid's datum; the dip tube drawn for "flow".
 module condenser_cold_finger_assembly(type, well_mode, well_type = bayonet_large) {
   _z_roof = condenser_cold_finger_roof_top_z(type);
-  _tip = condenser_cold_finger_tip_z(type, 12, 30, 40, condenser_cold_finger_well_od(well_type));
+  _tip = condenser_cold_finger_tip_z(
+    type, condenser_cold_finger_bore, condenser_cold_finger_neck, condenser_cold_finger_split_shell,
+    condenser_cold_finger_well_od(well_type)
+  );
   _fh = bayonet_flange_height(well_type);
 
   condenser_cold_finger_body(type, well_type);
@@ -336,7 +361,10 @@ module condenser_cold_finger_assembly(type, well_mode, well_type = bayonet_large
 }
 
 // What the split part's numbers come to.
-module condenser_cold_finger_report(type, well_type = bayonet_large, flow_lpm = 4.11, shell_inner_diameter = 40, cooled_length = 150) {
+module condenser_cold_finger_report(
+  type, well_type = bayonet_large, flow_lpm = 4.11, shell_inner_diameter = condenser_cold_finger_split_shell,
+  cooled_length = condenser_cold_finger_cooled
+) {
   _od = condenser_cold_finger_well_od(well_type);
   _area = PI / 4 * (shell_inner_diameter ^ 2 - _od ^ 2);
   echo(
@@ -376,12 +404,12 @@ function condenser_cold_finger_gap(shell_inner_diameter, well_outer_diameter) =
 module condenser_cold_finger_monolithic(
   type,
   panel_thickness = 18,
-  bore_diameter = 12,
-  neck_height = 30,
-  shell_inner_diameter = 44,
-  well_outer_diameter = 32,
-  cooled_length = 150,
-  wall = 2,
+  bore_diameter = condenser_cold_finger_bore,
+  neck_height = condenser_cold_finger_neck,
+  shell_inner_diameter = condenser_cold_finger_mono_shell,
+  well_outer_diameter = condenser_cold_finger_mono_well,
+  cooled_length = condenser_cold_finger_cooled,
+  wall = condenser_cold_finger_wall,
   rib_count = 3,
   rib_thickness = 1.2,
   hose_inner_diameter = 6.35,
@@ -484,12 +512,12 @@ module condenser_cold_finger_monolithic(
 module condenser_cold_finger_monolithic_report(
   type,
   flow_lpm,
-  bore_diameter = 12,
-  neck_height = 30,
-  shell_inner_diameter = 44,
-  well_outer_diameter = 32,
-  cooled_length = 150,
-  wall = 2
+  bore_diameter = condenser_cold_finger_bore,
+  neck_height = condenser_cold_finger_neck,
+  shell_inner_diameter = condenser_cold_finger_mono_shell,
+  well_outer_diameter = condenser_cold_finger_mono_well,
+  cooled_length = condenser_cold_finger_cooled,
+  wall = condenser_cold_finger_wall
 ) {
   _q = flow_lpm / 60000; // m3/s
   _bore_area = PI / 4 * bore_diameter ^ 2; // mm2
