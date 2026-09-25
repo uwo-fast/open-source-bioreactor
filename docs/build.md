@@ -673,6 +673,29 @@ measured, so the budget moves with it: measure that first, and this number follo
 
 ---
 
+## The exhaust condenser
+
+Not on the lid's lists yet: each variant prints from its own file, `custom/condenser_cold_finger.scad`
+or `custom/condenser_coil.scad`, and each part is exported in the orientation it prints in. See
+`TODO.md` for what the prints still have to prove.
+
+**Print the bodies to hold gas, and anything that holds water to hold water.** A condenser body is
+the exhaust path: gas that leaks through its wall bypasses the cold and carries water out with it.
+The cold finger's flow insert is the only wall between coolant and the gas, so a weep there drains
+into the culture. For both, print at the hot end of the filament's range, with four or more walls,
+0.15 mm layers and a touch of extra flow (about 105 %). Leak paths run through the walls, not the
+infill, so walls are what to spend on. Water-test the flow insert before it goes on the reactor.
+
+**Print the open well's lid the other way: sparse.** It is insulation over the ice, so low infill in a
+pattern that boxes the air into cells, honeycomb or cubic rather than one that leaves it free to
+move. Keep its Ø1.5 vent open; ice melting and water warming push air out through it, and a sealed
+lid would pressurise the well.
+
+**The coil condenser's aluminium tube never goes through the vessel's bleach step.** It takes the
+7.5 % peroxide with everything else; bleach and chlorite attack it.
+
+---
+
 ## Commissioning
 
 **Set the gas rate before anything else.** 0.1–0.5 vvm on 8.22 L is **0.822–4.11 L/min**, which is
