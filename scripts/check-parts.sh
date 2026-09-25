@@ -98,6 +98,11 @@ not_exported=(
     scad/custom/peri_pump_frame_mount.scad      # printed and part of the reactor, but waiting on
                                                 # where the bought pumps mount at all
     scad/custom/peri_pump_head.scad             # a stretch goal rather than this build
+    scad/custom/gl_port_cap.scad                # the inlet humidifier's cap: a bottle, not the
+                                                # reactor, so no manifest of the reactor's has it
+    scad/custom/condenser_cold_finger.scad      # the condenser variants under test, each printed
+    scad/custom/condenser_coil.scad             # from its own file until one is chosen and head
+                                                # places it
     scad/custom/gasket_cutter_v2.scad           # WORK IN PROGRESS - a cutter built around a
                                                 # standard #11 blade rather than a printed edge.
                                                 # It renders so it can be previewed while it is
