@@ -134,8 +134,9 @@ Printed from their own files, `custom/condenser_cold_finger.scad`, `custom/conde
 - [ ] **bench-test the condensers, then place the one that works**
   - the test: a fixed flow, 48 h, the level marked (1 mm is 34.6 mL in the 210 mm bore), room and
     culture temperature logged. The one-piece cold finger, empty and then iced, is the baseline
-  - untested on a print: the `large` and `xl` bayonets and their face rings, the coil's comb notches
-    on a real 3/16 in aluminum tube, and winding it at about 3x its OD
+  - untested on a print: the `large` and `xl` bayonets and their face rings, and the coil wound on
+    the mandrel and its ends formed on the puck at about 2x the tube's OD, which is tight for 3003.
+    The first head cracked where it asked for a bend no tube can make; this one takes no bending
   - the flow insert's printed well is the only wall between coolant and gas: water-test it first, and
     feed it by gravity or through a valve on the inlet with the outlet draining freely
   - the aluminum coil never goes through the vessel's bleach step

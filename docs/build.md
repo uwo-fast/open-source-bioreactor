@@ -691,6 +691,22 @@ pattern that boxes the air into cells, honeycomb or cubic rather than one that l
 move. Keep its Ø1.5 vent open; ice melting and water warming push air out through it, and a sealed
 lid would pressurise the well.
 
+**Wind the coil off the head, never on it.** Bending the tube against the printed head cracks it:
+the head only locates a finished coil. `condenser_coil.scad` also exports the two tools that shape
+it, `part = "mandrel"` and `part = "puck"`:
+
+1. Wind the tube up the mandrel's groove, starting from its foot with a straight tail held by a tie
+   through the cross hole, and leave a straight tail at the top too. Unscrew the coil off.
+2. At each end, carry the tail on along the last turn's direction, then bend it inward a quarter
+   turn round the puck, level, and then up a quarter turn, so it stands vertical inside the coil.
+   The bottom end bends against the winding, the top end with it; both finish pointing up.
+3. Offer the head's two holes to the ends as a gauge, not as a form. When both pass, slide the coil
+   up onto the former, the bottom end dropping into the former's groove, and seat the ends in their
+   seals.
+
+A length that has been bent back and forth work-hardens and cracks at the next bend; start from a
+fresh piece rather than straightening one.
+
 **The coil condenser's aluminium tube never goes through the vessel's bleach step.** It takes the
 7.5 % peroxide with everything else; bleach and chlorite attack it.
 
