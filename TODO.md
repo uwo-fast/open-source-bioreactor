@@ -18,7 +18,9 @@ closed it and in `docs/`.
 
 - [ ] **measured gas flow**
   - the model states a vvm and no builder can set one: the ReSun pump settles at 5.80 L/min where
-    0.822-4.11 is wanted. The parts are in the BOM (Dwyer VFA-23 meter, Clippard MNV-3KP needle
+    0.822-4.11 is wanted. The aeration a culture wants runs 0.1-1 vvm depending on what it is for;
+    the model's band stops at 0.5, and this pump and filter reach about 0.7 on `jar_10L`, which is
+    enough for now. The parts are in the BOM (Dwyer VFA-23 meter, Clippard MNV-3KP needle
     valve upstream of it; why these, `docs/procurement.md`). What is left is buying them and taking
     a reading
   - no sparger geometry waits on it: `sparge_design_vvm` appears only in echoes, and the 8 x 3 mm
@@ -123,6 +125,28 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
   - `Po = P/(rho N^3 D^5)` from shaft power at three or four speeds in water settles it. Worth
     doing to publish the blade, not to build the reactor. Kumaresan & Joshi 2006
     (doi:10.1016/j.cej.2005.10.002) is paywalled and may say something
+
+## exhaust condenser and humidifier
+
+Printed from their own files, `custom/condenser_cold_finger.scad`, `custom/condenser_coil.scad` and
+`custom/gl_port_cap.scad`; nothing in `head()` places them yet.
+
+- [ ] **bench-test the condensers, then place the one that works**
+  - the test: a fixed flow, 48 h, the level marked (1 mm is 34.6 mL in the 210 mm bore), room and
+    culture temperature logged. The one-piece cold finger, empty and then iced, is the baseline
+  - untested on a print: the `large` and `xl` bayonets and their face rings, the coil's comb notches
+    on a real 3/16 in aluminum tube, and winding it at about 3x its OD
+  - the flow insert's printed well is the only wall between coolant and gas: water-test it first, and
+    feed it by gravity or through a valve on the inlet with the outlet draining freely
+  - the aluminum coil never goes through the vessel's bleach step
+  - placing one in `head()` replaces the `air_out` slot and tube the gas budget prices today, and
+    renders its clearance to the motor mount and the probes, which is arithmetic until then
+
+- [ ] **fit the humidifier cap to the bottle, and set it against the condenser**
+  - the rim gasket's 34 mm bore is an estimate: caliper the bottle's rim. Try a short `din168_nut`
+    ring on the bottle's thread before printing the whole cap
+  - a condenser that cools the exhaust below the humidified inlet's dew point makes the culture gain
+    water, so the two are set together, not each to its own limit
 
 ## alternative agitation modes
 
