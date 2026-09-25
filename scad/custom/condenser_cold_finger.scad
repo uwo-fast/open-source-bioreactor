@@ -30,7 +30,8 @@
  * fit the same body:
  *
  *  - "open": the well's mouth is open at the top. Empty, it cools to the room; filled with ice or
- *    cold water, it is a cold finger below it.
+ *    cold water, it is a cold finger below it. A lid closes the mouth over the ice, vented so the
+ *    melt never pressurises the well; printed sparse, it is the insulation too.
  *  - "flow": a head over the mouth seals on a dip tube down its middle and carries an overflow barb,
  *    opposite the gas outlet. Coolant goes down the dip tube to the well's bottom and out over the
  *    top, so the well runs full.
@@ -59,7 +60,7 @@ assembly = "split"; // [monolithic, split]
 // The well insert: open at the top, or with a dip tube and overflow for flowing coolant
 well_mode = "open"; // [open, flow]
 // What the standalone file draws: the assembly, or one part in its print orientation ("insert" only when split)
-part = "assembly"; // [assembly, body, insert]
+part = "assembly"; // [assembly, body, insert, lid]
 // Cut the assembly's preview open to see inside; ignored on a render
 cross_section_active = true;
 // How much the cut leaves: 0.5 is a half, 0.75 removes a quarter
@@ -77,6 +78,8 @@ else if (part == "body")
     rotate([180, 0, 0]) condenser_cold_finger_body(bayonet_std);
 else if (part == "insert")
   condenser_cold_finger_insert_printed(bayonet_std, well_mode);
+else if (part == "lid")
+  translate([0, 0, condenser_cold_finger_lid_thickness]) rotate([180, 0, 0]) condenser_cold_finger_lid(bayonet_large);
 else
   section(keep=cross_section_keep, size=300, active=cross_section_active && $preview)
     condenser_cold_finger_assembly(bayonet_std, well_mode);
@@ -281,6 +284,32 @@ module condenser_cold_finger_insert(
   }
 }
 
+// The open well's lid, and the vent through it: the smallest hole that still prints open, so ice
+// melting and water warming push air out rather than pressurising the well.
+condenser_cold_finger_lid_thickness = 8;
+condenser_cold_finger_lid_vent = 1.5;
+
+/**
+ * The open well's lid in the flange's datum: z = 0 is the insert's flange top, the lid resting on it
+ * with a spigot down into the mouth.
+ *
+ * @param well_type  Registered bayonet interface of the insert it closes
+ * @param spigot     How far the spigot reaches down into the mouth
+ * @param clearance  Radial clearance of the spigot in the mouth
+ */
+module condenser_cold_finger_lid(well_type, spigot = 6, clearance = 0.25) {
+  _fr = bayonet_flange_radius(well_type);
+  _mouth_r = bayonet_interface_radius(well_type) - bayonet_pin_radius(well_type) - 2; // as the insert's
+
+  difference() {
+    union() {
+      cylinder(h=condenser_cold_finger_lid_thickness, r=_fr);
+      translate([0, 0, -spigot]) cylinder(h=spigot + 0.5, r=_mouth_r - clearance);
+    }
+    translate([0, 0, -spigot - 1]) cylinder(h=spigot + condenser_cold_finger_lid_thickness + 2, d=condenser_cold_finger_lid_vent);
+  }
+}
+
 // The insert as it prints: on its flange ("open") or its head ("flow").
 module condenser_cold_finger_insert_printed(type, well_mode, well_type = bayonet_large) {
   _tip = condenser_cold_finger_tip_z(type, 12, 30, 40, condenser_cold_finger_well_od(well_type))
@@ -301,6 +330,8 @@ module condenser_cold_finger_assembly(type, well_mode, well_type = bayonet_large
     if (well_mode == "flow")
       color("Silver")
         translate([0, 0, _tip - _z_roof + 6]) cylinder(h=_z_roof - _tip + 45, d=4);
+    else
+      translate([0, 0, _fh]) condenser_cold_finger_lid(well_type);
   }
 }
 
