@@ -691,18 +691,30 @@ pattern that boxes the air into cells, honeycomb or cubic rather than one that l
 move. Keep its Ø1.5 vent open; ice melting and water warming push air out through it, and a sealed
 lid would pressurise the well.
 
-**Wind the coil off the head, never on it.** Bending the tube against the printed head cracks it:
-the head only locates a finished coil. `condenser_coil.scad` also exports the two tools that shape
-it, `part = "mandrel"` and `part = "puck"`:
+**The coil is wound on the former, and the former stays in.** A coil whose bottom end runs back up
+its own middle cannot come off a one-piece mandrel: to unscrew, the mandrel's ridge has to sweep
+through the leg. So there is no mandrel. The former is the arbor — chuck the stub below the coil,
+wind, and it stays in the reactor holding the turns at pitch, in the dead space it already blocks.
+`part = "puck_bottom"` and `part = "puck_top"` are the only tools, one for each end's radius.
 
-1. Wind the tube up the mandrel's groove, starting from its foot with a straight tail held by a tie
-   through the cross hole, and leave a straight tail at the top too. Unscrew the coil off.
-2. At each end, carry the tail on along the last turn's direction, then bend it inward a quarter
-   turn round the puck, level, and then up a quarter turn, so it stands vertical inside the coil.
-   The bottom end bends against the winding, the top end with it; both finish pointing up.
-3. Offer the head's two holes to the ends as a gauge, not as a form. When both pass, slide the coil
-   up onto the former, the bottom end dropping into the former's groove, and seat the ends in their
-   seals.
+1. Bend the bottom end while the tube is still straight and a bender has room, on `puck_bottom`: a
+   quarter turn inward, then a quarter turn up, leaving a leg the height of the coil.
+2. Lay that end into the former's channel **from the side** — the bends into the foot, the leg up
+   the groove. Nothing is threaded into a hole, which is the step that cannot be done later. A tie
+   through the stub holds the tail while the first turn goes on.
+3. Wind up the former, pushing each turn down onto the ridge below it. The ridge's flat top is what
+   sets the pitch; the slack above each turn is there because a part printed standing cannot hold an
+   overhang past 45°, and it is why the winding direction matters.
+4. Bend the top end on `puck_top`, in open air above the coil: inward a quarter turn, then up.
+5. Lower the panel onto the two ends — they are already vertical and parallel — and onto the
+   former's spigot, which locates it. There is no fastener: the tube is one piece from one seal,
+   round the coil and back to the other, the coil grips the former it was wound on, and both ends
+   pass rod seals in the panel, so the three hang together already. The coolant hoses pushed onto
+   the ends above the panel are what stops them drawing back through.
+
+The two ends bend at different radii on purpose. The bottom one has to finish inside the coil, so
+9.5 mm is as gentle as it can be; the top one only has to reach a seal, so it bends at 11.25 mm and
+lands further out, which is as far as the coupling's core lets a seal sit.
 
 A length that has been bent back and forth work-hardens and cracks at the next bend; start from a
 fresh piece rather than straightening one.

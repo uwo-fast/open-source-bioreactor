@@ -374,8 +374,9 @@ a horizontal disc swept round the helix, a 0.4 mm ribbon in section, and a colli
 it that a round tube would have failed; the printed head then cracked where the real tube would not
 bend. Draw what is checked from the part's real section, and prove the check can fail by moving the
 thing it guards - half a pitch, a few degrees - and watching it report. And a fit is not the only
-question for something bent or wound: it has to be formable, at a radius the material takes, and
-never against a printed part.
+question for something bent or wound: it has to be formable, at a radius the material takes, in the
+order the parts go together - and a part it is formed against has to be built to carry that, which
+the head that cracked was not, since its job was to locate a finished coil.
 
 ---
 
