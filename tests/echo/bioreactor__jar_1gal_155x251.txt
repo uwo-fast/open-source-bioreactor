@@ -7,7 +7,7 @@ ECHO: "printers: the widest printed part is a 192.9 mm disc (lid, base, top base
 ECHO: "base wall thickness: ", 3.7, " cm"
 ECHO: "threaded rod length: ", 268, " mm"
 ECHO: "base floor: jar lands at r", 63.65, "mm, ring spans r", 48.65, "to r", 77.95, "mm"
-ECHO: "light pockets: end at z 217; stopping 23.6 mm under the top base"
+ECHO: "light pockets: end at z 218; stopping 22.6 mm under the top base"
 ECHO: "lights: 6 tubes - 3 in each of 2 quadrants - on a light that comes 4 to a cord, so 2 cords and 2 tubes left over"
 ECHO: "WARNING stir drive: no registered fan clears a 90.9 mm pocket in -12 mm under this jar, so the base is not slotted and no carrier is drawn; a 40 mm floor would - 38 mm more than the light leaves, where carrier_floor_lift_max allows 10"
 ECHO: "DO probe lean: 4.5 deg of a 4.5 deg ceiling"

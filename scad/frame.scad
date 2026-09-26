@@ -90,8 +90,12 @@ light_quadrants = [1, 3];
 lights_per_quadrant = 3;
 // angle that the lights occupy
 occupy_angle = 60; // of the 90 degree quadrant
-// allowance for the light to fit in the base
+// allowance on the cord groove's profile, and so on the carrier's ear that lands over it
 light_allow = 0.4;
+// clearance each side of a light in its seat; 0.2 a side is inside a squashed first layer
+light_pocket_allow = 0.3;
+// clearance above a light in its seat, which is blind, so it drops in
+light_pocket_end_allow = 1;
 
 /* [Nut & Rod Parameters] */
 
@@ -315,13 +319,25 @@ function light_angle(i, lights_per_quadrant, occupy_angle) =
   lights_per_quadrant == 1 ? 45
   : i * (occupy_angle / (lights_per_quadrant - 1)) + (90 - occupy_angle) / 2;
 
-// Where a light stands: on its own angle, its body's back face on the jar.
+// The bulge of the clear cover, which a row may leave out.
+function light_cover_radius(light) =
+  is_undef(strip_light_radius(light)) ? 0 : strip_light_radius(light);
+
+// The seat is blind at the top, so it is longer than the light. Where it ends is cut here and
+// held against the rib levels in frame(), which have to read the same rule.
+function light_pocket_length(light) = strip_light_length(light) + light_pocket_end_allow;
+
+// Where a light stands: on its own angle, its body's back face on this datum. The cover bulges
+// forward of that face, so on the jar's nominal diameter it would be inside the glass; the datum
+// stands off by the cover's radius and by the clearance the bore already holds the jar with. The
+// light and its seat are both placed by this, so the two cannot drift apart.
 module light_places(quadrants, vessel_outer_diameter, light, lights_per_quadrant, occupy_angle) {
+  _datum = vessel_outer_diameter / 2 + base_jar_fit_allow / 2 + light_cover_radius(light);
   for (q = quadrants)
     rotate([0, 0, (q - 1) * 90])
       for (i = [0:lights_per_quadrant - 1])
         rotate([0, 0, light_angle(i, lights_per_quadrant, occupy_angle)])
-          translate([0, vessel_outer_diameter / 2, 0])
+          translate([0, _datum, 0])
             children();
 }
 
@@ -330,20 +346,25 @@ module lights(quadrants, vessel_outer_diameter, light, lights_per_quadrant, occu
     strip_light(light);
 }
 
-// What the frame takes out for a light: the pocket it drops into, and the notch its cord leaves
-// by. The notch carries the cord groove's profile, which the floor continues on the quadrant the
-// carrier's lead crosses.
+// What the frame takes out for a light: the seat it drops into, and the notch its cord leaves by.
+// The seat swallows the body behind the datum and the cover in front of it, and runs past the bore
+// so no skin is left over the lens. The notch keeps the cord groove's profile, which the floor
+// continues on the quadrant the carrier's lead crosses.
 module light_pockets(quadrants, vessel_outer_diameter, light, lights_per_quadrant, occupy_angle) {
-  _pocket_w = strip_light_width(light) + light_allow;
-  _pocket_d = strip_light_depth(light) + light_allow;
+  _cover = light_cover_radius(light);
+  _seat_w = strip_light_width(light) + 2 * light_pocket_allow;
+  _seat_d = strip_light_depth(light) + _cover + 2 * light_pocket_allow;
+  _seat_l = light_pocket_length(light);
+  _notch_w = strip_light_width(light) + light_allow;
+  _notch_d = strip_light_depth(light) + light_allow;
 
   light_places(quadrants, vessel_outer_diameter, light, lights_per_quadrant, occupy_angle) {
-    translate([0, strip_light_depth(light) / 2, strip_light_length(light) / 2])
-      cube([_pocket_w, _pocket_d, strip_light_length(light)], center=true);
+    translate([0, (strip_light_depth(light) - _cover) / 2, _seat_l / 2])
+      cube([_seat_w, _seat_d, _seat_l], center=true);
 
     // the same profile on its side, cut radially thru the wall so the cord can escape
-    translate([0, vessel_outer_diameter / 2, _pocket_d / 2 - z_fight / 2])
-      cube([_pocket_w, vessel_outer_diameter, _pocket_d], center=true);
+    translate([0, vessel_outer_diameter / 2, _notch_d / 2 - z_fight / 2])
+      cube([_notch_w, vessel_outer_diameter, _notch_d], center=true);
   }
 }
 
@@ -402,10 +423,10 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
   // Where rib level i (1-based) starts: on the spacer run below it and the levels under that.
   function rib_level_bottom(i) = lower_base_height + spacer_pitch * i - spacer_joint + rib_level_height * (i - 1);
 
-  // The light pockets end at the light's length, and the cutout runs through every rib level and
+  // The light pockets end above the light, and the cutout runs through every rib level and
   // the top base. A pocket that ends inside one leaves a lip of it across a slot that wants to be
   // through, so where the pocket ends is held against each of them.
-  _pocket_top = strip_light_length(light);
+  _pocket_top = light_pocket_length(light);
   _pocketed = concat(
     [for (i = [1:n_rib_levels]) [str("rib level ", i), rib_level_bottom(i), rib_level_bottom(i) + rib_level_height]],
     [["top base", total_height - stack_slack - upper_base_height, total_height - stack_slack]]

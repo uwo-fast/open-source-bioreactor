@@ -7,7 +7,7 @@ ECHO: "printers: the widest printed part is a 146.82 mm disc (lid, base, top bas
 ECHO: "base wall thickness: ", 3.7, " cm"
 ECHO: "threaded rod length: ", 232, " mm"
 ECHO: "base floor: jar lands at r", 47.11, "mm, ring spans r", 32.11, "to r", 54.91, "mm"
-ECHO: "light pockets: end at z 217; stopping 11.1302 mm under the top base"
+ECHO: "light pockets: end at z 218; stopping 10.1302 mm under the top base"
 ECHO: "lights: 6 tubes - 3 in each of 2 quadrants - on a light that comes 4 to a cord, so 2 cords and 2 tubes left over"
 ECHO: "fan joint: 4 x M3 x 20 mm down through the fan into nuts in 3.2 mm hex pockets at the carrier's bottom face, 2.8 mm of carrier over them; the head stands 1.65 mm on the fan, 3.20681 mm under the glass"
 ECHO: "fan joint, head down: an M3 x 20 mm cap screw up from the pocket to a nut on the fan stands 3.8 mm over that nut, 1.34319 mm into it - shorten the screw, or build it the other way up"
