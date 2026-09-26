@@ -327,12 +327,16 @@ function light_cover_radius(light) =
 // held against the rib levels in frame(), which have to read the same rule.
 function light_pocket_length(light) = strip_light_length(light) + light_pocket_end_allow;
 
+// The face the jar is held on, which is where a light's lens has to stop.
+function light_bore_radius(vessel_outer_diameter) =
+  vessel_outer_diameter / 2 + base_jar_fit_allow / 2;
+
 // Where a light stands: on its own angle, its body's back face on this datum. The cover bulges
 // forward of that face, so on the jar's nominal diameter it would be inside the glass; the datum
 // stands off by the cover's radius and by the clearance the bore already holds the jar with. The
 // light and its seat are both placed by this, so the two cannot drift apart.
 module light_places(quadrants, vessel_outer_diameter, light, lights_per_quadrant, occupy_angle) {
-  _datum = vessel_outer_diameter / 2 + base_jar_fit_allow / 2 + light_cover_radius(light);
+  _datum = light_bore_radius(vessel_outer_diameter) + light_cover_radius(light);
   for (q = quadrants)
     rotate([0, 0, (q - 1) * 90])
       for (i = [0:lights_per_quadrant - 1])
@@ -347,19 +351,30 @@ module lights(quadrants, vessel_outer_diameter, light, lights_per_quadrant, occu
 }
 
 // What the frame takes out for a light: the seat it drops into, and the notch its cord leaves by.
-// The seat swallows the body behind the datum and the cover in front of it, and runs past the bore
-// so no skin is left over the lens. The notch keeps the cord groove's profile, which the floor
-// continues on the quadrant the carrier's lead crosses.
+// The seat swallows the body behind the datum and the cover in front of it, and breaks into the
+// bore so no skin is left over the lens. The notch keeps the cord groove's profile, which the
+// floor continues on the quadrant the carrier's lead crosses.
+//
+// The seat's face is flat and the bore it opens into is round, so a face sunk the clearance below
+// the bore on the seat's centre line is still outside it at the seat's corners, and the corner
+// keeps a crescent of material a couple of tenths thick - a wall too thin to print, standing
+// across the mouth of the pocket. How far the bore falls away over the seat's own half width is
+// what the face has to clear, and on a small jar that is more than the clearance is.
 module light_pockets(quadrants, vessel_outer_diameter, light, lights_per_quadrant, occupy_angle) {
   _cover = light_cover_radius(light);
+  _bore = light_bore_radius(vessel_outer_diameter);
   _seat_w = strip_light_width(light) + 2 * light_pocket_allow;
-  _seat_d = strip_light_depth(light) + _cover + 2 * light_pocket_allow;
+  _fall = _bore - sqrt(_bore * _bore - _seat_w * _seat_w / 4);
+  // Measured from the datum, so negative is toward the jar.
+  _seat_in = -(_cover + _fall + light_pocket_allow);
+  _seat_out = strip_light_depth(light) + light_pocket_allow;
+  _seat_d = _seat_out - _seat_in;
   _seat_l = light_pocket_length(light);
   _notch_w = strip_light_width(light) + light_allow;
   _notch_d = strip_light_depth(light) + light_allow;
 
   light_places(quadrants, vessel_outer_diameter, light, lights_per_quadrant, occupy_angle) {
-    translate([0, (strip_light_depth(light) - _cover) / 2, _seat_l / 2])
+    translate([0, (_seat_in + _seat_out) / 2, _seat_l / 2])
       cube([_seat_w, _seat_d, _seat_l], center=true);
 
     // the same profile on its side, cut radially thru the wall so the cord can escape
