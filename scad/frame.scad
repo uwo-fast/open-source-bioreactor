@@ -315,24 +315,35 @@ function light_angle(i, lights_per_quadrant, occupy_angle) =
   lights_per_quadrant == 1 ? 45
   : i * (occupy_angle / (lights_per_quadrant - 1)) + (90 - occupy_angle) / 2;
 
-module lights(quadrants, vessel_outer_diameter, light, lights_per_quadrant, occupy_angle, allowance_cutout = undef) {
-  for (q = quadrants) {
-    rotate([0, 0, (q - 1) * 90]) {
-      for (i = [0:lights_per_quadrant - 1]) {
-
+// Where a light stands: on its own angle, its body's back face on the jar.
+module light_places(quadrants, vessel_outer_diameter, light, lights_per_quadrant, occupy_angle) {
+  for (q = quadrants)
+    rotate([0, 0, (q - 1) * 90])
+      for (i = [0:lights_per_quadrant - 1])
         rotate([0, 0, light_angle(i, lights_per_quadrant, occupy_angle)])
-          translate([0, vessel_outer_diameter / 2, 0]) if (is_undef(allowance_cutout)) {
-            strip_light(light);
-          } else {
-            translate([0, strip_light_depth(light) / 2, strip_light_length(light) / 2])
-              cube([strip_light_width(light) + allowance_cutout, strip_light_depth(light) + allowance_cutout, strip_light_length(light)], center=true);
+          translate([0, vessel_outer_diameter / 2, 0])
+            children();
+}
 
-            // same profile on its side, cut radially thru the wall so the cord can escape
-            translate([0, vessel_outer_diameter / 2, (strip_light_depth(light) + allowance_cutout) / 2 - z_fight/2])
-              cube([strip_light_width(light) + allowance_cutout, vessel_outer_diameter, strip_light_depth(light) + allowance_cutout], center=true);
-          }
-      }
-    }
+module lights(quadrants, vessel_outer_diameter, light, lights_per_quadrant, occupy_angle) {
+  light_places(quadrants, vessel_outer_diameter, light, lights_per_quadrant, occupy_angle)
+    strip_light(light);
+}
+
+// What the frame takes out for a light: the pocket it drops into, and the notch its cord leaves
+// by. The notch carries the cord groove's profile, which the floor continues on the quadrant the
+// carrier's lead crosses.
+module light_pockets(quadrants, vessel_outer_diameter, light, lights_per_quadrant, occupy_angle) {
+  _pocket_w = strip_light_width(light) + light_allow;
+  _pocket_d = strip_light_depth(light) + light_allow;
+
+  light_places(quadrants, vessel_outer_diameter, light, lights_per_quadrant, occupy_angle) {
+    translate([0, strip_light_depth(light) / 2, strip_light_length(light) / 2])
+      cube([_pocket_w, _pocket_d, strip_light_length(light)], center=true);
+
+    // the same profile on its side, cut radially thru the wall so the cord can escape
+    translate([0, vessel_outer_diameter / 2, _pocket_d / 2 - z_fight / 2])
+      cube([_pocket_w, vessel_outer_diameter, _pocket_d], center=true);
   }
 }
 
@@ -569,7 +580,7 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
   module frame_lights_cutout(local_quadrants = [1, 2, 3, 4]) {
     difference() {
       children();
-      lights(local_quadrants, vessel_outer_diameter, light, lights_per_quadrant, occupy_angle, allowance_cutout=light_allow);
+      light_pockets(local_quadrants, vessel_outer_diameter, light, lights_per_quadrant, occupy_angle);
     }
   }
 
