@@ -707,10 +707,8 @@ wind, and it stays in the reactor holding the turns at pitch, in the dead space 
    overhang past 45°, and it is why the winding direction matters.
 4. Bend the top end on `puck_top`, in open air above the coil: inward a quarter turn, then up.
 5. Lower the panel onto the two ends — they are already vertical and parallel — and onto the
-   former's spigot, which locates it. There is no fastener: the tube is one piece from one seal,
-   round the coil and back to the other, the coil grips the former it was wound on, and both ends
-   pass rod seals in the panel, so the three hang together already. The coolant hoses pushed onto
-   the ends above the panel are what stops them drawing back through.
+   former's spigot. An M3 x 14 cap head goes in radially through the counterbore in the coupling's
+   face, crosses the socket and bites the spigot.
 
 The two ends bend at different radii on purpose. The bottom one has to finish inside the coil, so
 9.5 mm is as gentle as it can be; the top one only has to reach a seal, so it bends at 11.25 mm and
