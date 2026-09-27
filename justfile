@@ -22,7 +22,7 @@ FORMATTED := "$(git ls-files '*.md' '*.json' '*.jsonc' '*.yml' '*.yaml')"
 # break the union, and those are on check-parts' not_printed list); frame.scad is clean but
 # 141 s; bioreactor.scad does not finish. `just export-parts` covers the reactor's parts one at
 # a time instead.
-export MESH_SKIP := "scad/bioreactor.scad scad/support/equipment_cart.scad scad/frame.scad scad/head.scad"
+export MESH_SKIP := "scad/bioreactor.scad scad/support/equipment_cart.scad scad/frame.scad scad/head.scad scad/custom/condenser_coil.scad"
 
 ENTRY_CUSTOMIZED := "scad/bioreactor.scad scad/head.scad scad/frame.scad"
 
