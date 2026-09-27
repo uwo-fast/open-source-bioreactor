@@ -117,6 +117,10 @@ condenser_coil_screw_clear = 1.7; // an M3's clearance; the head countersinks in
 condenser_coil_screw_pilot = 1.25; // what it bites in the spigot
 condenser_coil_screw_head = 3.0; // the counterbore that buries an M3 cap head
 condenser_coil_screw_head_depth = 3.5;
+// How far up the socket the screw sits. A pocket has to contain the head whatever shape it is
+// cut, so the head's radius is what decides this: any lower and the counterbore opens through the
+// panel's underside. The asserts hold it between that face and the top of the socket.
+condenser_coil_screw_rise = 3.8;
 
 // ----- the coil -----
 
@@ -284,6 +288,9 @@ function condenser_coil_former_bottom_z(
   turns = condenser_coil_turns, pitch = condenser_coil_pitch, chuck_length = 15
 ) = condenser_coil_bottom_z(rim, top_gap, turns, pitch) - tube_od / 2 - 1 - chuck_length;
 
+// The screw's height, read by both halves so they cannot drift apart.
+function condenser_coil_screw_z(rim = condenser_coil_rim) = -rim + condenser_coil_screw_rise;
+
 // How far out a seal can sit in the coupling, which is what limits the top end's reach.
 function condenser_coil_seal_limit(head_type, ring) =
   bayonet_interface_radius(head_type) - bayonet_pin_radius(head_type) - bayonet_bore_gland_radius(ring) - 1;
@@ -361,7 +368,7 @@ module condenser_coil_former(
 
     // The screw from the panel bites here. The two ends passing through the panel already fix
     // which way round the former sits, so this lines up with the clearance hole unindexed.
-    translate([0, 0, -rim + condenser_coil_socket_depth / 2])
+    translate([0, 0, condenser_coil_screw_z(rim)])
       rotate([0, 90, 0]) cylinder(h=2 * _spigot_r + 2, r=condenser_coil_screw_pilot, center=true);
 
     // A tie through the stub holds the starting tail while the first turn goes on
@@ -410,7 +417,7 @@ module condenser_coil_panel(
   _spigot_r = condenser_coil_spigot_radius(tube_od, bend_radius, former_radius);
   _lead = condenser_coil_bore_lead;
   _face_r = bayonet_pin_face_radius(head_type);
-  _screw_z = -rim + condenser_coil_socket_depth / 2;
+  _screw_z = condenser_coil_screw_z(rim);
 
   assert(
     _rc + _rt < bayonet_pin_face_radius(head_type) - 0.5,
@@ -450,6 +457,21 @@ module condenser_coil_panel(
       "condenser_coil_panel: a ", _lead, " mm lead-in leaves ", condenser_coil_gland_lip(ring) - _lead,
       " mm of the ", condenser_coil_gland_lip(ring), " mm lip that holds the o-ring captive; under 0.8",
       " and the gland opens at the bottom and the ring pushes out"
+    )
+  );
+  assert(
+    condenser_coil_screw_rise - condenser_coil_screw_head >= 0.6,
+    str(
+      "condenser_coil_panel: the screw's counterbore reaches ",
+      condenser_coil_screw_head - condenser_coil_screw_rise, " mm past the panel's underside, so it",
+      " opens through the face instead of burying the head"
+    )
+  );
+  assert(
+    condenser_coil_screw_rise + condenser_coil_screw_clear <= condenser_coil_socket_depth,
+    str(
+      "condenser_coil_panel: the screw at ", condenser_coil_screw_rise,
+      " mm up runs out of the top of a ", condenser_coil_socket_depth, " mm socket, so it misses the spigot"
     )
   );
   assert(
