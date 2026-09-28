@@ -38,9 +38,9 @@ matrix=(
     "stir_magnet_name|MAGRE6x2p5|builds"
     "culture_fill_fraction|0.7|number"
 )
-"$OPENSCAD" -o "$tmp/base.csg" scad/bioreactor.scad 2>"$tmp/be" >/dev/null
-if grep -q '^ERROR' "$tmp/be"; then echo "FAIL  bioreactor.scad does not build at its defaults"; exit 1; fi
-failed=0
+# Every render is its own OpenSCAD process: the parameter sets are written first, all of them
+# render JOBS at a time (every core, unless set), and the rows are judged in order after.
+: "${JOBS:=$(nproc)}"
 # One parameter set: the row's base, key=value, with the named parameter over it.
 set_json() { # base param value number
     /usr/bin/python3 -c 'import json,sys
@@ -49,31 +49,46 @@ s = dict(kv.split("=", 1) for kv in b.split(",") if kv)
 if p: s[p] = float(v) if n == "1" else v
 print(json.dumps({"parameterSets": {"t": s}, "fileFormatVersion": "1"}))' "$@"
 }
-for row in "${matrix[@]}"; do
-    IFS='|' read -r param value want base <<< "$row"
+# job lines: <name>|<json or empty for the file's defaults>; each renders to $tmp/<name>.csg
+jobs="base|"
+for i in "${!matrix[@]}"; do
+    IFS='|' read -r param value want base <<< "${matrix[$i]}"
+    [ "$want" = number ] && num=1 || num=0
+    if [ -n "$base" ]; then set_json "$base" "" "" 0 > "$tmp/b$i.json"; jobs+=$'\n'"b$i|$tmp/b$i.json"; fi
+    set_json "$base" "$param" "$value" "$num" > "$tmp/p$i.json"; jobs+=$'\n'"p$i|$tmp/p$i.json"
+    if [ "$want" != number ]; then set_json "$base" "$param" no_such_row 0 > "$tmp/x$i.json"; jobs+=$'\n'"x$i|$tmp/x$i.json"; fi
+done
+export OPENSCAD tmp
+render_job() {
+    IFS='|' read -r name json <<< "$1"
+    "$OPENSCAD" ${json:+-p "$json" -P t} -o "$tmp/$name.csg" scad/bioreactor.scad 2>"$tmp/$name.err" >/dev/null
+}
+export -f render_job
+xargs -d '\n' -P "$JOBS" -I{} bash -c 'render_job "$1"' _ {} <<< "$jobs"
+
+if grep -q '^ERROR' "$tmp/base.err" || [ ! -s "$tmp/base.csg" ]; then echo "FAIL  bioreactor.scad does not build at its defaults"; exit 1; fi
+failed=0
+for i in "${!matrix[@]}"; do
+    IFS='|' read -r param value want base <<< "${matrix[$i]}"
     case "$want" in
-        number) shown="$param=$value"; num=1 ;;
-        *)      shown="$param=\"$value\""; num=0 ;;
+        number) shown="$param=$value" ;;
+        *)      shown="$param=\"$value\"" ;;
     esac
     ref="$tmp/base.csg"
     if [ -n "$base" ]; then
         shown="$shown on $base"
-        set_json "$base" "" "" 0 > "$tmp/b.json"
-        "$OPENSCAD" -p "$tmp/b.json" -P t -o "$tmp/rowbase.csg" scad/bioreactor.scad 2>"$tmp/rbe" >/dev/null
-        if grep -q '^ERROR' "$tmp/rbe" || [ ! -s "$tmp/rowbase.csg" ]; then
+        if grep -q '^ERROR' "$tmp/b$i.err" || [ ! -s "$tmp/b$i.csg" ]; then
             echo "FAIL  the base build $base does not build, so $shown cannot be compared"
             failed=1
             continue
         fi
-        ref="$tmp/rowbase.csg"
+        ref="$tmp/b$i.csg"
     fi
-    set_json "$base" "$param" "$value" "$num" > "$tmp/p.json"
-    "$OPENSCAD" -p "$tmp/p.json" -P t -o "$tmp/d.csg" scad/bioreactor.scad 2>"$tmp/e" >/dev/null
-    if grep -q '^ERROR' "$tmp/e"; then
+    if grep -q '^ERROR' "$tmp/p$i.err" || [ ! -s "$tmp/p$i.csg" ]; then
         echo "FAIL  $shown does not build"
-        grep -m1 '^ERROR' "$tmp/e" | sed 's/.*failed: //; s/ in file.*//' | sed 's/^/        /'
+        grep -m1 '^ERROR' "$tmp/p$i.err" | sed 's/.*failed: //; s/ in file.*//' | sed 's/^/        /'
         failed=1
-    elif [ "$want" != builds ] && cmp -s "$ref" "$tmp/d.csg"; then
+    elif [ "$want" != builds ] && cmp -s "$ref" "$tmp/p$i.csg"; then
         echo "FAIL  $shown resolved but changed nothing - it is not reaching the model"
         failed=1
     else
@@ -81,13 +96,9 @@ for row in "${matrix[@]}"; do
     fi
     # a name nothing answers to has to fail, loudly. Only for the name kinds - a number has no
     # registry to be absent from.
-    if [ "$want" != number ]; then
-        set_json "$base" "$param" no_such_row 0 > "$tmp/x.json"
-        "$OPENSCAD" -p "$tmp/x.json" -P t -o "$tmp/x.csg" scad/bioreactor.scad 2>"$tmp/xe" >/dev/null
-        if ! grep -q '^ERROR' "$tmp/xe"; then
-            echo "FAIL  $param accepted a name nothing is registered under"
-            failed=1
-        fi
+    if [ "$want" != number ] && ! grep -q '^ERROR' "$tmp/x$i.err"; then
+        echo "FAIL  $param accepted a name nothing is registered under"
+        failed=1
     fi
 done
 [ $failed -eq 0 ] && echo "ok    every build parameter reaches the model, and a bad name is refused"

@@ -7,16 +7,26 @@
 # is the recorded reason that vessel cannot carry them; this covers the builds as registered.
 set -uo pipefail
 : "${OPENSCAD:=openscad}"
+# The sets render JOBS at a time (every core, unless set), then are judged in order.
+: "${JOBS:=$(nproc)}"
 tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
 sets=$(/usr/bin/python3 -c 'import json; print("\n".join(json.load(open("scad/bioreactor.json"))["parameterSets"]))')
 [ -n "$sets" ] || { echo "FAIL  scad/bioreactor.json registers no builds"; exit 1; }
 failed=0
+# One file per set, so a render that writes nothing cannot be read as another's; its exit status
+# and stderr land beside it.
+export OPENSCAD tmp
+render_set() {
+    "$OPENSCAD" -p scad/bioreactor.json -P "$1" --export-format echo -o "$tmp/$1.txt" scad/bioreactor.scad 2>"$tmp/$1.err" >/dev/null
+    echo $? > "$tmp/$1.rc"
+}
+export -f render_set
+printf '%s\n' $sets | xargs -d '\n' -P "$JOBS" -I{} bash -c 'render_set "$1"' _ {}
 for s in $sets; do
-    # One file per set, so a render that writes nothing cannot be read as the last one's.
     out="$tmp/$s.txt"
-    if ! "$OPENSCAD" -p scad/bioreactor.json -P "$s" --export-format echo -o "$out" scad/bioreactor.scad 2>"$tmp/err" >/dev/null; then
+    if [ "$(cat "$tmp/$s.rc" 2>/dev/null)" != 0 ]; then
         echo "FAIL  $s  openscad exited non-zero"
-        head -3 "$tmp/err" | sed 's/^/        /'
+        head -3 "$tmp/$s.err" 2>/dev/null | sed 's/^/        /'
         failed=1
         continue
     fi

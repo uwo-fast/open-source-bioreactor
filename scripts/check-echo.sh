@@ -6,6 +6,8 @@
 set -uo pipefail
 
 : "${OPENSCAD:=openscad}"
+# The cells render JOBS at a time (every core, unless set), then are compared in order.
+: "${JOBS:=$(nproc)}"
 BASE=tests/echo
 update=0
 [ "${1:-}" = "--update" ] && update=1
@@ -20,11 +22,22 @@ rows=$(grep '^ECHO: "V|' "$tmp/rows.err" | sed 's/^ECHO: "V|//; s/"$//')
 
 failed=0 cells=0 changed=0 known=0
 declare -a known_rows=()
+# Every cell is its own OpenSCAD process and none reads another's output, so they render at once
+# into one file each; the loop below compares them in the registry's order as before.
+export OPENSCAD tmp
+render_cell() {
+    IFS='|' read -r f name row <<< "$1"
+    "$OPENSCAD" -D "reactor_vessel=$row" --export-format echo -o "$tmp/raw.$f.$name.txt" "scad/$f.scad" 2>/dev/null >/dev/null
+}
+export -f render_cell
+while IFS='|' read -r name row; do
+    for f in bioreactor head frame; do printf '%s|%s|%s\n' "$f" "$name" "$row"; done
+done <<< "$rows" | xargs -d '\n' -P "$JOBS" -I{} bash -c 'render_cell "$1"' _ {}
 while IFS='|' read -r name row; do
     for f in bioreactor head frame; do
         cells=$((cells + 1))
         out="$BASE/${f}__${name}.txt"
-        "$OPENSCAD" -D "reactor_vessel=$row" --export-format echo -o "$tmp/e.txt" "scad/$f.scad" 2>"$tmp/err" >/dev/null
+        cp "$tmp/raw.$f.$name.txt" "$tmp/e.txt" 2>/dev/null || : > "$tmp/e.txt"
         # --export-format echo writes ERROR and TRACE into the output file, so the transcript is
         # that file alone. Line numbers are normalised out: an assert's identity is its condition
         # and its message.
