@@ -12,13 +12,25 @@ sets=$(/usr/bin/python3 -c 'import json; print("\n".join(json.load(open("scad/bi
 [ -n "$sets" ] || { echo "FAIL  scad/bioreactor.json registers no builds"; exit 1; }
 failed=0
 for s in $sets; do
-    "$OPENSCAD" -p scad/bioreactor.json -P "$s" --export-format echo -o "$tmp/e.txt" scad/bioreactor.scad 2>/dev/null >/dev/null
-    if grep -q '^ERROR' "$tmp/e.txt"; then
+    # One file per set, so a render that writes nothing cannot be read as the last one's.
+    out="$tmp/$s.txt"
+    if ! "$OPENSCAD" -p scad/bioreactor.json -P "$s" --export-format echo -o "$out" scad/bioreactor.scad 2>"$tmp/err" >/dev/null; then
+        echo "FAIL  $s  openscad exited non-zero"
+        head -3 "$tmp/err" | sed 's/^/        /'
+        failed=1
+        continue
+    fi
+    stated=$(grep -m1 '^ECHO: "build: ' "$out" 2>/dev/null | sed 's/^ECHO: "build: //; s/"$//')
+    if grep -q '^ERROR' "$out" 2>/dev/null; then
         echo "FAIL  $s"
-        grep -m1 '^ERROR' "$tmp/e.txt" | sed 's/.*failed: //; s/ in file.*//' | sed 's/^/        /'
+        grep -m1 '^ERROR' "$out" | sed 's/.*failed: //; s/ in file.*//' | sed 's/^/        /'
+        failed=1
+    elif [ -z "$stated" ]; then
+        # the assembly states every build it evaluates, so no statement means it was not evaluated
+        echo "FAIL  $s  the render said nothing about the build"
         failed=1
     else
-        printf 'ok    %-22s %s\n' "$s" "$(grep -m1 '^ECHO: "build: ' "$tmp/e.txt" | sed 's/^ECHO: "build: //; s/"$//')"
+        printf 'ok    %-22s %s\n' "$s" "$stated"
     fi
 done
 exit $failed
