@@ -2658,7 +2658,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       "; see docs/agitation.md"
     ));
 
-  if (_has_baffles)
+  // Loaded by the impellers' torque and excited at the shaft's speeds, so the shaft drive's alone.
+  if (_has_baffles && _shaft_drive)
     echo(str(
       "baffle plate: ", _baffle_load, " N each, deflecting ", _baffle_deflection, " mm at the tip",
       _baffle_segments < 2 ? "" : str(" (", _baffle_joint_deflection, " mm of it the joints)"),
@@ -2679,7 +2680,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
               " crossing each joint, ", head_baffle_joint_stiffness_ratio(), " of the plate's second moment")
     ));
 
-  if (_has_baffles)
+  if (_has_baffles && _shaft_drive)
     echo(str(
       "baffle clearance: ", _baffle_gap, " mm nominal to the impeller, less ", _baffle_lean_at_lower,
       " mm the coupling's ", bayonet_allowance(head_interface_for("baffle", 0)),
@@ -2687,7 +2688,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       _baffle_gap - _baffle_lean_at_lower < 0 ? " - the plate can reach the blades" : ""
     ));
 
-  if (_has_baffles && _baffle_deflection > _baffle_width / 10)
+  if (_has_baffles && _shaft_drive && _baffle_deflection > _baffle_width / 10)
     echo(str(
       "WARNING baffle plate: ", _baffle_deflection, " mm of tip deflection is over a tenth of the ",
       _baffle_width, " mm plate, so it bends away from the swirl rather than blocking it; thicken it (the lock bore allows ",
@@ -2695,7 +2696,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         ? "more" : "no more", ")"
     ));
 
-  if (_has_baffles)
+  if (_has_baffles && _shaft_drive)
     echo(str(
       "baffle resonance: the ", _baffle_frequency, " Hz mode is crossed by ",
       _baffle_crossings[0][0], " at ", _baffle_crossings[0][1], " rpm and by ",
@@ -2707,7 +2708,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         : "that is a speed it is asked to hold"
     ));
 
-  if (_has_baffles && len(_baffle_crossings_in_band) > 0)
+  if (_has_baffles && _shaft_drive && len(_baffle_crossings_in_band) > 0)
     echo(str(
       "WARNING baffle plate: ", _baffle_crossings_in_band[0][0], " crosses its ", _baffle_frequency,
       " Hz mode at ", _baffle_crossings_in_band[0][1], " rpm, inside the ", _drive_rpm_lo, "-", _baffle_rpm,
