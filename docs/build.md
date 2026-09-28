@@ -64,14 +64,21 @@ multiple of 90° and bitten by the same lights cutout, and the exported meshes d
 cut surface tessellates differently at each angle. Intersecting one with another turned to its angle
 returns a whole rib, so it is one solid meshed two ways.
 
-**The drive decides two of those lists.** `drive_name` in `bioreactor.scad` is `shaft` (above) or
-`magnetic`. Magnetic takes the motor mount and the impellers off the head's list, adds a **bearing
-blank** in their place, and adds the **stir carrier** and the **hub cap** to the frame's. The lid
-and the base are the same parts either way: the lid keeps its bearing pocket, bore and inserts and
-the blank plugs them - its boss is the bearing's size, sealed by the pocket's own o-ring, its pin
-fills the shaft bore, and its flange bolts to the four inserts with the mount's own screws - and
-the base is slotted for the carrier whichever drive a build names. See
+**The drive decides two of those lists.** `drive_name` in `bioreactor.scad` is `shaft` (above),
+`magnetic` or `none`. Magnetic takes the motor mount and the impellers off the head's list, adds a
+**bearing blank** in their place, and adds the **stir carrier** and the **hub cap** to the frame's.
+The lid and the base are the same parts either way: the lid keeps its bearing pocket, bore and
+inserts and the blank plugs them - its boss is the bearing's size, sealed by the pocket's own
+o-ring, its pin fills the shaft bore, and its flange bolts to the four inserts with the mount's own
+screws - and the base is slotted for the carrier whichever drive a build names. See
 [The magnetic drive](#the-magnetic-drive).
+
+`none` prints neither drive's parts: the gas is all that moves the culture, and the sparger is the
+ring unless the build names the arm. Its lid is plain - no pocket, bore or inserts - which
+`lid_center_name` sets: `bearing` for the convertible lid above, `plain` for this one, and `auto`
+takes plain under `none` and bearing otherwise. A magnetic build states `plain` where the blank's
+flange would not clear the ports, as `jar_1p5L_magnetic` does; that lid cannot later take the
+shaft.
 
 **Tools, printed once:** the three parts of the gasket cutter. The base is printed once for good —
 it is the same for every gasket; the outer disc and inner plate follow the cut and are reprinted

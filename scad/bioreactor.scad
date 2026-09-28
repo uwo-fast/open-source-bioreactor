@@ -11,7 +11,7 @@
  * CROSS-COUPLING: what two subassemblies must agree on, derived once here and handed down.
  *   vessel -> head, frame   the registered row
  *   light  -> frame   the registered strip light row
- *   drive  -> head, frame   shaft or magnetic: the head loses its drive stack, the frame hangs the fan
+ *   drive  -> head, frame   shaft, magnetic or none: the head loses its drive stack, the frame hangs the fan
  *   head  <-> frame   the joint: lid_flange_height (chosen here), the bolt circle, the bore and
  *                     the outer face (read back from frame.scad), and the post pattern
  *   head   -> here    head_gasket_factor(), which sets the joint's bolt count
@@ -93,9 +93,13 @@ joint_bolt = M8_hex_screw;
 
 // Fraction of the jar's CAPACITY the culture fills; a run at another volume states its fraction
 culture_fill_fraction = 0.865;
-// What turns the culture: a shaft through the lid, or a stir bar following a fan under the base
-drive_name = "shaft"; // [shaft, magnetic]
-// What the gas comes out of: a ring between the impellers, or an arm under the lower one; auto is the arm
+// What turns the culture: a shaft through the lid, a stir bar following a fan under the base, or
+// none, where the gas is all that moves it
+drive_name = "shaft"; // [shaft, magnetic, none]
+// The middle of the lid: the bearing pocket and mount inserts, or plain; auto is plain under no drive
+lid_center_name = "auto"; // [auto, bearing, plain]
+// What the gas comes out of: a ring between the impellers, or an arm under the lower one; auto is
+// the arm under a drive and the ring under none
 sparger_name = "auto"; // [auto, ring, cap]
 // The stir bar a magnetic drive turns; auto takes the head's own row
 stir_bar_name = "auto"; // [auto, 25x8, 38x8, 50x8]
@@ -202,6 +206,7 @@ reactor_build = [
   ["do_probe", _build_do_probe],
   ["ph_probe", _build_ph_probe],
   ["drive", drive_name],
+  ["lid_center", lid_center_name],
   ["stir_bar", _build_stir_bar],
   ["sparger", sparger_name],
 ];
@@ -232,7 +237,7 @@ _designated = [
     ["shaft", shaft_name], ["plug o-ring", plug_oring_name], ["motor", motor_name],
     ["gasket sheet", gasket_sheet_name], ["DO probe", do_probe_name], ["pH probe", ph_probe_name],
     ["light", strip_light_name], ["stir bar", stir_bar_name], ["magnets", stir_magnet_name],
-    ["sparger", sparger_name],
+    ["sparger", sparger_name], ["lid centre", lid_center_name],
   ]) if (d[1] != "auto") str(d[0], " ", d[1])
 ];
 function _joined(v, i = 0) = i >= len(v) ? "" : str(i == 0 ? "" : ", ", v[i], _joined(v, i + 1));
