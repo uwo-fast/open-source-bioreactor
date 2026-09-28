@@ -18,12 +18,12 @@
         "jar_6p5gal_305x470": {
             "reactor_vessel_name": "jar_6p5gal_305x470"
         },
-        "jar_1p5L_109x215": {
-            "reactor_vessel_name": "jar_1p5L_109x215",
+        "jar_1p5L_112x215": {
+            "reactor_vessel_name": "jar_1p5L_112x215",
             "drive_name": "none"
         },
         "jar_1p5L_magnetic": {
-            "reactor_vessel_name": "jar_1p5L_109x215",
+            "reactor_vessel_name": "jar_1p5L_112x215",
             "drive_name": "magnetic",
             "lid_center_name": "plain"
         },

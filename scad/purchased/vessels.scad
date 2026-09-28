@@ -20,7 +20,8 @@ jar_6p5gal_305x470   = ["jar_6p5gal_305x470",   [18.5*25.4, 12*25.4,    12      
 
 // Mainstays large straight-sided glass canister, 1.5 L
 // https://www.walmart.ca/en/ip/Main-Stays-Glass-Canister-Large/6000199421846
-jar_1p5L_109x215     = ["jar_1p5L_109x215",     [215,       109.22,     4        ], [87.5,        22.5], [6.0,         7.5           ], [7,     15    ], 0     ];
+// Outside diameter measured at 111.5.
+jar_1p5L_112x215     = ["jar_1p5L_112x215",     [215,       111.50,     4        ], [87.5,        22.5], [6.0,         7.5           ], [7,     15    ], 0     ];
 
 // Uline S-19317P, 1 gallon wide-mouth glass jar, 110/400 plastic cap
 // https://www.uline.ca/Product/Detail/S-19317P/Jars/Clear-Wide-Mouth-Glass-Jars-1-Gallon-4-Opening-Plastic-Cap
@@ -30,7 +31,7 @@ jar_1p5L_109x215     = ["jar_1p5L_109x215",     [215,       109.22,     4       
 jar_1gal_155x251     = ["jar_1gal_155x251",     [251,       155.3,      3        ], [95.8,        30  ], [25,          14             ], [6,      73   ], 0    ];
 
 // Only orderable rows are swept; generic_vessel stays defined and out of it.
-vessels = [jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x215, jar_1gal_155x251];
+vessels = [jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_112x215, jar_1gal_155x251];
 
 function vessel_by_name(name) = registry_by_name(vessels, name);
 
