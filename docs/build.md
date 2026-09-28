@@ -423,6 +423,11 @@ sparger goes in the stirred-tank literature; the ring sat between the impellers 
 argument, and that argument stays with the ring. Same 3 mm holes as the ring, same anti-fouling
 reason; the count follows the arm's length at the pitch floor.
 
+**With no drive the ring goes to the floor.** Between the impellers is only a place when there are
+impellers; under `drive_name = "none"` the ring's underside sits `sparge_ring_floor_gap` (10 mm)
+over the highest glass beneath it, so the column is sparged from the bottom. The supports lengthen
+to match - on `jar_1p5L` that moves their stock from a 500 mm length to a 1000 mm one.
+
 **How the riser is held.** Every socket is bored 0.2 mm over the 4 mm tube — a slip fit, since a
 printed bore at the tube's own size is a press fit and the ring's five blind sockets cannot take
 one. Every socket is 12 mm deep. The ring rests on its five tubes and needs nothing more. The arm

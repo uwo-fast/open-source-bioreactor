@@ -154,8 +154,6 @@ beside two Ø16 probes at any port count, so both are registered with `drive_nam
 - [ ] **explore an airlift variant, with no impeller**
   - the no-drive half exists: `drive_name = "none"` drops the drivetrain and takes the ring, and
     that is a bubble column. An airlift is that plus a draft tube
-  - the ring is still hung where the shaft drive's impellers would put it, 67.8 mm off the floor on
-    `jar_1p5L`, so the column under it is unsparged; a gas-driven build wants it low
   - needs in the model: a draft tube as a part, riser and downcomer areas, superficial gas
     velocity, a reported circulation time. The sparge ring is this mode's sparger; the shaft and
     magnetic builds run the arm (`sparger_name`)

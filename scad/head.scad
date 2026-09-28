@@ -702,6 +702,9 @@ sparge_cap_shaft_clearance = 5;
 sparge_ring_clearance = 1.25;
 // where the ring sits in the gap: 0 at the lower impeller's collar, 1 at the upper impeller
 sparge_ring_gap_fraction = 0.5;
+// Under no drive the ring sits on the floor instead, its underside this far over the highest glass
+// beneath it: room for a support cut a little long, and to wipe under it. In mm
+sparge_ring_floor_gap = 10;
 // The feed socket is this tube standing up, so the bore is the riser's own and the outside is
 // that plus this wall, which is also what the socket keeps around the riser.
 // Wall around the sparger's socket bore, in mm; with the slip allowance that keeps the tube 6.4
@@ -938,9 +941,11 @@ function head_probe_runs(probe, vessel_opening_diameter, lid_flange_height, tilt
       ],
     ];
 
-// Where the sparge ring sits in the gap: between the lower impeller's collar and the upper
-// impeller's blades.
-function head_sparge_ring_z(impeller_diameter) =
+// Where the sparge ring sits: in the gap between the lower impeller's collar and the upper
+// impeller's blades, or with no drive, on the floor - floor_rise is how far the glass under it
+// stands above the floor's lowest point (head_ring_floor_rise).
+function head_sparge_ring_z(impeller_diameter, drive = "shaft", floor_rise = 0) =
+  drive == "none" ? floor_rise + sparge_ring_floor_gap + sparge_tube_extent() / 2 :
   let (
     _clearance = stirred_tank_clearance(impeller_diameter, impeller_clearance_factor),
     _height = impeller_axial_span(head_impeller_type, impeller_diameter, impeller_fin_width),
@@ -966,7 +971,7 @@ function head_sparge_cap_holes(reach) =
 // stands at the air inlet's bearing alone, where nothing else hangs, so an annulus over its
 // radial span would report a collision with every probe at every other port. What it does have
 // to miss is checked where it is placed - the floor, the shaft and the stir bar.
-function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, sparger = "ring") =
+function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, sparger = "ring", ring_z = undef) =
   let (
     _floor_z = -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height),
     _swept = head_impeller_swept_radius(impeller_diameter),
@@ -974,7 +979,7 @@ function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel
     _height = impeller_axial_span(head_impeller_type, impeller_diameter, impeller_fin_width),
     _spacing = stirred_tank_impeller_spacing(impeller_diameter, impeller_spacing_factor),
     _ring_r = head_sparge_ring_radius(vessel_opening_diameter),
-    _ring_z = head_sparge_ring_z(impeller_diameter)
+    _ring_z = is_undef(ring_z) ? head_sparge_ring_z(impeller_diameter) : ring_z
   )
     concat(
       [
@@ -998,11 +1003,11 @@ function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel
     );
 
 // Does a probe at this lean clear the vessel's internals AND still pass the mouth on the way in?
-function head_probe_lean_fits(probe, vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, tilt, sparger = "ring") =
+function head_probe_lean_fits(probe, vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, tilt, sparger = "ring", ring_z = undef) =
   let (
     _runs = head_probe_runs(probe, vessel_opening_diameter, lid_flange_height, tilt),
     _obstacles = head_reach_obstacles(
-      vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, sparger
+      vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, sparger, ring_z
     ),
     _gaps = [
       for (r = _runs)
@@ -1014,14 +1019,14 @@ function head_probe_lean_fits(probe, vessel_opening_diameter, lid_flange_height,
     && (len(_gaps) == 0 || min(_gaps) > 0);
 
 // The most of `want` this jar allows, scanned down from the ceiling; 0 where nothing fits.
-function head_probe_tilt_ceiling(probe, vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, want, steps = 45, sparger = "ring") =
+function head_probe_tilt_ceiling(probe, vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, want, steps = 45, sparger = "ring", ring_z = undef) =
   let (
     _ok = [
       for (i = [0:steps])
         let (_t = want * (steps - i) / steps)
           if (head_probe_lean_fits(
                 probe, vessel_opening_diameter, lid_flange_height, vessel_internal_height,
-                vessel_punt_height, impeller_diameter, _t, sparger
+                vessel_punt_height, impeller_diameter, _t, sparger, ring_z
               )) _t
     ]
   )
@@ -1133,6 +1138,17 @@ function sparge_tube_extent() = sparger_across_corners(sparge_tube(), sparge_tub
 
 function head_sparge_ring_radius(mouth) =
   mouth / 2 - sparge_ring_clearance - sparge_tube_extent() / 2;
+// How far the glass under the ring stands above the floor's lowest point, the datum heights here
+// are taken from: the highest floor across the ring's width, at an end of it or at a profile vertex
+// inside it.
+function head_ring_floor_rise(vessel) =
+  let (
+    _r = head_sparge_ring_radius(vessel_opening_diameter(vessel)),
+    _r0 = _r - sparge_tube_extent() / 2,
+    _r1 = _r + sparge_tube_extent() / 2,
+    _xs = concat([_r0, _r1], [for (q = vessel_inner_profile(vessel)) if (q[0] > _r0 && q[0] < _r1) q[0]])
+  )
+    max([for (x = _xs) vessel_floor_height(vessel, x)]) - vessel_thickness(vessel);
 
 // Every ring's radius: one as far out as the mouth allows, several on equal area inboard of it.
 function head_sparge_radii(mouth) =
@@ -1508,6 +1524,10 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _has_baffles = len(_baffle_at) > 0;
   impeller_diameter = stirred_tank_impeller_diameter(_vessel_bore, impeller_bore_ratio);
 
+  // Where the ring sits, off the floor: resolved here because what hangs beside it is measured
+  // against it, the DO lean first.
+  _sparge_ring_height = head_sparge_ring_z(impeller_diameter, _drive, head_ring_floor_rise(vessel));
+
   // The DO lean, always derived: the most of the ceiling this jar allows.
   _do_port = [for (p = _ports) if (head_port_function(p) == "do_probe") p];
 
@@ -1516,7 +1536,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     : head_probe_tilt_ceiling(
       head_port_probe(_do_port[0]), vessel_opening_diameter, lid_flange_height,
       vessel_internal_height, vessel_punt_height, impeller_diameter, _build_do_tilt_max,
-      sparger=_sparger
+      sparger=_sparger, ring_z=_sparge_ring_height
     );
 
   // The mouth window this jar had to land in: too small and the ring will not pass, too large and
@@ -1784,7 +1804,6 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _sparge_ring_radius = head_sparge_ring_radius(vessel_opening_diameter);
   _sparge_ring_diameter = _sparge_ring_radius * 2;
   _sparge_ring_ratio = stirred_tank_sparge_ring_ratio(_sparge_ring_diameter, impeller_diameter);
-  _sparge_ring_height = head_sparge_ring_z(impeller_diameter);
   _sparge_baffle_gap = head_ring_baffle_gap(vessel_opening_diameter, impeller_diameter);
   _sparge_mouth_gap = head_ring_mouth_gap(vessel_opening_diameter, impeller_diameter);
   _sparge_radii = head_sparge_radii(vessel_opening_diameter);
@@ -1813,7 +1832,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _obstacles = concat(
     [
       for (o = head_reach_obstacles(
-        vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, _sparger
+        vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, _sparger,
+        _sparge_ring_height
       ))
         if (_shaft_drive || o[0] != "lower impeller" && o[0] != "upper impeller") o
     ],
@@ -2760,7 +2780,10 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         ", equal-swept-volume ", stirred_tank_sparge_ring_equal_volume_ratio(), ")"
       ),
       ", ", _sparge_ring_height, " mm off the floor",
-      !_shaft_drive ? ", where the shaft drive's impellers would put it" : str(
+      _drive == "none"
+        ? str(", its underside ", sparge_ring_floor_gap, " mm over the highest glass under it, which stands ",
+              head_ring_floor_rise(vessel), " mm off the floor")
+      : !_shaft_drive ? ", where the shaft drive's impellers would put it" : str(
         " - ", _sparge_ring_height - _impeller_clearance, " above the lower impeller and ",
         _impeller_clearance + impeller_spacing - _sparge_ring_height, " below the upper"
       )

@@ -133,6 +133,16 @@ function vessel_outer_profile(type, arcFn = 64) =
 function vessel_section(type, arcFn = 64) =
   concat(vessel_outer_profile(type, arcFn), reverse(vessel_inner_profile(type, arcFn)));
 
+// The inside floor's height at radius r: read off the profile's run out from the axis - the punt's
+// plateau, the slope down from it and the base corner - which is the one stretch where x grows.
+function vessel_floor_height(type, r) =
+  let (p = vessel_inner_profile(type))
+    [
+      for (i = [0:len(p) - 2])
+        let (a = p[i], b = p[i + 1])
+          if (b[0] > a[0] && a[0] <= r && r <= b[0]) a[1] + (b[1] - a[1]) * (r - a[0]) / (b[0] - a[0])
+    ][0];
+
 // ----- what the jar holds -----
 
 // The run of a profile below a height, with the crossing point interpolated in rather than the
