@@ -69,7 +69,7 @@ returns a whole rib, so it is one solid meshed two ways.
 **The drive decides two of those lists.** `drive_name` in `bioreactor.scad` is `shaft` (above),
 `magnetic` or `none`. Magnetic takes the motor mount and the impellers off the head's list, adds a
 **bearing blank** in their place, and adds the **stir carrier** and the **hub cap** to the frame's.
-The lid and the base are the same parts either way: the lid keeps its bearing pocket, bore and
+On the default lid the lid and the base are the same parts either way: the lid keeps its bearing pocket, bore and
 inserts and the blank plugs them - its boss is the bearing's size, sealed by the pocket's own
 o-ring, its pin fills the shaft bore, and its flange bolts to the four inserts with the mount's own
 screws - and the base is slotted for the carrier whichever drive a build names. See
