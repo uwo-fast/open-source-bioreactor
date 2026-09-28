@@ -221,6 +221,9 @@ head_drive = "shaft"; // [shaft, magnetic, none]
 head_lid_center = "auto"; // [auto, bearing, plain]
 function head_lid_center_selected(lid_center, drive) =
   lid_center != "auto" ? lid_center : drive == "none" ? "plain" : "bearing";
+// A bearing lid under anything but the shaft is open to the culture until the blank plugs it.
+function head_blank_carried(drive, lid_center) =
+  drive != "shaft" && head_lid_center_selected(lid_center, drive) == "bearing";
 // The stir bar a magnetic drive turns, centred on the punt
 head_stir_bar = stir_bar_38x8;
 // what the blank's boss stops short of the pocket's floor, so its flange seats on the lid first
@@ -545,8 +548,7 @@ function head_print_parts(vessel_opening_diameter, lid_flange_height, vessel_int
   let (
     _ports = head_ports_for(vessel_opening_diameter),
     _segs = head_baffle_segments(lid_flange_height, vessel_internal_height, vessel_punt_height),
-    _sparger = head_sparger_selected(sparger, drive),
-    _seated = head_lid_center_selected(lid_center, drive) == "bearing"
+    _sparger = head_sparger_selected(sparger, drive)
   )
     concat(
       [["lid", 1, "-D render_lid=true"]],
@@ -561,7 +563,7 @@ function head_print_parts(vessel_opening_diameter, lid_flange_height, vessel_int
           [str("impeller_", h), 1, str("-D render_impeller=true -D impeller_to_render=\"", h, "\"")],
       ],
       // what plugs the pocket the shaft drive would fill
-      drive == "shaft" || !_seated ? [] : [["bearing_blank", 1, "-D render_bearing_blank=true"]],
+      !head_blank_carried(drive, lid_center) ? [] : [["bearing_blank", 1, "-D render_bearing_blank=true"]],
       [[_sparger == "ring" ? "sparge_ring" : "sparge_cap", 1, "-D render_sparger=true"]],
       // Ports, in the order they sit on the lid. A baffle's plate prints in pieces, so it is that
       // many parts; every other port is one.
@@ -1231,7 +1233,7 @@ function head_motor_mount_height(lid_flange_height, vessel_internal_height, shaf
   gearbox_output_shaft_length(dc_motor_gearbox(head_motor_selected(motor)))
   + head_shaft_protrusion(lid_flange_height, vessel_internal_height, shaft) + shaft_shaft_coupling_offset;
 // top of the motor, which is the highest thing on the reactor
-// The magnetic drive stacks nothing on the lid.
+// Only the shaft drive stacks on the lid; the blank's flange is not counted.
 function head_stack_height(lid_flange_height, vessel_internal_height, shaft, motor, drive = "shaft") =
   drive != "shaft" ? 0
   : head_motor_mount_height(lid_flange_height, vessel_internal_height, shaft, motor)
@@ -1457,6 +1459,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   // whether the lid carries the pocket and inserts, which the shaft runs in and the blank plugs
   _lid_center = head_lid_center_selected(head_build(build, "lid_center", head_lid_center), _drive);
   _seated = _lid_center == "bearing";
+  _blank = head_blank_carried(_drive, _lid_center);
   // undef from the build means this file's own row, as the motor does
   _build_stir_bar = head_build(build, "stir_bar", undef);
   _stir_bar = is_undef(_build_stir_bar) ? head_stir_bar : _build_stir_bar;
@@ -2612,7 +2615,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       "% radial squeeze, ", _insert_to_bearing, " mm from the nearest mount insert"
     ));
 
-    if (_magnetic)
+    if (_blank)
       echo(str(
         "bearing blank: a ", bb_diameter(shaft_bearing), " mm boss ", bb_width(shaft_bearing) - bearing_blank_seat,
         " mm into the ", bb_diameter(shaft_bearing) + bearing_hole_allowance, " mm pocket, sealed by the same ring; a ",
@@ -3189,7 +3192,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       " mm across and the port flanges reach in to r ",
       port_circle_radius - bayonet_flange_radius(head_widest_interface(_ports)), ", leaving ", _mount_to_ports,
       " mm between them; ", lid_holes_offset, " mm is the least this lid keeps.",
-      _shaft_drive ? "" : " A plain lid (lid_center) has no blank."
+      _shaft_drive ? "" : " A plain lid (lid_center_name) has no blank."
     )
   );
 
@@ -3580,7 +3583,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       translate([0, 0, _joint_grip])
         screw(motor_mount_base_screw, screw_length(motor_mount_base_screw, _joint_grip, 0, insert=motor_mount_base_insert));
 
-  if (_magnetic && _seated && (render_bearing_blank || render_all))
+  if (_blank && (render_bearing_blank || render_all))
     color(prints1_color)
       bearing_blank(
         boss_diameter=bb_diameter(shaft_bearing),
