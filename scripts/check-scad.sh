@@ -21,22 +21,37 @@ openscad_canary
 
 entry=($ENTRY)
 tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
+files=$(find scad -name '*.scad' -not -path '*/_archive/*' -not -path '*/_shelf/*' | sort)
+# Both passes of every file render JOBS at a time (every core, unless set) into files of their
+# own, and are judged in order below.
+: "${JOBS:=$(nproc)}"
+export OPENSCAD tmp
+render_file() {
+    local base="$tmp/$(echo "$1" | tr / _)"
+    "$OPENSCAD" -o "$base.csg" "$1" 2>"$base.err"
+    "$OPENSCAD" -o "$base.fn0.csg" -D '$fn=0' "$1" 2>"$base.err0"
+}
+export -f render_file
+xargs -d '\n' -P "$JOBS" -I{} bash -c 'render_file "$1"' _ {} <<< "$files"
 failed=0
 while read -r f; do
     renders=0
     for e in "${entry[@]}"; do [ "$e" = "$f" ] && renders=1; done
-    out="$tmp/$(echo "$f" | tr / _).csg"
-    "$OPENSCAD" -o "$out" "$f" 2>"$tmp/err"
+    base="$tmp/$(echo "$f" | tr / _)"
+    out="$base.csg"
     size=$(stat -c%s "$out" 2>/dev/null || echo 0)
-    if grep -q '^ERROR' "$tmp/err"; then
-        echo "FAIL  $f"
-        grep '^ERROR' "$tmp/err" | sed 's/^/        /'
+    if [ ! -f "$base.err" ]; then
+        echo "FAIL  $f  was never rendered"
         failed=1
-    elif grep -q '^WARNING' "$tmp/err"; then
+    elif grep -q '^ERROR' "$base.err"; then
+        echo "FAIL  $f"
+        grep '^ERROR' "$base.err" | sed 's/^/        /'
+        failed=1
+    elif grep -q '^WARNING' "$base.err"; then
         # Warnings are how OpenSCAD reports an undef reaching arithmetic, and a parse error in
         # a use'd file shows up as nothing else.
         echo "FAIL  $f"
-        grep '^WARNING' "$tmp/err" | sort | uniq -c | sort -rn | head -5 | sed 's/^/        /'
+        grep '^WARNING' "$base.err" | sort | uniq -c | sort -rn | head -5 | sed 's/^/        /'
         failed=1
     elif [ "$renders" = 1 ] && [ "$size" -le 1 ]; then
         echo "FAIL  $f  renders nothing"
@@ -48,14 +63,13 @@ while read -r f; do
         # Second pass with $fn forced to zero, which is what an unset viewport is. 2021.01 lets
         # a `use`d module resolve $fn from its own file where newer builds pass the caller's, so
         # a file that divides by $fn can pass here and produce nan in a current GUI.
-        "$OPENSCAD" -o "$out" -D '$fn=0' "$f" 2>"$tmp/err0"
-        if grep -qE '^(ERROR|WARNING)' "$tmp/err0"; then
+        if [ ! -f "$base.err0" ] || grep -qE '^(ERROR|WARNING)' "$base.err0"; then
             echo "FAIL  $f  at \$fn=0"
-            grep -E '^(ERROR|WARNING)' "$tmp/err0" | sort | uniq -c | sort -rn | head -3 | sed 's/^/        /'
+            grep -E '^(ERROR|WARNING)' "$base.err0" 2>/dev/null | sort | uniq -c | sort -rn | head -3 | sed 's/^/        /'
             failed=1
         else
             printf 'ok    %-46s %s\n' "$f" "$([ "$renders" = 1 ] && echo "$size bytes" || echo 'no geometry')"
         fi
     fi
-done < <(find scad -name '*.scad' -not -path '*/_archive/*' -not -path '*/_shelf/*' | sort)
+done <<< "$files"
 exit $failed
