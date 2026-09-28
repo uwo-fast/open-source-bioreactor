@@ -5,8 +5,8 @@
 # previews are not what prints. Minutes a build even with the parts rendering in parallel, so it
 # runs on demand and on a tag rather than on every push, one job per build.
 #
-# The default builds are the ones that resolve. jar_1p5L and jar_1gal_155 stop on an assert in
-# the head (tests/echo pins that), so a run naming them fails, honestly, at the manifest.
+# Any set in scad/bioreactor.json resolves (`just check-builds`); the defaults are the two 10 L
+# builds, and a run can name any other.
 #
 # OpenSCAD is pinned to what apt ships, as in check.yml.
 

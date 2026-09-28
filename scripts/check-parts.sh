@@ -30,14 +30,14 @@ not_printed=(
     render_stir_fan             # vitamin - the fan, its screws and the magnets in the carrier
     render_stir_bar             # vitamin - the PTFE bar on the punt
 )
-# Both drives, because each manifest lists only its own drive's parts and a flag has to reach
+# Every drive, because each manifest lists only its own drive's parts and a flag has to reach
 # at least one of them.
 cat > "$tmp/m.scad" <<SCAD
 include <$PWD/scad/bioreactor.scad>
 _v = reactor_vessel;
-for (d = ["shaft", "magnetic"]) {
+for (d = ["shaft", "magnetic", "none"]) {
   for (p = head_print_parts(vessel_opening_diameter(_v), lid_flange_height,
-                            vessel_internal_height(_v), vessel_punt_height(_v), d, sparger_name == "auto" ? "cap" : sparger_name))
+                            vessel_internal_height(_v), vessel_punt_height(_v), d, sparger_name, lid_center_name))
     echo(str("PART|", p[2]));
   for (p = frame_print_parts(n_rods, d)) echo(str("PART|", p[2]));
 }

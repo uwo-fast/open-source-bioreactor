@@ -46,7 +46,7 @@ setup:
     @scripts/install-libraries.sh
 
 # Everything CI runs.
-check: fmt-check lint check-recipes check-echo check-scad check-designations check-json check-bom check-parts check-customizer
+check: fmt-check lint check-recipes check-echo check-scad check-designations check-json check-builds check-bom check-parts check-customizer
 
 # Prettier owns markdown, JSON and YAML; ruff owns the Python. Nothing formats SCAD: the registries
 # are aligned by hand. Versions are pinned so a style bump is not a surprise diff.
@@ -143,6 +143,10 @@ analysis-run name:
 # Rebuild one method, e.g. `just analysis-method light-irradiance`.
 analysis-method name:
     {{PY}} analysis/methods/{{name}}/pipeline.py --verify
+
+# Fail when a registered build in bioreactor.json does not build.
+check-builds:
+    @scripts/check-builds.sh
 
 # Fail when a designation stops reaching the model.
 check-designations:

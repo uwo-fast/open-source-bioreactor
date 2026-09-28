@@ -212,9 +212,18 @@ function head_bearing_gland_z() = bb_width(shaft_bearing) / 2;
 
 /* [Drive Selection] */
 
-// A shaft through the lid, or a stir bar on the punt following magnets on a fan under the base.
-// Magnetic retires the motor, mount, coupling, bearing and its seal.
-head_drive = "shaft"; // [shaft, magnetic]
+// A shaft through the lid, a stir bar on the punt following magnets on a fan under the base, or
+// none, where the gas is all that moves the culture. Magnetic and none retire the motor, mount,
+// coupling, bearing and its seal.
+head_drive = "shaft"; // [shaft, magnetic, none]
+// The middle of the lid: the bearing pocket, shaft bore and mount inserts, or plain. Auto is
+// bearing under a shaft or magnetic drive, where the blank plugs it, and plain under none.
+head_lid_center = "auto"; // [auto, bearing, plain]
+function head_lid_center_selected(lid_center, drive) =
+  lid_center != "auto" ? lid_center : drive == "none" ? "plain" : "bearing";
+// A bearing lid under anything but the shaft is open to the culture until the blank plugs it.
+function head_blank_carried(drive, lid_center) =
+  drive != "shaft" && head_lid_center_selected(lid_center, drive) == "bearing";
 // The stir bar a magnetic drive turns, centred on the punt
 head_stir_bar = stir_bar_38x8;
 // what the blank's boss stops short of the pocket's floor, so its flange seats on the lid first
@@ -535,10 +544,11 @@ function head_sparge_feed_port(vessel_opening_diameter) = head_port_index(vessel
 
 // Every printed part this lid carries: [name, quantity, the flags that render it alone]. It
 // varies with the vessel, so it lives here; `just export-parts` walks it.
-function head_print_parts(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, drive = "shaft", sparger = "cap") =
+function head_print_parts(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, drive = "shaft", sparger = "auto", lid_center = "auto") =
   let (
     _ports = head_ports_for(vessel_opening_diameter),
-    _segs = head_baffle_segments(lid_flange_height, vessel_internal_height, vessel_punt_height)
+    _segs = head_baffle_segments(lid_flange_height, vessel_internal_height, vessel_punt_height),
+    _sparger = head_sparger_selected(sparger, drive)
   )
     concat(
       [["lid", 1, "-D render_lid=true"]],
@@ -553,8 +563,8 @@ function head_print_parts(vessel_opening_diameter, lid_flange_height, vessel_int
           [str("impeller_", h), 1, str("-D render_impeller=true -D impeller_to_render=\"", h, "\"")],
       ],
       // what plugs the pocket the shaft drive would fill
-      drive == "shaft" ? [] : [["bearing_blank", 1, "-D render_bearing_blank=true"]],
-      [[sparger == "ring" ? "sparge_ring" : "sparge_cap", 1, "-D render_sparger=true"]],
+      !head_blank_carried(drive, lid_center) ? [] : [["bearing_blank", 1, "-D render_bearing_blank=true"]],
+      [[_sparger == "ring" ? "sparge_ring" : "sparge_cap", 1, "-D render_sparger=true"]],
       // Ports, in the order they sit on the lid. A baffle's plate prints in pieces, so it is that
       // many parts; every other port is one.
       [
@@ -669,8 +679,9 @@ baffle_joint_allowance = 0.1;
 // Joshi 1993: negligible effect near the impeller).
 
 // A ring between the impellers, or an arm off the air inlet's riser ending under the lower
-// impeller with its holes down; auto is the arm
+// impeller with its holes down; auto is the arm under a drive and the ring under none
 head_sparger = "auto"; // [auto, ring, cap]
+function head_sparger_selected(sparger, drive) = sparger != "auto" ? sparger : drive == "none" ? "ring" : "cap";
 // how far the arm's holes sit below the lower impeller's underside, in mm
 sparge_cap_drop = 10;
 // what the arm's end keeps clear of the shaft, in mm
@@ -1222,7 +1233,7 @@ function head_motor_mount_height(lid_flange_height, vessel_internal_height, shaf
   gearbox_output_shaft_length(dc_motor_gearbox(head_motor_selected(motor)))
   + head_shaft_protrusion(lid_flange_height, vessel_internal_height, shaft) + shaft_shaft_coupling_offset;
 // top of the motor, which is the highest thing on the reactor
-// The magnetic drive stacks nothing on the lid.
+// Only the shaft drive stacks on the lid; the blank's flange is not counted.
 function head_stack_height(lid_flange_height, vessel_internal_height, shaft, motor, drive = "shaft") =
   drive != "shaft" ? 0
   : head_motor_mount_height(lid_flange_height, vessel_internal_height, shaft, motor)
@@ -1273,7 +1284,7 @@ module head_port_at(i, vessel_opening_diameter, flipped = false) {
       children();
 }
 
-module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter, plug_oring, sheet, lip_arc_radius, mount_body_diameter) {
+module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter, plug_oring, sheet, lip_arc_radius, mount_body_diameter, seated = true) {
 
   _ports = head_ports_for(vessel_opening_diameter);
   _n = len(_ports);
@@ -1298,6 +1309,7 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
       }
 
       // cut out the bearing and shaft hole
+      if (seated)
       translate([0, 0, -z_fight / 2])
         union() {
           // shaft hole
@@ -1314,6 +1326,7 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
         }
 
       // insert holes for the motor mount, blind; the assert in head() keeps them out of the culture
+      if (seated)
       for (i = [0:3])
         rotate([0, 0, i * 90])
           translate([head_motor_mount_screw_radius(mount_body_diameter), 0, -z_fight / 2])
@@ -1442,12 +1455,15 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _build_ph_probe = head_build(build, "ph_probe", undef);
   _drive = head_build(build, "drive", head_drive);
   _shaft_drive = _drive == "shaft";
+  _magnetic = _drive == "magnetic";
+  // whether the lid carries the pocket and inserts, which the shaft runs in and the blank plugs
+  _lid_center = head_lid_center_selected(head_build(build, "lid_center", head_lid_center), _drive);
+  _seated = _lid_center == "bearing";
+  _blank = head_blank_carried(_drive, _lid_center);
   // undef from the build means this file's own row, as the motor does
   _build_stir_bar = head_build(build, "stir_bar", undef);
   _stir_bar = is_undef(_build_stir_bar) ? head_stir_bar : _build_stir_bar;
-  // auto is the arm, under either drive; an airlift would take the ring
-  _build_sparger = head_build(build, "sparger", head_sparger);
-  _sparger = _build_sparger == "auto" ? "cap" : _build_sparger;
+  _sparger = head_sparger_selected(head_build(build, "sparger", head_sparger), _drive);
   _ring = _sparger == "ring";
 
   // The table this lid carries, resolved once, with a designated probe spliced in. Safe because
@@ -1789,7 +1805,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       ))
         if (_shaft_drive || o[0] != "lower impeller" && o[0] != "upper impeller") o
     ],
-    _shaft_drive ? [] : [[
+    !_magnetic ? [] : [[
       "stir bar",
       [0, stir_bar_length(_stir_bar) / 2, _punt_top_z, _punt_top_z + stir_bar_diameter(_stir_bar)],
     ]]
@@ -2063,14 +2079,24 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   );
 
   assert(
-    _drive == "shaft" || _drive == "magnetic",
-    str("The drive is \"", _drive, "\"; it is shaft or magnetic.")
+    _shaft_drive || _magnetic || _drive == "none",
+    str("The drive is \"", _drive, "\"; it is shaft, magnetic or none.")
+  );
+
+  assert(
+    _lid_center == "bearing" || _lid_center == "plain",
+    str("The lid's centre is \"", _lid_center, "\"; it is bearing or plain.")
+  );
+
+  assert(
+    !_shaft_drive || _seated,
+    "The shaft drive runs in the bearing pocket, so its lid's centre is bearing, not plain."
   );
 
   // ----- magnetic drive -----
   // The bar rides the plateau; what it must miss is what else reaches the floor. The magnets and
   // the gap through the glass are the frame's, which hangs the fan.
-  if (!_shaft_drive) {
+  if (_magnetic) {
     assert(
       !is_undef(_stir_bar),
       "No stir bar is named for the magnetic drive. See scad/purchased/stir_bars.scad."
@@ -2522,81 +2548,83 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     ));
   }
 
-  // --- the pocket and the inserts, which the lid carries under either drive ---
-  assert(
-    screw_radius(motor_mount_base_screw) * 2 == insert_screw_diameter(motor_mount_base_insert),
-    str(
-      "The motor mount takes an M", screw_radius(motor_mount_base_screw) * 2, " screw into an insert sized for M",
-      insert_screw_diameter(motor_mount_base_insert), "."
-    )
-  );
+  // --- the pocket and the inserts, which a bearing lid carries under either drive ---
+  if (_seated) {
+    assert(
+      screw_radius(motor_mount_base_screw) * 2 == insert_screw_diameter(motor_mount_base_insert),
+      str(
+        "The motor mount takes an M", screw_radius(motor_mount_base_screw) * 2, " screw into an insert sized for M",
+        insert_screw_diameter(motor_mount_base_insert), "."
+      )
+    );
 
-  assert(
-    _insert_floor >= lid_blind_pocket_floor_min,
-    str(
-      "A ", heat_set_insert_name(motor_mount_base_insert), " insert leaves ", _insert_floor, " mm of lid before the culture; ",
-      lid_blind_pocket_floor_min, " mm is the least this lid keeps."
-    )
-  );
+    assert(
+      _insert_floor >= lid_blind_pocket_floor_min,
+      str(
+        "A ", heat_set_insert_name(motor_mount_base_insert), " insert leaves ", _insert_floor, " mm of lid before the culture; ",
+        lid_blind_pocket_floor_min, " mm is the least this lid keeps."
+      )
+    );
 
-  assert(
-    _bearing_floor >= lid_blind_pocket_floor_min,
-    str(
-      "A ", bb_name(shaft_bearing), " bearing leaves ", _bearing_floor, " mm of lid before the culture; ",
-      lid_blind_pocket_floor_min, " mm is the least this lid keeps."
-    )
-  );
+    assert(
+      _bearing_floor >= lid_blind_pocket_floor_min,
+      str(
+        "A ", bb_name(shaft_bearing), " bearing leaves ", _bearing_floor, " mm of lid before the culture; ",
+        lid_blind_pocket_floor_min, " mm is the least this lid keeps."
+      )
+    );
 
-  assert(
-    bearing_hole_allowance >= 0,
-    str("Bearing hole allowance of ", bearing_hole_allowance, " mm is negative, so the pocket is cut under the bearing.")
-  );
+    assert(
+      bearing_hole_allowance >= 0,
+      str("Bearing hole allowance of ", bearing_hole_allowance, " mm is negative, so the pocket is cut under the bearing.")
+    );
 
-  assert(
-    _bearing_seal_stretch >= 0,
-    str(
-      "The ", oring_name(bearing_oring), " bearing seal has an ID of ",
-      oring_inner_diameter(bearing_oring), " mm on a ", bb_diameter(shaft_bearing),
-      " mm bearing, so it would have to be compressed onto it rather than seated."
-    )
-  );
+    assert(
+      _bearing_seal_stretch >= 0,
+      str(
+        "The ", oring_name(bearing_oring), " bearing seal has an ID of ",
+        oring_inner_diameter(bearing_oring), " mm on a ", bb_diameter(shaft_bearing),
+        " mm bearing, so it would have to be compressed onto it rather than seated."
+      )
+    );
 
-  // The groove has to sit inside the pocket with wall left either side.
-  assert(
-    head_bearing_gland_z() - head_bearing_gland_length() / 2 > 0
-      && head_bearing_gland_z() + head_bearing_gland_length() / 2 < bb_width(shaft_bearing),
-    str(
-      "A ", head_bearing_gland_length(), " mm seal groove centred at ", head_bearing_gland_z(),
-      " does not fit inside a ", bb_width(shaft_bearing), " mm pocket."
-    )
-  );
+    // The groove has to sit inside the pocket with wall left either side.
+    assert(
+      head_bearing_gland_z() - head_bearing_gland_length() / 2 > 0
+        && head_bearing_gland_z() + head_bearing_gland_length() / 2 < bb_width(shaft_bearing),
+      str(
+        "A ", head_bearing_gland_length(), " mm seal groove centred at ", head_bearing_gland_z(),
+        " does not fit inside a ", bb_width(shaft_bearing), " mm pocket."
+      )
+    );
 
-  assert(
-    _insert_to_bearing > 0,
-    str(
-      "Motor mount inserts on a ", head_motor_mount_screw_radius(_mount_body_d) * 2, " mm circle overlap the bearing seal groove by ",
-      -_insert_to_bearing, " mm."
-    )
-  );
+    assert(
+      _insert_to_bearing > 0,
+      str(
+        "Motor mount inserts on a ", head_motor_mount_screw_radius(_mount_body_d) * 2, " mm circle overlap the bearing seal groove by ",
+        -_insert_to_bearing, " mm."
+      )
+    );
 
-  echo(str(
-    "bearing seal: ", oring_name(bearing_oring), " on the ", bb_name(shaft_bearing), "'s ",
-    bb_diameter(shaft_bearing), " mm rim at ", _bearing_seal_stretch * 100, "% stretch, in a groove to ",
-    head_bearing_gland_diameter(), " mm, ",
-    oring_rod_gland_squeeze(bb_diameter(shaft_bearing), head_bearing_gland_diameter(),
-                  oring_cross_section(bearing_oring)) * 100,
-    "% radial squeeze, ", _insert_to_bearing, " mm from the nearest mount insert"
-  ));
-
-  if (!_shaft_drive)
     echo(str(
-      "bearing blank: a ", bb_diameter(shaft_bearing), " mm boss ", bb_width(shaft_bearing) - bearing_blank_seat,
-      " mm into the ", bb_diameter(shaft_bearing) + bearing_hole_allowance, " mm pocket, sealed by the same ring; a ",
-      shaft_diameter(_shaft), " mm pin fills the ", shaft_diameter(_shaft) + bearing_hole_allowance,
-      " mm bore to the lid's underside; held by the mount's four ",
-      screw_length(motor_mount_base_screw, _joint_grip, 0, insert=motor_mount_base_insert), " mm M",
-      insert_screw_diameter(motor_mount_base_insert), " screws"
+      "bearing seal: ", oring_name(bearing_oring), " on the ", bb_name(shaft_bearing), "'s ",
+      bb_diameter(shaft_bearing), " mm rim at ", _bearing_seal_stretch * 100, "% stretch, in a groove to ",
+      head_bearing_gland_diameter(), " mm, ",
+      oring_rod_gland_squeeze(bb_diameter(shaft_bearing), head_bearing_gland_diameter(),
+                    oring_cross_section(bearing_oring)) * 100,
+      "% radial squeeze, ", _insert_to_bearing, " mm from the nearest mount insert"
     ));
+
+    if (_blank)
+      echo(str(
+        "bearing blank: a ", bb_diameter(shaft_bearing), " mm boss ", bb_width(shaft_bearing) - bearing_blank_seat,
+        " mm into the ", bb_diameter(shaft_bearing) + bearing_hole_allowance, " mm pocket, sealed by the same ring; a ",
+        shaft_diameter(_shaft), " mm pin fills the ", shaft_diameter(_shaft) + bearing_hole_allowance,
+        " mm bore to the lid's underside; held by the mount's four ",
+        screw_length(motor_mount_base_screw, _joint_grip, 0, insert=motor_mount_base_insert), " mm M",
+        insert_screw_diameter(motor_mount_base_insert), " screws"
+      ));
+  }
 
   assert(
     !_has_baffles || _baffle_width > 0,
@@ -2630,7 +2658,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       "; see docs/agitation.md"
     ));
 
-  if (_has_baffles)
+  // Loaded by the impellers' torque and excited at the shaft's speeds, so the shaft drive's alone.
+  if (_has_baffles && _shaft_drive)
     echo(str(
       "baffle plate: ", _baffle_load, " N each, deflecting ", _baffle_deflection, " mm at the tip",
       _baffle_segments < 2 ? "" : str(" (", _baffle_joint_deflection, " mm of it the joints)"),
@@ -2651,7 +2680,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
               " crossing each joint, ", head_baffle_joint_stiffness_ratio(), " of the plate's second moment")
     ));
 
-  if (_has_baffles)
+  if (_has_baffles && _shaft_drive)
     echo(str(
       "baffle clearance: ", _baffle_gap, " mm nominal to the impeller, less ", _baffle_lean_at_lower,
       " mm the coupling's ", bayonet_allowance(head_interface_for("baffle", 0)),
@@ -2659,7 +2688,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       _baffle_gap - _baffle_lean_at_lower < 0 ? " - the plate can reach the blades" : ""
     ));
 
-  if (_has_baffles && _baffle_deflection > _baffle_width / 10)
+  if (_has_baffles && _shaft_drive && _baffle_deflection > _baffle_width / 10)
     echo(str(
       "WARNING baffle plate: ", _baffle_deflection, " mm of tip deflection is over a tenth of the ",
       _baffle_width, " mm plate, so it bends away from the swirl rather than blocking it; thicken it (the lock bore allows ",
@@ -2667,7 +2696,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         ? "more" : "no more", ")"
     ));
 
-  if (_has_baffles)
+  if (_has_baffles && _shaft_drive)
     echo(str(
       "baffle resonance: the ", _baffle_frequency, " Hz mode is crossed by ",
       _baffle_crossings[0][0], " at ", _baffle_crossings[0][1], " rpm and by ",
@@ -2679,7 +2708,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         : "that is a speed it is asked to hold"
     ));
 
-  if (_has_baffles && len(_baffle_crossings_in_band) > 0)
+  if (_has_baffles && _shaft_drive && len(_baffle_crossings_in_band) > 0)
     echo(str(
       "WARNING baffle plate: ", _baffle_crossings_in_band[0][0], " crosses its ", _baffle_frequency,
       " Hz mode at ", _baffle_crossings_in_band[0][1], " rpm, inside the ", _drive_rpm_lo, "-", _baffle_rpm,
@@ -2712,12 +2741,17 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   if (_ring) {
     echo(str(
-      "sparge ring: ", _sparge_ring_diameter, " mm = ", _sparge_ring_ratio, " D (band ",
-      stirred_tank_sparge_ring_band()[0], "-", stirred_tank_sparge_ring_band()[1],
-      ", equal-swept-volume ", stirred_tank_sparge_ring_equal_volume_ratio(), "), ",
-      _sparge_ring_height, " mm off the floor - ",
-      _sparge_ring_height - _impeller_clearance, " above the lower impeller and ",
-      _impeller_clearance + impeller_spacing - _sparge_ring_height, " below the upper"
+      "sparge ring: ", _sparge_ring_diameter, " mm",
+      !_shaft_drive ? "" : str(
+        " = ", _sparge_ring_ratio, " D (band ",
+        stirred_tank_sparge_ring_band()[0], "-", stirred_tank_sparge_ring_band()[1],
+        ", equal-swept-volume ", stirred_tank_sparge_ring_equal_volume_ratio(), ")"
+      ),
+      ", ", _sparge_ring_height, " mm off the floor",
+      !_shaft_drive ? ", where the shaft drive's impellers would put it" : str(
+        " - ", _sparge_ring_height - _impeller_clearance, " above the lower impeller and ",
+        _impeller_clearance + impeller_spacing - _sparge_ring_height, " below the upper"
+      )
     ));
 
     echo(str(
@@ -3151,16 +3185,19 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     head_port_set_min_mouth(head_port_set_reduced, true), " uniform std); this jar's is ", vessel_opening_diameter
   ));
 
-  if (_shaft_drive) {
-    assert(
-      _mount_to_ports >= lid_holes_offset,
-      str(
-        "Motor mount is ", _mount_body_d, " mm across and the port flanges reach in to r ",
-        port_circle_radius - bayonet_flange_radius(head_widest_interface(_ports)), ", leaving ", _mount_to_ports,
-        " mm between them; ", lid_holes_offset, " mm is the least this lid keeps."
-      )
-    );
+  // The blank's flange is the mount's body, so a bearing lid needs the room under either drive.
+  assert(
+    !_seated || _mount_to_ports >= lid_holes_offset,
+    str(
+      _shaft_drive ? "Motor mount" : "The bearing blank's flange", " is ", _mount_body_d,
+      " mm across and the port flanges reach in to r ",
+      port_circle_radius - bayonet_flange_radius(head_widest_interface(_ports)), ", leaving ", _mount_to_ports,
+      " mm between them; ", lid_holes_offset, " mm is the least this lid keeps.",
+      _shaft_drive ? "" : " A plain lid (lid_center_name) has no blank."
+    )
+  );
 
+  if (_shaft_drive) {
     echo(str(
       "eccentricity: the mount leaves ", _eccentricity_room, " mm of offset, e/T ", _eccentricity_ratio,
       " against Hall's measured 0.2, worth ", 100 * stirred_tank_eccentric_gain(_eccentricity_ratio),
@@ -3399,7 +3436,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     color(prints2_color)
       union() {
         rotate([0, 180, 0])
-          lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter(_shaft), _build_plug_oring, _gasket_sheet, lip_arc_radius, _mount_body_d);
+          lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_diameter, vessel_wall_thickness, joint_outer_diameter, post_pts, post_hole_diameter, shaft_diameter(_shaft), _build_plug_oring, _gasket_sheet, lip_arc_radius, _mount_body_d, _seated);
         lid_locks();
       }
   }
@@ -3447,6 +3484,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
             oring(bayonet_oring(_pi));
 
     // the pocket's seal, on the bearing's rim or the blank's boss; the lid runs downward from z 0
+    if (_seated)
     translate([0, 0, -head_bearing_gland_z()])
       oring(bearing_oring);
 
@@ -3496,7 +3534,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
                   atlas_probe(_p);
 
   // The stir bar, lying on the punt plateau under whatever the lid hangs.
-  if (!_shaft_drive && (render_stir_bar || render_all))
+  if (_magnetic && (render_stir_bar || render_all))
     translate([0, 0, -head_punt_top_depth(lid_flange_height, vessel_internal_height) + stir_bar_diameter(_stir_bar) / 2])
       stir_bar(_stir_bar);
 
@@ -3537,16 +3575,16 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   // Separate flags: the insert stays in the lid, the screw comes out with what it holds down -
   // the mount, or the blank in its place.
-  if (render_motor_mount_inserts || render_all)
+  if (_seated && (render_motor_mount_inserts || render_all))
     motor_mount_fastener_at()
       insert(motor_mount_base_insert);
 
-  if (render_motor_mount_screws || render_all)
+  if (_seated && (render_motor_mount_screws || render_all))
     motor_mount_fastener_at()
       translate([0, 0, _joint_grip])
         screw(motor_mount_base_screw, screw_length(motor_mount_base_screw, _joint_grip, 0, insert=motor_mount_base_insert));
 
-  if (!_shaft_drive && (render_bearing_blank || render_all))
+  if (_blank && (render_bearing_blank || render_all))
     color(prints1_color)
       bearing_blank(
         boss_diameter=bb_diameter(shaft_bearing),

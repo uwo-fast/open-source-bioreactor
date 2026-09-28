@@ -240,8 +240,8 @@ not arise, because neither can carry a shaft to centre or offset. Four things po
 
 - **Both build failures are assertions about the top-entry drivetrain.** The mount overlaps the port
   flanges by 12.95 mm on `jar_1p5L`; the pH probe runs 6.29 mm through the lower impeller on
-  `jar_1gal_155`. Neither assert would exist in a configuration without that drivetrain, and the
-  model has no way to express one — a modelling gap, not a physical result.
+  `jar_1gal_155`. Neither assert exists in a configuration without that drivetrain, which the model
+  now expresses as `drive_name = "none"`: both jars are registered that way.
 - **`jar_1p5L`'s impeller is already negated at the design aeration rate.** Oldshue's 8× rule caps
   axial pumping at **0.341 vvm** where the design is 0.5. It is the only vessel in the family that
   floods; the others hold 1.7× to 3.2× headroom. At intended conditions it is a bubble column with a
