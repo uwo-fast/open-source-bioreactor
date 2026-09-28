@@ -646,6 +646,17 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
   );
 
   _wanted_floor = frame_magnetic_floor(vessel, light, _magnet);
+
+  // Under any other drive the empty slot is only a note; under this one it is the drive.
+  assert(
+    drive != "magnetic" || !is_undef(_fan),
+    str(
+      "A magnetic drive, and no registered fan clears the ", _carrier_diameter - 2 * carrier_wall,
+      " mm pocket in ", _fan_room, " mm under this jar",
+      is_undef(_wanted_floor) ? "." : str("; it wants a ", _wanted_floor, " mm floor, where carrier_floor_lift_max allows ", carrier_floor_lift_max, " over the light's.")
+    )
+  );
+
   if (is_undef(_fan))
     echo(str(
       "WARNING stir drive: no registered fan clears a ", _carrier_diameter - 2 * carrier_wall,
