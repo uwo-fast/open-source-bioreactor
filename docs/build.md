@@ -54,6 +54,8 @@ This is the part of the build nothing else will remind you about.
 - the **port pin halves**, one per port — tube ports for `air_in`, `air_out`, `media`, `acid`,
   `base`; probe ports with their integral flex collets for DO and pH; a thermocouple port carrying
   an NPT mount
+- a **blank port** for each bayonet size the lid uses — a pin with no bore, labelled `BLANK`, to
+  close a port with nothing in it while cleaning, testing or servicing
 - the **baffle ports and plates** — one plate per baffle port, each split into dovetailed pieces
 - the **motor mount**, in three parts: base plate, face plate, middle stand
 - **two impellers**

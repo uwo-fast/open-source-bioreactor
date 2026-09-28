@@ -108,6 +108,8 @@ render_thermocouple_pinlock = false;
 render_probe_pinlock = false;
 // Narrows the pin halves above to one port by function ("air_in", "baffle_1"); "" is every port
 port_to_render = "";
+// A blank: a pin with no bore, for a port left empty. Named by its interface ("std"); "" is none
+blank_port_to_render = "";
 // Which piece of a baffle plate; undef emits them all interlocked, the assembled part
 baffle_segment_to_render = undef;
 // the Atlas probes themselves, hanging in their collets
@@ -565,6 +567,11 @@ function head_print_parts(vessel_opening_diameter, lid_flange_height, vessel_int
       // what plugs the pocket the shaft drive would fill
       !head_blank_carried(drive, lid_center) ? [] : [["bearing_blank", 1, "-D render_bearing_blank=true"]],
       [[_sparger == "ring" ? "sparge_ring" : "sparge_cap", 1, "-D render_sparger=true"]],
+      // One blank per interface the lid carries, to close a port nothing is in.
+      [
+        for (f = head_port_interface_names(_ports))
+          [str("port_blank_", f), 1, str("-D blank_port_to_render=\"", f, "\"")],
+      ],
       // Ports, in the order they sit on the lid. A baffle's plate prints in pieces, so it is that
       // many parts; every other port is one.
       [
@@ -599,6 +606,11 @@ function head_print_parts(vessel_opening_diameter, lid_flange_height, vessel_int
     );
 
 // What a per-part export addresses a port by: its function, or baffle_<index>.
+// The interfaces a port table uses, each once, in the order they first appear.
+function head_port_interface_names(ports) =
+  let (_n = [for (p = ports) bayonet_name(head_port_interface(p))])
+    [for (i = [0:len(_n) - 1]) if (i == 0 || len([for (j = [0:1:i - 1]) if (_n[j] == _n[i]) j]) == 0) _n[i]];
+
 function head_port_export_name(ports, i) =
   head_port_function(ports[i]) == "baffle" ? str("baffle_", i) : head_port_function(ports[i]);
 
@@ -3515,6 +3527,17 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
             rotate([0, 0, _port_turn])
               head_port(_port, lid_thickness, _baffle_width, _baffle_length, _baffle_segments, _do_tilt);
     }
+  }
+
+  // A blank for each interface named, at the origin: it closes whichever port of that size is empty.
+  if (blank_port_to_render != "") {
+    _blank_iface = [for (p = _ports) if (bayonet_name(head_port_interface(p)) == blank_port_to_render) head_port_interface(p)];
+    assert(
+      len(_blank_iface) > 0,
+      str("No port on this lid is on the \"", blank_port_to_render, "\" interface, so there is nothing for a blank to close.")
+    );
+    color(prints1_color)
+      bayonet_port(type=_blank_iface[0], part="pin", panel_thickness=lid_thickness, text_labels=true, label="BLANK");
   }
 
   // The probes, placed off the same numbers the port is built from. atlas_probe() draws tip-up
