@@ -12,7 +12,9 @@
 #   differs - the value must change the geometry, proving the designation reaches the model
 #   builds  - it must resolve and render; some designations legitimately cannot move geometry
 #   number  - a plain build parameter, which gets the differs test and no bad-name test
-# The two name kinds also get a name nothing answers to, which must fail.
+# The two name kinds also get a name nothing answers to, which must fail. A fourth field names a
+# base build, key=value, that both sides of the differs test are taken on, where the file's
+# defaults cannot show the value: a plain lid only differs off the shaft drive.
 #
 # Driven by a parameter set, not -D: -D reaches a `use`d file's globals and would pass on that
 # leak even with reactor_build broken. -p assigns only the file being rendered.
@@ -29,7 +31,8 @@ matrix=(
     "do_probe_port_tilt_max|2|number"
     "drive_name|magnetic|differs"
     "drive_name|none|differs"
-    "lid_center_name|bearing|builds"
+    "drive_name|none|differs|drive_name=magnetic"
+    "lid_center_name|plain|differs|drive_name=magnetic"
     "sparger_name|ring|differs"
     "stir_bar_name|50x8|builds"
     "stir_magnet_name|MAGRE6x2p5|builds"
@@ -38,28 +41,48 @@ matrix=(
 "$OPENSCAD" -o "$tmp/base.csg" scad/bioreactor.scad 2>"$tmp/be" >/dev/null
 if grep -q '^ERROR' "$tmp/be"; then echo "FAIL  bioreactor.scad does not build at its defaults"; exit 1; fi
 failed=0
+# One parameter set: the row's base, key=value, with the named parameter over it.
+set_json() { # base param value number
+    /usr/bin/python3 -c 'import json,sys
+b, p, v, n = sys.argv[1:]
+s = dict(kv.split("=", 1) for kv in b.split(",") if kv)
+if p: s[p] = float(v) if n == "1" else v
+print(json.dumps({"parameterSets": {"t": s}, "fileFormatVersion": "1"}))' "$@"
+}
 for row in "${matrix[@]}"; do
-    param="${row%%|*}"; rest="${row#*|}"; value="${rest%|*}"; want="${rest##*|}"
+    IFS='|' read -r param value want base <<< "$row"
     case "$want" in
-        number) json_value="$value"; shown="$param=$value" ;;
-        *)      json_value="\"$value\""; shown="$param=\"$value\"" ;;
+        number) shown="$param=$value"; num=1 ;;
+        *)      shown="$param=\"$value\""; num=0 ;;
     esac
-    printf '{"parameterSets":{"t":{"%s":%s}},"fileFormatVersion":"1"}' "$param" "$json_value" > "$tmp/p.json"
+    ref="$tmp/base.csg"
+    if [ -n "$base" ]; then
+        shown="$shown on $base"
+        set_json "$base" "" "" 0 > "$tmp/b.json"
+        "$OPENSCAD" -p "$tmp/b.json" -P t -o "$tmp/rowbase.csg" scad/bioreactor.scad 2>"$tmp/rbe" >/dev/null
+        if grep -q '^ERROR' "$tmp/rbe" || [ ! -s "$tmp/rowbase.csg" ]; then
+            echo "FAIL  the base build $base does not build, so $shown cannot be compared"
+            failed=1
+            continue
+        fi
+        ref="$tmp/rowbase.csg"
+    fi
+    set_json "$base" "$param" "$value" "$num" > "$tmp/p.json"
     "$OPENSCAD" -p "$tmp/p.json" -P t -o "$tmp/d.csg" scad/bioreactor.scad 2>"$tmp/e" >/dev/null
     if grep -q '^ERROR' "$tmp/e"; then
         echo "FAIL  $shown does not build"
         grep -m1 '^ERROR' "$tmp/e" | sed 's/.*failed: //; s/ in file.*//' | sed 's/^/        /'
         failed=1
-    elif [ "$want" != builds ] && cmp -s "$tmp/base.csg" "$tmp/d.csg"; then
+    elif [ "$want" != builds ] && cmp -s "$ref" "$tmp/d.csg"; then
         echo "FAIL  $shown resolved but changed nothing - it is not reaching the model"
         failed=1
     else
-        printf 'ok    %-18s %-12s %s\n' "$param" "$value" "$want"
+        printf 'ok    %-18s %-12s %s%s\n' "$param" "$value" "$want" "${base:+ on $base}"
     fi
     # a name nothing answers to has to fail, loudly. Only for the name kinds - a number has no
     # registry to be absent from.
     if [ "$want" != number ]; then
-        printf '{"parameterSets":{"t":{"%s":"no_such_row"}},"fileFormatVersion":"1"}' "$param" > "$tmp/x.json"
+        set_json "$base" "$param" no_such_row 0 > "$tmp/x.json"
         "$OPENSCAD" -p "$tmp/x.json" -P t -o "$tmp/x.csg" scad/bioreactor.scad 2>"$tmp/xe" >/dev/null
         if ! grep -q '^ERROR' "$tmp/xe"; then
             echo "FAIL  $param accepted a name nothing is registered under"
