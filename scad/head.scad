@@ -3181,16 +3181,19 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     head_port_set_min_mouth(head_port_set_reduced, true), " uniform std); this jar's is ", vessel_opening_diameter
   ));
 
-  if (_shaft_drive) {
-    assert(
-      _mount_to_ports >= lid_holes_offset,
-      str(
-        "Motor mount is ", _mount_body_d, " mm across and the port flanges reach in to r ",
-        port_circle_radius - bayonet_flange_radius(head_widest_interface(_ports)), ", leaving ", _mount_to_ports,
-        " mm between them; ", lid_holes_offset, " mm is the least this lid keeps."
-      )
-    );
+  // The blank's flange is the mount's body, so a bearing lid needs the room under either drive.
+  assert(
+    !_seated || _mount_to_ports >= lid_holes_offset,
+    str(
+      _shaft_drive ? "Motor mount" : "The bearing blank's flange", " is ", _mount_body_d,
+      " mm across and the port flanges reach in to r ",
+      port_circle_radius - bayonet_flange_radius(head_widest_interface(_ports)), ", leaving ", _mount_to_ports,
+      " mm between them; ", lid_holes_offset, " mm is the least this lid keeps.",
+      _shaft_drive ? "" : " A plain lid (lid_center) has no blank."
+    )
+  );
 
+  if (_shaft_drive) {
     echo(str(
       "eccentricity: the mount leaves ", _eccentricity_room, " mm of offset, e/T ", _eccentricity_ratio,
       " against Hall's measured 0.2, worth ", 100 * stirred_tank_eccentric_gain(_eccentricity_ratio),
