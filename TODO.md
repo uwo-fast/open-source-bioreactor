@@ -281,7 +281,7 @@ beside two Ø16 probes at any port count, so both are registered with `drive_nam
     | jar_1gal_180x197   | 153.36 | 76.50      | 2.005 | 0.902 | n = 1       |
     | jar_6p5gal_305x470 | 325.26 | 126.36     | 2.574 | 1.158 | n = 1       |
     | jar_1gal_155x251   | 188.59 | 67.19      | 2.807 | 1.263 | n = 1       |
-    | jar_1p5L_109x215   | 168.70 | 45.55      | 3.704 | 1.667 | n = 1 or 2  |
+    | jar_1p5L_109x215   | 167.78 | 46.58      | 3.602 | 1.621 | n = 1 or 2  |
 
   - it correlates with coverage: every jar the band puts at one impeller is spending coverage on
     the pair; `jar_1gal_180x197` at 0.107 D against the 0.5 D floor is the worst
