@@ -220,7 +220,7 @@ beside two Ø16 probes at any port count, so both are registered with `drive_nam
 
 - [ ] **the frame reports a stir drive on builds that have none**
   - the base is slotted for the carrier under every drive, so the frame echoes "stir drive: fan40x11
-    in a 63.82 mm carrier" and the magnets on `jar_1p5L_109x215`, a no-drive build. It describes
+    in a 63.82 mm carrier" and the magnets on `jar_1p5L_112x215`, a no-drive build. It describes
     the slot, not a fitted fan; under a non-magnetic drive it should say so
 
 - [ ] **the DO-over-ring warning fires when the probe's face is below the ring**
@@ -281,7 +281,7 @@ beside two Ø16 probes at any port count, so both are registered with `drive_nam
     | jar_1gal_180x197   | 153.36 | 76.50      | 2.005 | 0.902 | n = 1       |
     | jar_6p5gal_305x470 | 325.26 | 126.36     | 2.574 | 1.158 | n = 1       |
     | jar_1gal_155x251   | 188.59 | 67.19      | 2.807 | 1.263 | n = 1       |
-    | jar_1p5L_109x215   | 167.78 | 46.58      | 3.602 | 1.621 | n = 1 or 2  |
+    | jar_1p5L_112x215   | 167.78 | 46.58      | 3.602 | 1.621 | n = 1 or 2  |
 
   - it correlates with coverage: every jar the band puts at one impeller is spending coverage on
     the pair; `jar_1gal_180x197` at 0.107 D against the 0.5 D floor is the worst
@@ -317,7 +317,7 @@ beside two Ø16 probes at any port count, so both are registered with `drive_nam
     hand; if not, a collar, a flat or a mark rather than a socket sized on its own
 
 - [ ] **the eccentricity report cannot reach the two jars it would change a decision about**
-  - an assert stops `jar_1p5L_109x215` (the mount) and `jar_1gal_155x251` (the pH probe) before the
+  - an assert stops `jar_1p5L_112x215` (the mount) and `jar_1gal_155x251` (the pH probe) before the
     echo. A lid with no room for the mount has none for an offset, so the document's rows read 0
     on reasoning. Left standing; the magnetic drive those jars would take is centred anyway
 

@@ -283,7 +283,7 @@ setting it pins a table for an operator who wants a different function in a port
 
 | vessel               | mouth | full 12   | reduced 6 | assigned |
 | -------------------- | ----- | --------- | --------- | -------- |
-| `jar_1p5L_109x215`   | 87.5  | −14.11    | **+4.75** | reduced  |
+| `jar_1p5L_112x215`   | 87.5  | −14.11    | **+4.75** | reduced  |
 | `jar_1gal_155x251`   | 95.8  | −11.96    | **+8.90** | reduced  |
 | `jar_6p5gal_305x470` | 137.0 | −1.30     | **+29.5** | reduced  |
 | `jar_10L_220x305`    | 142.2 | **+0.05** | +32.1     | full     |

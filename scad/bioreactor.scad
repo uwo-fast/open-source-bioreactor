@@ -65,7 +65,7 @@ cross_section_keep = 0.5;
 /* [Vessel Selection] */
 
 // Which jar this build is for; a parameter set names it, so it must be a name and not a row
-reactor_vessel_name = "jar_10L_220x305"; // [jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_109x215, jar_1gal_155x251]
+reactor_vessel_name = "jar_10L_220x305"; // [jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_112x215, jar_1gal_155x251]
 
 /* [Light Strip Selection] */
 
