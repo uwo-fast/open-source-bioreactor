@@ -214,6 +214,17 @@ beside two Ø16 probes at any port count, so both are registered with `drive_nam
 
 ## tooling / infrastructure / documentation
 
+- [ ] **pin each registered build's report stream, as check-echo pins each vessel's**
+  - `just check-builds` fails on an assert and on a render that says nothing, but a build that
+    resolves with the wrong content passes it: `drive_name = "none"` handed to the head as
+    `magnetic` draws a stir bar on both no-drive builds and every gate stays green, since the frame
+    still differs from a magnetic build. A transcript per set in `bioreactor.json` would catch it
+
+- [ ] **the frame reports a stir drive on builds that have none**
+  - the base is slotted for the carrier under every drive, so the frame echoes "stir drive: fan40x11
+    in a 63.82 mm carrier" and the magnets on `jar_1p5L_109x215`, a no-drive build. It describes
+    the slot, not a fitted fan; under a non-magnetic drive it should say so
+
 - [ ] **the DO-over-ring warning fires when the probe's face is below the ring**
   - it tests the face against the ring's radius only, so a face under the ring - where rising gas
     cannot reach it - still warns, as "hangs -62.6358 mm over it" on `jar_1gal_180x197` with
