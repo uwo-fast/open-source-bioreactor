@@ -30,11 +30,13 @@ Three figures in particular are bands rather than measurements, and all three ar
 - the **baffle's lean under load**, reported as a worst case that the model itself says is a worst
   case
 
-Two of the five registered vessels do not build at all. Neither `jar_1p5L_109x215` nor
-`jar_1gal_155x251` can carry a top-entry drive on its lid at any mount size, and the second fails
-earlier still — a vertical DO probe runs through the upper impeller, because in a 155 mm bore the
-port circle and the impeller want the same radius. `just check-echo` records both, and the
-answer to both is a different agitation mode rather than a smaller part.
+Not every vessel takes every drive. `jar_1p5L_109x215` and `jar_1gal_155x251` cannot carry a
+top-entry drive on their lids at any mount size — the mount overlaps the port flanges on the first,
+and on the second the pH probe runs through the lower impeller, because in a 155 mm bore the port
+circle and the impeller want the same radius — so both are built with no drive, and `jar_1p5L` also
+takes the magnetic one. The builds that work are the sets in `scad/bioreactor.json`, and
+`just check-builds` fails if one of them stops building. What each vessel cannot yet take, and why,
+is on [`TODO.md`](../TODO.md).
 
 ---
 

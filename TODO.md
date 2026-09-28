@@ -29,13 +29,6 @@ closed it and in `docs/`.
     30 % utilisation assumption, and the 2026-07-23 run grew CCPC 90 for 8.7 days on air alone. The
     reactor's actual CO2 utilisation is the measurable unknown, and the bigger lever on productivity
 
-- [ ] **two of the five swept vessels do not render from `bioreactor.scad`**, both for the drive
-  - `jar_1p5L_109x215`'s port flanges leave 27.1 mm against a 56 mm motor mount; the smallest
-    registered motor plus two walls is 47.5 and still 8.2 short
-  - `jar_1gal_155x251` fails on the pH probe (vertical, and the long one) running 6.29 mm through
-    the lower impeller; no DO lean reaches that. The mount would fail next at -8.30 mm
-  - the answer to both is a different agitation mode, under "alternative agitation modes"
-
 - [ ] **choose an outlet filter that fits in the budget `head()` reports**
   - the exhaust is unguarded: the headspace vents through a support tube into the room. A second
     1594522 on the outlet does not work: two put the line at 32.5 kPa against a pump that dead-heads
@@ -154,10 +147,15 @@ Printed from their own files, `custom/condenser_cold_finger.scad`, `custom/conde
 ## alternative agitation modes
 
 `jar_1p5L` and `jar_1gal_155` cannot carry a top-entry drive at any mount size, nor four baffles
-beside two Ø16 probes at any port count. Why, and what the three modes are, is `docs/agitation.md`
-section 5. Neither item is scheduled.
+beside two Ø16 probes at any port count, so both are registered with `drive_name = "none"`, and
+`jar_1p5L` with the magnetic drive on a plain lid. Why, and what the three modes are, is
+`docs/agitation.md` section 5.
 
 - [ ] **explore an airlift variant, with no impeller**
+  - the no-drive half exists: `drive_name = "none"` drops the drivetrain and takes the ring, and
+    that is a bubble column. An airlift is that plus a draft tube
+  - the ring is still hung where the shaft drive's impellers would put it, 67.8 mm off the floor on
+    `jar_1p5L`, so the column under it is unsparged; a gas-driven build wants it low
   - needs in the model: a draft tube as a part, riser and downcomer areas, superficial gas
     velocity, a reported circulation time. The sparge ring is this mode's sparger; the shaft and
     magnetic builds run the arm (`sparger_name`)
@@ -184,6 +182,7 @@ section 5. Neither item is scheduled.
     none. Each of those two has its own item below
 
 - [ ] **`jar_1gal_155` wants a magnetic drive and a 40 mm floor, and a base that deep wants hollowing**
+  - until then a magnetic build of it fails, on no fan clearing the pocket; it is built with no drive
   - it is one of the two jars that cannot carry a top-entry drive, and its coupling geometry is the
     best of any registered jar: a 3 mm wall and a 6 mm punt put the magnets 4 mm from the culture,
     against 6 mm on `jar_10L`
@@ -195,6 +194,7 @@ section 5. Neither item is scheduled.
     else follows: `rod_length` carries no floor term, so the rods do not move
 
 - [ ] **`jar_6p5gal` is not a floor problem and a deeper floor will not fix it**
+  - until one of those, a magnetic build of it fails on no fan clearing the pocket
   - its punt rises 15 mm at the magnets' radius and the carrier may not stand above the plane the
     jar lands on, so the magnets sit 9 mm under the punt whatever the floor does. With a 12 mm wall
     that is 21 mm to the culture, against 4-6 mm on every other jar
@@ -214,6 +214,17 @@ section 5. Neither item is scheduled.
 
 ## tooling / infrastructure / documentation
 
+- [ ] **the DO-over-ring warning fires when the probe's face is below the ring**
+  - it tests the face against the ring's radius only, so a face under the ring - where rising gas
+    cannot reach it - still warns, as "hangs -62.6358 mm over it" on `jar_1gal_180x197` with
+    `sparger_name = "ring"`. The height it prints is signed; the condition wants the same sign
+
+- [ ] **the DO probe's lean is capped by impellers a non-shaft build does not have**
+  - `head_probe_tilt_ceiling()` reads `head_reach_obstacles()`, which lists both impellers under
+    every drive; `head()` drops them from its own clearance report but not from the ceiling. Safe,
+    since the lean only comes out smaller, but a magnetic or no-drive build may be leaning less
+    than it could
+
 - [ ] **the port lettering is not pinned to a font, so it is whatever the host resolves `sans` to**
   - `scad/custom/bayonet_port.scad` asks for `font="sans"` in three places (:324, :332, :505).
     `sans` is a fontconfig alias, not a face, so the glyphs are whatever that host happens to
@@ -223,12 +234,6 @@ section 5. Neither item is scheduled.
     port's mesh, so it wants its own commit
   - it is cosmetic - the lettering says which port is which - but a figure that changes with the
     machine is the kind of thing this project pins everywhere else
-
-- [ ] **`jar_1gal_180x197` has no magnetic build, though it takes the drive**
-  - `scad/bioreactor.json` carries `jar_10L_magnetic` and `jar_1p5L_magnetic` but no
-    `jar_1gal_180_magnetic`, so that jar's magnetic parts cannot be exported by name. It takes an
-    80 x 25 at a 28 mm pitch, the same coupling as `jar_10L`, and needs no model change - one
-    entry in the parameter set
 
 - [ ] **the probe port's transition lands exactly on the collet, and the obvious fix costs material**
   - `bayonet_probe_port`'s transition cone ends at exactly `-_transition_length`, which is exactly
