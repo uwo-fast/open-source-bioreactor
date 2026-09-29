@@ -722,6 +722,9 @@ draft_tube_hardware_clearance = 2;
 draft_tube_feet = 3;
 // Width of each foot, around the tube, in mm
 draft_tube_foot_width = 8;
+// Fillet each side of a foot where it meets the tube, against the corner cracking; a short foot
+// takes its own length, in mm
+draft_tube_foot_fillet = 6;
 // The feed socket is this tube standing up, so the bore is the riser's own and the outside is
 // that plus this wall, which is also what the socket keeps around the riser.
 // Wall around the sparger's socket bore, in mm; with the slip allowance that keeps the tube 6.4
@@ -3759,7 +3762,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           height=_tube_top - _tube_bottom,
           foot_lengths=[for (i = [1:draft_tube_feet]) _tube_gap],
           foot_angles=[for (i = [0:draft_tube_feet - 1]) i * 360 / draft_tube_feet],
-          foot_width=draft_tube_foot_width
+          foot_width=draft_tube_foot_width,
+          foot_fillet=draft_tube_foot_fillet
         );
 
   if (_blank && (render_bearing_blank || render_all))

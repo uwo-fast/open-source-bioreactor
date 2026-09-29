@@ -472,8 +472,9 @@ floor, on 3 feet of 10.9608 mm; 1.4 mm each side through the mouth, and the ring
 1.25 mm to its wall, so it shifts up to 1.25 mm
 ```
 
-1. **Print it in clear PETG, feet down.** It is a straight wall with no overhang. An opaque tube
-   makes its core a place the cells only pass through in the dark.
+1. **Print it in clear PETG, feet down.** It is a straight wall with no overhang; each foot meets
+   it through a 6 mm fillet either side (`draft_tube_foot_fillet`), so the corner does not crack.
+   An opaque tube makes its core a place the cells only pass through in the dark.
 2. **Lower it into the jar first**, feet down and square to the mouth: it passes with 1.4 mm each
    side on both jars, so it goes in straight or not at all.
 3. **Centre it by hand**, reaching down its own bore. Standing loose it can sit several millimetres
