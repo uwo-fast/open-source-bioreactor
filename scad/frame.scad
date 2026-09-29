@@ -945,9 +945,9 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
 
   // z = 0 is the bottom of the vessel, so the whole frame drops by its floor
   translate([0, 0, -base_floor_height - z_fight]) {
-    // the magnetic drive, drawn only when a build takes it; the slot is cut regardless. Measured
-    // from the bench, which a riser puts that far under the base; the frame itself stays where it
-    // stands under every drive, so a part it shares with another build is the same part
+    // the magnetic drive, drawn only when a build takes it. Measured from the bench, which a riser
+    // puts that far under the base; the frame itself stays where it stands under every drive, so a
+    // part it shares with another build is the same part
     _drive_shown = drive == "magnetic" && render_all;
     if (!is_undef(_fan) && (render_stir_carrier || render_hub_cap || render_stir_fan || render_stir_riser || _drive_shown))
       translate([0, 0, -_riser]) {
