@@ -785,7 +785,8 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
   // The riser: walls only, so it prints as it stands with nothing to bridge but the lead's
   // doorways. A ring round the carrier at the base's own bore, one under the circle the jar lands
   // on so the floor ring over it is not left spanning, and one under the lights' middle for them
-  // to stand on; spokes on the quadrant lines, which no light stands on, tie them. A block on the
+  // to stand on. Spokes on the quadrant lines, which no light stands on, tie them and run on to the
+  // base's edge, as does a fin behind each key, so it stands on the base's full width. A block on the
   // carrier's ring takes the slot, so the carrier hangs here as it would in a deep base, and the
   // lead leaves by the groove carried out through every ring. In the empty light seats it stands
   // a column the size of a light, rising into the seat, which seats it on the base as a light is.
@@ -807,17 +808,21 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
         for (q = [0:3])
           rotate([0, 0, q * 90])
             translate([_bore_r, -riser_wall / 2, 0])
-              cube([_riser_light_r - _bore_r, riser_wall, _riser]);
+              cube([_outer_diameter / 2 - _bore_r, riser_wall, _riser]);
         rotate([0, 0, _slot_angle])
           translate([-_block_w / 2, 0, 0])
             cube([_block_w, _bore_r + carrier_key_reach + riser_wall, _riser]);
-        // each key a column from the bench, so it does not stand out over the ring's edges
-        light_places(_slot_quadrants, vessel_outer_diameter, light, lights_per_quadrant, occupy_angle)
+        // each key a column from the bench, so it does not stand out over the ring's edges, with its
+        // fin out to the edge
+        light_places(_slot_quadrants, vessel_outer_diameter, light, lights_per_quadrant, occupy_angle) {
           translate([-strip_light_width(light) / 2, 0, 0])
             cube([strip_light_width(light), strip_light_depth(light), _riser + riser_key_height]);
+          translate([-riser_wall / 2, 0, 0])
+            cube([riser_wall, _outer_diameter / 2 - light_bore_radius(vessel_outer_diameter) - light_cover_radius(light), _riser]);
+        }
       }
       translate([0, 0, -z_fight]) cylinder(r=_bore_r, h=_riser + 2 * z_fight);
-      frame_stir_slot(top=_riser, reach=_riser_light_r + riser_wall);
+      frame_stir_slot(top=_riser, reach=_outer_diameter / 2 + 1);
     }
   }
 

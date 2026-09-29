@@ -368,7 +368,8 @@ It is walls only, 3 mm (`riser_wall`), so it prints as it stands with nothing to
 lead's doorways: a ring round the carrier at the
 base's own bore, one under the circle the jar lands on — the floor ring over it is 4 mm on
 `jar_1gal_155` and would otherwise span — and one under the lights' middle, which they stand on in
-place of the bench; four spokes on the quadrant lines tie them. The carrier hangs in it exactly as in a deep
+place of the bench; four spokes on the quadrant lines tie them and
+run on to the base's edge, as does a fin behind each key, so it stands on the base's full width. The carrier hangs in it exactly as in a deep
 base: a block on its ring carries the same groove and ear notch, and the groove runs on out through
 the other two rings as the lead's doorway. Columns the size of a light rise 5 mm into the empty
 light seats (`riser_key_height`), which centre it on the base as closely as a light sits its seat.
