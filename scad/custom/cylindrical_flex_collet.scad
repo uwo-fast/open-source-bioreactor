@@ -89,7 +89,9 @@ module cylindrical_flex_collet(
   width_flex_tab_ratio = 0.7,
   flex_tab_clearance = undef,
   flex_tab_keep_ratio = 0.5,
-  flex_tab_offset = 0
+  flex_tab_offset = 0,
+  window_radius = 2,
+  tab_relief = 1
 ) {
 
   // internal derived params for flex_tab  design
@@ -99,65 +101,92 @@ module cylindrical_flex_collet(
   flex_tab_d2 = (body_diameter + shell_wall * 2) * (width_flex_tab_ratio);
   flex_tab_clearance_eff = is_undef(flex_tab_clearance) ? shell_wall : flex_tab_clearance;
 
-  union() {
-    difference() {
+  assert(
+    window_radius < min(flex_tab_d2, flex_tab_height) / 2,
+    str("cylindrical_flex_collet: a ", window_radius, " mm corner does not fit a ", flex_tab_d2, " x ", flex_tab_height, " mm window")
+  );
 
-      _part_outer_body(
-        body_length=body_length,
-        body_diameter=body_diameter,
-        tail_len=tail_len,
-        tail_diameter_end=tail_diameter_end,
-        end_diameter=end_diameter,
-        shell_wall=shell_wall
-      );
+  // A hole at the foot of each slot, through the tab's root as well as the body, so the root ends
+  // on a curve rather than a corner.
+  difference() {
+    union() {
+      difference() {
 
-      // Part negative space
-      _part_negative_space(
-        body_length=body_length,
-        body_diameter=body_diameter + allowance,
-        tail_len=tail_len,
-        tail_diameter_start=tail_diameter_start,
-        tail_diameter_end=tail_diameter_end
-      );
+        _part_outer_body(
+          body_length=body_length,
+          body_diameter=body_diameter,
+          tail_len=tail_len,
+          tail_diameter_end=tail_diameter_end,
+          end_diameter=end_diameter,
+          shell_wall=shell_wall
+        );
 
-      // Cut out flex_tab window
-      translate([0, 0, flex_tab_z_start])
-        _flex_tab_profile(height=flex_tab_height, d1=flex_tab_d1, d2=flex_tab_d2);
+        // Part negative space
+        _part_negative_space(
+          body_length=body_length,
+          body_diameter=body_diameter + allowance,
+          tail_len=tail_len,
+          tail_diameter_start=tail_diameter_start,
+          tail_diameter_end=tail_diameter_end
+        );
 
-      // Hex cut thru all for the end part (e.g. an SMA connector)
-      cylinder(h=body_length * 3, d=end_diameter, center=true, $fn=end_fn);
-    }
+        // Cut out flex_tab window
+        translate([0, 0, flex_tab_z_start])
+          _flex_tab_profile(height=flex_tab_height, d1=flex_tab_d1, d2=flex_tab_d2, r=window_radius);
 
-    translate([0, 0, flex_tab_z_start]) {
-      intersection() {
+        // Hex cut thru all for the end part (e.g. an SMA connector)
+        cylinder(h=body_length * 3, d=end_diameter, center=true, $fn=end_fn);
+      }
 
-        // Bell shape for flex_tab area
-        difference() {
-          cylinder(h=flex_tab_height, d2=body_diameter - flex_tab_offset * 2, d1=body_diameter + shell_wall * 2);
-          translate([0, 0, -z_fight])
-            cylinder(h=body_length, d2=body_diameter - shell_wall * 2 - flex_tab_offset * 2 + allowance, d1=body_diameter + allowance);
-        }
+      translate([0, 0, flex_tab_z_start]) {
+        intersection() {
 
-        difference() {
-          // Intersection (same as cut out flex_tab window) to create flex_tab tabs
-          _flex_tab_profile(
-            height=flex_tab_height - flex_tab_clearance_eff,
-            d1=flex_tab_d1 - flex_tab_clearance_eff,
-            d2=flex_tab_d2 - flex_tab_clearance_eff
-          );
-          translate([0, 0, (flex_tab_height - flex_tab_clearance_eff) * flex_tab_keep_ratio + body_length / 2])
-            cube([body_diameter * 10, body_diameter * 2, body_length], center=true);
+          // Bell shape for flex_tab area
+          difference() {
+            cylinder(h=flex_tab_height, d2=body_diameter - flex_tab_offset * 2, d1=body_diameter + shell_wall * 2);
+            translate([0, 0, -z_fight])
+              cylinder(h=body_length, d2=body_diameter - shell_wall * 2 - flex_tab_offset * 2 + allowance, d1=body_diameter + allowance);
+          }
+
+          difference() {
+            // Intersection (same as cut out flex_tab window) to create flex_tab tabs
+            _flex_tab_profile(
+              height=flex_tab_height - flex_tab_clearance_eff,
+              d1=flex_tab_d1 - flex_tab_clearance_eff,
+              d2=flex_tab_d2 - flex_tab_clearance_eff,
+              r=max(window_radius - flex_tab_clearance_eff / 2, 0)
+            );
+            translate([0, 0, (flex_tab_height - flex_tab_clearance_eff) * flex_tab_keep_ratio + body_length / 2])
+              cube([body_diameter * 10, body_diameter * 2, body_length], center=true);
+          }
         }
       }
     }
+
+    if (tab_relief > 0)
+      for (side = [-1, 1])
+        translate([0, side * (flex_tab_d1 - flex_tab_clearance_eff / 2) / 2, flex_tab_z_start])
+          rotate([0, 90, 0])
+            cylinder(d=tab_relief, h=body_diameter * 3, center=true, $fn=24);
   }
 }
 
 // ----- internal funcs -----
 
-module _flex_tab_profile(height, d1, d2) {
-  scale([10, 1, 1])
-    cylinder(h=height, d1=d1, d2=d2);
+// The window's outline across the wall, d1 wide at the bottom and d2 at the top, its top corners
+// rounded to r, pressed through the wall along x.
+module _flex_tab_profile(height, d1, d2, r = 0) {
+  rotate([90, 0, 90])
+    linear_extrude(d2 * 10, center=true)
+      hull() {
+        for (s = [-1, 1]) {
+          translate([s * d1 / 2 - (s > 0 ? 0.01 : 0), 0]) square(0.01);
+          if (r > 0)
+            translate([s * (d2 / 2 - r), height - r]) circle(r=r);
+          else
+            translate([s * d2 / 2 - (s > 0 ? 0.01 : 0), height - 0.01]) square(0.01);
+        }
+      }
 }
 
 module _part_outer_body(
