@@ -151,7 +151,9 @@ beside two Ø16 probes at any port count, so both are registered with `drive_nam
 `jar_1p5L` with the magnetic drive on a plain lid. Why, and what the three modes are, is
 `docs/agitation.md` section 5.
 
-- [ ] **explore an airlift variant, with no impeller**
+- [ ] **explore an airlift variant, with no impeller** - next, after the build output work
+  - the idea to start from: a bayonet port through the centre of the lid, which a plain lid leaves
+    free, to hang the draft tube from, the way the other ports hang what they carry
   - the no-drive half exists: `drive_name = "none"` drops the drivetrain and takes the ring, and
     that is a bubble column. An airlift is that plus a draft tube
   - needs in the model: a draft tube as a part, riser and downcomer areas, superficial gas
