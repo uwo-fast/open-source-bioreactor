@@ -60,6 +60,9 @@ render_stir_riser = false;
 
 // Which jar this frame is for; a parameter set names it, so it must be a name and not a row
 reactor_vessel_name = "jar_10L_220x305"; // [jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_112x215, jar_1gal_155x251]
+// Which drive the preview is for: only magnetic draws the stir parts, and the riser where one is
+// wanted
+drive_name = "shaft"; // [shaft, magnetic, none, airlift]
 // resolved from the name, not chosen
 /* [Hidden] */
 reactor_vessel = vessel_by_name(reactor_vessel_name);
@@ -79,6 +82,7 @@ frame(
   n_rods=_preview_n_rods,
   bolt_screw=_preview_bolt,
   bolt_pts=bolt_pattern_pts(_preview_posts, _preview_bolt_circle, _preview_n_rods),
+  drive=drive_name,
   collapse_spacer_z_allow=false
 );
 
