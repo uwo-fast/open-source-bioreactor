@@ -396,16 +396,17 @@ head_port_set_full = [
   ["base",        "tube",         tube_port_riser_bore], // 330
 ];
 
-// No baffles and no dosing pair (pH is measured, not controlled). The two probes are the only std
-// flanges, so they sit opposite; the thermocouple is 1/8 NPT so it fits a mini beside DO.
+// No baffles and no dosing pair (pH is measured, not controlled). Tubes and instruments
+// alternate, so the ring hangs from three tubes 120 degrees apart rather than from one side; the
+// thermocouple is 1/8 NPT so it fits a mini, one port from DO.
 // The six-port table a narrow jar carries
 head_port_set_reduced = [
   ["do_probe",    "probe",        0, do_lab_g2], //   0 deg  opposite the air inlet
   ["air_out",     "tube",         tube_port_riser_bore], //  60
-  ["media",       "tube",         tube_port_riser_bore], // 120      also the spare
+  ["temperature", "thermocouple", 3, mcmaster_3872K129_thermocouple_probe], // 120  one port from DO
   ["air_in",      "tube",         tube_port_riser_bore], // 180   the sparger hangs from this one
   ["ph_probe",    "probe",        0, ph_lab_g2], // 240
-  ["temperature", "thermocouple", 3, mcmaster_3872K129_thermocouple_probe], // 300  beside DO
+  ["media",       "tube",         tube_port_riser_bore], // 300      also the spare
 ];
 
 // Which set this lid carries. undef derives it from the mouth; set a table to pin one.

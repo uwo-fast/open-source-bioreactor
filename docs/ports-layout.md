@@ -300,6 +300,13 @@ The reduced set keeps both probes, temperature, the gas path in and out, and one
 drops the four baffles and the acid/base pair. What a narrow jar gives up is pH _control_, not pH
 measurement. Which functions a given experiment wants is the operator's call; this is the default.
 
+**Its tubes and instruments alternate** — DO, air_out, temperature, air_in, pH, media — so the
+three tubes the sparge ring hangs from stand 120° apart rather than on one side of it. On a mixed
+lid every adjacent pair is then a std flange beside a mini, the worst pair it already had, so the
+78.0 mm floor is where it was. The other
+placement rules fit inside that: DO stays opposite the air inlet, and the thermocouple sits one
+port from DO rather than beside it.
+
 ## Baffles on a narrow jar
 
 **The floor is about 98 mm, and it is not a property of the registered sets.** Sweeping port count
