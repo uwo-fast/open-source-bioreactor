@@ -51,6 +51,12 @@ function meridian_half_width(run) =
 function meridian_max_radius(run) =
   max(run[0][0], run[1][0]) + meridian_half_width(run);
 
+// The widest a run gets between two heights, or undef where it never gets there: what something
+// axisymmetric has to clear from outside over those heights.
+function meridian_max_radius_between(run, z_low, z_high) =
+  let (_band = meridian_radii_between(run, z_low, z_high))
+    is_undef(_band) ? undef : _band[1] + meridian_half_width(run);
+
 // Radial gap between a run and an axisymmetric obstacle over the heights they share: positive is
 // clearance, negative is interference, undef when they never share a height.
 function meridian_clearance(run, obstacle) =

@@ -417,8 +417,8 @@ bench measurement, which is why the fan and magnet sizes are parameters rather t
 ## The sparger
 
 Two spargers, one build parameter: `sparger_name` is `cap` — an **arm** — or `ring`, and `auto` is
-the arm. The ring is the airlift's, once that mode exists; the shaft and magnetic builds run the
-arm. Both hang off the same riser from the `air_in` port, and the other four tubes stay whichever
+the arm. The ring is what runs under no drive and the airlift; the shaft and magnetic builds run
+the arm. Both hang off the same riser from the `air_in` port, and the other four tubes stay whichever
 is fitted — they are the dosing and vent lines, and under the arm they simply have nothing to
 socket into.
 
@@ -459,6 +459,32 @@ its own decision, and `baffle_impeller_clearance` is the number to raise first.
 **Check-holes covers whichever is built.** The head's hole probes used to be echoed in the part's
 own frame while the mesh sat 170 mm lower, so they landed in empty space and passed without
 testing anything; they are placed with the part now, for the ring and the arm both.
+
+## The airlift's draft tube
+
+`drive_name = "airlift"` adds one printed part, `draft_tube`: a plain tube on three feet, standing on
+the jar's floor round everything that hangs from the lid. The gas rises inside it and the culture
+comes down outside. Nothing holds it but the ring.
+
+```
+draft tube: 80.7 mm bore, 84.7 mm outside, 151.501 mm long from 12.3179 to 163.819 mm off the
+floor, on 3 feet of 10.9608 mm; 1.4 mm each side through the mouth, and the ring inside it keeps
+1.25 mm to its wall, so it shifts up to 1.25 mm
+```
+
+1. **Print it in clear PETG, feet down.** It is a straight wall with no overhang. An opaque tube
+   makes its core a place the cells only pass through in the dark.
+2. **Lower it into the jar first**, feet down and square to the mouth: it passes with 1.4 mm each
+   side on both jars, so it goes in straight or not at all.
+3. **Centre it by hand**, reaching down its own bore. Standing loose it can sit several millimetres
+   off centre on `jar_1p5L` and more on `jar_1gal_155`, and the ring has 1.25 mm to find its top.
+4. **Then lower the lid.** The ring goes down inside the tube and ends inside its feet or its wall,
+   which holds it there. Everything else hanging from the lid ends inside it.
+
+**It can move.** The ring stops it 1.25 mm off centre where it sits inside the wall, as on
+`jar_1p5L`; on `jar_1gal_155` the ring sits among the feet and the tube can shift 2.5 mm. `head()`
+checks the probes against the tube shifted that far, and the tightest is `jar_1p5L`'s collets at
+0.75 mm. The DO probe hangs straight under the airlift.
 
 ## Putting the lid together
 

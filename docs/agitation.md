@@ -241,7 +241,7 @@ not arise, because neither can carry a shaft to centre or offset. Four things po
 - **Both build failures are assertions about the top-entry drivetrain.** The mount overlaps the port
   flanges by 12.95 mm on `jar_1p5L`; the pH probe runs 6.29 mm through the lower impeller on
   `jar_1gal_155`. Neither assert exists in a configuration without that drivetrain, which the model
-  now expresses as `drive_name = "none"`: both jars are registered that way.
+  expresses as `drive_name = "none"`; both jars are registered as the airlift built on it.
 - **`jar_1p5L`'s impeller is already negated at the design aeration rate.** Oldshue's 8× rule caps
   axial pumping at **0.341 vvm** where the design is 0.5. It is the only vessel in the family that
   floods; the others hold 1.7× to 3.2× headroom. At intended conditions it is a bubble column with a
@@ -265,6 +265,19 @@ STR". Uyar's bubble column did out-produce its airlift, but the authors attribut
 sparger — microporous against a single 0.8 mm orifice — so it is not evidence that a column beats an
 airlift at equal sparging.
 
+**Nor is the airlift expected to out-grow the column.** Sánchez Mirón 2000 ran a bubble column, a
+split cylinder and a draft-tube airlift side by side on one alga at one power input and found _"no
+significant difference in culture performance"_. What the draft tube buys is the loop — a cell
+goes up the core and down the lit annulus — not biomass.
+
+`drive_name = "airlift"` is that mode: the no-drive build plus a draft tube standing on the floor
+round everything that hangs from the lid, sparged inside by the ring, which also centres it. On
+`jar_1p5L` the tube is 84.7 mm across with A_d/A_r 0.54; on `jar_1gal_155`, 93 mm and 1.72 — the
+narrower mouth caps the tube while the bore sets the annulus. The gaps under and over it give the
+turn the downcomer's own area, inside Chisti & Moo-Young's 1.65 cap. Chisti's circulation model is
+not run: its data start at 1.36 m tall and these loops are under 0.2 m. The DO probe hangs straight
+here, because its lean is for the shaft's shadow and inside the riser there is none.
+
 ### What outranks all three
 
 **The sparger, and it applies family-wide.** The five-fold kLa spread Uyar measured came entirely
@@ -285,8 +298,8 @@ transcript is `tests/echo/head__jar_10L_220x305.txt`. What was believed before a
 ### Sparger
 
 Two spargers share the riser from the `air_in` port, and a build names one (`sparger_name`): the
-**arm** is the default under the shaft and magnetic drives, and the **ring** is kept for the
-airlift mode that does not exist yet. What `head()` reports for each follows.
+**arm** is the default under the shaft and magnetic drives, and the **ring** under no drive and
+the airlift. What `head()` reports for each follows.
 
 #### The arm
 

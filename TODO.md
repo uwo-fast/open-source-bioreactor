@@ -147,22 +147,28 @@ Printed from their own files, `custom/condenser_cold_finger.scad`, `custom/conde
 ## alternative agitation modes
 
 `jar_1p5L` and `jar_1gal_155` cannot carry a top-entry drive at any mount size, nor four baffles
-beside two Ø16 probes at any port count, so both are registered with `drive_name = "none"`, and
-`jar_1p5L` with the magnetic drive on a plain lid. Why, and what the three modes are, is
+beside two Ø16 probes at any port count, so both are registered as airlifts, and `jar_1p5L` with
+the magnetic drive on a plain lid. Why, and what the three modes are, is
 `docs/agitation.md` section 5.
 
-- [ ] **explore an airlift variant, with no impeller** - next, after the build output work
-  - the idea to start from: a bayonet port through the centre of the lid, which a plain lid leaves
-    free, to hang the draft tube from, the way the other ports hang what they carry
-  - the no-drive half exists: `drive_name = "none"` drops the drivetrain and takes the ring, and
-    that is a bubble column. An airlift is that plus a draft tube
-  - needs in the model: a draft tube as a part, riser and downcomer areas, superficial gas
-    velocity, a reported circulation time. The sparge ring is this mode's sparger; the shaft and
-    magnetic builds run the arm (`sparger_name`)
-  - and the arm is the wrong sparger for the two jars this mode is FOR. Its reach is the port
-    circle less the shaft, which on `jar_1gal_155` leaves 8.7 mm of bore and one hole at 2.9 hole
-    diameters, on `jar_1p5L` 4.6 mm and 1.5 - both under the pitch floor, which head() warns on.
-    Those jars want the ring, a stone, or an arm placed off something other than the shaft
+- [ ] **the airlift is modelled; what is left is the bench**
+  - `drive_name = "airlift"` builds it on `jar_1p5L` and `jar_1gal_155`: a clear draft tube on
+    three feet, sparged inside by the ring, which centres it. `docs/build.md` has the assembly
+  - measure the loop: a dye pulse or a float gives the circulation time and the downcomer's
+    velocity, which no correlation in `docs/references.md` reaches at under 0.2 m tall
+  - watch the DO reading hanging straight: the lean it no longer has was for a shaft's shadow, and
+    the riser should carry flow past it, but that is the bench's to confirm
+  - `jar_1gal_180x197` does not build as an airlift: the ring, pulled inside the tube, meets the pH
+    probe's tip on that short jar. Not registered, so nothing waits on it
+
+- [ ] **the annulus-sparged airlift (B), if the bench asks for it**
+  - the tube as downcomer, the annulus as riser, bubbles up the lit wall. Wants a sparger outside
+    the tube, which the mouth-limited ring cannot reach, and Chisti & Moo-Young 1987 recommend a
+    cone under the turn for it (`docs/references.md`)
+
+- [ ] **hang the draft tube from a centre bayonet instead, if standing it proves loose**
+  - a plain lid leaves its centre free; a bayonet there, as the other ports carry what hangs from
+    them, would locate the tube from above rather than by the ring's clearance
 
 - [ ] **the magnetic drive is modelled; what is left is the bench**
   - `drive_name = "magnetic"` builds it: a fan picked by rule in a carrier hung in the base bore,

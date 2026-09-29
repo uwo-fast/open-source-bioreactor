@@ -20,7 +20,7 @@
         },
         "jar_1p5L_112x215": {
             "reactor_vessel_name": "jar_1p5L_112x215",
-            "drive_name": "none"
+            "drive_name": "airlift"
         },
         "jar_1p5L_magnetic": {
             "reactor_vessel_name": "jar_1p5L_112x215",
@@ -29,7 +29,7 @@
         },
         "jar_1gal_155x251": {
             "reactor_vessel_name": "jar_1gal_155x251",
-            "drive_name": "none"
+            "drive_name": "airlift"
         }
     }
 }
