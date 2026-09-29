@@ -188,7 +188,7 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
     magnetic builds stand on a riser instead (`docs/build.md`)
 
 - [ ] **`jar_6p5gal` is not a floor problem and a deeper floor will not fix it**
-  - a magnetic build of it now stands on a 37 mm riser and builds, coupling across the 21 mm
+  - a magnetic build of it now stands on a 35 mm riser and builds, coupling across the 21 mm
     below; it is not registered
   - its punt rises 15 mm at the magnets' radius and the carrier may not stand above the plane the
     jar lands on, so the magnets sit 9 mm under the punt whatever the floor does. With a 12 mm wall

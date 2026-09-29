@@ -355,24 +355,24 @@ it and gains a carrier. `carrier_floor_lift_max` (10 mm) is how far that goes: p
 would be mostly added floor. The floor does not depend on which drive a build names, so the base is
 still one print for either.
 
-**Past that limit the magnetic build stands on a riser.** `jar_1gal_155` wants 38 mm more than its
-light leaves and `jar_6p5gal` 37, so their bases keep the light's floor and a magnetic build of
+**Past that limit the magnetic build stands on a riser.** `jar_1gal_155` wants 36 mm more than its
+light leaves and `jar_6p5gal` 35, so their bases keep the light's floor and a magnetic build of
 either adds `frame_stir_riser`, which makes up the rest under the whole frame:
 
 ```
-stir riser: 38 mm under the base, which keeps the light's 2 mm floor; walls at r [50.15,
+stir riser: 36 mm under the base, which keeps the light's 4 mm floor; walls at r [50.15,
 63.65, 82.25], keyed into the empty light seats of quadrants [2, 4]
 ```
 
 It is walls only, 3 mm (`riser_wall`), so it prints as it stands with nothing to bridge but the
 lead's doorways: a ring round the carrier at the
-base's own bore, one under the circle the jar lands on — the floor ring over it is 2 mm on
+base's own bore, one under the circle the jar lands on — the floor ring over it is 4 mm on
 `jar_1gal_155` and would otherwise span — and one under the lights' middle, which they stand on in
 place of the bench; four spokes on the quadrant lines tie them. The carrier hangs in it exactly as in a deep
 base: a block on its ring carries the same groove and ear notch, and the groove runs on out through
 the other two rings as the lead's doorway. Columns the size of a light rise 5 mm into the empty
 light seats (`riser_key_height`), which centre it on the base as closely as a light sits its seat.
-The reactor stands 38 mm taller for it, and a build under any other drive stands on the bench.
+The reactor stands 36 mm taller for it, and a build under any other drive stands on the bench.
 
 1. Stand the riser on the bench, drop the carrier in with its ear down the notch, and lead the
    wire out through the doorway.

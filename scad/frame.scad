@@ -263,7 +263,9 @@ function frame_center_bore_diameter(vessel) =
 // How far the frame has to reach below the vessel's bottom for the light: whatever a light, a nut
 // and a half, and the top base stack to past the vessel's height. One of the two claims on the
 // floor, not the floor itself - frame_base_floor() settles it.
-_base_floor_height_min = 2; // minimum height of the base floor
+// The least floor under the jar, where the light leaves less: a ring about 29 mm wide off the wall,
+// so twenty layers rather than ten, to stay flat on the bed and take handling.
+_base_floor_height_min = 4;
 function frame_light_floor(vessel_height, light) =
   let (delta = (strip_light_length(light) + nut_height * 1.5 + upper_base_height) - vessel_height)
     delta > _base_floor_height_min ? delta : _base_floor_height_min;
