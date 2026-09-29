@@ -187,12 +187,14 @@ check-parts:
 
 # The complement of the purchase list: head_print_parts() and frame_print_parts() say what is
 # printed, and this renders each part CGAL and checks it for a manifold, every core at once
-# (JOBS=n for fewer) - about as long as the lid alone, which is a minute and a half. A build is a
-# parameter set in bioreactor.json: a vessel, and whatever it designates (`jar_10L_magnetic`
-# names the drive).
+# (JOBS=n for fewer). A build is a parameter set in bioreactor.json: a vessel, and whatever it
+# designates (`jar_10L_magnetic` names the drive). With one, it writes that build flat to
+# output/<build> in about as long as the lid, a minute and a half. With none, it writes every
+# registered build to build/<vessel>/: common/ for what all that vessel's builds print the same,
+# and stirred/, magnetic/ or bubble/ for what each adds - about ten minutes.
 #
-# Export every printed part of a build as its own STL, with a print list. `just export-parts jar_10L_magnetic` for that build.
-export-parts build="" out="output":
+# Export printed parts as STLs with print lists: every build by vessel, or `just export-parts jar_10L_magnetic` for one.
+export-parts build="" out="":
     @scripts/export-parts.sh "{{build}}" "{{out}}"
 
 # The same render as export-parts for one row of the print list, which is what iterating on a
