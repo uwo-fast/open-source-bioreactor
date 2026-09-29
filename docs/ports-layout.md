@@ -252,14 +252,13 @@ thing that does not exist.
 carry std on every port, and `head_interface_for()` gives it std throughout where the answer is yes.
 On `jar_10L` that is free to the millimetre - every figure `head()` reports is byte-identical either
 way - and it buys a lid where any port takes any function and one face o-ring covers all twelve.
-Four of the five registered vessels come out uniform.
+All five registered vessels come out uniform.
 
-Where mixed sizing does pay is the reduced set, which has no baffles at all. Six ports all on std
-wants an 87.6 mm mouth; `jar_1p5L` has 87.5, and would miss by a tenth of a millimetre - the model
-measures that miss as a 0.95 mm worst pair against a 1.0 mm floor. With the tubes on mini it wants
-78.0 and clears by nine and a half. **The smallest jar in the family is buildable because of the
-mini interface and not otherwise, and it is the only registered vessel that uses it.** `head()`
-reports both floors on every render.
+Where mixed sizing would pay is the reduced set, which has no baffles at all. Six ports all on std
+wants an 87.6 mm mouth; `jar_1p5L` has 88.4 and clears it by 0.8, which the model measures as a
+1.4 mm worst pair against a 1.0 mm floor. With the tubes on mini the set wants 78.0. **No
+registered jar needs the mini interface today**: it is what a mouth between 78.0 and 87.6 would
+take. `head()` reports both floors on every render.
 
 What the uniform lid costs is not packing but CLEANING. On the mixed twelve-port lid four gaps are
 1.0466 mm and eight are 5.85 or 10.65; uniform makes all twelve 1.0466. That does not create the
@@ -283,7 +282,7 @@ setting it pins a table for an operator who wants a different function in a port
 
 | vessel               | mouth | full 12   | reduced 6 | assigned |
 | -------------------- | ----- | --------- | --------- | -------- |
-| `jar_1p5L_112x215`   | 87.5  | −14.11    | **+4.75** | reduced  |
+| `jar_1p5L_112x215`   | 88.4  | −13.88    | **+5.20** | reduced  |
 | `jar_1gal_155x251`   | 95.8  | −11.96    | **+8.90** | reduced  |
 | `jar_6p5gal_305x470` | 137.0 | −1.30     | **+29.5** | reduced  |
 | `jar_10L_220x305`    | 142.2 | **+0.05** | +32.1     | full     |
@@ -324,7 +323,7 @@ Off-centring the shaft is the established fix and is well supported — Hall mea
 60 and 88 mm vessels and found eccentric agitation indistinguishable from baffled at equal power, and
 36% faster than unbaffled centred. **It is not available here.** Eccentricity is referenced to the
 tank diameter while the room for it is set by the mouth, and the motor mount sits in that room:
-Hall's e = 0.2 T wants 20.2 mm on `jar_1p5L`, where the best any lid can offer is 0.5 mm. See
+Hall's e = 0.2 T wants 20.7 mm on `jar_1p5L`, where the best any lid can offer is 0.95 mm. See
 `docs/references.md` for the numbers on every vessel, and for why T is the bore.
 
 So the narrow jars trade baffles for a real change of agitation, not for a shrug. That is the airlift

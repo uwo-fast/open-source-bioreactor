@@ -20,8 +20,8 @@ jar_6p5gal_305x470   = ["jar_6p5gal_305x470",   [18.5*25.4, 12*25.4,    12      
 
 // Mainstays large straight-sided glass canister, 1.5 L
 // https://www.walmart.ca/en/ip/Main-Stays-Glass-Canister-Large/6000199421846
-// Outside diameter measured at 111.5.
-jar_1p5L_112x215     = ["jar_1p5L_112x215",     [215,       111.50,     4        ], [87.5,        22.5], [6.0,         7.5           ], [7,     15    ], 0     ];
+// Outside diameter measured at 111.5, opening at 88.4.
+jar_1p5L_112x215     = ["jar_1p5L_112x215",     [215,       111.50,     4        ], [88.4,        22.5], [6.0,         7.5           ], [7,     15    ], 0     ];
 
 // Uline S-19317P, 1 gallon wide-mouth glass jar, 110/400 plastic cap
 // https://www.uline.ca/Product/Detail/S-19317P/Jars/Clear-Wide-Mouth-Glass-Jars-1-Gallon-4-Opening-Plastic-Cap
