@@ -147,8 +147,8 @@ Printed from their own files, `custom/condenser_cold_finger.scad`, `custom/conde
 ## alternative agitation modes
 
 `jar_1p5L` and `jar_1gal_155` cannot carry a top-entry drive at any mount size, nor four baffles
-beside two Ø16 probes at any port count, so both are registered as airlifts, and `jar_1p5L` with
-the magnetic drive on a plain lid. Why, and what the three modes are, is
+beside two Ø16 probes at any port count, so both are registered as airlifts, and both with the
+magnetic drive on a plain lid. Why, and what the three modes are, is
 `docs/agitation.md` section 5.
 
 - [ ] **the airlift is modelled; what is left is the bench**
@@ -183,24 +183,13 @@ the magnetic drive on a plain lid. Why, and what the three modes are, is
   - centred, on the punt, was the decision: eccentric has nothing locating it on a floor whose high
     point is the centre it avoids, and Galletti finds it unsteady with power rising with eccentricity
   - the floor under the jar is sunk for the fan the bore admits, so a jar whose light happens to
-    be short is not left without a drive. `jar_1p5L` is 3.78 mm deeper for it and gains a carrier;
-    `jar_6p5gal` and `jar_1gal_155` want far more than `carrier_floor_lift_max` allows and get
-    none. Each of those two has its own item below
-
-- [ ] **`jar_1gal_155` wants a magnetic drive and a 40 mm floor, and a base that deep wants hollowing**
-  - until then a magnetic build of it fails, on no fan clearing the pocket; it is built with no drive
-  - it is one of the two jars that cannot carry a top-entry drive, and its coupling geometry is the
-    best of any registered jar: a 3 mm wall and a 6 mm punt put the magnets 4 mm from the culture,
-    against 6 mm on `jar_10L`
-  - the floor it wants is 40 mm against the 2 the light leaves. Measured on the exported part, that
-    takes the base from 234 to 1000 cm3 of solid - plus 766, or 327% - because the base is drawn
-    solid, so the added depth is an annulus across the whole footprint rather than a sump under
-    the jar. The reactor also stands 261 mm to 299
-  - so the work is to hollow or rib a deep base first, then raise `carrier_floor_lift_max`. Nothing
-    else follows: `rod_length` carries no floor term, so the rods do not move
+    be short is not left without a drive. `jar_1p5L` is 3.77 mm deeper for it and gains a carrier;
+    `jar_6p5gal` and `jar_1gal_155` want far more than `carrier_floor_lift_max` allows, so their
+    magnetic builds stand on a riser instead (`docs/build.md`)
 
 - [ ] **`jar_6p5gal` is not a floor problem and a deeper floor will not fix it**
-  - until one of those, a magnetic build of it fails on no fan clearing the pocket
+  - a magnetic build of it now stands on a 35 mm riser and builds, coupling across the 21 mm
+    below; it is not registered
   - its punt rises 15 mm at the magnets' radius and the carrier may not stand above the plane the
     jar lands on, so the magnets sit 9 mm under the punt whatever the floor does. With a 12 mm wall
     that is 21 mm to the culture, against 4-6 mm on every other jar

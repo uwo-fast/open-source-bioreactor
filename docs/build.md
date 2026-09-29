@@ -70,19 +70,21 @@ returns a whole rib, so it is one solid meshed two ways.
 
 **The drive decides two of those lists.** `drive_name` in `bioreactor.scad` is `shaft` (above),
 `magnetic` or `none`. Magnetic takes the motor mount and the impellers off the head's list, adds a
-**bearing blank** in their place, and adds the **stir carrier** and the **hub cap** to the frame's.
+**bearing blank** in their place, and adds the **stir carrier** and the **hub cap** to the frame's,
+and on `jar_1gal_155` and `jar_6p5gal` the **stir riser** too.
 On the default lid the lid and the base are the same parts either way: the lid keeps its bearing pocket, bore and
 inserts and the blank plugs them - its boss is the bearing's size, sealed by the pocket's own
 o-ring, its pin fills the shaft bore, and its flange bolts to the four inserts with the mount's own
-screws - and the base is slotted for the carrier whichever drive a build names. See
+screws - and the base is slotted for the carrier whichever drive a build names, except on a jar
+whose magnetic build stands on a riser, where the riser carries the slot. See
 [The magnetic drive](#the-magnetic-drive).
 
 `none` prints neither drive's parts: the gas is all that moves the culture, and the sparger is the
 ring unless the build names the arm. Its lid is plain - no pocket, bore or inserts - which
 `lid_center_name` sets: `bearing` for the convertible lid above, `plain` for this one, and `auto`
 takes plain under `none` and bearing otherwise. A magnetic build states `plain` where the blank's
-flange would not clear the ports, as `jar_1p5L_magnetic` does; that lid cannot later take the
-shaft.
+flange would not clear the ports, as `jar_1p5L_magnetic` and `jar_1gal_155_magnetic` do; that lid
+cannot later take the shaft.
 
 **Tools, printed once:** the three parts of the gasket cutter. The base is printed once for good —
 it is the same for every gasket; the outer disc and inner plate follow the cut and are reprinted
@@ -339,7 +341,8 @@ sparger is still placed on the shaft drive's impeller
 corners clear the carrier's pocket and whose depth fits under the jar with the joint's own depth
 reserved; the thinnest of that hub. The hub is the sort key because it is what the magnets are
 carried on, and a wider frame around a smaller hub buys nothing. An 80 × 25 on `jar_10L` and
-`jar_1gal_180`, a 40 × 11 on `jar_1p5L`, and none on `jar_6p5gal` or `jar_1gal_155`. The magnets
+`jar_1gal_180`, a 40 × 11 on `jar_1p5L`, and on a riser a 60 × 25 on `jar_1gal_155` and a
+120 × 25 on `jar_6p5gal`. The magnets
 and the bar are named (`stir_magnet_name`, `stir_bar_name`), because a bench usually has some: the
 defaults are two Ø8 × 5 discs and a 38 mm bar, and the other registered sizes are in
 `purchased/magnets.scad` and `purchased/stir_bars.scad`.
@@ -347,12 +350,43 @@ defaults are two Ø8 × 5 discs and a 38 mm bar, and the other registered sizes 
 **The floor under the jar is sunk for that fan, up to a point.** The frame reaches below the jar by
 whatever the light stack overshoots its height by — an accident of which light the jar took, which
 left the drive at its mercy. The floor now takes the deeper of that and what the fan and the magnets
-need, so a jar whose light happens to be short still gets a drive. `jar_1p5L` is 3.78 mm deeper for
-it and gains a carrier; nothing else moves, because the other four already had more floor than their
-fan wanted or want far more than they can have. `carrier_floor_lift_max` (10 mm) is that limit: past
-it a base is mostly added floor, and a base that deep wants hollowing out, which it does not get
-here. `jar_6p5gal` and `jar_1gal_155` are held there — the echo names the floor each would need. The
-floor does not depend on which drive a build names, so the base is still one print for either.
+need, so a jar whose light happens to be short still gets a drive. `jar_1p5L` is 3.77 mm deeper for
+it and gains a carrier. `carrier_floor_lift_max` (10 mm) is how far that goes: past it the base
+would be mostly added floor. The floor does not depend on which drive a build names, so the base is
+still one print for either.
+
+**Past that limit the magnetic build stands on a riser.** `jar_1gal_155` wants 36 mm more than its
+light leaves and `jar_6p5gal` 35, so their bases keep the light's floor and a magnetic build of
+either adds `frame_stir_riser`, which makes up the rest under the whole frame:
+
+```
+stir riser: 36 mm under the base, which keeps the light's 4 mm floor; walls at r [50.15,
+63.65, 82.25, 94.95], keyed into every light's cord notch
+```
+
+It is walls only, 3 mm (`riser_wall`), so it prints as it stands with nothing to bridge but the
+lead's doorways. Four rings: one round the carrier at the base's own bore; one under the circle the
+jar lands on, since the floor ring over it is 4 mm on `jar_1gal_155` and would otherwise span; one
+under the lights' middle, which holds them at the base's underside as the bench would; and one
+round the base's edge, so the reactor stands on the base's full width. Four spokes on the quadrant
+lines tie them. The carrier hangs in it exactly as in a deep base: a block on its ring carries the
+same groove and ear notch, and the groove runs on out through the other rings as the lead's
+doorway.
+
+It locates in the base's cord notches, all twelve: in each, from the seat's face to the edge, a key
+fills the notch less the 0.3 mm a light keeps in its seat, so it centres on the base as closely as a
+light sits its seat and leaves every seat clear. **The lights' cords leave from the top**, against
+the top base, which is also where a light seats best. The reactor stands 36 mm taller for it, and a
+build under any other drive stands on the bench.
+
+1. Stand the riser on the bench, drop the carrier in with its ear down the notch, and lead the
+   wire out through the doorway.
+2. Fit the lights into the frame, cords up, then lower the frame onto the riser with a key in every
+   cord notch.
+
+The carrier's ear stands 23.8 mm off the bench, so a riser has to be at least that tall to hold it
+under the base. A drive wanting between 10 and that over the light's floor fits neither the base
+nor a riser, and the model says so; no registered jar is in that band.
 
 **How high the carrier hangs is set by the magnets, not the fan.** Their faces are held
 `stir_magnet_glass_clearance` (1 mm) under the jar's punt, at the magnets' outer edge where the cone
@@ -395,7 +429,8 @@ every other jar. Floor depth is not that jar's problem.
    the slot's light position and let it down: the ear lands on the two shoulders beside the wire
    groove and the carrier hangs from them, 8 mm clear of whatever the frame stands on. The lead
    comes down the notch between the ear's two legs and straight into the groove, which joins the
-   light cord notch already cut through the wall.
+   light cord notch already cut through the wall. On a riser the carrier goes into the riser
+   instead, before the frame is set on it, and the groove is the riser's doorway out.
 5. **Bar into the jar, jar into the base.** The bar sits centred on the punt plateau; the magnets
    find it through the glass.
 6. **Blank onto the lid.** The 22×1.5 ring goes in the pocket's groove as it would for the bearing;
@@ -404,7 +439,8 @@ every other jar. Floor depth is not that jar's problem.
 **What the base gives up for this:** one T-shaped slot at an empty light position — the cord
 notch's own profile carried across the floor ring to the bore, and above it a notch 3 mm wider each
 side, open at the top, that stops 8 mm short of where the jar lands. Nothing else moves, and the
-slot is cut under the shaft drive too, so a base printed today takes either.
+slot is cut under the shaft drive too, so a base printed today takes either. A base whose magnetic
+build stands on a riser gives up nothing: the slot is the riser's.
 
 **Three things it buys** that are on no purchase list yet: the fan, the magnets and the bar. Any of
 the size does, which is why none has a part number; `check-bom` says so in its header.
