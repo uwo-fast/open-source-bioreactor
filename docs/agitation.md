@@ -204,11 +204,11 @@ it to the 98 mm mouth floor.
 | `jar_10L_220x305`    | 142.2 | 210   | 0.677     | 4       | —                                         |
 | `jar_6p5gal_305x470` | 137   | 280.8 | **0.488** | 0       | the port circle falls inside the impeller |
 | `jar_1gal_155x251`   | 95.8  | 149.3 | 0.642     | 0       | mouth below the flange floor              |
-| `jar_1p5L_112x215`   | 87.5  | 103.5 | 0.845     | 0       | mouth below the flange floor              |
+| `jar_1p5L_112x215`   | 88.4  | 103.5 | 0.854     | 0       | mouth below the flange floor              |
 
 **The absolute floor**, which the ports document already has: below about 98 mm no baffle fits beside
 two Ø16 Atlas probes at any port count. That is `jar_1p5L` and `jar_1gal_155`. Note that `jar_1p5L`
-has a _generous_ mouth for its bore — 0.845 — so its problem is absolute size, not proportion.
+has a _generous_ mouth for its bore — 0.854 — so its problem is absolute size, not proportion.
 
 **The ratio bound**, which it did not: `jar_6p5gal`'s mouth is small relative to its BORE, so the
 port circle its lid can offer sits inside the impeller's own sweep. Measured by adding a
@@ -239,7 +239,7 @@ Hall's measured `e = 0.2 T` stays out of reach at 0.090.
 not arise, because neither can carry a shaft to centre or offset. Four things point the same way:
 
 - **Both build failures are assertions about the top-entry drivetrain.** The mount overlaps the port
-  flanges by 12.95 mm on `jar_1p5L`; the pH probe runs 6.29 mm through the lower impeller on
+  flanges by 12.5 mm on `jar_1p5L`; the pH probe runs 6.29 mm through the lower impeller on
   `jar_1gal_155`. Neither assert exists in a configuration without that drivetrain, which the model
   expresses as `drive_name = "none"`; both jars are registered as the airlift built on it.
 - **`jar_1p5L`'s impeller is already negated at the design aeration rate.** Oldshue's 8× rule caps

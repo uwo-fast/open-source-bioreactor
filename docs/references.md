@@ -672,20 +672,20 @@ bare.
 **What the geometry says, with Karcz's correlation applied to it.** Eccentric mounting is real and
 well supported, and this architecture can barely use it. The motor mount is a Ø56 body centred on the
 lid and the port flanges reach inward to `head_port_circle_radius(mouth) − 14.1`, so the room for an
-offset is `Rpc − flange − lid_holes_offset − mount_radius`. On `jar_1p5L` that is already **−12.95 mm**
+offset is `Rpc − flange − lid_holes_offset − mount_radius`. On `jar_1p5L` that is already **−12.5 mm**
 and on `jar_1gal_155` **−8.30 mm** — an unasserted collision until `head()` gained the check for it,
 masked before that because the port-spacing assert fires first.
 
 The deeper problem is that **eccentricity is referenced to the tank diameter while the room for it is
 set by the mouth.** Hall's e = 0.2 T needs 20.7 mm on `jar_1p5L` and 42.0 mm on `jar_10L`; the widest
 offset any of these lids can give, with the mount shrunk to the Ø36 floor its own gearbox faceplate
-allows and every port on a mini flange, is 0.5 mm and 28.4 mm respectively. **e/T = 0.2 is out of
+allows and every port on a mini flange, is 0.95 mm and 28.4 mm respectively. **e/T = 0.2 is out of
 reach on every registered vessel** — `jar_1gal_180` comes closest at 0.181 and misses it narrowly.
 What is reachable, by Karcz's equation:
 
 | vessel         | mouth/T | e/T today | gain | e/T at best | gain |
 | -------------- | ------- | --------- | ---- | ----------- | ---- |
-| `jar_1p5L`     | 0.845   | 0         | 0%   | 0.005       | 3%   |
+| `jar_1p5L`     | 0.854   | 0         | 0%   | 0.009       | 5%   |
 | `jar_1gal_155` | 0.642   | 0         | 0%   | 0.031       | 14%  |
 | `jar_6p5gal`   | 0.488   | 0.035     | 16%  | 0.090       | 31%  |
 | `jar_10L`      | 0.681   | 0.059     | 24%  | 0.135       | 37%  |
