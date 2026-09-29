@@ -195,8 +195,6 @@ stir_magnet_glass_clearance = 1;
 carrier_floor_lift_max = 10;
 // wall of the riser's rings and spokes, in mm
 riser_wall = 3;
-// how far the riser's keys stand up into the base's empty light seats, which locate it, in mm
-riser_key_height = 5;
 // how far the key ear reaches into the base floor, radially
 carrier_key_reach = 8;
 // the shoulder each side of the wire groove that the ear lands on
@@ -759,8 +757,8 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
     if (_riser > 0)
       echo(str(
         "stir riser: ", _riser, " mm under the base, which keeps the light's ", base_floor_height,
-        " mm floor; walls at r ", [_base_center_bore_diameter / 2 + riser_wall / 2, _jar_contact_radius, _riser_light_r],
-        ", keyed into the empty light seats of quadrants ", _slot_quadrants
+        " mm floor; walls at r ", [_base_center_bore_diameter / 2 + riser_wall / 2, _jar_contact_radius, _riser_light_r, _outer_diameter / 2 - riser_wall / 2],
+        ", keyed into every light's cord notch"
       ));
 
     echo(str(
@@ -788,12 +786,13 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
 
   // The riser: walls only, so it prints as it stands with nothing to bridge but the lead's
   // doorways. A ring round the carrier at the base's own bore, one under the circle the jar lands
-  // on so the floor ring over it is not left spanning, and one under the lights' middle for them
-  // to stand on. Spokes on the quadrant lines, which no light stands on, tie them and run on to the
-  // base's edge, as does a fin behind each key, so it stands on the base's full width. A block on the
+  // on so the floor ring over it is not left spanning, one under the lights' middle, which is what
+  // holds them at the base's underside, and one round the base's edge so it stands on the base's
+  // full width. Spokes on the quadrant lines, which no light stands on, tie them. A block on the
   // carrier's ring takes the slot, so the carrier hangs here as it would in a deep base, and the
-  // lead leaves by the groove carried out through every ring. In the empty light seats it stands
-  // a column the size of a light, rising into the seat, which seats it on the base as a light is.
+  // lead leaves by the groove carried out through every ring. In every light's cord notch, from
+  // the seat's face to the edge, it stands a key that fills the notch less the seat's own fit: that
+  // seats it on the base and leaves every seat clear for a light. The cords leave from the top.
   _riser_light_r = light_bore_radius(vessel_outer_diameter) + light_cover_radius(light) + strip_light_depth(light) / 2;
   module frame_stir_riser() {
     _bore_r = _base_center_bore_diameter / 2;
@@ -806,24 +805,28 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
       }
     }
 
+    _seat_out = strip_light_depth(light) + light_pocket_allow; // the seat's outer face, off the datum
+    _key_w = strip_light_width(light) + light_allow - 2 * light_pocket_allow;
+    _key_h = strip_light_depth(light) + light_allow - light_pocket_allow; // the notch's height, less the fit
+
     difference() {
-      union() {
-        for (r = [_bore_r + riser_wall / 2, _jar_contact_radius, _riser_light_r]) ring(r);
-        for (q = [0:3])
-          rotate([0, 0, q * 90])
-            translate([_bore_r, -riser_wall / 2, 0])
-              cube([_outer_diameter / 2 - _bore_r, riser_wall, _riser]);
-        rotate([0, 0, _slot_angle])
-          translate([-_block_w / 2, 0, 0])
-            cube([_block_w, _bore_r + carrier_key_reach + riser_wall, _riser]);
-        // each key a column from the bench, so it does not stand out over the ring's edges, with its
-        // fin out to the edge
-        light_places(_slot_quadrants, vessel_outer_diameter, light, lights_per_quadrant, occupy_angle) {
-          translate([-strip_light_width(light) / 2, 0, 0])
-            cube([strip_light_width(light), strip_light_depth(light), _riser + riser_key_height]);
-          translate([-riser_wall / 2, 0, 0])
-            cube([riser_wall, _outer_diameter / 2 - light_bore_radius(vessel_outer_diameter) - light_cover_radius(light), _riser]);
+      intersection() {
+        union() {
+          for (r = [_bore_r + riser_wall / 2, _jar_contact_radius, _riser_light_r, _outer_diameter / 2 - riser_wall / 2]) ring(r);
+          for (q = [0:3])
+            rotate([0, 0, q * 90])
+              translate([_bore_r, -riser_wall / 2, 0])
+                cube([_outer_diameter / 2 - _bore_r, riser_wall, _riser]);
+          rotate([0, 0, _slot_angle])
+            translate([-_block_w / 2, 0, 0])
+              cube([_block_w, _bore_r + carrier_key_reach + riser_wall, _riser]);
+          // each key a column from the bench, so nothing stands out over a ring's edge
+          light_places([1, 2, 3, 4], vessel_outer_diameter, light, lights_per_quadrant, occupy_angle)
+            translate([-_key_w / 2, _seat_out, 0])
+              cube([_key_w, _outer_diameter / 2, _riser + _key_h]);
         }
+        // nothing past the base's own edge
+        translate([0, 0, -z_fight]) cylinder(d=_outer_diameter, h=_riser + _key_h + 2 * z_fight);
       }
       translate([0, 0, -z_fight]) cylinder(r=_bore_r, h=_riser + 2 * z_fight);
       frame_stir_slot(top=_riser, reach=_outer_diameter / 2 + 1);

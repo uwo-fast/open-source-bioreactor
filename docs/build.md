@@ -361,24 +361,28 @@ either adds `frame_stir_riser`, which makes up the rest under the whole frame:
 
 ```
 stir riser: 36 mm under the base, which keeps the light's 4 mm floor; walls at r [50.15,
-63.65, 82.25], keyed into the empty light seats of quadrants [2, 4]
+63.65, 82.25, 94.95], keyed into every light's cord notch
 ```
 
 It is walls only, 3 mm (`riser_wall`), so it prints as it stands with nothing to bridge but the
-lead's doorways: a ring round the carrier at the
-base's own bore, one under the circle the jar lands on — the floor ring over it is 4 mm on
-`jar_1gal_155` and would otherwise span — and one under the lights' middle, which they stand on in
-place of the bench; four spokes on the quadrant lines tie them and
-run on to the base's edge, as does a fin behind each key, so it stands on the base's full width. The carrier hangs in it exactly as in a deep
-base: a block on its ring carries the same groove and ear notch, and the groove runs on out through
-the other two rings as the lead's doorway. Columns the size of a light rise 5 mm into the empty
-light seats (`riser_key_height`), which centre it on the base as closely as a light sits its seat.
-The reactor stands 36 mm taller for it, and a build under any other drive stands on the bench.
+lead's doorways. Four rings: one round the carrier at the base's own bore; one under the circle the
+jar lands on, since the floor ring over it is 4 mm on `jar_1gal_155` and would otherwise span; one
+under the lights' middle, which holds them at the base's underside as the bench would; and one
+round the base's edge, so the reactor stands on the base's full width. Four spokes on the quadrant
+lines tie them. The carrier hangs in it exactly as in a deep base: a block on its ring carries the
+same groove and ear notch, and the groove runs on out through the other rings as the lead's
+doorway.
+
+It locates in the base's cord notches, all twelve: in each, from the seat's face to the edge, a key
+fills the notch less the 0.3 mm a light keeps in its seat, so it centres on the base as closely as a
+light sits its seat and leaves every seat clear. **The lights' cords leave from the top**, against
+the top base, which is also where a light seats best. The reactor stands 36 mm taller for it, and a
+build under any other drive stands on the bench.
 
 1. Stand the riser on the bench, drop the carrier in with its ear down the notch, and lead the
    wire out through the doorway.
-2. Fit the lights into the frame, then lower the frame onto the riser with the columns in the two
-   empty quadrants' seats.
+2. Fit the lights into the frame, cords up, then lower the frame onto the riser with a key in every
+   cord notch.
 
 The carrier's ear stands 23.8 mm off the bench, so a riser has to be at least that tall to hold it
 under the base. A drive wanting between 10 and that over the light's floor fits neither the base
