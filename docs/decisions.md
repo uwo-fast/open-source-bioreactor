@@ -245,3 +245,9 @@ outlives the commit, in `docs/`.
   the whole core flows. Leaning it only walks it toward a tube that can shift up to 2.5 mm: with
   the tube among its obstacles the lean derived to within 0.08 mm of the wall on `jar_1p5L`, less
   than the tube's own play
+- **a magnetic build wanting more floor than the base gives stands on a riser.** The base stays the
+  light's floor, so it is one print for every drive on its jar and an airlift or bubble build does
+  not grow for a drive it lacks. A hollowed deep base was the other way: one print, but under every
+  drive, and it moved the jar against the lights. The riser is walls only, so it prints as it
+  stands, and it keeps the carrier as it was by carrying the base's slot. `jar_1p5L` keeps its sunk
+  floor: its 3.77 mm is far short of the 23.8 mm a riser needs to hold the carrier's ear

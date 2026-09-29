@@ -30,6 +30,11 @@
         "jar_1gal_155x251": {
             "reactor_vessel_name": "jar_1gal_155x251",
             "drive_name": "airlift"
+        },
+        "jar_1gal_155_magnetic": {
+            "reactor_vessel_name": "jar_1gal_155x251",
+            "drive_name": "magnetic",
+            "lid_center_name": "plain"
         }
     }
 }
