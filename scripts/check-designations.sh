@@ -32,6 +32,7 @@ matrix=(
     "drive_name|magnetic|differs"
     "drive_name|none|differs"
     "drive_name|none|differs|drive_name=magnetic"
+    "drive_name|airlift|differs|reactor_vessel_name=jar_1gal_155x251,drive_name=none"
     "lid_center_name|plain|differs|drive_name=magnetic"
     "sparger_name|ring|differs"
     "stir_bar_name|50x8|builds"

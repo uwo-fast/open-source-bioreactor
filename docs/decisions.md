@@ -234,3 +234,14 @@ outlives the commit, in `docs/`.
 - **`check-mesh` is not in `just check`** - it renders solids, which is minutes to tens of minutes.
   The `$fn=0` second pass IS in `check-scad`, because that recipe is the cheap one. Both were proved
   to FIRE on a deliberately broken input before being trusted
+- **the two gas-driven jars are registered as airlifts, not bubble columns.** Take the draft tube
+  out of the airlift build and what is left is the bubble column: the same lid and parts but for
+  the ring, drawn in a few millimetres to fit inside the tube with its supports cut to match, and
+  the DO port, which hangs its probe straight. A second registration would export near-duplicate
+  parts for a build the airlift's already make.
+  `drive_name = "none"` stays a drive the model builds; it is no longer a build the export writes
+- **under the airlift the DO probe hangs straight.** Its lean exists to take the tip out of the
+  shaft's shadow toward the flow (`docs/ports-layout.md`), and inside the riser there is no shaft and
+  the whole core flows. Leaning it only walks it toward a tube that can shift up to 2.5 mm: with
+  the tube among its obstacles the lean derived to within 0.08 mm of the wall on `jar_1p5L`, less
+  than the tube's own play

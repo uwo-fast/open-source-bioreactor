@@ -15,7 +15,7 @@ turned out to be wrong. The status says how far each source was actually checked
 Grades: **[PR]** peer-reviewed · **[TH]** thesis · **[PAT]** patent · **[TX]** textbook ·
 **[TP]** trade press · **[VN]** vendor.
 
-Every literature source below is also in [`references.bib`](references.bib) — 49 entries, every one
+Every literature source below is also in [`references.bib`](references.bib) — 56 entries, every one
 carrying its grade and verification status in a `note` field, so the whole set imports into a
 reference manager in one go rather than one DOI at a time. Vendor pages, part numbers and software libraries
 are deliberately not in it: they are cited inline on the registry row or file that uses them.
@@ -291,12 +291,11 @@ reaches 30° twist at 83° hub angle, so this is a direction, not a correction f
 **Molina Grima, E., Acién Fernández, F.G., García Camacho, F. & Chisti, Y. (1999).**
 "Photobioreactors: light regime, mass transfer, and scaleup." _Journal of Biotechnology_
 70(1-3):231-247. [doi:10.1016/S0168-1656(99)00078-4](<https://doi.org/10.1016/S0168-1656(99)00078-4>)
-**[PR]** · **unread**
+**[PR]** · **read** (archived reprint `Asterio.pdf`)
 Source of the _"frequency of switch"_ criterion `docs/agitation.md` quotes — that a photobioreactor
 is judged by how often a cell crosses between lit and dark zones, not by a blend-time multiple.
-Quoted there by name and, until now, cited nowhere. The full text is in the project's Zotero
-library; the passage carrying the phrase has not been confirmed, so this is marked unread rather
-than read.
+Confirmed on p. 234: average irradiance _"considers only the total length of the dark and the light
+periods, not the frequency of switch."_
 → `docs/agitation.md` mixing-criterion paragraph
 
 **Mazzuca Sobczuk, T., García Camacho, F., Molina Grima, E. & Chisti, Y. (2006).** "Effects of
@@ -724,6 +723,96 @@ The result is the wrong way round: **the vessels with room for eccentricity are 
 enough to carry baffles, and the two that need it have none.** Off-centring is not a rescue for the
 small jars. It is, separately, a cheap 25-31% on the large ones if they ever run unbaffled.
 → `docs/ports-layout.md` "Baffles on a narrow jar", `TODO.md` airlift item
+
+---
+
+## The airlift
+
+The hydrodynamics here were fitted on loops far taller than these jars: Chisti's circulation data
+spans a stated 1.36-8.5 m of reactor height, against 0.17-0.19 m of liquid here. Only Fernandes' 3.7 L columns
+are this size, and they are split cylinders. What carries over is geometry stated as ratios. Chisti's scans are the author's own reprints, archived
+from his Massey University page (`web.archive.org/web/2016id_/http://www.massey.ac.nz/~ychisti/`).
+
+**Chisti, M.Y. & Moo-Young, M. (1987).** "Airlift reactors: characteristics, applications and
+design considerations." _Chemical Engineering Communications_ 60(1-6):195-242.
+[doi:10.1080/00986448708912017](https://doi.org/10.1080/00986448708912017) **[PR]** · **read**
+(archived reprint `Airlift1987.pdf`, pp. 202-225)
+p. 213: _"we recommend that the total cross-sectional area for fluid flow from the downcomer to the
+riser, i.e. the area just below the baffles separating the downcomer and the riser in internal loop
+devices ... should not exceed 1.65 times the downcomer cross-section."_ The reason given is a
+bubble-free zone under the baffle that grew as the clearance did. Observed in a rectangular vessel
+sparged at the sides, the flow the other way round from this draft tube. The same page recommends
+a prism or cone under the turn in **annulus**-sparged draught tubes, which is the B variant's
+concern and not this one's.
+→ `head_draft_tube_end_gap()`: the gap gives the turn the downcomer's own area, 1.0 of it
+
+**Chisti, M.Y., Halard, B. & Moo-Young, M. (1988).** "Liquid circulation in airlift reactors."
+_Chemical Engineering Science_ 43(3):451-457.
+[doi:10.1016/0009-2509(88)87005-2](<https://doi.org/10.1016/0009-2509(88)87005-2>) **[PR]** ·
+**read** (archived reprint `Halard.pdf`)
+The circulation model, eq. (16), and the loss where the flow turns under the tube, eq. (18):
+`K_B = 11.402 (A_d/A_b)^0.789`, "over a `A_d/A_b` range of 0.2-1.8" (p. 455). Fig. 2 draws `A_b`
+for a draught tube as the band under it. At equal area `K_B` is 11.4, mid-fit. **The model itself
+is not run**: its riser holdup, eq. (19), holds "for `U_Lr` > 0.3 m s⁻¹", its 13 reactors were
+1.36-8.5 m tall, and a 2-5 mm/s riser gas velocity is far outside any of it. Also p. 455: Hatch's
+draught tube, at a 3.3 cm clearance, where _"a 67 % reduction in this area led to a 32.5 % decline
+in the riser superficial liquid velocity"_ — why the gap is sized rather than left to fall where it
+may.
+→ `head_draft_tube_bottom_loss()`, the `draft tube areas:` line `head()` reports
+
+**Chisti, M.Y. (1989).** _Airlift Bioreactors_. Elsevier, London. **[TX]** · **read**, chapter 5
+only (archived `Chapter5b.pdf`, pp. 190-211)
+p. 194: _"the upper baffle clearance in internal-loop airlifts should be kept small - about 0.15 to
+0.20 m"_, in 3.5-6 m split cylinders. These jars' top gaps are 11 and 38 mm, well inside it; no
+source read states a top clearance scaled to diameter, so the top gap takes the bottom's rule.
+→ `head_draft_tube_end_gap()`
+
+**Sánchez Mirón, A., García Camacho, F., Contreras Gómez, A., Molina Grima, E. & Chisti, Y. (2000).**
+"Bubble-column and airlift photobioreactors for algal culture." _AIChE Journal_ 46(9):1872-1887.
+[doi:10.1002/aic.690460915](https://doi.org/10.1002/aic.690460915) **[PR]** · **read** (archived
+reprint `AIChE.pdf`)
+Bubble column, split cylinder and draft-tube airlift, 0.193 m across, about 2 m of liquid, 0.06 m³,
+_Phaeodactylum tricornutum_: _"there was no significant difference in culture performance in the
+three bioreactors"_, 0.022 h⁻¹ at 109 W/m³ (p. 1885; conclusion 7, p. 1886). The draft tube was 0.144 m
+inside, 0.091 m off the floor, riser-to-downcomer ratio 1.24 (p. 1875). The loss they calculate
+from that geometry, K_B 4.6, is reproduced by eq. (18) with A_b over the tube's inside diameter —
+11.4 × 0.319^0.79 = 4.62 — which is the perimeter `head()` takes. **So the airlift is not chosen
+for productivity**: this is the paper that says it buys none over a column at equal power. It is
+chosen for the defined circulation `docs/agitation.md` section 5 argues for.
+→ `head_draft_tube_end_gap()`, `docs/agitation.md` section 5
+
+**Sánchez Mirón, A., Cerón García, M.-C., García Camacho, F., Molina Grima, E. & Chisti, Y. (2002).**
+"Growth and biochemical characterization of microalgal biomass produced in bubble column and airlift
+photobioreactors: studies in fed-batch culture." _Enzyme and Microbial Technology_ 31(7):1015-1023.
+[doi:10.1016/S0141-0229(02)00229-6](<https://doi.org/10.1016/S0141-0229(02)00229-6>) **[PR]** ·
+**read** (archived reprint `Asterio Paper.pdf`)
+The same three vessels. p. 1020: in the column cells from the dark core moved freely to the lit
+wall, whereas _"the vertical baffle and the draft-tube prevented radial motion of fluid"_ — so a
+draft tube replaces radial mixing with a loop through lit and dark, and an opaque one would make
+the core a place cells only pass through in the dark.
+→ `draft_tube_*` in `head.scad`: print it clear
+
+**Fernandes, B.D., Mota, A., Ferreira, A., Dragone, G., Teixeira, J.A. & Vicente, A.A. (2014).**
+"Characterization of split cylinder airlift photobioreactors for efficient microalgae cultivation."
+_Chemical Engineering Science_ 117:445-454.
+[doi:10.1016/j.ces.2014.06.043](https://doi.org/10.1016/j.ces.2014.06.043) **[PR]** · **read**
+([repositorium.uminho.pt](https://repositorium.uminho.pt/server/api/core/bitstreams/f22e1867-5736-4381-be69-5a9c40e1522d/content))
+p. 446, on concentric tubes: a _"large fraction of dark zones inside the PBR, mainly due to the
+presence of the internal column, which limits light penetration"_; their own baffles were
+transparent PMMA _"to allow light penetration"_. Ran riser:downcomer 1.0 and 3.0 in 90 mm columns,
+and 1.0 grew better.
+→ print the tube clear
+
+**Klein, J., Szíjjarto, A., Vicente, A.A. & Teixeira, J.A. (2002).** "Hydrodynamic considerations in
+three-phase internal-loop airlift bioreactors - effect of dual separator and draught tube design."
+29th Conference of the Slovak Society of Chemical Engineering. **[PR]** · **read**
+([repositorium.uminho.pt](https://repositorium.uminho.pt/bitstreams/d3514e13-8670-4171-898d-3a4ded565d52/download))
+Draft-tube sparged, 60 L, A_D/A_R 1.2 against 3.97: the wide downcomer ran about a quarter of the
+riser's liquid velocity and needed U_G 0.03 m/s before any bubble was drawn down it — a gentler
+loop. These jars' 0.54 and 1.72 fall inside what Chisti's circulation data covers, not Klein's;
+**no source read gives an optimal A_d/A_r for an internal loop**, so the model reports it and does
+not target it.
+→ the `draft tube areas:` line
 
 ---
 

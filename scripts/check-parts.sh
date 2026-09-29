@@ -35,7 +35,7 @@ not_printed=(
 cat > "$tmp/m.scad" <<SCAD
 include <$PWD/scad/bioreactor.scad>
 _v = reactor_vessel;
-for (d = ["shaft", "magnetic", "none"]) {
+for (d = ["shaft", "magnetic", "none", "airlift"]) {
   for (p = head_print_parts(vessel_opening_diameter(_v), lid_flange_height,
                             vessel_internal_height(_v), vessel_punt_height(_v), d, sparger_name, lid_center_name))
     echo(str("PART|", p[2]));
@@ -82,6 +82,8 @@ not_exported=(
                                                 # "frame_hub_cap", on the fan the frame chose
     scad/custom/bearing_blank.scad              # exported through head's manifest as
                                                 # "bearing_blank", sized to the lid's pocket
+    scad/custom/draft_tube.scad                 # exported through head's manifest as
+                                                # "draft_tube", sized to the airlift's jar
     scad/custom/sheet_gasket.scad               # EPDM cut from a sheet with a knife, not printed
     # Bench furniture AROUND the reactor rather than part of it, and only ONE of the three
     # makes anything printed - which is not what this list said until it was read.

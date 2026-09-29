@@ -7,7 +7,7 @@
 #
 # With no build, it writes every registered build, grouped by vessel, to $2/<vessel> (build/
 # unless given): common/ holds what every one of that vessel's builds prints the same, and a
-# folder per build type - stirred, magnetic, bubble - holds only what that type adds. A part is
+# folder per build type - stirred, magnetic, airlift - holds only what that type adds. A part is
 # common when every build of the vessel carries it with the same geometry, judged by its CSG,
 # and it is not one drive's own. Each distinct part renders once. A vessel's folder is replaced
 # whole, so what is there is what the model prints now.
@@ -144,7 +144,7 @@ tmp = sys.argv[1]
 sets = json.load(open("scad/bioreactor.json"))["parameterSets"]
 jobs, variants = [], {}
 for name, params in sets.items():
-    for drive in ("shaft", "magnetic", "none"):
+    for drive in ("shaft", "magnetic", "airlift"):
         variants[f"{name}__{drive}"] = dict(params, drive_name=drive)
         jobs.append(f"{name}|{drive}")
 json.dump({"fileFormatVersion": "1", "parameterSets": variants}, open(f"{tmp}/variants.json", "w"))
@@ -198,7 +198,7 @@ done < "$tmp/sets"
 /usr/bin/python3 - "$tmp" <<'PY'
 import collections, re, sys
 tmp = sys.argv[1]
-TYPES = {"shaft": "stirred", "magnetic": "magnetic", "none": "bubble"}
+TYPES = {"shaft": "stirred", "magnetic": "magnetic", "airlift": "airlift"}
 sets = open(f"{tmp}/sets").read().split()
 keys = {}
 for line in open(f"{tmp}/keys"):

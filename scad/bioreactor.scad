@@ -94,8 +94,8 @@ joint_bolt = M8_hex_screw;
 // Fraction of the jar's CAPACITY the culture fills; a run at another volume states its fraction
 culture_fill_fraction = 0.865;
 // What turns the culture: a shaft through the lid, a stir bar following a fan under the base, or
-// none, where the gas is all that moves it
-drive_name = "shaft"; // [shaft, magnetic, none]
+// none, where the gas is all that moves it, or an airlift, which is none with a draft tube
+drive_name = "shaft"; // [shaft, magnetic, none, airlift]
 // The middle of the lid: the bearing pocket and mount inserts, or plain; auto is plain under no drive
 lid_center_name = "auto"; // [auto, bearing, plain]
 // What the gas comes out of: a ring between the impellers, or an arm under the lower one; auto is

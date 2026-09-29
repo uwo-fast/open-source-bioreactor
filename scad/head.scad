@@ -21,6 +21,7 @@ use <custom/bayonet_port.scad>;
 use <custom/impeller.scad>;
 use <custom/sparger.scad>;
 use <custom/bearing_blank.scad>;
+use <custom/draft_tube.scad>;
 
 include <purchased/dc_motors.scad>;
 include <purchased/gearboxes.scad>;
@@ -94,6 +95,8 @@ render_impeller = false;
 render_stir_bar = false;
 // The plug bolted over the bearing pocket when there is no shaft; the lid is the same print
 render_bearing_blank = false;
+// The airlift's draft tube, standing on the floor; only with the airlift
+render_draft_tube = false;
 // Which of the pair, for a per-part export; they are mirror images, so two different parts
 impeller_to_render = "both"; // [both, lower, upper]
 // the grub screws holding each impeller to the shaft
@@ -214,15 +217,17 @@ function head_bearing_gland_z() = bb_width(shaft_bearing) / 2;
 
 /* [Drive Selection] */
 
-// A shaft through the lid, a stir bar on the punt following magnets on a fan under the base, or
-// none, where the gas is all that moves the culture. Magnetic and none retire the motor, mount,
-// coupling, bearing and its seal.
-head_drive = "shaft"; // [shaft, magnetic, none]
+// A shaft through the lid, a stir bar on the punt following magnets on a fan under the base, none,
+// where the gas is all that moves the culture, or an airlift, which is none with a draft tube. All
+// but the shaft retire the motor, mount, coupling, bearing and its seal.
+head_drive = "shaft"; // [shaft, magnetic, none, airlift]
 // The middle of the lid: the bearing pocket, shaft bore and mount inserts, or plain. Auto is
-// bearing under a shaft or magnetic drive, where the blank plugs it, and plain under none.
+// bearing under a shaft or magnetic drive, where the blank plugs it, and plain with no drive.
 head_lid_center = "auto"; // [auto, bearing, plain]
 function head_lid_center_selected(lid_center, drive) =
-  lid_center != "auto" ? lid_center : drive == "none" ? "plain" : "bearing";
+  lid_center != "auto" ? lid_center : head_gas_driven(drive) ? "plain" : "bearing";
+// No drive but the gas: a bubble column, or an airlift.
+function head_gas_driven(drive) = drive == "none" || drive == "airlift";
 // A bearing lid under anything but the shaft is open to the culture until the blank plugs it.
 function head_blank_carried(drive, lid_center) =
   drive != "shaft" && head_lid_center_selected(lid_center, drive) == "bearing";
@@ -391,16 +396,17 @@ head_port_set_full = [
   ["base",        "tube",         tube_port_riser_bore], // 330
 ];
 
-// No baffles and no dosing pair (pH is measured, not controlled). The two probes are the only std
-// flanges, so they sit opposite; the thermocouple is 1/8 NPT so it fits a mini beside DO.
+// No baffles and no dosing pair (pH is measured, not controlled). Tubes and instruments
+// alternate, so the ring hangs from three tubes 120 degrees apart rather than from one side; the
+// thermocouple is 1/8 NPT so it fits a mini, one port from DO.
 // The six-port table a narrow jar carries
 head_port_set_reduced = [
   ["do_probe",    "probe",        0, do_lab_g2], //   0 deg  opposite the air inlet
   ["air_out",     "tube",         tube_port_riser_bore], //  60
-  ["media",       "tube",         tube_port_riser_bore], // 120      also the spare
+  ["temperature", "thermocouple", 3, mcmaster_3872K129_thermocouple_probe], // 120  one port from DO
   ["air_in",      "tube",         tube_port_riser_bore], // 180   the sparger hangs from this one
   ["ph_probe",    "probe",        0, ph_lab_g2], // 240
-  ["temperature", "thermocouple", 3, mcmaster_3872K129_thermocouple_probe], // 300  beside DO
+  ["media",       "tube",         tube_port_riser_bore], // 300      also the spare
 ];
 
 // Which set this lid carries. undef derives it from the mouth; set a table to pin one.
@@ -566,6 +572,7 @@ function head_print_parts(vessel_opening_diameter, lid_flange_height, vessel_int
       ],
       // what plugs the pocket the shaft drive would fill
       !head_blank_carried(drive, lid_center) ? [] : [["bearing_blank", 1, "-D render_bearing_blank=true"]],
+      drive != "airlift" ? [] : [["draft_tube", 1, "-D render_draft_tube=true"]],
       [[_sparger == "ring" ? "sparge_ring" : "sparge_cap", 1, "-D render_sparger=true"]],
       // One blank per interface the lid carries, to close a port nothing is in.
       [
@@ -691,9 +698,9 @@ baffle_joint_allowance = 0.1;
 // Joshi 1993: negligible effect near the impeller).
 
 // A ring between the impellers, or an arm off the air inlet's riser ending under the lower
-// impeller with its holes down; auto is the arm under a drive and the ring under none
+// impeller with its holes down; auto is the arm under a drive and the ring with none
 head_sparger = "auto"; // [auto, ring, cap]
-function head_sparger_selected(sparger, drive) = sparger != "auto" ? sparger : drive == "none" ? "ring" : "cap";
+function head_sparger_selected(sparger, drive) = sparger != "auto" ? sparger : head_gas_driven(drive) ? "ring" : "cap";
 // how far the arm's holes sit below the lower impeller's underside, in mm
 sparge_cap_drop = 10;
 // what the arm's end keeps clear of the shaft, in mm
@@ -705,6 +712,20 @@ sparge_ring_gap_fraction = 0.5;
 // Under no drive the ring sits on the floor instead, its underside this far over the highest glass
 // beneath it: room for a support cut a little long, and to wipe under it. In mm
 sparge_ring_floor_gap = 10;
+// The airlift's draft tube stands on the floor round everything hanging from the lid: sparged
+// inside, it is the riser and the annulus outside it the downcomer. The ring, inside its feet or
+// its wall, centres it. Print it clear, or it shades the core.
+// Wall of the draft tube, in mm
+draft_tube_wall = 2;
+// What the draft tube keeps clear of the probes, the thermocouple and the risers inside it, in mm
+draft_tube_hardware_clearance = 2;
+// How many feet the draft tube stands on
+draft_tube_feet = 3;
+// Width of each foot, around the tube, in mm
+draft_tube_foot_width = 8;
+// Fillet each side of a foot where it meets the tube, against the corner cracking; a short foot
+// takes its own length, in mm
+draft_tube_foot_fillet = 6;
 // The feed socket is this tube standing up, so the bore is the riser's own and the outside is
 // that plus this wall, which is also what the socket keeps around the riser.
 // Wall around the sparger's socket bore, in mm; with the slip allowance that keeps the tube 6.4
@@ -945,7 +966,7 @@ function head_probe_runs(probe, vessel_opening_diameter, lid_flange_height, tilt
 // impeller's blades, or with no drive, on the floor - floor_rise is how far the glass under it
 // stands above the floor's lowest point (head_ring_floor_rise).
 function head_sparge_ring_z(impeller_diameter, drive = "shaft", floor_rise = 0) =
-  drive == "none" ? floor_rise + sparge_ring_floor_gap + sparge_tube_extent() / 2 :
+  head_gas_driven(drive) ? floor_rise + sparge_ring_floor_gap + sparge_tube_extent() / 2 :
   let (
     _clearance = stirred_tank_clearance(impeller_diameter, impeller_clearance_factor),
     _height = impeller_axial_span(head_impeller_type, impeller_diameter, impeller_fin_width),
@@ -971,14 +992,14 @@ function head_sparge_cap_holes(reach) =
 // stands at the air inlet's bearing alone, where nothing else hangs, so an annulus over its
 // radial span would report a collision with every probe at every other port. What it does have
 // to miss is checked where it is placed - the floor, the shaft and the stir bar.
-function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, sparger = "ring", ring_z = undef) =
+function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, sparger = "ring", ring_z = undef, ring_r = undef) =
   let (
     _floor_z = -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height),
     _swept = head_impeller_swept_radius(impeller_diameter),
     _clearance = stirred_tank_clearance(impeller_diameter, impeller_clearance_factor),
     _height = impeller_axial_span(head_impeller_type, impeller_diameter, impeller_fin_width),
     _spacing = stirred_tank_impeller_spacing(impeller_diameter, impeller_spacing_factor),
-    _ring_r = head_sparge_ring_radius(vessel_opening_diameter),
+    _ring_r = is_undef(ring_r) ? head_sparge_ring_radius(vessel_opening_diameter) : ring_r,
     _ring_z = is_undef(ring_z) ? head_sparge_ring_z(impeller_diameter) : ring_z
   )
     concat(
@@ -1136,35 +1157,58 @@ function head_baffle_width(vessel_opening_diameter, impeller_diameter) =
 // What the tube occupies, across corners, where the material is.
 function sparge_tube_extent() = sparger_across_corners(sparge_tube(), sparge_tube_facets);
 
-function head_sparge_ring_radius(mouth) =
-  mouth / 2 - sparge_ring_clearance - sparge_tube_extent() / 2;
-// How far the glass under the ring stands above the floor's lowest point, the datum heights here
-// are taken from: the highest floor across the ring's width, at an end of it or at a profile vertex
-// inside it.
-function head_ring_floor_rise(vessel) =
-  let (
-    _r = head_sparge_ring_radius(vessel_opening_diameter(vessel)),
-    _r0 = _r - sparge_tube_extent() / 2,
-    _r1 = _r + sparge_tube_extent() / 2,
-    _xs = concat([_r0, _r1], [for (q = vessel_inner_profile(vessel)) if (q[0] > _r0 && q[0] < _r1) q[0]])
-  )
+// `cap` is an outer limit something else sets - a draft tube the ring has to sit inside.
+function head_sparge_ring_radius(mouth, cap = undef) =
+  let (_mouth = mouth / 2 - sparge_ring_clearance - sparge_tube_extent() / 2)
+    is_undef(cap) ? _mouth : min(_mouth, cap);
+// How far the glass between two radii stands above the floor's lowest point, the datum heights
+// here are taken from: the highest floor across them, at an end or at a profile vertex between.
+function head_floor_rise(vessel, r0, r1) =
+  let (_xs = concat([r0, r1], [for (q = vessel_inner_profile(vessel)) if (q[0] > r0 && q[0] < r1) q[0]]))
     max([for (x = _xs) vessel_floor_height(vessel, x)]) - vessel_thickness(vessel);
+// under the ring's width
+function head_ring_floor_rise(vessel, cap = undef) =
+  let (_r = head_sparge_ring_radius(vessel_opening_diameter(vessel), cap))
+    head_floor_rise(vessel, _r - sparge_tube_extent() / 2, _r + sparge_tube_extent() / 2);
+
+// ----- the airlift's draft tube -----
+//
+// Its bore clears everything hanging inside it between two heights: the probes and thermocouple as
+// runs, and the risers straight down the port circle. The ring then sits inside it.
+function head_draft_tube_inner_radius(runs, mouth, z_low, z_high) =
+  max(concat(
+    [head_port_circle_radius(mouth) + steel_tube_od(sparge_riser_tube) / 2],
+    [for (r = runs) let (_m = meridian_max_radius_between(r, z_low, z_high)) if (!is_undef(_m)) _m]
+  )) + draft_tube_hardware_clearance;
+// the ring inside it keeps the static clearance it keeps to the mouth
+function head_draft_tube_ring_cap(inner) = inner - sparge_ring_clearance - sparge_tube_extent() / 2;
+// Riser inside, downcomer outside, in mm2.
+function head_draft_tube_riser_area(inner) = PI * inner * inner;
+function head_draft_tube_downcomer_area(inner, bore) = PI * (pow(bore / 2, 2) - pow(inner + draft_tube_wall, 2));
+// The gaps under and over the tube, each giving the turning flow the downcomer's own area round
+// the tube's bore: Chisti & Moo-Young 1987 cap that area at 1.65 times the downcomer's, and at
+// equal area the bottom's loss coefficient is mid-fit (docs/references.md).
+function head_draft_tube_end_gap(inner, bore) =
+  head_draft_tube_downcomer_area(inner, bore) / (2 * PI * inner);
+// Chisti, Halard & Moo-Young 1988, eq. 18: the loss where the flow turns under the tube, fitted
+// over Ad/Ab 0.2 to 1.8.
+function head_draft_tube_bottom_loss(ad, ab) = 11.402 * pow(ad / ab, 0.789);
 
 // Every ring's radius: one as far out as the mouth allows, several on equal area inboard of it.
-function head_sparge_radii(mouth) =
-  let (_o = head_sparge_ring_radius(mouth))
+function head_sparge_radii(mouth, cap = undef) =
+  let (_o = head_sparge_ring_radius(mouth, cap))
     sparge_ring_count == 1
       ? [_o]
       : sparger_equal_area_radii(sparge_ring_count, _o, sparge_inner_fraction * _o);
 
 // and the holes each of them carries, split by the area it serves.
-function head_sparge_holes(mouth) =
-  let (_o = head_sparge_ring_radius(mouth))
+function head_sparge_holes(mouth, cap = undef) =
+  let (_o = head_sparge_ring_radius(mouth, cap))
     sparge_ring_count == 1
       ? [sparge_hole_count]
       : sparger_holes_per_ring(
           sparge_hole_count,
-          sparger_area_shares(head_sparge_radii(mouth), _o, sparge_inner_fraction * _o)
+          sparger_area_shares(head_sparge_radii(mouth, cap), _o, sparge_inner_fraction * _o)
         );
 
 // The widest plate that still leaves the ring its section and a clearance either side.
@@ -1178,12 +1222,12 @@ function head_baffle_ring_limit(mouth) =
 // impeller diameter) so the asserts in head() and the feasibility report are the same expression.
 // Each returns a clearance; positive is feasible.
 
-function head_ring_baffle_gap(mouth, impeller_diameter) =
-  (head_sparge_ring_radius(mouth) - sparge_tube_extent() / 2)
+function head_ring_baffle_gap(mouth, impeller_diameter, cap = undef) =
+  (head_sparge_ring_radius(mouth, cap) - sparge_tube_extent() / 2)
   - (head_port_circle_radius(mouth) + head_baffle_width(mouth, impeller_diameter) / 2);
 
-function head_ring_mouth_gap(mouth, impeller_diameter) =
-  mouth / 2 - (head_sparge_ring_radius(mouth) + sparge_tube_extent() / 2);
+function head_ring_mouth_gap(mouth, impeller_diameter, cap = undef) =
+  mouth / 2 - (head_sparge_ring_radius(mouth, cap) + sparge_tube_extent() / 2);
 
 // The impeller itself has to go in through the mouth.
 function head_mouth_passes_impeller(mouth, impeller_diameter) =
@@ -1524,15 +1568,49 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _has_baffles = len(_baffle_at) > 0;
   impeller_diameter = stirred_tank_impeller_diameter(_vessel_bore, impeller_bore_ratio);
 
+  // ----- the airlift's draft tube -----
+  // Sized before anything else hangs off the ring: round the probes and thermocouple hanging
+  // straight, over the liquid's whole depth. The DO probe hangs straight too: its lean takes it out
+  // of the shaft's shadow, and inside the riser there is none. The ring goes inside the tube and
+  // centres it.
+  _airlift = _drive == "airlift";
+  _tube_floor_z = -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height);
+  _tube_liquid_z = _tube_floor_z + vessel_punt_height + _liquid_height;
+  _tube_inner = !_airlift ? undef : head_draft_tube_inner_radius(
+    concat(
+      [for (p = _ports) if (head_port_type(p) == "probe")
+        each head_probe_runs(head_port_probe(p), vessel_opening_diameter, lid_flange_height, head_probe_tilt(p, 0))],
+      [for (p = _ports) if (head_port_type(p) == "thermocouple")
+        head_thermocouple_run(head_port_probe(p), head_port_interface(p), vessel_opening_diameter, lid_flange_height)]
+    ),
+    vessel_opening_diameter, _tube_floor_z, _tube_liquid_z
+  );
+  _tube_outer = !_airlift ? undef : _tube_inner + draft_tube_wall;
+  _ring_cap = !_airlift ? undef : head_draft_tube_ring_cap(_tube_inner);
+  _tube_gap = !_airlift ? undef : head_draft_tube_end_gap(_tube_inner, vessel_outer_diameter - 2 * vessel_wall_thickness);
+  // off the floor datum: the gap over the highest glass under the wall, and the same under the surface
+  _tube_bottom = !_airlift ? undef : head_floor_rise(vessel, _tube_inner, _tube_outer) + _tube_gap;
+  _tube_top = !_airlift ? undef : vessel_punt_height + _liquid_height - _tube_gap;
+
   // Where the ring sits, off the floor: resolved here because what hangs beside it is measured
   // against it, the DO lean first.
-  _sparge_ring_height = head_sparge_ring_z(impeller_diameter, _drive, head_ring_floor_rise(vessel));
+  _sparge_ring_height = head_sparge_ring_z(impeller_diameter, _drive, head_ring_floor_rise(vessel, _ring_cap));
+  // The ring lets the tube shift by its clearance where it sits inside the wall; among the feet
+  // only, as far as the gap between two of them allows.
+  _tube_play = !_airlift ? undef
+    : _sparge_ring_height + sparge_tube_extent() / 2 > _tube_bottom ? sparge_ring_clearance
+    : sparge_ring_clearance / cos(180 / draft_tube_feet);
+  // what hangs inside has to clear the wall with the tube shifted as far as it goes
+  _tube_obstacle = !_airlift ? [] : [[
+    "draft tube",
+    [_tube_inner - _tube_play, _tube_outer, _tube_floor_z + _tube_bottom, _tube_floor_z + _tube_top],
+  ]];
 
   // The DO lean, always derived: the most of the ceiling this jar allows.
   _do_port = [for (p = _ports) if (head_port_function(p) == "do_probe") p];
 
   _do_tilt =
-    len(_do_port) == 0 ? 0
+    len(_do_port) == 0 || _airlift ? 0
     : head_probe_tilt_ceiling(
       head_port_probe(_do_port[0]), vessel_opening_diameter, lid_flange_height,
       vessel_internal_height, vessel_punt_height, impeller_diameter, _build_do_tilt_max,
@@ -1801,13 +1879,13 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _support_bores = [for (i = _sparge_support_ports) head_port_bore_radius(_ports[i])];
 
   // Reported before it is drawn.
-  _sparge_ring_radius = head_sparge_ring_radius(vessel_opening_diameter);
+  _sparge_ring_radius = head_sparge_ring_radius(vessel_opening_diameter, _ring_cap);
   _sparge_ring_diameter = _sparge_ring_radius * 2;
   _sparge_ring_ratio = stirred_tank_sparge_ring_ratio(_sparge_ring_diameter, impeller_diameter);
-  _sparge_baffle_gap = head_ring_baffle_gap(vessel_opening_diameter, impeller_diameter);
-  _sparge_mouth_gap = head_ring_mouth_gap(vessel_opening_diameter, impeller_diameter);
-  _sparge_radii = head_sparge_radii(vessel_opening_diameter);
-  _sparge_holes = head_sparge_holes(vessel_opening_diameter);
+  _sparge_baffle_gap = head_ring_baffle_gap(vessel_opening_diameter, impeller_diameter, _ring_cap);
+  _sparge_mouth_gap = head_ring_mouth_gap(vessel_opening_diameter, impeller_diameter, _ring_cap);
+  _sparge_radii = head_sparge_radii(vessel_opening_diameter, _ring_cap);
+  _sparge_holes = head_sparge_holes(vessel_opening_diameter, _ring_cap);
   _sparge_flow = stirred_tank_gas_flow(sparge_design_vvm, _culture_volume);
   _sparge_velocity = stirred_tank_orifice_velocity(_sparge_flow, sparge_hole_count, sparge_hole_diameter);
 
@@ -1833,14 +1911,15 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     [
       for (o = head_reach_obstacles(
         vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, _sparger,
-        _sparge_ring_height
+        _sparge_ring_height, _sparge_ring_radius
       ))
         if (_shaft_drive || o[0] != "lower impeller" && o[0] != "upper impeller") o
     ],
     !_magnetic ? [] : [[
       "stir bar",
       [0, stir_bar_length(_stir_bar) / 2, _punt_top_z, _punt_top_z + stir_bar_diameter(_stir_bar)],
-    ]]
+    ]],
+    _tube_obstacle
   );
 
   _hanging = concat(
@@ -2111,8 +2190,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   );
 
   assert(
-    _shaft_drive || _magnetic || _drive == "none",
-    str("The drive is \"", _drive, "\"; it is shaft, magnetic or none.")
+    _shaft_drive || _magnetic || head_gas_driven(_drive),
+    str("The drive is \"", _drive, "\"; it is shaft, magnetic, none or airlift.")
   );
 
   assert(
@@ -2124,6 +2203,44 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     !_shaft_drive || _seated,
     "The shaft drive runs in the bearing pocket, so its lid's centre is bearing, not plain."
   );
+
+  // ----- airlift -----
+  if (_airlift) {
+    _bore = vessel_outer_diameter - 2 * vessel_wall_thickness;
+    _ar = head_draft_tube_riser_area(_tube_inner);
+    _ad = head_draft_tube_downcomer_area(_tube_inner, _bore);
+    _mouth_gap = vessel_opening_diameter / 2 - _tube_outer;
+
+    assert(
+      _mouth_gap >= sparge_ring_clearance,
+      str(
+        "A ", 2 * _tube_outer, " mm draft tube, round everything hanging inside it, does not pass the ",
+        vessel_opening_diameter, " mm mouth with ", sparge_ring_clearance, " mm to spare."
+      )
+    );
+
+    assert(_tube_top > _tube_bottom, str("The draft tube has no length: ", _tube_bottom, " to ", _tube_top, " mm off the floor."));
+
+    // The tube is sized round what hangs inside it, and a baffle is not on that list.
+    assert(!_has_baffles, "The airlift's draft tube stands where this jar's baffles hang; an airlift wants a lid without them.");
+
+    echo(str(
+      "draft tube: ", 2 * _tube_inner, " mm bore, ", 2 * _tube_outer, " mm outside, ", _tube_top - _tube_bottom,
+      " mm long from ", _tube_bottom, " to ", _tube_top, " mm off the floor, on ", draft_tube_feet, " feet of ",
+      _tube_gap, " mm; ", _mouth_gap, " mm each side through the mouth, and the ring inside it keeps ",
+      sparge_ring_clearance, " mm to its wall, so it shifts up to ", _tube_play, " mm"
+    ));
+    echo(str(
+      "draft tube areas: riser ", _ar, " mm2 inside, downcomer ", _ad, " mm2 outside, Ad/Ar ", _ad / _ar,
+      "; the ", _tube_gap, " mm gaps under and over it give the turning flow the downcomer's own area, K_B ",
+      head_draft_tube_bottom_loss(_ad, 2 * PI * _tube_inner * _tube_gap)
+    ));
+    // Chisti's circulation model is not run: it was fitted on loops 1.36 m tall and more.
+    echo(str(
+      "draft tube gas: ", _sparge_flow / (_ar * 1e-6) * 1000, " mm/s superficial in the riser at ",
+      sparge_design_vvm, " vvm"
+    ));
+  }
 
   // ----- magnetic drive -----
   // The bar rides the plateau; what it must miss is what else reaches the floor. The magnets and
@@ -2166,10 +2283,13 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     );
   }
 
-  echo(str(
-    "DO probe lean: ", _do_tilt, " deg of a ", _build_do_tilt_max, " deg ceiling",
-    _do_tilt < _build_do_tilt_max ? str(", capped ", _build_do_tilt_max - _do_tilt, " deg short by the jar's internals") : ""
-  ));
+  echo(
+    _airlift ? "DO probe lean: none, hanging straight inside the draft tube"
+    : str(
+      "DO probe lean: ", _do_tilt, " deg of a ", _build_do_tilt_max, " deg ceiling",
+      _do_tilt < _build_do_tilt_max ? str(", capped ", _build_do_tilt_max - _do_tilt, " deg short by the jar's internals") : ""
+    )
+  );
 
   if (_shaft_drive) {
     if (_ring)
@@ -2780,9 +2900,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         ", equal-swept-volume ", stirred_tank_sparge_ring_equal_volume_ratio(), ")"
       ),
       ", ", _sparge_ring_height, " mm off the floor",
-      _drive == "none"
+      head_gas_driven(_drive)
         ? str(", its underside ", sparge_ring_floor_gap, " mm over the highest glass under it, which stands ",
-              head_ring_floor_rise(vessel), " mm off the floor")
+              head_ring_floor_rise(vessel, _ring_cap), " mm off the floor")
       : !_shaft_drive ? ", where the shaft drive's impellers would put it" : str(
         " - ", _sparge_ring_height - _impeller_clearance, " above the lower impeller and ",
         _impeller_clearance + impeller_spacing - _sparge_ring_height, " below the upper"
@@ -2790,7 +2910,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     ));
 
     echo(str(
-      "sparge ring fits: ", _sparge_baffle_gap, " mm to the baffles, ", _sparge_mouth_gap,
+      "sparge ring fits: ",
+      _airlift ? str(sparge_ring_clearance, " mm to the draft tube, ") : str(_sparge_baffle_gap, " mm to the baffles, "),
+      _sparge_mouth_gap,
       " mm to the jar's mouth on the way in; a ", sparge_tube(), " mm tube reaching ",
       sparge_tube_extent(), " across its corners, on a ", sparge_bore(), " mm bore of ",
       PI / 4 * pow(sparge_bore(), 2), " mm2"
@@ -3010,13 +3132,13 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       "sparge support: ", 1 + len(_sparge_support_angles), " tubes at ",
       concat([_sparge_feed_angle], _sparge_support_angles), " deg; ", _riser_free, " mm of free support tube and ",
       _feed_free, " mm of feed, so a support is ", _riser_k, " N/mm, ", 1 / _riser_k, " mm of sway per newton against ",
-      head_ring_baffle_gap(vessel_opening_diameter, impeller_diameter), " mm to the baffles"
+      _airlift ? str(sparge_ring_clearance, " mm to the draft tube") : str(_sparge_baffle_gap, " mm to the baffles")
     ));
 
     if (len(_sparge_support_angles) == 0)
       echo(str(
         "WARNING sparge support: the ring hangs on the feed riser alone; ",
-        head_ring_baffle_gap(vessel_opening_diameter, impeller_diameter) * _feed_k, " N sideways closes its gap to the baffles"
+        _sparge_baffle_gap * _feed_k, " N sideways closes its gap to the baffles"
       ));
   }
 
@@ -3629,6 +3751,21 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     motor_mount_fastener_at()
       translate([0, 0, _joint_grip])
         screw(motor_mount_base_screw, screw_length(motor_mount_base_screw, _joint_grip, 0, insert=motor_mount_base_insert));
+
+  // The draft tube where it stands, feet on the glass; each foot is the gap under the tube, since the
+  // tube's bottom is that gap over the highest glass under its wall.
+  if (_airlift && (render_draft_tube || render_all))
+    color(prints2_color, 0.6)
+      translate([0, 0, _tube_floor_z + _tube_bottom])
+        draft_tube(
+          inner_radius=_tube_inner,
+          wall=draft_tube_wall,
+          height=_tube_top - _tube_bottom,
+          foot_lengths=[for (i = [1:draft_tube_feet]) _tube_gap],
+          foot_angles=[for (i = [0:draft_tube_feet - 1]) i * 360 / draft_tube_feet],
+          foot_width=draft_tube_foot_width,
+          foot_fillet=draft_tube_foot_fillet
+        );
 
   if (_blank && (render_bearing_blank || render_all))
     color(prints1_color)

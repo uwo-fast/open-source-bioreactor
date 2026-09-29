@@ -5,12 +5,12 @@
 % docs/references.md stays the prose record - what each source is used for and where in the
 % repo that use lives. This file is the machine-readable half of it and nothing more.
 %
-% 49 entries, every one carrying its grade and verification status in a note field. The 39
+% 56 entries, every one carrying its grade and verification status in a note field. The 44
 % DOI-backed ones started as Crossref's own BibTeX, fetched through doi.org content negotiation,
 % so the bibliographic fields are the publisher's rather than retyped - with two corrections
-% Crossref got wrong and one convention Crossref does not follow, all noted below. The 9 without
-% a DOI - three patents, two conference papers, a thesis, a book chapter, a journal article, a
-% standard and one set of course notes - are hand-written from the sources.
+% Crossref got wrong and one convention Crossref does not follow, all noted below. The 12 without
+% a DOI - three patents, three conference papers, a thesis, a book, a book chapter, a journal
+% article, a standard and one set of course notes - are hand-written from the sources.
 %
 % YEARS ARE THE ISSUE YEAR, not the online-first date Crossref returns. Five entries disagreed
 % with docs/references.md for exactly that reason. The journal's own page furniture decides it:
@@ -297,7 +297,7 @@
   journal = {Journal of Biotechnology},
   volume  = {70}, number = {1-3}, pages = {231--247}, year = {1999},
   doi     = {10.1016/S0168-1656(99)00078-4},
-  note    = {Grade [PR]. Verification status: unread. Source of the "frequency of switch" criterion quoted by name in docs/agitation.md and previously cited nowhere. Full text is in the project Zotero library but the passage has not been confirmed. Cited in docs/references.md.}
+  note    = {Grade [PR]. Verification status: read. Source of the "frequency of switch" criterion quoted by name in docs/agitation.md; the passage is on p.234, confirmed 2026-09-28 in the author's archived reprint. Cited in docs/references.md.}
 }
 
 @book{ASME_BPVC_VIII_1_2019,
@@ -307,4 +307,32 @@
   address   = {New York},
   year      = {2019},
   note      = {Grade [TX]. Verification status: read. ASME BPVC.VIII.1-2019. Mandatory Appendix 2, Table 2-5.1 p.399: gasket factor m and minimum design seating stress y. Elastomers without fabric, below 75A Shore m = 0.50 and y = 0 psi; 75A or higher m = 1.00 and y = 200 psi. Self-energizing types including o-rings, m = 0 and y = 0. The table's own note states the values are suggested only and are not mandatory. Read 2026-08-31. Cited in docs/references.md.}
+}
+
+@article{CHISTI_1987, title={Airlift reactors: characteristics, applications and design considerations}, volume={60}, ISSN={1563-5201}, url={http://dx.doi.org/10.1080/00986448708912017}, DOI={10.1080/00986448708912017}, number={1-6}, journal={Chemical Engineering Communications}, publisher={Informa UK Limited}, author={Chisti, M.Y. and Moo-Young, M.}, year={1987}, month=oct, pages={195--242}, note={Grade [PR]. Verification status: read. Read 2026-09-28 in the author's reprint archived from his Massey University page (web.archive.org/web/2016id_/http://www.massey.ac.nz/~ychisti/Airlift1987.pdf), pp.202-225. p.213: the free area from downcomer to riser under an internal-loop baffle should not exceed 1.65 times the downcomer cross-section. Cited in docs/references.md.} }
+
+@article{Chisti_1988, title={Liquid circulation in airlift reactors}, volume={43}, ISSN={0009-2509}, url={http://dx.doi.org/10.1016/0009-2509(88)87005-2}, DOI={10.1016/0009-2509(88)87005-2}, number={3}, journal={Chemical Engineering Science}, publisher={Elsevier BV}, author={Chisti, M.Y. and Halard, B. and Moo-Young, M.}, year={1988}, pages={451--457}, note={Grade [PR]. Verification status: read. Read 2026-09-28 in the author's reprint archived from his Massey University page (web.archive.org/web/2016id_/http://www.massey.ac.nz/~ychisti/Halard.pdf). Eq. (18), p.455: K_B = 11.402 (A_d/A_b)^0.789 over A_d/A_b 0.2-1.8; the circulation model is fitted on loops 1.36-8.5 m tall. Cited in docs/references.md.} }
+
+@book{Chisti_1989,
+  author    = {Chisti, M. Y.},
+  title     = {Airlift Bioreactors},
+  publisher = {Elsevier Applied Science},
+  address   = {London},
+  year      = {1989},
+  note      = {Grade [TX]. Verification status: read, chapter 5 only (pp.190-211). Read 2026-09-28 in the author's reprint archived from his Massey University page (web.archive.org/web/2016id_/http://www.massey.ac.nz/~ychisti/Chapter5b.pdf). p.194: keep the upper baffle clearance of an internal loop small, about 0.15-0.20 m. Cited in docs/references.md.}
+}
+
+@article{S_nchez_Mir_n_2000, title={Bubble-column and airlift photobioreactors for algal culture}, volume={46}, ISSN={1547-5905}, url={http://dx.doi.org/10.1002/aic.690460915}, DOI={10.1002/aic.690460915}, number={9}, journal={AIChE Journal}, publisher={Wiley}, author={S{\'a}nchez Mir{\'o}n, Asterio and Garc{\'i}a Camacho, Francisco and Contreras G{\'o}mez, Antonio and Molina Grima, Emilio and Chisti, Yusuf}, year={2000}, month=sep, pages={1872--1887}, note={Grade [PR]. Verification status: read. Read 2026-09-28 in the author's reprint archived from his Massey University page (web.archive.org/web/2016id_/http://www.massey.ac.nz/~ychisti/AIChE.pdf). Bubble column, split cylinder and draft-tube airlift performed equivalently, 0.022 1/h at 109 W/m3; draft tube 0.144 m inside, 0.091 m off the floor. Crossref returns Molina Grima as "Grima, Emilio Molina"; corrected. Cited in docs/references.md.} }
+
+@article{S_nchez_Mir_n_2002, title={Growth and biochemical characterization of microalgal biomass produced in bubble column and airlift photobioreactors: studies in fed-batch culture}, volume={31}, ISSN={0141-0229}, url={http://dx.doi.org/10.1016/S0141-0229(02)00229-6}, DOI={10.1016/s0141-0229(02)00229-6}, number={7}, journal={Enzyme and Microbial Technology}, publisher={Elsevier BV}, author={S{\'a}nchez Mir{\'o}n, Asterio and Cer{\'o}n Garc{\'i}a, Marie-Carmen and Garc{\'i}a Camacho, Francisco and Molina Grima, Emilio and Chisti, Yusuf}, year={2002}, month=dec, pages={1015--1023}, note={Grade [PR]. Verification status: read. Read 2026-09-28 in the author's reprint archived from his Massey University page (web.archive.org/web/2016id_/http://www.massey.ac.nz/~ychisti/Asterio Paper.pdf). p.1020: the draft tube and baffle prevented the radial motion that carried cells between dark core and lit wall in the column. Crossref's mangled diacritic in Garcia corrected. Cited in docs/references.md.} }
+
+@article{Fernandes_2014, title={Characterization of split cylinder airlift photobioreactors for efficient microalgae cultivation}, volume={117}, ISSN={0009-2509}, url={http://dx.doi.org/10.1016/j.ces.2014.06.043}, DOI={10.1016/j.ces.2014.06.043}, journal={Chemical Engineering Science}, publisher={Elsevier BV}, author={Fernandes, Bruno D. and Mota, Andr{\'e} and Ferreira, Ant{\'o}nio and Dragone, Giuliano and Teixeira, Jos{\'e} A. and Vicente, Ant{\'o}nio A.}, year={2014}, month=sep, pages={445--454}, note={Grade [PR]. Verification status: read, via https://repositorium.uminho.pt/server/api/core/bitstreams/f22e1867-5736-4381-be69-5a9c40e1522d/content. p.446: the internal column of a concentric-tube airlift makes a large dark zone; their baffles were transparent PMMA. Cited in docs/references.md.} }
+
+@inproceedings{Klein_2002,
+  author    = {Klein, J. and Sz{\'i}jjarto, A. and Vicente, A. A. and Teixeira, J. A.},
+  title     = {Hydrodynamic considerations in three-phase internal-loop airlift bioreactors - effect of dual separator and draught tube design},
+  booktitle = {29th Conference of the Slovak Society of Chemical Engineering},
+  year      = {2002},
+  url       = {https://repositorium.uminho.pt/bitstreams/d3514e13-8670-4171-898d-3a4ded565d52/download},
+  note      = {Grade [PR]. Verification status: read. Draft-tube sparged, 60 L: A_D/A_R 1.2 against 3.97; the wide downcomer ran about a quarter of the riser's liquid velocity. Cited in docs/references.md.}
 }
