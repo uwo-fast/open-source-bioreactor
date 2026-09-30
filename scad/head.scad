@@ -812,6 +812,11 @@ probe_port_collet_connector_allowance = 0.6;
 probe_port_collet_tab_gap = 1.0;
 // how far each flex tab is squeezed inward, so the probe is held by spring rather than a press fit
 probe_port_collet_tab_deflection = 0.5;
+// radius of the tab window's top corners, which the collet's body carries round the opening
+probe_port_collet_window_radius = 2;
+// Hole at the foot of each slot, where the tab bends: the slot is half the gap wide, less than a
+// nozzle can round, so the corner it would leave at the tab's root is spread by this instead
+probe_port_collet_tab_relief = 1.0;
 // Atlas say "approximately 60 ml/min"; the probe consumes the oxygen it reads. A property of the
 // sensing principle, so here and not in the registry.
 // Flow a galvanic DO probe needs past its membrane, mL/min
@@ -1462,6 +1467,8 @@ module head_port(port, panel_thickness, baffle_width, baffle_length, baffle_segm
       collet_connector_allowance=probe_port_collet_connector_allowance,
       collet_tab_gap=probe_port_collet_tab_gap,
       collet_tab_internal_deflection=probe_port_collet_tab_deflection,
+      collet_window_radius=probe_port_collet_window_radius,
+      collet_tab_relief=probe_port_collet_tab_relief,
       tilt_degrees=head_probe_tilt(port, do_tilt),
       transition_length=probe_port_transition_length
     );

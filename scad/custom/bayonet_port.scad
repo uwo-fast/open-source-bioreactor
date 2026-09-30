@@ -355,6 +355,8 @@ module bayonet_probe_port(
   collet_connector_allowance = 0.6,
   collet_tab_gap = 1.0,
   collet_tab_internal_deflection = 0.5,
+  collet_window_radius = 2,
+  collet_tab_relief = 1,
   tilt_degrees = 4.5,
   transition_length = 25
 ) {
@@ -446,7 +448,9 @@ module bayonet_probe_port(
                 shell_wall=collet_wall_thickness,
                 allowance=collet_body_allowance,
                 flex_tab_clearance=collet_tab_gap,
-                flex_tab_offset=collet_tab_internal_deflection
+                flex_tab_offset=collet_tab_internal_deflection,
+                window_radius=collet_window_radius,
+                tab_relief=collet_tab_relief
               );
             cylinder(h=probe_body_length + boot_length, d=probe_body_diameter * 2);
           }
