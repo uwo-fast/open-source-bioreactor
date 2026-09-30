@@ -9,8 +9,8 @@
  * it are drawn with the same value. The bottle's rim seals on a sheet gasket against the top's
  * underside.
  *
- * DATUM: z = 0 is the cap's mouth. The top's outer face, where each port's own z = 0 lands, is at
- * gl_port_cap_top_z().
+ * DATUM: z = 0 is the seal plane, where the bottle's rim meets the top's underside, as in
+ * din168_cap. The top's outer face, where each port's own z = 0 lands, is at z = panel_thickness.
  *
  * First use: the inlet humidifier - air in down a steel dip tube, humid air out of the second port.
  */
@@ -28,7 +28,7 @@ $fs = facet_size();
 
 // example usage: a GL45 humidifier cap, its two tube pins beside it, and its rim gasket
 _gl = din168_by_name("GL45");
-gl_port_cap(_gl);
+gl_port_cap(_gl, skirt=true);
 for (i = [0:1])
   translate([45 + i * 25, 0, 0])
     bayonet_port(
@@ -36,10 +36,6 @@ for (i = [0:1])
       bore_oring=oring_4x1p5_epdm, text_labels=true, label=i == 0 ? "IN" : "OUT"
     );
 translate([0, 60, 0]) sheet_gasket(inner_diameter=34, outer_diameter=45, thickness=1.6);
-
-// Where the top's outer face sits above the mouth.
-function gl_port_cap_top_z(thread_length, liner_space, panel_thickness) =
-  thread_length + liner_space + panel_thickness;
 
 /**
  * @param size             Registered DIN 168 size, e.g. din168_by_name("GL45")
@@ -52,6 +48,8 @@ function gl_port_cap_top_z(thread_length, liner_space, panel_thickness) =
  * @param wall             Wall outside the thread's root
  * @param clearance        Thread clearance, per flank and radially
  * @param ribs             Grip ribs round the outside; 0 for none
+ * @param skirt            Plain wall below the thread, over the neck: false, true (din168's default,
+ *                         one pitch) or a length
  */
 module gl_port_cap(
   size,
@@ -63,10 +61,10 @@ module gl_port_cap(
   liner_space = 2,
   wall = 2,
   clearance = 0.2,
-  ribs = 36
+  ribs = 36,
+  skirt = false
 ) {
   _r_cap = din168_cap_radius(size, wall, clearance);
-  _z_top = gl_port_cap_top_z(thread_length, liner_space, panel_thickness);
   _flange_r = bayonet_flange_radius(type);
 
   // Neighbouring flanges may not overlap, and each has to land on the top.
@@ -88,12 +86,12 @@ module gl_port_cap(
   module _at_ports() {
     for (i = [0:port_count - 1])
       rotate([0, 0, i * 360 / port_count])
-        translate([port_offset, 0, _z_top])
+        translate([port_offset, 0, panel_thickness])
           children();
   }
 
   difference() {
-    din168_cap(size, thread_length, liner_space, panel_thickness, wall, clearance, ribs);
+    din168_cap(size, thread_length, liner_space, panel_thickness, wall, clearance, ribs, skirt);
     _at_ports()
       translate([0, 0, -panel_thickness - 1])
         cylinder(h=panel_thickness + 2, r=bayonet_port_hole_radius(type));
