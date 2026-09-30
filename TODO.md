@@ -8,7 +8,7 @@ closed it and in `docs/`.
 
 - [ ] **place the bought pumps in the assembly**
   - the registry half is done: `purchased/peri_pumps.scad` carries the Kamoer NKP-DC-S10B, drawn
-    as its envelope, and `head()` checks its tube against the port it enters
+    as its envelope, and `head()` warns when its tube's bore will not grip the riser it goes over
   - `custom/peri_pump_frame_mount.scad`'s insert now clicks into an empty light pocket in a rib
     (a detent under the rib), but its flange still assumes the old printed head: a motor on no
     purchase list, a faceplate a snap-in Kamoer has not got. A bought unit wants a bracket for a
@@ -23,8 +23,10 @@ closed it and in `docs/`.
     enough for now. The parts are in the BOM (Dwyer VFA-23 meter, Clippard MNV-3KP needle
     valve upstream of it; why these, `docs/procurement.md`). What is left is buying them and taking
     a reading
-  - no sparger geometry waits on it: `sparge_design_vvm` appears only in echoes, and the 8 x 3 mm
-    holes cover 0.25-2 vvm inside Barbosa's tested 0.4-5.4 m/s
+  - no sparger geometry waits on it: `sparge_design_vvm` appears only in echoes. The arm the stirred
+    builds take runs its 3 x 3 mm holes at 3.23 m/s at 0.5 vvm on `jar_10L`, inside Barbosa's
+    tested 0.4-5.4 m/s from about 0.06 to 0.84 vvm; on `jar_1gal_180` the same arm is at 8.02 m/s,
+    outside it, and `head()` warns
   - CO2 is answered by a run, not a calculation: air at 0.5 vvm supports about 0.09 g/L/day on a
     30 % utilisation assumption, and the 2026-07-23 run grew CCPC 90 for 8.7 days on air alone. The
     reactor's actual CO2 utilisation is the measurable unknown, and the bigger lever on productivity
@@ -43,9 +45,9 @@ closed it and in `docs/`.
   - 3.45 kPa per L/min is extrapolated from an equivalent 0.2 um PTFE disc, and is the largest
     single term in the gas budget. Area-correcting Pall's Acro 50 gives 3.02, so it sits 14 %
     conservative
-  - a water manometer at two points, 1 and 2 L/min (35 and 71 cm of column), tests the slope and
-    the linearity both. Not at the set flow: 14.3 kPa is 1.46 m of water
-  - the operational number: the filter may rise to 23.3 kPa with the valve wide open before
+  - a water manometer at two points, 1 and 2 L/min (35 and 70 cm of column), tests the slope and
+    the linearity both. Not at the set flow: 14.2 kPa is 1.45 m of water
+  - the operational number: the filter may rise to 21.2 kPa with the valve wide open before
     0.5 vvm is unreachable, so "fully open and it will not hold 0.5 vvm" is the replace signal
 
 - [ ] **the tube seal goes in by hand; getting it back out is untested**
@@ -54,10 +56,13 @@ closed it and in `docs/`.
     and whether the ring comes out for cleaning without a tool that scars the bore. If removal
     needs a pick, the build notes need to say so
 
-- [ ] **re-print the ports and bench-check the gland and the flange gaps**
+- [ ] **re-print the ports and bench-check the gland, the flange gaps and the sparge socket**
   - the gland now carries `bayonet_gland_allowance` 0.2 (the 23x1.5 would not go into a groove cut
     at exactly its OD) and the flange lips are 1.0-1.2 mm. Neither is measured against a printer:
-    print one std and one mini port, fit the rings, and key the allowance to a caliper reading
+    print a std port, fit the rings, and key the allowance to a caliper reading. Every registered
+    lid is on std now; a mini port only matters if that interface is wanted again
+  - the sparge sockets are bored 0.2 mm over the 4 mm riser (`sparge_socket_allow`); nobody has
+    pushed a tube into a printed one yet
   - `jar_10L` carries the twelve-port set on 0.0466 mm of slack: the worst adjacent pair is
     1.0466 mm against a `lid_flange_gap` of 1.0. The next flange lip that grows moves it to the
     six-port set
@@ -65,16 +70,8 @@ closed it and in `docs/`.
     is a thinner cord: a 23x1 EPDM (McMaster 8785N348, not registered) takes the groove to
     Ø25.2 at 0.25 mm of squeeze
 
-- [ ] **the sparge socket is cut at the riser's own diameter, with nothing to spare**
-  - `sparge_feed_bore = steel_tube_od(sparge_riser_tube)`: a Ø4.0 socket for a Ø4.0 tube, with a
-    0.5 mm lead-in that helps the tube find the hole but does not widen it
-  - the fix is not free: the socket is the ring tube's own section, so opening the bore to 4.2
-    thins `feed_wall` to 1.1 and trips `sparger()`'s assert. Clearance has to come from the
-    section, 6.4 -> 6.6, which shrinks the ring radius ~0.1 mm and moves every hole
-  - untested: nobody has pushed a 4 mm tube into a printed socket. One bench check settles it
-
 - [ ] **model the support tubes' discharge holes, or decide not to**
-  - every tube port but `air_in` is capped at the ring and vents through a hole drilled up its
+  - every tube port but `air_in` is capped at its lower end and vents through a hole drilled up its
     length. `head()` reports the window (37.9-88.7 mm from the top on `jar_10L`) and `docs/build.md`
     says which end each port wants; the hole itself is a bench operation and is not drawn
   - only `air_out`'s hole has a size to meet, and `head()` prices it: the floor is 1.055 mm2 on
@@ -83,8 +80,11 @@ closed it and in `docs/`.
   - not parameterised on purpose: a default for a hand-cut window would be a guess
 
 - [ ] **where the sparger's gas actually goes, and whether the DO probe should move**
-  - the DO face sits 20.6 mm above the sparge ring's centreline and 0.87 mm off its radius, over a
-    ring of bubbles in the convergence zone: the one placement that can read wrong both ways
+  - only for a stirred build given the ring (`sparger_name = "ring"`), which no registered build
+    takes: the stirred builds default to the arm, and the airlift hangs DO straight inside its tube
+  - there the DO face sits 20.6 mm above the sparge ring's centreline and 0.59 mm off its radius on
+    `jar_10L`, over a ring of bubbles in the convergence zone: the one placement that can read wrong
+    both ways
   - the flow rate is not the concern (bulk mean 16x what the probe needs); the gas path is not
     modelled, and no source found gives DO placement relative to a sparger
   - a bench question: run it and see whether the DO trace is spiky. If it matters, the free
@@ -158,24 +158,35 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
     velocity, which no correlation in `docs/references.md` reaches at under 0.2 m tall
   - watch the DO reading hanging straight: the lean it no longer has was for a shaft's shadow, and
     the riser should carry flow past it, but that is the bench's to confirm
-  - `jar_1gal_180x197` does not build as an airlift: the ring, pulled inside the tube, meets the pH
-    probe's tip on that short jar. Not registered, so nothing waits on it
+  - how it is held: the ring centres it, to 1.25 mm where the ring sits inside the wall
+    (`jar_1p5L`) and 2.5 mm where it sits among the feet (`jar_1gal_155`); its weight holds it
+    down, about 20 g net under water if printed solid, and nothing stops it turning or lifting. The
+    bench says whether that is enough; the item below is what follows if not
+  - `jar_1gal_180x197` and `jar_10L` do not build as airlifts: the tube stands where their baffles
+    hang. Neither is registered
+  - `jar_6p5gal` does build as one, and should not: a 73 mm tube on 126 mm feet in 325 mm of
+    culture, Ad/Ar 4.1, and ring supports 404 mm long that sway 13 mm a newton against 1.25 mm to
+    the tube. The equal-area gap has no floor on a wide jar; a guard - the tube spanning at least
+    half the depth, or the supports' sway inside their clearance - would refuse it. Not registered
 
 - [ ] **the annulus-sparged airlift (B), if the bench asks for it**
   - the tube as downcomer, the annulus as riser, bubbles up the lit wall. Wants a sparger outside
     the tube, which the mouth-limited ring cannot reach, and Chisti & Moo-Young 1987 recommend a
     cone under the turn for it (`docs/references.md`)
 
-- [ ] **hang the draft tube from a centre bayonet instead, if standing it proves loose**
+- [ ] **fix the draft tube, if standing it proves loose**
   - a plain lid leaves its centre free; a bayonet there, as the other ports carry what hangs from
     them, would locate the tube from above rather than by the ring's clearance
+  - or shape each foot to capture the ring, so the ring holds the tube down and centred with no
+    new part
 
 - [ ] **the magnetic drive is modelled; what is left is the bench**
   - `drive_name = "magnetic"` builds it: a fan picked by rule in a carrier hung in the base bore,
     two magnets in a cap on its hub, a stir bar centred on the punt; the base is slotted for it
-    under either drive. `docs/build.md` has the assembly
+    under either drive, or the riser is where a build stands on one. `docs/build.md` has the
+    assembly
   - nothing models the coupling. How much torque two 8 x 5 discs hand a 38 mm bar through 1 mm of
-    air and 5 of glass, and at what fan speed the bar decouples, are measurements; the sizes are
+    air and 3-5 mm of glass, and at what fan speed the bar decouples, are measurements; the sizes are
     parameters so the answer can be put in. The target is the shaft drive's torque at equal tip
     speed, `v^2 D^3` scaled: 4.8-12.3 mN.m for the pair on `jar_1p5L`, 15.3-39.6 on `jar_1gal_155`
   - speed is PWM on the fan's own line and nothing reads it back; a 3-wire fan's tachometer line
@@ -200,7 +211,8 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
 
 ## nice to haves
 
-- [ ] curve or inflection in the bayonet tube holes, to grip tubes better or ease insertion
+- [ ] a lead-in at the mouth of the bayonet tube bore, to ease the tube past the rod gland's o-ring
+      without nicking it; the gland does the gripping now
 - [ ] **back-plug the Atlas probe bore, or accept that the probe body is the seal**
   - the connector hex opens straight through to atmosphere (64 mm2); the probe body closes it by
     grip, not seal, and self-seals well enough on the bench. If a fix is ever wanted it is hot glue
@@ -211,28 +223,32 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
 
 - [ ] **pin each registered build's report stream, as check-echo pins each vessel's**
   - `just check-builds` fails on an assert and on a render that says nothing, but a build that
-    resolves with the wrong content passes it: `drive_name = "none"` handed to the head as
-    `magnetic` draws a stir bar on both no-drive builds and every gate stays green, since the frame
-    still differs from a magnetic build. A transcript per set in `bioreactor.json` would catch it
+    resolves with the wrong content passes it. `check-echo` pins each vessel at the shaft drive, so
+    the four magnetic builds have no pinned stream, and neither do the two airlift builds: their
+    jars' pinned shaft render stops on an assert. A transcript per set in `bioreactor.json` would
+    cover all nine
 
 - [ ] **the frame reports a stir drive on builds that have none**
-  - the base is slotted for the carrier under every drive, so the frame echoes "stir drive: fan40x11
-    in a 63.82 mm carrier" and the magnets on `jar_1p5L_112x215`, a no-drive build. It describes
-    the slot, not a fitted fan; under a non-magnetic drive it should say so
+  - wherever the base is slotted, the frame echoes the fan and the magnets under every drive:
+    "stir drive: fan40x11 in a 66.1 mm carrier" on `jar_1p5L_112x215`'s airlift build, and the
+    80 x 25 on the shaft builds of `jar_10L` and `jar_1gal_180`. It describes the slot, not a fitted
+    fan; under a non-magnetic drive it should say so. The riser jars already do
 
 - [ ] **the DO-over-ring warning fires when the probe's face is below the ring**
   - it tests the face against the ring's radius only, so a face under the ring - where rising gas
     cannot reach it - still warns, as "hangs -62.6358 mm over it" on `jar_1gal_180x197` with
     `sparger_name = "ring"`. The height it prints is signed; the condition wants the same sign
+  - no registered build reaches it: the only ring builds are the airlifts, which report no DO in
+    the gas
 
 - [ ] **the DO probe's lean is capped by impellers a non-shaft build does not have**
   - `head_probe_tilt_ceiling()` reads `head_reach_obstacles()`, which lists both impellers under
-    every drive; `head()` drops them from its own clearance report but not from the ceiling. Safe,
-    since the lean only comes out smaller, but a magnetic or no-drive build may be leaning less
-    than it could
+    every drive; `head()` drops them from its own clearance report but not from the ceiling. Latent:
+    every magnetic build reaches the full 4.5 deg today, and the airlift hangs DO straight without
+    asking the ceiling. Safe either way, since the lean only comes out smaller
 
 - [ ] **the port lettering is not pinned to a font, so it is whatever the host resolves `sans` to**
-  - `scad/custom/bayonet_port.scad` asks for `font="sans"` in three places (:324, :332, :505).
+  - `scad/custom/bayonet_port.scad` asks for `font="sans"` in three places (:324, :332, :509).
     `sans` is a fontconfig alias, not a face, so the glyphs are whatever that host happens to
     prefer: here `fc-match sans` gives Noto Sans, with Liberation Sans also installed. The CI
     artifact's lettering was seen to differ from the bench's for exactly this reason
@@ -244,10 +260,10 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
 - [ ] **the probe port's transition lands exactly on the collet, and the obvious fix costs material**
   - `bayonet_probe_port`'s transition cone ends at exactly `-_transition_length`, which is exactly
     where the collet begins, at exactly the same diameter. Same defect as the three that are fixed,
-    and on three of the builds it leaves one or two near-degenerate triangles (two vertices 1e-4
-    apart) rather than a whole shared ring
-  - carrying the cone on past the joint does clear it - 11326 triangles and one repeated becomes
-    11542 and none - but it adds 5.21 mm3, because the cone is solid out to the hex and the collet
+    and on the leaning DO ports of several builds - five on this host - it leaves one or two
+    near-degenerate triangles (two vertices 1e-5 apart) rather than a whole shared ring
+  - carrying the cone on past the joint did clear it when measured, but it added 5.21 mm3, because
+    the cone is solid out to the hex and the collet
     below it is not, so the lead lands as a 0.034 mm ledge across the collet's mouth where the
     probe body sits. Reverted for that reason
   - the direction that costs nothing is to carry the _collet_ up into the cone instead: the cone is
@@ -266,19 +282,16 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
   - `custom/bayonet_interfaces.scad` includes `orings.scad` so rows can name their ring - rule 6
     allows it - and `bayonet_port.scad` then includes that file and receives every o-ring as a
     global. Recorded, not yet worth moving
-  - `bayonet_port.scad` `use`s `atlas_probes.scad` for its preview's example probe, as
-    `sheet_gasket.scad` does its registry; rule 2 allows a preview that
 
-- [ ] **four of five jars carry a second impeller the spacing does not support**
-  - Fitschen eq. (5), `(H-d)/d > n > (H-2d)/(2d)`, in impeller diameters:
+- [ ] **the three stirred jars carry a second impeller the spacing does not support**
+  - Fitschen eq. (5), `(H-d)/d > n > (H-2d)/(2d)`, in impeller diameters, on the jars that take the
+    shaft drive (the two narrow jars build as airlift or magnetic):
 
     | vessel             | H_L    | d = 0.45 T | H_L/d | H/T   | band allows |
     | ------------------ | ------ | ---------- | ----- | ----- | ----------- |
-    | jar_10L_220x305    | 234.59 | 94.50      | 2.482 | 1.117 | n = 1       |
+    | jar_10L_220x305    | 234.27 | 94.50      | 2.479 | 1.116 | n = 1       |
     | jar_1gal_180x197   | 153.36 | 76.50      | 2.005 | 0.902 | n = 1       |
     | jar_6p5gal_305x470 | 325.26 | 126.36     | 2.574 | 1.158 | n = 1       |
-    | jar_1gal_155x251   | 188.59 | 67.19      | 2.807 | 1.263 | n = 1       |
-    | jar_1p5L_112x215   | 167.78 | 46.58      | 3.602 | 1.621 | n = 1 or 2  |
 
   - it correlates with coverage: every jar the band puts at one impeller is spending coverage on
     the pair; `jar_1gal_180x197` at 0.107 D against the 0.5 D floor is the worst
@@ -286,25 +299,27 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
   - the count stays two: the sparge ring sits in the gap, the power is per pair, the manifest lists
     two, and the reference build physically exists. Changing it unpicks all of that
 
-- [ ] **the sparger's bore is the departure, not its holes, and it is one designation**
-  - at the build's 4.11 L/min through one ring, sweeping the bore with 8 x 3 mm holes held:
+- [ ] **the ring's bore is the departure, not its holes, and it is more than one designation**
+  - on `jar_10L` given the ring (the stirred default is the arm), at its 4.11 L/min, sweeping the
+    bore with 8 x 3 mm holes held:
 
-    | bore        | feed velocity | open area | velocity head | verdict            |
-    | ----------- | ------------- | --------- | ------------- | ------------------ |
-    | 4.0 (today) | 5.46 m/s      | 4.50      | 17.9 Pa       | 2 departures       |
-    | 8.0         | 1.36          | 1.12      | 1.1           | 2 departures       |
-    | **8.5**     | 1.21          | **1.00**  | 0.9           | **clean**          |
-    | 10.0        | 0.87          | 0.72      | 0.5           | clean, with margin |
+    | bore        | feed velocity | open area | velocity head | verdict                             |
+    | ----------- | ------------- | --------- | ------------- | ----------------------------------- |
+    | 4.0 (today) | 5.46 m/s      | 4.50      | 17.9 Pa       | 2 departures                        |
+    | 8.0         | 1.36          | 1.12      | 1.1           | 1 departure; pH tip hits the ring   |
+    | 8.5         | 1.21          | 1.00      | 0.9           | clean sparger; pH tip hits the ring |
+    | 10.0        | 0.87          | 0.72      | 0.5           | no room for a baffle                |
 
-  - `sparge_bore()` is the riser's own OD, so the change is a designation:
+  - `sparge_bore()` is the riser's own OD, so the bore is a designation:
     `steel_tube_welded_10x0p5` is registered; there is no 8.5 row
-  - what it costs is the cascade: the tube goes 6.4 -> 12.4 across the flats and has to clear the
-    baffles and pass the mouth; the riser's port bore, rod gland, pressure drop, support tube and
-    BOM row all follow. Unpriced
+  - what it costs is the cascade: the tube goes 6.4 -> 12.4 across the flats, and past 8 mm the
+    wider ring meets the pH probe's tip and then leaves no room for a baffle; the riser's port
+    bore, rod gland, pressure drop, support tube and BOM row all follow. Unpriced
 
 - [ ] **`check-holes` still needs a CGAL render, so it stays outside `just check`**
-  - both ends of every ring hole are probed, and it was proved by injection (a bore swept 180
-    degrees fails 5 of 20 on `feed`). What would let it into the gate is a probe that needs no
+  - both ends of every hole are probed - the arm's by default, the ring's with
+    `-D head_sparger="ring"` - and it was proved by injection when written (a bore swept 180
+    degrees failed 5 of 20 on `feed`). What would let it into the gate is a probe that needs no
     rendered mesh: the claim is geometric and the part is a union of primitives
   - `spoke_holes` is unprobed; no caller sets it and `sparger()` refuses the unbored-arm case
 
@@ -313,38 +328,35 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
     support. `docs/build.md` says count the facets. A print settles whether that is findable by
     hand; if not, a collar, a flat or a mark rather than a socket sized on its own
 
-- [ ] **the eccentricity report cannot reach the two jars it would change a decision about**
-  - an assert stops `jar_1p5L_112x215` (the mount) and `jar_1gal_155x251` (the pH probe) before the
-    echo. A lid with no room for the mount has none for an offset, so the document's rows read 0
-    on reasoning. Left standing; the magnetic drive those jars would take is centred anyway
-
 - [ ] **`check-scad`'s `-D '$fn=0'` pass is not the tessellation test it reads as**
   - a command-line `-D` crosses the `use` boundary on every version where an in-file assignment
-    does not, so that pass also zeroes `sparger.scad`'s 96 and the collet's 64 and renders what no
-    build renders. It still covers the crash a zero facet count causes
+    does not, so that pass also zeroes `sparger.scad`'s and the collet's own `$fn` - 48 and 64 in
+    the CSG it renders, 96 and 128 in an exported part - and renders what no build renders. It
+    still covers the crash a zero facet count causes
   - what would test divergence is rendering one part both ways at the CSG level
   - `OPENSCAD` is unset, so `just` runs whichever binary is first on PATH (2021.01 here, with a
     2026.09 nightly beside it). Worth pinning
 
 - [ ] **the recess holds three quarters of the rubber, and it only matters on `jar_6p5gal`**
   - the recess is cut at `t(1-c)`, so `t*c` will not fit whatever the gasket. On a crown the
-    displaced rubber flows into the 4.762 mm of width the contact chord never touches (about
-    0.857 mm2 against 1.890 free); on the one ground jar it must leave across the lands
+    displaced rubber flows into the width the contact chord never touches - on `jar_10L` 4.762 mm,
+    about 0.857 mm2 against 1.890 free; on the one ground jar it must leave across the lands
   - `jar_6p5gal` also carries the registry's highest load, 1253.6 N per post and 7.34 MPa against
-    351.0 and 2.78 on `jar_10L`. Reported, not asserted
+    398.8 and 2.92 on `jar_1gal_180`, the next highest. Reported, not asserted
   - the fix is a groove section 10-25 % over the gasket's; that jar offers 10 mm of rim where the
     gasket is held to 6. Not chased: it changes the lid for one jar
 
 - [ ] **one printed part is on no print list, and bench furniture is in no account**
-  - `support/bottle_holder.scad` is the only original printed geometry outside the manifests;
-    the cart prints nothing, and the stand's `print_corner` is a printed substitute for a bought
-    NopSCADlib bracket. `check-parts` records all of them
+  - `support/bottle_holder.scad` is the only printed part among the bench furniture; the cart
+    prints nothing, and the stand's `print_corner` is a printed substitute for a bought NopSCADlib
+    bracket. The condensers, the humidifier cap and the pump mount are printed outside the
+    manifests too, each from its own file. `check-parts` records all of them
   - the questions: does the reactor's print list cover an accessory, and is printing that bracket
     deliberate? The cart's extrusion, brackets and castors are on no purchase list either
 
 - [ ] **designations for the pump and the inlet filter, if builds start to differ**
-  - `head.scad` assigns fifteen hardware rows directly (`head_air_pump`, `sparge_inlet_filter`,
-    `sparge_check_valve`, the clamps and inserts among them) that no parameter set can change
+  - `head.scad` assigns hardware rows directly (`head_air_pump`, `sparge_inlet_filter`,
+    `sparge_check_valve`, the clamp and the inserts among them) that no parameter set can change
   - the pump and the filter drive the gas budget, so they are the ones worth a `_name` designation
     first. Left until a build needs it
 
