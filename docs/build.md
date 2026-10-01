@@ -423,8 +423,8 @@ every other jar. Floor depth is not that jar's problem.
 
 3. **Magnets into the cap**, opposite poles up: a bar follows a north and a south, and two norths
    hold nothing. Press-fit pockets (0.2 mm on the diameter); a drop of adhesive if they are loose.
-   Glue the cap to the hub's face, centred — it is a disc rather than a skirt because a skirt would
-   foul the blade roots.
+   Glue the cap to the hub's face, or stick it with double-sided foam tape, centred — it is a disc
+   rather than a skirt because a skirt would foul the blade roots.
 4. **Carrier into the bore from above, before the jar.** Turn it until the ear finds the notch at
    the slot's light position and let it down: the ear lands on the two shoulders beside the wire
    groove and the carrier hangs from them, 8 mm clear of whatever the frame stands on. The lead

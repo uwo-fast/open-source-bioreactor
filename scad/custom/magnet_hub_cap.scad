@@ -4,9 +4,10 @@
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * A disc the diameter of the hub, glued to its face, with two pockets on a diameter for the
+ * A disc the diameter of the hub, glued or taped to its face, with two pockets on a diameter for the
  * magnets, opposite poles up and as far apart as the hub allows. A skirt over the hub would foul
- * the blade roots, so it is a disc and an adhesive. This file's render is a preview.
+ * the blade roots, so it is a disc and an adhesive or double-sided tape. This file's render is a
+ * preview.
  */
 
 include <../purchased/fans.scad>; // fan_hub() of the preview's fan
