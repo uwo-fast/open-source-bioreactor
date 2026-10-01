@@ -108,7 +108,7 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
 
 - [ ] **two things to confirm on the drive before ordering it**
   - the encoder sheet for `motor_36pg_555pm_14_en` tabulates no gearbox length; 34.5 mm is inferred
-    from the 3429 sheet at 14:1. It feeds the envelope (571.25 mm) and the cart's tiers
+    from the 3429 sheet at 14:1. It feeds the envelope (576.25 mm) and the cart's tiers
   - caliper the bolt circle on the printed mount: Ø28 with M4 should clear holes cut for the
     36GP's Ø27.6 / 4.2, so the new motor may drop in without a reprint
 

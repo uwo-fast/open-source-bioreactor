@@ -250,8 +250,9 @@ shaft_jar_punt_clearance = 5;
 // Length sets how far the shaft protrudes above the lid, and so the mount's height.
 // The impeller shaft; undef takes the shortest registered row that leaves the coupling a grip
 head_shaft = undef;
-// adjust distance between the motor and the shaft coupling
-shaft_shaft_coupling_offset = 0; // can be positive or negative
+// Gap between the gearbox's shaft and the impeller shaft inside the coupler, in mm: two rigid
+// shafts that touch push on the gearbox's bearings, and every part's tolerance comes out of it
+shaft_shaft_coupling_offset = 3;
 // the registered coupling joining the gearbox output shaft to the impeller shaft
 shaft_coupler = shaft_coupler_8x8_rigid;
 
@@ -1306,8 +1307,11 @@ function head_shaft_selected(lid_flange_height, vessel_internal_height, shaft) =
 function head_shaft_protrusion(lid_flange_height, vessel_internal_height, shaft) =
   shaft_length(head_shaft_selected(lid_flange_height, vessel_internal_height, shaft))
   - (head_punt_top_depth(lid_flange_height, vessel_internal_height) - shaft_jar_punt_clearance);
+// The gearbox's shaft stands off its face on the pilot boss, so the boss counts too.
+function head_gearbox_shaft_reach(gearbox) =
+  (is_undef(gearbox_out_boss(gearbox)) ? 0 : gearbox_out_boss(gearbox)[1]) + gearbox_output_shaft_length(gearbox);
 function head_motor_mount_height(lid_flange_height, vessel_internal_height, shaft, motor) =
-  gearbox_output_shaft_length(dc_motor_gearbox(head_motor_selected(motor)))
+  head_gearbox_shaft_reach(dc_motor_gearbox(head_motor_selected(motor)))
   + head_shaft_protrusion(lid_flange_height, vessel_internal_height, shaft) + shaft_shaft_coupling_offset;
 // top of the motor, which is the highest thing on the reactor
 // Only the shaft drive stacks on the lid; the blank's flange is not counted.
@@ -2680,6 +2684,31 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         " mm gearbox shaft and a ", shaft_diameter(_shaft), " mm impeller shaft."
       )
     );
+
+    // Where the two shafts actually end: the gearbox's face sits on the mount's top and its shaft
+    // reaches down past the boss; the impeller shaft stands its protrusion above the lid. They
+    // must not meet, and the coupler, centred on the gap, has to keep a grip on each.
+    _shaft_gap = motor_mount_height - head_gearbox_shaft_reach(head_gearbox) - shaft_protrusion;
+    _shaft_grip = (sc_length(shaft_coupler) - _shaft_gap) / 2;
+    assert(
+      _shaft_gap > 0,
+      str(
+        "The gearbox's shaft ends ", -_shaft_gap, " mm into the impeller shaft; the mount has to stand ",
+        "that much taller, and shaft_shaft_coupling_offset more, for a gap between them."
+      )
+    );
+    // the set screws sit toward the coupler's ends, so each shaft has to reach a quarter of it
+    assert(
+      _shaft_grip >= sc_length(shaft_coupler) / 4,
+      str(
+        "A ", _shaft_gap, " mm gap leaves each shaft ", _shaft_grip, " mm in the ", sc_length(shaft_coupler),
+        " mm coupler."
+      )
+    );
+    echo(str(
+      "shaft gap: ", _shaft_gap, " mm between the gearbox's shaft and the impeller shaft, centred in the ",
+      sc_length(shaft_coupler), " mm coupler, so each shaft is in it by ", _shaft_grip, " mm"
+    ));
 
     if (_mount_slenderness > 3)
       echo(str(
