@@ -34,9 +34,3 @@ ECHO: "sparge holes: capillary 96 Pa to launch a bubble against 25.9379 Pa to pu
 ECHO: "reach clearance: do_probe's tip passes the upper impeller with 1.88837 mm of radial room, over the -134.513 to -122.184 mm the two share"
 ECHO: "reach clearance: ph_probe's tip passes the lower impeller with -6.2925 mm of radial room, over the -201.698 to -189.369 mm the two share"
 ERROR: Assertion '(_gap > 0)' failed: "ph_probe's tip runs through the lower impeller by 6.2925 mm radially, over the heights they share." in file head.scad, line N
-TRACE: called by 'assert' in file head.scad, line N
-TRACE: called by 'if' in file head.scad, line N
-TRACE: called by 'let' in file head.scad, line N
-TRACE: called by 'for' in file head.scad, line N
-TRACE: called by 'for' in file head.scad, line N
-TRACE: called by 'head' in file head.scad, line N
