@@ -7,20 +7,25 @@
 
 # A build's parameter set as -D assignments, one argument per line: `sel` is empty or a -p/-P
 # pair. The stubs below `include` the model, and a parameter set reaches only the file OpenSCAD
-# opens on newer releases, not one it includes; a -D reaches both. Numbers and booleans go in
-# bare, anything else as a string.
+# opens on newer releases, not one it includes; a -D reaches both. A set holds names and numbers,
+# so a value goes in bare when it reads as a number, a boolean or a vector and quoted otherwise;
+# -p also coerces to the type of the file's default, which this cannot see. Fails on a set that
+# does not exist, rather than leaving the stub on the file's defaults.
 export_defines() {
     local f s
     read -r _ f _ s <<< "$1"
     [ -z "$f" ] && return 0
-    /usr/bin/python3 -c 'import json, sys
-for k, v in json.load(open(sys.argv[1]))["parameterSets"][sys.argv[2]].items():
-    v = str(v)
-    try:
-        float(v); bare = True
-    except ValueError:
-        bare = v in ("true", "false")
-    print("-D"); print(f"{k}={v}" if bare else f"{k}=\"{v}\"")' "$f" "$s"
+    /usr/bin/python3 -c 'import json, re, sys
+sets = json.load(open(sys.argv[1]))["parameterSets"]
+if sys.argv[2] not in sets:
+    sys.exit(f"no parameter set is named {sys.argv[2]} in {sys.argv[1]}")
+for k, v in sets[sys.argv[2]].items():
+    v = ("true" if v else "false") if isinstance(v, bool) else str(v)
+    if "\n" in v:
+        sys.exit(f"{k} holds a newline, which a -D cannot carry")
+    bare = re.fullmatch(r"-?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?|true|false|\[.*\]", v)
+    q = v.replace(chr(92), chr(92) * 2).replace(chr(34), chr(92) + chr(34))
+    print("-D"); print(f"{k}={v}" if bare else f"{k}=\"{q}\"")' "$f" "$s"
 }
 
 # The model's print list for a build: `sel` is empty for the file's own defaults, or a -p/-P pair,
@@ -38,8 +43,10 @@ for (p = head_print_parts(vessel_opening_diameter(_v), lid_flange_height,
 for (p = frame_print_parts(n_rods, drive_name, frame_riser_height(_v, _reactor_light, _build_magnet, drive_name) > 0))
   echo(str("PART|scad/frame.scad|", p[0], "|", p[1], "|", p[2]));
 SCAD
-    local defs
-    mapfile -t defs < <(export_defines "$sel")
+    local defs text
+    text=$(export_defines "$sel" 2>"$out.err") || return 1
+    mapfile -t defs <<< "$text"
+    [ -z "$text" ] && defs=()
     "$OPENSCAD" "${defs[@]}" -D render_all=false -o "$out.csg" "$out.scad" 2>"$out.err" >/dev/null
     grep -m1 '^ECHO: "build: ' "$out.err" | sed 's/^ECHO: "//; s/"$//' > "$out.stated"
     grep '^ECHO: "PART|' "$out.err" | sed 's/^ECHO: "PART|//; s/"$//' > "$out.rows"
@@ -160,8 +167,10 @@ export_fits() {
         printf 'for (s = _s) if (len(printers_fitting(s[1])) == 0) echo(str("NOFIT|", s[0]));\n'
         printf 'echo(str("ALLFIT|", [for (p = printers) if (len([for (s = _s) if (!printer_fits(p, s[1])) 1]) == 0) printer_name(p)]));\n'
     } > "$stub.scad"
-    local defs
-    mapfile -t defs < <(export_defines "$sel")
+    local defs text
+    text=$(export_defines "$sel" 2>"$stub.err") || { cat "$stub.err" >&2; return 1; }
+    mapfile -t defs <<< "$text"
+    [ -z "$text" ] && defs=()
     "$OPENSCAD" "${defs[@]}" -D render_all=false -o "$stub.csg" "$stub.scad" 2>"$stub.err" >/dev/null
     grep '^ECHO: "NOFIT|' "$stub.err" | sed 's/.*NOFIT|//; s/"$//' > "$nofit"
     grep -m1 '^ECHO: "ALLFIT|' "$stub.err" | sed 's/.*ALLFIT|//; s/"$//; s/[]["]//g'
