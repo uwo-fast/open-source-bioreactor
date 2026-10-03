@@ -3901,6 +3901,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           cylinder(r=impeller_hub_radius, h=impeller_collar_height + _collar_lead, $fn=64);
       }
         head_impeller_set_screw_holes();
+        // the bore, from below the collar's buried face so the cut shares no face with it; a
+        // drafted bore runs straight over that last stretch, its loose end, by a few hundredths
         translate([0, 0, impeller_height / 2 - 2 * _collar_lead])
           cylinder(r=impeller_shaft_hole_radius, h=impeller_collar_height + 4 * _collar_lead, $fn=64);
       }
