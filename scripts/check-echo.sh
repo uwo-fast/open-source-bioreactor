@@ -40,8 +40,9 @@ while IFS='|' read -r name row; do
         cp "$tmp/raw.$f.$name.txt" "$tmp/e.txt" 2>/dev/null || : > "$tmp/e.txt"
         # --export-format echo writes ERROR and TRACE into the output file, so the transcript is
         # that file alone. Line numbers are normalised out: an assert's identity is its condition
-        # and its message.
-        sed 's/, line [0-9]*/, line N/g' "$tmp/e.txt" > "$tmp/cell.txt" 2>/dev/null
+        # and its message. TRACE lines go too: they are OpenSCAD's call stack, worded differently
+        # from one release to the next, not anything the model said.
+        sed -e 's/, line [0-9]*/, line N/g' -e '/^TRACE: /d' "$tmp/e.txt" > "$tmp/cell.txt" 2>/dev/null
         n=$(grep -c '^ECHO' "$tmp/cell.txt" || true)
         # A cell that ERRORs is a vessel this build cannot carry; the assert's message is the reason.
         if grep -q '^ERROR' "$tmp/cell.txt"; then
