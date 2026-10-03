@@ -321,17 +321,18 @@ stir bar on the jar's punt inside. Nothing passes through the lid. What the mode
 puts it:
 
 ```
-stir drive: fan80x25 in a 164.6 mm carrier 34.5682 mm tall, its top 2.18182 mm under
+stir drive: fan80x25 in a 164.6 mm carrier 36.75 mm tall, its top 0 mm under
 the landing plane, hung on its ear 8 mm off the bottom face; the fan is turned 45 deg
 to put a flat on the slot's bearing, and the lead leaves its 8 mm notch there for the
 14.5 mm slot at 135 deg
-fan joint: 4 x M4 x 35 mm down through the fan into nuts in 4.2 mm hex pockets at the
-carrier's bottom face, 5.36818 mm of carrier over them; the head stands 2.2 mm on the
-fan, 2.82678 mm under the glass
-fan joint, head down: an M4 x 35 mm cap screw up from the pocket to a nut on the fan
-stands 1.43182 mm over that nut, 0.394962 mm under the glass
-stir magnets: 2 x MAG5x8 on the 40 mm hub at 28 mm pitch, faces 1 mm under the punt
-and 6 mm from the floor inside
+fan joint: 4 x M4 x 40 mm down through the fan into nuts in 4.2 mm hex pockets at the
+carrier's bottom face, 7.55 mm of carrier over them; the head stands 2.2 mm on the
+fan, 3.48992 mm under the glass
+fan joint, head down: an M4 x 40 mm cap screw up from the pocket to a nut on the fan
+stands 4.25 mm over that nut, 1.76008 mm into it - shorten the screw, or build it the
+other way up
+stir magnets: 2 x MAG5x8 on the 40 mm hub at 28 mm pitch, faces 3.63636 mm under the
+punt and 8.63636 mm from the floor inside
 stir bar: 38x8 centred on the 30 mm punt plateau, overhanging it by 4 mm each end;
 sweeps r 19 under the sparge arm, 55.49 mm over it and the baffles at r 51.3273; the
 sparger is still placed on the shaft drive's impeller
@@ -406,19 +407,19 @@ every other jar. Floor depth is not that jar's problem.
    under the fan, every wall is vertical and the ear's wedge slopes upward.
 2. **Four nuts into the hex pockets in the bottom face**, then the **fan into the pocket from
    above**, hub up, with its lead on the side the pocket wall is cut down — that side faces the
-   base's slot. Four M4 × 35 screws down through the fan's own corner holes into those nuts: one
+   base's slot. Four M4 × 40 screws down through the fan's own corner holes into those nuts: one
    driver, from above, and the nuts cannot turn. The fan is bolted rather than screwed into its
    own plastic, so it comes apart as many times as you like. The lead lies in the 8 mm cut above
    the 3 mm seat, wherever it leaves the fan, and drops down the notch in the middle of that side.
-   The heads stand 2.2 mm on the fan with 2.83 mm to the glass; the nuts and the last 4 mm of
+   The heads stand 2.2 mm on the fan with 3.49 mm to the glass; the nuts and the last 4 mm of
    thread sit under the carrier, in the 8 mm the ear holds it clear by.
 
    The pocket is cut to the larger of an M4 nut and an M4 cap head, so **the joint also runs the
    other way up** — cap screw up from the pocket, nut on the fan's face, hex key from below and a
    spanner on top. Nothing about the print changes. Whether it closes does change with the jar,
    because the screw comes in 5 mm steps and the remainder stands over the nut: on `jar_10L` an
-   M4 × 35 leaves 0.39 mm to the glass, and on `jar_1gal_180` the same screw is 0.59 mm into it
-   and would have to be shortened. The `fan joint, head down` echo gives that number for the build
+   M4 × 40 is 1.76 mm into the glass, and on `jar_1gal_180` an M4 × 35 is 0.59 mm into it, so
+   either would have to be shortened. The `fan joint, head down` echo gives that number for the build
    in front of you. Build it heads up unless you have a reason not to.
 
 3. **Magnets into the cap**, opposite poles up: a bar follows a north and a south, and two norths
@@ -461,9 +462,9 @@ socket into.
 ```
 sparge arm: from the air inlet's riser at r 56.5 in to r 9, 66.9536 mm off the floor,
 10 mm under the lower impeller's blades, 5 mm short of the shaft; at 0.5 vvm that is
-4.11052 L/min
-sparge arm: 3 holes of 3 mm along 31.9 mm at 3.54444 hole diameters, 3.23067 m/s each;
-bubbles 5.09817 mm at formation, 987.426 a second; the 4 mm bore carries 5.45175 m/s,
+4.08517 L/min
+sparge arm: 3 holes of 3 mm along 31.9 mm at 3.54444 hole diameters, 3.21074 m/s each;
+bubbles 5.09817 mm at formation, 981.337 a second; the 4 mm bore carries 5.41813 m/s,
 open area ratio 1.6875
 ```
 
@@ -578,7 +579,7 @@ the only thing that can dimension that hole, and it does:
 
 ```
 sparge support drilling: a support tube vents through a hole drilled between
-37.9375 and 88.6626 mm from its TOP end - past the lid's inner face, short of
+37.9375 and 88.4342 mm from its TOP end - past the lid's inner face, short of
 the culture. Nearer the first number is better; the headspace is there for foam
 and foam finds the lowest hole. A tube meant to discharge INTO the culture
 instead is drilled past the second.
@@ -593,24 +594,24 @@ away, and the tube below the hole is a dead leg that keeps whatever it is given.
 exhaust path and leaving it there:
 
 ```
-gas exhaust slot: a slot of the tube's own 7.06858 mm2 bore costs 156.558 Pa at
-4.11052 L/min, and the tube above it 23.6629-55.3019 Pa over the 37.9375-88.6626 mm
-drilling window, together 2.56631-3.01684% of the 7022.59 Pa the exhaust has to
-spend; file past 1.05541 mm2 (a 1.15922 mm round hole), which the bore clears
-6.69747x over
+gas exhaust slot: a slot of the tube's own 7.06858 mm2 bore costs 154.633 Pa at
+4.08517 L/min, and the tube above it 23.517-54.8192 Pa over the 37.9375-88.4342 mm
+drilling window, together 2.4985-2.93751% of the 7130.28 Pa the exhaust has to
+spend; file past 1.04095 mm2 (a 1.15125 mm round hole), which the bore clears
+6.7905x over
 ```
 
-**On this jar the floor is about 1.06 mm², which is a Ø1.16 mm hole** — a slot roughly 2.2 × 0.5 mm.
+**On this jar the floor is about 1.04 mm², which is a Ø1.15 mm hole** — a slot roughly 2.2 × 0.5 mm.
 A normal file cut clears it nearly seven times over, and it is _not_ too small to miss: a shallow pass that
 only just breaks the 0.5 mm wall over a couple of millimetres lands on the limit. Cut it, then hold
 the tube up to the light and look through the hole before it goes in.
 
 **Read the floor off your own render rather than off this page.** It moves with the jar, because it
-is set by the headroom that jar's gas line has left: 1.055 mm² here against 0.288 mm² on
+is set by the headroom that jar's gas line has left: 1.041 mm² here against 0.288 mm² on
 `jar_1gal_180x197`. And on `jar_6p5gal_305x470` there is no floor to quote at all — that build
 cannot hold the top of its own aeration band, so the echo says so instead of printing a number.
 
-That 7022.59 Pa is the same pressure the throttle is currently giving away, and the same headroom an
+That 7130.28 Pa is the same pressure the throttle is currently giving away, and the same headroom an
 outlet filter would have to fit inside - so what the slot spends comes off both. The slot and the
 tube are already in the line the pump is priced against, at the long end of the drilling window; an
 outlet filter, once one is named, joins them there. The three dosing holes meter nothing and need
@@ -754,14 +755,14 @@ two. The tempting fix is a second `1594522` — the filter is sold in tens, so i
 
 It is not. An outlet filter does not sit between the pump and the sparge holes, but it raises the
 headspace those holes discharge into, and the gas has to beat that too. A second identical filter
-puts the line at **32.5 kPa** against a pump that dead-heads at **27** — the reactor would settle at
+puts the line at **32.3 kPa** against a pump that dead-heads at **27** — the reactor would settle at
 **3.17 L/min**, and 0.5 vvm would stop being a setting it can hold. `head()` reports the budget:
-an outlet filter may cost at most **1.70844 kPa per L/min**, which is 49.5 % of what the inlet one
+an outlet filter may cost at most **1.7454 kPa per L/min**, which is 50.6 % of what the inlet one
 does, so it wants roughly **twice the membrane area** rather than the same part again. The vent slot
 and the tube above it are already priced into the line, so that budget is net of them.
 
 Two numbers behind that are worth knowing. The pump's real ceiling on this line is **5.80 L/min**,
-not the 21.0 that a back pressure held at the design point suggests — the filter is linear in flow, so
+not the 21.3 that a back pressure held at the design point suggests — the filter is linear in flow, so
 asking for more raises the line. And the inlet filter's own slope is still extrapolated rather than
 measured, so the budget moves with it: measure that first, and this number follows.
 
@@ -818,7 +819,7 @@ fresh piece rather than straightening one.
 
 ## Commissioning
 
-**Set the gas rate before anything else.** 0.1–0.5 vvm on 8.22 L is **0.822–4.11 L/min**, which is
+**Set the gas rate before anything else.** 0.1–0.5 vvm on 8.17 L is **0.817–4.09 L/min**, which is
 16 % to 82 % of the registered 0–5 L/min meter — both ends on scale, which is what that range buys.
 The pump is seven times oversized, so the entire band sits in the first part of the needle valve's
 travel — that is why the valve is a 3° needle and not the 20° one.
@@ -830,8 +831,8 @@ placement that can be wrong in both directions. A characteristically spiky trace
 in the plume, and the fix is a bench one — the port's lean and the ring's height are both
 parameters.
 
-**Know the replace-the-filter signal.** The sterile filter can rise about **65 %** — from 14.2 kPa
-to roughly 23.3 — before 0.5 vvm becomes unreachable with the valve wide open. So _valve fully open
+**Know the replace-the-filter signal.** The sterile filter can rise about **51 %** — from 14.1 kPa
+to roughly 21.2 — before 0.5 vvm becomes unreachable with the valve wide open. So _valve fully open
 and still short of the rate_ is the signal, and it is not a pump problem.
 
 ---

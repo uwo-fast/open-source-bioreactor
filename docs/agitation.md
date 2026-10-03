@@ -49,19 +49,19 @@ is a rigid-walled green alga, the most shear-tolerant class.
 
 ## 2. This reactor, in the units that matter
 
-Computed on the 94.5 mm impeller in the 10 L jar, with **Np = 1.497 from Medek's correlation** for
-the registered 45° four-blade pitched turbine, and x = 16. Mean dissipation is over the **8.22 L**
-this build derives from `culture_fill_fraction`, not over the full jar — which holds 9.50 L brim
+Computed on the 94.5 mm impeller in the 10 L jar, with **Np = 1.492 from Medek's correlation** for
+the registered 45° four-blade pitched turbine, and x = 16. Mean dissipation is over the **8.17 L**
+this build derives from `culture_fill_fraction`, not over the full jar — which holds 9.45 L brim
 full. `head()` reports the two registered-drive rows; the others are computed from the same
 relations at the speeds the Chlorella band asks for.
 
 | shaft speed                         | tip speed | Re      | ε̄ (W/m³) | ε_max (W/kg) |
 | ----------------------------------- | --------- | ------- | -------- | ------------ |
 | 255 rpm — Chlorella optimum         | 1.26 m/s  | 37,800  | 105      | 15.4         |
-| 320 rpm — registered drive, rated   | 1.58 m/s  | 47,400  | 208      | 30.5         |
-| 410 rpm — break-even                | 2.03 m/s  | 60,800  | 436      | 64.2         |
-| 420 rpm — registered drive, no-load | 2.08 m/s  | 62,300  | 470      | 69.0         |
-| 1154 rpm — 36GP-3530 at full speed  | 5.71 m/s  | 171,100 | 9,738    | 1,432        |
+| 320 rpm — registered drive, rated   | 1.58 m/s  | 47,400  | 208      | 30.4         |
+| 410 rpm — break-even                | 2.03 m/s  | 60,800  | 437      | 64.1         |
+| 420 rpm — registered drive, no-load | 2.08 m/s  | 62,300  | 471      | 68.8         |
+| 1154 rpm — 36GP-3530 at full speed  | 5.71 m/s  | 171,100 | 9,770    | 1,429        |
 
 Np comes from this impeller's own geometry by a correlation that states where it is extrapolated,
 and it reads **H/T**, so the fill line is part of the power number.
@@ -99,7 +99,7 @@ past the 14:1 is 672 quadrature counts per output revolution and resolves about 
 motor that cannot miss.
 
 Torque is not what limits the choice. The impeller pair draws under 0.102 N·m at rated and under
-0.176 N·m at no-load against a 0.490 N·m rating — **21 to 36 % of it** — so the shaft runs nearer
+0.175 N·m at no-load against a 0.490 N·m rating — **21 to 36 % of it** — so the shaft runs nearer
 the no-load end than the rated one. That is why the registry carries rated torque and `head()`
 reports the comparison at each speed: it is the fact that says where an unmeasured shaft settles.
 
@@ -309,13 +309,13 @@ the airlift. What `head()` reports for each follows.
   the bubbles rise into it. That is where the stirred-tank literature puts a sparger; Birch &
   Ahmed's argument for a ring between the impellers stays with the ring below.
 - **Three 3 mm holes, the same size as the ring's for the same anti-fouling reason**, at 3.5 hole
-  diameters along the 31.9 mm of bore between the elbow and the end plug, 3.23 m/s each at
+  diameters along the 31.9 mm of bore between the elbow and the end plug, 3.21 m/s each at
   0.5 vvm — inside Barbosa's 0.4–5.4 m/s.
   Bubbles are 5.10 mm at formation, as the ring's; nothing about the arm changes what a 3 mm hole
   makes.
-- **The bore is the same departure**: 5.45 m/s in the feed run, open area ratio 1.6875, and
+- **The bore is the same departure**: 5.42 m/s in the feed run, open area ratio 1.6875, and
   `head()` names both.
-- **The gas supply has to beat 1783 Pa before anything bubbles**: 172.3 mm of culture over the arm
+- **The gas supply has to beat 1786 Pa before anything bubbles**: 172.6 mm of culture over the arm
   plus 96 Pa of capillary — 680 Pa more than the ring asked, since the arm sits 69 mm lower.
 - **The baffles keep the ring's width, 10.35 mm, under the arm too**, so one set of plates prints
   once. The arm would let them go to 14.5, and at 2 mm nominal to the impeller against 2.28 mm of
@@ -344,7 +344,7 @@ the airlift. What `head()` reports for each follows.
   size — 5.10 mm here — so the 1.56 mm of a microporous sparger would want an 86 µm orifice, which
   is why those are sintered. Bubble size is the strongest lever on kLa this design does not have;
   it is the open item.
-- **The bore is a departure.** The feed run carries the whole flow at 5.45 m/s with an open area
+- **The bore is a departure.** The feed run carries the whole flow at 5.42 m/s with an open area
   ratio of 4.5, and each ring 2.25, so the holes compete with their supply. `head()` names both;
   the fix is a wider riser, which is one designation and a cascade of fits (`TODO.md`).
 - **The risers are structure.** Nothing else in the vessel touches the ring, so the five 4 × 0.5 mm
@@ -359,7 +359,7 @@ the airlift. What `head()` reports for each follows.
 ### Impeller
 
 - **A 45° four-blade pitched turbine, chosen for what can be said about it.** Medek's correlation
-  (Fořt et al. 2002) gives Po 1.497 and a flow number 0.892 from the geometry and names the
+  (Fořt et al. 2002) gives Po 1.492 and a flow number 0.887 from the geometry and names the
   conditions this vessel breaks — T/D and H/T. The hand-drawn helicoid it replaced is
   uncorrelatable (section 3); the switch raised every power, dissipation and torque figure about
   50 %, which is a borrowed number being replaced by a correlated one, not the impeller getting
@@ -368,7 +368,7 @@ the airlift. What `head()` reports for each follows.
   of the gas stream's power — but a photobioreactor's criterion is Molina Grima's frequency of
   switch between light and dark, which is pumping. On circulation bought per watt, `N_Q/Po`, the
   axial blade wins by about 4×, and the gas criterion does not bind: at 420 rpm the pair holds its
-  flow pattern up to 1.54 vvm against a 0.5 vvm design point.
+  flow pattern up to 1.57 vvm against a 0.5 vvm design point.
 - **Clearance is 0.9 D, from the source the power number comes from.** Fořt tested pitched blades at
   C/D 0.5 and 1.0 and found hydraulic efficiency higher at 1.0, tying low clearances to solids
   suspension and high ones to blending, which is this reactor's duty. Medek's correlation
@@ -376,22 +376,22 @@ the airlift. What `head()` reports for each follows.
 
   | C/D     | Po        | N_Q       | N_Q/Po    | vs 0.6      |
   | ------- | --------- | --------- | --------- | ----------- |
-  | 0.6     | 1.602     | 0.806     | 0.503     | —           |
-  | 0.8     | 1.528     | 0.867     | 0.568     | +12.8 %     |
-  | **0.9** | **1.498** | **0.893** | **0.596** | **+18.5 %** |
-  | 1.0     | 1.473     | 0.918     | 0.623     | +23.9 %     |
+  | 0.6     | 1.596     | 0.800     | 0.502     | —           |
+  | 0.8     | 1.522     | 0.861     | 0.566     | +12.8 %     |
+  | **0.9** | **1.492** | **0.887** | **0.594** | **+18.5 %** |
+  | 1.0     | 1.467     | 0.911     | 0.621     | +23.9 %     |
 
   Not 1.0, which is the correlation's own C/D limit and drops coverage over the upper impeller
   below half a diameter. The centreline sits 85.05 mm off the floor (C/T 0.405), leaving 77.0 mm
-  under the lower impeller and 51.6 mm — **0.546 D** — of culture over the upper; coverage binds at
-  0.946 D. `head()` asserts the shaft still reaches the lower impeller's bore and the upper stays
+  under the lower impeller and 51.9 mm — **0.549 D** — of culture over the upper; coverage binds at
+  0.949 D. `head()` asserts the shaft still reaches the lower impeller's bore and the upper stays
   submerged, which on this jar spans roughly 0.19 to 1.45 D.
 
 - **Oldshue's 1–2 D does not apply, and that is a class distinction.** His passage is about _"these
   fluidfoil impellers"_, and both halves of it — the allowance and the short-circuiting caveat —
   are fluidfoil statements. On this vessel they could not both be met anyway: the band needs
-  C ≥ 94.5 mm and half a diameter of coverage needs C ≤ 89.4 mm, because the column is short for
-  two impellers — 2.48 impeller diameters of liquid where the spacing band allows `0.24 < n < 1.48`.
+  C ≥ 94.5 mm and half a diameter of coverage needs C ≤ 89.7 mm, because the column is short for
+  two impellers — 2.43 impeller diameters of liquid where the spacing band allows `0.21 < n < 1.43`.
   That band has no primary (Fitschen relays it from Davis, whose sources do not carry it), so
   `head()` reports it and never asserts. The pair stays: the ring sits in its gap and the reference
   build exists (`TODO.md`).
@@ -402,8 +402,8 @@ the airlift. What `head()` reports for each follows.
   tank diameter usual for an axial impeller maps to C/D 0.556–0.741 in this bore; 0.9 D is above it
   and rests on Fořt alone. No source held here states the convention, so no band function encodes
   it.
-- **What the drive does to the culture**, at the rated 320 rpm: Re 47,400, tip 1.58 m/s, 1.71 W
-  into 8.22 L = 208 W/m³ mean and 30.5 W/kg peak, the pair under 0.10 N·m of a 0.49 N·m rating;
+- **What the drive does to the culture**, at the rated 320 rpm: Re 47,400, tip 1.58 m/s, 1.70 W
+  into 8.17 L = 208 W/m³ mean and 30.4 W/kg peak, the pair under 0.10 N·m of a 0.49 N·m rating;
   blend to 95 % in 4.6 s; kLa 0.0098 s⁻¹ coalescing. Both transfer correlations are extrapolated —
   van't Riet is fitted over 500–10,000 W/m³ and Ruszkowski over 0.01–10 m³ — and `head()` says so.
 - **No energy dissipation rate limit exists for any microalga.** The parameter the physics says
@@ -416,9 +416,9 @@ the airlift. What `head()` reports for each follows.
 
 - **Four at 90°, which is Oldshue's reference count, and the vessel is still under-baffled.** His
   reference is four plates at T/12 running the liquid depth; these hang from the lid to the floor
-  limit, 10.35 × 280 mm with 229 mm submerged, and reach **0.579** of the reference projected area.
+  limit, 10.35 × 280 mm with 230 mm submerged, and reach **0.591** of the reference projected area.
   Both levers are spent: depth is at the floor, and the next count that spaces equally on twelve
-  ports is six, which would give 0.868. Under-baffling lets the vessel swirl rather than mix.
+  ports is six, which would give 0.887. Under-baffling lets the vessel swirl rather than mix.
 - **The width is capped by the sparge ring, not the bore or the impeller.** The room outside a
   baffle does not grow with the mouth, and a ring wide enough to clear it does not exist, so the
   plate yields: 10.35 mm where the lock bore would pass 17 and the impeller 14.5. Running clearance
@@ -432,7 +432,7 @@ the airlift. What `head()` reports for each follows.
   plate the crossing sat at 231 / 264 / 297 / 330 rpm for 9 / 10 / 11 / 12 mm, and 12 lands in the
   band. The plate is **10 mm**. On today's narrower plate the mode is 19.2 Hz, crossed by blade
   passing at 287 rpm and by the shaft at 1150, clearing the band by 10 %; the tip deflects
-  1.94 mm under 0.78 N, which is over the tenth-of-width limit `head()` warns on. Thicker walks the
+  1.93 mm under 0.77 N, which is over the tenth-of-width limit `head()` warns on. Thicker walks the
   crossing in, so the plate stays at 10 and the warning stands until the area question is settled.
 - **The load is reasoned from two directions and neither is cited.** Each plate reacts its share of
   the impeller's torque, `T / (n · r)`; the dynamic pressure of a tangential stream at 0.3 of tip
@@ -445,6 +445,6 @@ the airlift. What `head()` reports for each follows.
   the relevant papers are paywalled and unread (`docs/references.md`).
 
 - **The plate prints in two dovetailed pieces**, and the joint is in the deflection above: 4.2 mm
-  of the plate's 10 crosses the joint plane, 0.074 of its second moment, 0.28 mm of the 1.94 mm at
+  of the plate's 10 crosses the joint plane, 0.074 of its second moment, 0.28 mm of the 1.93 mm at
   the tip. Why it splits where it does, which way the slide runs and what the joint leaves
   unmodelled is in `docs/build.md`.
