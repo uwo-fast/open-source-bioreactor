@@ -160,7 +160,7 @@ export_manifest_job() {
         export_manifest "-p scad/bioreactor.json -P $set" "$tmp/man.$set" || echo unresolved > "$tmp/man.$set.bad"
     fi
 }
-export -f export_manifest export_manifest_job
+export -f export_manifest export_manifest_job export_defines
 xargs -d '\n' -P "$JOBS" -I{} bash -c 'export_manifest_job "$1"' _ {} < "$tmp/manifest-jobs"
 
 while read -r set; do

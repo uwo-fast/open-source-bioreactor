@@ -5,6 +5,24 @@
 # OPENSCAD, JOBS, SEAM_CEILING and tmp, and a failure sets `failed`.
 # shellcheck disable=SC2034,SC2154
 
+# A build's parameter set as -D assignments, one argument per line: `sel` is empty or a -p/-P
+# pair. The stubs below `include` the model, and a parameter set reaches only the file OpenSCAD
+# opens on newer releases, not one it includes; a -D reaches both. Numbers and booleans go in
+# bare, anything else as a string.
+export_defines() {
+    local f s
+    read -r _ f _ s <<< "$1"
+    [ -z "$f" ] && return 0
+    /usr/bin/python3 -c 'import json, sys
+for k, v in json.load(open(sys.argv[1]))["parameterSets"][sys.argv[2]].items():
+    v = str(v)
+    try:
+        float(v); bare = True
+    except ValueError:
+        bare = v in ("true", "false")
+    print("-D"); print(f"{k}={v}" if bare else f"{k}=\"{v}\"")' "$f" "$s"
+}
+
 # The model's print list for a build: `sel` is empty for the file's own defaults, or a -p/-P pair,
 # and the rows land in $2.rows ("file|name|qty|flags") with the model's statement of the build in
 # $2.stated and the render's stderr in $2.err. Returns 1 when the build does not resolve; the
@@ -20,8 +38,9 @@ for (p = head_print_parts(vessel_opening_diameter(_v), lid_flange_height,
 for (p = frame_print_parts(n_rods, drive_name, frame_riser_height(_v, _reactor_light, _build_magnet, drive_name) > 0))
   echo(str("PART|scad/frame.scad|", p[0], "|", p[1], "|", p[2]));
 SCAD
-    # shellcheck disable=SC2086
-    "$OPENSCAD" $sel -D render_all=false -o "$out.csg" "$out.scad" 2>"$out.err" >/dev/null
+    local defs
+    mapfile -t defs < <(export_defines "$sel")
+    "$OPENSCAD" "${defs[@]}" -D render_all=false -o "$out.csg" "$out.scad" 2>"$out.err" >/dev/null
     grep -m1 '^ECHO: "build: ' "$out.err" | sed 's/^ECHO: "//; s/"$//' > "$out.stated"
     grep '^ECHO: "PART|' "$out.err" | sed 's/^ECHO: "PART|//; s/"$//' > "$out.rows"
     ! grep -q '^ERROR' "$out.err"
@@ -141,8 +160,9 @@ export_fits() {
         printf 'for (s = _s) if (len(printers_fitting(s[1])) == 0) echo(str("NOFIT|", s[0]));\n'
         printf 'echo(str("ALLFIT|", [for (p = printers) if (len([for (s = _s) if (!printer_fits(p, s[1])) 1]) == 0) printer_name(p)]));\n'
     } > "$stub.scad"
-    # shellcheck disable=SC2086
-    "$OPENSCAD" $sel -D render_all=false -o "$stub.csg" "$stub.scad" 2>"$stub.err" >/dev/null
+    local defs
+    mapfile -t defs < <(export_defines "$sel")
+    "$OPENSCAD" "${defs[@]}" -D render_all=false -o "$stub.csg" "$stub.scad" 2>"$stub.err" >/dev/null
     grep '^ECHO: "NOFIT|' "$stub.err" | sed 's/.*NOFIT|//; s/"$//' > "$nofit"
     grep -m1 '^ECHO: "ALLFIT|' "$stub.err" | sed 's/.*ALLFIT|//; s/"$//; s/[]["]//g'
 }
