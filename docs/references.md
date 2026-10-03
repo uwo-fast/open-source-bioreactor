@@ -625,7 +625,7 @@ appear to be weaker than S. dimorphus cells**". The earlier note in this repo th
 "generally robust" was an assumption and is withdrawn.
 What damaged it was a centrifugal pump, at 262 W/kg and 18e3 Pa s of accumulated stress per hour of
 operation. What did **not** damage it was an air-lift at **31 W/kg** and 90-450 Pa s/h. This design's
-peak dissipation is **30.5 W/kg at its rated 320 rpm and 69.0 W/kg at no-load 420 rpm** — the rated
+peak dissipation is **30.4 W/kg at its rated 320 rpm and 68.8 W/kg at no-load 420 rpm** — the rated
 figure sits on top of the non-damaging air-lift and roughly 8x under the damaging pump.
 Read the caution with it: the paper shows the **Kolmogorov criterion mispredicted its own results**
 (both rigs had eddies larger than the cells, yet only one caused damage), and that accumulated stress

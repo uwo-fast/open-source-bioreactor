@@ -18,13 +18,13 @@ closed it and in `docs/`.
 
 - [ ] **measured gas flow**
   - the model states a vvm and no builder can set one: the ReSun pump settles at 5.80 L/min where
-    0.822-4.11 is wanted. The aeration a culture wants runs 0.1-1 vvm depending on what it is for;
+    0.817-4.09 is wanted. The aeration a culture wants runs 0.1-1 vvm depending on what it is for;
     the model's band stops at 0.5, and this pump and filter reach about 0.7 on `jar_10L`, which is
     enough for now. The parts are in the BOM (Dwyer VFA-23 meter, Clippard MNV-3KP needle
     valve upstream of it; why these, `docs/procurement.md`). What is left is buying them and taking
     a reading
   - no sparger geometry waits on it: `sparge_design_vvm` appears only in echoes. The arm the stirred
-    builds take runs its 3 x 3 mm holes at 3.23 m/s at 0.5 vvm on `jar_10L`, inside Barbosa's
+    builds take runs its 3 x 3 mm holes at 3.21 m/s at 0.5 vvm on `jar_10L`, inside Barbosa's
     tested 0.4-5.4 m/s from about 0.06 to 0.84 vvm; on `jar_1gal_180` the same arm is at 8.02 m/s,
     outside it, and `head()` warns
   - CO2 is answered by a run, not a calculation: air at 0.5 vvm supports about 0.09 g/L/day on a
@@ -33,9 +33,9 @@ closed it and in `docs/`.
 
 - [ ] **choose an outlet filter that fits in the budget `head()` reports**
   - the exhaust is unguarded: the headspace vents through a support tube into the room. A second
-    1594522 on the outlet does not work: two put the line at 32.5 kPa against a pump that dead-heads
+    1594522 on the outlet does not work: two put the line at 32.3 kPa against a pump that dead-heads
     at 27 and it settles at 3.17 L/min, and 0.5 vvm stops being a setting it can hold
-  - `head()` reports the budget instead: at most 1.70844 kPa per L/min on `jar_10L`, 49.5 % of the
+  - `head()` reports the budget instead: at most 1.7454 kPa per L/min on `jar_10L`, 50.6 % of the
     inlet filter's slope, net of the vent slot and the tube, which are priced into the line. Set
     `sparge_outlet_filter` and `head()` prices the filter in too
   - the budget moves with the inlet filter's slope, which is extrapolated - measure that first
@@ -46,7 +46,7 @@ closed it and in `docs/`.
     single term in the gas budget. Area-correcting Pall's Acro 50 gives 3.02, so it sits 14 %
     conservative
   - a water manometer at two points, 1 and 2 L/min (35 and 70 cm of column), tests the slope and
-    the linearity both. Not at the set flow: 14.2 kPa is 1.45 m of water
+    the linearity both. Not at the set flow: 14.1 kPa is 1.44 m of water
   - the operational number: the filter may rise to 21.2 kPa with the valve wide open before
     0.5 vvm is unreachable, so "fully open and it will not hold 0.5 vvm" is the replace signal
 
@@ -72,9 +72,9 @@ closed it and in `docs/`.
 
 - [ ] **model the support tubes' discharge holes, or decide not to**
   - every tube port but `air_in` is capped at its lower end and vents through a hole drilled up its
-    length. `head()` reports the window (37.9-88.7 mm from the top on `jar_10L`) and `docs/build.md`
+    length. `head()` reports the window (37.9-88.4 mm from the top on `jar_10L`) and `docs/build.md`
     says which end each port wants; the hole itself is a bench operation and is not drawn
-  - only `air_out`'s hole has a size to meet, and `head()` prices it: the floor is 1.055 mm2 on
+  - only `air_out`'s hole has a size to meet, and `head()` prices it: the floor is 1.041 mm2 on
     `jar_10L`, 0.288 on `jar_1gal_180x197`, none on `jar_6p5gal` (its line beats the pump). A normal
     file cut clears it nearly 7x; a shallow pass that just breaks the wall does not
   - not parameterised on purpose: a default for a hand-cut window would be a guess
@@ -93,8 +93,8 @@ closed it and in `docs/`.
 - [ ] **the baffle clears the blades now, and baffle area paid for it**
   - running clearance is +1.80009 mm (4.07731 nominal less 2.27722 of lean), after the plate
     narrowed 15.3 -> 10.3454 mm and the mouth correction took 0.4 mm of it
-  - the price: reference projected area 0.856 -> 0.579 of Oldshue's four-at-T/12; six plates reach
-    only 0.868. Whether 0.579 is acceptable is the open question, and buying width back walks toward
+  - the price: reference projected area 0.856 -> 0.579 of Oldshue's four-at-T/12, 0.591 since the punt
+    was measured at 10 mm; six plates reach only 0.887. Whether 0.591 is acceptable is the open question, and buying width back walks toward
     the blades. The tip ring is off and stays a flag (`docs/decisions.md`)
   - the 2.28 mm lean is a worst case - bore play alone, levered 11.4x, ignoring the flange's face
     contact - and only matters if the plate widens
@@ -108,7 +108,7 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
 
 - [ ] **two things to confirm on the drive before ordering it**
   - the encoder sheet for `motor_36pg_555pm_14_en` tabulates no gearbox length; 34.5 mm is inferred
-    from the 3429 sheet at 14:1. It feeds the envelope (576.25 mm) and the cart's tiers
+    from the 3429 sheet at 14:1. It feeds the envelope (581.25 mm) and the cart's tiers
   - caliper the bolt circle on the printed mount: Ø28 with M4 should clear holes cut for the
     36GP's Ø27.6 / 4.2, so the new motor may drop in without a reprint
 
@@ -289,7 +289,7 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
 
     | vessel             | H_L    | d = 0.45 T | H_L/d | H/T   | band allows |
     | ------------------ | ------ | ---------- | ----- | ----- | ----------- |
-    | jar_10L_220x305    | 234.27 | 94.50      | 2.479 | 1.116 | n = 1       |
+    | jar_10L_220x305    | 229.50 | 94.50      | 2.429 | 1.093 | n = 1       |
     | jar_1gal_180x197   | 153.36 | 76.50      | 2.005 | 0.902 | n = 1       |
     | jar_6p5gal_305x470 | 325.26 | 126.36     | 2.574 | 1.158 | n = 1       |
 
