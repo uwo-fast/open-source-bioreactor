@@ -3867,6 +3867,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   }
 
   module head_impeller() {
+    _collar_lead = impeller_collar_height / 10;
     color(prints2_color)
       difference() {
       union() {
@@ -3893,17 +3894,17 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
               }
         // Collar for the set screws, standing clear of the blades. It starts inside the body
         // rather than on its face: a collar that lands exactly on that face shares it with the
-        // hub, and the renderer keeps the shared ring rather than merging the two. Its top is
-        // where it always was, and the lead is buried in the hub it already matches.
-        let (_lead = impeller_collar_height / 10)
-          translate([0, 0, impeller_height / 2 - _lead])
-            difference() {
-              cylinder(r=impeller_hub_radius, h=impeller_collar_height + _lead, $fn=64);
-              translate([0, 0, -_lead])
-                cylinder(r=impeller_shaft_hole_radius, h=impeller_collar_height + 3 * _lead, $fn=64);
-            }
+        // hub, and the renderer keeps the shared ring rather than merging the two. It goes on
+        // solid, and the bore is cut once after the union for the same reason: cut in the collar
+        // alone, the hub's bore edge would lie on the collar's bore wall.
+        translate([0, 0, impeller_height / 2 - _collar_lead])
+          cylinder(r=impeller_hub_radius, h=impeller_collar_height + _collar_lead, $fn=64);
       }
         head_impeller_set_screw_holes();
+        // the bore, from below the collar's buried face so the cut shares no face with it; a
+        // drafted bore runs straight over that last stretch, its loose end, by a few hundredths
+        translate([0, 0, impeller_height / 2 - 2 * _collar_lead])
+          cylinder(r=impeller_shaft_hole_radius, h=impeller_collar_height + 4 * _collar_lead, $fn=64);
       }
   }
 
