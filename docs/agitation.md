@@ -416,9 +416,9 @@ the airlift. What `head()` reports for each follows.
 
 - **Four at 90°, which is Oldshue's reference count, and the vessel is still under-baffled.** His
   reference is four plates at T/12 running the liquid depth; these hang from the lid to the floor
-  limit, 10.35 × 280 mm with 230 mm submerged, and reach **0.591** of the reference projected area.
+  limit, 10.35 × 274 mm with 224 mm submerged, and reach **0.577** of the reference projected area.
   Both levers are spent: depth is at the floor, and the next count that spaces equally on twelve
-  ports is six, which would give 0.887. Under-baffling lets the vessel swirl rather than mix.
+  ports is six, which would give 0.865. Under-baffling lets the vessel swirl rather than mix.
 - **The width is capped by the sparge ring, not the bore or the impeller.** The room outside a
   baffle does not grow with the mouth, and a ring wide enough to clear it does not exist, so the
   plate yields: 10.35 mm where the lock bore would pass 17 and the impeller 14.5. Running clearance
@@ -430,9 +430,9 @@ the airlift. What `head()` reports for each follows.
   passing that sweeps 0–28 Hz on the way to 420 rpm. Stiffness goes as t³ and the mode as t^1.5,
   so thickening raises the crossing toward the 320–420 rpm band the drive runs in: on the 15.3 mm
   plate the crossing sat at 231 / 264 / 297 / 330 rpm for 9 / 10 / 11 / 12 mm, and 12 lands in the
-  band. The plate is **10 mm**. On today's narrower plate the mode is 19.2 Hz, crossed by blade
-  passing at 287 rpm and by the shaft at 1150, clearing the band by 10 %; the tip deflects
-  1.93 mm under 0.77 N, which is over the tenth-of-width limit `head()` warns on. Thicker walks the
+  band. The plate is **10 mm**. On today's narrower plate the mode is 20.0 Hz, crossed by blade
+  passing at 299 rpm and by the shaft at 1197, clearing the band by 6 %; the tip deflects
+  1.83 mm under 0.77 N, which is over the tenth-of-width limit `head()` warns on. Thicker walks the
   crossing in, so the plate stays at 10 and the warning stands until the area question is settled.
 - **The load is reasoned from two directions and neither is cited.** Each plate reacts its share of
   the impeller's torque, `T / (n · r)`; the dynamic pressure of a tangential stream at 0.3 of tip
@@ -445,6 +445,6 @@ the airlift. What `head()` reports for each follows.
   the relevant papers are paywalled and unread (`docs/references.md`).
 
 - **The plate prints in two dovetailed pieces**, and the joint is in the deflection above: 4.2 mm
-  of the plate's 10 crosses the joint plane, 0.074 of its second moment, 0.28 mm of the 1.93 mm at
+  of the plate's 10 crosses the joint plane, 0.074 of its second moment, 0.27 mm of the 1.83 mm at
   the tip. Why it splits where it does, which way the slide runs and what the joint leaves
   unmodelled is in `docs/build.md`.

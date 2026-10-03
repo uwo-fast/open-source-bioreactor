@@ -107,7 +107,7 @@ file says so itself.
 The baffle plates are split so no piece is too slender to print standing:
 
 ```
-baffle print: 2 pieces of 140 mm, tallest standing 163 mm against a 200 mm slenderness cap;
+baffle print: 2 pieces of 137.202 mm, tallest standing 160.202 mm against a 200 mm slenderness cap;
 the dovetail leaves 4.2 mm of 10 crossing each joint, 0.074088 of the plate's second moment
 ```
 

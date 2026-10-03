@@ -553,10 +553,10 @@ function head_sparge_feed_port(vessel_opening_diameter) = head_port_index(vessel
 
 // Every printed part this lid carries: [name, quantity, the flags that render it alone]. It
 // varies with the vessel, so it lives here; `just export-parts` walks it.
-function head_print_parts(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, drive = "shaft", sparger = "auto", lid_center = "auto") =
+function head_print_parts(vessel, lid_flange_height, drive = "shaft", sparger = "auto", lid_center = "auto") =
   let (
-    _ports = head_ports_for(vessel_opening_diameter),
-    _segs = head_baffle_segments(lid_flange_height, vessel_internal_height, vessel_punt_height),
+    _ports = head_ports_for(vessel_opening_diameter(vessel)),
+    _segs = head_baffle_segments(vessel, lid_flange_height),
     _sparger = head_sparger_selected(sparger, drive)
   )
     concat(
@@ -634,7 +634,7 @@ function head_port_carries_riser(port) = head_port_type(port) == "tube";
 
 // clearance between the baffle and the impellers it passes, radially at the plate's inner edge
 baffle_impeller_clearance = 2;
-// clearance between the bottom of the baffle and the jar's floor
+// clearance between the bottom of the baffle and the glass under it
 baffle_floor_clearance = 10;
 // clearance between the jar's neck bore and the baffle's outer corner
 baffle_neck_clearance = 1.5;
@@ -1115,23 +1115,32 @@ function head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt
   head_punt_top_depth(lid_flange_height, vessel_internal_height) + vessel_punt_height;
 
 // The floor is what stops the plate; it clears the impellers radially by construction. The plate
-// hangs from the port's underside, not the lid's outer face.
-function head_baffle_max_length(lid_flange_height, vessel_internal_height, vessel_punt_height) =
-  head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height)
-  - head_lid_thickness(lid_flange_height)
-  - baffle_floor_clearance;
+// hangs from the port's underside, not the lid's outer face, and stops short of the glass under
+// its own span, which on a punted jar stands above the floor's lowest point.
+function head_baffle_max_length(vessel, lid_flange_height) =
+  let (
+    _r = head_port_circle_radius(vessel_opening_diameter(vessel)),
+    _w = head_baffle_width(
+      vessel_opening_diameter(vessel),
+      stirred_tank_impeller_diameter(vessel_diameter(vessel) - 2 * vessel_thickness(vessel), impeller_bore_ratio)
+    )
+  )
+    head_floor_depth(lid_flange_height, vessel_internal_height(vessel), vessel_punt_height(vessel))
+    - head_lid_thickness(lid_flange_height)
+    - head_floor_rise(vessel, _r - _w / 2, _r + _w / 2)
+    - baffle_floor_clearance;
 
-function head_baffle_length(lid_flange_height, vessel_internal_height, vessel_punt_height) =
+function head_baffle_length(vessel, lid_flange_height) =
   is_undef(baffle_length)
-    ? head_baffle_max_length(lid_flange_height, vessel_internal_height, vessel_punt_height)
+    ? head_baffle_max_length(vessel, lid_flange_height)
     : baffle_length;
 
-function head_baffle_segments(lid_flange_height, vessel_internal_height, vessel_punt_height) =
+function head_baffle_segments(vessel, lid_flange_height) =
   is_undef(baffle_segments)
     ? bayonet_baffle_segments(
       head_interface_for("baffle", 0),
       head_lid_thickness(lid_flange_height),
-      head_baffle_length(lid_flange_height, vessel_internal_height, vessel_punt_height),
+      head_baffle_length(vessel, lid_flange_height),
       baffle_segment_height_max
     )
     : baffle_segments;
@@ -1794,9 +1803,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   // ----- baffles -----
   lid_thickness = head_lid_thickness(lid_flange_height);
   port_circle_radius = head_port_circle_radius(vessel_opening_diameter);
-  baffle_max_length = head_baffle_max_length(lid_flange_height, vessel_internal_height, vessel_punt_height);
-  _baffle_length = head_baffle_length(lid_flange_height, vessel_internal_height, vessel_punt_height);
-  _baffle_segments = head_baffle_segments(lid_flange_height, vessel_internal_height, vessel_punt_height);
+  baffle_max_length = head_baffle_max_length(vessel, lid_flange_height);
+  _baffle_length = head_baffle_length(vessel, lid_flange_height);
+  _baffle_segments = head_baffle_segments(vessel, lid_flange_height);
   _baffle_joint_at = [for (j = [1:1:_baffle_segments - 1]) j * _baffle_length / _baffle_segments];
   _baffle_width = head_baffle_width(vessel_opening_diameter, impeller_diameter);
 
@@ -3545,7 +3554,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   assert(
     _baffle_length <= baffle_max_length,
-    str("Baffle is ", _baffle_length, " mm long and would reach the jar's floor; ", baffle_max_length, " mm is the most that clears it.")
+    str("Baffle is ", _baffle_length, " mm long and would reach the glass under it; ", baffle_max_length, " mm is the most that clears it.")
   );
 
   assert(

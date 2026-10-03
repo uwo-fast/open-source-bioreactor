@@ -36,8 +36,7 @@ cat > "$tmp/m.scad" <<SCAD
 include <$PWD/scad/bioreactor.scad>
 _v = reactor_vessel;
 for (d = ["shaft", "magnetic", "none", "airlift"]) {
-  for (p = head_print_parts(vessel_opening_diameter(_v), lid_flange_height,
-                            vessel_internal_height(_v), vessel_punt_height(_v), d, sparger_name, lid_center_name))
+  for (p = head_print_parts(_v, lid_flange_height, d, sparger_name, lid_center_name))
     echo(str("PART|", p[2]));
   for (p = frame_print_parts(n_rods, d, riser=true)) echo(str("PART|", p[2]));
 }
