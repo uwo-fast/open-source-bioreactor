@@ -725,6 +725,8 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
       )
     );
 
+    // Under any other drive the slot is cut and nothing is fitted in it, so only the slot is reported.
+    if (drive == "magnetic")
     echo(str(
       "fan joint: 4 x M", screw_radius(_fan_screw) * 2, " x ", _fan_screw_length,
       " mm down through the fan into nuts in ", _fastener_depth, " mm hex pockets at the carrier's bottom face, ",
@@ -734,6 +736,7 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
 
     // The pocket holds a cap head too, so the joint can be built upside down. Whether that closes
     // is the length grid's business, not the pocket's, so report what it would take.
+    if (drive == "magnetic")
     echo(str(
       "fan joint, head down: an M", screw_radius(_fan_cap) * 2, " x ", _cap_length,
       " mm cap screw up from the pocket to a nut on the fan stands ", _cap_proud, " mm over that nut, ",
@@ -746,6 +749,12 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
       str("The fan's corners come ", _fan_corner_gap, " mm under the punt cone; the magnets are set to clear it by ", stir_magnet_glass_clearance, ".")
     );
 
+    if (drive != "magnetic")
+      echo(str(
+        "stir drive: none fitted for drive_name = ", drive, "; the base is slotted for a magnetic build's ",
+        fan_name(_fan), " in a ", _carrier_diameter, " mm carrier"
+      ));
+    else
     echo(str(
       "stir drive: ", fan_name(_fan), " in a ", _carrier_diameter, " mm carrier ", _carrier_height,
       " mm tall, its top ", _landing - _carrier_top, " mm under the landing plane, hung on its ear ",
@@ -761,6 +770,7 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
         ", keyed into every light's cord notch"
       ));
 
+    if (drive == "magnetic")
     echo(str(
       "stir magnets: 2 x ", magnet_designation(_magnet), " on the ", fan_hub(_fan), " mm hub at ", _hub_cap_pitch,
       " mm pitch, faces ", _magnet_glass_gap, " mm under the punt and ",

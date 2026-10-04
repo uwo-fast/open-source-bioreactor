@@ -228,12 +228,6 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
     jars' pinned shaft render stops on an assert. A transcript per set in `bioreactor.json` would
     cover all nine
 
-- [ ] **the frame reports a stir drive on builds that have none**
-  - wherever the base is slotted, the frame echoes the fan and the magnets under every drive:
-    "stir drive: fan40x11 in a 66.1 mm carrier" on `jar_1p5L_112x215`'s airlift build, and the
-    80 x 25 on the shaft builds of `jar_10L` and `jar_1gal_180`. It describes the slot, not a fitted
-    fan; under a non-magnetic drive it should say so. The riser jars already do
-
 - [ ] **the DO-over-ring warning fires when the probe's face is below the ring**
   - it tests the face against the ring's radius only, so a face under the ring - where rising gas
     cannot reach it - still warns, as "hangs -62.6358 mm over it" on `jar_1gal_180x197` with
