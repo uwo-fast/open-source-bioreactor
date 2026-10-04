@@ -221,13 +221,6 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
 
 ## tooling / infrastructure / documentation
 
-- [ ] **pin each registered build's report stream, as check-echo pins each vessel's**
-  - `just check-builds` fails on an assert and on a render that says nothing, but a build that
-    resolves with the wrong content passes it. `check-echo` pins each vessel at the shaft drive, so
-    the four magnetic builds have no pinned stream, and neither do the two airlift builds: their
-    jars' pinned shaft render stops on an assert. A transcript per set in `bioreactor.json` would
-    cover all nine
-
 - [ ] **the frame reports a stir drive on builds that have none**
   - wherever the base is slotted, the frame echoes the fan and the magnets under every drive:
     "stir drive: fan40x11 in a 66.1 mm carrier" on `jar_1p5L_112x215`'s airlift build, and the
