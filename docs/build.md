@@ -322,9 +322,9 @@ puts it:
 
 ```
 stir drive: fan80x25 in a 164.6 mm carrier 36.75 mm tall, its top 0 mm under
-the landing plane, hung on its ear 8 mm off the bottom face; the fan is turned 45 deg
+the landing plane, hung on its ear 8 mm off the bottom face; the fan is turned 55 deg
 to put a flat on the slot's bearing, and the lead leaves its 8 mm notch there for the
-14.5 mm slot at 135 deg
+14.65 mm slot at 145 deg
 fan joint: 4 x M4 x 40 mm down through the fan into nuts in 4.2 mm hex pockets at the
 carrier's bottom face, 7.55 mm of carrier over them; the head stands 2.2 mm on the
 fan, 3.48992 mm under the glass

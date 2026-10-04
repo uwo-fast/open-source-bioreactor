@@ -41,6 +41,7 @@ matrix=(
     "stir_bar_name|50x8|builds"
     "stir_magnet_name|MAGRE6x2p5|builds"
     "culture_fill_fraction|0.7|number"
+    "lights_per_quadrant|4|number"
 )
 # Every render is its own OpenSCAD process: the parameter sets are written first, all of them
 # render JOBS at a time (every core, unless set), and the rows are judged in order after.
