@@ -512,7 +512,11 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
   // plus the recess, since it stands on the fan rather than on the rim.
   _carrier_top = is_undef(_fan) ? undef : min(_landing, _magnet_top - _hub_cap_height);
   _carrier_height = is_undef(_fan) ? undef : _carrier_top - _slot_height;
-  _magnet_glass_gap = is_undef(_fan) ? undef : punt_under(_magnet_outer_radius) - (_carrier_top + _hub_cap_height);
+  // Where the landing plane stops the carrier short, the cap grows a solid floor under the magnets
+  // instead, up into the punt's void; its rim is the widest thing up there, so the rim may bind.
+  _cap_lift = is_undef(_fan) ? undef
+    : max(0, min(_magnet_top, punt_under(fan_hub(_fan) / 2) - stir_magnet_glass_clearance) - (_carrier_top + _hub_cap_height));
+  _magnet_glass_gap = is_undef(_fan) ? undef : punt_under(_magnet_outer_radius) - (_carrier_top + _hub_cap_height + _cap_lift);
   // and the fan's corners are the widest thing under the cone
   _fan_corner_gap = is_undef(_fan) ? undef : punt_under(fan_corner_diameter(_fan) / 2) - _carrier_top;
   // The fasteners stand on the fan's face at the screw circle, which is inside the corners, so
@@ -725,6 +729,8 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
       )
     );
 
+    // Under any other drive the slot is cut and nothing is fitted in it, so only the slot is reported.
+    if (drive == "magnetic")
     echo(str(
       "fan joint: 4 x M", screw_radius(_fan_screw) * 2, " x ", _fan_screw_length,
       " mm down through the fan into nuts in ", _fastener_depth, " mm hex pockets at the carrier's bottom face, ",
@@ -734,6 +740,7 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
 
     // The pocket holds a cap head too, so the joint can be built upside down. Whether that closes
     // is the length grid's business, not the pocket's, so report what it would take.
+    if (drive == "magnetic")
     echo(str(
       "fan joint, head down: an M", screw_radius(_fan_cap) * 2, " x ", _cap_length,
       " mm cap screw up from the pocket to a nut on the fan stands ", _cap_proud, " mm over that nut, ",
@@ -746,6 +753,12 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
       str("The fan's corners come ", _fan_corner_gap, " mm under the punt cone; the magnets are set to clear it by ", stir_magnet_glass_clearance, ".")
     );
 
+    if (drive != "magnetic")
+      echo(str(
+        "stir drive: none fitted for drive_name = ", drive, "; the base is slotted for a magnetic build's ",
+        fan_name(_fan), " in a ", _carrier_diameter, " mm carrier"
+      ));
+    else
     echo(str(
       "stir drive: ", fan_name(_fan), " in a ", _carrier_diameter, " mm carrier ", _carrier_height,
       " mm tall, its top ", _landing - _carrier_top, " mm under the landing plane, hung on its ear ",
@@ -761,6 +774,7 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
         ", keyed into every light's cord notch"
       ));
 
+    if (drive == "magnetic")
     echo(str(
       "stir magnets: 2 x ", magnet_designation(_magnet), " on the ", fan_hub(_fan), " mm hub at ", _hub_cap_pitch,
       " mm pitch, faces ", _magnet_glass_gap, " mm under the punt and ",
@@ -934,13 +948,13 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
         fan_hole_positions(_fan, z=_fastener_depth - nut_thickness(_fan_nut))
           nut(_fan_nut);
     translate([0, 0, _fan_top])
-      magnet_hub_cap(fan_hub(_fan), _magnet, pedestal=carrier_fan_recess, cap=false, magnets=true);
+      magnet_hub_cap(fan_hub(_fan), _magnet, pedestal=carrier_fan_recess + _cap_lift, cap=false, magnets=true);
   }
 
   module frame_hub_cap() {
     translate([0, 0, _fan_top])
       color(prints2_color)
-        magnet_hub_cap(fan_hub(_fan), _magnet, pedestal=carrier_fan_recess);
+        magnet_hub_cap(fan_hub(_fan), _magnet, pedestal=carrier_fan_recess + _cap_lift);
   }
 
   // z = 0 is the bottom of the vessel, so the whole frame drops by its floor

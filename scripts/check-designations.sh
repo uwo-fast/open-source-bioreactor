@@ -17,7 +17,10 @@
 # defaults cannot show the value: a plain lid only differs off the shaft drive.
 #
 # Driven by a parameter set, not -D: -D reaches a `use`d file's globals and would pass on that
-# leak even with reactor_build broken. -p assigns only the file being rendered.
+# leak even with reactor_build broken. -p assigns only the file being rendered. The bad names are
+# the exception: newer OpenSCAD drops a set's value that is not among its parameter's listed
+# options, silently, so a name nothing answers to never arrives that way and goes in as -D. A
+# refusal has no leak to pass on - it is the build's own assert either way.
 set -uo pipefail
 tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
 matrix=(
@@ -50,19 +53,25 @@ s = dict(kv.split("=", 1) for kv in b.split(",") if kv)
 if p: s[p] = float(v) if n == "1" else v
 print(json.dumps({"parameterSets": {"t": s}, "fileFormatVersion": "1"}))' "$@"
 }
-# job lines: <name>|<json or empty for the file's defaults>; each renders to $tmp/<name>.csg
+# job lines: <name>|<json, or empty for the file's defaults, or an args file of -D pairs>; each
+# renders to $tmp/<name>.csg
 jobs="base|"
 for i in "${!matrix[@]}"; do
     IFS='|' read -r param value want base <<< "${matrix[$i]}"
     [ "$want" = number ] && num=1 || num=0
     if [ -n "$base" ]; then set_json "$base" "" "" 0 > "$tmp/b$i.json"; jobs+=$'\n'"b$i|$tmp/b$i.json"; fi
     set_json "$base" "$param" "$value" "$num" > "$tmp/p$i.json"; jobs+=$'\n'"p$i|$tmp/p$i.json"
-    if [ "$want" != number ]; then set_json "$base" "$param" no_such_row 0 > "$tmp/x$i.json"; jobs+=$'\n'"x$i|$tmp/x$i.json"; fi
+    if [ "$want" != number ]; then
+        for kv in ${base//,/ } "$param=no_such_row"; do printf -- '-D\n%s="%s"\n' "${kv%%=*}" "${kv#*=}"; done > "$tmp/x$i.args"
+        jobs+=$'\n'"x$i|$tmp/x$i.args"
+    fi
 done
 export OPENSCAD tmp
 render_job() {
     IFS='|' read -r name json <<< "$1"
-    "$OPENSCAD" ${json:+-p "$json" -P t} -o "$tmp/$name.csg" scad/bioreactor.scad 2>"$tmp/$name.err" >/dev/null
+    local defs=()
+    if [ "${json##*.}" = args ]; then mapfile -t defs < "$json"; json=; fi
+    "$OPENSCAD" "${defs[@]}" ${json:+-p "$json" -P t} -o "$tmp/$name.csg" scad/bioreactor.scad 2>"$tmp/$name.err" >/dev/null
 }
 export -f render_job
 xargs -d '\n' -P "$JOBS" -I{} bash -c 'render_job "$1"' _ {} <<< "$jobs"

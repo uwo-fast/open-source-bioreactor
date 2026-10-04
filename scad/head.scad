@@ -722,6 +722,9 @@ draft_tube_wall = 2;
 draft_tube_hardware_clearance = 2;
 // How many feet the draft tube stands on
 draft_tube_feet = 3;
+// The least of the culture's depth the tube has to span. A judgement, not a source: the equal-area
+// gaps can stand a tube on a wide jar so high it barely loops
+draft_tube_span_min = 0.5;
 // Width of each foot, around the tube, in mm
 draft_tube_foot_width = 8;
 // Fillet each side of a foot where it meets the tube, against the corner cracking; a short foot
@@ -2241,6 +2244,15 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
     assert(_tube_top > _tube_bottom, str("The draft tube has no length: ", _tube_bottom, " to ", _tube_top, " mm off the floor."));
 
+    assert(
+      _tube_top - _tube_bottom >= draft_tube_span_min * _liquid_height,
+      str(
+        "The draft tube is ", _tube_top - _tube_bottom, " mm long in ", _liquid_height, " mm of culture, ",
+        (_tube_top - _tube_bottom) / _liquid_height, " of it against draft_tube_span_min ", draft_tube_span_min,
+        "; the feet the equal-area gap stands it on leave too short a loop on this jar."
+      )
+    );
+
     // The tube is sized round what hangs inside it, and a baffle is not on that list.
     assert(!_has_baffles, "The airlift's draft tube stands where this jar's baffles hang; an airlift wants a lid without them.");
 
@@ -3117,20 +3129,22 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           bayonet_probe_port_collet_drop(_do, probe_port_transition_length)
           + atlas_probe_body_height(_do) + atlas_probe_tip_height(_do),
           head_probe_tilt(_do_probe[0], _do_tilt)
-        )
+        ),
+        _over = _tip[1] - (_floor_z + _sparge_ring_height)
       )
       {
         echo(str(
-          "DO probe in the gas: its face sits ", _tip[1] - (_floor_z + _sparge_ring_height),
-          " mm above the sparge ring's centreline and ", abs(_tip[0] - _sparge_ring_radius),
+          "DO probe in the gas: its face sits ", abs(_over), _over >= 0 ? " mm above" : " mm below",
+          " the sparge ring's centreline and ", abs(_tip[0] - _sparge_ring_radius),
           " mm off its radius; where the bubbles go is a bench question"
         ));
 
-        if (abs(_tip[0] - _sparge_ring_radius)
+        // the gas rises, so a face under the ring is out of it whatever its radius
+        if (_over > 0 && abs(_tip[0] - _sparge_ring_radius)
           < sparge_tube_extent() / 2 + atlas_probe_tip_dia(_do) / 2)
           echo(str(
             "WARNING DO probe: its face overlaps the sparge ring's radius and hangs ",
-            _tip[1] - (_floor_z + _sparge_ring_height), " mm over it; a galvanic probe reads high with a bubble ",
+            _over, " mm over it; a galvanic probe reads high with a bubble ",
             "on the membrane and low with none moving past (TODO.md)"
           ));
       }
@@ -3257,12 +3271,17 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     _gas_filter_drop / _gas_vessel_pressure, "x the vessel"
   ));
 
+  // A line the pump cannot beat leaves a throttle nothing to drop; the throttle warning says so.
   echo(str(
     "gas supply: ", air_pump_name(head_air_pump), " settles at ", _gas_ceiling_flow,
-    " L/min against this line, where ", _gas_band[1], " L/min is wanted, so a throttle has to drop ",
-    gas_throttle_pressure(_gas_free_flow, _gas_dead_head, _gas_band[1], _gas_back_pressure),
-    " Pa on top of the line's own (not the ", gas_pump_flow(_gas_free_flow, _gas_dead_head, _gas_back_pressure),
-    " L/min a back pressure held at the design point suggests)"
+    " L/min against this line, where ", _gas_band[1], " L/min is wanted, ",
+    _gas_throttle_drop > 0
+      ? str(
+        "so a throttle has to drop ", _gas_throttle_drop, " Pa on top of the line's own (not the ",
+        gas_pump_flow(_gas_free_flow, _gas_dead_head, _gas_back_pressure),
+        " L/min a back pressure held at the design point suggests)"
+      )
+      : "so there is nothing for a throttle to drop"
   ));
 
   // A line the pump cannot beat gives a negative budget, which is not a filter to buy.

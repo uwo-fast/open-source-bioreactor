@@ -164,10 +164,9 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
     bench says whether that is enough; the item below is what follows if not
   - `jar_1gal_180x197` and `jar_10L` do not build as airlifts: the tube stands where their baffles
     hang. Neither is registered
-  - `jar_6p5gal` does build as one, and should not: a 73 mm tube on 126 mm feet in 325 mm of
-    culture, Ad/Ar 4.1, and ring supports 404 mm long that sway 13 mm a newton against 1.25 mm to
-    the tube. The equal-area gap has no floor on a wide jar; a guard - the tube spanning at least
-    half the depth, or the supports' sway inside their clearance - would refuse it. Not registered
+  - `jar_6p5gal` does not build as one: the equal-area gap stands its tube on 126 mm feet, 73 mm
+    long in 325 mm of culture, and `draft_tube_span_min` (0.5 of the depth, a judgement) refuses
+    it. Not registered
 
 - [ ] **the annulus-sparged airlift (B), if the bench asks for it**
   - the tube as downcomer, the annulus as riser, bubbles up the lit wall. Wants a sparger outside
@@ -199,15 +198,15 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
     magnetic builds stand on a riser instead (`docs/build.md`)
 
 - [ ] **`jar_6p5gal` is not a floor problem and a deeper floor will not fix it**
-  - a magnetic build of it now stands on a 35 mm riser and builds, coupling across the 21 mm
+  - a magnetic build of it now stands on a 35 mm riser and builds, coupling across the 13 mm
     below; it is not registered
   - its punt rises 15 mm at the magnets' radius and the carrier may not stand above the plane the
-    jar lands on, so the magnets sit 9 mm under the punt whatever the floor does. With a 12 mm wall
-    that is 21 mm to the culture, against 4-6 mm on every other jar
+    jar lands on, so the hub cap grows 8 mm into the punt's void and the magnets reach 1 mm under
+    the punt. Its 12 mm wall still puts them 13 mm from the culture, against 4-6 mm on every other
+    jar
   - a 39 mm floor would seat a 120 x 25 at a 29 mm pitch, the best pitch of any jar, and it would
-    still be coupling across those 21 mm
-  - the two things that would change it: let the bore and the carrier rise into the punt's void,
-    which is free space today and would give 13 mm; or larger magnets. Both are their own decision
+    still be coupling across those 13 mm
+  - what would change it now is larger magnets, which is its own decision
 
 ## nice to haves
 
@@ -221,24 +220,15 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
 
 ## tooling / infrastructure / documentation
 
-- [ ] **the frame reports a stir drive on builds that have none**
-  - wherever the base is slotted, the frame echoes the fan and the magnets under every drive:
-    "stir drive: fan40x11 in a 66.1 mm carrier" on `jar_1p5L_112x215`'s airlift build, and the
-    80 x 25 on the shaft builds of `jar_10L` and `jar_1gal_180`. It describes the slot, not a fitted
-    fan; under a non-magnetic drive it should say so. The riser jars already do
-
-- [ ] **the DO-over-ring warning fires when the probe's face is below the ring**
-  - it tests the face against the ring's radius only, so a face under the ring - where rising gas
-    cannot reach it - still warns, as "hangs -62.6358 mm over it" on `jar_1gal_180x197` with
-    `sparger_name = "ring"`. The height it prints is signed; the condition wants the same sign
-  - no registered build reaches it: the only ring builds are the airlifts, which report no DO in
-    the gas
-
 - [ ] **the DO probe's lean is capped by impellers a non-shaft build does not have**
   - `head_probe_tilt_ceiling()` reads `head_reach_obstacles()`, which lists both impellers under
     every drive; `head()` drops them from its own clearance report but not from the ceiling. Latent:
     every magnetic build reaches the full 4.5 deg today, and the airlift hangs DO straight without
     asking the ceiling. Safe either way, since the lean only comes out smaller
+  - nothing reachable shows it: allowed 15 deg, `jar_10L` stops at 4.67 deg on its shaft and
+    magnetic builds alike, with the impellers counted or not and even raised to 2.5 D, so
+    something else binds first. Worth fixing when a build makes the impellers bind, with that
+    build as the test
 
 - [ ] **the port lettering is not pinned to a font, so it is whatever the host resolves `sans` to**
   - `scad/custom/bayonet_port.scad` asks for `font="sans"` in three places (:324, :332, :509).
