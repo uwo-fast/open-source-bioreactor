@@ -164,10 +164,9 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
     bench says whether that is enough; the item below is what follows if not
   - `jar_1gal_180x197` and `jar_10L` do not build as airlifts: the tube stands where their baffles
     hang. Neither is registered
-  - `jar_6p5gal` does build as one, and should not: a 73 mm tube on 126 mm feet in 325 mm of
-    culture, Ad/Ar 4.1, and ring supports 404 mm long that sway 13 mm a newton against 1.25 mm to
-    the tube. The equal-area gap has no floor on a wide jar; a guard - the tube spanning at least
-    half the depth, or the supports' sway inside their clearance - would refuse it. Not registered
+  - `jar_6p5gal` does not build as one: the equal-area gap stands its tube on 126 mm feet, 73 mm
+    long in 325 mm of culture, and `draft_tube_span_min` (0.5 of the depth, a judgement) refuses
+    it. Not registered
 
 - [ ] **the annulus-sparged airlift (B), if the bench asks for it**
   - the tube as downcomer, the annulus as riser, bubbles up the lit wall. Wants a sparger outside
