@@ -722,6 +722,9 @@ draft_tube_wall = 2;
 draft_tube_hardware_clearance = 2;
 // How many feet the draft tube stands on
 draft_tube_feet = 3;
+// The least of the culture's depth the tube has to span. A judgement, not a source: the equal-area
+// gaps can stand a tube on a wide jar so high it barely loops
+draft_tube_span_min = 0.5;
 // Width of each foot, around the tube, in mm
 draft_tube_foot_width = 8;
 // Fillet each side of a foot where it meets the tube, against the corner cracking; a short foot
@@ -2240,6 +2243,15 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     );
 
     assert(_tube_top > _tube_bottom, str("The draft tube has no length: ", _tube_bottom, " to ", _tube_top, " mm off the floor."));
+
+    assert(
+      _tube_top - _tube_bottom >= draft_tube_span_min * _liquid_height,
+      str(
+        "The draft tube is ", _tube_top - _tube_bottom, " mm long in ", _liquid_height, " mm of culture, ",
+        (_tube_top - _tube_bottom) / _liquid_height, " of it against draft_tube_span_min ", draft_tube_span_min,
+        "; the feet the equal-area gap stands it on leave too short a loop on this jar."
+      )
+    );
 
     // The tube is sized round what hangs inside it, and a baffle is not on that list.
     assert(!_has_baffles, "The airlift's draft tube stands where this jar's baffles hang; an airlift wants a lid without them.");
