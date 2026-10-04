@@ -228,13 +228,6 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
     jars' pinned shaft render stops on an assert. A transcript per set in `bioreactor.json` would
     cover all nine
 
-- [ ] **the DO-over-ring warning fires when the probe's face is below the ring**
-  - it tests the face against the ring's radius only, so a face under the ring - where rising gas
-    cannot reach it - still warns, as "hangs -62.6358 mm over it" on `jar_1gal_180x197` with
-    `sparger_name = "ring"`. The height it prints is signed; the condition wants the same sign
-  - no registered build reaches it: the only ring builds are the airlifts, which report no DO in
-    the gas
-
 - [ ] **the DO probe's lean is capped by impellers a non-shaft build does not have**
   - `head_probe_tilt_ceiling()` reads `head_reach_obstacles()`, which lists both impellers under
     every drive; `head()` drops them from its own clearance report but not from the ceiling. Latent:
