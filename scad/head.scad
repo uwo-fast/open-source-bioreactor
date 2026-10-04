@@ -3259,12 +3259,17 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     _gas_filter_drop / _gas_vessel_pressure, "x the vessel"
   ));
 
+  // A line the pump cannot beat leaves a throttle nothing to drop; the throttle warning says so.
   echo(str(
     "gas supply: ", air_pump_name(head_air_pump), " settles at ", _gas_ceiling_flow,
-    " L/min against this line, where ", _gas_band[1], " L/min is wanted, so a throttle has to drop ",
-    gas_throttle_pressure(_gas_free_flow, _gas_dead_head, _gas_band[1], _gas_back_pressure),
-    " Pa on top of the line's own (not the ", gas_pump_flow(_gas_free_flow, _gas_dead_head, _gas_back_pressure),
-    " L/min a back pressure held at the design point suggests)"
+    " L/min against this line, where ", _gas_band[1], " L/min is wanted, ",
+    _gas_throttle_drop > 0
+      ? str(
+        "so a throttle has to drop ", _gas_throttle_drop, " Pa on top of the line's own (not the ",
+        gas_pump_flow(_gas_free_flow, _gas_dead_head, _gas_back_pressure),
+        " L/min a back pressure held at the design point suggests)"
+      )
+      : "so there is nothing for a throttle to drop"
   ));
 
   // A line the pump cannot beat gives a negative budget, which is not a filter to buy.
