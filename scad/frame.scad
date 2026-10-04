@@ -512,7 +512,11 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
   // plus the recess, since it stands on the fan rather than on the rim.
   _carrier_top = is_undef(_fan) ? undef : min(_landing, _magnet_top - _hub_cap_height);
   _carrier_height = is_undef(_fan) ? undef : _carrier_top - _slot_height;
-  _magnet_glass_gap = is_undef(_fan) ? undef : punt_under(_magnet_outer_radius) - (_carrier_top + _hub_cap_height);
+  // Where the landing plane stops the carrier short, the cap grows a solid floor under the magnets
+  // instead, up into the punt's void; its rim is the widest thing up there, so the rim may bind.
+  _cap_lift = is_undef(_fan) ? undef
+    : max(0, min(_magnet_top, punt_under(fan_hub(_fan) / 2) - stir_magnet_glass_clearance) - (_carrier_top + _hub_cap_height));
+  _magnet_glass_gap = is_undef(_fan) ? undef : punt_under(_magnet_outer_radius) - (_carrier_top + _hub_cap_height + _cap_lift);
   // and the fan's corners are the widest thing under the cone
   _fan_corner_gap = is_undef(_fan) ? undef : punt_under(fan_corner_diameter(_fan) / 2) - _carrier_top;
   // The fasteners stand on the fan's face at the screw circle, which is inside the corners, so
@@ -934,13 +938,13 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
         fan_hole_positions(_fan, z=_fastener_depth - nut_thickness(_fan_nut))
           nut(_fan_nut);
     translate([0, 0, _fan_top])
-      magnet_hub_cap(fan_hub(_fan), _magnet, pedestal=carrier_fan_recess, cap=false, magnets=true);
+      magnet_hub_cap(fan_hub(_fan), _magnet, pedestal=carrier_fan_recess + _cap_lift, cap=false, magnets=true);
   }
 
   module frame_hub_cap() {
     translate([0, 0, _fan_top])
       color(prints2_color)
-        magnet_hub_cap(fan_hub(_fan), _magnet, pedestal=carrier_fan_recess);
+        magnet_hub_cap(fan_hub(_fan), _magnet, pedestal=carrier_fan_recess + _cap_lift);
   }
 
   // z = 0 is the bottom of the vessel, so the whole frame drops by its floor

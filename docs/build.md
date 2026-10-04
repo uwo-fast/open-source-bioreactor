@@ -331,8 +331,8 @@ fan, 3.48992 mm under the glass
 fan joint, head down: an M4 x 40 mm cap screw up from the pocket to a nut on the fan
 stands 4.25 mm over that nut, 1.76008 mm into it - shorten the screw, or build it the
 other way up
-stir magnets: 2 x MAG5x8 on the 40 mm hub at 28 mm pitch, faces 3.63636 mm under the
-punt and 8.63636 mm from the floor inside
+stir magnets: 2 x MAG5x8 on the 40 mm hub at 28 mm pitch, faces 1.24242 mm under the
+punt and 6.24242 mm from the floor inside
 stir bar: 38x8 centred on the 30 mm punt plateau, overhanging it by 4 mm each end;
 sweeps r 19 under the sparge arm, 55.49 mm over it and the baffles at r 51.3273; the
 sparger is still placed on the shaft drive's impeller
@@ -396,10 +396,12 @@ on. That is what "faces 1 mm under the punt and 6 mm from the floor inside" is: 
 glass to the culture, with the bar's axis 4 mm above that.
 
 That ceiling is why a deeper floor does not help every jar. Where the punt rises further than the
-magnets and their cap need, the carrier stops at the landing plane and the magnets sit lower than
-their clearance however deep the floor goes. On `jar_6p5gal` the punt rises 15 mm at the magnets, so
-they would sit 9 mm under it, and its 12 mm wall puts them 21 mm from the culture against 4-6 mm on
-every other jar. Floor depth is not that jar's problem.
+magnets and their cap need, the carrier stops at the landing plane and the cap grows instead: a solid
+floor under the magnets, up into the punt's void, until either the magnets reach their clearance or
+the cap's rim reaches its own. On `jar_10L` the rim binds first, so the cap is 8.39 mm tall and the
+magnets sit 1.24 mm under the punt. On `jar_6p5gal` the punt rises 15 mm at the magnets and the cap
+grows 8 mm to reach 1 mm, but its 12 mm wall still puts them 13 mm from the culture against 4-6 mm
+on every other jar. Floor depth is not that jar's problem.
 
 **Assembly, in the order the parts allow:**
 
