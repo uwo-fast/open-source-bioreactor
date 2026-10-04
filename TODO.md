@@ -227,24 +227,15 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
     jars' pinned shaft render stops on an assert. A transcript per set in `bioreactor.json` would
     cover all nine
 
-- [ ] **the frame reports a stir drive on builds that have none**
-  - wherever the base is slotted, the frame echoes the fan and the magnets under every drive:
-    "stir drive: fan40x11 in a 66.1 mm carrier" on `jar_1p5L_112x215`'s airlift build, and the
-    80 x 25 on the shaft builds of `jar_10L` and `jar_1gal_180`. It describes the slot, not a fitted
-    fan; under a non-magnetic drive it should say so. The riser jars already do
-
-- [ ] **the DO-over-ring warning fires when the probe's face is below the ring**
-  - it tests the face against the ring's radius only, so a face under the ring - where rising gas
-    cannot reach it - still warns, as "hangs -62.6358 mm over it" on `jar_1gal_180x197` with
-    `sparger_name = "ring"`. The height it prints is signed; the condition wants the same sign
-  - no registered build reaches it: the only ring builds are the airlifts, which report no DO in
-    the gas
-
 - [ ] **the DO probe's lean is capped by impellers a non-shaft build does not have**
   - `head_probe_tilt_ceiling()` reads `head_reach_obstacles()`, which lists both impellers under
     every drive; `head()` drops them from its own clearance report but not from the ceiling. Latent:
     every magnetic build reaches the full 4.5 deg today, and the airlift hangs DO straight without
     asking the ceiling. Safe either way, since the lean only comes out smaller
+  - nothing reachable shows it: allowed 15 deg, `jar_10L` stops at 4.67 deg on its shaft and
+    magnetic builds alike, with the impellers counted or not and even raised to 2.5 D, so
+    something else binds first. Worth fixing when a build makes the impellers bind, with that
+    build as the test
 
 - [ ] **the port lettering is not pinned to a font, so it is whatever the host resolves `sans` to**
   - `scad/custom/bayonet_port.scad` asks for `font="sans"` in three places (:324, :332, :509).
