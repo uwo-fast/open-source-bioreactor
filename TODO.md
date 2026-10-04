@@ -233,6 +233,10 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
     every drive; `head()` drops them from its own clearance report but not from the ceiling. Latent:
     every magnetic build reaches the full 4.5 deg today, and the airlift hangs DO straight without
     asking the ceiling. Safe either way, since the lean only comes out smaller
+  - nothing reachable shows it: allowed 15 deg, `jar_10L` stops at 4.67 deg on its shaft and
+    magnetic builds alike, with the impellers counted or not and even raised to 2.5 D, so
+    something else binds first. Worth fixing when a build makes the impellers bind, with that
+    build as the test
 
 - [ ] **the port lettering is not pinned to a font, so it is whatever the host resolves `sans` to**
   - `scad/custom/bayonet_port.scad` asks for `font="sans"` in three places (:324, :332, :509).
