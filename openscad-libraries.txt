@@ -30,4 +30,4 @@ NopSCADlib          https://github.com/nophead/NopSCADlib.git                v21
 bayonet-lock-scad   https://github.com/CameronBrooks11/bayonet-lock-scad.git 95953cc
 FunctionalOpenSCAD  https://github.com/thehans/FunctionalOpenSCAD.git        51588ff
 threads-scad        https://github.com/rcolyer/threads-scad.git              4ae9aeb
-din168-thread-scad  https://github.com/CameronBrooks11/din168-thread-scad.git f544e68
+din168-thread-scad  https://github.com/CameronBrooks11/din168-thread-scad.git f7a649e
