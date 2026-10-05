@@ -7,11 +7,13 @@
 */
 
 include <purchased/strip_lights.scad>;
+include <purchased/heat_pads.scad>; // the pad a build holds on the glass, and what it draws at the rail
 include <purchased/vessels.scad>; // the preview builds against a registered jar, not copied numbers
 include <purchased/fans.scad>; // the fan a magnetic drive turns under the jar, NopSCADlib's rows
 include <purchased/magnets.scad>; // the magnets on its hub, NopSCADlib's rows
 
 use <custom/magnet_hub_cap.scad>;
+use <custom/heat_pad_mount.scad>;
 
 use <utils/bolt_pattern.scad>;
 
@@ -55,6 +57,12 @@ render_hub_cap = false;
 render_stir_fan = false;
 // The riser a magnetic build stands on where its fan wants more floor than the base gives
 render_stir_riser = false;
+// The heating pads - bought, drawn on the glass in the unlit quadrants at the lower rib level
+render_heat_pads = false;
+// The plates that hang the pads behind the ribs
+render_heat_pad_plates = false;
+// Which plate, in emission order, for a per-part export; undef renders the set in place
+heat_pad_plate_to_render = undef;
 
 /* [Vessel Selection] */
 
@@ -238,8 +246,9 @@ function frame_outer_diameter(vessel_outer_diameter, wall_thickness) =
 // Every printed part the frame carries: [name, quantity, the flags that render it alone]. The
 // other half of head_print_parts(); `just export-parts` walks both. The ribs are one part eight
 // times - their exported meshes differ only by how the lights cutout tessellates at each rotation.
-// `riser` is whether frame_riser_height() is more than 0 for the build.
-function frame_print_parts(n_rods, drive = "shaft", riser = false) =
+// `riser` is whether frame_riser_height() is more than 0 for the build, and `heat_pad` the pad
+// it names, if any: one plate per unlit quadrant, exported in place and printed top edge down.
+function frame_print_parts(n_rods, drive = "shaft", riser = false, heat_pad = undef) =
   concat(
     [
       ["frame_base", 1, "-D render_base=true"],
@@ -254,7 +263,9 @@ function frame_print_parts(n_rods, drive = "shaft", riser = false) =
         ["frame_hub_cap", 1, "-D render_hub_cap=true"],
       ]
       : [],
-    drive == "magnetic" && riser ? [["frame_stir_riser", 1, "-D render_stir_riser=true"]] : []
+    drive == "magnetic" && riser ? [["frame_stir_riser", 1, "-D render_stir_riser=true"]] : [],
+    is_undef(heat_pad) ? []
+    : [["heat_pad_plate", 4 - len(light_quadrants), "-D render_heat_pad_plates=true -D heat_pad_plate_to_render=0"]]
   );
 
 // The bore under the jar: the ring the jar lands on, less what the floor reaches inboard of it.
@@ -409,7 +420,7 @@ module frame_rod_at(i, n_rods, rod_shift) {
       children();
 }
 
-module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts, bolt_screw, drive = "shaft", magnet = undef, collapse_spacer_z_allow=true, lights_per_quadrant = lights_per_quadrant) {
+module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts, bolt_screw, drive = "shaft", magnet = undef, collapse_spacer_z_allow=true, lights_per_quadrant = lights_per_quadrant, heat_pad = undef) {
 
   // The vessel's fields, read once.
   vessel_height = vessel_height(vessel);
@@ -634,6 +645,14 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
       ? " and nothing spare"
       : str(" and ", _light_spare, " tube", _light_spare == 1 ? "" : "s", " left over")
   ));
+
+  // The rail's voltage over the measured resistance is what a pad draws, not its listed watts.
+  if (!is_undef(heat_pad))
+    let (_n = len(_slot_quadrants), _w = pow(heat_pad_volts(heat_pad), 2) / heat_pad_resistance(heat_pad))
+      echo(str(
+        "heat pads: ", _n, " x ", heat_pad_name(heat_pad), " behind the lower rib level in the unlit quadrants, ",
+        _w, " W each at ", heat_pad_volts(heat_pad), " V on ", heat_pad_resistance(heat_pad), " ohm measured, ", _n * _w, " W in all"
+      ));
 
   module frame_lights(local_quadrants = light_quadrants) {
     lights(local_quadrants, vessel_outer_diameter, light, lights_per_quadrant, occupy_angle);
@@ -951,6 +970,35 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
       magnet_hub_cap(fan_hub(_fan), _magnet, pedestal=carrier_fan_recess + _cap_lift, cap=false, magnets=true);
   }
 
+  // A heating pad in each unlit quadrant, behind the lower rib level's arc there. Its tabs ride the
+  // quadrant's outermost light pockets, so they read the pockets the lights are cut by.
+  module frame_heat_pads(pads = true, plates = true) {
+    _glass_r = vessel_outer_diameter / 2;
+    _pocket_back = light_bore_radius(vessel_outer_diameter) + light_cover_radius(light)
+      + strip_light_depth(light) + light_pocket_allow;
+    _pocket_w = strip_light_width(light) + 2 * light_pocket_allow;
+    _tabs = [for (i = [0, lights_per_quadrant - 1]) light_angle(i, lights_per_quadrant, occupy_angle) - 45];
+    if (len(_slot_quadrants) > 0)
+    for (i = [0:len(_slot_quadrants) - 1])
+      // the quadrant's middle on the lights' own convention, which steps out along +y, and which of
+      // the level's two layers the arc there is, from the ribs' own turn below
+      let (
+        q = _slot_quadrants[i],
+        _a = (q - 1) * 90 + 45 + 90,
+        _g = floor((_a % 360) / 90) + 1,
+        _k = ((_g - 1 - 1) % 2 + 2) % 2,
+        _z = rib_level_bottom(1) + ((1 + _k + 1) % 2) * rib_base_height
+      )
+        rotate([0, 0, _a])
+          translate([0, 0, _z]) {
+            if (plates && (is_undef(heat_pad_plate_to_render) || heat_pad_plate_to_render == i))
+              color(prints2_color)
+                heat_pad_plate(heat_pad, _glass_r, rib_base_height, _pocket_back, _pocket_w, _tabs);
+            if (pads)
+              heat_pad_fitted(heat_pad, _glass_r, rib_base_height);
+          }
+  }
+
   module frame_hub_cap() {
     translate([0, 0, _fan_top])
       color(prints2_color)
@@ -1128,10 +1176,22 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
 
                     translate([0, 0, f_height])
                       cylinder(d=base_jar_cut_diameter, h=rib_base_height - f_height + z_fight);
+
+                    // the recess a heating pad's plate hangs in, centred on the arc
+                    if (!is_undef(heat_pad))
+                      rotate([0, 0, (n_rods_ribs - 1) * 45])
+                        heat_pad_sector(
+                          base_jar_cut_diameter / 2 - 1, heat_pad_recess_radius(heat_pad, vessel_outer_diameter / 2),
+                          -1, rib_base_height + 1, heat_pad_recess_span(heat_pad, vessel_outer_diameter / 2)
+                        );
                   }
         }
       }
     }
+
+    // drawn only when a build names a pad, like the magnetic drive
+    if (!is_undef(heat_pad) && (render_heat_pads || render_heat_pad_plates || render_all))
+      frame_heat_pads(pads=render_heat_pads || render_all, plates=render_heat_pad_plates || render_all);
 
     // rod rib spacers
     if (render_rodspacers || render_all) {

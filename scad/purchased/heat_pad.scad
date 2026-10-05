@@ -15,13 +15,15 @@ function heat_pad_volts(type) = type[3][0];
 function heat_pad_watts(type) = type[3][1];
 function heat_pad_resistance(type) = type[4];
 function heat_pad_lead_length(type) = type[5];
+// the red-orange of the silicone
+function heat_pad_color() = "#e2502a";
 
 /**
  * @brief Draws a registered heating pad (see heat_pads.scad)
  * @param type Registered parameter set
  */
 module heat_pad(type) {
-  color("firebrick")
+  color(heat_pad_color())
     translate([-heat_pad_length(type) / 2, 0, -heat_pad_height(type) / 2])
       cube([heat_pad_length(type), heat_pad_thickness(type), heat_pad_height(type)]);
 }

@@ -24,6 +24,7 @@
 
 include <purchased/vessels.scad>;
 include <purchased/strip_lights.scad>;
+include <purchased/heat_pads.scad>;
 include <purchased/printers.scad>;
 include <purchased/stir_bars.scad>;
 include <purchased/magnets.scad>;
@@ -73,6 +74,8 @@ reactor_vessel_name = "jar_10L_220x305"; // [jar_10L_220x305, jar_1gal_180x197, 
 strip_light_name = "auto"; // [auto, RWNTAO 13in, grow 13in, grow 16in, grow 8.6in]
 // Tubes in each lit quadrant
 lights_per_quadrant = 3; // [1:1:6]
+// The heating pad held on the jar in each unlit quadrant, or none
+heat_pad_name = "none"; // [none, 20W 150x50]
 
 /* [Head Parameters - Coupling] */
 
@@ -194,6 +197,12 @@ _build_light = strip_light_name == "auto" ? undef : strip_light_by_name(strip_li
 assert(
   strip_light_name == "auto" || !is_undef(_build_light),
   str("No registered strip light is named \"", strip_light_name, "\", or it is registered twice. See scad/purchased/strip_lights.scad.")
+);
+
+_build_heat_pad = heat_pad_name == "none" ? undef : heat_pad_by_name(heat_pad_name);
+assert(
+  heat_pad_name == "none" || !is_undef(_build_heat_pad),
+  str("No registered heating pad is named \"", heat_pad_name, "\", or it is registered twice. See scad/purchased/heat_pads.scad.")
 );
 
 // Pairs, not a positional row: each is optional, and an explicit undef ("derive it") has to stay
@@ -359,7 +368,8 @@ if (render_frame || render_all) {
     drive=drive_name,
     magnet=_build_magnet,
     collapse_spacer_z_allow=true,
-    lights_per_quadrant=lights_per_quadrant
+    lights_per_quadrant=lights_per_quadrant,
+    heat_pad=_build_heat_pad
   );
 }
 

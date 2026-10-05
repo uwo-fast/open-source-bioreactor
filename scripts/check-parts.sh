@@ -29,6 +29,7 @@ not_printed=(
     render_lights               # vitamin - the LED strips the frame makes room for
     render_stir_fan             # vitamin - the fan, its screws and the magnets in the carrier
     render_stir_bar             # vitamin - the PTFE bar on the punt
+    render_heat_pads            # vitamin - the silicone pads the plates hold on the glass
 )
 # Every drive, because each manifest lists only its own drive's parts and a flag has to reach
 # at least one of them; and with a riser, which only a deep jar's magnetic build stands on.
@@ -38,7 +39,7 @@ _v = reactor_vessel;
 for (d = ["shaft", "magnetic", "none", "airlift"]) {
   for (p = head_print_parts(_v, lid_flange_height, d, sparger_name, lid_center_name))
     echo(str("PART|", p[2]));
-  for (p = frame_print_parts(n_rods, d, riser=true)) echo(str("PART|", p[2]));
+  for (p = frame_print_parts(n_rods, d, riser=true, heat_pad=heat_pads[0])) echo(str("PART|", p[2]));
 }
 SCAD
 "$OPENSCAD" -D render_all=false -o "$tmp/m.csg" "$tmp/m.scad" 2>"$tmp/err" >/dev/null
@@ -79,6 +80,8 @@ not_exported=(
                                                 # this file's own render is a preview of it
     scad/custom/magnet_hub_cap.scad             # exported through frame's manifest as
                                                 # "frame_hub_cap", on the fan the frame chose
+    scad/custom/heat_pad_mount.scad             # exported through frame's manifest as
+                                                # "heat_pad_plate", where a build names a pad
     scad/custom/bearing_blank.scad              # exported through head's manifest as
                                                 # "bearing_blank", sized to the lid's pocket
     scad/custom/draft_tube.scad                 # exported through head's manifest as
