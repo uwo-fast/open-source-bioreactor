@@ -71,6 +71,8 @@ reactor_vessel_name = "jar_10L_220x305"; // [jar_10L_220x305, jar_1gal_180x197, 
 
 // The strip light; auto takes the shortest row that covers the culture
 strip_light_name = "auto"; // [auto, RWNTAO 13in, grow 13in, grow 16in, grow 8.6in]
+// Tubes in each lit quadrant
+lights_per_quadrant = 3; // [1:1:6]
 
 /* [Head Parameters - Coupling] */
 
@@ -356,7 +358,8 @@ if (render_frame || render_all) {
     bolt_pts=bolt_pattern_pts(joint_posts, joint_bolt_circle, n_rods),
     drive=drive_name,
     magnet=_build_magnet,
-    collapse_spacer_z_allow=true
+    collapse_spacer_z_allow=true,
+    lights_per_quadrant=lights_per_quadrant
   );
 }
 

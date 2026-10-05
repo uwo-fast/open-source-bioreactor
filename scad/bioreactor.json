@@ -2,11 +2,15 @@
     "fileFormatVersion": "1",
     "parameterSets": {
         "jar_10L_220x305": {
-            "reactor_vessel_name": "jar_10L_220x305"
+            "reactor_vessel_name": "jar_10L_220x305",
+            "strip_light_name": "grow 13in",
+            "lights_per_quadrant": "4"
         },
         "jar_10L_magnetic": {
             "reactor_vessel_name": "jar_10L_220x305",
-            "drive_name": "magnetic"
+            "drive_name": "magnetic",
+            "strip_light_name": "grow 13in",
+            "lights_per_quadrant": "4"
         },
         "jar_1gal_180x197": {
             "reactor_vessel_name": "jar_1gal_180x197"

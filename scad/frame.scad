@@ -409,7 +409,7 @@ module frame_rod_at(i, n_rods, rod_shift) {
       children();
 }
 
-module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts, bolt_screw, drive = "shaft", magnet = undef, collapse_spacer_z_allow=true) {
+module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts, bolt_screw, drive = "shaft", magnet = undef, collapse_spacer_z_allow=true, lights_per_quadrant = lights_per_quadrant) {
 
   // The vessel's fields, read once.
   vessel_height = vessel_height(vessel);
