@@ -28,7 +28,7 @@ $fs = facet_size();
 
 // example usage: a GL45 humidifier cap, its two tube pins beside it, and its rim gasket
 _gl = din168_by_name("GL45");
-gl_port_cap(_gl, skirt=true);
+gl_port_cap(_gl);
 for (i = [0:1])
   translate([45 + i * 25, 0, 0])
     bayonet_port(
@@ -43,13 +43,12 @@ translate([0, 60, 0]) sheet_gasket(inner_diameter=34, outer_diameter=45, thickne
  * @param panel_thickness  The top's thickness, and the ports' panel thickness
  * @param port_count       Ports, evenly round the axis
  * @param port_offset      Distance of each port from the axis
- * @param thread_length    Length of the cap's thread
+ * @param thread_length    Length of the cap's thread; undef for din168's default, five pitches
  * @param liner_space      Plain wall between the thread and the top, where the gasket sits
  * @param wall             Wall outside the thread's root
  * @param clearance        Thread clearance, per flank and radially
  * @param ribs             Grip ribs round the outside; 0 for none
- * @param skirt            Plain wall below the thread, over the neck: false, true (din168's default,
- *                         one pitch) or a length
+ * @param ring_band        Band at the mouth that clears a pouring ring, in mm; 0 for none
  */
 module gl_port_cap(
   size,
@@ -57,12 +56,12 @@ module gl_port_cap(
   panel_thickness = 10,
   port_count = 2,
   port_offset = 10.5,
-  thread_length = 12,
+  thread_length = undef,
   liner_space = 2,
   wall = 2,
   clearance = 0.2,
   ribs = 36,
-  skirt = false
+  ring_band = 0
 ) {
   _r_cap = din168_cap_radius(size, wall, clearance);
   _flange_r = bayonet_flange_radius(type);
@@ -91,7 +90,7 @@ module gl_port_cap(
   }
 
   difference() {
-    din168_cap(size, thread_length, liner_space, panel_thickness, wall, clearance, ribs, skirt);
+    din168_cap(size, thread_length, liner_space, panel_thickness, wall, clearance, ribs, ring_band);
     _at_ports()
       translate([0, 0, -panel_thickness - 1])
         cylinder(h=panel_thickness + 2, r=bayonet_port_hole_radius(type));
