@@ -203,11 +203,11 @@ is set by the rod bosses, so that bought nothing and was undone.
 
 ## What you cut
 
-| Stock                              | Cut                          | Yield                                         |
-| ---------------------------------- | ---------------------------- | --------------------------------------------- |
-| M8 threaded rod, DIN 975 A2        | **4 × 322 mm**               | buy 1500 mm or more                           |
-| 316 SS tube 4 × 0.5 mm, `50415K21` | **1 × 182.0 + 4 × 188.2 mm** | 934.7 mm from a 1000 mm length, 65.3 mm spare |
-| EPDM sheet 1/16 in 60A, `8525T65`  | **142.2 × 158.2 mm** per lid | 1 per 304.8 mm sheet                          |
+| Stock                              | Cut                          | Yield                                           |
+| ---------------------------------- | ---------------------------- | ----------------------------------------------- |
+| M8 threaded rod, DIN 975 A2        | **4 × 322 mm**               | buy 1500 mm or more                             |
+| 316 SS tube 4 × 0.5 mm, `50415K21` | **1 × 251.4 + 5 × 188.2 mm** | 1192.3 mm from a 2000 mm length, 807.7 mm spare |
+| EPDM sheet 1/16 in 60A, `8525T65`  | **142.2 × 158.2 mm** per lid | 1 per 304.8 mm sheet                            |
 
 **The rod length follows the jar, not the design.** 322 mm is `jar_10L`; it is 214 mm on
 `jar_1gal_180` and 487 on `jar_6p5gal`. It is derived as vessel 305 + flange 8 + nut 6.5 + 2.5 mm
@@ -484,7 +484,7 @@ to match - on `jar_1p5L` that moves their stock from a 500 mm length to a 1000 m
 
 **How the riser is held.** Every socket is bored 0.2 mm over the 4 mm tube — a slip fit, since a
 printed bore at the tube's own size is a press fit and the ring's five blind sockets cannot take
-one. Every socket is 12 mm deep. The ring rests on its five tubes and needs nothing more. The arm
+one. Every socket is 12 mm deep. The ring rests on its six tubes and needs nothing more. The arm
 hangs on one, so its socket carries a boss, and the same M4×6 316 set screw that plugs the ring's
 ends self-taps into a pilot in that boss and bites the tube by 3 mm: seat the arm, point it at the
 shaft, and drive the screw. The arm's end is open through a pilot like the ring's, so a brush
@@ -569,7 +569,7 @@ so the bore on those marks tells you nothing and the function name is carrying a
 word, not the number.
 
 The sparge ring itself cannot be installed rotated, and it is better keyed than it was: it now
-carries a socket under every tube port — five on the full lid at 0, 180, 240, 270 and 330° — and
+carries a socket under every tube port — six on the full lid at 0, 180, 210, 240, 300 and 330° — and
 that pattern is irregular enough that only one rotation puts them all under ports. On the six-port
 jars it is three.
 

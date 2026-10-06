@@ -7,18 +7,23 @@ that table, and the table is the statement of record.
 [`ports_layout.drawio`](ports_layout.drawio) is the sketch of the same circle, editable in
 draw.io. It was in the repo and referenced by nothing, which is how a diagram goes stale unnoticed.
 
-## Why four baffles, and why they set everything else
+## Why three baffles, and why they set everything else
 
 An equally spaced count has to divide the port circle. On twelve ports that allows 2, 3, 4, 6 or
-12 baffles, and `head()` asserts it rather than trusting the table. Four at 90° is Oldshue's
-reference case (1997 p. 202), so the count is no longer a departure to explain.
+12 baffles, and `head()` asserts it rather than trusting the table.
 
-Four baffles must sit every third port. That is not a free choice, and it has one useful
-consequence: the remaining eight ports fall into **four adjacent pairs, one between each baffle**.
-The functional grouping below is built on those pairs rather than assigned port by port.
+**Three at 120° is a departure, taken for a port.** Four at 90° is Oldshue's reference case (1997
+p. 202), and the lid ran four. He allows three, but at _"the same total projected area as exists
+with four baffles"_, and this lid cannot widen a plate to make that up: the sparge ring caps the
+width and the floor caps the length. So three plates are three quarters of four, **0.433** of his
+reference area on `jar_10L` against 0.577. What the fourth plate bought back is a port, and the lid
+needs one for a sampling line. `head()` keeps warning that the vessel is under-baffled, and names
+four plates as the next count that spaces equally.
 
-Going from three baffles to four costs one port, and the one dropped is a media/spare line — the
-least committed function on the lid.
+Three baffles sit every fourth port, and the remaining nine fall into **three adjacent triples,
+one between each pair of baffles**. Going back to four is not a matter of turning one port into a
+baffle: four equally spaced do not land on three-at-120°, so it means the whole layout this one
+replaced (four baffles every third port, and one tube port fewer).
 
 ## The layout
 
@@ -28,17 +33,17 @@ least committed function on the lid.
 | 1   | 30°   | **baffle**   |                  |
 | 2   | 60°   | probe        | dissolved oxygen |
 | 3   | 90°   | thermocouple | temperature      |
-| 4   | 120°  | **baffle**   |                  |
-| 5   | 150°  | probe        | pH               |
+| 4   | 120°  | probe        | pH               |
+| 5   | 150°  | **baffle**   |                  |
 | 6   | 180°  | tube Ø4.4    | dose 1           |
-| 7   | 210°  | **baffle**   |                  |
+| 7   | 210°  | tube Ø4.4    | dose 2           |
 | 8   | 240°  | tube Ø4.4    | air in           |
-| 9   | 270°  | tube Ø4.4    | dose 2           |
-| 10  | 300°  | **baffle**   |                  |
-| 11  | 330°  | tube Ø4.4    | dose 3           |
+| 9   | 270°  | **baffle**   |                  |
+| 10  | 300°  | tube Ø4.4    | dose 3           |
+| 11  | 330°  | tube Ø4.4    | dose 4           |
 
 Every tube port is bored Ø4.4 for the steel riser it carries; what a port is for is engraved on
-its flange. The three dosing ports are numbered, not named: which carries acid, base, media or
+its flange. The four dosing ports are numbered, not named: which carries acid, base, media or
 anything else is the user's to choose, and any of them can be given to another function.
 
 ## The heuristics, and where this layout lands against them
@@ -48,19 +53,20 @@ arrangement symmetric and manufacturable. Each is checked against the table abov
 
 - **Air in as far as practical from the dissolved-oxygen probe**, so bubbles do not collect on or
   pass over the sensing surface. Air in at 240°, DO at 60° — **180°, the maximum the circle
-  allows**. Secondarily from pH, at 90°.
+  allows**. Secondarily from pH, at 120°.
 - **Air out separated from air in and the sparger sector**, and away from the expected splash and
   foam region. Air out at 0°, 120° from air in. Impeller circulation direction is a secondary
   preference here, not a prediction.
 - **Dosing lines grouped near air in and the mixing sector**, so dosed solution disperses quickly,
-  and **away from the pH probe** so a fresh dose does not bias it. Doses 2 and 3, at 270° and 330°,
-  sit 30° and 90° from air in and 120° and 180° from pH, so they are the ones for acid and base.
-  Dose 1, at 180°, is 30° from pH.
+  and **away from the pH probe** so a fresh dose does not bias it. Doses 2 and 3, at 210° and 300°,
+  sit 30° and 60° from air in and 90° and 180° from pH, so they are the ones for acid and base.
+  Dose 1, at 180°, is 60° from pH, and dose 4, at 330°, 150°.
 - **Thermocouple adjacent to the DO probe**, so the temperature used for DO compensation comes from
-  the same region of liquid. They are at 90° and 60° — **adjacent**. The three-baffle layout this
-  replaced put the pH probe between them, 60° apart, which did not meet this rule.
-- **A third line distributed through the space** with clearance from baffles, probes, the other
-  dosing lines, and the shaft. Dose 1 at 180°.
+  the same region of liquid. They are at 90° and 60° — **adjacent**. An earlier three-baffle layout
+  put the pH probe between them, 60° apart, which did not meet this rule.
+- **The other lines distributed through the space** with clearance from baffles, probes, the
+  other dosing lines, and the shaft. Dose 1 at 180°, and dose 4 at 330° between two small tube
+  ports, which is the port for anything tall that stands on the lid.
 
 ## What the air-in port now carries
 
@@ -69,7 +75,7 @@ The **sparger** is not on this circle, but it hangs from it. The port at 240° c
 the riser is a straight tube with no bend.
 
 That the arm can run inboard at all is a property of this layout: 240° sits **between** the baffles
-at 210° and 300°, so the whole radial band is clear there. It is the only reason a feed can cross
+at 150° and 270°, so the whole radial band is clear there. It is the only reason a feed can cross
 from the port circle out to a ring at 1.44 D without fouling a plate. Move the air inlet to a baffle
 port and the arm has nowhere to go — which is why `head()` asserts the `air_in` port is a tube.
 
@@ -80,13 +86,13 @@ silently taking the first.
 
 ## What the other tube ports also carry
 
-The ring hangs on more than its feed. **Every tube port but `air_in` drops a riser to it** — four on
+The ring hangs on more than its feed. **Every tube port but `air_in` drops a riser to it** — five on
 the twelve-port lid, two on the six-port jars — and the model derives that from the port table rather
 than naming functions, so any lid answers it. It was a named list once, and naming the acid and base
 lines in it broke the six-port jars, which carried neither.
 
 The stock is what makes it free: a riser is 188.174 mm on `jar_10L` and this tube is sold by the
-metre, so the five the full set wants come off one length with 59 mm spare.
+metre. The six the full set wants come to 1192.3 mm, so they take a 2000 mm length.
 
 A support riser is the same tube in the same material as the feed, but its socket is **blind**. It
 carries load and no gas, which is what lets it double as whatever its port is for: the tube is capped
@@ -109,11 +115,11 @@ at the bottom of a jar: the feed's boss is an **octagon** and a support's is rou
 are the same boss — same bore, same height, same arm — and the difference is entirely internal.
 Sized across the flats, so the wall is unchanged and only the corners are new material.
 
-**That tell got weaker as the count grew.** There is one feed against four supports on the full lid,
-so there are now four ways to put the gas line on a capped tube rather than one, and the octagon's
+**That tell got weaker as the count grew.** There is one feed against five supports on the full lid,
+so there are now five ways to put the gas line on a capped tube rather than one, and the octagon's
 corners stand only 0.264 mm proud of the circle. Count the facets or feel for the corners; do not
-glance. Every socket also carries a 0.5 mm lead-in chamfer, which is about getting five rigid tubes
-into five sockets at once and tells you nothing about which is which.
+glance. Every socket also carries a 0.5 mm lead-in chamfer, which is about getting six rigid tubes
+into six sockets at once and tells you nothing about which is which.
 
 ## Every tube port is bored for a tube, and sealed around it
 
@@ -169,7 +175,7 @@ section before this one. Since they are now all the same, the bore on those mark
 nothing and the function word carries it: read the word, not the number.
 
 The ring itself cannot be installed rotated, and is better keyed than it was: it carries a socket
-under every tube port — five on the full lid at 0, 180, 240, 270 and 330° — and that pattern is
+under every tube port — six on the full lid at 0, 180, 210, 240, 300 and 330° — and that pattern is
 irregular enough that only one rotation puts them all under ports.
 
 ## The probes lean, and only one of them
@@ -198,7 +204,7 @@ impeller sweeps a cylinder, the ring is an annulus — and a port's tilt never l
 ## One table does not serve the family
 
 The layout above is a 142.2 mm mouth's layout. It does not fit the two narrow jars, and no amount of
-rearranging makes it fit: two Ø16 Atlas probe bodies force a 14.1 mm flange, four baffles force four
+rearranging makes it fit: two Ø16 Atlas probe bodies force a 14.1 mm flange, three baffles force three
 more of them, and six flanges of that size do not go onto a Ø58 port circle in any order. That is
 geometry, not tuning.
 
@@ -243,12 +249,13 @@ Baffles cannot be small: the plate drops through the lock bore, so `width = 2·�
 
 **The ports cannot be arranged freely, and the reason is the baffles.**
 
-**Four baffles equally spaced on twelve ports sit every third port, which leaves no port that is not
-adjacent to one.** A probe therefore _must_ touch a baffle, both are std, and the worst pair is
-14.1 + 14.1 whatever size the tubes are. Mixed port sizes do not move the twelve-port lid at all -
+**This layout puts each probe beside a baffle,** both are std, and the worst pair is 14.1 + 14.1
+whatever size the tubes are. Under the four baffles this lid used to carry, every third port, that
+was forced: no port was not adjacent to one. Mixed port sizes do not move the twelve-port lid at all -
 `jar_10L`'s binding gap is 1.0466 mm before and after - and **spreading the big ports so no two touch
-is not achievable at this port count and baffle spacing.** It is not a thing left to do; it is a
-thing that does not exist.
+was not achievable at that port count and baffle spacing.** Three baffles leave the middle port of
+each triple free of them, but a probe there cannot sit opposite the air inlet, which lands on a
+baffle; the layout keeps DO opposite air in and pays for it in mouth it does not need.
 
 **So the model stops paying for what it does not get.** `head_ports_uniform()` asks whether a lid can
 carry std on every port, and `head_interface_for()` gives it std throughout where the answer is yes.
@@ -269,13 +276,12 @@ corner of it. See TODO.md, which was already asking whether a cloth goes through
 
 | set         | ports | functions                                                            | worst pair | min mouth |
 | ----------- | ----- | -------------------------------------------------------------------- | ---------- | --------- |
-| **full**    | 12    | 4 baffle, do_probe, ph_probe, temperature, air_in, air_out, dose_1–3 | std\|std   | 142.0 mm  |
+| **full**    | 12    | 3 baffle, do_probe, ph_probe, temperature, air_in, air_out, dose_1–4 | std\|std   | 142.0 mm  |
 | **reduced** | 6     | do_probe, ph_probe, temperature, air_in, air_out, dose_1             | std\|mini  | 78.0 mm   |
 
-A three-baffle twelve-port set was tried and is not registered: with three, the ports two steps
-from each baffle are free, so the probes can sit off them and the worst pair becomes std against
-mini, which bought about 20 mm of mouth. It costs baffle area on a layout already under Oldshue's
-reference, so it is a trade, not an improvement.
+A three-baffle set with the probes two steps from each baffle was tried: the worst pair becomes
+std against mini, which bought about 20 mm of mouth. The registered set does not do that, because it
+keeps DO opposite air in, so its smallest mouth is the four-baffle set's 142.0 mm.
 
 **Both sets are registered and the mouth picks between them** — `head_port_set_full` and
 `head_port_set_reduced` in `head.scad`, chosen by `head_port_set_for()`, which asks whether the
@@ -294,11 +300,11 @@ Millimetres of slack in the worst adjacent pair, against the 1 mm of air the lid
 flanges (`lid_flange_gap`); `head()` reports the assigned set's on every render.
 
 `jar_6p5gal` takes the reduced set today and **builds** because of it. Its 137 mm mouth misses the
-four-baffle set by 1.30 mm; a three-baffle set would clear, and it stays open as a choice between a
-baffle and the full instrument set rather than a geometric dead end.
+full set by 1.30 mm. A three-baffle set with its probes off the baffles would clear the flanges, and
+the vessel then fails on its impeller, which leaves no room for a baffle (`docs/agitation.md`).
 
 The reduced set keeps both probes, temperature, the gas path in and out, and one liquid line. It
-drops the four baffles and two of the three dosing lines. What a narrow jar gives up is pH
+drops the three baffles and three of the four dosing lines. What a narrow jar gives up is pH
 _control_, which wants an acid and a base line, not pH measurement. Which functions a given
 experiment wants is the operator's call; this is the default.
 

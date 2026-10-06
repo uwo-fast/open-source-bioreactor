@@ -167,9 +167,10 @@ The primary behind the numbers `Davis (2010)` relays, retrieved 2026-08-20. What
 - **Baffles, p. 202.** Four baffles, _"each 1/12 the tank diameter in width"_ — a single value,
   0.0833 T, not the 0.08-0.10 band Davis reports. And explicitly: _"Either 3, 6 or 8 baffles can be
   used if preferred. The general principle is to use the same total projected area as exists with
-  four baffles, each 1/12 the tank diameter in width."_ The project now runs **four**, which is his
-  reference case outright; the passage had been carrying three, permitted by the same sentence.
-  Either way the constraint is total projected area, not the count.
+  four baffles, each 1/12 the tank diameter in width."_ The project runs **three**, which the same
+  sentence permits only at four's total area, and it cannot widen the plates to get there, so it
+  carries three quarters of four's area (`docs/agitation.md`). The constraint is total projected
+  area, not the count.
 - **Off-bottom clearance, p. 192.** _"If the impeller can be placed one to two impeller diameters
   off bottom, which means that mixing is not provided at low levels during draw off, these
   impellers offer an excellent flow pattern as well as considerable economies in shaft design."_

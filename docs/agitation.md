@@ -414,11 +414,13 @@ the airlift. What `head()` reports for each follows.
 
 ### Baffles
 
-- **Four at 90°, which is Oldshue's reference count, and the vessel is still under-baffled.** His
-  reference is four plates at T/12 running the liquid depth; these hang from the lid to the floor
-  limit, 10.35 × 274 mm with 224 mm submerged, and reach **0.577** of the reference projected area.
+- **Three at 120°, one fewer than Oldshue's reference count, and the vessel is under-baffled.** His
+  reference is four plates at T/12 running the liquid depth, and he allows three only at the same
+  total projected area. These hang from the lid to the floor limit, 10.35 × 274 mm with 224 mm
+  submerged, and reach **0.433** of the reference projected area; four reached 0.577. The fourth
+  plate's port went to a sampling line (`docs/ports-layout.md`).
   Both levers are spent: depth is at the floor, and the next count that spaces equally on twelve
-  ports is six, which would give 0.865. Under-baffling lets the vessel swirl rather than mix.
+  ports is four, which would give 0.577 at the cost of that port. Under-baffling lets the vessel swirl rather than mix.
 - **The width is capped by the sparge ring, not the bore or the impeller.** The room outside a
   baffle does not grow with the mouth, and a ring wide enough to clear it does not exist, so the
   plate yields: 10.35 mm where the lock bore would pass 17 and the impeller 14.5. Running clearance
