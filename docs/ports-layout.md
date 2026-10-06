@@ -30,15 +30,16 @@ least committed function on the lid.
 | 3   | 90°   | thermocouple | temperature      |
 | 4   | 120°  | **baffle**   |                  |
 | 5   | 150°  | probe        | pH               |
-| 6   | 180°  | tube Ø4.4    | media / spare    |
+| 6   | 180°  | tube Ø4.4    | dose 1           |
 | 7   | 210°  | **baffle**   |                  |
 | 8   | 240°  | tube Ø4.4    | air in           |
-| 9   | 270°  | tube Ø4.4    | acid             |
+| 9   | 270°  | tube Ø4.4    | dose 2           |
 | 10  | 300°  | **baffle**   |                  |
-| 11  | 330°  | tube Ø4.4    | base             |
+| 11  | 330°  | tube Ø4.4    | dose 3           |
 
 Every tube port is bored Ø4.4 for the steel riser it carries; what a port is for is engraved on
-its flange.
+its flange. The three dosing ports are numbered, not named: which carries acid, base, media or
+anything else is the user's to choose, and any of them can be given to another function.
 
 ## The heuristics, and where this layout lands against them
 
@@ -51,14 +52,15 @@ arrangement symmetric and manufacturable. Each is checked against the table abov
 - **Air out separated from air in and the sparger sector**, and away from the expected splash and
   foam region. Air out at 0°, 120° from air in. Impeller circulation direction is a secondary
   preference here, not a prediction.
-- **Acid and base grouped near air in and the mixing sector**, so dosed solution disperses quickly,
-  and **away from the pH probe** so fresh acid or base does not bias it. Acid at 270° and base at
-  330° sit 30° and 90° from air in; they are 120° and 180° from pH.
+- **Dosing lines grouped near air in and the mixing sector**, so dosed solution disperses quickly,
+  and **away from the pH probe** so a fresh dose does not bias it. Doses 2 and 3, at 270° and 330°,
+  sit 30° and 90° from air in and 120° and 180° from pH, so they are the ones for acid and base.
+  Dose 1, at 180°, is 30° from pH.
 - **Thermocouple adjacent to the DO probe**, so the temperature used for DO compensation comes from
   the same region of liquid. They are at 90° and 60° — **adjacent**. The three-baffle layout this
   replaced put the pH probe between them, 60° apart, which did not meet this rule.
-- **Remaining media and spare ports distributed through the space** with clearance from baffles,
-  probes, dosing, and the shaft. One line at 180°.
+- **A third line distributed through the space** with clearance from baffles, probes, the other
+  dosing lines, and the shaft. Dose 1 at 180°.
 
 ## What the air-in port now carries
 
@@ -80,8 +82,8 @@ silently taking the first.
 
 The ring hangs on more than its feed. **Every tube port but `air_in` drops a riser to it** — four on
 the twelve-port lid, two on the six-port jars — and the model derives that from the port table rather
-than naming functions, so any lid answers it. It was a named list once, and naming `acid` and `base`
-in it broke the six-port jars, which carry neither.
+than naming functions, so any lid answers it. It was a named list once, and naming the acid and base
+lines in it broke the six-port jars, which carried neither.
 
 The stock is what makes it free: a riser is 188.174 mm on `jar_10L` and this tube is sold by the
 metre, so the five the full set wants come off one length with 59 mm spare.
@@ -95,7 +97,7 @@ that end because it is the one you can reach with the tube in your hand.
 
 **Which end of that window depends on the port.** `air_out` is the exhaust and wants the low number,
 past the lid's inner face and short of the liquid: the headspace is there for foam, and foam finds
-the lowest hole. `media`, `acid` and `base` discharge INTO the culture, so they are drilled past the
+the lowest hole. The dosing lines discharge INTO the culture, so they are drilled past the
 far number instead, and low is better — the dose lands where the impeller carries it away, and the
 tube below the hole is a dead leg that keeps whatever it is given.
 
@@ -126,7 +128,7 @@ Every bore comes off `sparge_riser_tube` now, at OD plus 0.2 mm, which is the sa
 bearing and shaft holes take. Slack **2 mm → 0.4**. That is a guide and nothing more: printed
 plastic on ground steel leaks along the layer lines however close it is cut.
 
-`media`, `acid` and `base` joined them when every tube port got a riser, so all five bore alike and
+The dosing lines joined them when every tube port got a riser, so all five bore alike and
 all five carry the gland below. What changed for the dosing lines is where they are gripped: the
 soft tube pushes OVER the riser's proud end and is clamped there, as the gas lines always did,
 rather than into the port's own bore.
@@ -161,7 +163,7 @@ read `O6`, and acid and base are both 2.4 mm and both read `O4.8`. The lid could
 port was the gas line — and dosing acid into the base line is the same mistake with worse
 consequences.
 
-Tube ports now carry their **function and their bore**: `AIR IN O4.4`, `ACID O4.4`. They read 4.4
+Tube ports now carry their **function and their bore**: `AIR IN O4.4`, `DOSE 2 O4.4`. They read 4.4
 rather than the 6 above because every one of them is cut for the riser and not for a hose — see the
 section before this one. Since they are now all the same, the bore on those marks distinguishes
 nothing and the function word carries it: read the word, not the number.
@@ -265,10 +267,10 @@ What the uniform lid costs is not packing but CLEANING. On the mixed twelve-port
 problem - the four tight gaps were always there - but it does make it the whole lid's rather than a
 corner of it. See TODO.md, which was already asking whether a cloth goes through 1.0466 mm.
 
-| set         | ports | functions                                                                     | worst pair | min mouth |
-| ----------- | ----- | ----------------------------------------------------------------------------- | ---------- | --------- |
-| **full**    | 12    | 4 baffle, do_probe, ph_probe, temperature, air_in, air_out, media, acid, base | std\|std   | 142.0 mm  |
-| **reduced** | 6     | do_probe, ph_probe, temperature, air_in, air_out, media                       | std\|mini  | 78.0 mm   |
+| set         | ports | functions                                                            | worst pair | min mouth |
+| ----------- | ----- | -------------------------------------------------------------------- | ---------- | --------- |
+| **full**    | 12    | 4 baffle, do_probe, ph_probe, temperature, air_in, air_out, dose_1–3 | std\|std   | 142.0 mm  |
+| **reduced** | 6     | do_probe, ph_probe, temperature, air_in, air_out, dose_1             | std\|mini  | 78.0 mm   |
 
 A three-baffle twelve-port set was tried and is not registered: with three, the ports two steps
 from each baffle are free, so the probes can sit off them and the worst pair becomes std against
@@ -296,10 +298,11 @@ four-baffle set by 1.30 mm; a three-baffle set would clear, and it stays open as
 baffle and the full instrument set rather than a geometric dead end.
 
 The reduced set keeps both probes, temperature, the gas path in and out, and one liquid line. It
-drops the four baffles and the acid/base pair. What a narrow jar gives up is pH _control_, not pH
-measurement. Which functions a given experiment wants is the operator's call; this is the default.
+drops the four baffles and two of the three dosing lines. What a narrow jar gives up is pH
+_control_, which wants an acid and a base line, not pH measurement. Which functions a given
+experiment wants is the operator's call; this is the default.
 
-**Its tubes and instruments alternate** — DO, air_out, temperature, air_in, pH, media — so the
+**Its tubes and instruments alternate** — DO, air_out, temperature, air_in, pH, dose_1 — so the
 three tubes the sparge ring hangs from stand 120° apart rather than on one side of it. On a mixed
 lid every adjacent pair is then a std flange beside a mini, the worst pair it already had, so the
 78.0 mm floor is where it was. The other

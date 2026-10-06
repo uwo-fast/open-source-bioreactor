@@ -51,8 +51,8 @@ This is the part of the build nothing else will remind you about.
   and all twelve bayonet _lock_ halves. The locks are not optional detail: their channels are the
   walls of the lid's bores, so a lid exported without them is twelve plain holes that nothing locks
   into
-- the **port pin halves**, one per port — tube ports for `air_in`, `air_out`, `media`, `acid`,
-  `base`; probe ports with their integral flex collets for DO and pH; a thermocouple port carrying
+- the **port pin halves**, one per port — tube ports for `air_in`, `air_out` and the dosing
+  lines `dose_1` to `dose_3`; probe ports with their integral flex collets for DO and pH; a thermocouple port carrying
   an NPT mount
 - a **blank port** for each bayonet size the lid uses — a pin with no bore, labelled `BLANK`, to
   close a port with nothing in it while cleaning, testing or servicing
@@ -562,7 +562,7 @@ glancing.
 **The ports are labelled by function for the same reason.** `air_in` and `air_out` have the same
 bore, so marking them by bore alone put `Ø6` on both. A gas line on the wrong one vents into the
 headspace; a dosing line on the wrong one puts acid where base should go. The marks read
-`AIR IN Ø4.4`, `ACID Ø4.4`. Baffle ports are marked with the length of plate they carry.
+`AIR IN Ø4.4`, `DOSE 2 Ø4.4`, and which dose carries what is yours to record. Baffle ports are marked with the length of plate they carry.
 
 **Every tube port bores the same Ø4.4 now**, because every one of them passes the same 4 mm riser,
 so the bore on those marks tells you nothing and the function name is carrying all of it. Read the
@@ -588,7 +588,7 @@ instead is drilled past the second.
 ```
 
 **Which end of that window depends on the port.** `air_out` is the exhaust and wants the first
-number — a vent belongs in the headspace. `media`, `acid` and `base` discharge into the culture, so
+number — a vent belongs in the headspace. The dosing lines discharge into the culture, so
 they are drilled past the second, and low is better: the dose lands where the impeller will carry it
 away, and the tube below the hole is a dead leg that keeps whatever it is given.
 
