@@ -1112,12 +1112,13 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
                       rotate_extrude(angle=(n_rods_ribs - 1) * 90)
                         square([_outer_diameter / 2, rib_base_height]);
 
-                      // a boss at each rod, so the arc's cut ends still enclose the hole
-                      // TODO: make a clean semi circle end cap that matches instead of oversized
+                      // a round end at each rod, so the arc's cut ends still enclose the hole: centred
+                      // on the rod and reaching the jar's face, it stays inside the band and short of
+                      // the next quadrant's pockets and anything held against the glass there
                       for (r = [0:n_rods_ribs - 1])
                         rotate([0, 0, r * 90])
-                          translate([base_jar_cut_diameter / 2, 0, 0])
-                            cylinder(d=wall_thickness, h=rib_base_height);
+                          translate([rod_shift, 0, 0])
+                            cylinder(r=rod_shift - base_jar_cut_diameter / 2, h=rib_base_height);
                     }
 
                     for (r = [0:n_rods_ribs - 1])
