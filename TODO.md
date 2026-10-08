@@ -94,7 +94,8 @@ closed it and in `docs/`.
   - running clearance is +1.80009 mm (4.07731 nominal less 2.27722 of lean), after the plate
     narrowed 15.3 -> 10.3454 mm and the mouth correction took 0.4 mm of it
   - the price: reference projected area 0.856 -> 0.579 of Oldshue's four-at-T/12, 0.577 since the plates
-    stop 10 mm off the glass under them; six plates reach only 0.865. Whether 0.577 is acceptable is the open question, and buying width back walks toward
+    stop 10 mm off the glass under them, 0.433 at three plates, which gave their fourth port to a
+    sampling line. Whether that is acceptable is the open question, and buying width back walks toward
     the blades. The tip ring is off and stays a flag (`docs/decisions.md`)
   - the 2.28 mm lean is a worst case - bore play alone, levered 11.4x, ignoring the flange's face
     contact - and only matters if the plate widens

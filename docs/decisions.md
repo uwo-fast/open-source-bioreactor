@@ -169,10 +169,14 @@ outlives the commit, in `docs/`.
 - **the motor mount stays at Ø56.** It can go to 42; below that its base inserts hit the bearing
   pocket. Shrinking buys only eccentricity headroom on a vessel that is baffled anyway, and costs
   stiffness - deflection goes as the cube of height over diameter
-- **the twelve big ports cannot be spread so that no two are adjacent.** Four baffles equally spaced
-  on twelve ports sit every third port, which leaves no port not adjacent to one. Geometry, not
-  tuning. It becomes possible at three baffles, which is a trade against baffle area recorded in
-  `docs/ports-layout.md`
+- **the lid carries three baffles, not four, for a port.** Four at 90° is Oldshue's reference;
+  he allows three at the same total projected area, and these plates cannot widen to give it, so
+  three reach 0.433 of his reference on `jar_10L` against four's 0.577. The fourth baffle's port
+  went to a sampling line. Going back to four relays the whole lid, since four equally spaced do
+  not land on three-at-120°
+- **the probes still sit beside baffles at three.** Three baffles leave the middle of each triple
+  of ports free of them, but a probe there cannot sit opposite the air inlet, which lands on a
+  baffle. DO opposite air in was kept, and the lid is uniform std either way
 - **commodity fasteners carry a STANDARD, not a supplier code.** `ISO 4017 M8x30 A2-70` is buyable
   anywhere and does not go stale; nothing in the model reads a property of them beyond nominal size
   and a derived length. The sealing and mount hardware stays pinned by number, because each of those

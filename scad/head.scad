@@ -387,14 +387,14 @@ head_port_set_full = [
   ["baffle",      "baffle",       0           ], //  30
   ["do_probe",    "probe",        0, do_lab_g2], //  60      opposite the air inlet
   ["temperature", "thermocouple", 3, mcmaster_1245N31_thermocouple_probe], //  90  beside DO, which compensates from it
-  ["baffle",      "baffle",       0           ], // 120
-  ["ph_probe",    "probe",        0, ph_lab_g2], // 150      away from the dosing lines
+  ["ph_probe",    "probe",        0, ph_lab_g2], // 120      away from the dosing lines
+  ["baffle",      "baffle",       0           ], // 150
   ["dose_1",      "tube",         tube_port_riser_bore], // 180
-  ["baffle",      "baffle",       0           ], // 210
+  ["dose_2",      "tube",         tube_port_riser_bore], // 210
   ["air_in",      "tube",         tube_port_riser_bore], // 240   the sparger hangs from this one
-  ["dose_2",      "tube",         tube_port_riser_bore], // 270
-  ["baffle",      "baffle",       0           ], // 300
-  ["dose_3",      "tube",         tube_port_riser_bore], // 330
+  ["baffle",      "baffle",       0           ], // 270
+  ["dose_3",      "tube",         tube_port_riser_bore], // 300
+  ["dose_4",      "tube",         tube_port_riser_bore], // 330
 ];
 
 // No baffles, and one dosing line rather than three. Tubes and instruments
@@ -802,7 +802,7 @@ head_air_pump = air_pump_resun_35w;
 head_dosing_pump = peri_pump_kamoer_nkp;
 // which ports it feeds. They are numbered, not named for acid, base or media: what each carries is
 // the user's to choose, and a narrow jar's set has only the first
-dosing_pump_functions = ["dose_1", "dose_2", "dose_3"];
+dosing_pump_functions = ["dose_1", "dose_2", "dose_3", "dose_4"];
 
 /* [Probe Port Parameters] */
 
