@@ -42,6 +42,7 @@ ECHO: "sparge support drilling: a support tube vents through a hole drilled betw
 ECHO: "sparge support: 3 tubes at [180, 60, 300] deg; 169.388 mm of free support tube and 163.252 mm of feed, so a support is 1.02338 N/mm, 0.977155 mm of sway per newton against 1.25 mm to the draft tube"
 ECHO: "sparge riser: 4 x 3 mm tube; the feed is 213.189 mm and each support 219.326 mm (the feed socket sits 6.13634 mm higher); 14.9375 mm proud of its port, 12 mm inside the socket, 0.4 mm of slack through the port's bore"
 ECHO: "sparge riser seal: 4x1.5 EPDM (8785N364) in each of 3 ports, at 0% stretch and 18% squeeze; without it each port is a 2.63894 mm2 hole into the headspace"
+ECHO: "dosing: Kamoer NKP-DC-S10B pulls 3 x 5 mm tube over 1 riser of 4 mm, 1 mm of interference over 14.9375 mm of stub"
 ECHO: "sparge tube stock: 50415K21, 316 SS welded, hard temper; cut 1 x 213.189 mm and 2 x 219.326 mm = 651.841 mm from a 1000 mm length, leaving 348.159 mm spare"
 ECHO: "sparge back-pressure: 159.045 mm of culture over the ring is 1557.42 Pa, plus 96 Pa of capillary = 1653.42 Pa the gas supply has to beat before anything bubbles"
 ECHO: "gas line losses: filter 2506.4 Pa (extrapolated), check valve 1262.76 Pa (1241 to crack) and riser 23.5017 Pa at 0.726494 L/min, on top of the vessel's 1653.42 and 11.9175 Pa on the way back out (the vent slot and up to 63.7446 mm of tube); the pump beats 5458 Pa, and the filter alone is 1.51589x the vessel"

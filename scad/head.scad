@@ -103,7 +103,7 @@ impeller_to_render = "both"; // [both, lower, upper]
 render_set_screws = false;
 // The bayonet lock rings alone, for looking at the channels an assembled lid buries
 render_bayonet_lock = false;
-// The pin half of every TUBE port - gas, media, acid, base
+// The pin half of every TUBE port - gas and dosing
 render_tube_pinlock = false;
 // The pin half of the thermocouple port
 render_thermocouple_pinlock = false;
@@ -388,16 +388,16 @@ head_port_set_full = [
   ["do_probe",    "probe",        0, do_lab_g2], //  60      opposite the air inlet
   ["temperature", "thermocouple", 3, mcmaster_1245N31_thermocouple_probe], //  90  beside DO, which compensates from it
   ["baffle",      "baffle",       0           ], // 120
-  ["ph_probe",    "probe",        0, ph_lab_g2], // 150      away from both dosing lines
-  ["media",       "tube",         tube_port_riser_bore], // 180      also the spare
+  ["ph_probe",    "probe",        0, ph_lab_g2], // 150      away from the dosing lines
+  ["dose_1",      "tube",         tube_port_riser_bore], // 180
   ["baffle",      "baffle",       0           ], // 210
   ["air_in",      "tube",         tube_port_riser_bore], // 240   the sparger hangs from this one
-  ["acid",        "tube",         tube_port_riser_bore], // 270
+  ["dose_2",      "tube",         tube_port_riser_bore], // 270
   ["baffle",      "baffle",       0           ], // 300
-  ["base",        "tube",         tube_port_riser_bore], // 330
+  ["dose_3",      "tube",         tube_port_riser_bore], // 330
 ];
 
-// No baffles and no dosing pair (pH is measured, not controlled). Tubes and instruments
+// No baffles, and one dosing line rather than three. Tubes and instruments
 // alternate, so the ring hangs from three tubes 120 degrees apart rather than from one side; the
 // thermocouple is 1/8 NPT so it fits a mini, one port from DO.
 // The six-port table a narrow jar carries
@@ -407,7 +407,7 @@ head_port_set_reduced = [
   ["temperature", "thermocouple", 3, mcmaster_3872K129_thermocouple_probe], // 120  one port from DO
   ["air_in",      "tube",         tube_port_riser_bore], // 180   the sparger hangs from this one
   ["ph_probe",    "probe",        0, ph_lab_g2], // 240
-  ["media",       "tube",         tube_port_riser_bore], // 300      also the spare
+  ["dose_1",      "tube",         tube_port_riser_bore], // 300
 ];
 
 // Which set this lid carries. undef derives it from the mouth; set a table to pin one.
@@ -798,10 +798,11 @@ sparge_design_vvm = 0.5;
 sparge_vvm_band = [0.1, 0.5];
 // what pushes the gas
 head_air_pump = air_pump_resun_35w;
-// what doses acid and base; what this model knows of it is the tube it pushes
+// what doses the culture; what this model knows of it is the tube it pushes
 head_dosing_pump = peri_pump_kamoer_nkp;
-// which ports it feeds; a list, because a narrow jar's port set has no dosing pair
-dosing_pump_functions = ["acid", "base"];
+// which ports it feeds. They are numbered, not named for acid, base or media: what each carries is
+// the user's to choose, and a narrow jar's set has only the first
+dosing_pump_functions = ["dose_1", "dose_2", "dose_3"];
 
 /* [Probe Port Parameters] */
 
@@ -1461,7 +1462,7 @@ module head_port(port, panel_thickness, baffle_width, baffle_length, baffle_segm
   _iface = head_port_interface(port);
 
   if (_type == "tube") {
-    // Labelled by function as well as bore: air_in and air_out share a bore, as do acid and base.
+    // Labelled by function as well as bore: air_in and air_out share a bore, as do the dosing lines.
     bayonet_port(
       type=_iface,
       part="pin",
@@ -2032,7 +2033,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   // ----- dosing -----
   // The dosing line goes over the riser's proud end, so the fit is the pump tube's inside against
-  // the riser's outside, and interference is the grip. Empty on a narrow jar with no dosing pair.
+  // the riser's outside, and interference is the grip. Empty on a lid with no dosing port.
   _dosing_ports = [
     for (i = [0:_n - 1])
       if (len([for (f = dosing_pump_functions) if (head_port_function(_ports[i]) == f) 1]) > 0) i
@@ -3232,7 +3233,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     echo(str(
       "dosing: ", peri_pump_name(head_dosing_pump), " pulls ",
       _dosing_tube_id, " x ", peri_pump_tube_outer_diameter(head_dosing_pump), " mm tube over ",
-      len(_dosing_ports), " risers of ", _riser_od, " mm, ", _riser_od - _dosing_tube_id,
+      len(_dosing_ports), len(_dosing_ports) == 1 ? " riser of " : " risers of ", _riser_od, " mm, ", _riser_od - _dosing_tube_id,
       " mm of interference over ", sparge_riser_proud, " mm of stub"
     ));
 
