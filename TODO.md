@@ -120,6 +120,39 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
     doing to publish the blade, not to build the reactor. Kumaresan & Joshi 2006
     (doi:10.1016/j.cej.2005.10.002) is paywalled and may say something
 
+- [ ] **model a Rushton under the pitched blade, and decide between the pair and the hybrid**
+  - raised by a professor's note (2026-10-08) recommending the six-blade disc turbine, the
+    fermentation default. Waiting on his reply: which reference his proportions come from, and
+    whether his microalgae cultures were limited by gas transfer (O2 removal, CO2 supply) or light
+  - **the gas ceiling binds inside the operating band.** `head()` checks Oldshue's 8x rule only at
+    no-load (420 rpm, 1.573 vvm). The cap goes as N^3: 0.70 vvm at the rated 320 rpm, 0.35 vvm at
+    the 255 rpm Chlorella optimum, against the 0.5 vvm design; the crossover is about 287 rpm. A
+    radial impeller at the same power, 3x not 8x, would hold about 0.94 vvm at 255 rpm. So
+    `agitation.md`'s "the gas criterion does not bind" holds only at the fast end. The ceiling
+    should be checked across the drive's speeds, not at no-load alone. `references.md`'s Oldshue
+    entry also quotes 0.45 vvm at rated 320 rpm, which the current model does not give
+  - **the circulation claim is overstated.** `agitation.md` compares `N_Q/Po` and calls the axial
+    blade about 4x better per watt. That ratio compares flow at equal speed; at equal power and
+    diameter flow goes as `Fl Po^(-1/3)`, which with Grenville 2017 Table 1 (Rushton Po 5.00,
+    Fl 0.65, x 12; pitched blade Po 1.50, Fl 0.80, x 16) is about 1.8x, and his Fig. 3 agrees at
+    about 2x the mass pumped per joule
+  - **at equal power a Rushton is the gentler of the two**: peak dissipation goes as
+    `x Po^(-1/4) D^-3`, so about 0.56x the pitched blade at the same diameter, about 1.4x at
+    D = T/3. Both are orders of magnitude under any damage figure. Grenville's Figs. 6-7 have the
+    Rushton making the largest drops at equal power (liquid-liquid, so indirect for gas): its gas
+    advantage is holding its pattern under gas, not finer bubbles per watt
+  - the plan: a Rushton as the lower impeller over the sparger arm, where the gas loads first and
+    Oldshue puts 40 % of the dispersing work, the pitched blade above. `head()` takes one type for
+    both today (`head_impeller_type`, read only in `head.scad`); split it into a lower and an upper
+    type, sum power and torque per impeller, take the larger peak dissipation, check the gas
+    ceiling per impeller and per drive speed, and draw a disc turbine in `custom/impeller.scad`
+  - the row: height D/5, length D/4, disc 3D/4. Middleton & Ramshaw, US 5198156 "Agitators" (ICI,
+    1993), gives exactly these as typical; the Czech standard behind Fořt's "standard Rushton" is
+    ČSN 69 1021 (1984, withdrawn 2005), not read. Zhou 2003, which the row cites now, gives D/4 by
+    D/4 and no disc. Po: keep Kaiser's measured 4.17 ± 0.14, with Grenville's typical 5.0 the
+    spread; Fl 0.65 from Grenville, typical. The row has no field for the disc or the blade's
+    length yet. No build reads it
+
 ## exhaust condenser and humidifier
 
 Printed from their own files, `custom/condenser_cold_finger.scad`, `custom/condenser_coil.scad` and
