@@ -5,30 +5,15 @@
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * Two prints:
- *
- *   base: the std bayonet pin half, a neck and a skirt out to the housing's outline, and the floor
- *         under the board, which carries the relief for its solder joints
- *   top:  the housing over the board, split at the PCB's underside, growing a tube up out of its
- *         roof that flares into the face the syringe actuator's front wall bolts to (4 x M3, nuts
- *         in slots from the face's sides)
- *
- * The board drops into the top upside down; the base closes it. A clear tube runs through both,
- * between the board's heads. Three screws hold the halves together: two M3 from below at the outer
- * corners into heat-set inserts in the top, and one M2 countersunk from above at the inner end, into
- * an insert in the base, driven through a slot in the top's skirt (the pin's flange is under the
- * inner end, so no screw goes in from below there). The dip tube is this port's own sparge riser,
- * drilled where the sample is drawn and pushed up into the clear tube's bore through a silicone
- * bushing in the base; it still reaches the ring below. The tube above the roof shrouds the clear
- * tube and the syringe's tip from light.
+ * Two prints. The base is the std bayonet pin with a skirt out to the housing, and the floor under
+ * the board. The top houses the board, split at the PCB's underside, and grows a shroud that flares
+ * into the face the actuator bolts to. The board drops into the top upside down and the base
+ * closes it; a clear tube runs through both between the board's heads. The dip tube is the port's
+ * own sparge riser, drilled where the sample is drawn, bushed into the tube's bottom.
  *
  * Port frame: origin on the port's axis at the lid's outer face, +z out of the vessel, +x radially
- * outward. The board's figures come from turbidity-sensor's probe library and the actuator's from
- * syringe-actuator's layout. The reactor's - the panel, the riser, the fill line - are restated
- * below for jar_10L at the port dose_4 holds today: head.scad does not place the sampler yet, and
- * when it does they become its arguments (TODO.md).
- *
- * The fits are checked by `just check-sampler` (tests/sampler/).
+ * outward. The reactor's figures are restated for jar_10L until head.scad places the sampler
+ * (TODO.md). The fits are checked by `just check-sampler`.
  */
 
 use <turbidity-sensor/hardware/probe/probe.scad>
@@ -39,8 +24,7 @@ include <NopSCADlib/core.scad>
 include <NopSCADlib/vitamins/screws.scad>
 include <NopSCADlib/vitamins/nuts.scad>
 include <NopSCADlib/vitamins/inserts.scad>
-// A custom part may not read a purchased registry (docs/architecture.md); the inserts are the
-// exception until head.scad places the sampler and passes them in (TODO.md).
+// an exception to docs/architecture.md until head.scad passes the inserts in (TODO.md)
 include <../purchased/heat_set_inserts.scad>
 
 part = "assembly"; // [assembly, base, top]
@@ -180,16 +164,9 @@ assert(riser_top_z < split_z, "the riser's top reaches up into the top part");
 assert(clear_z0 > flange_h, "the clear tube's seat reaches down into the pin");
 assert(plate_z0 - flare_h > roof_z + top_skirt_h, "the face's flare reaches down into the top skirt");
 
-echo(str("sampler: base from ", base_z0, ", split ", split_z, ", roof ", roof_z, ", face ", face_z,
-         " over the lid's outer face; housing ", outer_x + half_w, " x ", 2 * half_w, "; riser cut ",
-         sampler_riser_l, ", drilled ", hole_from_top, " from its top end; ", line_ml,
-         " mL from the hole to the window"));
-
-echo(str("sampler parts: clear tube cut ", roof_z + tube_above_roof - clear_z0, " (5/16 x 1/4 in); ",
-         "2 x ", outer_screw[1], " x ", outer_screw_l, " and 2 x ", outer_insert[0], " insert (base to top, from below at ",
-         "the outer corners); 1 x ", inner_screw[1], " x ", inner_screw_l, " and 1 x ", inner_insert[0], " insert (from ",
-         "above at the inner end, driven with a ball-end hex key: the face stands over it, and from 5 degrees of tilt ",
-         "the key clears); 4 x ", face_screw[1], " x ", face_screw_l, " and 4 x ", face_nut[0], " (the actuator)"));
+echo(str("sampler: housing ", outer_x + half_w, " x ", 2 * half_w, ", face ", face_z, " over the lid; riser cut ",
+         sampler_riser_l, ", drilled ", hole_from_top, " from its top end; clear tube cut ",
+         roof_z + tube_above_roof - clear_z0, "; ", line_ml, " mL from the hole to the window"));
 
 // The board in the port frame: its optical axis on the port's, its connector end outward (+x).
 module board_place() {
@@ -319,12 +296,6 @@ module sampler_fasteners(inserts=true, lift=0) {
     translate([0, 0, nut_z + (nut_slot_t - nut_thickness(face_nut)) / 2]) rotate([0, 0, 90]) nut(face_nut);
   }
 }
-
-// The actuator's frame in the port frame: its axis up the port's, its front face on the face.
-module actuator_place() translate([0, 0, face_z - front_x(act)]) rotate([0, -90, 0]) translate([0, 0, -axis_z]) children();
-
-// The actuator's outside, in its own frame: its body, lid and cap (its assembly() is shadowed by NopSCADlib's).
-module actuator_housing() { body(act_body); lid(act_body); cap(act_body); }
 
 // print orientation: turned over about z
 module lay(z) if (orient == "print") translate([0, 0, z]) rotate([180, 0, 0]) children(); else children();

@@ -146,7 +146,7 @@ Printed from their own files, `custom/condenser_cold_finger.scad`, `custom/conde
     against the motor mount yet, and placing them is what renders that clearance
   - the one-piece cold finger stays an option inside its own file only: nothing prints it, and it
     should not reach `head()` or `bioreactor.scad`
-  - its own PR, as is placing the sampler (below)
+  - its own PR
 
 - [ ] **fit the humidifier cap to the bottle, and set it against the condenser**
   - the rim gasket's 34 mm bore is an estimate: caliper the bottle's rim. Try a short `din168_nut`
@@ -156,41 +156,26 @@ Printed from their own files, `custom/condenser_cold_finger.scad`, `custom/conde
 
 ## turbidity sampler
 
-Printed from its own file, `custom/sampler.scad`, and checked by `just check-sampler`; nothing in
-`head()` places it yet.
+Printed from its own file, `custom/sampler.scad`; nothing in `head()` places it yet.
 
-- [ ] **place the sampler on its port in `head()`**
-  - a `sampler` port type where `dose_4` is today, port 11 at 330 degrees, and `dose_4` out of
-    `dosing_pump_functions`. The port keeps its riser: the sampler's dip tube is that riser, still
-    reaching the ring, drilled where the sample is drawn
-  - the file restates the reactor for jar_10L - the panel (18), the riser's stand and length
-    (14.9375, 188.174), the fill line (88.4342 below a riser's top end) - and `head()` derives
-    every one, so they become arguments, and the riser's cut and drilling join the cut list
-  - the file includes `purchased/heat_set_inserts.scad`, which a custom part may not
-    (`docs/architecture.md`): it goes when `head()` passes the inserts in. Its settings are
-    file-level, read by its modules, as the condensers' are; they become the modules' arguments
-  - the lid clash and the ±30 degree twist were checked in the spike against an exported head STL;
-    placed by `head()`, they are its own clearance checks
-  - its own PR, as is placing the condensers (above)
+- [ ] **place the sampler on its port in `head()`**, its own PR
+  - a `sampler` port type where `dose_4` is today (port 11, 330 degrees), keeping the port's riser,
+    which is the sampler's dip tube
+  - the panel, the riser's stand and length and the fill line become arguments `head()` derives,
+    and the riser's cut and drilling join the cut list; so do the inserts, which a custom part may
+    not read (`docs/architecture.md`). The lid clash and the ±30 degree twist, checked in the spike
+    against an exported head, become `head()`'s own
 
 - [ ] **measure what the sampler still assumes**
-  - the barb joint on the clear tube: how long the stretched end is and its widest outside. That
-    sets `tube_above_roof`, 5 until then, and with it the face's height
-  - where the probe's lenses sit along the arms: turbidity-sensor's `optical_y` 11.4 is where the
-    first case put its tube, not a measurement, and the sampler centres the clear tube on it
-  - syringe-actuator's `nozzle_l` on each syringe in hand: the 5 mL's 10.2 is derived from the
-    assembled unit's 46.5, the others unmeasured
-  - on the bench: whether the bushing holds the riser airtight under the syringe's suction, and
-    whether 40 mm under the surface is the depth to sample at
-  - the M2 countersunk screw's head: the seat and slot are cut for NopSCADlib's 3.8 mm M2 head,
-    and an ISO 10642 M2 can be 4.7 mm, too wide for the 4.4 mm slot. The one fitted passes;
-    caliper it, and size the seat from it if it is not 3.8
-  - the clear tube, the luer-to-barb fitting and the silicone bushing tubing are not on
-    `purchased-parts.csv`: the ones used were found in the lab, so find what they are first
-
-- [ ] **`just check-sampler` is not in CI**
-  - it needs the Manifold backend: the thin-wall sweep is ~410 slices, and CI installs 2021.01,
-    which has only CGAL. It joins `just test` when CI's OpenSCAD can run it
+  - the barb joint's stretched length on the clear tube, which sets `tube_above_roof` (5 until then)
+  - where the probe's lenses sit along the arms: turbidity-sensor's `optical_y` 11.4 is where its
+    first case put the tube, not a measurement
+  - syringe-actuator's `nozzle_l` per syringe; the 5 mL's 10.2 is derived, not measured
+  - the M2 countersunk head: the seat and slot are cut 4.4 mm for NopSCADlib's 3.8 mm head, and some
+    ISO 10642 M2 heads are 4.7 mm. The one fitted passes
+  - on the bench: the bushing's seal under the syringe's suction, and the 40 mm sampling depth
+  - the clear tube, luer-to-barb fitting and silicone bushing tubing, found in the lab, for
+    `purchased-parts.csv`
 
 ## alternative agitation modes
 
