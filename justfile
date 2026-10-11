@@ -29,6 +29,7 @@ ENTRY_CUSTOMIZED := "scad/bioreactor.scad scad/head.scad scad/frame.scad"
 # The files that render on their own. check-scad asserts everything else emits no geometry, so a
 # new entry file fails until it is listed here.
 export ENTRY := "scad/bioreactor.scad scad/support/bottle_holder.scad scad/support/equipment_cart.scad scad/support/electronics_stand.scad \
+scad/support/estop_box.scad \
 scad/frame.scad scad/head.scad scad/custom/bayonet_port.scad \
 scad/custom/cylindrical_flex_collet.scad scad/custom/gasket_cutter.scad scad/custom/gl_port_cap.scad \
 scad/custom/condenser_cold_finger.scad scad/custom/condenser_coil.scad \

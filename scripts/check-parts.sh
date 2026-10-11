@@ -87,7 +87,7 @@ not_exported=(
     scad/custom/draft_tube.scad                 # exported through head's manifest as
                                                 # "draft_tube", sized to the airlift's jar
     scad/custom/sheet_gasket.scad               # EPDM cut from a sheet with a knife, not printed
-    # Bench furniture AROUND the reactor rather than part of it, and only ONE of the three
+    # Bench furniture AROUND the reactor rather than part of it. Of the first three only ONE
     # makes anything printed - which is not what this list said until it was read.
     scad/support/bottle_holder.scad             # one printed part, a dovetailed sleeve. The
                                                 # only original printed geometry of the three,
@@ -99,6 +99,8 @@ not_exported=(
                                                 # renders a NopSCADlib BRACKET, which is a
                                                 # vitamin, so that is a printed substitute for
                                                 # a bought part. See TODO.md
+    scad/support/estop_box.scad                 # two printed parts, base and lid, from part=;
+                                                # bench equipment, so no reactor manifest has it
     scad/custom/peri_pump_frame_mount.scad      # printed and part of the reactor, but waiting on
                                                 # where the bought pumps mount at all
     scad/custom/peri_pump_head.scad             # a stretch goal rather than this build
