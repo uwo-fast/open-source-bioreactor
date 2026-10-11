@@ -139,11 +139,43 @@ Printed from their own files, `custom/condenser_cold_finger.scad`, `custom/conde
   - placing one in `head()` replaces the `air_out` slot and tube the gas budget prices today, and
     renders its clearance to the motor mount and the probes, which is arithmetic until then
 
+- [ ] **place the condensers in the assembly, the coil by default, and check them against the motor
+      mount**
+  - the coil condenser has been built and works well, so `head()` places it by default; the
+    split cold finger stays a choice beside it. Both are options because neither has been checked
+    against the motor mount yet, and placing them is what renders that clearance
+  - the one-piece cold finger stays an option inside its own file only: nothing prints it, and it
+    should not reach `head()` or `bioreactor.scad`
+  - its own PR
+
 - [ ] **fit the humidifier cap to the bottle, and set it against the condenser**
   - the rim gasket's 34 mm bore is an estimate: caliper the bottle's rim. Try a short `din168_nut`
     ring on the bottle's thread before printing the whole cap
   - a condenser that cools the exhaust below the humidified inlet's dew point makes the culture gain
     water, so the two are set together, not each to its own limit
+
+## turbidity sampler
+
+Printed from its own file, `custom/sampler.scad`; nothing in `head()` places it yet.
+
+- [ ] **place the sampler on its port in `head()`**, its own PR
+  - a `sampler` port type where `dose_4` is today (port 11, 330 degrees), keeping the port's riser,
+    which is the sampler's dip tube
+  - the panel, the riser's stand and length and the fill line become arguments `head()` derives,
+    and the riser's cut and drilling join the cut list; so do the inserts, which a custom part may
+    not read (`docs/architecture.md`). The lid clash and the ±30 degree twist, checked in the spike
+    against an exported head, become `head()`'s own
+
+- [ ] **measure what the sampler still assumes**
+  - the barb joint's stretched length on the clear tube, which sets `tube_above_roof` (5 until then)
+  - where the probe's lenses sit along the arms: turbidity-sensor's `optical_y` 11.4 is where its
+    first case put the tube, not a measurement
+  - syringe-actuator's `nozzle_l` per syringe; the 5 mL's 10.2 is derived, not measured
+  - the M2 countersunk head: the seat and slot are cut 4.4 mm for NopSCADlib's 3.8 mm head, and some
+    ISO 10642 M2 heads are 4.7 mm. The one fitted passes
+  - on the bench: the bushing's seal under the syringe's suction, and the 40 mm sampling depth
+  - the clear tube, luer-to-barb fitting and silicone bushing tubing, found in the lab, for
+    `purchased-parts.csv`
 
 ## alternative agitation modes
 
@@ -266,6 +298,8 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
   - `custom/bayonet_interfaces.scad` includes `orings.scad` so rows can name their ring - rule 6
     allows it - and `bayonet_port.scad` then includes that file and receives every o-ring as a
     global. Recorded, not yet worth moving
+  - `custom/sampler.scad` includes `purchased/heat_set_inserts.scad` until `head()` places it and
+    passes the inserts in (see the turbidity sampler)
 
 - [ ] **the three stirred jars carry a second impeller the spacing does not support**
   - Fitschen eq. (5), `(H-d)/d > n > (H-2d)/(2d)`, in impeller diameters, on the jars that take the

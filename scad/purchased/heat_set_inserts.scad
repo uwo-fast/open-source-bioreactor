@@ -13,7 +13,13 @@
 // thread pitch and chamfer, undef on a heat-fit insert; the project's fields start at [11].
 insert_m4x4p7_ss = ["M4x4.7 18-8", 4.7,  6.3,     5.6,    4,     5.15,     1.0,     6.0,     5.55,    undef, undef,   "97163A152", "18-8 SS", 10];
 
-heat_set_inserts = [insert_m4x4p7_ss];
+// McMaster 97163A150 and 97163A124, the same tapered 18-8 family, for the turbidity sampler's
+// halves. Length and hole are the catalogue's drill sizes (9/64 in and 36 Ga; maxima 3.581 and
+// 2.769); the diameters after them are NopSCADlib's F1BM3 and F1BM2 bodies, drawing only.
+insert_m3x5p56_ss = ["M3x5.56 18-8", 5.56, 4.6,     3.57,   3,     3.65,     1.6,     4.4,     3.9,     undef, undef,   "97163A150", "18-8 SS", 10];
+insert_m2x4p78_ss = ["M2x4.78 18-8", 4.78, 3.6,     2.71,   2,     3.0,      1.0,     3.4,     3.1,     undef, undef,   "97163A124", "18-8 SS", 1];
+
+heat_set_inserts = [insert_m4x4p7_ss, insert_m3x5p56_ss, insert_m2x4p78_ss];
 
 function heat_set_insert_name(type) = type[0];
 function heat_set_insert_part_number(type) = type[11];

@@ -104,6 +104,8 @@ not_exported=(
     scad/custom/peri_pump_head.scad             # a stretch goal rather than this build
     scad/custom/gl_port_cap.scad                # the inlet humidifier's cap: a bottle, not the
                                                 # reactor, so no manifest of the reactor's has it
+    scad/custom/sampler.scad                    # the turbidity sampler prints from its own file
+                                                # until head places it on a port; see TODO.md
     scad/custom/condenser_cold_finger.scad      # the condenser variants under test, each printed
     scad/custom/condenser_coil.scad             # from its own file until one is chosen and head
                                                 # places it

@@ -819,6 +819,33 @@ fresh piece rather than straightening one.
 
 ---
 
+## The turbidity sampler
+
+Not on the lid's lists yet: it prints from its own file, `custom/sampler.scad` (`part = "base"`,
+`part = "top"`), for the port `dose_4` holds today. It is a flow cell round the turbidity probe's
+bare board, with a syringe actuator bolted on top drawing culture up a clear tube between the
+board's heads. Rendering the file echoes the riser's cut length, where to drill it, and the clear
+tube's length; the screws, nuts and inserts are on the purchase list.
+
+**The riser is the dip tube.** It is the port's own sparge riser, cut so its top end stops inside
+the base and drilled across where the sample is drawn; it still reaches the ring. A 6 mm length of
+1/8 by 1/4 in silicone tubing on its top end bushes it into the clear tube.
+
+**Fit the luer-to-barb fitting first.** Warm the clear tube's end with a heat gun, push the barb in
+until the tube reaches the fitting's centre flange, and let it cool. That end stands above the roof.
+
+1. Heat-set two M3 inserts into the top's outer corners and one M2 into the base's inner end, each
+   from its parting face.
+2. Drop the board into the top upside down, heads first, connector outward.
+3. Close the base onto the top: two M3 button heads from below, and the M2 countersunk from above
+   down the slot in the top's skirt, with a ball-end hex key, since the face stands over it.
+4. Push the clear tube down the funnel in the roof into its seat in the base; the riser comes up
+   through the pin's o-ring into its bottom.
+5. Slide four M3 nuts into the face's side slots, open the actuator's four front knockouts, and bolt
+   it on from inside its front wall.
+
+This order is the design's; the first full assembly will confirm it.
+
 ## Commissioning
 
 **Set the gas rate before anything else.** 0.1–0.5 vvm on 8.17 L is **0.817–4.09 L/min**, which is

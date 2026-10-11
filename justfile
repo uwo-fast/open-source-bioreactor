@@ -22,7 +22,7 @@ FORMATTED := "$(git ls-files '*.md' '*.json' '*.jsonc' '*.yml' '*.yaml')"
 # break the union, and those are on check-parts' not_printed list); frame.scad is clean but
 # 141 s; bioreactor.scad does not finish. `just export-parts` covers the reactor's parts one at
 # a time instead.
-export MESH_SKIP := "scad/bioreactor.scad scad/support/equipment_cart.scad scad/frame.scad scad/head.scad scad/custom/condenser_coil.scad"
+export MESH_SKIP := "scad/bioreactor.scad scad/support/equipment_cart.scad scad/frame.scad scad/head.scad scad/custom/condenser_coil.scad scad/custom/sampler.scad"
 
 ENTRY_CUSTOMIZED := "scad/bioreactor.scad scad/head.scad scad/frame.scad"
 
@@ -35,7 +35,7 @@ scad/custom/condenser_cold_finger.scad scad/custom/condenser_coil.scad \
 scad/custom/gasket_cutter_v2.scad scad/custom/impeller.scad \
 scad/custom/motor_mount.scad scad/custom/magnet_hub_cap.scad scad/custom/heat_pad_mount.scad scad/custom/bearing_blank.scad scad/custom/draft_tube.scad scad/custom/peri_pump_frame_mount.scad \
 scad/custom/peri_pump_head.scad scad/custom/sheet_gasket.scad \
-scad/custom/sparger.scad"
+scad/custom/sparger.scad scad/custom/sampler.scad"
 
 # List available recipes.
 default:
@@ -67,10 +67,10 @@ lint:
     npx --yes markdownlint-cli2@0.18.1 $(git ls-files '*.md')
     uvx ruff@0.14.5 check analysis scripts
 
-# The two checks a CGAL render puts out of the fast gate's reach: minutes, not seconds.
+# The checks a CGAL render puts out of the fast gate's reach: minutes, not seconds.
 #
-# The slow half of verification: mesh validity and gas-hole breakthrough.
-test: check-mesh check-holes
+# The slow half of verification: mesh validity, gas-hole breakthrough and the sampler's fits.
+test: check-mesh check-holes check-sampler
 
 # Remove what the recipes build.
 clean:
@@ -155,6 +155,10 @@ check-designations:
 # Fail when a gas hole the model declares does not actually break through.
 check-holes file="" flags="-D render_all=false -D render_sparger=true":
     @scripts/check-holes.sh "{{file}}" "{{flags}}"
+
+# Fail when the turbidity sampler stops fitting the board, the clear tube, a driver or its screws.
+check-sampler:
+    @scripts/check-sampler.sh
 
 # Only registries that carry a part number are checked, and only what the reference build
 # selects; it compares the part_number field, not the file. The script says what is not enrolled.
