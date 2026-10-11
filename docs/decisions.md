@@ -110,6 +110,15 @@ not stay inline.
 
 ## Settled — do not re-open without new evidence
 
+- **The sampler's halves screw together into heat-set inserts; the actuator bolts to nuts.** Base to
+  top, three screws go into inserts, as the motor mount's do: an M3 nut is 6.4 mm across its
+  corners against the insert's 3.57 mm hole, so nuts would widen the corners they sit in, and a loose
+  nut is one more thing to lose with the top upside down beside the vessel. The actuator's four go
+  into nuts in slots instead, because an M3 insert is longer than the 5 mm face plate it would sit
+  in, and that face comes off rarely: the syringe goes in and out through the actuator's roof. One
+  of the three is an M2, from above, because the pin's flange stands under the housing's inner end
+  and leaves no room for a screw from below there.
+
 - **The impeller's tip ring is OFF by default, and is a flag rather than geometry.** It is a 4 × 4 mm
   annulus tying the blade tips, and it printed as a floating overhang for most of its circumference —
   86.7 % of it unsupported, longest span 61.6 mm. Nothing structural asked for it: one blade carries

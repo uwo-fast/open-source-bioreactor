@@ -819,6 +819,45 @@ fresh piece rather than straightening one.
 
 ---
 
+## The turbidity sampler
+
+Not on the lid's lists yet: it prints from its own file, `custom/sampler.scad`, `part = "base"`
+and `part = "top"`, each exported lying as it prints - the base upside down on its parting face, the
+top face-down on the four-hole face. It goes in the port `dose_4` holds today. See `TODO.md` for
+what is still assumed.
+
+It is a flow cell built round the turbidity probe's bare board (turbidity-sensor's probe library),
+with a syringe actuator bolted on top to draw culture up through a clear tube between the board's
+two heads. Rendering the file echoes what to buy and cut: the screws, nuts and inserts, the clear
+tube's length, and the riser's cut length and where to drill it.
+
+**The riser is the dip tube.** It is the port's own sparge-support riser, cut to the echoed length
+so its top end stops inside the sampler's base, and drilled across at the echoed distance from that
+end, which is where the sample is drawn. It still reaches the ring below. A 6 mm length of 1/8 by
+1/4 in silicone tubing on its top end is the bushing that seals it into the clear tube's bore.
+
+**Fit the luer-to-barb fitting to the clear tube first.** The tube's 1/4 in bore is too stiff to push
+over the barb cold. Warm the tube's end with a heat gun until it softens, then push the fitting's
+barb into it until the tube reaches the fitting's centre flange, and let it cool there. The
+stretched end is what sits above the sampler's roof.
+
+**Heat-set the inserts before the board goes in**: two M3 into the top from its parting face, at
+the outer corners, and one M2 into the base from its parting face, at the inner end.
+
+1. Drop the board into the top upside down, heads first, the connector toward the outer end. The
+   PCB comes level with the parting face.
+2. Close the base onto the top. Two M3 button heads go in from below at the outer corners. The M2
+   countersunk screw goes in from above at the inner end, down the slot in the top's skirt: the
+   actuator's face stands over it, so it needs a ball-end hex key, which reaches from a few degrees
+   of tilt.
+3. Push the clear tube, fitting end up, down the funnel in the top's roof, between the heads and
+   into its seat in the base. The riser comes up through the pin's o-ring from below, and its bushed
+   end goes into the tube's bottom.
+4. Slide four M3 nuts into the face's slots from its sides. Open the actuator's four front
+   knockouts, and bolt it on with four M3 cap screws from inside its front wall.
+
+This order is the design's; the first full assembly is what will confirm it.
+
 ## Commissioning
 
 **Set the gas rate before anything else.** 0.1–0.5 vvm on 8.17 L is **0.817–4.09 L/min**, which is

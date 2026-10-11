@@ -22,7 +22,7 @@ FORMATTED := "$(git ls-files '*.md' '*.json' '*.jsonc' '*.yml' '*.yaml')"
 # break the union, and those are on check-parts' not_printed list); frame.scad is clean but
 # 141 s; bioreactor.scad does not finish. `just export-parts` covers the reactor's parts one at
 # a time instead.
-export MESH_SKIP := "scad/bioreactor.scad scad/support/equipment_cart.scad scad/frame.scad scad/head.scad scad/custom/condenser_coil.scad"
+export MESH_SKIP := "scad/bioreactor.scad scad/support/equipment_cart.scad scad/frame.scad scad/head.scad scad/custom/condenser_coil.scad scad/custom/sampler.scad"
 
 ENTRY_CUSTOMIZED := "scad/bioreactor.scad scad/head.scad scad/frame.scad"
 
@@ -35,7 +35,7 @@ scad/custom/condenser_cold_finger.scad scad/custom/condenser_coil.scad \
 scad/custom/gasket_cutter_v2.scad scad/custom/impeller.scad \
 scad/custom/motor_mount.scad scad/custom/magnet_hub_cap.scad scad/custom/heat_pad_mount.scad scad/custom/bearing_blank.scad scad/custom/draft_tube.scad scad/custom/peri_pump_frame_mount.scad \
 scad/custom/peri_pump_head.scad scad/custom/sheet_gasket.scad \
-scad/custom/sparger.scad"
+scad/custom/sparger.scad scad/custom/sampler.scad"
 
 # List available recipes.
 default:
@@ -155,6 +155,12 @@ check-designations:
 # Fail when a gas hole the model declares does not actually break through.
 check-holes file="" flags="-D render_all=false -D render_sparger=true":
     @scripts/check-holes.sh "{{file}}" "{{flags}}"
+
+# Not in `test`: minutes on the Manifold backend, far longer on the CGAL CI installs.
+#
+# Fail when the sampler's parts stop fitting the board, tube, screws and actuator, or grow a thin wall.
+check-sampler:
+    @scripts/check-sampler.sh
 
 # Only registries that carry a part number are checked, and only what the reference build
 # selects; it compares the part_number field, not the file. The script says what is not enrolled.
