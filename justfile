@@ -67,10 +67,10 @@ lint:
     npx --yes markdownlint-cli2@0.18.1 $(git ls-files '*.md')
     uvx ruff@0.14.5 check analysis scripts
 
-# The two checks a CGAL render puts out of the fast gate's reach: minutes, not seconds.
+# The checks a CGAL render puts out of the fast gate's reach: minutes, not seconds.
 #
-# The slow half of verification: mesh validity and gas-hole breakthrough.
-test: check-mesh check-holes
+# The slow half of verification: mesh validity, gas-hole breakthrough and the sampler's fits.
+test: check-mesh check-holes check-sampler
 
 # Remove what the recipes build.
 clean:
@@ -156,9 +156,7 @@ check-designations:
 check-holes file="" flags="-D render_all=false -D render_sparger=true":
     @scripts/check-holes.sh "{{file}}" "{{flags}}"
 
-# Not in `test`: minutes on the Manifold backend, far longer on the CGAL CI installs.
-#
-# Fail when the sampler's parts stop fitting the board, tube, screws and actuator, or grow a thin wall.
+# Fail when the turbidity sampler stops fitting the board, the clear tube, a driver or its screws.
 check-sampler:
     @scripts/check-sampler.sh
 

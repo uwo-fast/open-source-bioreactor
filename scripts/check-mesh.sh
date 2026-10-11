@@ -24,7 +24,7 @@ mesh_why() {
         scad/frame.scad)    echo "a clean 2-manifold but 141 s - export-parts builds its parts" ;;
         scad/bioreactor.scad) echo "the assembled reactor as a picture; nothing is printed from it" ;;
         scad/custom/condenser_coil.scad) echo "its preview stands the coil on the former it is wound on, so the two touch; build its parts with part=" ;;
-        scad/custom/sampler.scad) echo "its preview carries the screws, inserts and nuts; just check-sampler exports its two parts" ;;
+        scad/custom/sampler.scad) echo "its preview carries the screws, inserts and nuts; build its parts with part=" ;;
         scad/support/equipment_cart.scad)     echo "not a 2-manifold as it previews; its bracket has no render of its own" ;;
         *) echo "" ;;
     esac
