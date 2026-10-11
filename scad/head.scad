@@ -556,8 +556,8 @@ function head_sparge_feed_port(vessel_opening_diameter) = head_port_index(vessel
 function head_print_parts(vessel, lid_flange_height, drive = "shaft", sparger = "auto", lid_center = "auto") =
   let (
     _ports = head_ports_for(vessel_opening_diameter(vessel)),
-    _segs = head_baffle_segments(vessel, lid_flange_height),
-    _sparger = head_sparger_selected(sparger, drive)
+    _sparger = head_sparger_selected(sparger, drive),
+    _segs = head_baffle_segments(vessel, lid_flange_height, _sparger == "ring")
   )
     concat(
       [["lid", 1, "-D render_lid=true"]],
@@ -632,8 +632,9 @@ function head_port_carries_riser(port) = head_port_type(port) == "tube";
 // behind a baffle keeps the region from going stagnant.
 // https://pmc.ncbi.nlm.nih.gov/articles/PMC8459426/
 
-// clearance between the baffle and the impellers it passes, radially at the plate's inner edge
-baffle_impeller_clearance = 2;
+// The lean is the coupling's worst case (head_baffle_lean()), and the plate narrows to keep this.
+// running clearance between the baffle's inner edge and the impellers, after the plate's lean
+baffle_impeller_clearance = 1;
 // clearance between the bottom of the baffle and the glass under it
 baffle_floor_clearance = 10;
 // clearance between the jar's neck bore and the baffle's outer corner
@@ -1121,12 +1122,14 @@ function head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt
 // The floor is what stops the plate; it clears the impellers radially by construction. The plate
 // hangs from the port's underside, not the lid's outer face, and stops short of the glass under
 // its own span, which on a punted jar stands above the floor's lowest point.
-function head_baffle_max_length(vessel, lid_flange_height) =
+function head_baffle_max_length(vessel, lid_flange_height, ring) =
   let (
     _r = head_port_circle_radius(vessel_opening_diameter(vessel)),
+    _d = stirred_tank_impeller_diameter(vessel_diameter(vessel) - 2 * vessel_thickness(vessel), impeller_bore_ratio),
     _w = head_baffle_width(
-      vessel_opening_diameter(vessel),
-      stirred_tank_impeller_diameter(vessel_diameter(vessel) - 2 * vessel_thickness(vessel), impeller_bore_ratio)
+      vessel_opening_diameter(vessel), _d,
+      head_baffle_lean(lid_flange_height, vessel_internal_height(vessel), vessel_punt_height(vessel), _d),
+      ring
     )
   )
     head_floor_depth(lid_flange_height, vessel_internal_height(vessel), vessel_punt_height(vessel))
@@ -1134,20 +1137,29 @@ function head_baffle_max_length(vessel, lid_flange_height) =
     - head_floor_rise(vessel, _r - _w / 2, _r + _w / 2)
     - baffle_floor_clearance;
 
-function head_baffle_length(vessel, lid_flange_height) =
+function head_baffle_length(vessel, lid_flange_height, ring) =
   is_undef(baffle_length)
-    ? head_baffle_max_length(vessel, lid_flange_height)
+    ? head_baffle_max_length(vessel, lid_flange_height, ring)
     : baffle_length;
 
-function head_baffle_segments(vessel, lid_flange_height) =
+function head_baffle_segments(vessel, lid_flange_height, ring) =
   is_undef(baffle_segments)
     ? bayonet_baffle_segments(
       head_interface_for("baffle", 0),
       head_lid_thickness(lid_flange_height),
-      head_baffle_length(vessel, lid_flange_height),
+      head_baffle_length(vessel, lid_flange_height, ring),
       baffle_segment_height_max
     )
     : baffle_segments;
+
+// How far the plate can lean at the lower impeller: the coupling's fit allowance over the lid's
+// depth, levered out to the impeller. Bore play alone, with the flange's face contact ignored, so a
+// worst case. It is taken from the shaft drive's impeller whichever drive is built, as the plate is.
+function head_baffle_lean(lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter) =
+  (head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height)
+    - stirred_tank_clearance(impeller_diameter, impeller_clearance_factor)
+    - head_lid_thickness(lid_flange_height))
+  * bayonet_allowance(head_interface_for("baffle", 0)) / head_lid_thickness(lid_flange_height);
 
 // What the tail gives up at the joint plane, as a fraction of the solid plate's second moment.
 function head_baffle_joint_stiffness_ratio() = pow(baffle_joint_neck / baffle_thickness, 3);
@@ -1157,13 +1169,16 @@ function head_baffle_joint_stiffness_ratio() = pow(baffle_joint_neck / baffle_th
 function head_impeller_swept_radius(impeller_diameter) =
   max(impeller_diameter / 2, impeller_hub_radius);
 
-// The ring's bound applies whichever sparger a build names, so one set of plates serves both.
-function head_baffle_width(vessel_opening_diameter, impeller_diameter) =
-  min(
-    bayonet_baffle_width(head_interface_for("baffle", 0), baffle_thickness, baffle_bore_clearance),
-    2 * (head_port_circle_radius(vessel_opening_diameter) - head_impeller_swept_radius(impeller_diameter) - baffle_impeller_clearance),
-    head_baffle_ring_limit(vessel_opening_diameter)
-  );
+// The impeller's bound keeps the running clearance after the plate's worst-case lean. The ring's
+// applies only where the ring is built: the arm runs in between two baffles, not outboard of them.
+function head_baffle_width(vessel_opening_diameter, impeller_diameter, lean, ring) =
+  min(concat(
+    [
+      bayonet_baffle_width(head_interface_for("baffle", 0), baffle_thickness, baffle_bore_clearance),
+      2 * (head_port_circle_radius(vessel_opening_diameter) - head_impeller_swept_radius(impeller_diameter) - lean - baffle_impeller_clearance),
+    ],
+    ring ? [head_baffle_ring_limit(vessel_opening_diameter)] : []
+  ));
 
 // ----- the sparge ring's radius, and what it costs the baffles -----
 //
@@ -1241,9 +1256,9 @@ function head_baffle_ring_limit(mouth) =
 // impeller diameter) so the asserts in head() and the feasibility report are the same expression.
 // Each returns a clearance; positive is feasible.
 
-function head_ring_baffle_gap(mouth, impeller_diameter, cap = undef) =
+function head_ring_baffle_gap(mouth, impeller_diameter, lean, cap = undef) =
   (head_sparge_ring_radius(mouth, cap) - sparge_tube_extent() / 2)
-  - (head_port_circle_radius(mouth) + head_baffle_width(mouth, impeller_diameter) / 2);
+  - (head_port_circle_radius(mouth) + head_baffle_width(mouth, impeller_diameter, lean, true) / 2);
 
 function head_ring_mouth_gap(mouth, impeller_diameter, cap = undef) =
   mouth / 2 - (head_sparge_ring_radius(mouth, cap) + sparge_tube_extent() / 2);
@@ -1252,13 +1267,14 @@ function head_ring_mouth_gap(mouth, impeller_diameter, cap = undef) =
 function head_mouth_passes_impeller(mouth, impeller_diameter) =
   mouth - 2 * head_impeller_swept_radius(impeller_diameter) > 0;
 
-// Two of the four only bind if the lid carries baffles. A mouth too narrow for any port set is
-// not feasible whatever the impeller does, and short-circuits the rest.
-function head_mouth_is_feasible(mouth, impeller_diameter, has_baffles = true) =
+// Two of the four only bind if the lid carries baffles, and the ring's gap to them only if the ring
+// is built. A mouth too narrow for any port set is not feasible whatever the impeller does, and
+// short-circuits the rest. The lean is the build's: it follows the jar's depth, not its mouth.
+function head_mouth_is_feasible(mouth, impeller_diameter, has_baffles, ring, lean) =
   !is_undef(head_ports_for(mouth))
   && (!has_baffles
-    || (head_baffle_width(mouth, impeller_diameter) > 0
-      && head_ring_baffle_gap(mouth, impeller_diameter) > 0))
+    || (head_baffle_width(mouth, impeller_diameter, lean, ring) > 0
+      && (!ring || head_ring_baffle_gap(mouth, impeller_diameter, lean) > 0)))
   && head_ring_mouth_gap(mouth, impeller_diameter) > 0
   && head_mouth_passes_impeller(mouth, impeller_diameter);
 
@@ -1268,32 +1284,32 @@ function head_feasible_mouth_count() =
   let (_s = head_feasible_mouth_sweep()) floor((_s[1] - _s[0]) / _s[2]) + 1;
 function head_feasible_mouth_at(i) =
   let (_s = head_feasible_mouth_sweep()) _s[0] + i * _s[2];
-function head_feasible_mouths(impeller_diameter, has_baffles = true) =
+function head_feasible_mouths(impeller_diameter, has_baffles, ring, lean) =
   let (_s = head_feasible_mouth_sweep())
-    [for (m = [_s[0]:_s[2]:_s[1]]) if (head_mouth_is_feasible(m, impeller_diameter, has_baffles)) m];
+    [for (m = [_s[0]:_s[2]:_s[1]]) if (head_mouth_is_feasible(m, impeller_diameter, has_baffles, ring, lean)) m];
 
 // Feasibility flips exactly once as the mouth widens (measured over D = 60..180 mm), so the edge
 // is bisected on the sweep's own grid rather than walked. Lowest feasible index in (lo, hi].
-function head_feasible_edge(impeller_diameter, has_baffles, lo, hi) =
+function head_feasible_edge(impeller_diameter, has_baffles, ring, lean, lo, hi) =
   hi - lo <= 1 ? hi
   : let (_mid = floor((lo + hi) / 2))
-      head_mouth_is_feasible(head_feasible_mouth_at(_mid), impeller_diameter, has_baffles)
-        ? head_feasible_edge(impeller_diameter, has_baffles, lo, _mid)
-        : head_feasible_edge(impeller_diameter, has_baffles, _mid, hi);
+      head_mouth_is_feasible(head_feasible_mouth_at(_mid), impeller_diameter, has_baffles, ring, lean)
+        ? head_feasible_edge(impeller_diameter, has_baffles, ring, lean, lo, _mid)
+        : head_feasible_edge(impeller_diameter, has_baffles, ring, lean, _mid, hi);
 
 // [first, last] feasible mouth, or undef if none. An infeasible ceiling means an upper coupling has
 // bound, which the single-flip measurement never covered, so that case walks the full sweep.
-function head_feasible_mouth_window(impeller_diameter, has_baffles = true) =
+function head_feasible_mouth_window(impeller_diameter, has_baffles, ring, lean) =
   let (
     _top = head_feasible_mouth_count() - 1,
-    _lo_ok = head_mouth_is_feasible(head_feasible_mouth_at(0), impeller_diameter, has_baffles),
-    _hi_ok = head_mouth_is_feasible(head_feasible_mouth_at(_top), impeller_diameter, has_baffles)
+    _lo_ok = head_mouth_is_feasible(head_feasible_mouth_at(0), impeller_diameter, has_baffles, ring, lean),
+    _hi_ok = head_mouth_is_feasible(head_feasible_mouth_at(_top), impeller_diameter, has_baffles, ring, lean)
   )
   _hi_ok
     ? [head_feasible_mouth_at(_lo_ok ? 0
-         : head_feasible_edge(impeller_diameter, has_baffles, 0, _top)),
+         : head_feasible_edge(impeller_diameter, has_baffles, ring, lean, 0, _top)),
        head_feasible_mouth_at(_top)]
-    : let (_all = head_feasible_mouths(impeller_diameter, has_baffles))
+    : let (_all = head_feasible_mouths(impeller_diameter, has_baffles, ring, lean))
         len(_all) == 0 ? undef : [_all[0], _all[len(_all) - 1]];
 
 // ----- the drive stack, from the lid's outer face up -----
@@ -1643,7 +1659,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   // The mouth window this jar had to land in: too small and the ring will not pass, too large and
   // the port circle carries the baffles out until the ring fouls them.
-  _feasible = head_feasible_mouth_window(impeller_diameter, _has_baffles);
+  _baffle_lean_at_lower = head_baffle_lean(lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter);
+  _feasible = head_feasible_mouth_window(impeller_diameter, _has_baffles, _ring, _baffle_lean_at_lower);
 
   impeller_radius = impeller_diameter / 2; // radius of the impeller
 
@@ -1807,11 +1824,11 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   // ----- baffles -----
   lid_thickness = head_lid_thickness(lid_flange_height);
   port_circle_radius = head_port_circle_radius(vessel_opening_diameter);
-  baffle_max_length = head_baffle_max_length(vessel, lid_flange_height);
-  _baffle_length = head_baffle_length(vessel, lid_flange_height);
-  _baffle_segments = head_baffle_segments(vessel, lid_flange_height);
+  baffle_max_length = head_baffle_max_length(vessel, lid_flange_height, _ring);
+  _baffle_length = head_baffle_length(vessel, lid_flange_height, _ring);
+  _baffle_segments = head_baffle_segments(vessel, lid_flange_height, _ring);
   _baffle_joint_at = [for (j = [1:1:_baffle_segments - 1]) j * _baffle_length / _baffle_segments];
-  _baffle_width = head_baffle_width(vessel_opening_diameter, impeller_diameter);
+  _baffle_width = head_baffle_width(vessel_opening_diameter, impeller_diameter, _baffle_lean_at_lower, _ring);
 
   // Oldshue sizes baffling by total projected area; the width is bound, so the levers are the
   // count and how much plate is under the liquid.
@@ -1866,13 +1883,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     + bayonet_baffle_stack_height(head_interface_for("baffle", 0), lid_thickness);
 
   // The plate hangs from a coupling with its own fit allowance, so it can lean; what matters is
-  // the lean at the impellers. Reported: a tolerance stack, not an impossibility.
-  _baffle_lean_slope = bayonet_allowance(head_interface_for("baffle", 0)) / lid_thickness;
+  // the lean at the impellers, which the width already keeps clear of (head_baffle_lean()).
   _baffle_gap = port_circle_radius - _baffle_width / 2 - head_impeller_swept_radius(impeller_diameter);
-
-  _baffle_lean_at_lower =
-    (head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height)
-      - _impeller_clearance - lid_thickness) * _baffle_lean_slope;
 
   // Where the mode is crossed, as a speed: a DC motor sweeps every frequency below its maximum,
   // so what decides the plate is whether a crossing is inside the operating band.
@@ -1906,7 +1918,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _sparge_ring_radius = head_sparge_ring_radius(vessel_opening_diameter, _ring_cap);
   _sparge_ring_diameter = _sparge_ring_radius * 2;
   _sparge_ring_ratio = stirred_tank_sparge_ring_ratio(_sparge_ring_diameter, impeller_diameter);
-  _sparge_baffle_gap = head_ring_baffle_gap(vessel_opening_diameter, impeller_diameter, _ring_cap);
+  _sparge_baffle_gap = head_ring_baffle_gap(vessel_opening_diameter, impeller_diameter, _baffle_lean_at_lower, _ring_cap);
   _sparge_mouth_gap = head_ring_mouth_gap(vessel_opening_diameter, impeller_diameter, _ring_cap);
   _sparge_radii = head_sparge_radii(vessel_opening_diameter, _ring_cap);
   _sparge_holes = head_sparge_holes(vessel_opening_diameter, _ring_cap);
@@ -2841,7 +2853,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     str(
       "A ", impeller_diameter, " mm impeller leaves no room for a baffle on a ",
       head_port_circle_radius(vessel_opening_diameter) * 2, " mm port circle at ",
-      baffle_impeller_clearance, " mm clearance."
+      baffle_impeller_clearance, " mm running clearance, after ", _baffle_lean_at_lower, " mm of lean."
     )
   );
 
@@ -3068,16 +3080,12 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   }
 
   // The ring is placed to satisfy both gaps, so an assert on either would be dead; what is worth
-  // reporting is what the placement cost. The cap stands whichever sparger is built, so one set
-  // of plates serves both.
-  if (_has_baffles && head_baffle_ring_limit(vessel_opening_diameter) < 2 * (port_circle_radius - impeller_diameter / 2 - baffle_impeller_clearance)
-    && head_baffle_ring_limit(vessel_opening_diameter) < bayonet_baffle_width(head_interface_for("baffle", 0), baffle_thickness, baffle_bore_clearance))
+  // reporting is what the placement cost. Only a ring build pays it; the arm leaves the plates alone.
+  _baffle_width_unringed = head_baffle_width(vessel_opening_diameter, impeller_diameter, _baffle_lean_at_lower, false);
+  if (_has_baffles && _ring && _baffle_width < _baffle_width_unringed)
     echo(str(
-      "sparge ring: the ring is what caps the baffles", _ring ? " here" : ", kept without it so the plates print once", ", at ",
-      head_baffle_ring_limit(vessel_opening_diameter),
-      " mm, where they would otherwise be ",
-      min(bayonet_baffle_width(head_interface_for("baffle", 0), baffle_thickness, baffle_bore_clearance),
-        2 * (port_circle_radius - impeller_diameter / 2 - baffle_impeller_clearance)),
+      "sparge ring: the ring is what caps the baffles here, at ", _baffle_width,
+      " mm, where they would otherwise be ", _baffle_width_unringed,
       " mm; room outside a baffle does not grow with the mouth"
     ));
 
