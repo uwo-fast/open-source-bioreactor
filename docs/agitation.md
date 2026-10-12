@@ -317,9 +317,9 @@ the airlift. What `head()` reports for each follows.
   `head()` names both.
 - **The gas supply has to beat 1786 Pa before anything bubbles**: 172.6 mm of culture over the arm
   plus 96 Pa of capillary — 680 Pa more than the ring asked, since the arm sits 69 mm lower.
-- **The baffles keep the ring's width, 10.35 mm, under the arm too**, so one set of plates prints
-  once. The arm would let them go to 14.5, and at 2 mm nominal to the impeller against 2.28 mm of
-  coupling lean that plate can touch the blades; widening them is its own decision.
+- **The arm gives the baffles back the width the ring took.** It runs in between two plates rather
+  than outboard of them, so the ring's bound goes with the ring: the plates widen from 10.35 to
+  11.95 mm, where the impeller stops them (below).
 
 #### The ring
 
@@ -416,37 +416,39 @@ the airlift. What `head()` reports for each follows.
 
 - **Three at 120°, one fewer than Oldshue's reference count, and the vessel is under-baffled.** His
   reference is four plates at T/12 running the liquid depth, and he allows three only at the same
-  total projected area. These hang from the lid to the floor limit, 10.35 × 274 mm with 224 mm
-  submerged, and reach **0.433** of the reference projected area; four reached 0.577. The fourth
+  total projected area. These hang from the lid to the floor limit, 11.95 × 274 mm with 224 mm
+  submerged, and reach **0.499** of the reference projected area; four would reach 0.666. The fourth
   plate's port went to a sampling line (`docs/ports-layout.md`).
   Both levers are spent: depth is at the floor, and the next count that spaces equally on twelve
-  ports is four, which would give 0.577 at the cost of that port. Under-baffling lets the vessel swirl rather than mix.
-- **The width is capped by the sparge ring, not the bore or the impeller.** The room outside a
-  baffle does not grow with the mouth, and a ring wide enough to clear it does not exist, so the
-  plate yields: 10.35 mm where the lock bore would pass 17 and the impeller 14.5. Running clearance
-  to the impeller is +1.80 mm — 4.08 nominal less 2.28 of lean the coupling's 0.2 mm of play
-  allows — and closed.
+  ports is four, which would give 0.666 at the cost of that port. Under-baffling lets the vessel swirl rather than mix.
+- **The width is capped by the impeller's running clearance.** The plate keeps 1 mm to the blades
+  after the 2.28 mm of lean the coupling's 0.2 mm of play allows, so 3.28 mm nominal and 11.95 mm
+  wide, where the lock bore would pass 17.09. That lean is a worst case, bore play alone with the
+  flange's face contact ignored, so a measured lean is width back. A ring build pays the ring's
+  bound too, 10.35 mm, since the room outside a baffle does not grow with the mouth; the arm builds
+  do not. On `jar_1gal_180` the impeller is far enough in that the lock bore binds, 17.09 mm, and
+  the plates reach **0.847** of reference.
 - **What sized the plate was dynamics, not strength and not collision.** Root stress is about 1 % of
   yield, and the plate bends tangentially while the impeller sweeps a circle, so deflection never
   closes the radial gap. What binds is the first bending mode, which falls as 1/L², and the blade
   passing that sweeps 0–28 Hz on the way to 420 rpm. Stiffness goes as t³ and the mode as t^1.5,
   so thickening raises the crossing toward the 320–420 rpm band the drive runs in: on the 15.3 mm
   plate the crossing sat at 231 / 264 / 297 / 330 rpm for 9 / 10 / 11 / 12 mm, and 12 lands in the
-  band. The plate is **10 mm**. On today's narrower plate the mode is 20.0 Hz, crossed by blade
-  passing at 299 rpm and by the shaft at 1197, clearing the band by 6 %; the tip deflects
-  1.83 mm under 0.77 N, which is over the tenth-of-width limit `head()` warns on. Thicker walks the
+  band. The plate is **10 mm**. On today's 11.95 mm plate the mode is 19.4 Hz, crossed by blade
+  passing at 291 rpm and by the shaft at 1163, clearing the band by 9 %; the tip deflects
+  2.11 mm under 1.03 N, which is over the tenth-of-width limit `head()` warns on. Thicker walks the
   crossing in, so the plate stays at 10 and the warning stands until the area question is settled.
 - **The load is reasoned from two directions and neither is cited.** Each plate reacts its share of
   the impeller's torque, `T / (n · r)`; the dynamic pressure of a tangential stream at 0.3 of tip
   speed agrees within 26 %. No source held here loads a baffle. Added mass is not optional in the
   mode: the entrained water is over twice the PETG's own, and leaving it out overstates the
   frequency by about 80 %.
-- **Partial and inboard is uncited.** The plates span r 51.3–61.7 mm in a 210 mm bore, so the
-  annulus outboard of them is 43 mm wide and unobstructed — a consequence of passing every part
+- **Partial and inboard is uncited.** The plates span r 50.5–62.5 mm in a 210 mm bore, so the
+  annulus outboard of them is 42.5 mm wide and unobstructed — a consequence of passing every part
   through a 142.2 mm mouth. Inboard baffles are characterised in the literature, not recommended;
   the relevant papers are paywalled and unread (`docs/references.md`).
 
 - **The plate prints in two dovetailed pieces**, and the joint is in the deflection above: 4.2 mm
-  of the plate's 10 crosses the joint plane, 0.074 of its second moment, 0.27 mm of the 1.83 mm at
+  of the plate's 10 crosses the joint plane, 0.074 of its second moment, 0.31 mm of the 2.11 mm at
   the tip. Why it splits where it does, which way the slide runs and what the joint leaves
   unmodelled is in `docs/build.md`.

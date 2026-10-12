@@ -28,7 +28,9 @@ not stay inline.
 - **The baffle tilt wants measuring, first.** It does not want measuring at all. The 2.28 mm lean is
   bore play alone with the flange's face contact ignored, so a measurement can only come in at or
   under it — and the clearance already clears there. Every outcome led to the same action, which is
-  what makes it not a test.
+  what makes it not a test. That held while the plate's width was set elsewhere; since the plate is
+  sized to keep 1 mm after that lean, a smaller measured lean is width back, and the measurement is a
+  test again.
 - **The impeller tip ring earns its place on the strike case.** That case was the −0.28 mm. With
   +2.20 mm the ring has no surviving argument: its steady-load case already put it two orders of
   magnitude past what the fluid asks for.
@@ -97,8 +99,9 @@ not stay inline.
   180 mm machine could ever build this reactor: the frame's bases are 257 mm across. The cap is a
   slenderness rule now, and `bioreactor.scad` reports which registered printers take the build.
 - **Below D/T 0.4305 the lock bore is what caps the baffle's width.** It was, when the impeller
-  and the bore were the only bounds; the sparge ring caps it now on every jar, since the room
-  outside a baffle does not grow with the mouth.
+  and the bore were the only bounds; the sparge ring caps it on every jar that builds the ring, since
+  the room outside a baffle does not grow with the mouth, and the impeller's running clearance after
+  the plate's lean caps it on `jar_10L` under the arm.
 - **The full port set's smallest mouth is 130.4 mm and the reduced set's 81.6, and spreading the
   big ports is worth 19.3 mm.** All three assumed the ports could be arranged freely; four baffles
   every third port leave no port that is not beside one, so the worst pair is std against std
@@ -182,7 +185,7 @@ outlives the commit, in `docs/`.
   stiffness - deflection goes as the cube of height over diameter
 - **the lid carries three baffles, not four, for a port.** Four at 90° is Oldshue's reference;
   he allows three at the same total projected area, and these plates cannot widen to give it, so
-  three reach 0.433 of his reference on `jar_10L` against four's 0.577. The fourth baffle's port
+  three reach 0.499 of his reference on `jar_10L` against four's 0.666. The fourth baffle's port
   went to a sampling line. Going back to four relays the whole lid, since four equally spaced do
   not land on three-at-120°
 - **the probes still sit beside baffles at three.** Three baffles leave the middle of each triple

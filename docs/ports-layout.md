@@ -14,9 +14,9 @@ An equally spaced count has to divide the port circle. On twelve ports that allo
 
 **Three at 120° is a departure, taken for a port.** Four at 90° is Oldshue's reference case (1997
 p. 202), and the lid ran four. He allows three, but at _"the same total projected area as exists
-with four baffles"_, and this lid cannot widen a plate to make that up: the sparge ring caps the
-width and the floor caps the length. So three plates are three quarters of four, **0.433** of his
-reference area on `jar_10L` against 0.577. What the fourth plate bought back is a port, and the lid
+with four baffles"_, and this lid cannot widen a plate to make that up: the impeller caps the
+width and the floor caps the length. So three plates are three quarters of four, **0.499** of his
+reference area on `jar_10L` against 0.666. What the fourth plate bought back is a port, and the lid
 needs one for a sampling line. `head()` keeps warning that the vessel is under-baffled, and names
 four plates as the next count that spaces equally.
 
