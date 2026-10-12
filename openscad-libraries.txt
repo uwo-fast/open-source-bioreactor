@@ -29,7 +29,7 @@
 # NOTE ON turbidity-sensor AND syringe-actuator: scad/custom/sampler.scad builds on the
 # probe board's library (hardware/probe/probe.scad) and on the actuator's layout
 # (cad/main.scad). Neither publishes tags, so each is pinned to the commit on its main
-# that carries what the sampler reads: the probe's corrected heights, and the actuator's
+# that carries what the sampler reads: the probe's measured heights and optical axis, and the actuator's
 # front_face(), front_x() and tip_x().
 
 NopSCADlib          https://github.com/nophead/NopSCADlib.git                v21.41.1
@@ -37,5 +37,5 @@ bayonet-lock-scad   https://github.com/CameronBrooks11/bayonet-lock-scad.git 959
 FunctionalOpenSCAD  https://github.com/thehans/FunctionalOpenSCAD.git        51588ff
 threads-scad        https://github.com/rcolyer/threads-scad.git              4ae9aeb
 din168-thread-scad  https://github.com/CameronBrooks11/din168-thread-scad.git 7ea65c3
-turbidity-sensor    https://github.com/uwo-fast/turbidity-sensor.git          1f45d9b
+turbidity-sensor    https://github.com/uwo-fast/turbidity-sensor.git          0fb80f9
 syringe-actuator    https://github.com/uwo-fast/syringe-actuator.git          ea8b221

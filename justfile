@@ -157,7 +157,7 @@ check-designations:
 check-holes file="" flags="-D render_all=false -D render_sparger=true":
     @scripts/check-holes.sh "{{file}}" "{{flags}}"
 
-# Fail when the turbidity sampler stops fitting the board, the clear tube, a driver or its screws.
+# Fail when the turbidity sampler stops fitting the board, the clear tube, its screws or the actuator.
 check-sampler:
     @scripts/check-sampler.sh
 

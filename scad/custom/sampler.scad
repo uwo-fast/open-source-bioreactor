@@ -63,19 +63,21 @@ actuator_wall = get(act_body, "end_t");
 // the front face in the port frame, its motor side (-z) out along +x
 face_outline = [for (p = front_face(act_body)) to_port(p)];
 // the luer-to-barb fitting, the syringe's tip to the clear tube's top end (measured); its barb is
-// heat-set into the clear tube's top end, which stretches over it (docs/build.md)
+// heat-set into the clear tube's top end, stretching the tube's last 18 mm to 9.75 across (measured)
 fitting_l = 5;
+barb_l = 18;
+barb_od = 9.75;
 // Fasteners. Base to top: heat-set inserts, as the head's motor mount uses, from the registered
-// rows; screws and nuts are NopSCADlib's. Actuator to face: nuts in slots, since an M3 insert is
-// longer than the plate.
+// rows; screws and nuts are NopSCADlib's. Actuator to face: screws up from counterbores under the
+// face, nuts inside the actuator's front wall, so the actuator goes on over bare screw ends.
 outer_screw = M3_dome_screw;   // ISO 7380, from below at the outer corners
 outer_screw_l = 8;
 outer_insert = insert_m3x5p56_ss;
 inner_screw = M2_cs_cap_screw; // ISO 10642, from above at the inner end
 inner_screw_l = 6;
 inner_insert = insert_m2x4p78_ss;
-face_screw = M3_cap_screw;     // ISO 4762, from inside the actuator's front wall
-face_screw_l = 8;
+face_screw = M3_cap_screw;     // ISO 4762, up through the face into the actuator
+face_screw_l = 10;
 face_nut = M3_nut;
 
 // ---- choices ----
@@ -90,11 +92,10 @@ neck_r = bayonet_flange_radius(bayonet_std); // the pin's flange runs straight u
 // A skirt from the neck out to the outline, the hull of the two, so the underside slopes into the
 // neck instead of stepping; it faces up when the base prints upside down
 skirt_h = 8;
-// Clear tube above the roof, for the fitting's barb, clear of the funnel. UNMEASURED: it has to cover
-// the length the barb stretches the tube's end; 5 stands in until that is measured (TODO.md)
-tube_above_roof = 5;
 riser_under_window = 2;
-bushing_l = 6;        // riser up inside the clear tube, through a 1/8 x 1/4 in silicone bushing
+// the clear tube's length over the riser's top, a 1/8 x 1/4 in silicone sleeve between them: 6
+// held too little, and a print drilled about 10 deeper took it
+bushing_l = 16;
 sample_under_surface = 40;
 clamp_t = 2.2;      // base under each outer screw's head
 seat_t = 2.5;       // top under the inner screw's countersink
@@ -111,9 +112,8 @@ inner_seat_d = 2 * screw_head_radius(inner_screw) + 0.6;
 inner_insert_d = 2 * insert_hole_radius(inner_insert);
 inner_insert_l = insert_hole_length(inner_insert) + 0.5;
 face_clear_d = 2 * screw_clearance_radius(face_screw);
-nut_slot_w = 2 * nut_flat_radius(face_nut) + 0.3;  // the nut's flats against its sides
-nut_slot_t = nut_thickness(face_nut) + 0.2;
-nut_slot_end = nut_radius(face_nut) + 0.15;         // its corners point along the slot
+face_cbore_d = 2 * screw_head_radius(face_screw) + 0.5;
+face_clamp_t = 2.5;  // face over each face screw's head
 
 // ---- derived ----
 pocket = probe_bbox(clr);            // board frame, its clearance included
@@ -128,11 +128,14 @@ roof_z = board_z + top_b;
 window_z = board_z + probe_pcb()[0];    // the heads' bottom edge
 riser_top_z = window_z - riser_under_window;
 clear_z0 = riser_top_z - bushing_l;
-face_z = roof_z + tube_above_roof + fitting_l + syringe_past_face;
-plate_z0 = face_z - plate_t;
-nut_z = plate_z0 + (plate_t - nut_slot_t) / 2;  // the nut slots' floor, the slots centred in the plate
-shroud_r = shroud_id / 2 + shroud_wall;
 bore_r = (tube_od + tube_fit) / 2;
+// The tube is snug only between the heads; above their tops its bore opens at 45 degrees to the
+// shroud's, so the tube drops in, and its stretched end stands where the cone has widened past it.
+heads_top_z = board_z + probe_heads()[4] + clr;
+tube_top_z = heads_top_z + (barb_od + tube_fit) / 2 - bore_r + barb_l;
+face_z = tube_top_z + fitting_l + syringe_past_face;
+plate_z0 = face_z - plate_t;
+shroud_r = shroud_id / 2 + shroud_wall;
 function to_port(p) = [axis_z - p[1], p[0]]; // actuator [y, z] to port [x, y], its motor side out
 // The pocket in the port frame: board y runs outward along -x from the axis
 pocket_x = [axis[1] - pocket[1][1], axis[1] - pocket[0][1]];  // [inner, outer]
@@ -161,12 +164,15 @@ assert(min(wall, floor_t, roof_t) >= min_wall, "a wall is thinner than min_wall"
 assert(corner_r - outer_cbore_d / 2 >= min_wall, "an outer screw's counterbore breaks the rounded corner");
 assert(inner_screw_x + inner_seat_d / 2 < pocket_x[0] - min_wall, "the inner screw's seat runs into the pocket");
 assert(riser_top_z < split_z, "the riser's top reaches up into the top part");
-assert(clear_z0 > flange_h, "the clear tube's seat reaches down into the pin");
+assert(bore_r + min_wall <= bayonet_interface_radius(bayonet_std) - bayonet_pin_radius(bayonet_std),
+       "the clear tube's seat breaks out of the pin's core");
+assert(clear_z0 - (bore_r - riser_bore) > bayonet_bore_gland_centre(oring_4x1p5_epdm, panel)
+       + bayonet_bore_gland_length(oring_4x1p5_epdm) / 2 + min_wall, "the clear tube's seat reaches the riser's o-ring");
 assert(plate_z0 - flare_h > roof_z + top_skirt_h, "the face's flare reaches down into the top skirt");
 
 echo(str("sampler: housing ", outer_x + half_w, " x ", 2 * half_w, ", face ", face_z, " over the lid; riser cut ",
          sampler_riser_l, ", drilled ", hole_from_top, " from its top end; clear tube cut ",
-         roof_z + tube_above_roof - clear_z0, "; ", line_ml, " mL from the hole to the window"));
+         tube_top_z - clear_z0, "; ", line_ml, " mL from the hole to the window"));
 
 // The board in the port frame: its optical axis on the port's, its connector end outward (+x).
 module board_place() {
@@ -266,17 +272,16 @@ module sampler_top() {
       conn = probe_connector();
       translate([-conn[0] - clr, -50, split_b - 1]) cube([2 * (conn[0] + clr), 50 + conn[2], conn[3] + clr - split_b + 1]);
     }
-    // the clear tube's bore up through the roof, then the syringe's way down to it, its floor a 45
-    // degree funnel into the bore, so the floor prints face-down and leads the tube in
-    _funnel = shroud_id / 2 - bore_r;
-    translate([0, 0, split_z - 1]) cylinder(r=bore_r, h=roof_z - split_z + 1.01);
-    translate([0, 0, roof_z - 0.01]) cylinder(r1=bore_r, r2=shroud_id / 2, h=_funnel + 0.01);
-    translate([0, 0, roof_z + _funnel - 0.01]) cylinder(d=shroud_id, h=face_z - roof_z - _funnel + 1);
-    // the actuator's holes down from the face, and a nut slot for each, entered from the face's
-    // nearer side edge (+-y), the short way out
+    // the clear tube's bore, snug up to the heads' tops, then a 45 degree cone out to the shroud's
+    _cone = shroud_id / 2 - bore_r;
+    translate([0, 0, split_z - 1]) cylinder(r=bore_r, h=heads_top_z - split_z + 1.01);
+    translate([0, 0, heads_top_z]) cylinder(r1=bore_r, r2=shroud_id / 2, h=_cone + 0.01);
+    translate([0, 0, heads_top_z + _cone]) cylinder(d=shroud_id, h=face_z - heads_top_z - _cone + 1);
+    // the actuator's screws: clearance through face_clamp_t, counterbored down and out through the
+    // flare's underside, where they go in from
     for (h = holes) translate([each to_port(h), 0]) {
-      translate([0, 0, face_z]) mirror([0, 0, 1]) drill(face_clear_d, plate_t + 1);
-      translate([-nut_slot_w / 2, h[0] > 0 ? -nut_slot_end : -50, nut_z]) cube([nut_slot_w, 50 + nut_slot_end, nut_slot_t]);
+      translate([0, 0, face_z - face_clamp_t - 1]) cylinder(d=face_clear_d, h=face_clamp_t + 2);
+      translate([0, 0, plate_z0 - flare_h]) cylinder(d=face_cbore_d, h=face_z - face_clamp_t - plate_z0 + flare_h);
     }
   }
 }
@@ -292,8 +297,8 @@ module sampler_fasteners(inserts=true, lift=0) {
   translate([inner_screw_x, 0, inner_head_z + lift]) screw(inner_screw, inner_screw_l);
   if (inserts) translate([inner_screw_x, 0, split_z]) insert(inner_insert);
   for (h = holes) translate([each to_port(h), 0]) {
-    translate([0, 0, face_z + actuator_wall]) screw(face_screw, face_screw_l);
-    translate([0, 0, nut_z + (nut_slot_t - nut_thickness(face_nut)) / 2]) rotate([0, 0, 90]) nut(face_nut);
+    translate([0, 0, face_z - face_clamp_t - lift]) rotate([180, 0, 0]) screw(face_screw, face_screw_l);
+    translate([0, 0, face_z + actuator_wall]) nut(face_nut);
   }
 }
 
@@ -307,6 +312,6 @@ else if (part == "assembly") {
   color("darkorange") sampler_top();
   %board_place() probe();
   sampler_fasteners();
-  %translate([0, 0, clear_z0]) cylinder(d=tube_od, h=roof_z + tube_above_roof - clear_z0);
+  %translate([0, 0, clear_z0]) cylinder(d=tube_od, h=tube_top_z - clear_z0);
   %translate([0, 0, riser_top_z - sampler_riser_l]) cylinder(d=riser_od, h=sampler_riser_l);
 }

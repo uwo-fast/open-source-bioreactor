@@ -90,15 +90,15 @@ closed it and in `docs/`.
   - a bench question: run it and see whether the DO trace is spiky. If it matters, the free
     variables are the lean and the ring's height, both parameters already
 
-- [ ] **the baffle clears the blades now, and baffle area paid for it**
-  - running clearance is +1.80009 mm (4.07731 nominal less 2.27722 of lean), after the plate
-    narrowed 15.3 -> 10.3454 mm and the mouth correction took 0.4 mm of it
-  - the price: reference projected area 0.856 -> 0.579 of Oldshue's four-at-T/12, 0.577 since the plates
-    stop 10 mm off the glass under them, 0.433 at three plates, which gave their fourth port to a
-    sampling line. Whether that is acceptable is the open question, and buying width back walks toward
-    the blades. The tip ring is off and stays a flag (`docs/decisions.md`)
+- [ ] **on `jar_10L` the baffle's width is the lean's to give back**
+  - the plate is sized to keep 1 mm running to the blades after 2.27722 mm of lean: 3.27722 nominal,
+    11.9456 mm wide. The ring's 10.3454 mm bound applies only where the ring is built, and
+    `jar_1gal_180` is at the lock bore's 17.0892
+  - the price is still area: 0.499 of Oldshue's four-at-T/12 at three plates, which gave their
+    fourth port to a sampling line. The impeller alone would allow 14.5 mm (0.606), at -0.28 running
+    in the worst case. The tip ring is off and stays a flag (`docs/decisions.md`)
   - the 2.28 mm lean is a worst case - bore play alone, levered 11.4x, ignoring the flange's face
-    contact - and only matters if the plate widens
+    contact - so measuring it (the bench list in `docs/build.md`) is the cheapest width there is
   - fixes, cheapest first, costed against the old 15.3 mm plate: taper the plate's inner edge with
     depth; deepen the bayonet engagement to 36 mm (halves the lean, adds a third joint); a
     baffle-only interface row at 0.1 mm allowance (a tight bayonet twisted by hand in a jar)
@@ -166,16 +166,9 @@ Printed from its own file, `custom/sampler.scad`; nothing in `head()` places it 
     not read (`docs/architecture.md`). The lid clash and the ±30 degree twist, checked in the spike
     against an exported head, become `head()`'s own
 
-- [ ] **measure what the sampler still assumes**
-  - the barb joint's stretched length on the clear tube, which sets `tube_above_roof` (5 until then)
-  - where the probe's lenses sit along the arms: turbidity-sensor's `optical_y` 11.4 is where its
-    first case put the tube, not a measurement
-  - syringe-actuator's `nozzle_l` per syringe; the 5 mL's 10.2 is derived, not measured
-  - the M2 countersunk head: the seat and slot are cut 4.4 mm for NopSCADlib's 3.8 mm head, and some
-    ISO 10642 M2 heads are 4.7 mm. The one fitted passes
-  - on the bench: the bushing's seal under the syringe's suction, and the 40 mm sampling depth
-  - the clear tube, luer-to-barb fitting and silicone bushing tubing, found in the lab, for
-    `purchased-parts.csv`
+- [ ] **what the sampler still has to prove on the bench**
+  - the bushing's seal under the syringe's suction, and the 40 mm sampling depth
+  - the clear tube's McMaster part number: the one fitted is believed to be FEP from there
 
 ## alternative agitation modes
 
