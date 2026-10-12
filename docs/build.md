@@ -137,7 +137,7 @@ so 200 is what the echo reports, against a 163 mm tallest piece.
 The piece that binds is not the obvious one. The piece carrying the port stands on a **28.2 mm
 flange**, which is a wide foot; a tip piece stands on the section alone and is half again as
 slender for it. That section is **17.09 × 10 mm** — the widest plate the port's lock bore will
-pass, not the 10.3454 mm this jar's sparge ring actually leaves — so the cap is a property of the
+pass, not the 11.9456 mm this jar's impeller actually leaves — so the cap is a property of the
 port and grades the same on every vessel.
 
 `just export-parts` writes every one of these as its own STL, with a print list beside them, and
@@ -490,10 +490,11 @@ ends self-taps into a pilot in that boss and bites the tube by 3 mm: seat the ar
 shaft, and drive the screw. The arm's end is open through a pilot like the ring's, so a brush
 passes, and a second of those screws plugs it.
 
-**The baffles keep the ring's width under either sparger**, so one set of plates prints once. The
-arm would let them widen from 10.35 to 14.5 mm — but at 2 mm nominal to the impeller against the
-2.28 mm of lean the port coupling allows, a 14.5 mm plate can touch the blades. Widening them is
-its own decision, and `baffle_impeller_clearance` is the number to raise first.
+**The baffles are as wide as the sparger built lets them be.** Under the ring they stop at
+10.35 mm, which is what the ring leaves outside them. Under the arm the impeller stops them instead:
+`baffle_impeller_clearance` is a running clearance, 1 mm to the blades after the 2.28 mm of lean the
+port coupling allows, so 11.95 mm on `jar_10L`. A lid whose plates were printed for the arm does
+not take the ring.
 
 **Check-holes covers whichever is built.** The head's hole probes used to be echoed in the part's
 own frame while the mesh sat 170 mm lower, so they landed in empty space and passed without
@@ -876,8 +877,9 @@ sending back:
 2. **The jar's rim**, calipered — the land width on top of the glass, the wall, and the mouth. Three
    registered numbers disagree on two vessels and a caliper says which is wrong.
 3. **The baffle's lean.** Print the lid's baffle port and one plate segment, seat them, and measure
-   the tilt at a known distance below the lid. The model reports a stacked worst case of −0.28 mm
-   running clearance and openly says it cannot tell how much of that lean is real.
+   the tilt at a known distance below the lid. The model narrows the plate to keep 1 mm running
+   clearance after a stacked worst case of 2.28 mm of lean, and cannot tell how much of that lean is
+   real; whatever the measurement takes off it is plate width back.
 4. **Whether the joint holds.** Nobody has yet tightened twelve nuts a third of a turn onto a glass
    jar with a printed flange in between. How much it relaxes, and over what time, is the number this
    document most needs.

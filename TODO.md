@@ -90,15 +90,15 @@ closed it and in `docs/`.
   - a bench question: run it and see whether the DO trace is spiky. If it matters, the free
     variables are the lean and the ring's height, both parameters already
 
-- [ ] **the baffle clears the blades now, and baffle area paid for it**
-  - running clearance is +1.80009 mm (4.07731 nominal less 2.27722 of lean), after the plate
-    narrowed 15.3 -> 10.3454 mm and the mouth correction took 0.4 mm of it
-  - the price: reference projected area 0.856 -> 0.579 of Oldshue's four-at-T/12, 0.577 since the plates
-    stop 10 mm off the glass under them, 0.433 at three plates, which gave their fourth port to a
-    sampling line. Whether that is acceptable is the open question, and buying width back walks toward
-    the blades. The tip ring is off and stays a flag (`docs/decisions.md`)
+- [ ] **on `jar_10L` the baffle's width is the lean's to give back**
+  - the plate is sized to keep 1 mm running to the blades after 2.27722 mm of lean: 3.27722 nominal,
+    11.9456 mm wide. The ring's 10.3454 mm bound applies only where the ring is built, and
+    `jar_1gal_180` is at the lock bore's 17.0892
+  - the price is still area: 0.499 of Oldshue's four-at-T/12 at three plates, which gave their
+    fourth port to a sampling line. The impeller alone would allow 14.5 mm (0.606), at -0.28 running
+    in the worst case. The tip ring is off and stays a flag (`docs/decisions.md`)
   - the 2.28 mm lean is a worst case - bore play alone, levered 11.4x, ignoring the flange's face
-    contact - and only matters if the plate widens
+    contact - so measuring it (the bench list in `docs/build.md`) is the cheapest width there is
   - fixes, cheapest first, costed against the old 15.3 mm plate: taper the plate's inner edge with
     depth; deepen the bayonet engagement to 36 mm (halves the lean, adds a third joint); a
     baffle-only interface row at 0.1 mm allowance (a tight bayonet twisted by hand in a jar)
