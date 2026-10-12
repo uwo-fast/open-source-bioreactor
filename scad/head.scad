@@ -287,11 +287,16 @@ lid_blind_pocket_floor_min = 3.0;
 // citation and lets every registered vessel pass its mouth.
 // Impeller diameter as a fraction of the vessel's bore (D/T)
 impeller_bore_ratio = 0.45;
+// A disc turbine under the sparger's gas, which a radial impeller holds its flow pattern against
+// at 3x the gas stream's power where an axial one needs 8x (Oldshue p. 228), and the pitched
+// blade above it for the circulation the light needs; docs/agitation.md has the case.
+// The registered type of the lower impeller
+head_impeller_lower_type = impeller_rushton_6;
 // pbt_45_4 is chosen for what can be said about it: Medek's correlation gives Po and names the
 // conditions this vessel breaks. The hand-drawn twisted paddle stays registered, with no power
 // number anyone can cite.
-// The registered impeller type
-head_impeller_type = impeller_pbt_45_4;
+// The registered type of the upper impeller
+head_impeller_upper_type = impeller_pbt_45_4;
 
 // the nearest measured shape, and an over-estimate since twist lowers Po (Patwardhan, Kumaresan)
 // The row whose power number stands in when the type has none
@@ -299,6 +304,9 @@ head_impeller_po_fallback = impeller_folded_axial_4;
 
 // width of each fin blade
 impeller_fin_width = 4;
+// Reasoned, not cited: thick enough to bridge between the blades when the turbine prints on them
+// Thickness of a disc turbine's disc, in mm
+impeller_disc_thickness = 2.4;
 // Ring tying the blade tips; off, it prints as an overhang and nothing needs it
 impeller_tip_ring = false;
 // size of the center hub; the set screw threads through it, so it sets the thread engagement
@@ -331,12 +339,6 @@ head_shaft_rotation = 1;
 // Lower impeller centreline off the floor, in impeller diameters
 impeller_clearance_factor = 0.9;
 
-// Derived from the registered row; the section re-opens below so the customizer UI is unaffected
-/* [Hidden] */
-impeller_n_fins = impeller_blades(head_impeller_type);
-impeller_twist_ang = impeller_twist(head_impeller_type);
-
-/* [Impeller Parameters] */
 // A fraction of capacity, so it scales across the registry; the literature's 0.8 is reported
 // against.
 // Fraction of the jar's capacity the culture fills
@@ -980,16 +982,16 @@ function head_sparge_ring_z(impeller_diameter, drive = "shaft", floor_rise = 0) 
   head_gas_driven(drive) ? floor_rise + sparge_ring_floor_gap + sparge_tube_extent() / 2 :
   let (
     _clearance = stirred_tank_clearance(impeller_diameter, impeller_clearance_factor),
-    _height = impeller_axial_span(head_impeller_type, impeller_diameter, impeller_fin_width),
-    _bottom = _clearance + _height / 2 + impeller_collar_height,
-    _top = _clearance + stirred_tank_impeller_spacing(impeller_diameter, impeller_spacing_factor) - _height / 2
+    _bottom = _clearance + head_impeller_span(head_impeller_lower_type, impeller_diameter) / 2 + impeller_collar_height,
+    _top = _clearance + stirred_tank_impeller_spacing(impeller_diameter, impeller_spacing_factor)
+      - head_impeller_span(head_impeller_upper_type, impeller_diameter) / 2
   )
     _bottom + sparge_ring_gap_fraction * (_top - _bottom);
 
 // Where the arm's holes sit: under the lower impeller's blades by sparge_cap_drop.
 function head_sparge_cap_z(impeller_diameter) =
   stirred_tank_clearance(impeller_diameter, impeller_clearance_factor)
-  - impeller_axial_span(head_impeller_type, impeller_diameter, impeller_fin_width) / 2
+  - head_impeller_span(head_impeller_lower_type, impeller_diameter) / 2
   - sparge_cap_drop;
 // How far the arm runs in from the port circle: to the shaft, less its clearance.
 function head_sparge_cap_reach(mouth, shaft_diameter) =
@@ -1008,7 +1010,8 @@ function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel
     _floor_z = -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height),
     _swept = head_impeller_swept_radius(impeller_diameter),
     _clearance = stirred_tank_clearance(impeller_diameter, impeller_clearance_factor),
-    _height = impeller_axial_span(head_impeller_type, impeller_diameter, impeller_fin_width),
+    _lower = head_impeller_span(head_impeller_lower_type, impeller_diameter),
+    _upper = head_impeller_span(head_impeller_upper_type, impeller_diameter),
     _spacing = stirred_tank_impeller_spacing(impeller_diameter, impeller_spacing_factor),
     _ring_r = is_undef(ring_r) ? head_sparge_ring_radius(vessel_opening_diameter) : ring_r,
     _ring_z = is_undef(ring_z) ? head_sparge_ring_z(impeller_diameter) : ring_z
@@ -1017,13 +1020,13 @@ function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel
       [
         [
           "lower impeller",
-          [0, _swept, _floor_z + _clearance - _height / 2, _floor_z + _clearance + _height / 2],
+          [0, _swept, _floor_z + _clearance - _lower / 2, _floor_z + _clearance + _lower / 2],
         ],
         [
           "upper impeller",
           [0, _swept,
-           _floor_z + _clearance + _spacing - _height / 2,
-           _floor_z + _clearance + _spacing + _height / 2],
+           _floor_z + _clearance + _spacing - _upper / 2,
+           _floor_z + _clearance + _spacing + _upper / 2],
         ],
       ],
       sparger != "ring" ? [] : [[
@@ -1168,6 +1171,10 @@ function head_baffle_joint_stiffness_ratio() = pow(baffle_joint_neck / baffle_th
 // added outboard of the blades shows up here and takes its clearance with it.
 function head_impeller_swept_radius(impeller_diameter) =
   max(impeller_diameter / 2, impeller_hub_radius);
+
+// What an impeller of this type occupies along the shaft, its blades' thickness included.
+function head_impeller_span(type, impeller_diameter) =
+  impeller_axial_span(type, impeller_diameter, impeller_fin_width);
 
 // The impeller's bound keeps the running clearance after the plate's worst-case lean. The ring's
 // applies only where the ring is built: the arm runs in between two baffles, not outboard of them.
@@ -1664,19 +1671,24 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   impeller_radius = impeller_diameter / 2; // radius of the impeller
 
-  // A type that registers no width ratio has no axial span to derive.
-  assert(
-    !is_undef(impeller_width_ratio(head_impeller_type)),
-    str(
-      "head: impeller type \"", impeller_name(head_impeller_type),
-      "\" registers no width ratio, so the blade has no axial span to derive. Register one on the ",
-      "row, or choose a type that carries it."
-    )
-  );
+  // The pair, lower then upper; each type brings its own blade, power number and flow.
+  _impeller_types = [head_impeller_lower_type, head_impeller_upper_type];
 
-  // What the blade occupies along the shaft, thickness included - every vertical budget reads it.
-  impeller_height = impeller_axial_span(head_impeller_type, impeller_diameter, impeller_fin_width);
-  impeller_blade_width = impeller_width_ratio(head_impeller_type) * impeller_diameter;
+  // A type that registers no width ratio has no axial span to derive.
+  for (t = _impeller_types)
+    assert(
+      !is_undef(impeller_width_ratio(t)),
+      str(
+        "head: impeller type \"", impeller_name(t),
+        "\" registers no width ratio, so the blade has no axial span to derive. Register one on the ",
+        "row, or choose a type that carries it."
+      )
+    );
+
+  // What each blade occupies along the shaft, thickness included - every vertical budget reads it.
+  _impeller_spans = [for (t = _impeller_types) head_impeller_span(t, impeller_diameter)];
+  impeller_height_lower = _impeller_spans[0];
+  impeller_height_upper = _impeller_spans[1];
 
   // radius of the shaft hole in the impeller
   impeller_shaft_hole_radius = (shaft_diameter(_shaft) + impeller_shaft_allow) / 2;
@@ -1703,12 +1715,12 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _swept = head_impeller_swept_radius(impeller_diameter) * 2;
 
   // Coverage over the upper impeller, and the room under the lower one where a sparger goes.
-  _upper_impeller_top = _impeller_clearance + impeller_spacing + impeller_height / 2;
+  _upper_impeller_top = _impeller_clearance + impeller_spacing + impeller_height_upper / 2;
 
   _impeller_coverage =
   stirred_tank_coverage(vessel_punt_height + _liquid_height, _upper_impeller_top);
   _coverage_ratio = stirred_tank_coverage_ratio(_impeller_coverage, impeller_diameter);
-  _sparger_room = _impeller_clearance - impeller_height / 2;
+  _sparger_room = _impeller_clearance - impeller_height_lower / 2;
 
   // Whether this column wants two impellers at all: the spacing band bounds the count, in liquid
   // height over IMPELLER diameter. Reported, since the bounds come from a convention.
@@ -1730,36 +1742,49 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _vessel_capacity = head_vessel_capacity(vessel_profile, vessel_internal_height);
 
   // ----- power number -----
-  // Po and x come off the registered type: measured (the row carries it), correlated (the row
+  // Po and x come off each registered type: measured (the row carries it), correlated (the row
   // carries a blade angle and Medek's correlation reports its envelope) or borrowed (a fallback
   // row's number). Which kind is echoed, since Po is the largest uncertainty in everything below.
+  // Medek is read at the pair's off-bottom clearance for either impeller, as it was for the pair.
   _tank_ratio = _vessel_bore / impeller_diameter;
   _height_ratio = _liquid_height / _vessel_bore;
-  _po_measured = impeller_has_power_number(head_impeller_type);
-  _po_correlated = !_po_measured && !is_undef(impeller_blade_angle(head_impeller_type));
-  _po_borrowed = !_po_measured && !_po_correlated;
+  _po_kind = [
+    for (t = _impeller_types)
+      impeller_has_power_number(t) ? "measured" : !is_undef(impeller_blade_angle(t)) ? "correlated" : "borrowed"
+  ];
 
-  _medek_departures = stirred_tank_medek_departures(
-    impeller_blades(head_impeller_type), _clearance_ratio, _tank_ratio,
-    _height_ratio, impeller_blade_angle(head_impeller_type),
-    len(_baffle_at), stirred_tank_reynolds(impeller_diameter, dc_motor_rated_output_rpm(_motor))
-  );
+  _medek_departures = [
+    for (i = [0, 1]) let (t = _impeller_types[i])
+      _po_kind[i] != "correlated" ? [] : stirred_tank_medek_departures(
+        impeller_blades(t), _clearance_ratio, _tank_ratio, _height_ratio, impeller_blade_angle(t),
+        len(_baffle_at), stirred_tank_reynolds(impeller_diameter, dc_motor_rated_output_rpm(_motor))
+      )
+  ];
 
-  _impeller_po =
-  _po_measured ? impeller_power_number(head_impeller_type)
-  : _po_correlated ? stirred_tank_medek_power_number(
-      impeller_blades(head_impeller_type), _clearance_ratio, _tank_ratio,
-      _height_ratio, impeller_blade_angle(head_impeller_type))
-  : impeller_power_number(head_impeller_po_fallback);
-  _impeller_x = impeller_dissipation_factor(head_impeller_type);
+  _impeller_po = [
+    for (i = [0, 1]) let (t = _impeller_types[i])
+      _po_kind[i] == "measured" ? impeller_power_number(t)
+      : _po_kind[i] == "correlated" ? stirred_tank_medek_power_number(
+          impeller_blades(t), _clearance_ratio, _tank_ratio, _height_ratio, impeller_blade_angle(t))
+      : impeller_power_number(head_impeller_po_fallback)
+  ];
+  _impeller_x = [for (t = _impeller_types) impeller_dissipation_factor(t)];
 
-  // Guarded: a twisted blade has no angle for the correlation.
-  _impeller_flow_number = !_po_correlated
-    ? undef
-    : stirred_tank_medek_flow_number(
-      impeller_blades(head_impeller_type), _clearance_ratio, _tank_ratio,
-      _height_ratio, impeller_blade_angle(head_impeller_type)
-    );
+  // Listed where a source lists it, correlated where Medek reaches, undef otherwise.
+  _impeller_flow_number = [
+    for (i = [0, 1]) let (t = _impeller_types[i])
+      !is_undef(impeller_flow_number_listed(t)) ? impeller_flow_number_listed(t)
+      : _po_kind[i] == "correlated" ? stirred_tank_medek_flow_number(
+          impeller_blades(t), _clearance_ratio, _tank_ratio, _height_ratio, impeller_blade_angle(t))
+      : undef
+  ];
+
+  // The pair's shaft power at a speed. Summed it is an upper bound, since a pair at under ~1.55 D
+  // interacts and draws less; the larger impeller's alone is a lower bound. The means below read
+  // the lower bound and the torque the upper one, as they did for a pair of one type.
+  function _pair_power(rpm) = [for (i = [0, 1]) stirred_tank_power(impeller_diameter, rpm, _impeller_po[i])];
+  function _pair_power_low(rpm) = max(_pair_power(rpm));
+  function _pair_power_high(rpm) = _pair_power(rpm)[0] + _pair_power(rpm)[1];
 
   _rated_torque = dc_motor_rated_output_torque(_motor); // undef on a motor that publishes none
 
@@ -1783,7 +1808,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   _pv_rated = len(_drive_speeds) == 0 ? undef
     : stirred_tank_mean_dissipation(
-      stirred_tank_power(impeller_diameter, _drive_speeds[len(_drive_speeds) - 1][1], _impeller_po),
+      _pair_power_low(_drive_speeds[len(_drive_speeds) - 1][1]),
       _culture_volume
     );
 
@@ -1850,8 +1875,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   // something the drive excites. Worst case is the no-load speed.
   _baffle_rpm = max([for (s = _drive_speeds) s[1]]);
 
-  _baffle_torque = 2 * stirred_tank_torque(
-    stirred_tank_power(impeller_diameter, _baffle_rpm, _impeller_po), _baffle_rpm);
+  _baffle_torque = stirred_tank_torque(_pair_power_high(_baffle_rpm), _baffle_rpm);
 
   _baffle_load = stirred_tank_baffle_load(_baffle_torque, len(_baffle_at), port_circle_radius);
 
@@ -1892,7 +1916,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   _baffle_crossings = [
     ["the shaft", stirred_tank_critical_speed(_baffle_frequency, 1)],
-    ["blade passing", stirred_tank_critical_speed(_baffle_frequency, impeller_n_fins)],
+    for (t = _impeller_types)
+      [str(impeller_name(t), " blade passing"), stirred_tank_critical_speed(_baffle_frequency, impeller_blades(t))],
   ];
 
   _baffle_crossings_in_band =
@@ -2115,10 +2140,16 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     gas_throttle_pressure(_gas_free_flow, _gas_dead_head, _gas_band[1], _gas_back_pressure);
 
   // Oldshue p.228: an axial impeller needs 8-10x the gas stream's power to hold its flow pattern,
-  // a radial one 3x.
-  _gas_ceiling = stirred_tank_gas_flow_ceiling(
-    stirred_tank_power(impeller_diameter, _baffle_rpm, _impeller_po),
-    impeller_pumping(head_impeller_type), _liquid_height);
+  // a radial one 3x. Each impeller against the whole gas stream, at each drive speed. The cap goes
+  // as N^3, so each also has a slowest speed that still holds the design rate.
+  _gas_ceilings = [
+    for (s = _drive_speeds) [
+      for (i = [0, 1])
+        stirred_tank_gas_flow_ceiling(_pair_power(s[1])[i], impeller_pumping(_impeller_types[i]), _liquid_height)
+    ]
+  ];
+  _gas_hold_rpm = len(_drive_speeds) == 0 ? undef
+    : [for (i = [0, 1]) _drive_speeds[0][1] * pow(_sparge_flow / _gas_ceilings[0][i], 1 / 3)];
 
   // ----- port spacing -----
   // Whether that many ports clear each other on the circle: the worst adjacent pair of flanges
@@ -2391,9 +2422,10 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     if (!stirred_tank_in_band(_clearance_ratio, _clearance_band))
       echo(str(
         "impeller clearance: ", _clearance_ratio, " D is below Oldshue's ", _clearance_band[0], "-",
-        _clearance_band[1], " D for fluidfoils; this is a ", impeller_name(head_impeller_type),
-        ", where Fořt found efficiency higher at C/D 1.0 than 0.5, and coverage over the upper impeller binds at ",
-        (vessel_punt_height + _liquid_height - impeller_spacing - impeller_height / 2
+        _clearance_band[1], " D for fluidfoils; the lower impeller is a ", impeller_name(head_impeller_lower_type),
+        impeller_pumping(head_impeller_lower_type) == "axial" ? ", where Fořt found efficiency higher at C/D 1.0 than 0.5" : "",
+        ", and coverage over the upper impeller binds at ",
+        (vessel_punt_height + _liquid_height - impeller_spacing - impeller_height_upper / 2
           - stirred_tank_coverage_minimum() * impeller_diameter) / impeller_diameter,
         " D (docs/agitation.md)"
       ));
@@ -2410,16 +2442,20 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         _spacing_band[1], " D band; too close costs up to 35% of the power imparted, too far mixes the zones poorly"
       ));
 
-    // Which way the pair pumps, and therefore where gas belongs; the drawn parts do not show it.
+    // Which way each pumps, and therefore where gas belongs; the drawn parts do not show it. An
+    // axial blade pumps by its handedness and the shaft's turn, the upper mirrored against the lower;
+    // a radial one throws its discharge to the wall whichever way it turns.
+    _axial = [for (t = _impeller_types) impeller_pumping(t) == "axial"];
+    _up = stirred_tank_lower_pumps_up(head_shaft_rotation);
     echo(str(
       "impeller pumping: shaft turns ", head_shaft_rotation > 0 ? "counter-clockwise" : "clockwise",
-      " seen from above, so the lower impeller pumps ",
-      stirred_tank_lower_pumps_up(head_shaft_rotation) ? "up and the upper down" : "down and the upper up",
-      " and the pair ", stirred_tank_pair_converges(head_shaft_rotation) ? "converges on" : "diverges from",
-      " the ", impeller_spacing - impeller_height - impeller_collar_height, " mm gap between them"
+      " seen from above, so the lower impeller ", !_axial[0] ? "discharges radially" : _up ? "pumps up" : "pumps down",
+      " and the upper ", !_axial[1] ? "discharges radially" : _up ? "pumps down" : "pumps up",
+      ", with ", impeller_spacing - (impeller_height_lower + impeller_height_upper) / 2 - impeller_collar_height,
+      " mm between the lower's collar and the upper's blades"
     ));
 
-    if (!stirred_tank_pair_converges(head_shaft_rotation))
+    if (_axial[0] && _axial[1] && !stirred_tank_pair_converges(head_shaft_rotation))
       echo(str(
         "WARNING impeller pumping: a diverging pair puts the discharges at opposite ends of the vessel, so no ",
         "single sparge ring sits in both (Birch & Ahmed); reverse head_shaft_rotation, see docs/agitation.md"
@@ -2452,10 +2488,10 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
     // The collar stands in the gap between the impellers.
     assert(
-      impeller_collar_height < impeller_spacing - impeller_height,
+      impeller_collar_height < impeller_spacing - (impeller_height_lower + impeller_height_upper) / 2,
       str(
         "The lower impeller's ", impeller_collar_height, " mm collar reaches into the ",
-        impeller_spacing - impeller_height, " mm gap above it."
+        impeller_spacing - (impeller_height_lower + impeller_height_upper) / 2, " mm gap above it."
       )
     );
 
@@ -2501,44 +2537,34 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   ));
 
   if (_shaft_drive) {
-    if (_po_measured)
+    for (i = [0, 1]) let (t = _impeller_types[i], _where = i == 0 ? "lower" : "upper")
       echo(str(
-        "impeller: ", impeller_name(head_impeller_type), " Po ", _impeller_po, ", measured",
-        is_undef(impeller_power_number_tol(head_impeller_type))
-          ? " (no uncertainty given)"
-          : str(" +/- ", impeller_power_number_tol(head_impeller_type))
-      ));
-
-    if (_po_borrowed)
-      echo(str(
-        "impeller: ", impeller_name(head_impeller_type), " has no measured power number and no blade angle; borrowing ",
-        _impeller_po, " from ", impeller_name(head_impeller_po_fallback), ", an over-estimate since twist lowers Po"
-      ));
-
-    if (_po_correlated)
-      echo(str(
-        "impeller: ", impeller_name(head_impeller_type), " Po ", _impeller_po,
-        " and flow number ", _impeller_flow_number,
-        " from Medek's correlation at ", impeller_blade_angle(head_impeller_type), " deg, ",
-        len(_medek_departures) == 0
-          ? "inside its validity envelope"
-          : str("extrapolated on ", _medek_departures)
+        "impeller, ", _where, ": ", impeller_name(t), " Po ", _impeller_po[i],
+        _po_kind[i] == "measured"
+          ? str(", measured", is_undef(impeller_power_number_tol(t)) ? " (no uncertainty given)" : str(" +/- ", impeller_power_number_tol(t)))
+        : _po_kind[i] == "correlated"
+          ? str(" and flow number ", _impeller_flow_number[i], " from Medek's correlation at ", impeller_blade_angle(t), " deg, ",
+                len(_medek_departures[i]) == 0 ? "inside its validity envelope" : str("extrapolated on ", _medek_departures[i]))
+        : str(", borrowed from ", impeller_name(head_impeller_po_fallback), " for want of a measurement or a blade angle; an over-estimate since twist lowers Po"),
+        _po_kind[i] != "correlated" && !is_undef(_impeller_flow_number[i]) ? str("; flow number ", _impeller_flow_number[i], ", listed") : ""
       ));
 
     if (len(_drive_speeds) == 0)
       echo(str("drive: ", dc_motor_name(_motor), " registers no output speed, so no Re or dissipation follows"));
 
+    // P is the larger impeller's alone, a lower bound on the pair; the torque is both summed, an
+    // upper bound. The peak is the larger of the two impellers' own.
     for (s = _drive_speeds)
-      let (_rpm = s[1], _power = stirred_tank_power(impeller_diameter, _rpm, _impeller_po))
+      let (_rpm = s[1], _power = _pair_power_low(_rpm))
         echo(str(
           "drive ", s[0], " ", _rpm, " rpm: Re ", stirred_tank_reynolds(impeller_diameter, _rpm),
           ", tip ", stirred_tank_tip_speed(impeller_diameter, _rpm), " m/s, ", _power, " W into ",
           _culture_volume, " L = ", stirred_tank_mean_dissipation(_power, _culture_volume),
-          " W/m3 mean, ", stirred_tank_max_dissipation(impeller_diameter, _rpm, _impeller_po, _impeller_x),
+          " W/m3 mean, ",
+          max([for (i = [0, 1]) stirred_tank_max_dissipation(impeller_diameter, _rpm, _impeller_po[i], _impeller_x[i])]),
           " W/kg peak",
-          // twice one impeller's torque: an upper bound on the pair, as P above is a lower one
           is_undef(_rated_torque) ? "" : str(
-            ", pair under ", 2 * stirred_tank_torque(_power, _rpm), " Nm of ", _rated_torque, " Nm rated"
+            ", pair under ", stirred_tank_torque(_pair_power_high(_rpm), _rpm), " Nm of ", _rated_torque, " Nm rated"
           )
         ));
   }
@@ -2618,7 +2644,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     for (s = _drive_speeds)
       let (
         _rpm = s[1],
-        _power = stirred_tank_power(impeller_diameter, _rpm, _impeller_po),
+        _power = _pair_power_low(_rpm),
         _pv = stirred_tank_mean_dissipation(_power, _culture_volume),
         _us = stirred_tank_superficial_gas_velocity(_sparge_flow, _vessel_bore)
       )
@@ -2653,26 +2679,26 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
     // ----- fit -----
     assert(
-      impeller_spacing > impeller_height,
-      str("Impellers overlap: ", impeller_spacing, " mm apart but ", impeller_height, " mm tall.")
+      impeller_spacing > (impeller_height_lower + impeller_height_upper) / 2,
+      str("Impellers overlap: ", impeller_spacing, " mm apart but ", impeller_height_lower, " and ", impeller_height_upper, " mm tall.")
     );
 
     // Below this the lower impeller hangs off the end of its own shaft.
     assert(
-      _impeller_clearance - impeller_height / 2 >= vessel_punt_height + shaft_jar_punt_clearance,
+      _impeller_clearance - impeller_height_lower / 2 >= vessel_punt_height + shaft_jar_punt_clearance,
       str(
-        "Lower impeller reaches ", _impeller_clearance - impeller_height / 2,
+        "Lower impeller reaches ", _impeller_clearance - impeller_height_lower / 2,
         " mm off the floor but the shaft stops at ", vessel_punt_height + shaft_jar_punt_clearance,
         " mm; raise impeller_clearance_factor above ",
-        (vessel_punt_height + shaft_jar_punt_clearance + impeller_height / 2) / impeller_diameter, "."
+        (vessel_punt_height + shaft_jar_punt_clearance + impeller_height_lower / 2) / impeller_diameter, "."
       )
     );
 
     // An impeller in the headspace pumps air, so this is submersion rather than fit.
     assert(
-      _impeller_clearance + impeller_spacing + impeller_height / 2 <= vessel_punt_height + _liquid_height,
+      _impeller_clearance + impeller_spacing + impeller_height_upper / 2 <= vessel_punt_height + _liquid_height,
       str(
-        "Upper impeller reaches ", _impeller_clearance + impeller_spacing + impeller_height / 2,
+        "Upper impeller reaches ", _impeller_clearance + impeller_spacing + impeller_height_upper / 2,
         " mm off the floor, past the ", vessel_punt_height + _liquid_height,
         " mm of culture there is to cover it."
       )
@@ -2886,8 +2912,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       "baffle plate: ", _baffle_load, " N each, deflecting ", _baffle_deflection, " mm at the tip",
       _baffle_segments < 2 ? "" : str(" (", _baffle_joint_deflection, " mm of it the joints)"),
       "; first mode ", _baffle_frequency, " Hz against ", stirred_tank_shaft_frequency(_baffle_rpm),
-      " Hz shaft and ", stirred_tank_blade_frequency(_baffle_rpm, impeller_n_fins),
-      " Hz blade passing at ", _baffle_rpm, " rpm (the mode is the solid plate's; the joints soften it)"
+      " Hz shaft and ", [for (t = _impeller_types) stirred_tank_blade_frequency(_baffle_rpm, impeller_blades(t))],
+      " Hz blade passing, lower and upper, at ", _baffle_rpm, " rpm (the mode is the solid plate's; the joints soften it)"
     ));
 
   if (_has_baffles)
@@ -3032,10 +3058,10 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     );
 
     assert(
-      _cap_z + sparge_tube_extent() / 2 < _impeller_clearance - impeller_height / 2,
+      _cap_z + sparge_tube_extent() / 2 < _impeller_clearance - impeller_height_lower / 2,
       str(
         "The sparge arm's top is ", _cap_z + sparge_tube_extent() / 2, " mm off the floor and the lower impeller's blades start at ",
-        _impeller_clearance - impeller_height / 2, "; lower it with sparge_cap_drop."
+        _impeller_clearance - impeller_height_lower / 2, "; lower it with sparge_cap_drop."
       )
     );
 
@@ -3112,7 +3138,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           );
         }
 
-  if (_shaft_drive && len(_do_probe) > 0 && _po_correlated)
+  if (_shaft_drive && len(_do_probe) > 0 && !is_undef(_impeller_flow_number[1]))
     let (
       _do = head_port_probe(_do_probe[0]),
       _face = PI / 4 * pow(atlas_probe_tip_dia(_do), 2),
@@ -3121,11 +3147,11 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       for (sp = _drive_speeds)
         let (
           _v = stirred_tank_circulation_velocity(
-            _impeller_flow_number, sp[1], impeller_diameter, _vessel_bore
+            _impeller_flow_number[1], sp[1], impeller_diameter, _vessel_bore
           ) * 1000
         )
           echo(str(
-            "DO probe feed ", sp[0], " ", sp[1], " rpm: the vessel turns over at ", _v,
+            "DO probe feed ", sp[0], " ", sp[1], " rpm: the upper impeller turns the vessel over at ", _v,
             " mm/s mean and the probe needs ", _needed, " mm/s past its face, ", _v / _needed,
             "x; mean, not local"
           ));
@@ -3365,22 +3391,21 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       "% of its electrical input; they are read as the ends of its curve"
     ));
 
-  if (_shaft_drive) {
-    echo(str(
-      "gas against the impeller: ", impeller_pumping(head_impeller_type), " pumping needs ",
-      stirred_tank_gas_power_ratio(impeller_pumping(head_impeller_type)),
-      "x the gas stream's power to hold its flow pattern, which at ", _baffle_rpm,
-      " rpm caps aeration at ", _gas_ceiling * 60000 / _culture_volume, " vvm"
-    ));
-
-    if (sparge_design_vvm > _gas_ceiling * 60000 / _culture_volume)
+  if (_shaft_drive && len(_drive_speeds) > 0)
+    for (i = [0, 1]) {
       echo(str(
-        "WARNING gas: ", sparge_design_vvm, " vvm is above the ", _gas_ceiling * 60000 / _culture_volume,
-        " vvm at which the gas stream negates this impeller's pumping; run faster, or a radial impeller would take ",
-        stirred_tank_gas_flow_ceiling(stirred_tank_power(impeller_diameter, _baffle_rpm, _impeller_po), "radial", _liquid_height)
-        * 60000 / _culture_volume, " vvm at the same power"
+        "gas against the ", i == 0 ? "lower" : "upper", " impeller: ", impeller_name(_impeller_types[i]), ", ",
+        impeller_pumping(_impeller_types[i]), ", needs ", stirred_tank_gas_power_ratio(impeller_pumping(_impeller_types[i])),
+        "x the gas stream's power to hold its flow pattern, which caps aeration at ",
+        [for (j = [0:len(_drive_speeds) - 1]) str(_gas_ceilings[j][i] * 60000 / _culture_volume, " vvm at ", _drive_speeds[j][1], " rpm")],
+        "; it holds ", sparge_design_vvm, " vvm down to ", _gas_hold_rpm[i], " rpm"
       ));
-  }
+      if (_gas_hold_rpm[i] > min([for (s = _drive_speeds) s[1]]))
+        echo(str(
+          "WARNING gas: below ", _gas_hold_rpm[i], " rpm the ", i == 0 ? "lower" : "upper", " impeller's flow pattern gives way to ",
+          sparge_design_vvm, " vvm of gas, and the drive's rated speed is ", min([for (s = _drive_speeds) s[1]]), " rpm"
+        ));
+    }
 
   assert(
     steel_tube_od(sparge_riser_tube) <= head_port_bore_radius(head_ports_for(vessel_opening_diameter)[head_sparge_feed_port(vessel_opening_diameter)]) * 2,
@@ -3877,10 +3902,11 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   }
 
   // Radial tap holes through the collar, at the screw's tap radius, opening into the bore. In the
-  // collar rather than the hub because above the blades there are no fins at any angle.
-  module head_impeller_set_screw_holes() {
+  // collar rather than the hub because above the blades there are no fins at any angle. `height`
+  // is the impeller's span; the collar stands on it.
+  module head_impeller_set_screw_holes(height) {
     _r = set_screw_tap_radius(impeller_set_screw) + impeller_set_screw_allow;
-    translate([0, 0, impeller_height / 2 + impeller_collar_height / 2])
+    translate([0, 0, height / 2 + impeller_collar_height / 2])
       for (a = impeller_set_screw_at)
         rotate([0, 0, a])
           rotate([0, 90, 0])
@@ -3888,8 +3914,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   }
 
   // The screws in those holes, placed from the same numbers, socket outward.
-  module head_impeller_set_screws() {
-    translate([0, 0, impeller_height / 2 + impeller_collar_height / 2])
+  module head_impeller_set_screws(height) {
+    translate([0, 0, height / 2 + impeller_collar_height / 2])
       for (a = impeller_set_screw_at)
         rotate([0, 0, a])
           translate([impeller_hub_radius, 0, 0])
@@ -3898,32 +3924,47 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   }
 
   // The printed part and its screws at one impeller's position, so the mirror below catches both.
-  module head_impeller_assembly() {
-    if (render_impeller || render_all) head_impeller();
-    if (render_set_screws || render_all) head_impeller_set_screws();
+  module head_impeller_assembly(type) {
+    if (render_impeller || render_all) head_impeller(type);
+    if (render_set_screws || render_all) head_impeller_set_screws(head_impeller_span(type, impeller_diameter));
   }
 
-  module head_impeller() {
+  module head_impeller(type) {
+    _height = head_impeller_span(type, impeller_diameter);
     _collar_lead = impeller_collar_height / 10;
     color(prints2_color)
       difference() {
       union() {
         // main impeller body
-        impeller(
-          radius=impeller_radius,
-          height=impeller_height,
-          fins=impeller_n_fins,
-          twist=impeller_twist_ang,
-          fin_width=impeller_fin_width,
-          center_hub_radius=impeller_hub_radius,
-          center_hole_radius=impeller_shaft_hole_radius,
-          center_hole_radius_lower=impeller_shaft_hole_radius - impeller_shaft_draft / 2,
-          blade_pitch=impeller_is_twisted(head_impeller_type) ? undef : impeller_blade_angle(head_impeller_type),
-          blade_width=impeller_blade_width
-        );
+        if (impeller_is_disc(type))
+          disc_turbine(
+            radius=impeller_radius,
+            height=_height,
+            fins=impeller_blades(type),
+            blade_length=impeller_blade_length_ratio(type) * impeller_diameter,
+            disc_radius=impeller_disc_ratio(type) * impeller_diameter / 2,
+            disc_thickness=impeller_disc_thickness,
+            fin_width=impeller_fin_width,
+            center_hub_radius=impeller_hub_radius,
+            center_hole_radius=impeller_shaft_hole_radius,
+            center_hole_radius_lower=impeller_shaft_hole_radius - impeller_shaft_draft / 2
+          );
+        else
+          impeller(
+            radius=impeller_radius,
+            height=_height,
+            fins=impeller_blades(type),
+            twist=impeller_twist(type),
+            fin_width=impeller_fin_width,
+            center_hub_radius=impeller_hub_radius,
+            center_hole_radius=impeller_shaft_hole_radius,
+            center_hole_radius_lower=impeller_shaft_hole_radius - impeller_shaft_draft / 2,
+            blade_pitch=impeller_is_twisted(type) ? undef : impeller_blade_angle(type),
+            blade_width=impeller_width_ratio(type) * impeller_diameter
+          );
         // top ring tying the blade tips, inboard of the radius; off by default
-        if (impeller_tip_ring)
-          translate([0, 0, impeller_height / 2 - impeller_fin_width / 2])
+        if (impeller_tip_ring && !impeller_is_disc(type))
+          translate([0, 0, _height / 2 - impeller_fin_width / 2])
             linear_extrude(impeller_fin_width, center=true)
               difference() {
                 circle(r=impeller_radius, $fn=64);
@@ -3934,13 +3975,13 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         // hub, and the renderer keeps the shared ring rather than merging the two. It goes on
         // solid, and the bore is cut once after the union for the same reason: cut in the collar
         // alone, the hub's bore edge would lie on the collar's bore wall.
-        translate([0, 0, impeller_height / 2 - _collar_lead])
+        translate([0, 0, _height / 2 - _collar_lead])
           cylinder(r=impeller_hub_radius, h=impeller_collar_height + _collar_lead, $fn=64);
       }
-        head_impeller_set_screw_holes();
+        head_impeller_set_screw_holes(_height);
         // the bore, from below the collar's buried face so the cut shares no face with it; a
         // drafted bore runs straight over that last stretch, its loose end, by a few hundredths
-        translate([0, 0, impeller_height / 2 - 2 * _collar_lead])
+        translate([0, 0, _height / 2 - 2 * _collar_lead])
           cylinder(r=impeller_shaft_hole_radius, h=impeller_collar_height + 4 * _collar_lead, $fn=64);
       }
   }
@@ -3949,13 +3990,13 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   if (_shaft_drive && (render_impeller || render_set_screws || render_all)) {
     translate([0, 0, -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height) + _impeller_clearance]) {
       if (impeller_to_render != "upper")
-        head_impeller_assembly();
+        head_impeller_assembly(head_impeller_lower_type);
 
       // Mirrored, not turned over, which is what makes the pair oppose each other.
       if (impeller_to_render != "lower")
         translate([0, 0, impeller_spacing])
           mirror([0, 1, 0])
-            head_impeller_assembly();
+            head_impeller_assembly(head_impeller_upper_type);
     }
   }
 }
