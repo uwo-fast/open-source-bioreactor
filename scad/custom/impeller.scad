@@ -19,6 +19,10 @@ function impeller_pumping(type) = type[2]; // "radial" or "axial"
 function impeller_power_number(type) = type[3][0]; // turbulent Po, undef when unmeasured
 function impeller_power_number_tol(type) = type[3][1]; // reported uncertainty, undef when the source gives none
 function impeller_dissipation_factor(type) = type[4]; // x in Grenville's peak-dissipation correlation
+function impeller_flow_number_listed(type) = type[5][0]; // Fl where a source lists it, undef where correlated
+function impeller_disc_ratio(type) = type[6][0]; // disc diameter / D on a disc turbine
+function impeller_blade_length_ratio(type) = type[6][1]; // radial blade length / D on a disc turbine
+function impeller_is_disc(type) = !is_undef(type[6]);
 
 function impeller_is_twisted(type) = !is_undef(impeller_twist(type));
 function impeller_has_power_number(type) = !is_undef(impeller_power_number(type));
@@ -107,6 +111,40 @@ module impeller(
     // Subtract the center hole
     rotate([0, 180, 0])
       linear_extrude(height + z_fight, center=true, scale=center_hole_scale)
+        circle(r=center_hole_radius, $fn=128);
+  }
+}
+
+// A disc turbine: a disc at mid-height, and flat radial blades standing through it, the full height,
+// on the same hub and bore as impeller(). Each blade's outer corners are on `radius`, the diameter
+// the power number is defined on. It prints standing on the blades' lower edges, the disc bridging
+// between them at mid-height.
+module disc_turbine(
+  radius,
+  height,
+  fins,
+  blade_length,
+  disc_radius,
+  disc_thickness,
+  fin_width = 1,
+  center_hub_radius = 25,
+  center_hole_radius = 5,
+  center_hole_radius_lower = -1,
+  hub_fn = 64
+) {
+  _lower = (center_hole_radius_lower < 0) ? center_hole_radius : center_hole_radius_lower;
+  _tip = sqrt(pow(radius, 2) - pow(fin_width / 2, 2));
+  difference() {
+    union() {
+      cylinder(r=disc_radius, h=disc_thickness, center=true);
+      cylinder(r=center_hub_radius, h=height, center=true, $fn=hub_fn);
+      for (i = [1:fins])
+        rotate([0, 0, (360 / fins) * i])
+          translate([radius - blade_length, -fin_width / 2, -height / 2])
+            cube([_tip - (radius - blade_length), fin_width, height]);
+    }
+    rotate([0, 180, 0])
+      linear_extrude(height + z_fight, center=true, scale=_lower / center_hole_radius)
         circle(r=center_hole_radius, $fn=128);
   }
 }
