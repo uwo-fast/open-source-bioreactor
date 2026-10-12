@@ -828,8 +828,8 @@ board's heads. Rendering the file echoes the riser's cut length, where to drill 
 tube's length; the screws, nuts and inserts are on the purchase list.
 
 **The riser is the dip tube.** It is the port's own sparge riser, cut so its top end stops inside
-the base and drilled across where the sample is drawn; it still reaches the ring. A 6 mm length of
-1/8 by 1/4 in silicone tubing on its top end bushes it into the clear tube.
+the base and drilled across where the sample is drawn; it still reaches the ring. The clear tube
+runs 16 mm down over its top end, a sleeve of 1/8 by 1/4 in silicone tubing between them.
 
 **Fit the luer-to-barb fitting first.** Warm the clear tube's end with a heat gun, push the barb in
 until the tube reaches the fitting's centre flange, and let it cool. The stretched 18 mm stands above

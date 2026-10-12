@@ -93,7 +93,9 @@ neck_r = bayonet_flange_radius(bayonet_std); // the pin's flange runs straight u
 // neck instead of stepping; it faces up when the base prints upside down
 skirt_h = 8;
 riser_under_window = 2;
-bushing_l = 6;        // riser up inside the clear tube, through a 1/8 x 1/4 in silicone bushing
+// the clear tube's length over the riser's top, a 1/8 x 1/4 in silicone sleeve between them: 6
+// held too little, and a print drilled about 10 deeper took it
+bushing_l = 16;
 sample_under_surface = 40;
 clamp_t = 2.2;      // base under each outer screw's head
 seat_t = 2.5;       // top under the inner screw's countersink
@@ -162,7 +164,10 @@ assert(min(wall, floor_t, roof_t) >= min_wall, "a wall is thinner than min_wall"
 assert(corner_r - outer_cbore_d / 2 >= min_wall, "an outer screw's counterbore breaks the rounded corner");
 assert(inner_screw_x + inner_seat_d / 2 < pocket_x[0] - min_wall, "the inner screw's seat runs into the pocket");
 assert(riser_top_z < split_z, "the riser's top reaches up into the top part");
-assert(clear_z0 > flange_h, "the clear tube's seat reaches down into the pin");
+assert(bore_r + min_wall <= bayonet_interface_radius(bayonet_std) - bayonet_pin_radius(bayonet_std),
+       "the clear tube's seat breaks out of the pin's core");
+assert(clear_z0 - (bore_r - riser_bore) > bayonet_bore_gland_centre(oring_4x1p5_epdm, panel)
+       + bayonet_bore_gland_length(oring_4x1p5_epdm) / 2 + min_wall, "the clear tube's seat reaches the riser's o-ring");
 assert(plate_z0 - flare_h > roof_z + top_skirt_h, "the face's flare reaches down into the top skirt");
 
 echo(str("sampler: housing ", outer_x + half_w, " x ", 2 * half_w, ", face ", face_z, " over the lid; riser cut ",
