@@ -152,6 +152,17 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
     D/4 and no disc. Po: keep Kaiser's measured 4.17 ± 0.14, with Grenville's typical 5.0 the
     spread; Fl 0.65 from Grenville, typical. The row has no field for the disc or the blade's
     length yet. No build reads it
+  - **printing it.** Standing on its blades, the disc's underside from the hub to the blades' roots
+    (r 10-23.6 mm, 1714 mm2) is held only by the hub and needs supports, which leave that face
+    rough; a professor called it unprintable as drawn. A spike splits it at the disc's mid-plane
+    into two identical halves, each printed flat face down (1.2 mm of disc on the bed, blades and
+    hub up), no supports. The pair less the one-piece turbine is 0.0 mm3; the one-piece less the
+    pair is 248 mm3, the holes. Each half holds itself with two M4x6 set screws in its own hub at
+    30 and 150 deg, between the blades, 5.3 mm up from the joint, and no collar; two 2 mm holes,
+    4 mm deep at r 7.1 and 90/270 deg, take 1.75 mm filament pins to line the blades up. The
+    cost is a clamped seam through the disc to clean. Being printed against a supported one-piece
+    to compare; the winner goes into `head_impeller()`, and the split drops the disc turbine's
+    collar
 
 ## exhaust condenser and humidifier
 
