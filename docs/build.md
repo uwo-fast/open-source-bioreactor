@@ -176,8 +176,8 @@ tag, one job per build, and leaves the STLs and the print list as a downloadable
 `just test` covers the entry files' previews, not the manifests.
 
 It is not everything in this repo that gets printed. The **cart**, the **electronics stand**, the
-**bottle holder** and the **peri pump mount** each render from a file of their own and are on no
-manifest, so they appear on no print list. `just check-parts` holds the record of that rather than
+**bottle holder**, the **e-stop box** and the **peri pump mount** each render from a file of their
+own and are on no manifest, so they appear on no print list. `just check-parts` holds the record of that rather than
 letting it go unnoticed, and giving them manifests is on [`TODO.md`](../TODO.md).
 
 `bioreactor.scad` reports the printer
@@ -848,6 +848,22 @@ the heads, where the tube's bore has widened for it.
    its roof's window, a flat against the side wall, which holds it. Tighten from below.
 
 This order is the design's; the first full assembly will confirm it.
+
+## The e-stop box
+
+A box for the panel-mount e-stop: it prints from its own file, `support/estop_box.scad`,
+`part = "base"` and `part = "lid"`, the base open side up and the lid flat. The e-stop's neck goes
+through the lid's bore and its nut clamps the lid; the body hangs into the base, and the two
+channels' four wires leave by the hole in one wall.
+
+**Measure the e-stop first.** The file's first four parameters are its body below the panel -
+height, width and length, contact blocks included - and the panel cutout its neck takes. The box
+is square on the wider side, with `wire_space` kept round the body and below it; rendering echoes
+the closed size. `lid_thickness` has to be inside the panel range the e-stop's nut clamps.
+
+**Fit the e-stop to the lid, then close the box.** The four lid screws are M3 self-tapping, into
+pilot holes in the base's corner posts; for heat-set inserts set `screw_pilot_diameter` to the
+insert's hole. Fit a grommet or gland in the wire hole before the wires go through it.
 
 ## Commissioning
 

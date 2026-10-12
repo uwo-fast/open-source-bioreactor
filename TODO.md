@@ -236,6 +236,9 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
 
 ## nice to haves
 
+- [ ] **register the e-stop on `purchased-parts.csv` by model**: its row carries no part number or
+      source, only the measured body the box was printed for
+
 - [ ] a lead-in at the mouth of the bayonet tube bore, to ease the tube past the rod gland's o-ring
       without nicking it; the gland does the gripping now
 - [ ] **back-plug the Atlas probe bore, or accept that the probe body is the seal**
@@ -357,11 +360,11 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
   - the fix is a groove section 10-25 % over the gasket's; that jar offers 10 mm of rim where the
     gasket is held to 6. Not chased: it changes the lid for one jar
 
-- [ ] **one printed part is on no print list, and bench furniture is in no account**
-  - `support/bottle_holder.scad` is the only printed part among the bench furniture; the cart
-    prints nothing, and the stand's `print_corner` is a printed substitute for a bought NopSCADlib
-    bracket. The condensers, the humidifier cap and the pump mount are printed outside the
-    manifests too, each from its own file. `check-parts` records all of them
+- [ ] **printed bench parts are on no print list, and bench furniture is in no account**
+  - `support/bottle_holder.scad` and `support/estop_box.scad` are the printed parts among the
+    bench furniture; the cart prints nothing, and the stand's `print_corner` is a printed
+    substitute for a bought NopSCADlib bracket. The condensers, the humidifier cap and the pump
+    mount are printed outside the manifests too, each from its own file. `check-parts` records all of them
   - the questions: does the reactor's print list cover an accessory, and is printing that bracket
     deliberate? The cart's extrusion, brackets and castors are on no purchase list either
 
