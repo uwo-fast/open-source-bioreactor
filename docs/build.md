@@ -829,21 +829,23 @@ board's heads. Rendering the file echoes the riser's cut length, where to drill 
 tube's length; the screws, nuts and inserts are on the purchase list.
 
 **The riser is the dip tube.** It is the port's own sparge riser, cut so its top end stops inside
-the base and drilled across where the sample is drawn; it still reaches the ring. A 6 mm length of
-1/8 by 1/4 in silicone tubing on its top end bushes it into the clear tube.
+the base and drilled across where the sample is drawn; it still reaches the ring. The clear tube
+runs 16 mm down over its top end, a sleeve of 1/8 by 1/4 in silicone tubing between them.
 
 **Fit the luer-to-barb fitting first.** Warm the clear tube's end with a heat gun, push the barb in
-until the tube reaches the fitting's centre flange, and let it cool. That end stands above the roof.
+until the tube reaches the fitting's centre flange, and let it cool. The stretched 18 mm stands above
+the heads, where the tube's bore has widened for it.
 
 1. Heat-set two M3 inserts into the top's outer corners and one M2 into the base's inner end, each
    from its parting face.
 2. Drop the board into the top upside down, heads first, connector outward.
 3. Close the base onto the top: two M3 button heads from below, and the M2 countersunk from above
    down the slot in the top's skirt, with a ball-end hex key, since the face stands over it.
-4. Push the clear tube down the funnel in the roof into its seat in the base; the riser comes up
-   through the pin's o-ring into its bottom.
-5. Slide four M3 nuts into the face's side slots, open the actuator's four front knockouts, and bolt
-   it on from inside its front wall.
+4. Drop the clear tube down the shroud. Its bore narrows to a snug fit only between the heads, and
+   the tube's end seats in the base; the riser comes up through the pin's o-ring into its bottom.
+5. Open the actuator's four front knockouts. Push four M3 x 10 screws up through the face from the
+   counterbores under it, lower the actuator over them, and run a nut onto each from inside through
+   its roof's window, a flat against the side wall, which holds it. Tighten from below.
 
 This order is the design's; the first full assembly will confirm it.
 

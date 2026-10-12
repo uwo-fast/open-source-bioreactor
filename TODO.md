@@ -166,16 +166,9 @@ Printed from its own file, `custom/sampler.scad`; nothing in `head()` places it 
     not read (`docs/architecture.md`). The lid clash and the ±30 degree twist, checked in the spike
     against an exported head, become `head()`'s own
 
-- [ ] **measure what the sampler still assumes**
-  - the barb joint's stretched length on the clear tube, which sets `tube_above_roof` (5 until then)
-  - where the probe's lenses sit along the arms: turbidity-sensor's `optical_y` 11.4 is where its
-    first case put the tube, not a measurement
-  - syringe-actuator's `nozzle_l` per syringe; the 5 mL's 10.2 is derived, not measured
-  - the M2 countersunk head: the seat and slot are cut 4.4 mm for NopSCADlib's 3.8 mm head, and some
-    ISO 10642 M2 heads are 4.7 mm. The one fitted passes
-  - on the bench: the bushing's seal under the syringe's suction, and the 40 mm sampling depth
-  - the clear tube, luer-to-barb fitting and silicone bushing tubing, found in the lab, for
-    `purchased-parts.csv`
+- [ ] **what the sampler still has to prove on the bench**
+  - the bushing's seal under the syringe's suction, and the 40 mm sampling depth
+  - the clear tube's McMaster part number: the one fitted is believed to be FEP from there
 
 ## alternative agitation modes
 
