@@ -23,6 +23,10 @@ function impeller_flow_number_listed(type) = type[5][0]; // Fl where a source li
 function impeller_disc_ratio(type) = type[6][0]; // disc diameter / D on a disc turbine
 function impeller_blade_length_ratio(type) = type[6][1]; // radial blade length / D on a disc turbine
 function impeller_is_disc(type) = !is_undef(type[6]);
+function impeller_tank_bore_ratio(type) = type[7][0]; // standard D/T
+function impeller_tank_clearance_ratio(type) = type[7][1]; // lower impeller's centreline off the floor, over T
+function impeller_tank_spacing_ratio(type) = type[7][2]; // the pair's centre-to-centre spacing, over T
+function impeller_has_tank(type) = !is_undef(type[7]);
 
 function impeller_is_twisted(type) = !is_undef(impeller_twist(type));
 function impeller_has_power_number(type) = !is_undef(impeller_power_number(type));

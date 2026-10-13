@@ -283,10 +283,11 @@ lid_blind_pocket_floor_min = 3.0;
 // The relations and their citations are in utils/stirred_tank.scad; the impeller types and their
 // process numbers in custom/impellers.scad.
 
-// The bore, not the outer diameter, is what D/T means in the literature. 0.45 is mid-band on every
-// citation and lets every registered vessel pass its mouth.
-// Impeller diameter as a fraction of the vessel's bore (D/T)
-impeller_bore_ratio = 0.45;
+// The bore, not the outer diameter, is what D/T means in the literature. These three knobs are
+// undef by default, which takes the lower impeller's standard layout from its row in
+// custom/impellers.scad; a number set here is a departure, and head() echoes it as one.
+// Impeller diameter as a fraction of the vessel's bore (D/T); undef takes the type's standard
+impeller_bore_ratio = undef;
 // A pair of six-blade disc turbines, the standard fermentation configuration. A radial impeller
 // holds its flow pattern against the sparger's gas at 3x the gas stream's power where an axial
 // one needs 8x (Oldshue p. 228); docs/agitation.md has the case.
@@ -325,18 +326,36 @@ impeller_shaft_allow = 0.4;
 // How much the bore narrows from top to bottom, diametral. Off: two impellers have to be located
 // along one shaft, and a tapered bore has to be driven to its depth rather than set there.
 impeller_shaft_draft = 0;
-// centre to centre spacing of the two impellers, in impeller diameters
-impeller_spacing_factor = 1.0;
+// Centre to centre spacing of the two impellers, in impeller diameters; undef takes the type's standard
+impeller_spacing_factor = undef;
 
 // A design declaration: the pair are mirror images and always oppose, and at +1 the lower pumps
 // up, the upper down, and the flows converge on the gap - the one arrangement where a single
 // sparge ring sits in both discharges (Birch & Ahmed).
 // Which way the shaft turns, right-handed about +Z: +1 counter-clockwise seen from above
 head_shaft_rotation = 1;
-// Fořt found hydraulic efficiency higher at C/D 1.0 than 0.5; 0.9 keeps margin inside the
-// correlation's own limit and coverage over the upper impeller.
-// Lower impeller centreline off the floor, in impeller diameters
-impeller_clearance_factor = 0.9;
+// Lower impeller centreline off the floor, in impeller diameters; undef takes the type's standard
+impeller_clearance_factor = undef;
+
+// What the build runs at: a knob where one is set, else the lower impeller's standard layout. The
+// layout is held over T, so a D/T set alone leaves the clearance and the spacing where the
+// standard puts them in the tank.
+function head_layout_type() = head_impeller_lower_type;
+function head_impeller_bore_ratio() =
+  is_undef(impeller_bore_ratio) ? impeller_tank_bore_ratio(head_layout_type()) : impeller_bore_ratio;
+function head_impeller_clearance_factor() =
+  is_undef(impeller_clearance_factor)
+    ? impeller_tank_clearance_ratio(head_layout_type()) / head_impeller_bore_ratio()
+    : impeller_clearance_factor;
+function head_impeller_spacing_factor() =
+  is_undef(impeller_spacing_factor)
+    ? impeller_tank_spacing_ratio(head_layout_type()) / head_impeller_bore_ratio()
+    : impeller_spacing_factor;
+assert(
+  impeller_has_tank(head_layout_type())
+  || !(is_undef(impeller_bore_ratio) || is_undef(impeller_clearance_factor) || is_undef(impeller_spacing_factor)),
+  str(impeller_name(head_layout_type()), " has no standard layout; set impeller_bore_ratio, impeller_clearance_factor and impeller_spacing_factor")
+);
 
 // A fraction of capacity, so it scales across the registry; the literature's 0.8 is reported
 // against.
@@ -980,16 +999,16 @@ function head_probe_runs(probe, vessel_opening_diameter, lid_flange_height, tilt
 function head_sparge_ring_z(impeller_diameter, drive = "shaft", floor_rise = 0) =
   head_gas_driven(drive) ? floor_rise + sparge_ring_floor_gap + sparge_tube_extent() / 2 :
   let (
-    _clearance = stirred_tank_clearance(impeller_diameter, impeller_clearance_factor),
+    _clearance = stirred_tank_clearance(impeller_diameter, head_impeller_clearance_factor()),
     _bottom = _clearance + head_impeller_span(head_impeller_lower_type, impeller_diameter) / 2 + impeller_collar_height,
-    _top = _clearance + stirred_tank_impeller_spacing(impeller_diameter, impeller_spacing_factor)
+    _top = _clearance + stirred_tank_impeller_spacing(impeller_diameter, head_impeller_spacing_factor())
       - head_impeller_span(head_impeller_upper_type, impeller_diameter) / 2
   )
     _bottom + sparge_ring_gap_fraction * (_top - _bottom);
 
 // Where the arm's holes sit: under the lower impeller's blades by sparge_cap_drop.
 function head_sparge_cap_z(impeller_diameter) =
-  stirred_tank_clearance(impeller_diameter, impeller_clearance_factor)
+  stirred_tank_clearance(impeller_diameter, head_impeller_clearance_factor())
   - head_impeller_span(head_impeller_lower_type, impeller_diameter) / 2
   - sparge_cap_drop;
 // How far the arm runs in from the port circle: to the shaft, less its clearance.
@@ -1008,10 +1027,10 @@ function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel
   let (
     _floor_z = -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height),
     _swept = head_impeller_swept_radius(impeller_diameter),
-    _clearance = stirred_tank_clearance(impeller_diameter, impeller_clearance_factor),
+    _clearance = stirred_tank_clearance(impeller_diameter, head_impeller_clearance_factor()),
     _lower = head_impeller_span(head_impeller_lower_type, impeller_diameter),
     _upper = head_impeller_span(head_impeller_upper_type, impeller_diameter),
-    _spacing = stirred_tank_impeller_spacing(impeller_diameter, impeller_spacing_factor),
+    _spacing = stirred_tank_impeller_spacing(impeller_diameter, head_impeller_spacing_factor()),
     _ring_r = is_undef(ring_r) ? head_sparge_ring_radius(vessel_opening_diameter) : ring_r,
     _ring_z = is_undef(ring_z) ? head_sparge_ring_z(impeller_diameter) : ring_z
   )
@@ -1127,7 +1146,7 @@ function head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt
 function head_baffle_max_length(vessel, lid_flange_height, ring) =
   let (
     _r = head_port_circle_radius(vessel_opening_diameter(vessel)),
-    _d = stirred_tank_impeller_diameter(vessel_diameter(vessel) - 2 * vessel_thickness(vessel), impeller_bore_ratio),
+    _d = stirred_tank_impeller_diameter(vessel_diameter(vessel) - 2 * vessel_thickness(vessel), head_impeller_bore_ratio()),
     _w = head_baffle_width(
       vessel_opening_diameter(vessel), _d,
       head_baffle_lean(lid_flange_height, vessel_internal_height(vessel), vessel_punt_height(vessel), _d),
@@ -1159,7 +1178,7 @@ function head_baffle_segments(vessel, lid_flange_height, ring) =
 // worst case. It is taken from the shaft drive's impeller whichever drive is built, as the plate is.
 function head_baffle_lean(lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter) =
   (head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height)
-    - stirred_tank_clearance(impeller_diameter, impeller_clearance_factor)
+    - stirred_tank_clearance(impeller_diameter, head_impeller_clearance_factor())
     - head_lid_thickness(lid_flange_height))
   * bayonet_allowance(head_interface_for("baffle", 0)) / head_lid_thickness(lid_flange_height);
 
@@ -1612,7 +1631,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   // A lid need not carry baffles; everything that measures a plate asks first.
   _has_baffles = len(_baffle_at) > 0;
-  impeller_diameter = stirred_tank_impeller_diameter(_vessel_bore, impeller_bore_ratio);
+  impeller_diameter = stirred_tank_impeller_diameter(_vessel_bore, head_impeller_bore_ratio());
 
   // ----- the airlift's draft tube -----
   // Sized before anything else hangs off the ring: round the probes and thermocouple hanging
@@ -1696,7 +1715,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   // narrow end against the shaft's high limit, and its wide end against the low one.
   _bore_tightest = impeller_shaft_hole_radius * 2 - impeller_shaft_draft - shaft_diameter_max(_shaft);
   _bore_loosest = impeller_shaft_hole_radius * 2 - shaft_diameter_min(_shaft);
-  impeller_spacing = stirred_tank_impeller_spacing(impeller_diameter, impeller_spacing_factor);
+  impeller_spacing = stirred_tank_impeller_spacing(impeller_diameter, head_impeller_spacing_factor());
 
   // Where this build sits against the literature. Reported, not asserted.
   _impeller_ratio = stirred_tank_ratio(impeller_diameter, _vessel_bore);
@@ -1706,7 +1725,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   // Off-bottom clearance as the literature measures it: impeller centreline to the vessel floor,
   // not the shaft's collision gap over the punt. Chosen; the shaft's own bound is asserted below.
-  _impeller_clearance = stirred_tank_clearance(impeller_diameter, impeller_clearance_factor);
+  _impeller_clearance = stirred_tank_clearance(impeller_diameter, head_impeller_clearance_factor());
   _clearance_ratio = stirred_tank_clearance_ratio(_impeller_clearance, impeller_diameter);
   _clearance_band = stirred_tank_clearance_band_fluidfoil();
 
@@ -2382,9 +2401,28 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     echo(str(
       "impeller: ", impeller_diameter, " mm in a ", _vessel_bore, " mm bore, D/T ", _impeller_ratio,
       " (band ", _ratio_band[0], "-", _ratio_band[1], ", axial ", _ratio_band_axial[0], "-",
-      _ratio_band_axial[1], "); spacing ", impeller_spacing_factor, " D (band ", _spacing_band[0],
+      _ratio_band_axial[1], "); spacing ", head_impeller_spacing_factor(), " D (band ", _spacing_band[0],
       "-", _spacing_band[1], ")"
     ));
+
+    // The layout against the lower impeller's standard: each knob set is a departure from it.
+    let (_std = head_layout_type()[7]) {
+      echo(str(
+        "impeller layout: ", impeller_name(head_layout_type()),
+        is_undef(_std)
+          ? " has no standard layout; the knobs set it"
+          : str("'s standard is D/T ", _std[0], ", the lower ", _std[1], " T off the floor and the pair ", _std[2], " T apart")
+      ));
+      for (
+        k = [
+          ["D/T", impeller_bore_ratio, 0, ""],
+          ["the lower impeller's clearance", is_undef(impeller_clearance_factor) ? undef : impeller_clearance_factor * head_impeller_bore_ratio(), 1, " T"],
+          ["the pair's spacing", is_undef(impeller_spacing_factor) ? undef : impeller_spacing_factor * head_impeller_bore_ratio(), 2, " T"],
+        ]
+      )
+        if (!is_undef(k[1]) && !is_undef(_std))
+          echo(str("impeller layout: ", k[0], " ", k[1], k[3], " departs from the standard's ", _std[k[2]], k[3]));
+    }
 
     if (_swept != impeller_diameter)
       echo(str(
@@ -2395,7 +2433,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
     echo(str(
       "impeller clearance: centreline ", _impeller_clearance, " mm off the floor = ",
-      _clearance_ratio, " D (Oldshue allows ", _clearance_band[0], "-", _clearance_band[1], "), C/T ",
+      _clearance_ratio, " D",
+      impeller_pumping(head_impeller_lower_type) == "axial" ? str(" (Oldshue allows ", _clearance_band[0], "-", _clearance_band[1], " for fluidfoils)") : "",
+      ", C/T ",
       _impeller_clearance / _vessel_bore, "; ", _sparger_room, " mm under the lower impeller and ",
       _impeller_coverage, " mm (", _coverage_ratio, " D) of culture over the upper"
     ));
@@ -2417,12 +2457,12 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     ));
 
     // Oldshue's 1-2 d is a permissive allowance for fluidfoils; what fits a pitched blade is Fořt,
-    // who found hydraulic efficiency higher at C/D 1.0 than 0.5.
-    if (!stirred_tank_in_band(_clearance_ratio, _clearance_band))
+    // who found hydraulic efficiency higher at C/D 1.0 than 0.5. Neither reaches a radial impeller.
+    if (impeller_pumping(head_impeller_lower_type) == "axial" && !stirred_tank_in_band(_clearance_ratio, _clearance_band))
       echo(str(
         "impeller clearance: ", _clearance_ratio, " D is below Oldshue's ", _clearance_band[0], "-",
         _clearance_band[1], " D for fluidfoils; the lower impeller is a ", impeller_name(head_impeller_lower_type),
-        impeller_pumping(head_impeller_lower_type) == "axial" ? ", where Fořt found efficiency higher at C/D 1.0 than 0.5" : "",
+        ", where Fořt found efficiency higher at C/D 1.0 than 0.5",
         ", and coverage over the upper impeller binds at ",
         (vessel_punt_height + _liquid_height - impeller_spacing - impeller_height_upper / 2
           - stirred_tank_coverage_minimum() * impeller_diameter) / impeller_diameter,
@@ -2435,9 +2475,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         " band; below it the impeller does not move enough fluid, above it an axial impeller loses its axial motion"
       ));
 
-    if (!stirred_tank_in_band(impeller_spacing_factor, _spacing_band))
+    if (!stirred_tank_in_band(head_impeller_spacing_factor(), _spacing_band))
       echo(str(
-        "WARNING impeller: spacing of ", impeller_spacing_factor, " D is outside the ", _spacing_band[0], "-",
+        "WARNING impeller: spacing of ", head_impeller_spacing_factor(), " D is outside the ", _spacing_band[0], "-",
         _spacing_band[1], " D band; too close costs up to 35% of the power imparted, too far mixes the zones poorly"
       ));
 
