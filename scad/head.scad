@@ -287,16 +287,15 @@ lid_blind_pocket_floor_min = 3.0;
 // citation and lets every registered vessel pass its mouth.
 // Impeller diameter as a fraction of the vessel's bore (D/T)
 impeller_bore_ratio = 0.45;
-// A disc turbine under the sparger's gas, which a radial impeller holds its flow pattern against
-// at 3x the gas stream's power where an axial one needs 8x (Oldshue p. 228), and the pitched
-// blade above it for the circulation the light needs; docs/agitation.md has the case.
+// A pair of six-blade disc turbines, the standard fermentation configuration. A radial impeller
+// holds its flow pattern against the sparger's gas at 3x the gas stream's power where an axial
+// one needs 8x (Oldshue p. 228); docs/agitation.md has the case.
 // The registered type of the lower impeller
 head_impeller_lower_type = impeller_rushton_6;
-// pbt_45_4 is chosen for what can be said about it: Medek's correlation gives Po and names the
-// conditions this vessel breaks. The hand-drawn twisted paddle stays registered, with no power
-// number anyone can cite.
+// A pitched blade here, for the circulation the light needs, is the hybrid TODO.md keeps as
+// future work; pbt_45_4 is the one whose Po a correlation gives.
 // The registered type of the upper impeller
-head_impeller_upper_type = impeller_pbt_45_4;
+head_impeller_upper_type = impeller_rushton_6;
 
 // the nearest measured shape, and an over-estimate since twist lowers Po (Patwardhan, Kumaresan)
 // The row whose power number stands in when the type has none
