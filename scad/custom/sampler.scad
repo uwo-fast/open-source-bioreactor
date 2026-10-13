@@ -96,6 +96,9 @@ riser_under_window = 2;
 // the clear tube's length over the riser's top, a 1/8 x 1/4 in silicone sleeve between them: 6
 // held too little, and a print drilled about 10 deeper took it
 bushing_l = 16;
+// the clear tube's seat in the base, wider than bore_r: the sleeve swells the tube's end, and a
+// print wanted 8.5 to 8.6 across there
+tube_seat_d = 8.6;
 sample_under_surface = 40;
 clamp_t = 2.2;      // base under each outer screw's head
 seat_t = 2.5;       // top under the inner screw's countersink
@@ -129,6 +132,7 @@ window_z = board_z + probe_pcb()[0];    // the heads' bottom edge
 riser_top_z = window_z - riser_under_window;
 clear_z0 = riser_top_z - bushing_l;
 bore_r = (tube_od + tube_fit) / 2;
+tube_seat_r = tube_seat_d / 2;
 // The tube is snug only between the heads; above their tops its bore opens at 45 degrees to the
 // shroud's, so the tube drops in, and its stretched end stands where the cone has widened past it.
 heads_top_z = board_z + probe_heads()[4] + clr;
@@ -164,9 +168,9 @@ assert(min(wall, floor_t, roof_t) >= min_wall, "a wall is thinner than min_wall"
 assert(corner_r - outer_cbore_d / 2 >= min_wall, "an outer screw's counterbore breaks the rounded corner");
 assert(inner_screw_x + inner_seat_d / 2 < pocket_x[0] - min_wall, "the inner screw's seat runs into the pocket");
 assert(riser_top_z < split_z, "the riser's top reaches up into the top part");
-assert(bore_r + min_wall <= bayonet_interface_radius(bayonet_std) - bayonet_pin_radius(bayonet_std),
+assert(tube_seat_r + min_wall <= bayonet_interface_radius(bayonet_std) - bayonet_pin_radius(bayonet_std),
        "the clear tube's seat breaks out of the pin's core");
-assert(clear_z0 - (bore_r - riser_bore) > bayonet_bore_gland_centre(oring_4x1p5_epdm, panel)
+assert(clear_z0 - (tube_seat_r - riser_bore) > bayonet_bore_gland_centre(oring_4x1p5_epdm, panel)
        + bayonet_bore_gland_length(oring_4x1p5_epdm) / 2 + min_wall, "the clear tube's seat reaches the riser's o-ring");
 assert(plate_z0 - flare_h > roof_z + top_skirt_h, "the face's flare reaches down into the top skirt");
 
@@ -224,9 +228,9 @@ module sampler_base() {
     // the clear tube's seat, with a lead-in from the split, and the riser's bore below it; the seat
     // narrows to the riser's bore at 45 degrees, which still stops the tube's end (its outside wall
     // meets the cone at once) and prints upside down with nothing to bridge
-    translate([0, 0, clear_z0]) cylinder(r=bore_r, h=split_z - clear_z0 + 1);
-    translate([0, 0, clear_z0 - (bore_r - riser_bore) + 0.01]) cylinder(r1=riser_bore, r2=bore_r, h=bore_r - riser_bore);
-    translate([0, 0, split_z - lead_in]) cylinder(r1=bore_r, r2=bore_r + lead_in, h=lead_in + 0.01);
+    translate([0, 0, clear_z0]) cylinder(r=tube_seat_r, h=split_z - clear_z0 + 1);
+    translate([0, 0, clear_z0 - (tube_seat_r - riser_bore) + 0.01]) cylinder(r1=riser_bore, r2=tube_seat_r, h=tube_seat_r - riser_bore);
+    translate([0, 0, split_z - lead_in]) cylinder(r1=tube_seat_r, r2=tube_seat_r + lead_in, h=lead_in + 0.01);
     translate([0, 0, flange_h - 2]) cylinder(r=riser_bore, h=clear_z0 - flange_h + 3);
     // the outer screws, from below: clearance through to the split, counterbored up from the
     // underside to leave clamp_t under the head
