@@ -37,21 +37,21 @@ standard is the best setting; only that it is the one a reader can compare again
 
 On `jar_10L_220x305` (bore T = 210 mm, culture H/T 1.09).
 
-| knob | baseline | source | kind | what later work varies |
-| --- | --- | --- | --- | --- |
-| impeller type | six-blade Rushton turbine at both positions | the standard fermentation configuration, on a microalgae researcher's advice | chosen to be standard | a Rushton under a pitched blade (`TODO.md`, long term); a pitched pair |
-| blade proportions | blades D/5 high, D/4 long, on a 3D/4 disc | Middleton & Ramshaw, US 5198156 | borrowed | none planned |
-| power number | 4.17 ± 0.14 | Kaiser 2016 | measured, by others | a bench measurement of the printed part |
-| flow number | 0.65 | Grenville 2017, typical | borrowed | as above |
-| D/T | 1/3 (70 mm) | Rushton, Costich & Everett 1950, relayed by McCabe & Smith 1956 p. 295; the Handbook of Industrial Mixing allows T/4 to T/2 | borrowed | 0.45, where the pitched pair ran |
-| lower clearance | T/4 (0.75 D) | Rutherford et al. 1996, parallel flow, relayed by Li et al. 2007 Fig. 1 | borrowed | T/3 and the merging flow it gives |
-| spacing | T/2 (1.5 D) | as above | borrowed | 1.0 D, the bottom of Fitschen's band |
-| impeller count | 2 at H/T 1.09 | the sources split: the Handbook's gas-dispersion table allows one impeller to Z/T 1.0, its chapter 11 adds one only above H/T 1.2 | chosen to be standard; Rutherford's pairs ran at H = T | a single Rushton |
-| baffles | four, sized against four at T/12 (Oldshue 1997 p. 202); the lock bore's depth holds them to 0.71 of that area | the Handbook gives T/12 to T/10 | borrowed, with a stated shortfall | wider plates, six plates |
+| knob              | baseline                                                                                                      | source                                                                                                                            | kind                                                   | what later work varies                                                 |
+| ----------------- | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------- |
+| impeller type     | six-blade Rushton turbine at both positions                                                                   | the standard fermentation configuration, on a microalgae researcher's advice                                                      | chosen to be standard                                  | a Rushton under a pitched blade (`TODO.md`, long term); a pitched pair |
+| blade proportions | blades D/5 high, D/4 long, on a 3D/4 disc                                                                     | Middleton & Ramshaw, US 5198156                                                                                                   | borrowed                                               | none planned                                                           |
+| power number      | 4.17 ± 0.14                                                                                                   | Kaiser 2016                                                                                                                       | measured, by others                                    | a bench measurement of the printed part                                |
+| flow number       | 0.65                                                                                                          | Grenville 2017, typical                                                                                                           | borrowed                                               | as above                                                               |
+| D/T               | 1/3 (70 mm)                                                                                                   | Rushton, Costich & Everett 1950, relayed by McCabe & Smith 1956 p. 295; the Handbook of Industrial Mixing allows T/4 to T/2       | borrowed                                               | 0.45, where the pitched pair ran                                       |
+| lower clearance   | T/4 (0.75 D)                                                                                                  | Rutherford et al. 1996, parallel flow, relayed by Li et al. 2007 Fig. 1                                                           | borrowed                                               | T/3 and the merging flow it gives                                      |
+| spacing           | T/2 (1.5 D)                                                                                                   | as above                                                                                                                          | borrowed                                               | 1.0 D, the bottom of Fitschen's band                                   |
+| impeller count    | 2 at H/T 1.09                                                                                                 | the sources split: the Handbook's gas-dispersion table allows one impeller to Z/T 1.0, its chapter 11 adds one only above H/T 1.2 | chosen to be standard; Rutherford's pairs ran at H = T | a single Rushton                                                       |
+| baffles           | four, sized against four at T/12 (Oldshue 1997 p. 202); the lock bore's depth holds them to 0.71 of that area | the Handbook gives T/12 to T/10                                                                                                   | borrowed, with a stated shortfall                      | wider plates, six plates                                               |
 
 **What the baseline costs.** The motor was chosen when the impeller was 94.5 mm, to reach both ends
 of the speed band `docs/agitation.md` builds from Leupold et al. 2012. On the 70 mm impeller its
-320–420 rpm gives 1.17–1.54 m/s at the tip: the *Chlorella* optimum of 1.26 m/s falls at about
+320–420 rpm gives 1.17–1.54 m/s at the tip: the _Chlorella_ optimum of 1.26 m/s falls at about
 344 rpm, inside the band, and the 2.03 m/s break-even is out of reach. That band carries its own
 stated assumption, that a plate-and-skirt rig's rim speed transfers to an impeller's tip.
 
