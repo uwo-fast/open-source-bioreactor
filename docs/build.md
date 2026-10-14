@@ -96,9 +96,18 @@ one, and the wetted parts are what the culture sits against for the length of a 
 
 ### Two things about printing them
 
-**The two impellers are mirror images, not the same part turned over.** Pumping direction follows
-the blade's handedness and rotating a part cannot change it. They are two different STLs, and a pair
-built from one file twice will pump the same way and not converge on the sparge ring.
+**Each Rushton prints as two halves, and all four halves are one part.** Standing on its blades, a
+disc turbine's disc overhangs the whole ring between hub and blades, and supports there leave the
+disc rough. Split at the disc's mid-plane, each half prints on its half-disc with nothing
+overhanging. Turn one half over onto another and line them up with two lengths of 1.75 mm filament
+in the pin holes at 90 and 270°; the blades sit on multiples of 60°, so they land on each other.
+`impeller_half` on the print list is the part, four off. A turbine too small for its half to take
+the set screw's hole prints whole, and `head()` warns.
+
+**Whole, the two impellers are mirror images, not the same part turned over.** That is a pitched
+blade's case: pumping direction follows the blade's handedness and rotating a part cannot change it.
+They are two different STLs, and a pair built from one file twice will pump the same way and not
+converge on the sparge ring. A Rushton's flat blades have no hand.
 
 **Export the motor mount from `head.scad`, not from `motor_mount.scad`.** That file will happily
 build a mount, and the mount it builds does not match the holes the assembly drills in the lid. The
@@ -279,8 +288,10 @@ the shaft, wrong with two that each have a height to hold. Open the bore with a 
 if your printer closes it up; `head()` reports the slack it was cut for.
 
 **The impeller set screws cut their own thread.** The hole is printed at the 3.3 mm tap size and no
-thread is modelled; printed holes come out undersize, so expect to open one. Two per impeller at 0
-and 120°, 5.8 mm of thread through the 8 mm collar above the blades. They are cup-point on purpose:
+thread is modelled; printed holes come out undersize, so expect to open one. A split impeller has no
+collar: each half takes two in its hub, in the gaps between the blades at 30 and 150°, so four per
+impeller. One printed whole takes two at 0 and 120°, through the 8 mm collar above the blades.
+Either way it is 5.8 mm of thread. They are cup-point on purpose:
 they bite the shaft rather than relying on friction, which is all that holds the impeller once the
 bore slides.
 

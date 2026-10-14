@@ -36,7 +36,8 @@
 - impeller set screw selection
   - McMaster-Carr 92029A142
   - 316 stainless cup-tip set screw, M4 x 0.7 x 6 mm, 2 mm hex socket, Rockwell B80, pack of 50
-  - four needed: two per impeller at 120 degrees, into the printed PETG hub
+  - eight needed: each Rushton prints as two halves, and each half takes two in its own hub, 120
+    degrees apart between the blades; an impeller printed whole takes two in its collar
   - **the fit they replace was never an interference fit.** The hub bore used to taper from 8.4 mm
     to 8.0 over the hub's height against a shaft supplied at 7.995-8.000, so at the tightest point
     the joint was 0 to 0.005 mm of _clearance_: grip was zero by design, which is what was

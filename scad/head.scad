@@ -97,8 +97,8 @@ render_stir_bar = false;
 render_bearing_blank = false;
 // The airlift's draft tube, standing on the floor; only with the airlift
 render_draft_tube = false;
-// Which of the pair, for a per-part export; they are mirror images, so two different parts
-impeller_to_render = "both"; // [both, lower, upper]
+// Which of the pair, or the top half of a split one, for a per-part export; whole, they are mirror images, so two different parts
+impeller_to_render = "both"; // [both, lower, upper, lower_half, upper_half]
 // the grub screws holding each impeller to the shaft
 render_set_screws = false;
 // The bayonet lock rings alone, for looking at the channels an assembled lid buries
@@ -307,6 +307,16 @@ impeller_fin_width = 4;
 // Reasoned, not cited: thick enough to bridge between the blades when the turbine prints on them
 // Thickness of a disc turbine's disc, in mm
 impeller_disc_thickness = 2.4;
+// Standing on its blades, a disc turbine's disc overhangs the whole ring between hub and blades.
+// Split at the disc's mid-plane, each half prints on its half-disc with nothing overhanging, and
+// one half turned over onto another makes the impeller. Printed and run at 70 mm.
+// Print a disc turbine as two identical halves pinned with filament; false prints it whole, on supports
+impeller_split_disc = true;
+// Reasoned, not cited: for 1.75 mm filament, as printed holes come out undersize; printed and fitted
+// Diameter of the filament-pin holes lining up a split turbine's halves, in mm
+impeller_pin_diameter = 2.0;
+// Depth of each filament-pin hole in a half, in mm
+impeller_pin_depth = 4;
 // Ring tying the blade tips; off, it prints as an overhang and nothing needs it
 impeller_tip_ring = false;
 // size of the center hub; the set screw threads through it, so it sets the thread engagement
@@ -586,11 +596,10 @@ function head_print_parts(vessel, lid_flange_height, drive = "shaft", sparger = 
         for (m = ["base_plate", "face_plate", "middle_stand"])
           [str("motor_mount_", m), 1, str("-D render_motor_mount=true -D motor_mount_part_to_render=\"", m, "\"")],
       ],
-      // Mirror images, so two parts and not one printed twice.
-      drive != "shaft" ? [] : [
-        for (h = ["lower", "upper"])
-          [str("impeller_", h), 1, str("-D render_impeller=true -D impeller_to_render=\"", h, "\"")],
-      ],
+      // Whole, mirror images, so two parts and not one printed twice; split, see the function.
+      drive != "shaft" ? [] : head_impeller_print_rows(
+        stirred_tank_impeller_diameter(vessel_diameter(vessel) - 2 * vessel_thickness(vessel), head_impeller_bore_ratio())
+      ),
       // what plugs the pocket the shaft drive would fill
       !head_blank_carried(drive, lid_center) ? [] : [["bearing_blank", 1, "-D render_bearing_blank=true"]],
       drive != "airlift" ? [] : [["draft_tube", 1, "-D render_draft_tube=true"]],
@@ -1000,7 +1009,7 @@ function head_sparge_ring_z(impeller_diameter, drive = "shaft", floor_rise = 0) 
   head_gas_driven(drive) ? floor_rise + sparge_ring_floor_gap + sparge_tube_extent() / 2 :
   let (
     _clearance = stirred_tank_clearance(impeller_diameter, head_impeller_clearance_factor()),
-    _bottom = _clearance + head_impeller_span(head_impeller_lower_type, impeller_diameter) / 2 + impeller_collar_height,
+    _bottom = _clearance + head_impeller_span(head_impeller_lower_type, impeller_diameter) / 2 + head_impeller_collar(head_impeller_lower_type, impeller_diameter),
     _top = _clearance + stirred_tank_impeller_spacing(impeller_diameter, head_impeller_spacing_factor())
       - head_impeller_span(head_impeller_upper_type, impeller_diameter) / 2
   )
@@ -1193,6 +1202,42 @@ function head_impeller_swept_radius(impeller_diameter) =
 // What an impeller of this type occupies along the shaft, its blades' thickness included.
 function head_impeller_span(type, impeller_diameter) =
   impeller_axial_span(type, impeller_diameter, impeller_fin_width);
+
+// A split turbine has no collar: each half carries two set screws in its hub, in the first and
+// third gaps between the blades, 120 deg apart as on the collar. The half turned over puts its
+// pair at the mirror angles, so the impeller holds with four. A turbine too small for its half
+// to take the screw's hole and the pins prints whole, and head() says so.
+function head_impeller_split(type, impeller_diameter) =
+  impeller_split_disc && impeller_is_disc(type) && head_impeller_half_fits(type, impeller_diameter);
+function head_impeller_half_fits(type, impeller_diameter) =
+  let (_span = head_impeller_span(type, impeller_diameter))
+    head_impeller_half_screw_z(_span) + head_impeller_set_screw_hole() / 2 < _span / 2
+    && impeller_pin_depth < _span / 2;
+function head_impeller_set_screw_hole() = (set_screw_tap_radius(impeller_set_screw) + impeller_set_screw_allow) * 2;
+function head_impeller_collar(type, impeller_diameter) =
+  head_impeller_split(type, impeller_diameter) ? 0 : impeller_collar_height;
+function head_impeller_half_screw_at(type) = [0.5, 2.5] * 360 / impeller_blades(type);
+// Midway up what the half-disc leaves of the half, measured from the joint.
+function head_impeller_half_screw_z(span) =
+  impeller_disc_thickness / 2 + (span / 2 - impeller_disc_thickness / 2) / 2;
+// Turned over about x, an angle a lands on -a: 90 and 270 are the pair that land on each other.
+function head_impeller_pin_at() = [90, 270];
+function head_impeller_pin_radius(hole_radius) = (hole_radius + impeller_hub_radius) / 2;
+
+// What a shaft drive prints for its impellers. A split turbine is one half printed twice, and two
+// split turbines of the same type are that part again, so the pair is one row of four; a mirrored
+// half is the same half turned a half-turn about the shaft.
+function head_impeller_print_rows(impeller_diameter) =
+  let (_types = [head_impeller_lower_type, head_impeller_upper_type], _pos = ["lower", "upper"])
+    head_impeller_split(_types[0], impeller_diameter) && head_impeller_split(_types[1], impeller_diameter)
+    && impeller_name(_types[0]) == impeller_name(_types[1])
+      ? [["impeller_half", 4, "-D render_impeller=true -D impeller_to_render=\"lower_half\""]]
+      : [
+        for (i = [0, 1])
+          head_impeller_split(_types[i], impeller_diameter)
+            ? [str("impeller_", _pos[i], "_half"), 2, str("-D render_impeller=true -D impeller_to_render=\"", _pos[i], "_half\"")]
+            : [str("impeller_", _pos[i]), 1, str("-D render_impeller=true -D impeller_to_render=\"", _pos[i], "\"")],
+      ];
 
 // The impeller's bound keeps the running clearance after the plate's worst-case lean. The ring's
 // applies only where the ring is built: the arm runs in between two baffles, not outboard of them.
@@ -2490,8 +2535,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       "impeller pumping: shaft turns ", head_shaft_rotation > 0 ? "counter-clockwise" : "clockwise",
       " seen from above, so the lower impeller ", !_axial[0] ? "discharges radially" : _up ? "pumps up" : "pumps down",
       " and the upper ", !_axial[1] ? "discharges radially" : _up ? "pumps down" : "pumps up",
-      ", with ", impeller_spacing - (impeller_height_lower + impeller_height_upper) / 2 - impeller_collar_height,
-      " mm between the lower's collar and the upper's blades"
+      ", with ", impeller_spacing - (impeller_height_lower + impeller_height_upper) / 2 - head_impeller_collar(head_impeller_lower_type, impeller_diameter),
+      head_impeller_split(head_impeller_lower_type, impeller_diameter) ? " mm between the lower's blades" : " mm between the lower's collar",
+      " and the upper's blades"
     ));
 
     if (_axial[0] && _axial[1] && !stirred_tank_pair_converges(head_shaft_rotation))
@@ -2500,12 +2546,50 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         "single sparge ring sits in both (Birch & Ahmed); reverse head_shaft_rotation, see docs/agitation.md"
       ));
 
-    echo(str(
-      "impeller set screws: ", len(impeller_set_screw_at), " x ", set_screw_name(impeller_set_screw),
-      " (", set_screw_part_number(impeller_set_screw), ") at ", impeller_set_screw_at, " deg, ",
-      _set_screw_engagement, " mm of thread in a ", _set_screw_hole,
-      " mm tap hole, through a ", impeller_collar_height, " mm collar above the blades"
-    ));
+    // One line for the pair when both are held the same way, one per impeller when they are not.
+    for (i = head_impeller_split(_impeller_types[0], impeller_diameter) == head_impeller_split(_impeller_types[1], impeller_diameter) ? [0] : [0, 1])
+      let (
+        _t = _impeller_types[i],
+        _who = head_impeller_split(_impeller_types[0], impeller_diameter) == head_impeller_split(_impeller_types[1], impeller_diameter) ? "" : str(" (", ["lower", "upper"][i], ")"),
+        _half_at = head_impeller_half_screw_at(_t),
+        _half_z = head_impeller_half_screw_z(_impeller_spans[i])
+      )
+        echo(str(
+          "impeller set screws", _who, ": ",
+          head_impeller_split(_t, impeller_diameter) ? 2 * len(_half_at) : len(impeller_set_screw_at), " x ", set_screw_name(impeller_set_screw),
+          " (", set_screw_part_number(impeller_set_screw), ") at ",
+          head_impeller_split(_t, impeller_diameter) ? concat(_half_at, [for (a = _half_at) 360 - a]) : impeller_set_screw_at, " deg, ",
+          _set_screw_engagement, " mm of thread in a ", _set_screw_hole, " mm tap hole, ",
+          head_impeller_split(_t, impeller_diameter)
+            ? str(
+              "two through each half's hub between the blades, ", _half_z, " mm off the joint, leaving ",
+              _half_z - _set_screw_hole / 2, " mm under the hole and ",
+              _impeller_spans[i] / 2 - _half_z - _set_screw_hole / 2, " mm over it; the halves line up on ",
+              impeller_pin_diameter, " mm filament pins at ", head_impeller_pin_at(), " deg"
+            )
+            : str("through a ", impeller_collar_height, " mm collar above the blades")
+        ));
+
+    for (i = [0, 1])
+      if (head_impeller_split(_impeller_types[i], impeller_diameter)) {
+        assert(
+          impeller_shaft_draft == 0,
+          "A split impeller's bore cannot taper: each half would narrow toward its own face. Set impeller_shaft_draft = 0."
+        );
+        assert(
+          abs(head_impeller_pin_radius(impeller_shaft_hole_radius) - impeller_shaft_hole_radius) > impeller_pin_diameter / 2
+          && abs(impeller_hub_radius - head_impeller_pin_radius(impeller_shaft_hole_radius)) > impeller_pin_diameter / 2,
+          str("A ", impeller_pin_diameter, " mm pin hole does not fit in the hub's wall between the bore and its ", impeller_hub_radius, " mm radius.")
+        );
+      }
+
+    for (i = [0, 1])
+      if (impeller_split_disc && impeller_is_disc(_impeller_types[i]) && !head_impeller_split(_impeller_types[i], impeller_diameter))
+        echo(str(
+          "WARNING impeller print: the ", ["lower", "upper"][i], " impeller's ", _impeller_spans[i] / 2,
+          " mm half cannot take a ", _set_screw_hole, " mm set-screw hole and a ", impeller_pin_depth,
+          " mm pin, so it prints whole, standing on its blades with supports under the disc"
+        ));
 
     // Two impellers are located along one shaft, so the bore slides and the screws hold.
     echo(str(
@@ -2527,14 +2611,17 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
     // The collar stands in the gap between the impellers.
     assert(
-      impeller_collar_height < impeller_spacing - (impeller_height_lower + impeller_height_upper) / 2,
+      head_impeller_collar(head_impeller_lower_type, impeller_diameter) < impeller_spacing - (impeller_height_lower + impeller_height_upper) / 2,
       str(
-        "The lower impeller's ", impeller_collar_height, " mm collar reaches into the ",
+        "The lower impeller's ", head_impeller_collar(head_impeller_lower_type, impeller_diameter), " mm collar reaches into the ",
         impeller_spacing - (impeller_height_lower + impeller_height_upper) / 2, " mm gap above it."
       )
     );
 
-    if (impeller_collar_height < _set_screw_hole + 2 * impeller_fin_width / 2)
+    if (
+      !(head_impeller_split(_impeller_types[0], impeller_diameter) && head_impeller_split(_impeller_types[1], impeller_diameter))
+      && impeller_collar_height < _set_screw_hole + 2 * impeller_fin_width / 2
+    )
       echo(str(
         "WARNING impeller set screws: a ", impeller_collar_height, " mm collar leaves ",
         (impeller_collar_height - _set_screw_hole) / 2, " mm of wall each side of a ", _set_screw_hole,
@@ -3952,23 +4039,73 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
             cylinder(r=_r, h=impeller_hub_radius + z_fight, $fn=32);
   }
 
-  // The screws in those holes, placed from the same numbers, socket outward.
-  module head_impeller_set_screws(height) {
-    translate([0, 0, height / 2 + impeller_collar_height / 2])
-      for (a = impeller_set_screw_at)
-        rotate([0, 0, a])
-          translate([impeller_hub_radius, 0, 0])
-            rotate([0, 90, 0])
-              screw(set_screw_screw(impeller_set_screw), set_screw_length(impeller_set_screw));
+  // The screws in those holes, placed from the same numbers, socket outward. A split impeller's
+  // sit in each half's hub, the lower half's turned over with it.
+  module head_impeller_set_screws(type, height) {
+    module _screw_at(a)
+      rotate([0, 0, a])
+        translate([impeller_hub_radius, 0, 0])
+          rotate([0, 90, 0])
+            screw(set_screw_screw(impeller_set_screw), set_screw_length(impeller_set_screw));
+    if (head_impeller_split(type, impeller_diameter))
+      for (flip = [0, 180])
+        rotate([flip, 0, 0])
+          translate([0, 0, head_impeller_half_screw_z(height)])
+            for (a = head_impeller_half_screw_at(type)) _screw_at(a);
+    else
+      translate([0, 0, height / 2 + impeller_collar_height / 2])
+        for (a = impeller_set_screw_at) _screw_at(a);
   }
 
   // The printed part and its screws at one impeller's position, so the mirror below catches both.
   module head_impeller_assembly(type) {
     if (render_impeller || render_all) head_impeller(type);
-    if (render_set_screws || render_all) head_impeller_set_screws(head_impeller_span(type, impeller_diameter));
+    if (render_set_screws || render_all) head_impeller_set_screws(type, head_impeller_span(type, impeller_diameter));
+  }
+
+  // One half of a split disc turbine, as it prints: the joint on z = 0 and the half-disc on it,
+  // the blades and the hub standing up, the screw and pin holes in the hub.
+  module head_impeller_half(type) {
+    _height = head_impeller_span(type, impeller_diameter);
+    color(prints2_color)
+      difference() {
+        intersection() {
+          disc_turbine(
+            radius=impeller_radius,
+            height=_height,
+            fins=impeller_blades(type),
+            blade_length=impeller_blade_length_ratio(type) * impeller_diameter,
+            disc_radius=impeller_disc_ratio(type) * impeller_diameter / 2,
+            disc_thickness=impeller_disc_thickness,
+            fin_width=impeller_fin_width,
+            center_hub_radius=impeller_hub_radius,
+            center_hole_radius=impeller_shaft_hole_radius
+          );
+          translate([-impeller_diameter, -impeller_diameter, 0])
+            cube([2 * impeller_diameter, 2 * impeller_diameter, _height]);
+        }
+        for (a = head_impeller_half_screw_at(type))
+          rotate([0, 0, a])
+            translate([0, 0, head_impeller_half_screw_z(_height)])
+              rotate([0, 90, 0])
+                cylinder(r=set_screw_tap_radius(impeller_set_screw) + impeller_set_screw_allow, h=impeller_hub_radius + z_fight, $fn=32);
+        for (a = head_impeller_pin_at())
+          rotate([0, 0, a])
+            translate([head_impeller_pin_radius(impeller_shaft_hole_radius), 0, -1])
+              cylinder(d=impeller_pin_diameter, h=impeller_pin_depth + 1, $fn=24);
+      }
   }
 
   module head_impeller(type) {
+    if (head_impeller_split(type, impeller_diameter))
+      // the top half alone is the printed part; the assembly turns a second one over under it
+      for (flip = impeller_to_render == "lower_half" || impeller_to_render == "upper_half" ? [0] : [0, 180])
+        rotate([flip, 0, 0]) head_impeller_half(type);
+    else
+      head_impeller_whole(type);
+  }
+
+  module head_impeller_whole(type) {
     _height = head_impeller_span(type, impeller_diameter);
     _collar_lead = impeller_collar_height / 10;
     color(prints2_color)
@@ -4028,11 +4165,11 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   // impellers
   if (_shaft_drive && (render_impeller || render_set_screws || render_all)) {
     translate([0, 0, -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height) + _impeller_clearance]) {
-      if (impeller_to_render != "upper")
+      if (impeller_to_render != "upper" && impeller_to_render != "upper_half")
         head_impeller_assembly(head_impeller_lower_type);
 
       // Mirrored, not turned over, which is what makes the pair oppose each other.
-      if (impeller_to_render != "lower")
+      if (impeller_to_render != "lower" && impeller_to_render != "lower_half")
         translate([0, 0, impeller_spacing])
           mirror([0, 1, 0])
             head_impeller_assembly(head_impeller_upper_type);

@@ -17,6 +17,8 @@ ECHO: "impeller clearance: centreline 25.875 mm off the floor = 0.75 D, C/T 0.25
 ECHO: "impeller count: 2 on 4.87516 impeller diameters of liquid (H/T 1.62505), where the spacing band allows 1.43758 < n < 3.87516"
 ECHO: "impeller pumping: shaft turns counter-clockwise seen from above, so the lower impeller discharges radially and the upper discharges radially, with 36.85 mm between the lower's collar and the upper's blades"
 ECHO: "impeller set screws: 2 x M4x6 316 (92029A142) at [0, 120] deg, 5.8 mm of thread in a 3.3 mm tap hole, through a 8 mm collar above the blades"
+ECHO: "WARNING impeller print: the lower impeller's 3.45 mm half cannot take a 3.3 mm set-screw hole and a 4 mm pin, so it prints whole, standing on its blades with supports under the disc"
+ECHO: "WARNING impeller print: the upper impeller's 3.45 mm half cannot take a 3.3 mm set-screw hole and a 4 mm pin, so it prints whole, standing on its blades with supports under the disc"
 ECHO: "impeller bore: 8.4 mm straight over a 7.995-8 mm shaft: 0.4 to 0.405 mm of slack, before print shrinkage"
 ECHO: "culture: 1.45299 L standing 168.193 mm deep, 86.5% of the 1.67975 L capacity and 82.4475% of the 204 mm internal height"
 ECHO: "culture headspace: 0.226767 L of gas space at 86.5% of capacity, above the usual 0.8 by 6.5 points"

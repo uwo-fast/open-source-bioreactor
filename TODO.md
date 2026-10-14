@@ -145,9 +145,9 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
     pair is 248 mm3, the holes. Each half holds itself with two M4x6 set screws in its own hub at
     30 and 150 deg, between the blades, 5.3 mm up from the joint, and no collar; two 2 mm holes,
     4 mm deep at r 7.1 and 90/270 deg, take 1.75 mm filament pins to line the blades up. The
-    cost is a clamped seam through the disc to clean. Being printed against a supported one-piece
-    to compare; the winner goes into `head_impeller()`, and the split drops the disc turbine's
-    collar
+    cost is a clamped seam through the disc to clean. Done: printed against a supported one-piece
+    at 94.5 mm, the halves won, and a 70 mm pair printed and fitted; `impeller_split_disc` now
+    makes it the default, with no collar and the screws 4.1 mm up from the joint at 70 mm
 
 ## exhaust condenser and humidifier
 
