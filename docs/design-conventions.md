@@ -196,22 +196,23 @@ Every correlation has a validity envelope, and this vessel is outside several of
 normal for an instrument built from jars rather than from a vendor's catalogue. What is not
 acceptable is _not knowing_ which ones.
 
-So a check returns the **names** of what it violates, not a boolean:
+So a check returns the **names** of what it violates, not a boolean. `jar_10L` with a pitched
+blade at the lower position echoes:
 
 ```
-impeller: pbt_45_4 Po 1.49248 and flow number 0.887217 from Medek's correlation
-at 45 deg, extrapolated on ["T/D", "H/T"]
+impeller, lower: pbt_45_4 Po 1.49248 and flow number 0.887217 from Medek's correlation
+at 45 deg, extrapolated on ["T/D", "H/T", "baffle count"]
 ```
 
 `stirred_tank_medek_departures()` returns a list because an extrapolation that is out on one count
 is a different thing from one that is out on four, and a caller that only learns `false` cannot tell
-them apart or say which to fix. Two of those three departures were removable — a fourth baffle
-retired one, D/T would retire another — and that was only visible because they were named.
+them apart or say which to fix. Two of those three departures are removable — a fourth baffle
+would retire one, D/T another — and that is only visible because they are named.
 
 The same shape applies to bands the design is measured against: echo the value, the band, and the
 source's own framing. Oldshue's `1–2 d` is an **allowance** — _"if the impeller can be placed…
 these impellers offer"_ — so falling outside it is reported, not warned. And it is an allowance for
-**fluidfoil** impellers, which this pitched blade is not, so the model says that too rather than
+**fluidfoil** impellers, which a pitched blade is not, so the model says that too rather than
 quietly grading one impeller class against another's guidance.
 
 ---

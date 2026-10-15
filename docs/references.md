@@ -213,16 +213,17 @@ The primary behind the numbers `Davis (2010)` relays, retrieved 2026-08-20. What
 - **Coverage over the impeller, p. 191-192** — the sentence immediately _before_ the band, and the
   one that decides this reactor's clearance. _"However, there is a tendency for these impellers to
   short-circuit the fluid to a relatively low distance above the impeller. Very careful
-  consideration of the coverage over the impeller is important."_ He gives **no number**. The two
-  requirements do not overlap in this vessel: the band needs C ≥ 94.5 mm and half a diameter of
-  coverage allows C ≤ 69.2, because two impellers span 154.5 mm of a 241 mm column.
+  consideration of the coverage over the impeller is important."_ He gives **no number**. On the
+  pitched pair this build ran at D/T 0.45 the two requirements did not overlap: the band needed
+  C ≥ 94.5 mm and half a diameter of
+  coverage allowed C ≤ 69.2, because two impellers spanned 154.5 mm of a 241 mm column.
 - **Axial impellers in a gassed system, p. 228.** _"the upward flow of gas tends to negate the
   downward action of the pumping capacity of the axial flow turbine. A radial flow turbine must
   have **three times** more power than the power in the gas stream for the mixer power level to be
   fully effective. On the other hand, the axial flow impeller must have **eight to ten times** more
   power than in the gas stream for it to establish the axial flow pattern."_ Evaluated against this
-  reactor: the axial pair holds its flow pattern only to **0.45 vvm at the rated 320 rpm**, where a
-  radial impeller at the same power would take 1.20.
+  reactor at the rated 320 rpm: the two Rushtons hold their flow pattern to **1.16 vvm**, against a
+  0.5 vvm design; the pitched pair this build ran before held 0.70.
 - **Sparger, p. 214.** _"A sparge ring about 80 % of the impeller diameter is more effective than
   an open pipe beneath the impeller or sparge rings larger than the impeller… the desired entry
   point for the gas is where it can pass initially through the high shear zone around the
@@ -660,8 +661,8 @@ appear to be weaker than S. dimorphus cells**". The earlier note in this repo th
 "generally robust" was an assumption and is withdrawn.
 What damaged it was a centrifugal pump, at 262 W/kg and 18e3 Pa s of accumulated stress per hour of
 operation. What did **not** damage it was an air-lift at **31 W/kg** and 90-450 Pa s/h. This design's
-peak dissipation is **30.4 W/kg at its rated 320 rpm and 68.8 W/kg at no-load 420 rpm** — the rated
-figure sits on top of the non-damaging air-lift and roughly 8x under the damaging pump.
+peak dissipation is **27.1 W/kg at its rated 320 rpm and 61.2 W/kg at no-load 420 rpm** — the rated
+figure sits just under the non-damaging air-lift and roughly 10x under the damaging pump.
 Read the caution with it: the paper shows the **Kolmogorov criterion mispredicted its own results**
 (both rigs had eddies larger than the cells, yet only one caused damage), and that accumulated stress
 in Pa s was the better descriptor. Nothing in this model computes that.

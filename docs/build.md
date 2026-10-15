@@ -104,10 +104,10 @@ in the pin holes at 90 and 270°; the blades sit on multiples of 60°, so they l
 `impeller_half` on the print list is the part, four off. A turbine too small for its half to take
 the set screw's hole prints whole, and `head()` warns.
 
-**Whole, the two impellers are mirror images, not the same part turned over.** That is a pitched
-blade's case: pumping direction follows the blade's handedness and rotating a part cannot change it.
-They are two different STLs, and a pair built from one file twice will pump the same way and not
-converge on the sparge ring. A Rushton's flat blades have no hand.
+**A pitched pair's two impellers are mirror images, not the same part turned over.** Pumping
+direction follows the blade's handedness and rotating a part cannot change it, so they are two
+different STLs, and a pair built from one file twice will pump the same way and not converge on the
+sparge ring. A Rushton's flat blades have no hand, so the reference build's two are one part.
 
 **Export the motor mount from `head.scad`, not from `motor_mount.scad`.** That file will happily
 build a mount, and the mount it builds does not match the holes the assembly drills in the lid. The
@@ -116,7 +116,7 @@ file says so itself.
 The baffle plates are split so no piece is too slender to print standing:
 
 ```
-baffle print: 2 pieces of 137.202 mm, tallest standing 160.202 mm against a 200 mm slenderness cap;
+baffle print: 2 pieces of 136.997 mm, tallest standing 159.997 mm against a 200 mm slenderness cap;
 the dovetail leaves 4.2 mm of 10 crossing each joint, 0.074088 of the plate's second moment
 ```
 
@@ -502,9 +502,9 @@ shaft, and drive the screw. The arm's end is open through a pilot like the ring'
 passes, and a second of those screws plugs it.
 
 **The baffles are as wide as the sparger built lets them be.** Under the ring they stop at
-10.35 mm, which is what the ring leaves outside them. Under the arm the impeller stops them instead:
-`baffle_impeller_clearance` is a running clearance, 1 mm to the blades after the 2.28 mm of lean the
-port coupling allows, so 11.95 mm on `jar_10L`. A lid whose plates were printed for the arm does
+10.35 mm, which is what the ring leaves outside them. Under the arm the lock bore stops them, at
+17.09 mm on `jar_10L`; a larger impeller stops them first, since `baffle_impeller_clearance` is a
+running clearance, 1 mm to the blades after the lean the port coupling allows. A lid whose plates were printed for the arm does
 not take the ring.
 
 **Check-holes covers whichever is built.** The head's hole probes used to be echoed in the part's
@@ -906,9 +906,11 @@ sending back:
 2. **The jar's rim**, calipered — the land width on top of the glass, the wall, and the mouth. Three
    registered numbers disagree on two vessels and a caliper says which is wrong.
 3. **The baffle's lean.** Print the lid's baffle port and one plate segment, seat them, and measure
-   the tilt at a known distance below the lid. The model narrows the plate to keep 1 mm running
-   clearance after a stacked worst case of 2.28 mm of lean, and cannot tell how much of that lean is
-   real; whatever the measurement takes off it is plate width back.
+   the tilt at a known distance below the lid. The model keeps 1 mm running clearance after a
+   stacked worst case of lean, 2.44 mm at `jar_10L`'s lower impeller, and cannot tell how much of
+   that lean is real. On the reference build the lock bore caps the plate first, so the lean costs
+   no width there; on a build where the impeller caps it, whatever the measurement takes off is
+   plate width back.
 4. **Whether the joint holds.** Nobody has yet tightened twelve nuts a third of a turn onto a glass
    jar with a printed flange in between. How much it relaxes, and over what time, is the number this
    document most needs.
