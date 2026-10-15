@@ -13,6 +13,7 @@ Composable, modular, and extensible bioreactor design.
 - [`docs/build.md`](docs/build.md) — what to cut, print and tighten, and in what order
 - [`docs/architecture.md`](docs/architecture.md) — who may hand a number to whom
 - [`docs/design-conventions.md`](docs/design-conventions.md) — the rules the model is built to
+- [`docs/baseline.md`](docs/baseline.md) — what the reference build holds at a standard, and the knobs later work turns
 - [`docs/agitation.md`](docs/agitation.md) — why the impeller is the size it is
 - [`docs/ports-layout.md`](docs/ports-layout.md) — what sits at each port on the lid, and why
 - [`docs/procurement.md`](docs/procurement.md) — how the bought parts were chosen

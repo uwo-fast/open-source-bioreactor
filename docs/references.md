@@ -15,7 +15,7 @@ turned out to be wrong. The status says how far each source was actually checked
 Grades: **[PR]** peer-reviewed · **[TH]** thesis · **[PAT]** patent · **[TX]** textbook ·
 **[TP]** trade press · **[VN]** vendor.
 
-Every literature source below is also in [`references.bib`](references.bib) — 56 entries, every one
+Every literature source below is also in [`references.bib`](references.bib) — 60 entries, every one
 carrying its grade and verification status in a `note` field, so the whole set imports into a
 reference manager in one go rather than one DOI at a time. Vendor pages, part numbers and software libraries
 are deliberately not in it: they are cited inline on the registry row or file that uses them.
@@ -40,6 +40,40 @@ and [35] Hudcova, Machon & Nienow (1989) carry the 35 % power penalty, not the b
 the only stated form of the rule anyone here has found and the arithmetic follows from the band
 regardless — but it is reported, never asserted, and there is no primary behind it.
 → `scad/utils/stirred_tank.scad`, `scad/head.scad` impeller guideline block
+
+**McCabe, W.L., Smith, J.C. & Harriott, P. (1993).** _Unit Operations of Chemical Engineering_, 5th
+ed. McGraw-Hill. ISBN 0-07-044844-2 **[TX]** · **read**
+The standard turbine (ch. 9, pp. 242-243, Fig. 9.7 after Rushton, Costich & Everett, _Chem. Eng.
+Prog._ 46:395, 467, 1950): D/T 1/3, H/T 1, baffles T/12 and four of them, the impeller T/3 off the
+floor, blades D/5 high and D/4 long, 6 or 8 of them. With several impellers the bottom one sits
+about one impeller diameter off the bottom (p. 241), and two turbines at least one impeller diameter
+apart draw about 1.9 times one (p. 253). The reference to this book came from the microalgae
+researcher advising the project. It gives no disc diameter, and its own power number for the disc
+turbine, 5.75 at T/10 baffles (Table 9.3), is not the 4.17 the model uses.
+→ `scad/custom/impellers.scad` (the Rushton's blades and tank layout), `docs/baseline.md`
+
+**Rutherford, K., Lee, K.C., Mahmoudi, S.M.S. & Yianneskis, M. (1996).** "Hydrodynamic
+characteristics of dual Rushton impeller stirred vessels." _AIChE Journal_ 42(2):332-346.
+[doi:10.1002/aic.690420204](https://doi.org/10.1002/aic.690420204) **[PR]** · **abstract**
+Three dual-Rushton layouts at H = T: parallel flow (lower 0.25T off the floor, the pair 0.5T apart),
+merging flow (equal thirds), diverging flow (lower 0.15T). The reference build runs the merging
+flow's equal thirds, which is also McCabe's T/3 off the floor and one impeller diameter apart. Read
+through Li et al. 2007's Fig. 1 and the abstract; the thresholds between the patterns are not
+claimed here.
+→ `scad/custom/impellers.scad`
+
+**Li, Z., Gao, Z., Smith, J.M. & Thorpe, R.B. (2007).** "Large Eddy Simulation of Flow Fields in
+Vessels Stirred by Dual Rushton Impeller Agitators." _Journal of Chemical Engineering of Japan_
+40(8):684-691. [doi:10.1252/jcej.40.684](https://doi.org/10.1252/jcej.40.684) **[PR]** · **read**
+Fig. 1 relays Rutherford et al.'s three layouts with their clearances.
+→ `scad/custom/impellers.scad`
+
+**Paul, E.L., Atiemo-Obeng, V.A. & Kresta, S.M. (eds.) (2004).** _Handbook of Industrial Mixing:
+Science and Practice_. Wiley-Interscience. **[TX]** · **unread**
+Relayed by a literature search and not checked against the text: baffles T/12 to T/10 (ch. 6 p.
+350), D and C each T/4 to T/2 (Fig. 11-1 p. 592), one impeller up to Z/T 1.0 for gas dispersion and
+two to 1.8 (Table 6-6 p. 372).
+→ `docs/baseline.md`
 
 **Nienow, A.W. (2006).** "Reactor engineering in large scale animal cell culture." _Cytotechnology_
 50(1-3):9-33. [doi:10.1007/s10616-006-9005-8](https://doi.org/10.1007/s10616-006-9005-8) **[PR]** · **read**
@@ -179,16 +213,17 @@ The primary behind the numbers `Davis (2010)` relays, retrieved 2026-08-20. What
 - **Coverage over the impeller, p. 191-192** — the sentence immediately _before_ the band, and the
   one that decides this reactor's clearance. _"However, there is a tendency for these impellers to
   short-circuit the fluid to a relatively low distance above the impeller. Very careful
-  consideration of the coverage over the impeller is important."_ He gives **no number**. The two
-  requirements do not overlap in this vessel: the band needs C ≥ 94.5 mm and half a diameter of
-  coverage allows C ≤ 69.2, because two impellers span 154.5 mm of a 241 mm column.
+  consideration of the coverage over the impeller is important."_ He gives **no number**. On the
+  pitched pair this build ran at D/T 0.45 the two requirements did not overlap: the band needed
+  C ≥ 94.5 mm and half a diameter of
+  coverage allowed C ≤ 69.2, because two impellers spanned 154.5 mm of a 241 mm column.
 - **Axial impellers in a gassed system, p. 228.** _"the upward flow of gas tends to negate the
   downward action of the pumping capacity of the axial flow turbine. A radial flow turbine must
   have **three times** more power than the power in the gas stream for the mixer power level to be
   fully effective. On the other hand, the axial flow impeller must have **eight to ten times** more
   power than in the gas stream for it to establish the axial flow pattern."_ Evaluated against this
-  reactor: the axial pair holds its flow pattern only to **0.45 vvm at the rated 320 rpm**, where a
-  radial impeller at the same power would take 1.20.
+  reactor at the rated 320 rpm: the two Rushtons hold their flow pattern to **1.16 vvm**, against a
+  0.5 vvm design; the pitched pair this build ran before held 0.70.
 - **Sparger, p. 214.** _"A sparge ring about 80 % of the impeller diameter is more effective than
   an open pipe beneath the impeller or sparge rings larger than the impeller… the desired entry
   point for the gas is where it can pass initially through the high shear zone around the
@@ -626,8 +661,8 @@ appear to be weaker than S. dimorphus cells**". The earlier note in this repo th
 "generally robust" was an assumption and is withdrawn.
 What damaged it was a centrifugal pump, at 262 W/kg and 18e3 Pa s of accumulated stress per hour of
 operation. What did **not** damage it was an air-lift at **31 W/kg** and 90-450 Pa s/h. This design's
-peak dissipation is **30.4 W/kg at its rated 320 rpm and 68.8 W/kg at no-load 420 rpm** — the rated
-figure sits on top of the non-damaging air-lift and roughly 8x under the damaging pump.
+peak dissipation is **27.1 W/kg at its rated 320 rpm and 61.2 W/kg at no-load 420 rpm** — the rated
+figure sits just under the non-damaging air-lift and roughly 10x under the damaging pump.
 Read the caution with it: the paper shows the **Kolmogorov criterion mispredicted its own results**
 (both rigs had eddies larger than the cells, yet only one caused damage), and that accumulated stress
 in Pa s was the better descriptor. Nothing in this model computes that.

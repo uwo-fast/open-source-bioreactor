@@ -30,6 +30,7 @@ ECHO: "sparger envelope: r [32.6227, 39.55] mm, to clear the baffles and pass th
 ECHO: "sparger pitch: [9.44738] hole diameters between holes (floor 3, reasoned, not cited)"
 ECHO: "WARNING sparger: extrapolated on ["orifice velocity", "open area", "bore velocity"]"
 ECHO: "sparge holes: 8 x 3 mm at 28.3421 mm spacing; at 0.5 vvm that is 0.726494 L/min through them at 0.21412 m/s"
+ECHO: "WARNING sparge ring: 2.09196 D is outside the 1-2 D band; the mouth places it, so this jar's mouth and bore are too far apart for a ring that suits both"
 ECHO: "sparge holes: capillary 96 Pa to launch a bubble against 0.0764126 Pa to push gas through, so the holes will not all flow evenly, which Rewatkar & Joshi find does not matter near the impeller"
 ECHO: "reach clearance: do_probe's collet passes the draft tube with 0.75 mm of radial room, over the -207.35 to -54.1775 mm the two share"
 ECHO: "reach clearance: do_probe's tip passes the draft tube with 3.95 mm of radial room, over the -207.35 to -54.1775 mm the two share"

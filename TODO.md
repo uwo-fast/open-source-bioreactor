@@ -114,11 +114,41 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
     36GP's Ø27.6 / 4.2, so the new motor may drop in without a reprint
 
 - [ ] **bench-measure the twisted paddle's power number, if it is wanted back**
-  - the build runs `impeller_pbt_45_4` now; the twisted row stays registered with no Po any
+  - the build runs `impeller_rushton_6` now; the twisted row stays registered with no Po any
     correlation reaches, and its 0.634921 width ratio is the one unsourced ratio in `impellers.scad`
   - `Po = P/(rho N^3 D^5)` from shaft power at three or four speeds in water settles it. Worth
     doing to publish the blade, not to build the reactor. Kumaresan & Joshi 2006
     (doi:10.1016/j.cej.2005.10.002) is paywalled and may say something
+
+- [ ] **run two Rushtons, the standard configuration**
+  - a professor recommended the six-blade disc turbine (2026-10-08). Asked which limits his
+    microalgae cultures, he answered light usually, CO2 supply can, O2 removal is secondary. The
+    hybrid below answers that split, but the paper sets out to prove a standard design, so on his
+    advice (2026-10-13) the reference build runs a Rushton at both positions and the hybrid waits
+  - his source, McCabe, Smith & Harriott 1993 ch. 9 (2026-10-14), gives the standard turbine's
+    D = E = T/3 and the blades D/5 by D/4; in person he asked for two, the lower T/3 off the floor and
+    the upper a further T/3 up, which is Rutherford's merging flow. Both are on the row now, and
+    his written confirmation of the layout was asked for on 2026-10-14
+  - still to come: a bench measurement of the printed Rushton's power number,
+    `Po = P/(rho N^3 D^5)` from shaft power at three or four speeds in water. The model keeps
+    Kaiser's measured 4.17 where McCabe's Table 9.3 gives 5.75, 38% more power, and Grenville's
+    flow number 0.65 where McCabe gives 1.3 (`docs/decisions.md`)
+  - the row: height D/5, length D/4, disc 3D/4. Middleton & Ramshaw, US 5198156 "Agitators" (ICI,
+    1993), gives exactly these as typical; the Czech standard behind Fořt's "standard Rushton" is
+    ČSN 69 1021 (1984, withdrawn 2005), not read. Zhou 2003, which the row cites now, gives D/4 by
+    D/4 and no disc. Po: keep Kaiser's measured 4.17 ± 0.14, with Grenville's typical 5.0 the
+    spread; Fl 0.65 from Grenville, typical
+  - **printing it.** Standing on its blades, the disc's underside from the hub to the blades' roots
+    (r 10-23.6 mm, 1714 mm2) is held only by the hub and needs supports, which leave that face
+    rough; a professor called it unprintable as drawn. A spike splits it at the disc's mid-plane
+    into two identical halves, each printed flat face down (1.2 mm of disc on the bed, blades and
+    hub up), no supports. The pair less the one-piece turbine is 0.0 mm3; the one-piece less the
+    pair is 248 mm3, the holes. Each half holds itself with two M4x6 set screws in its own hub at
+    30 and 150 deg, between the blades, 5.3 mm up from the joint, and no collar; two 2 mm holes,
+    4 mm deep at r 7.1 and 90/270 deg, take 1.75 mm filament pins to line the blades up. The
+    cost is a clamped seam through the disc to clean. Done: printed against a supported one-piece
+    at 94.5 mm, the halves won, and a 70 mm pair printed and fitted; `impeller_split_disc` now
+    makes it the default, with no collar and the screws 4.1 mm up from the joint at 70 mm
 
 ## exhaust condenser and humidifier
 
@@ -380,5 +410,27 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
   - low risk; a row-length assert in each `_by_name` wrapper would close most of it
 
 ## long term / post paper submission
+
+- [ ] **a Rushton under a pitched blade: the hybrid, set aside for a standard design**
+  - `head()` takes a lower and an upper type, so it is one line away:
+    `head_impeller_upper_type = impeller_pbt_45_4`. Modelled on jar_10L at 320 rpm: 4.76 W,
+    0.193 N m summed, 0.5 vvm held to 147 rpm below and 287 rpm above. The case, from when it was
+    the plan:
+  - light usually limits, CO2 supply can (the professor's reply): light is circulation, the
+    pitched blade's job; CO2 is dispersion, the Rushton's
+  - **the gas ceiling binds inside the operating band.** `head()` checked Oldshue's 8x rule only
+    at no-load (420 rpm, 1.573 vvm), and now checks it at each drive speed. The cap goes as N^3:
+    0.70 vvm at the rated 320 rpm, 0.35 vvm at the 255 rpm Chlorella optimum, against the 0.5 vvm
+    design; the crossover is about 287 rpm. A radial impeller at the same power, 3x not 8x, would
+    hold about 0.94 vvm at 255 rpm
+  - **circulation per watt**: about 1.8x in the pitched blade's favour at equal power and
+    diameter, not the 4x `agitation.md` once claimed (`docs/decisions.md`)
+  - **at equal power a Rushton is the gentler of the two**: peak dissipation goes as
+    `x Po^(-1/4) D^-3`, so about 0.56x the pitched blade at the same diameter, about 1.4x at
+    D = T/3. Both are orders of magnitude under any damage figure. Grenville's Figs. 6-7 have the
+    Rushton making the largest drops at equal power (liquid-liquid, so indirect for gas): its gas
+    advantage is holding its pattern under gas, not finer bubbles per watt
+  - a Rushton as the lower impeller over the sparger arm, where the gas loads first and Oldshue
+    puts 40 % of the dispersing work, the pitched blade above for circulation
 
 - [ ] adopt the Just the Docs OpenSCAD setup for this project, including its web-based preview
