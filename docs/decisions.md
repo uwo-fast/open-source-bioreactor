@@ -101,7 +101,8 @@ not stay inline.
 - **Below D/T 0.4305 the lock bore is what caps the baffle's width.** It was, when the impeller
   and the bore were the only bounds; the sparge ring caps it on every jar that builds the ring, since
   the room outside a baffle does not grow with the mouth, and the impeller's running clearance after
-  the plate's lean caps it on `jar_10L` under the arm.
+  the plate's lean caps it on `jar_10L` under the arm. On the 70 mm Rushton the impeller is far
+  enough in that the lock bore binds there again, at 17.09 mm.
 - **The full port set's smallest mouth is 130.4 mm and the reduced set's 81.6, and spreading the
   big ports is worth 19.3 mm.** All three assumed the ports could be arranged freely; four baffles
   every third port leave no port that is not beside one, so the worst pair is std against std
@@ -110,6 +111,14 @@ not stay inline.
   build's drive on a 94.5 mm impeller, applied to jars whose impellers are half that. The target is
   tip speed, and holding it puts `jar_1p5L` at 528–851 rpm and `jar_1gal_155` at 358–577 — nearer a
   fan's native range than it looked.
+- **The pitched pair beat a Rushton by 4× on circulation per watt, and the gas criterion did not
+  bind.** The 4× was `N_Q/Po`, which compares flow per watt at the same speed and diameter, not at
+  the same power. At equal power and diameter flow goes as `Fl · Po^(−1/3)`: about 1.8× on
+  Grenville 2017's Table 1 values for both blades, and near even with McCabe's 1.3 and 5.75 for
+  the Rushton. And the pitched pair held its flow pattern to 1.57 vvm only at 420 rpm; Oldshue's
+  8× rule scales as N³, so at the 255 rpm Chlorella optimum the ceiling was 0.35 vvm, under the
+  0.5 vvm design. `docs/agitation.md` carried both as the case for the axial blade until the build
+  moved to the standard turbine.
 
 ## Settled — do not re-open without new evidence
 
@@ -185,7 +194,7 @@ outlives the commit, in `docs/`.
   stiffness - deflection goes as the cube of height over diameter
 - **the lid carries three baffles, not four, for a port.** Four at 90° is Oldshue's reference;
   he allows three at the same total projected area, and these plates cannot widen to give it, so
-  three reach 0.499 of his reference on `jar_10L` against four's 0.666. The fourth baffle's port
+  three reach 0.713 of his reference on `jar_10L` against four's 0.951. The fourth baffle's port
   went to a sampling line. Going back to four relays the whole lid, since four equally spaced do
   not land on three-at-120°
 - **the probes still sit beside baffles at three.** Three baffles leave the middle of each triple
@@ -198,14 +207,24 @@ outlives the commit, in `docs/`.
 - **Cooke's blend-time correlation is deliberately absent.** It could not be made to reproduce the
   figures its own source prints beside it. Ruszkowski's is encoded and was validated first (1.96 s
   against a published 1.9). See `docs/references.md` before trying it again
-- **the build runs `impeller_pbt_45_4`, not the twisted paddle.** Po and flow number come from
-  Medek's correlation on that geometry; the twisted row stays registered and drawn but has no Po that
-  any correlation reaches
+- **the reference build runs two `impeller_rushton_6` at the standard turbine**: D = T/3, the lower
+  T/3 off the floor, the upper a further T/3 up (McCabe, Smith & Harriott 1993 pp. 241-243 and 253),
+  on the advice of the microalgae researcher advising the project. The first paper is about the
+  design, so the reactor runs at a standard wherever one exists; the pitched pair and a Rushton
+  under a pitched blade are knobs for later work (`docs/baseline.md`). The twisted paddle stays
+  registered and drawn but has no Po that any correlation reaches
+- **the Rushton's power number is Kaiser's measured 4.17, not McCabe's 5.75.** 5.75 is from tanks
+  with four baffles at T/10, Kaiser's from laboratory scale, and this vessel has three plates at
+  0.71 of the four-at-T/12 area, so neither is measured at it. At 5.75 the torque is still under
+  0.087 N·m of the drive's 0.490, so no choice in the build turns on it; a bench measurement of the
+  printed part replaces both
 - **the shaft is 400 mm and must be a ground rotary shaft.** 300 mm does not exist in the catalogue
   and 200 cannot reach. It runs directly in the 608 bearing's inner race, so plain h9 rod would allow
   0.043 mm and fret the bore
 - **the sparge ring sits in the gap between the impellers**, from Birch & Ahmed: above an up-pumping
-  impeller, below a down-pumping one. This pair converges, so one ring serves both. Supersedes
+  impeller, below a down-pumping one. The pitched pair converged, so one ring served both; two
+  Rushtons discharge radially and nothing held here places a ring for them; the shaft
+  drive's default is the arm. Supersedes
   Oldshue p. 214's 80 %-of-impeller ring, which two experimental studies contradict
 - **the ring's 8 × 3 mm holes are for spacing and against fouling, not for even flow.** Capillary is
   96 Pa against 2.4 Pa of orifice, so they will not share equally at any count

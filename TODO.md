@@ -114,7 +114,7 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
     36GP's Ø27.6 / 4.2, so the new motor may drop in without a reprint
 
 - [ ] **bench-measure the twisted paddle's power number, if it is wanted back**
-  - the build runs `impeller_pbt_45_4` now; the twisted row stays registered with no Po any
+  - the build runs `impeller_rushton_6` now; the twisted row stays registered with no Po any
     correlation reaches, and its 0.634921 width ratio is the one unsourced ratio in `impellers.scad`
   - `Po = P/(rho N^3 D^5)` from shaft power at three or four speeds in water settles it. Worth
     doing to publish the blade, not to build the reactor. Kumaresan & Joshi 2006
@@ -127,12 +127,12 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
     advice (2026-10-13) the reference build runs a Rushton at both positions and the hybrid waits
   - his source, McCabe, Smith & Harriott 1993 ch. 9 (2026-10-14), gives the standard turbine's
     D = E = T/3 and the blades D/5 by D/4; in person he asked for two, the lower T/3 off the floor and
-    the upper a further T/3 up, which is Rutherford's merging flow. Both are on the row now; his
-    written confirmation of the layout is awaited (sent 2026-10-14)
-  - still to come: `docs/agitation.md` argues for the pitched pair and needs the case for the
-    Rushton pair, with the 4x circulation figure corrected (see the hybrid item); the figures
-    `build.md` and `design-conventions.md` quote; whether the power number stays Kaiser's measured
-    4.17 or takes McCabe's 5.75 (Table 9.3), 38% more power
+    the upper a further T/3 up, which is Rutherford's merging flow. Both are on the row now, and
+    his written confirmation of the layout was asked for on 2026-10-14
+  - still to come: a bench measurement of the printed Rushton's power number,
+    `Po = P/(rho N^3 D^5)` from shaft power at three or four speeds in water. The model keeps
+    Kaiser's measured 4.17 where McCabe's Table 9.3 gives 5.75, 38% more power, and Grenville's
+    flow number 0.65 where McCabe gives 1.3 (`docs/decisions.md`)
   - the row: height D/5, length D/4, disc 3D/4. Middleton & Ramshaw, US 5198156 "Agitators" (ICI,
     1993), gives exactly these as typical; the Czech standard behind Fořt's "standard Rushton" is
     ČSN 69 1021 (1984, withdrawn 2005), not read. Zhou 2003, which the row cites now, gives D/4 by
@@ -422,14 +422,9 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
     at no-load (420 rpm, 1.573 vvm), and now checks it at each drive speed. The cap goes as N^3:
     0.70 vvm at the rated 320 rpm, 0.35 vvm at the 255 rpm Chlorella optimum, against the 0.5 vvm
     design; the crossover is about 287 rpm. A radial impeller at the same power, 3x not 8x, would
-    hold about 0.94 vvm at 255 rpm. So `agitation.md`'s "the gas criterion does not bind" holds
-    only at the fast end. `references.md`'s Oldshue entry also quotes 0.45 vvm at rated 320 rpm,
-    which the current model does not give
-  - **the circulation claim is overstated.** `agitation.md` compares `N_Q/Po` and calls the axial
-    blade about 4x better per watt. That ratio compares flow at equal speed; at equal power and
-    diameter flow goes as `Fl Po^(-1/3)`, which with Grenville 2017 Table 1 (Rushton Po 5.00,
-    Fl 0.65, x 12; pitched blade Po 1.50, Fl 0.80, x 16) is about 1.8x, and his Fig. 3 agrees at
-    about 2x the mass pumped per joule
+    hold about 0.94 vvm at 255 rpm
+  - **circulation per watt**: about 1.8x in the pitched blade's favour at equal power and
+    diameter, not the 4x `agitation.md` once claimed (`docs/decisions.md`)
   - **at equal power a Rushton is the gentler of the two**: peak dissipation goes as
     `x Po^(-1/4) D^-3`, so about 0.56x the pitched blade at the same diameter, about 1.4x at
     D = T/3. Both are orders of magnitude under any damage figure. Grenville's Figs. 6-7 have the
