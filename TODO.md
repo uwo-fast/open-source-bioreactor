@@ -125,13 +125,14 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
     microalgae cultures, he answered light usually, CO2 supply can, O2 removal is secondary. The
     hybrid below answers that split, but the paper sets out to prove a standard design, so on his
     advice (2026-10-13) the reference build runs a Rushton at both positions and the hybrid waits
-  - still to come: his primary source for the proportions; `docs/agitation.md` argues for the
-    pitched pair and needs the case for the Rushton pair, with the 4x circulation figure corrected
-    (see the hybrid item); the figures `build.md`, `design-conventions.md` and `references.md`
-    quote. On jar_10L the summed torque bound at no-load is 0.489 N m of the 0.490 rating, and the
-    baffle tip deflection, already over its warning, is 5.91 mm
-  - the D/T 0.45 and 0.9 D clearance were set for the pitched blade; the textbook Rushton tank is
-    D = C = T/3. Ask whether "standard" covers the tank's proportions or only the impeller's
+  - his source, McCabe, Smith & Harriott 1993 ch. 9 (2026-10-14), gives the standard turbine's
+    D = E = T/3 and the blades D/5 by D/4; in person he asked for two, the lower T/3 off the floor and
+    the upper a further T/3 up, which is Rutherford's merging flow. Both are on the row now; his
+    written confirmation of the layout is awaited (sent 2026-10-14)
+  - still to come: `docs/agitation.md` argues for the pitched pair and needs the case for the
+    Rushton pair, with the 4x circulation figure corrected (see the hybrid item); the figures
+    `build.md` and `design-conventions.md` quote; whether the power number stays Kaiser's measured
+    4.17 or takes McCabe's 5.75 (Table 9.3), 38% more power
   - the row: height D/5, length D/4, disc 3D/4. Middleton & Ramshaw, US 5198156 "Agitators" (ICI,
     1993), gives exactly these as typical; the Czech standard behind Fořt's "standard Rushton" is
     ČSN 69 1021 (1984, withdrawn 2005), not read. Zhou 2003, which the row cites now, gives D/4 by

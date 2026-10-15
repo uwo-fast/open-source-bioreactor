@@ -19,11 +19,12 @@
 
 // Six-blade disc turbine, the reference radial impeller. Blades D/5 high and D/4 long on a 3D/4
 // disc (Middleton & Ramshaw, US 5198156); Np 4.17 +/- 0.14 measured (Kaiser 2016), where Grenville
-// 2017 lists 5.0 as typical; Fl 0.65, Grenville's typical. Tank: D = T/3, the standard tank's
-// (Rushton, Costich & Everett 1950, as McCabe & Smith 1956 p. 295 relays it), and a pair at
-// Rutherford et al.'s parallel flow, lower T/4 off the floor and the pair T/2 apart, at H = T
-// (AIChE J 1996, as Li et al. 2007 Fig. 1 relays it): each impeller keeps its own loops.
-impeller_rushton_6         = ["rushton_6",        [6,        90,          0.2,         undef], "radial", [4.17, 0.14  ], 12, [0.65, undef], [0.75, 0.25], [1 / 3, 1 / 4, 1 / 2]];
+// 2017 lists 5.0 as typical; Fl 0.65, Grenville's typical. Tank: the standard turbine's D = T/3,
+// E = T/3 off the floor (McCabe, Smith & Harriott 1993 pp. 242-243, after Rushton, Costich &
+// Everett 1950), the bottom of a pair about one D up (p. 241); the upper a further T/3 above, at
+// least the one D apart that keeps a pair's power additive (p. 253), and the equal thirds of
+// Rutherford et al.'s merging flow at H = T (AIChE J 1996, as Li et al. 2007 Fig. 1 relays it).
+impeller_rushton_6         = ["rushton_6",        [6,        90,          0.2,         undef], "radial", [4.17, 0.14  ], 12, [0.65, undef], [0.75, 0.25], [1 / 3, 1 / 3, 1 / 3]];
 
 // Four-blade 45 degree pitched blade turbine, the reference axial type. Po undef on purpose:
 // Medek's correlation gives it from the geometry and reports its envelope. h/D = 0.2 from
