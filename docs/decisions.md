@@ -192,11 +192,18 @@ outlives the commit, in `docs/`.
 - **the motor mount stays at Ø56.** It can go to 42; below that its base inserts hit the bearing
   pocket. Shrinking buys only eccentricity headroom on a vessel that is baffled anyway, and costs
   stiffness - deflection goes as the cube of height over diameter
-- **the lid carries three baffles, not four, for a port.** Four at 90° is Oldshue's reference;
+- **the lid carries three baffles, not four, for a port** (where it carries plates; see the wall
+  cage below). Four at 90° is Oldshue's reference;
   he allows three at the same total projected area, and these plates cannot widen to give it, so
   three reach 0.713 of his reference on `jar_10L` against four's 0.951. The fourth baffle's port
   went to a sampling line. Going back to four relays the whole lid, since four equally spaced do
   not land on three-at-120°
+- **`jar_10L`'s reference build carries the standard four on the wall, not the lid's three.** The
+  advising microalgae researcher asked for the standard set. Lid plates pass the mouth, so they
+  cannot reach the wall; four at T/12 against the wall cannot pass the mouth rigid. They go in on
+  a cage whose blades slide in to pass it (`docs/agitation.md`, `docs/build.md`), 0.9997 of the
+  reference area against the plates' 0.713. The lid plates stay for every other build until each
+  is checked against a cage; the pH probe moves to the 30° port under it
 - **the probes still sit beside baffles at three.** Three baffles leave the middle of each triple
   of ports free of them, but a probe there cannot sit opposite the air inlet, which lands on a
   baffle. DO opposite air in was kept, and the lid is uniform std either way

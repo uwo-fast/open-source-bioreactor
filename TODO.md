@@ -90,7 +90,17 @@ closed it and in `docs/`.
   - a bench question: run it and see whether the DO trace is spiky. If it matters, the free
     variables are the lean and the ring's height, both parameters already
 
-- [ ] **on `jar_10L` the baffle's width is the lean's to give back**
+- [ ] **bench the wall baffle cage on `jar_10L`**
+  - print one top hoop and one blade first: the bar slides free between its detents and needs a
+    firm push and a click through each; then the whole cage through the mouth, the blades out, the
+    lid on with the vent tube in the arm's slot; then 10 min at 320 rpm with no blade crept inward
+  - the slide fit (0.25 mm a side) and the detent's 0.9 mm are guesses until that; the steps are in
+    `docs/build.md`
+  - every other build still hangs lid plates: each needs the cage checked against its jar before it
+    can name `baffle_name = "wall"`, and the magnetic, airlift and ring builds are refused today
+
+- [ ] **on `jar_10L` the lid plates' width is the lean's to give back** (the magnetic build and
+      head.scad's own default; the shaft reference build carries the wall cage)
   - the plate is sized to keep 1 mm running to the blades after 2.27722 mm of lean: 3.27722 nominal,
     11.9456 mm wide. The ring's 10.3454 mm bound applies only where the ring is built, and
     `jar_1gal_180` is at the lock bore's 17.0892

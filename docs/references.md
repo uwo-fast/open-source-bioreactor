@@ -496,6 +496,13 @@ such rather than dressed up as the standard.
 <https://myengineeringtools.com/references/pages/baffle_width_and_number_calculation.html> **[VN]**
 · **read** → `scad/custom/bayonet_baffle_port.scad`
 
+**Dynamix Agitators. "Baffled by Baffles."** Technical note, uploaded 2015.
+<https://www.dynamixinc.com/wp-content/uploads/dlm_uploads/2015/12/Dynamix-Baffled-by-Baffles.pdf>
+**[VN]** · **read**
+A baffle stands a sixth of its width off the wall: J/6, which at T/12 is T/72, the wall cage's gap. The Handbook
+of Industrial Mixing's T/50 to T/72 reached this project through a trade article and is unread.
+→ `scad/custom/baffle_cage.scad`, `docs/agitation.md`
+
 **Sato, E., Ochi, Y., Horiguchi, H., Takenaka, K., Wu, J. & Parthasarathy, R. (2021).** "Effect of
 Baffle Clearance on Scale Deposition in an Agitated Vessel." _ACS Omega_ 6(37):24070-24074.
 [doi:10.1021/acsomega.1c03503](https://doi.org/10.1021/acsomega.1c03503) **[PR]** · **read**
