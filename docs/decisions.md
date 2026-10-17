@@ -201,7 +201,7 @@ outlives the commit, in `docs/`.
 - **`jar_10L`'s reference build carries the standard four on the wall, not the lid's three.** The
   advising microalgae researcher asked for the standard set. Lid plates pass the mouth, so they
   cannot reach the wall; four at T/12 against the wall cannot pass the mouth rigid. They go in on
-  a cage whose blades slide in to pass it (`docs/agitation.md`, `docs/build.md`), 0.9997 of the
+  a cage whose blades slide in to pass it (`docs/agitation.md`, `docs/build.md`), 1.00 of the
   reference area against the plates' 0.713. The lid plates stay for every other build until each
   is checked against a cage; the pH probe moves to the 30° port under it
 - **the probes still sit beside baffles at three.** Three baffles leave the middle of each triple

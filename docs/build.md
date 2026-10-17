@@ -518,33 +518,40 @@ testing anything; they are placed with the part now, for the ring and the arm bo
 
 The standard four baffles stand on the wall, 17.5 mm wide and 2.92 mm off the glass, and their
 outer edges are 204 mm apart against a 142.2 mm mouth. So the cage changes shape: two hoops of
-r 64–70 pass the mouth lying flat, and each blade slides 35 mm in and out on a radial bar at each
-end, in a dovetail channel in each hoop. `head()` echoes the fit as `baffle cage:` and the parts as
-`baffle cage print:`; the geometry is `scad/custom/baffle_cage.scad`.
+r 64–70 pass the mouth lying flat, and each blade slides 31.08 mm in and out on a radial bar at
+each end, in a dovetail channel in each hoop. A stop on each bar's outer end, on the dovetail's
+side, meets the hoop's outside and ends the travel, so a blade cannot slide through into the
+middle. Out, each bar's inner end is flush with the hoop's inside, and two half-rings dropped into
+each hoop lock the blades there: a skirt inside the hoop stands where a bar would go to slide back.
+`head()` echoes the fit as `baffle cage:` and the parts as `baffle cage print:`; the geometry is
+`scad/custom/baffle_cage.scad`.
 
-**Printing.** PETG, no supports. Both hoops print channels up: the top one turned over with its
-arm on the bed, the bottom one as it sits, on its footing. They are mirror images, not one part
-printed twice: the dovetail is on one side of the bar only, so the blade prints flat with it on
-top. A blade is 238 mm long and needs that much bed in one direction.
+**Printing.** PETG, no supports. Both hoops print channels up: the top one turned over, the
+bottom one as it sits, on its footing. They are mirror images, not one part printed twice: the
+dovetail is on one side of the bar only, so the blade prints flat with it and the stop on top. A
+blade is 239 mm long and needs that much bed in one direction. The half-rings print flange down.
 
 **Building it, on the bench.**
 
 1. Hold the hoops apart by a blade's length. Slide each blade's two bars into the channels from
    outside, tip first.
-2. Push each blade in through its two detents' clicks, 35 mm.
+2. Push each blade in until its stops meet the hoops; its detent clicks just before.
 3. Lower the cage straight down through the mouth onto the floor, the gap in the hoops toward the
-   DO probe's port.
-4. Reach in and push each blade out until it clicks, against the wall.
-5. Fit the lid. The vent tube drops into the slot in the top hoop's arm, which stops the cage
-   turning.
+   DO probe's port. Slid in, the pads stand 2.4 mm a side past the mouth (`WARNING baffle cage`),
+   the price of the stops, so they are pushed past it.
+4. Reach in and push each blade out, against the wall.
+5. Drop the two bottom half-rings onto the bottom hoop's band between its blocks, then the two top
+   ones into the top hoop, their keys in its pockets. Each skirt holds the bars' inner ends flush.
+6. Fit the lid. The vent tube drops into the slot in the top half-ring's arm, which stops the
+   cage turning.
 
 **The lid under the cage.** The hoops are Cs, and the probes hang in the gap. The pH probe goes in
 the 30° port instead of the 120°, and 120, 150 and 270° take blanks (`baffle cage ports:`).
 
-**What the bench decides.** The slide fit is 0.25 mm a side; if a bar binds, sand its flange. A
-detent is a 0.9 mm hump against 0.6 mm of slack in its channel; if it will not go through, sand it,
-and if it does not click, it needs to be taller. Whether a detent holds a blade out under flow is
-not modelled.
+**What the bench decides.** The slide fit is 0.15 mm a side; if a bar binds, sand its flange. The
+detent is a 0.5 mm hump against 0.36 mm of slack in its channel; if it will not go through, sand
+it. The stop is a 1 x 1.5 mm post on the bar's outer end, which a rough hand can break. Whether
+the pads pass the mouth without scraping is the first thing to try.
 
 ## The airlift's draft tube
 

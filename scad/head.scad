@@ -101,8 +101,8 @@ render_draft_tube = false;
 // The wall baffle cage, where the build carries one instead of lid plates
 render_baffle_cage = false;
 // Which of it: the cage in the jar, or one print file as it sits on the bed, at the origin
-baffle_cage_part_to_render = "cage"; // [cage, hoop_top, hoop_bottom, blade]
-// How far the cage's blades are slid in, as they go through the mouth; 0 is out against the glass, in mm
+baffle_cage_part_to_render = "cage"; // [cage, hoop_top, hoop_bottom, blade, lock_top_0, lock_top_1, lock_bottom_0, lock_bottom_1]
+// How far the cage's blades are slid in, as they go through the mouth; 0 is out, locked by its half-rings, in mm
 baffle_cage_slide = 0;
 // Which of the pair, or the top half of a split one, for a per-part export; whole, they are mirror images, so two different parts
 impeller_to_render = "both"; // [both, lower, upper, lower_half, upper_half]
@@ -590,8 +590,9 @@ function head_gas_line_pressure(flow, vessel_pressure, riser_length, vent_length
 //
 // The cage's hoops are Cs, and every probe has to hang in the gap: the hoops pass under the lid
 // inside the ports' reach, and a probe's body and lean reach past them. The gap is the sector
-// between two blades that holds the DO probe, less a block's width at each end. A probe outside
-// it moves into a port the lid's plates free inside it, and every port left empty takes a blank.
+// between two blades that holds the DO probe, less the hoop either side of it
+// (baffle_cage_gap()). A probe outside it moves into a port the lid's plates free inside it, and
+// every port left empty takes a blank.
 
 function head_wall_angle_in(a, from, to) = let (_x = ((a - from) % 360 + 360) % 360) _x > 0 && _x < to - from;
 function head_wall_gap(ports, blade_at) =
@@ -603,7 +604,7 @@ function head_wall_gap(ports, blade_at) =
     _k = is_undef(_a) ? undef : floor((((_a - blade_at[0]) % 360) + 360) % 360 / _step),
     _from = is_undef(_k) ? undef : blade_at[0] + _k * _step
   )
-    is_undef(_from) ? undef : [_from + baffle_cage_block(), _from + _step - baffle_cage_block()];
+    is_undef(_from) ? undef : baffle_cage_gap(_from, _step);
 function head_ports_walled(ports, blade_at) =
   let (
     _n = len(ports),
@@ -665,9 +666,14 @@ function head_print_parts(vessel, lid_flange_height, drive = "shaft", sparger = 
             str("-D blank_port_to_render=\"", f, "\""),
           ],
       ],
-      // the wall cage: two hoops, mirror images, and the blades
+      // the wall cage: two hoops, mirror images, the blades, and the half-rings that lock them out
       !_wall ? [] : [
-        for (c = [["hoop_top", 1], ["hoop_bottom", 1], ["blade", len(wall_baffle_at)]])
+        for (
+          c = [
+            ["hoop_top", 1], ["hoop_bottom", 1], ["blade", len(wall_baffle_at)],
+            ["lock_top_0", 1], ["lock_top_1", 1], ["lock_bottom_0", 1], ["lock_bottom_1", 1],
+          ]
+        )
           [str("baffle_cage_", c[0]), c[1], str("-D render_baffle_cage=true -D baffle_cage_part_to_render=\"", c[0], "\"")],
       ],
       // Ports, in the order they sit on the lid. A baffle's plate prints in pieces, so it is that
@@ -2063,6 +2069,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _cage_width = baffle_cage_width(_cage_bore);
   _cage_pad = baffle_cage_pad_proud(_cage_bore);
   _cage_travel = baffle_cage_travel(_cage_bore, _cage_mouth);
+  _cage_slid_edge = baffle_cage_slid_edge(_cage_bore, _cage_mouth);
+  _cage_slid_pad = baffle_cage_slid_pad(_cage_bore, _cage_mouth);
+  _cage_skirt = baffle_cage_skirt_inner(_cage_mouth);
   _cage_gap = _wall ? head_wall_gap(_ports, wall_baffle_at) : undef;
   _cage_surface = vessel_punt_height + _liquid_height;
   _cage_top = _cage_surface + wall_baffle_surface_clearance;
@@ -2081,7 +2090,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   // the arm catches the vent tube
   _cage_key_i = [for (i = [0:_n - 1]) if (head_port_function(_ports[i]) == "air_out") i];
   _cage_key = len(_cage_key_i) == 0 ? undef : [_cage_key_i[0] * 360 / _n, port_circle_radius, steel_tube_od(sparge_riser_tube)];
-  // what hangs inside the hoops, the probes aside: the tubes, and the thermocouple's sheath
+  // what hangs inside the hoops and their half-rings, the probes aside: the tubes, and the
+  // thermocouple's sheath
   _cage_hardware = port_circle_radius + max(concat(
     [steel_tube_od(sparge_riser_tube) / 2],
     [for (p = _ports) if (head_port_type(p) == "thermocouple") thermocouple_probe_tip_dia(head_port_probe(p)) / 2]
@@ -3210,10 +3220,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       str("A probe hangs at ", _cage_probe_at, " deg and the hoops' gap is ", _cage_gap, " deg; the hoops would cut through it.")
     );
     assert(
-      _cage_ri - _cage_hardware >= wall_baffle_hardware_clearance
-      && baffle_cage_bar_tip(_cage_mouth) - _cage_hardware >= wall_baffle_hardware_clearance,
-      str("The tubes and thermocouple reach r ", _cage_hardware, "; the hoops start at r ", _cage_ri, " and the bars' tips at r ",
-        baffle_cage_bar_tip(_cage_mouth), ", inside ", wall_baffle_hardware_clearance, " mm of them.")
+      _cage_skirt - _cage_hardware >= wall_baffle_hardware_clearance,
+      str("The tubes and thermocouple reach r ", _cage_hardware, "; the half-rings' skirts start at r ", _cage_skirt,
+        ", inside ", wall_baffle_hardware_clearance, " mm of them.")
     );
     assert(
       head_glass_radius_min(vessel, _cage_top, _cage_top + baffle_cage_hoop_height()) - _cage_ro >= wall_baffle_glass_clearance,
@@ -3236,24 +3245,29 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     );
     echo(str(
       "baffle cage: hoops of r ", _cage_ri, "-", _cage_ro, " pass the ", vessel_opening_diameter, " mm mouth flat, ",
-      _cage_mouth - _cage_ro, " mm a side; each blade slides in ", _cage_travel, " mm to go through it, and out to ",
-      _cage_bore - _cage_out - _cage_pad, " mm off the glass at its pads; the top hoop stands ",
+      _cage_mouth - _cage_ro, " mm a side; each blade slides in ", _cage_travel, " mm to its stop to go through it, and out to ",
+      _cage_bore - _cage_out - _cage_pad, " mm off the glass at its pads, where half-rings lock it; the top hoop stands ",
       wall_baffle_surface_clearance, " mm over the culture, the bottom on a ", _cage_foot, " mm footing; the gap at ",
-      _cage_gap, " deg holds the probes at ", _cage_probe_at, " deg; the arm catches air_out at ", _cage_key[0], " deg"
+      _cage_gap, " deg holds the probes at ", _cage_probe_at, " deg; a top half-ring's arm catches air_out at ", _cage_key[0], " deg"
     ));
+    if (_cage_slid_pad > _cage_mouth)
+      echo(str(
+        "WARNING baffle cage: slid in to their stops, the blades reach r ", _cage_slid_edge, " and their pads r ",
+        _cage_slid_pad, ", ", _cage_slid_pad - _cage_mouth, " mm a side past the ", vessel_opening_diameter,
+        " mm mouth, so the pads are pushed past it"
+      ));
     echo(str(
       "baffle cage ports: ", len(_cage_moved) == 0 ? "no probe moves" : str("moved ", _cage_moved, " deg"),
       "; blanks at ", _cage_blanks, " deg, where the lid's plates hung"
     ));
     echo(str(
-      "baffle cage print: hoop_top, hoop_bottom (its mirror image) and ", len(wall_baffle_at), " blades of ",
-      _cage_blade_top - baffle_cage_bar_low(_cage_bottom, _cage_foot), " mm, flat"
+      "baffle cage print: hoop_top, hoop_bottom (its mirror image), ", len(wall_baffle_at), " blades of ",
+      _cage_blade_top - baffle_cage_bar_low(_cage_bottom, _cage_foot), " mm, flat, and two half-rings for each hoop"
     ));
     echo(str(
       "baffle cage clearance: the blades' inner edge at r ", _cage_in, ", ",
-      _cage_in - head_impeller_swept_radius(impeller_diameter), " mm outside the impellers; the hoops ",
-      _cage_ri - _cage_hardware, " mm and the bars' tips ", baffle_cage_bar_tip(_cage_mouth) - _cage_hardware,
-      " mm off the tubes and thermocouple"
+      _cage_in - head_impeller_swept_radius(impeller_diameter), " mm outside the impellers; the half-rings' skirts ",
+      _cage_skirt - _cage_hardware, " mm off the tubes and thermocouple"
     ));
     echo(str(
       "baffle cage load: ", _cage_load, " N each at ", _baffle_rpm, " rpm, and the vent tube stops the cage turning with ",
@@ -4229,7 +4243,10 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     color(prints2_color)
       if (baffle_cage_part_to_render == "cage")
         translate([0, 0, _tube_floor_z])
-          baffle_cage(_cage_bore, _cage_mouth, wall_baffle_at, _cage_gap, _cage_top, _cage_bottom, _cage_foot, _cage_key, baffle_cage_slide);
+          baffle_cage(
+            _cage_bore, _cage_mouth, wall_baffle_at, _cage_gap, _cage_top, _cage_bottom, _cage_foot, _cage_key,
+            baffle_cage_slide, baffle_cage_slide == 0
+          );
       else
         baffle_cage(_cage_bore, _cage_mouth, wall_baffle_at, _cage_gap, _cage_top, _cage_bottom, _cage_foot, _cage_key, part=baffle_cage_part_to_render);
 
