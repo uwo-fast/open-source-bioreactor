@@ -37,7 +37,7 @@ export_manifest() {
     cat > "$out.scad" <<SCAD
 include <$PWD/scad/bioreactor.scad>
 _v = reactor_vessel;
-for (p = head_print_parts(_v, lid_flange_height, drive_name, sparger_name, lid_center_name))
+for (p = head_print_parts(_v, lid_flange_height, drive_name, sparger_name, lid_center_name, baffle_name))
   echo(str("PART|scad/head.scad|", p[0], "|", p[1], "|", p[2]));
 for (p = frame_print_parts(n_rods, drive_name, frame_riser_height(_v, _reactor_light, _build_magnet, drive_name) > 0, _build_heat_pad))
   echo(str("PART|scad/frame.scad|", p[0], "|", p[1], "|", p[2]));

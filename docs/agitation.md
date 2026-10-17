@@ -302,6 +302,8 @@ either, though the set has not been rendered again at it.
 ### The three modes
 
 **Baffled stirred** — `jar_10L`, `jar_1gal_180`. The reference configuration; nothing here changes it.
+`jar_10L`'s reference build carries the four on the wall that the table counts; its magnetic build
+and `jar_1gal_180` hang three plates from the lid.
 
 **Unbaffled eccentric stirred** — `jar_6p5gal`. It is the family's worst case today: the largest
 vessel, unbaffled and centred, which Montante measured at flow number **0.25, 65 % below the same
@@ -468,6 +470,31 @@ the airlift. What `head()` reports for each follows; the ring's figures are a `j
   commanded speed.
 
 ### Baffles
+
+`jar_10L_220x305`'s reference build carries the standard four on the wall, on a cage
+(`baffle_name = "wall"`). Every other build hangs plates from the lid; the first group of bullets is
+the cage, the rest the plates.
+
+- **Four at T/12, T/72 off the glass, floor to surface.** The blades are 17.5 mm wide at 0, 90, 180
+  and 270°, out of the lit windows, 2.92 mm off the wall, and 229.5 mm of each is under the
+  culture: **1.00** of Oldshue's four-at-T/12 reference area. T/12 is McCabe's standard turbine
+  (p. 243). The gap is Dynamix's J/6 (read), which is T/72, inside the Handbook of Industrial
+  Mixing's T/50 to T/72 (relayed through a trade article, not read); McCabe's Fig. 9.7 draws them
+  flush.
+- **The cage changes shape to pass the mouth.** The blades' outer edges are 204 mm apart and the
+  mouth is 142.2 mm, so no rigid cage goes in. Two hoops of r 64–70 pass it lying flat, 1.1 mm a
+  side. Each blade hangs between them on a radial bar at each end that slides in a dovetail channel
+  in the hoop: slid in 31.08 mm to a stop, the cage goes straight down, its pads pushed 2.4 mm a
+  side past the mouth; inside, each blade is pushed out to 0.4 mm off the glass at its pads, and
+  half-rings dropped into the hoops lock it there. `docs/build.md` has the parts and the assembly.
+- **The lid moves one probe.** The hoops are Cs, and the probes hang in the gap between the 0 and
+  90° blades. The pH probe moves from the 120° port to the 30° port a plate freed; 120, 150 and
+  270° take blanks. Any port takes any function on this lid, so the move is a re-plug.
+- **The top hoop stands 1 mm over the culture**, out of the flow. An arm on one of its half-rings,
+  keyed into the hoop, catches the vent tube, which stops the cage turning: at the no-load 420 rpm each blade carries 0.29 N and
+  the tube 1.93 N at r 56.5, by the same `T / (n · r)` the plates use, reasoned, not cited.
+- **Bench-decided, not modelled:** the slide fit, how hard the detent pushes through, and whether
+  the pads pass the mouth.
 
 - **Three at 120°, one fewer than Oldshue's reference count, and the vessel is under-baffled.** His
   reference is four plates at T/12 running the liquid depth (McCabe's standard turbine has four at

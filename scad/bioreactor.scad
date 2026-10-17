@@ -106,6 +106,9 @@ lid_center_name = "auto"; // [auto, bearing, plain]
 // What the gas comes out of: a ring between the impellers, or an arm under the lower one; auto is
 // the arm under a drive and the ring under none
 sparger_name = "auto"; // [auto, ring, cap]
+// What breaks the swirl: plates hung from the lid, or the standard four on the wall, on a cage that
+// goes in through the mouth; auto is the lid's plates
+baffle_name = "auto"; // [auto, lid, wall]
 // The stir bar a magnetic drive turns; auto takes the head's own row
 stir_bar_name = "auto"; // [auto, 25x8, 38x8, 50x8]
 // The magnets on the fan hub, two; auto takes the frame's own row
@@ -220,6 +223,7 @@ reactor_build = [
   ["lid_center", lid_center_name],
   ["stir_bar", _build_stir_bar],
   ["sparger", sparger_name],
+  ["baffles", baffle_name],
 ];
 
 _reactor_light = is_undef(_build_light)
@@ -248,7 +252,7 @@ _designated = [
     ["shaft", shaft_name], ["plug o-ring", plug_oring_name], ["motor", motor_name],
     ["gasket sheet", gasket_sheet_name], ["DO probe", do_probe_name], ["pH probe", ph_probe_name],
     ["light", strip_light_name], ["stir bar", stir_bar_name], ["magnets", stir_magnet_name],
-    ["sparger", sparger_name], ["lid centre", lid_center_name],
+    ["sparger", sparger_name], ["lid centre", lid_center_name], ["baffles", baffle_name],
   ]) if (d[1] != "auto") str(d[0], " ", d[1])
 ];
 function _joined(v, i = 0) = i >= len(v) ? "" : str(i == 0 ? "" : ", ", v[i], _joined(v, i + 1));

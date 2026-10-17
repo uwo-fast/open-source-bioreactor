@@ -9,6 +9,12 @@ draw.io. It was in the repo and referenced by nothing, which is how a diagram go
 
 ## Why three baffles, and why they set everything else
 
+**Under the wall cage the plates' three ports are freed.** A build naming `baffle_name = "wall"`
+(`jar_10L_220x305`'s reference build) carries no lid plates. Its hoops are Cs whose gap is the
+sector between the 0 and 90° blades, and every probe has to hang there, so `head_ports_walled()`
+moves the pH probe from 120° to the freed 30° port and puts blanks at 120, 150 and 270°. What
+follows describes the plate lid, which every other build carries.
+
 An equally spaced count has to divide the port circle. On twelve ports that allows 2, 3, 4, 6 or
 12 baffles, and `head()` asserts it rather than trusting the table.
 
