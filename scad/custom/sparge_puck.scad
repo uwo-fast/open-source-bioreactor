@@ -35,8 +35,8 @@ puck_eps = 0.01;
 outlet = "holes"; // [holes, porous]
 // Hole diameter, in mm: the drill each hole is finished with after printing
 hole_diameter = 3;
-// How many holes; "auto" takes the most that keeps every hole flowing (see puck_hole_count())
-hole_count = "auto";
+// How many holes; 0 takes the most that keeps every hole flowing at bench_flow (see puck_hole_count())
+hole_count = 0;
 // How far one finished hole may differ from the next, in mm. Reasoned, not cited: measure it
 hole_scatter = 0.1;
 // How many times the drop through a hole has to exceed what that scatter moves the launch
@@ -79,7 +79,9 @@ sparge_hole_probes = false;
 
 // The riser and the screw that grips it are the reactor's own rows, so a socket that fits here
 // fits the riser the lid drops. The allowance and the depth are the puck's: printing this is how
-// the 0.2 mm the lid's sockets carry gets bench-checked.
+// the 0.2 mm the lid's sockets carry gets bench-checked. They copy head.scad's sparge_plug_screw,
+// sparge_socket_allow, sparge_socket_depth and sparge_cap_boss_wall, which this file cannot read;
+// change them together.
 puck_riser = steel_tube_welded_4x0p5;
 puck_set_screw = set_screw_m4x6_316;
 puck_socket_allow = 0.2;
@@ -134,7 +136,7 @@ function puck_hole_count(flow, d, scatter, margin) =
     max(1, floor(_area / (PI / 4 * pow(d / 1000, 2))));
 
 function puck_holes(count, flow, d, scatter, margin) =
-  is_num(count) ? count : puck_hole_count(flow, d, scatter, margin);
+  count > 0 ? count : puck_hole_count(flow, d, scatter, margin);
 
 // Holes on one circle, so every hole is the same distance from the feed, at the pitch floor
 // centre to centre. One hole sits on the axis.
@@ -278,9 +280,15 @@ module sparge_puck_report(outlet_kind, inlet_kind, count, d, flow, depth) {
   _bore_v = stirred_tank_sparge_bore_velocity(_q, puck_feed_bore(), 1);
   // the pump's curve at this flow, from the conservative end of its free-flow band
   _avail = gas_pump_back_pressure_for(air_pump_free_flow_min(puck_pump), air_pump_dead_head(puck_pump), flow);
+  // The swept profiles leave out the feed bore, which is air, and the ribs, which are plastic
+  // standing in the plenum. The holes are left out: a few cubic millimetres of water.
+  _bore = PI / 4 * pow(puck_feed_bore(), 2)
+    * (inlet_kind == "socket" ? puck_boss_height(inlet_kind) - puck_socket_depth : puck_boss_height(inlet_kind) + puck_barb_length());
+  _ribs = outlet_kind != "porous" ? 0
+    : porous_ribs * (puck_wall / 2) * (puck_plenum_radius(outlet_kind, count, d) - puck_feed_bore()) * puck_plenum_height;
   _solid = puck_swept_volume(puck_outer_profile(outlet_kind, inlet_kind, count, d))
-    - puck_swept_volume(puck_plenum_profile(outlet_kind, count, d));
-  _air = puck_swept_volume(puck_plenum_profile(outlet_kind, count, d));
+    - puck_swept_volume(puck_plenum_profile(outlet_kind, count, d)) - _bore + _ribs;
+  _air = puck_swept_volume(puck_plenum_profile(outlet_kind, count, d)) + _bore - _ribs;
 
   if (outlet_kind == "holes") {
     _v = stirred_tank_orifice_velocity(_q, count, d);
@@ -299,10 +307,12 @@ module sparge_puck_report(outlet_kind, inlet_kind, count, d, flow, depth) {
       "sparge puck bubbles: ", _db, " mm at formation by Tate's law, a floor; ",
       stirred_tank_bubble_rate(_q, _db), " a second. Finish each hole with a ", d, " mm drill"
     ));
+    // 4 sigma / d is the peak each bubble passes through as it launches, not a mean, so a damped
+    // gauge reads between the drop alone and the drop with it.
     echo(str(
-      "sparge puck gauge: under ", depth, " mm of water the plenum should read ", _head + _cap + _drop,
-      " Pa: ", _head, " of water, ", _cap, " to launch and ", _drop, " through the hole; what it reads over ",
-      _head, " is the face's cost"
+      "sparge puck gauge: under ", depth, " mm of water the plenum reads ", _head + _drop, " to ", _head + _cap + _drop,
+      " Pa: ", _head, " of water, ", _drop, " through the hole, and up to ", _cap, " at each bubble's launch; what it reads over ",
+      _head, " is the face's cost, once the feed's own loss at this flow is taken off"
     ));
     if (len(_dep) > 0)
       echo(str("WARNING sparge puck: extrapolated on ", _dep));
@@ -323,10 +333,16 @@ module sparge_puck_report(outlet_kind, inlet_kind, count, d, flow, depth) {
       "sparge puck gauge: under ", depth, " mm of water what the plenum reads over ", _head,
       " Pa is the face's cost; read it at three flows, since one point cannot say whether the face is linear"
     ));
+    // Where the face's line, linear in flow, crosses the pump's falling one over the water's head.
+    _k = puck_porous_pressure(1, _area); // Pa per L/min
+    _ff = air_pump_free_flow_min(puck_pump);
+    _dh = air_pump_dead_head(puck_pump);
+    _passes = (_dh - _head) / (_k + _dh / _ff);
     if (_p + _head >= _avail)
       echo(str(
         "WARNING sparge puck: borrowed, ", _p + _head, " Pa of face and water is past the ", _avail,
-        " Pa the pump pushes there, so ", flow, " L/min would not pass; the area that would is ", puck_porous_area_for(flow, _avail - _head), " mm2"
+        " Pa the pump pushes there, so ", flow, " L/min would not pass; flat out the pump would push ", _passes,
+        " L/min through it, and the open area that would pass ", flow, " is ", puck_porous_area_for(flow, _avail - _head), " mm2"
       ));
   }
 
@@ -358,7 +374,22 @@ function puck_porous_area_for(flow, pressure) = palfy_area() * (palfy_pressure()
 
 // ----- the part, as set above -----
 
-_count = puck_holes(hole_count, bench_flow, hole_diameter, hole_scatter, even_flow_margin);
+// What cannot be built at all, before anything divides by it.
+assert(
+  hole_count >= 0 && hole_count == floor(hole_count),
+  str("sparge_puck: hole_count is ", hole_count, "; a whole number of holes, or 0 for the most that all flow")
+);
+assert(
+  outlet != "holes" || hole_scatter > 0 && even_flow_margin > 0,
+  str("sparge_puck: no hole count follows from a ", hole_scatter, " mm scatter and a margin of ", even_flow_margin, "; both are over 0")
+);
+// the ribs run out from the feed bore, so the face has to reach past it
+assert(
+  outlet != "porous" || porous_diameter / 2 > puck_feed_bore(),
+  str("sparge_puck: a ", porous_diameter, " mm porous face does not reach past the ", puck_feed_bore(), " mm the ribs start at")
+);
+
+_count =puck_holes(hole_count, bench_flow, hole_diameter, hole_scatter, even_flow_margin);
 sparge_puck(outlet, inlet, _count, hole_diameter);
 if (sparge_hole_probes && outlet == "holes")
   sparge_puck_hole_probes(_count, hole_diameter);
