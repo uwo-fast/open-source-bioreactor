@@ -3239,7 +3239,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     );
     echo(str(
       "baffle cage: hoops of r ", _cage_ri, "-", _cage_ro, " pass the ", vessel_opening_diameter, " mm mouth flat, ",
-      _cage_mouth - _cage_ro, " mm a side; each blade slides in ", _cage_travel, " mm to go through it, and out to ",
+      _cage_mouth - _cage_ro, " mm a side; each blade slides in ", _cage_travel, " mm to its stop, its pads then at r ",
+      baffle_cage_slid_pad(_cage_bore, _cage_mouth), ", and out to ",
       _cage_bore - _cage_out - _cage_pad, " mm off the glass at its pads; the top hoop stands ",
       wall_baffle_surface_clearance, " mm over the culture, the bottom on a ", _cage_foot, " mm footing; the gap at ",
       _cage_gap, " deg holds the probes at ", _cage_probe_at, " deg; the arm catches air_out at ", _cage_key[0], " deg"

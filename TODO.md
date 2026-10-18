@@ -94,6 +94,10 @@ closed it and in `docs/`.
   - the first print slid and held, but its slide was loose, and so was the 0° joint, where the
     hoops' C ended at the dovetail's lip; the fit is now 0.15 mm a side, the detents 0.5 mm, and
     the gap starts past that lip's ramp, at 17°
+  - a blade could also slide through its hoop into the middle; each bar's outer end is now closed
+    under the flange and stops against the hoop; and a third detent at each bar's tip clicks in
+    inside the hoop, so with the out-detent the blade is held out both ways, each steep on the face
+    toward the hoop
   - print one top hoop and one blade first: the bar slides free between its detents and needs a
     firm push and a click through each; then the whole cage through the mouth, the blades out, the
     lid on with the vent tube in the arm's slot; then 10 min at 320 rpm with no blade crept inward

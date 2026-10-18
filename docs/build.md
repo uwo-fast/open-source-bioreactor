@@ -518,22 +518,25 @@ testing anything; they are placed with the part now, for the ring and the arm bo
 
 The standard four baffles stand on the wall, 17.5 mm wide and 2.92 mm off the glass, and their
 outer edges are 204 mm apart against a 142.2 mm mouth. So the cage changes shape: two hoops of
-r 64–70 pass the mouth lying flat, and each blade slides 35 mm in and out on a radial bar at each
-end, in a dovetail channel in each hoop. `head()` echoes the fit as `baffle cage:` and the parts as
-`baffle cage print:`; the geometry is `scad/custom/baffle_cage.scad`.
+r 64–70 pass the mouth lying flat, and each blade slides 30.6 mm in and out on a radial bar at each
+end, in a dovetail channel in each hoop. Each bar's outer end is closed under the flange, so it
+stops against the hoop and a blade cannot slide through into the middle. `head()` echoes the fit
+as `baffle cage:` and the parts as `baffle cage print:`; the geometry is
+`scad/custom/baffle_cage.scad`.
 
 **Printing.** PETG, no supports. Both hoops print channels up: the top one turned over with its
 arm on the bed, the bottom one as it sits, on its footing. They are mirror images, not one part
 printed twice: the dovetail is on one side of the bar only, so the blade prints flat with it on
-top. A blade is 238.2 mm long and needs that much bed in one direction.
+top. A blade is 238.7 mm long and needs that much bed in one direction.
 
 **Building it, on the bench.**
 
 1. Hold the hoops apart by a blade's length. Slide each blade's two bars into the channels from
-   outside, tip first.
-2. Push each blade in through its two detents' clicks, 35 mm.
-3. Lower the cage straight down through the mouth onto the floor, the gap in the hoops toward the
-   DO probe's port.
+   outside, tip first, until the detent at each tip clicks out of the hoop's inside: the blade is
+   out, held both ways between that detent and the one outside the hoop.
+2. Push each blade in through its two detents' clicks to its stop, 30.6 mm.
+3. Lower the cage through the mouth onto the floor, bending the hoops where the pads catch: slid
+   in, they stand 2.9 mm a side past it. Turn the gap in the hoops toward the DO probe's port.
 4. Reach in and push each blade out until it clicks, against the wall.
 5. Fit the lid. The vent tube drops into the slot in the top hoop's arm, which stops the cage
    turning.

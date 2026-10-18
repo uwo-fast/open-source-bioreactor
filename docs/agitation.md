@@ -484,9 +484,11 @@ the cage, the rest the plates.
 - **The cage changes shape to pass the mouth.** The blades' outer edges are 204 mm apart and the
   mouth is 142.2 mm, so no rigid cage goes in. Two hoops of r 64–70 pass it lying flat, 1.1 mm a
   side. Each blade hangs between them on a radial bar at each end that slides in a dovetail channel
-  in the hoop: slid in 35 mm, the cage goes straight down; inside, each blade is pushed out to
-  0.4 mm off the glass at its pads. Two detents on each bar hold it out, and hold it in on the way
-  down. `docs/build.md` has the parts and the assembly.
+  in the hoop: slid in 30.6 mm to a stop, closed under the bar's flange at its outer end, the
+  cage goes down with the hoops bent where the pads catch; inside, each blade is pushed out to
+  0.4 mm off the glass at its pads. Three detents on each bar hold it: two straddle the hoop to
+  hold it out both ways, and one holds it in on the way down. `docs/build.md` has the parts and
+  the assembly.
 - **The lid moves one probe.** The hoops are Cs, and the probes hang in the gap between the 0 and
   90° blades. The pH probe moves from the 120° port to the 30° port a plate freed; 120, 150 and
   270° take blanks. Any port takes any function on this lid, so the move is a re-plug.

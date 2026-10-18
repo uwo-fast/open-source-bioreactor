@@ -7,12 +7,15 @@
  * The standard baffle set - four at T/12, T/72 off the wall, floor to surface - on a jar whose
  * mouth is narrower than the blades are apart. Two rigid hoops pass the mouth lying flat. Each
  * blade hangs between them on a radial bar at each end, which slides in a dovetail channel in the
- * hoop: slid in, every part of the cage is inside the hoops and goes straight down through the
- * mouth; inside, each blade is pushed out until its pads stop just short of the glass.
+ * hoop: slid in, the cage goes down through the mouth, the hoops bent if they have to be;
+ * inside, each blade is pushed out until its pads stop just short of the glass.
  *
- * The dovetails hold the cage together. Two humps on each bar are detents: each is taller than
- * the bar's slack in its channel, so it is pushed through and clicks out of it, one with the
- * blade out against the wall and one with it slid in. The top hoop stands above the culture and
+ * The dovetails hold the cage together. Each bar's outer end is closed under the flange, so it
+ * meets the hoop's outside and a blade cannot slide through into the middle. Three humps on
+ * each bar are detents: each is taller than the bar's slack in its channel, so it is pushed
+ * through and clicks out of it. With the blade out against the wall, one sits outside the hoop and
+ * one, at the bar's tip, inside it, each steep on the face toward the hoop, so the blade is held
+ * both ways; the third holds it slid in. The top hoop stands above the culture and
  * carries an arm that catches a tube from the lid, so the cage cannot turn. It is a C: its gap
  * is where the probes hang. The bottom hoop is the top one mirrored in z, on a footing, without
  * the arm.
@@ -82,6 +85,10 @@ function baffle_cage_hump_height() = 0.5;
 function baffle_cage_hump_ramp() = 1.5;
 function baffle_cage_hump_flat() = 1;
 function baffle_cage_hump_play() = 0.2; // free travel before a hump bears on its channel
+// the out-detent's inner face, which a blade pushed back in has to climb: 45 deg
+function baffle_cage_hump_back() = baffle_cage_hump_height();
+// the bar's outer end is closed under the flange over this much, so the lip it meets stops the slide
+function baffle_cage_stop_length() = 1.5;
 // the arm: its width, how far inboard of the tube it starts, its root fillets
 function baffle_cage_arm_width() = 12;
 function baffle_cage_arm_reach() = 6.5;
@@ -95,10 +102,12 @@ function baffle_cage_inner_edge(bore_radius) = baffle_cage_outer_edge(bore_radiu
 function baffle_cage_pad_proud(bore_radius) = baffle_cage_wall_gap(bore_radius) - baffle_cage_pad_clearance();
 function baffle_cage_hoop_outer(mouth_radius) = mouth_radius - baffle_cage_mouth_clearance();
 function baffle_cage_hoop_inner(mouth_radius) = baffle_cage_hoop_outer(mouth_radius) - baffle_cage_hoop_width();
-// slid in by this, every part of a blade is inside the hoops' outer edge
+// slid in until the closed end meets the hoop's outside
 function baffle_cage_travel(bore_radius, mouth_radius) =
-  baffle_cage_outer_edge(bore_radius) + baffle_cage_pad_proud(bore_radius) + baffle_cage_pad_clearance()
-  - baffle_cage_hoop_outer(mouth_radius);
+  baffle_cage_outer_edge(bore_radius) - baffle_cage_stop_length() - baffle_cage_hoop_outer(mouth_radius);
+// the pads' reach, slid in to the stop
+function baffle_cage_slid_pad(bore_radius, mouth_radius) =
+  baffle_cage_outer_edge(bore_radius) + baffle_cage_pad_proud(bore_radius) - baffle_cage_travel(bore_radius, mouth_radius);
 function baffle_cage_bar_tip(mouth_radius) = baffle_cage_hoop_inner(mouth_radius) - baffle_cage_tip_overlap();
 // the bar's top, in the top hoop's frame: z 0 is its underside, where the channel opens
 function baffle_cage_bar_top() = baffle_cage_channel_depth() - baffle_cage_fit();
@@ -242,6 +251,9 @@ module baffle_cage_blade(bore_radius, mouth_radius, top_z, bottom_z, foot) {
   hh = baffle_cage_hump_height();
   hr = baffle_cage_hump_ramp();
   hl = baffle_cage_hump_length();
+  hk = baffle_cage_hump_back();
+  hf = baffle_cage_hump_flat();
+  sl = baffle_cage_stop_length();
   bt = baffle_cage_bar_top();
   h = baffle_cage_hoop_height();
   ro = baffle_cage_hoop_outer(mouth_radius);
@@ -249,17 +261,31 @@ module baffle_cage_blade(bore_radius, mouth_radius, top_z, bottom_z, foot) {
   z_bt = baffle_cage_blade_top(top_z);
   z_bb = baffle_cage_blade_bottom(bottom_z, foot);
   b_ref = bottom_z + foot + h; // the bottom hoop's channel mouth, its frame's z 0 mirrored
-  // the out-detent just outside the hoop with the blade out; the in-detent just inside it slid in
+  // the out-detent just outside the hoop with the blade out; the in-detent just inside it slid in;
+  // the tip detent just inside it with the blade out, from the bar's tip
   hump_at = [
     ro + baffle_cage_hump_play(),
     ri - baffle_cage_hump_play() - hl + baffle_cage_travel(bore_radius, mouth_radius),
+    r_tip,
   ];
+  tip_ramp = ri - baffle_cage_hump_play() - hk - hf - r_tip;
+  assert(tip_ramp >= hh, "baffle_cage: the tip detent's ramp is steeper than its back; the bar's tip is too close to the hoop");
 
   // a profile in (r, z) made into a piece of the plate
   module in_plate(y0 = -tb / 2, y1 = tb / 2) translate([0, y1, 0]) rotate([90, 0, 0]) linear_extrude(y1 - y0) children();
-  module bar() rotate([90, 0, 90]) translate([0, 0, r_tip]) linear_extrude(r_out - r_tip) baffle_cage_bar_2d();
-  module humps() for (r0 = hump_at) in_plate(-tb / 2, tb / 2 + baffle_cage_flange())
-    polygon([[r0, bt - 0.01], [r0 + hr, bt + hh], [r0 + hl - hr, bt + hh], [r0 + hl, bt - 0.01]]);
+  module bar() rotate([90, 0, 90]) {
+    translate([0, 0, r_tip]) linear_extrude(r_out - r_tip) baffle_cage_bar_2d();
+    // the closed end: the undercut under the flange filled
+    translate([0, 0, r_out - sl]) linear_extrude(sl) translate([-tb / 2, 0]) square([tb + baffle_cage_flange(), bt]);
+  }
+  // The out-detent steep on its inner face, which holds the blade out; the tip detent steep on its
+  // outer face, which holds it in, and ramped to the tip, which leads it through the channel once on
+  // the bench; the in-detent even.
+  module humps() in_plate(-tb / 2, tb / 2 + baffle_cage_flange()) {
+    polygon([[hump_at[0], bt - 0.01], [hump_at[0] + hk, bt + hh], [hump_at[0] + hk + hf, bt + hh], [hump_at[0] + hk + hf + hr, bt - 0.01]]);
+    polygon([[hump_at[1], bt - 0.01], [hump_at[1] + hr, bt + hh], [hump_at[1] + hl - hr, bt + hh], [hump_at[1] + hl, bt - 0.01]]);
+    polygon([[hump_at[2], bt - 0.01], [hump_at[2] + tip_ramp, bt + hh], [hump_at[2] + tip_ramp + hf, bt + hh], [hump_at[2] + tip_ramp + hf + hk, bt - 0.01]]);
+  }
   // the corner at p, between a bar running inward and the blade's inner edge running away in dz
   module corner_fillet(p, dz) difference() {
     translate([p[0] - rf, dz > 0 ? p[1] : p[1] - rf]) square([rf + 0.01, rf]);
