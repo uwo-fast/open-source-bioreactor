@@ -517,39 +517,34 @@ testing anything; they are placed with the part now, for the ring and the arm bo
 ## The wall baffle cage
 
 The standard four baffles stand on the wall, 17.5 mm wide and 2.92 mm off the glass, and their
-outer edges are 204 mm apart against a 142.2 mm mouth. Two C-shaped hoops carry a radial lug at
-each blade, and each blade hangs between them on a radial bar at each end that slides 18.8 mm in a
-dovetail channel in the lug. The channel is closed at its inner end: slid in against it, a blade is
-wholly inside the lugs' reach. Out, a tooth on a flexible finger in each bar snaps up into a window
-through the lug, which holds the blade 0.4 mm off the glass at its pads. The tooth's outer face is
-square and stops the blade going further out; its inner face is 45°, so a firm push in releases it.
-The hoops are 172.6 mm across their lugs, so they are bent to pass the mouth. `head()` echoes the
-fit as `baffle cage:` and the parts as `baffle cage print:`; the geometry is
-`scad/custom/baffle_cage.scad`.
+outer edges are 204 mm apart against a 142.2 mm mouth. So the cage changes shape: two hoops of
+r 64–70 pass the mouth lying flat, and each blade slides 35 mm in and out on a radial bar at each
+end, in a dovetail channel in each hoop. `head()` echoes the fit as `baffle cage:` and the parts as
+`baffle cage print:`; the geometry is `scad/custom/baffle_cage.scad`.
 
-**Printing.** PETG, no supports. Both hoops print channels up: the top one turned over, the
-bottom one as it sits. They are mirror images, not one part printed twice: the dovetail is on one
-side of the bar only, so the blade prints flat with it on top. A blade is 241 mm long and needs
-that much bed in one direction.
+**Printing.** PETG, no supports. Both hoops print channels up: the top one turned over with its
+arm on the bed, the bottom one as it sits, on its footing. They are mirror images, not one part
+printed twice: the dovetail is on one side of the bar only, so the blade prints flat with it on
+top. A blade is 238.2 mm long and needs that much bed in one direction.
 
 **Building it, on the bench.**
 
 1. Hold the hoops apart by a blade's length. Slide each blade's two bars into the channels from
-   outside, tip first; each tooth clicks through its window on the way.
-2. Push each blade in until its bars' tips meet the channels' ends.
-3. Bend the hoops and lower the cage through the mouth onto the floor, the gap in the hoops toward
-   the DO probe's port.
-4. Reach in and push each blade out until both its teeth click into their windows.
-5. Fit the lid. The vent tube drops into the slot in the arm on the top hoop's 0° lug, which stops
-   the cage turning.
+   outside, tip first.
+2. Push each blade in through its two detents' clicks, 35 mm.
+3. Lower the cage straight down through the mouth onto the floor, the gap in the hoops toward the
+   DO probe's port.
+4. Reach in and push each blade out until it clicks, against the wall.
+5. Fit the lid. The vent tube drops into the slot in the top hoop's arm, which stops the cage
+   turning.
 
 **The lid under the cage.** The hoops are Cs, and the probes hang in the gap. The pH probe goes in
 the 30° port instead of the 120°, and 120, 150 and 270° take blanks (`baffle cage ports:`).
 
-**What the bench decides.** The slide fit is 0.15 mm a side; if a bar binds, sand its flange.
-Slid in, each finger is held down 0.65 mm by the channel's ceiling; whether a 0.8 mm tooth on a
-2 mm finger holds a blade out, and releases to a push, is the first thing to try. Whether the
-hoops bend through the mouth is the second.
+**What the bench decides.** The slide fit is 0.15 mm a side; if a bar binds, sand its flange. A
+detent is a 0.5 mm hump against 0.36 mm of slack in its channel; if it will not go through, sand
+it, and if it does not click, it needs to be taller. Whether a detent holds a blade out under flow is
+not modelled.
 
 ## The airlift's draft tube
 

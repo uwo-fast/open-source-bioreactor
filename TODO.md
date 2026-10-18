@@ -91,14 +91,14 @@ closed it and in `docs/`.
     variables are the lean and the ring's height, both parameters already
 
 - [ ] **bench the wall baffle cage on `jar_10L`**
-  - two prints so far: the first slid but ran loose at the 0° channel and had nothing holding a
-    blade out; the second's stop nub broke and its half-rings would not stay in. The hoops now
-    carry lugs with closed-ended channels, and a tooth on each bar snaps into a window in the lug
-  - print one top hoop and one blade: the bar slides in to the channel's end, and out until the
-    tooth clicks; then the whole cage, hoops bent, through the mouth, the blades out, the lid on
-    with the vent tube in the arm's slot; then 10 min at 320 rpm
-  - the slide fit (0.15 mm a side) and the tooth's 0.8 mm on a 2 mm finger are guesses until that;
-    the steps are in `docs/build.md`
+  - the first print slid and held, but its slide was loose, and so was the 0° joint, where the
+    hoops' C ended at the dovetail's lip; the fit is now 0.15 mm a side, the detents 0.5 mm, and
+    the gap starts past that lip's ramp, at 17°
+  - print one top hoop and one blade first: the bar slides free between its detents and needs a
+    firm push and a click through each; then the whole cage through the mouth, the blades out, the
+    lid on with the vent tube in the arm's slot; then 10 min at 320 rpm with no blade crept inward
+  - the slide fit (0.15 mm a side) and the detents' 0.5 mm are guesses until that; the steps are in
+    `docs/build.md`
   - every other build still hangs lid plates: each needs the cage checked against its jar before it
     can name `baffle_name = "wall"`, and the magnetic, airlift and ring builds are refused today
 
