@@ -603,7 +603,7 @@ function head_print_parts(vessel, lid_flange_height, drive = "shaft", sparger = 
       // what plugs the pocket the shaft drive would fill
       !head_blank_carried(drive, lid_center) ? [] : [["bearing_blank", 1, "-D render_bearing_blank=true"]],
       drive != "airlift" ? [] : [["draft_tube", 1, "-D render_draft_tube=true"]],
-      [[_sparger == "ring" ? "sparge_ring" : "sparge_cap", 1, "-D render_sparger=true"]],
+      [[str("sparge_", _sparger), 1, "-D render_sparger=true"]],
       // One blank per interface the lid carries, to close a port nothing is in.
       [
         for (f = head_port_interface_names(_ports))
@@ -728,9 +728,10 @@ baffle_joint_allowance = 0.1;
 // mouth. Hole size and count are for spacing and against fouling, not for even flow (Rewatkar &
 // Joshi 1993: negligible effect near the impeller).
 
-// A ring between the impellers, or an arm off the air inlet's riser ending under the lower
-// impeller with its holes down; auto is the arm under a drive and the ring with none
-head_sparger = "auto"; // [auto, ring, cap]
+// A ring between the impellers, an arm off the air inlet's riser ending under the lower impeller
+// with its holes down, or a loop: that riser's ring, hung under the lower impeller; auto is the
+// arm under a drive and the ring with none
+head_sparger = "auto"; // [auto, ring, cap, loop]
 function head_sparger_selected(sparger, drive) = sparger != "auto" ? sparger : head_gas_driven(drive) ? "ring" : "cap";
 // how far the arm's holes sit below the lower impeller's underside, in mm
 sparge_cap_drop = 10;
@@ -1027,11 +1028,38 @@ function head_sparge_cap_reach(mouth, shaft_diameter) =
 function head_sparge_cap_holes(reach) =
   max(1, floor(sparge_arm_bored(reach, sparger_bend(sparge_tube()), sparger_plug_depth()) / (sparger_pitch_ratio_floor() * sparge_hole_diameter)));
 
+// The loop: the arm's riser, elbow turned inward, closed into a ring round the shaft at the arm's
+// height, so the gas comes up into the lower impeller all the way round rather than on one side.
+// It hangs from that riser alone. Birch & Ahmed's 1.4 D where nothing is in the way; but it hangs
+// among the baffles, which come off the lid first, so it yields to them: inboard of their inner
+// edge by the lean they can swing through at its height and the ring's static clearance. Taken as
+// though the plates reach its height, the safe side. And it has to pass the mouth.
+function head_lid_carries_baffles(mouth) =
+  len([for (p = head_ports_for(mouth)) if (head_port_type(p) == "baffle") p]) > 0;
+// Each bound as [what sets it, radius]; the loop takes the least.
+function head_sparge_loop_bounds(mouth, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter) =
+  concat(
+    [
+      ["Birch & Ahmed's 1.4 D", stirred_tank_sparge_ring_equal_volume_ratio() * impeller_diameter / 2],
+      ["the mouth", mouth / 2 - sparge_ring_clearance - sparge_tube_extent() / 2],
+    ],
+    !head_lid_carries_baffles(mouth) ? [] : [[
+      "the baffles",
+      head_port_circle_radius(mouth)
+      - head_baffle_width(mouth, impeller_diameter, head_baffle_lean(lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter), false) / 2
+      - head_baffle_lean_at(lid_flange_height, vessel_internal_height, vessel_punt_height, head_sparge_cap_z(impeller_diameter))
+      - sparge_ring_clearance - sparge_tube_extent() / 2,
+    ]]
+  );
+function head_sparge_loop_radius(mouth, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter) =
+  min([for (b = head_sparge_loop_bounds(mouth, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter)) b[1]]);
+
 // Everything AXISYMMETRIC a hanging run has to miss, as annuli in the (radius, height)
 // half-plane. See utils/meridian.scad for why that is enough. The arm is not on the list: it
 // stands at the air inlet's bearing alone, where nothing else hangs, so an annulus over its
 // radial span would report a collision with every probe at every other port. What it does have
-// to miss is checked where it is placed - the floor, the shaft and the stir bar.
+// to miss is checked where it is placed - the floor, the shaft and the stir bar. The loop's ring
+// IS on the list, being a ring round the axis; its feed run is the arm's case.
 function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, sparger = "ring", ring_z = undef, ring_r = undef) =
   let (
     _floor_z = -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height),
@@ -1040,8 +1068,11 @@ function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel
     _lower = head_impeller_span(head_impeller_lower_type, impeller_diameter),
     _upper = head_impeller_span(head_impeller_upper_type, impeller_diameter),
     _spacing = stirred_tank_impeller_spacing(impeller_diameter, head_impeller_spacing_factor()),
-    _ring_r = is_undef(ring_r) ? head_sparge_ring_radius(vessel_opening_diameter) : ring_r,
-    _ring_z = is_undef(ring_z) ? head_sparge_ring_z(impeller_diameter) : ring_z
+    _loop = sparger == "loop",
+    _ring_r = !is_undef(ring_r) ? ring_r
+      : _loop ? head_sparge_loop_radius(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter)
+      : head_sparge_ring_radius(vessel_opening_diameter),
+    _ring_z = !is_undef(ring_z) ? ring_z : _loop ? head_sparge_cap_z(impeller_diameter) : head_sparge_ring_z(impeller_diameter)
   )
     concat(
       [
@@ -1056,8 +1087,8 @@ function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel
            _floor_z + _clearance + _spacing + _upper / 2],
         ],
       ],
-      sparger != "ring" ? [] : [[
-        "sparge ring",
+      sparger != "ring" && !_loop ? [] : [[
+        _loop ? "sparge loop" : "sparge ring",
         [_ring_r - sparge_tube_extent() / 2, _ring_r + sparge_tube_extent() / 2,
          _floor_z + _ring_z - sparge_tube_extent() / 2,
          _floor_z + _ring_z + sparge_tube_extent() / 2],
@@ -1186,8 +1217,12 @@ function head_baffle_segments(vessel, lid_flange_height, ring) =
 // depth, levered out to the impeller. Bore play alone, with the flange's face contact ignored, so a
 // worst case. It is taken from the shaft drive's impeller whichever drive is built, as the plate is.
 function head_baffle_lean(lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter) =
+  head_baffle_lean_at(lid_flange_height, vessel_internal_height, vessel_punt_height,
+    stirred_tank_clearance(impeller_diameter, head_impeller_clearance_factor()));
+// The same lean at any height off the floor: the coupling's play levered out from the lid.
+function head_baffle_lean_at(lid_flange_height, vessel_internal_height, vessel_punt_height, height) =
   (head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height)
-    - stirred_tank_clearance(impeller_diameter, head_impeller_clearance_factor())
+    - height
     - head_lid_thickness(lid_flange_height))
   * bayonet_allowance(head_interface_for("baffle", 0)) / head_lid_thickness(lid_flange_height);
 
@@ -1647,6 +1682,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _stir_bar = is_undef(_build_stir_bar) ? head_stir_bar : _build_stir_bar;
   _sparger = head_sparger_selected(head_build(build, "sparger", head_sparger), _drive);
   _ring = _sparger == "ring";
+  _loop = _sparger == "loop";
+  // what the report calls whichever is built
+  _sparger_noun = _ring ? "ring" : _loop ? "loop" : "arm";
 
   // The table this lid carries, resolved once, with a designated probe spliced in. Safe because
   // every "probe" port gets bayonet_std whatever it carries; it would not be safe for a
@@ -1724,7 +1762,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     : head_probe_tilt_ceiling(
       head_port_probe(_do_port[0]), vessel_opening_diameter, lid_flange_height,
       vessel_internal_height, vessel_punt_height, impeller_diameter, _build_do_tilt_max,
-      sparger=_sparger, ring_z=_sparge_ring_height
+      sparger=_sparger, ring_z=_loop ? undef : _sparge_ring_height
     );
 
   // The mouth window this jar had to land in: too small and the ring will not pass, too large and
@@ -2018,9 +2056,14 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _cap_reach = head_sparge_cap_reach(vessel_opening_diameter, shaft_diameter(_shaft));
   _cap_holes = head_sparge_cap_holes(_cap_reach);
   _cap_velocity = stirred_tank_orifice_velocity(_sparge_flow, _cap_holes, sparge_hole_diameter);
-  // where the gas leaves, off the floor, and how fast: the ring's or the arm's
+  // The loop: the arm's riser and height, closed into a ring round the shaft, with the ring's holes.
+  _sparge_loop_bounds = head_sparge_loop_bounds(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter);
+  _sparge_loop_radius = head_sparge_loop_radius(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter);
+  _sparge_loop_ratio = stirred_tank_sparge_ring_ratio(2 * _sparge_loop_radius, impeller_diameter);
+  _sparge_loop_lean = head_baffle_lean_at(lid_flange_height, vessel_internal_height, vessel_punt_height, _cap_z);
+  // where the gas leaves, off the floor, and how fast: the ring's or the loop's, or the arm's
   _sparge_height = _ring ? _sparge_ring_height : _cap_z;
-  _sparge_hole_velocity = _ring ? _sparge_velocity : _cap_velocity;
+  _sparge_hole_velocity = _ring || _loop ? _sparge_velocity : _cap_velocity;
 
   // ----- does anything hanging from the lid run into anything already in the vessel? -----
   //
@@ -2035,7 +2078,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     [
       for (o = head_reach_obstacles(
         vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, _sparger,
-        _sparge_ring_height, _sparge_ring_radius
+        _loop ? _cap_z : _sparge_ring_height, _loop ? _sparge_loop_radius : _sparge_ring_radius
       ))
         if (_shaft_drive || o[0] != "lower impeller" && o[0] != "upper impeller") o
     ],
@@ -2401,7 +2444,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       "stir bar: ", stir_bar_name(_stir_bar), " centred on the ", _bar_plateau * 2, " mm punt plateau, ",
       _bar_reach > _bar_plateau ? str("overhanging it by ", _bar_reach - _bar_plateau, " mm each end") : "wholly on it",
       "; sweeps r ", _bar_reach,
-      _ring ? str(" where the sparge ring starts at r ", _ring_inner) : str(" under the sparge arm, ", _arm_over_bar, " mm over it"),
+      _ring ? str(" where the sparge ring starts at r ", _ring_inner) : str(" under the sparge ", _sparger_noun, ", ", _arm_over_bar, " mm over it"),
       _has_baffles ? str(" and the baffles at r ", _baffle_inner) : "",
       "; the sparger is still placed on the shaft drive's impeller"
     ));
@@ -2413,7 +2456,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
     assert(
       _ring || _arm_over_bar > 0,
-      str("The sparge arm hangs ", -_arm_over_bar, " mm into the stir bar's sweep.")
+      str("The sparge ", _sparger_noun, " hangs ", -_arm_over_bar, " mm into the stir bar's sweep.")
     );
 
     assert(
@@ -3109,8 +3152,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   );
 
   assert(
-    _sparger == "ring" || _sparger == "cap",
-    str("The sparger is \"", _sparger, "\"; it is ring or cap.")
+    _sparger == "ring" || _sparger == "cap" || _sparger == "loop",
+    str("The sparger is \"", _sparger, "\"; it is ring, cap or loop.")
   );
 
   if (_ring) {
@@ -3166,6 +3209,86 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         stirred_tank_sparge_ring_band()[0], "-", stirred_tank_sparge_ring_band()[1],
         " D band; the mouth places it, so this jar's mouth and bore are too far apart for a ring that suits both"
       ));
+  } else if (_loop) {
+    // The ring of it is in the axisymmetric obstacle list, so the probes are checked against it
+    // there; what is left is the floor under it, the impeller over it and the shaft it rings. The
+    // baffles outside it placed it, so their gap is reported rather than asserted.
+    _loop_inner = _sparge_loop_radius - sparge_tube_extent() / 2;
+    _loop_baffle_gap = port_circle_radius - _baffle_width / 2 - _sparge_loop_lean - (_sparge_loop_radius + sparge_tube_extent() / 2);
+    _loop_set_by = [for (b = _sparge_loop_bounds) if (b[1] == _sparge_loop_radius) b[0]][0];
+
+    assert(
+      _cap_z - sparge_tube_extent() / 2 > vessel_punt_height,
+      str("The sparge loop's underside is ", _cap_z - sparge_tube_extent() / 2, " mm off the floor, under the ", vessel_punt_height, " mm punt.")
+    );
+    assert(
+      _cap_z + sparge_tube_extent() / 2 < _impeller_clearance - impeller_height_lower / 2,
+      str(
+        "The sparge loop's top is ", _cap_z + sparge_tube_extent() / 2, " mm off the floor and the lower impeller's blades start at ",
+        _impeller_clearance - impeller_height_lower / 2, "; lower it with sparge_cap_drop."
+      )
+    );
+    assert(
+      !_shaft_drive || _loop_inner > shaft_diameter(_shaft) / 2,
+      str("The sparge loop's inside is at r ", _loop_inner, " and the ", shaft_diameter(_shaft), " mm shaft's surface at r ", shaft_diameter(_shaft) / 2, ".")
+    );
+    // The elbow turns through its bend radius between the riser and the run, so the loop has to sit
+    // that far from the riser, inside it or out.
+    assert(
+      abs(port_circle_radius - _sparge_loop_radius) >= sparger_bend(sparge_tube()),
+      str(
+        "The sparge loop at r ", _sparge_loop_radius, " is ", abs(port_circle_radius - _sparge_loop_radius),
+        " mm from its riser at r ", port_circle_radius, ", inside the elbow's ", sparger_bend(sparge_tube()), " mm bend."
+      )
+    );
+
+    echo(str(
+      "sparge loop: ", 2 * _sparge_loop_radius, " mm = ", _sparge_loop_ratio, " D (band ",
+      stirred_tank_sparge_ring_band()[0], "-", stirred_tank_sparge_ring_band()[1], ", equal-swept-volume ",
+      stirred_tank_sparge_ring_equal_volume_ratio(), "), set by ", _loop_set_by, "; ", _cap_z, " mm off the floor, ",
+      sparge_cap_drop, " mm under the lower impeller's blades, hung from the air inlet's riser at r ", port_circle_radius
+    ));
+    echo(str(
+      "sparge loop fits: ",
+      _has_baffles ? str(_loop_baffle_gap, " mm to the baffles after ", _sparge_loop_lean, " mm of their lean at its height, ") : "",
+      head_ring_mouth_gap(vessel_opening_diameter, impeller_diameter, _sparge_loop_radius), " mm to the jar's mouth, ",
+      _loop_inner - shaft_diameter(_shaft) / 2, " mm inside it to the shaft"
+    ));
+    if (!stirred_tank_in_band(_sparge_loop_ratio, stirred_tank_sparge_ring_band()))
+      echo(str(
+        "WARNING sparge loop: ", _sparge_loop_ratio, " D is outside the ", stirred_tank_sparge_ring_band()[0], "-",
+        stirred_tank_sparge_ring_band()[1], " D band; ", _loop_set_by, " placed it"
+      ));
+
+    sparger_report(
+      radii=[_sparge_loop_radius], holes=[sparge_hole_count], hole_diameter=sparge_hole_diameter,
+      tube=sparge_tube(), bore=sparge_bore(), gas_flow=_sparge_flow, paths=2
+    );
+
+    // It hangs from one riser, as the arm does, so its socket carries the arm's boss and screw.
+    _loop_bite = set_screw_length(sparge_plug_screw) - sparge_cap_boss_wall;
+    assert(
+      _loop_bite > 0,
+      str("A ", set_screw_length(sparge_plug_screw), " mm screw does not reach through the loop's ", sparge_cap_boss_wall, " mm boss wall.")
+    );
+    echo(str(
+      "sparge loop socket: the arm's, ", sparge_feed_bore, " mm bore in a ", sparge_feed_bore + 2 * sparge_cap_boss_wall,
+      " mm boss, one ", set_screw_name(sparge_plug_screw), " biting the riser by ", _loop_bite,
+      " mm; it hangs on that riser alone, ", _feed_k, " N/mm at the socket"
+    ));
+    // As the ring's warning where it has no supports: what the flow pushes with is not known.
+    if (_has_baffles)
+      echo(str(
+        "WARNING sparge loop: it hangs on the feed riser alone; ", _loop_baffle_gap * _feed_k,
+        " N sideways closes its gap to the baffles"
+      ));
+
+    if (sparge_hole_probes)
+      sparger_hole_probes(
+        radii=[_sparge_loop_radius], holes=[sparge_hole_count], tube=sparge_tube(),
+        section_facets=sparge_tube_facets, feed_angle=_sparge_feed_angle, hole_bearing="down",
+        origin=[0, 0, _floor_z + _cap_z], bore=sparge_bore()
+      );
   } else {
     // The arm stands at the air inlet's bearing alone, so what it has to miss is checked here
     // rather than in the axisymmetric obstacle list: the floor under it, the shaft it reaches
@@ -3225,7 +3348,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
     if (sparge_hole_probes)
       sparge_arm_hole_probes(
-        reach=_cap_reach, holes=_cap_holes, tube=sparge_tube(), section_facets=sparge_tube_facets,
+        reach=_cap_reach, holes=_cap_holes, tube=sparge_tube(), bore=sparge_bore(), section_facets=sparge_tube_facets,
         origin=[port_circle_radius * cos(_sparge_feed_angle), port_circle_radius * sin(_sparge_feed_angle), _floor_z + _cap_z],
         bearing=_sparge_feed_angle + 180
       );
@@ -3283,7 +3406,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           ));
 
       // Where the sensing face sits against the ring of bubbles; where the gas goes is not modelled
-      if (_ring)
+      if (_ring || _loop)
       let (
         _tip = head_probe_axis_at(
           vessel_opening_diameter, lid_flange_height,
@@ -3291,20 +3414,21 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           + atlas_probe_body_height(_do) + atlas_probe_tip_height(_do),
           head_probe_tilt(_do_probe[0], _do_tilt)
         ),
-        _over = _tip[1] - (_floor_z + _sparge_ring_height)
+        _bubble_r = _ring ? _sparge_ring_radius : _sparge_loop_radius,
+        _over = _tip[1] - (_floor_z + (_ring ? _sparge_ring_height : _cap_z))
       )
       {
         echo(str(
           "DO probe in the gas: its face sits ", abs(_over), _over >= 0 ? " mm above" : " mm below",
-          " the sparge ring's centreline and ", abs(_tip[0] - _sparge_ring_radius),
+          " the sparge ", _sparger_noun, "'s centreline and ", abs(_tip[0] - _bubble_r),
           " mm off its radius; where the bubbles go is a bench question"
         ));
 
         // the gas rises, so a face under the ring is out of it whatever its radius
-        if (_over > 0 && abs(_tip[0] - _sparge_ring_radius)
+        if (_over > 0 && abs(_tip[0] - _bubble_r)
           < sparge_tube_extent() / 2 + atlas_probe_tip_dia(_do) / 2)
           echo(str(
-            "WARNING DO probe: its face overlaps the sparge ring's radius and hangs ",
+            "WARNING DO probe: its face overlaps the sparge ", _sparger_noun, "'s radius and hangs ",
             _over, " mm over it; a galvanic probe reads high with a bubble ",
             "on the membrane and low with none moving past (TODO.md)"
           ));
@@ -3414,7 +3538,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   ));
 
   echo(str(
-    "sparge back-pressure: ", _sparge_submergence, " mm of culture over the ", _ring ? "ring" : "arm", " is ",
+    "sparge back-pressure: ", _sparge_submergence, " mm of culture over the ", _sparger_noun, " is ",
     _sparge_submergence / 1000 * stirred_tank_medium_density() * 9.81,
     " Pa, plus ", stirred_tank_capillary_pressure(sparge_hole_diameter),
     " Pa of capillary = ", _sparge_submergence / 1000 * stirred_tank_medium_density() * 9.81
@@ -3763,7 +3887,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           _sparge_tube(_sparge_socket_top, _sparge_riser_length);
     }
 
-  if ((render_sparger || render_all) && !_ring)
+  if ((render_sparger || render_all) && !_ring && !_loop)
     color(prints2_color)
       rotate([0, 0, _sparge_feed_angle])
         translate([port_circle_radius, 0, _floor_z + _cap_z])
@@ -3782,6 +3906,29 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
               socket_boss=sparge_feed_bore + 2 * sparge_cap_boss_wall,
               screw_tap_radius=set_screw_tap_radius(sparge_plug_screw)
             );
+
+  if ((render_sparger || render_all) && _loop)
+    color(prints2_color)
+      translate([0, 0, _floor_z + _cap_z])
+        sparger(
+          radii=[_sparge_loop_radius],
+          holes=[sparge_hole_count],
+          hole_diameter=sparge_hole_diameter,
+          tube=sparge_tube(),
+          bore=sparge_bore(),
+          hole_bearing="down",
+          section_facets=sparge_tube_facets,
+          feed_angle=_sparge_feed_angle,
+          feed_radius=port_circle_radius,
+          feed_bore=sparge_feed_bore,
+          feed_height=sparge_socket_depth,
+          feed_wall=sparge_wall,
+          socket_chamfer=sparge_socket_chamfer,
+          split_angle=sparge_split_angle,
+          plug_tap_radius=set_screw_tap_radius(sparge_plug_screw),
+          socket_boss=sparge_feed_bore + 2 * sparge_cap_boss_wall,
+          screw_tap_radius=set_screw_tap_radius(sparge_plug_screw)
+        );
 
   if ((render_sparger || render_all) && _ring)
     color(prints2_color)

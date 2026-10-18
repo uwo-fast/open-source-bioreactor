@@ -119,8 +119,28 @@ not stay inline.
   8× rule scales as N³, so at the 255 rpm Chlorella optimum the ceiling was 0.35 vvm, under the
   0.5 vvm design. `docs/agitation.md` carried both as the case for the axial blade until the build
   moved to the standard turbine.
+- **`check-holes` proved the arm's holes break through.** It proved only their ends were open. A
+  hole drilled down is cut from the outside in, and the probes sat at the outer face and on the
+  bore's centreline, both open whether the hole reached the bore or not: an arm whose holes
+  stopped 0.4 mm under the bore passed. A third probe now sits in the wall just under the bore, for
+  the arm and the loop, and that arm fails on it, three of nine probes solid.
+- **The ring and the arm were clean solids.** The ring as `jar_10L` draws it carried two
+  non-manifold edges. Its end-plug pilots started exactly on the face the cleaning split cuts, and
+  the arm's screw pilot ended exactly on the boss flat it opens through; a cut whose end face is
+  the face it opens through leaves a pinch, which the arm's angle happened to round away. The
+  loop's ring, which reuses both, measured four passages it does not have. Both pilots now run a
+  millimetre and more past their face, and the ring, the arm and the loop count the passages they
+  should: 10, 5 and 11.
 
 ## Settled — do not re-open without new evidence
+
+- **The loop yields to the baffles, not the baffles to the loop.** A ring under the lower impeller
+  sits among the plates, and the ring between the impellers had already shown what the other way
+  costs: it took the plates from 17.09 to 10.35 mm. The plates come off the lid and set the baffling
+  for every build; the loop is an option. So it goes inside their inner edge, less the lean they can
+  swing through at its height and 1.25 mm, which on `jar_10L` is 1.16 D against Birch & Ahmed's
+  1.4 D, still inside the 1–2 D band. It is a choice, not the stirred default: the arm stays the
+  default until the bench says the loop is worth its one-riser hang.
 
 - **The sampler's halves screw together into heat-set inserts; the actuator's screws come up from
   under its face into nuts inside it.** Base to top, three screws go into inserts, as the motor

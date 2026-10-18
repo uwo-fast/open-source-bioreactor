@@ -79,6 +79,17 @@ closed it and in `docs/`.
     file cut clears it nearly 7x; a shallow pass that just breaks the wall does not
   - not parameterised on purpose: a default for a hand-cut window would be a guess
 
+- [ ] **whether the loop earns its one-riser hang**
+  - `sparger_name = "loop"` builds and checks, and no registered build takes it. On `jar_10L` it
+    sits 1.25 mm inside the baffles and `head()` warns that 0.62 N sideways closes that, against a
+    flow force nobody has measured
+  - a bench question: run the stirred `jar_10L` with the loop and look for it touching a plate. If it
+    holds, it is the case for making it the stirred default, since it puts the gas under the whole
+    impeller rather than one side of it. If not, a second socket on a dosing riser would steady it,
+    as the ring's supports do
+  - no registered build names it, so `just export-part` cannot reach it; `head.scad` with
+    `-D render_all=false -D render_sparger=true -D head_sparger="loop"` renders it alone
+
 - [ ] **where the sparger's gas actually goes, and whether the DO probe should move**
   - only for a stirred build given the ring (`sparger_name = "ring"`), which no registered build
     takes: the stirred builds default to the arm, and the airlift hangs DO straight inside its tube

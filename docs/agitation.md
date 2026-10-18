@@ -380,10 +380,11 @@ transcript is `tests/echo/head__jar_10L_220x305.txt`. What was believed before a
 
 ### Sparger
 
-Two spargers share the riser from the `air_in` port, and a build names one (`sparger_name`): the
+Three spargers share the riser from the `air_in` port, and a build names one (`sparger_name`): the
 **arm** is the default under the shaft and magnetic drives, and the **ring** under no drive and
-the airlift. What `head()` reports for each follows; the ring's figures are a `jar_10L` build with
-`sparger_name = "ring"`, which no transcript holds.
+the airlift; the **loop** is chosen, never defaulted. What `head()` reports for each follows; the
+ring's and the loop's figures are `jar_10L` builds with `sparger_name` set, which no transcript
+holds.
 
 #### The arm
 
@@ -404,6 +405,26 @@ the airlift. What `head()` reports for each follows; the ring's figures are a `j
 - **The arm gives the baffles back the width the ring took.** It runs in between two plates rather
   than outboard of them, so the ring's bound goes with the ring: the plates widen from 10.35 to
   17.09 mm, where the lock bore stops them (below).
+
+#### The loop
+
+- **The arm's riser, socket and height, closed into a ring round the shaft**, so the gas rises into
+  the lower impeller all the way round rather than on one side of it. It is the standard ring
+  sparger under a turbine, hung from one riser: the elbow turns inward from the port circle at
+  r 56.5 and runs in to a ring 53 mm off the floor, 10 mm under the lower impeller's blades, holes
+  down.
+- **81.2 mm across, 1.16 D, and the baffles place it.** Birch & Ahmed's 1.4 D would be 99 mm, but
+  at this height the loop sits among the plates, which come off the lid first: it stops 1.25 mm
+  inside their inner edge after the 2.63 mm they can lean at its height. 1.16 D is inside the
+  1–2 D band. The mouth and the shaft are far off, 27.0 and 33.1 mm.
+- **The ring's eight 3 mm holes**, 1.20 m/s each at 0.5 vvm, so well inside Barbosa's
+  0.4–5.4 m/s, and the same 5.10 mm bubble floor; split opposite the feed and plugged as the
+  ring is. The bore is the same departure the arm and ring report.
+- **It hangs on the feed riser alone**, through the arm's boss and screw: 0.50 N/mm at the socket,
+  so 0.62 N sideways closes its 1.25 mm to a baffle, and `head()` warns. What the flow pushes with
+  is not known; this is the bench's question.
+- **The plates keep the width the arm gives them**, 17.09 mm, and the gas has the arm's 1922 Pa to
+  beat, from the same height.
 
 #### The ring
 
