@@ -36,7 +36,7 @@ scad/custom/condenser_cold_finger.scad scad/custom/condenser_coil.scad \
 scad/custom/gasket_cutter_v2.scad scad/custom/impeller.scad \
 scad/custom/motor_mount.scad scad/custom/magnet_hub_cap.scad scad/custom/heat_pad_mount.scad scad/custom/bearing_blank.scad scad/custom/draft_tube.scad scad/custom/peri_pump_frame_mount.scad \
 scad/custom/peri_pump_head.scad scad/custom/sheet_gasket.scad \
-scad/custom/sparger.scad scad/custom/sampler.scad"
+scad/custom/sparger.scad scad/custom/sparge_puck.scad scad/custom/sampler.scad"
 
 # List available recipes.
 default:

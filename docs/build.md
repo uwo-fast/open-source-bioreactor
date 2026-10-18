@@ -876,6 +876,46 @@ the closed size. `lid_thickness` has to be inside the panel range the e-stop's n
 pilot holes in the base's corner posts; for heat-set inserts set `screw_pilot_diameter` to the
 insert's hole. Fit a grommet or gland in the wire hole before the wires go through it.
 
+## The sparge test pucks
+
+Bench parts, not reactor parts: each prints from `custom/sparge_puck.scad` with one outlet face,
+and none goes in a jar. They exist to measure what a printed outlet face costs at a flow, which is
+the one number the sparger model cannot work out. Drilled holes are priced by the orifice equation;
+a printed porous face is priced by nothing, and the only published one (Pálfy et al. 2021) is one
+point at 14.7 L/h, borrowed and scaled linearly in the render.
+
+**Print three hole pucks and one porous puck to start.** `hole_diameter` 3 is the arm's own holes
+and the control; 0.8 and 0.5 are the finer ones. `hole_count = "auto"` takes as many holes as keeps
+the drop through each well above what a `hole_scatter` difference in size does to the pressure a
+hole needs to launch a bubble, so every hole flows; the render's first line says by how much.
+`outlet = "porous"` is a solid face `porous_layers` thick at Pálfy's area, over ribs.
+
+**The face prints on the bed, as rendered.** Finish each hole with a drill of `hole_diameter`: a
+0.4 mm nozzle does not hold a hole that small, and a drill's size is a number you know. For the
+porous face, make its layers leak: Pálfy et al. ran the walls at 115 % extrusion to seal them and
+dropped the three membrane layers to 95 % by editing the G-code. Keep the sliced project with the
+results, since the face is the recipe as much as the geometry.
+
+**Seal-check every puck first.** Tape over the face, put it under water and blow: any bubble now is
+a wall leaking, and the face's numbers mean nothing until it stops.
+
+Then, under `bench_depth` of water in a clear column, at three flows on the rotameter — 0.8, 2.5
+and 4 L/min span the reactor's band — record:
+
+1. **The plenum's pressure**, from a tee just upstream of the puck: a U-tube of clear tubing for the
+   hole pucks, a 0-30 kPa gauge for the porous one. What it reads above the water's own head is the
+   face's cost. For a hole puck the render's `sparge puck gauge` line is the prediction to check.
+2. **How many outlets are bubbling.** All of them is what the hole count was chosen for; a few means
+   the scatter is larger than `hole_scatter`.
+3. **Bubble size**, from a photo against a scale in the column. The render's figure is a floor.
+
+**The socket puck hangs from an offcut of the 4 mm riser,** gripped by the M4 set screw as the
+arm's socket is, so it also checks the 0.2 mm slip fit nobody has measured. A barb puck hangs from
+soft tubing, which cannot hold it down: the render says whether it floats, and by how much.
+
+What it decides: a face whose cost fits under what the pump has left goes into `head()` as a
+measured row, with the line pricing it like the filter; one that does not stays on the bench.
+
 ## Commissioning
 
 **Set the gas rate before anything else.** 0.1–0.5 vvm on 8.17 L is **0.817–4.09 L/min**, which is

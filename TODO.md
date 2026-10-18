@@ -90,6 +90,17 @@ closed it and in `docs/`.
   - a bench question: run it and see whether the DO trace is spiky. If it matters, the free
     variables are the lean and the ring's height, both parameters already
 
+- [ ] **measure what a printed sparge face costs, before any reactor sparger changes**
+  - `custom/sparge_puck.scad` prints one outlet face per puck; the bench run is `docs/build.md`'s
+    _The sparge test pucks_
+  - a porous face is priced by one borrowed point: Pálfy et al.'s membrane carried linearly to
+    4 L/min wants more area than the pump's curve allows at its size, and the render's warning
+    gives the area that would pass. Linear is an assumption a three-flow reading settles
+  - finer holes buy little on their own: the bubble floor goes as the cube root of the hole, and
+    near an impeller hole size does not matter at all (Rewatkar & Joshi 1993). So a finer face is
+    the airlift ring's question first, not the arm's
+  - closes with a measured row per face that `head()` prices in the gas line, as it does the filter
+
 - [ ] **on `jar_10L` the baffle's width is the lean's to give back**
   - the plate is sized to keep 1 mm running to the blades after 2.27722 mm of lean: 3.27722 nominal,
     11.9456 mm wide. The ring's 10.3454 mm bound applies only where the ring is built, and
