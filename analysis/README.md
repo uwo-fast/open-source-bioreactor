@@ -31,7 +31,7 @@ Every run and method directory has the same shape:
 | Run                                                                     | Subject                           | Span  |
 | ----------------------------------------------------------------------- | --------------------------------- | ----- |
 | [`runs/2024-11-19-microalgae`](runs/2024-11-19-microalgae/)             | unrecorded microalgae, v1 reactor | 8.9 d |
-| [`runs/2026-07-23-chlorella-ccpc90`](runs/2026-07-23-chlorella-ccpc90/) | _Chlorella vulgaris_ CCPC 90      | 8.7 d |
+| [`runs/2026-07-23-chlorella-cpcc90`](runs/2026-07-23-chlorella-cpcc90/) | _Chlorella vulgaris_ CPCC 90      | 8.7 d |
 
 ### Methods
 
@@ -67,14 +67,14 @@ Concretely, when adding a run:
 ```bash
 just analysis-setup                              # create the venv
 just analysis                                    # rebuild everything, with verification
-just analysis-run 2026-07-23-chlorella-ccpc90    # one run
+just analysis-run 2026-07-23-chlorella-cpcc90    # one run
 just analysis-method light-irradiance            # one method
 ```
 
 Or directly, once `analysis-setup` has been run:
 
 ```bash
-.venv/bin/python runs/2026-07-23-chlorella-ccpc90/pipeline.py --verify
+.venv/bin/python runs/2026-07-23-chlorella-cpcc90/pipeline.py --verify
 ```
 
 Every `pipeline.py` takes `--verify`, which checks its output against

@@ -28,7 +28,7 @@ closed it and in `docs/`.
     tested 0.4-5.4 m/s from about 0.06 to 0.84 vvm; on `jar_1gal_180` the same arm is at 8.02 m/s,
     outside it, and `head()` warns
   - CO2 is answered by a run, not a calculation: air at 0.5 vvm supports about 0.09 g/L/day on a
-    30 % utilisation assumption, and the 2026-07-23 run grew CCPC 90 for 8.7 days on air alone. The
+    30 % utilisation assumption, and the 2026-07-23 run grew CPCC 90 for 8.7 days on air alone. The
     reactor's actual CO2 utilisation is the measurable unknown, and the bigger lever on productivity
 
 - [ ] **choose an outlet filter that fits in the budget `head()` reports**

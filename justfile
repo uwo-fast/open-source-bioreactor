@@ -137,7 +137,7 @@ analysis-all:
         {{PY}} "$p" --verify
     done
 
-# Rebuild one run, e.g. `just analysis-run 2026-07-23-chlorella-ccpc90`.
+# Rebuild one run, e.g. `just analysis-run 2026-07-23-chlorella-cpcc90`.
 analysis-run name:
     {{PY}} analysis/runs/{{name}}/pipeline.py --verify
 
