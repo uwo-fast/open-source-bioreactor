@@ -482,19 +482,19 @@ the cage, the rest the plates.
   Mixing's T/50 to T/72 (relayed through a trade article, not read); McCabe's Fig. 9.7 draws them
   flush.
 - **The cage changes shape to pass the mouth.** The blades' outer edges are 204 mm apart and the
-  mouth is 142.2 mm, so no rigid cage goes in. Two hoops of r 64–70 pass it lying flat, 1.1 mm a
-  side. Each blade hangs between them on a radial bar at each end that slides in a dovetail channel
-  in the hoop: slid in 31.08 mm to a stop, the cage goes straight down, its pads pushed 2.4 mm a
-  side past the mouth; inside, each blade is pushed out to 0.4 mm off the glass at its pads, and
-  half-rings dropped into the hoops lock it there. `docs/build.md` has the parts and the assembly.
+  mouth is 142.2 mm. Each blade hangs between two C-shaped hoops on a radial bar at each end that
+  slides 18.8 mm in a dovetail channel in a lug, closed at its inner end; slid in, the blades are
+  inside the lugs, and the hoops, 172.6 mm across them, are bent to pass the mouth. Inside, each
+  blade is pushed out until a tooth on its bar snaps into a window in the lug, 0.4 mm off the glass
+  at its pads. `docs/build.md` has the parts and the assembly.
 - **The lid moves one probe.** The hoops are Cs, and the probes hang in the gap between the 0 and
   90° blades. The pH probe moves from the 120° port to the 30° port a plate freed; 120, 150 and
   270° take blanks. Any port takes any function on this lid, so the move is a re-plug.
-- **The top hoop stands 1 mm over the culture**, out of the flow. An arm on one of its half-rings,
-  keyed into the hoop, catches the vent tube, which stops the cage turning: at the no-load 420 rpm each blade carries 0.29 N and
-  the tube 1.93 N at r 56.5, by the same `T / (n · r)` the plates use, reasoned, not cited.
-- **Bench-decided, not modelled:** the slide fit, how hard the detent pushes through, and whether
-  the pads pass the mouth.
+- **The top hoop stands 1 mm over the culture**, out of the flow. An arm on its 0° lug catches the
+  vent tube, which stops the cage turning: at the no-load 420 rpm each blade carries 0.29 N and the
+  tube 1.93 N at r 56.5, by the same `T / (n · r)` the plates use, reasoned, not cited.
+- **Bench-decided, not modelled:** the slide fit, whether the tooth holds a blade out and releases
+  to a push, and whether the hoops bend through the mouth.
 
 - **Three at 120°, one fewer than Oldshue's reference count, and the vessel is under-baffled.** His
   reference is four plates at T/12 running the liquid depth (McCabe's standard turbine has four at
