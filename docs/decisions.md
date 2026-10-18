@@ -137,9 +137,9 @@ not stay inline.
 - **The loop yields to the baffles, not the baffles to the loop.** A ring under the lower impeller
   sits among the plates, and the ring between the impellers had already shown what the other way
   costs: it took the plates from 17.09 to 10.35 mm. The plates come off the lid and set the baffling
-  for every build; the loop is an option. So it goes inside their inner edge, less the lean they can
-  swing through at its height and 1.25 mm, which on `jar_10L` is 1.16 D against Birch & Ahmed's
-  1.4 D, still inside the 1–2 D band. It is a choice, not the stirred default: the arm stays the
+  for every build; the loop is an option. So it goes inside their inner edge, less the lean they and
+  its own riser can swing through at its height and 1.25 mm, which on `jar_10L` is 1.09 D against
+  Birch & Ahmed's 1.4 D, still inside the 1–2 D band. It is a choice, not the stirred default: the arm stays the
   default until the bench says the loop is worth its one-riser hang.
 
 - **The sampler's halves screw together into heat-set inserts; the actuator's screws come up from

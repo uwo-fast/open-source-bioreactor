@@ -59,7 +59,7 @@ This is the part of the build nothing else will remind you about.
 - the **baffle ports and plates** — one plate per baffle port, each split into dovetailed pieces
 - the **motor mount**, in three parts: base plate, face plate, middle stand
 - **two impellers**
-- the **sparger** — the arm, or the ring if the build names it (`sparger_name`; see
+- the **sparger** — the arm, or the ring or the loop if the build names one (`sparger_name`; see
   [The sparger](#the-sparger))
 
 **From `frame.scad`:** the base, the top base, **eight ribs** and **twelve rod spacers**. The ribs
@@ -491,10 +491,12 @@ reason; the count follows the arm's length at the pitch floor.
 **The loop is the arm closed into a ring.** The same socket, boss and screw on the same riser, the
 elbow turned inward, and a ring round the shaft at the arm's height with the ring's eight holes
 drilled down, so the gas rises into the lower impeller all the way round. It is as large as the
-baffles let it be: inside their inner edge by the lean they can swing through at its height and
-1.25 mm, which on `jar_10L` is 81.2 mm across, 1.16 D. It hangs on one riser, and `head()` warns
-what sideways force closes its gap to a baffle; seat it, square it to the shaft, and drive the
-screw before the lid goes on. Split and plugged as the ring is.
+baffles let it be: inside their inner edge by the lean they and its own riser can swing through at
+its height and 1.25 mm, which on `jar_10L` is 75.95 mm across, 1.09 D. On the smaller jars the
+elbow places it, a bend inside the riser. It hangs on one riser, and `head()` warns what sideways
+force closes its gap to a baffle; seat it, square it to the shaft, and drive the screw before the
+lid goes on, since turning it 1.27° on the riser closes that gap as well. Split and plugged as the
+ring is.
 
 **With no drive the ring goes to the floor.** Between the impellers is only a place when there are
 impellers; under `drive_name = "none"` the ring's underside sits `sparge_ring_floor_gap` (10 mm)

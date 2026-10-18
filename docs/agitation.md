@@ -413,16 +413,23 @@ holds.
   sparger under a turbine, hung from one riser: the elbow turns inward from the port circle at
   r 56.5 and runs in to a ring 53 mm off the floor, 10 mm under the lower impeller's blades, holes
   down.
-- **81.2 mm across, 1.16 D, and the baffles place it.** Birch & Ahmed's 1.4 D would be 99 mm, but
-  at this height the loop sits among the plates, which come off the lid first: it stops 1.25 mm
-  inside their inner edge after the 2.63 mm they can lean at its height. 1.16 D is inside the
-  1–2 D band. The mouth and the shaft are far off, 27.0 and 33.1 mm.
+- **75.95 mm across, 1.09 D, and the baffles place it.** Birch & Ahmed's 1.4 D would be 99 mm,
+  but at this height the loop sits among the plates, which come off the lid first: it stops
+  1.25 mm inside their inner edge after the 2.63 mm they can lean at its height and the 2.63 mm
+  its own riser can, by the same coupling rule. 1.09 D is inside the 1–2 D band. The mouth and
+  the shaft are far off, 29.7 and 30.5 mm.
+- **It always sits a bend inside its riser,** so the elbow turns in. On the smaller jars that is
+  what places it: 40 mm on `jar_1p5L`, and 47.4 mm on `jar_1gal_155`, where 0.95 D is under the
+  band and `head()` warns.
 - **The ring's eight 3 mm holes**, 1.20 m/s each at 0.5 vvm, so well inside Barbosa's
   0.4–5.4 m/s, and the same 5.10 mm bubble floor; split opposite the feed and plugged as the
   ring is. The bore is the same departure the arm and ring report.
-- **It hangs on the feed riser alone**, through the arm's boss and screw: 0.50 N/mm at the socket,
-  so 0.62 N sideways closes its 1.25 mm to a baffle, and `head()` warns. What the flow pushes with
-  is not known; this is the bench's question.
+- **It hangs on the feed riser alone**, through the arm's boss and screw: 0.374 N/mm at the ring,
+  21.6 mm under the riser's end, so 0.467 N sideways closes its 1.25 mm to a baffle, and `head()`
+  warns. Nor is that the only way to close it: the impeller's swirl puts a torque on a ring round
+  the shaft, which turns it about the riser against the port's seal, and as little as 1.27° of
+  that does the same (1.25 mm over the riser's 56.5 mm from the axis). What the flow pushes and
+  turns with is not known; this is the bench's question.
 - **The plates keep the width the arm gives them**, 17.09 mm, and the gas has the arm's 1922 Pa to
   beat, from the same height.
 

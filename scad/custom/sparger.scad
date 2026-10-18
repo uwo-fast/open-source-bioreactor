@@ -179,7 +179,7 @@ module sparger_elbow_solid(r, bend, across_flats, facets) {
 
 // A socket the riser drops into: the tube's own section standing feed_height up from z = 0, or,
 // on a part that hangs from its riser, grown to a boss a screw can bite through, reached by a
-// 45 deg taper. Shared by the arm and the ring, so a hung part's socket is one expression.
+// 45 deg taper. Shared by the arm and the loop, so a hung part's socket is one expression.
 module sparger_socket_solid(tube, section_facets, feed_height, socket_boss = undef) {
   _boss = is_undef(socket_boss) ? tube : socket_boss;
   _taper = (_boss - tube) / 2;
