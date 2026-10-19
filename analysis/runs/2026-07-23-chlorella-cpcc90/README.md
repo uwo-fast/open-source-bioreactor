@@ -12,7 +12,7 @@ InfluxDB just before the culture was evacuated and the bench sterilized.
 
 ## Export provenance
 
-- **Source:** Pi `anolis-f95d50b1` (129.100.228.70), InfluxDB org/bucket `anolis` (native `--with-observability`, 30-day retention)
+- **Source:** Pi `anolis-f95d50b1`, InfluxDB org/bucket `anolis` (native `--with-observability`, 30-day retention)
 - **Window:** `2026-07-23T02:10:05Z → 2026-07-31T18:05:05Z` (~8.7 days, full retained history of this culture)
 - **Exported:** 2026-07-31 (~14:05 EDT) via **`anolis-telemetry-export` v0.1.1** (`POST /v1/exports/signals:query`, `resolution.mode=raw_event`, `format=csv`), run from source on the Pi.
 - All timestamps are **UTC (RFC3339 Z)**. EDT = UTC−4.
