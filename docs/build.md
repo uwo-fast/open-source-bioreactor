@@ -488,15 +488,15 @@ sparger goes in the stirred-tank literature; the ring sat between the impellers 
 argument, and that argument stays with the ring. Same 3 mm holes as the ring, same anti-fouling
 reason; the count follows the arm's length at the pitch floor.
 
-**The loop is the arm closed into a ring.** The same socket, boss and screw on the same riser, the
-elbow turned inward, and a ring round the shaft at the arm's height with the ring's eight holes
-drilled down, so the gas rises into the lower impeller all the way round. It is as large as the
-baffles let it be: inside their inner edge by the lean they and its own riser can swing through at
-its height and 1.25 mm, which on `jar_10L` is 75.95 mm across, 1.09 D. On the smaller jars the
-elbow places it, a bend inside the riser. It hangs on one riser, and `head()` warns what sideways
-force closes its gap to a baffle; seat it, square it to the shaft, and drive the screw before the
-lid goes on, since turning it 1.27° on the riser closes that gap as well. Split and plugged as the
-ring is.
+**The loop is the arm hooked round into a C.** The same socket, boss and screw on the same riser,
+the elbow turned inward, then one tube that hooks onto a 300° C round the shaft at the arm's height
+with the ring's eight holes drilled down, so the gas rises into the lower impeller all the way
+round. It is as large as the baffles let it be: inside their inner edge by the lean they and its
+own riser can swing through at its height and 1.25 mm, which on `jar_10L` is 75.95 mm across,
+1.09 D. On the other jars the hook places it, smaller. It hangs on one riser, and `head()` warns
+what sideways force closes its gap to a baffle; seat it, square it to the shaft, and drive the
+screw before the lid goes on, since turning it 1.27° on the riser closes that gap as well. Its one
+end takes the ring's plug screw, and a pipe cleaner goes in there and round to the socket.
 
 **With no drive the ring goes to the floor.** Between the impellers is only a place when there are
 impellers; under `drive_name = "none"` the ring's underside sits `sparge_ring_floor_gap` (10 mm)

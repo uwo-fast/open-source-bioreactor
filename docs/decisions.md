@@ -127,10 +127,18 @@ not stay inline.
 - **The ring and the arm were clean solids.** The ring as `jar_10L` draws it carried two
   non-manifold edges. Its end-plug pilots started exactly on the face the cleaning split cuts, and
   the arm's screw pilot ended exactly on the boss flat it opens through; a cut whose end face is
-  the face it opens through leaves a pinch, which the arm's angle happened to round away. The
-  loop's ring, which reuses both, measured four passages it does not have. Both pilots now run a
-  millimetre and more past their face, and the ring, the arm and the loop count the passages they
-  should: 10, 5 and 11.
+  the face it opens through leaves a pinch, which the arm's angle happened to round away. A loop
+  built as a ring reusing both measured four passages it does not have. Both pilots now run a
+  millimetre and more past their face, as the loop's end pilot does, and the ring, the arm and the
+  loop count the passages they should: 10, 5 and 10.
+- **The loop was a ring teed onto the arm.** The arm's run went in to a split ring, which is two
+  spargers spliced, not the pigtail it was for. It is now one tube: elbow, a hook onto the curl
+  tangent from outside, and a C to a plugged end. Its pieces meet tangent and lap 0.01 mm into each
+  other; meeting exactly face to face, they stayed separate shells and the part measured two
+  passages it does not have. The hook costs size where the baffles do not bind: `jar_1p5L` goes
+  from 40 to 25.2 mm, `jar_1gal_155` from 47.4 to 31.9 mm and `jar_6p5gal` from 88.6 to 71.5 mm,
+  all under the band, which `head()` warns. A tangent lead from the riser keeps nearly the whole
+  radius, but on `jar_10L` it runs into the next plate round.
 
 ## Settled — do not re-open without new evidence
 

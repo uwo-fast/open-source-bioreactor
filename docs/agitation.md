@@ -408,25 +408,32 @@ holds.
 
 #### The loop
 
-- **The arm's riser, socket and height, closed into a ring round the shaft**, so the gas rises into
-  the lower impeller all the way round rather than on one side of it. It is the standard ring
-  sparger under a turbine, hung from one riser: the elbow turns inward from the port circle at
-  r 56.5 and runs in to a ring 53 mm off the floor, 10 mm under the lower impeller's blades, holes
-  down.
+- **The arm's riser, socket and height, hooked round into a C about the shaft**, so the gas rises
+  into the lower impeller all the way round rather than on one side of it. It is the pigtail
+  sparger under a turbine, one tube with no tee: the elbow turns inward from the port circle at
+  r 56.5, a horizontal bend of the elbow's radius hooks it onto the curl tangent from outside, and
+  the C runs 300° round from there, 53 mm off the floor, 10 mm under the lower impeller's blades,
+  holes down, to a plugged end.
 - **75.95 mm across, 1.09 D, and the baffles place it.** Birch & Ahmed's 1.4 D would be 99 mm,
   but at this height the loop sits among the plates, which come off the lid first: it stops
   1.25 mm inside their inner edge after the 2.63 mm they can lean at its height and the 2.63 mm
   its own riser can, by the same coupling rule. 1.09 D is inside the 1–2 D band. The mouth and
-  the shaft are far off, 29.7 and 30.5 mm.
-- **It always sits a bend inside its riser,** so the elbow turns in. On the smaller jars that is
-  what places it: 40 mm on `jar_1p5L`, and 47.4 mm on `jar_1gal_155`, where 0.95 D is under the
-  band and `head()` warns.
+  the shaft are far off, 29.7 and 30.5 mm. The hook swings off the riser's bearing toward the next
+  plate, outside the C, and is measured against each plate in plan: 3.15 mm to the nearest once
+  both have leaned.
+- **The hook has to start where the elbow ends,** a bend inside the riser, and meet the C from
+  outside, which costs about another bend: the C can be no more than
+  `sparge_loop_largest()`, 38.3 mm in radius at r 56.5. On `jar_10L` the baffles bind first. On
+  the others that is what places it, and `head()` warns it is under the band: 25.2 mm (0.73 D) on
+  `jar_1p5L`, 31.9 mm (0.64 D) on `jar_1gal_155` and 71.5 mm (0.76 D) on `jar_6p5gal`.
 - **The ring's eight 3 mm holes**, 1.20 m/s each at 0.5 vvm, so well inside Barbosa's
-  0.4–5.4 m/s, and the same 5.10 mm bubble floor; split opposite the feed and plugged as the
-  ring is. The bore is the same departure the arm and ring report.
-- **It hangs on the feed riser alone**, through the arm's boss and screw: 0.374 N/mm at the ring,
+  0.4–5.4 m/s, and the same 5.10 mm bubble floor, spread over the 291° of C before the end plug's
+  solid, 8.0 hole diameters apart. One bore carries all of it to a dead end, so its open area
+  ratio is 4.5, twice the ring's two paths: the holes need not share the gas evenly along the C,
+  which the bench sees.
+- **It hangs on the feed riser alone**, through the arm's boss and screw: 0.374 N/mm at the loop,
   21.6 mm under the riser's end, so 0.467 N sideways closes its 1.25 mm to a baffle, and `head()`
-  warns. Nor is that the only way to close it: the impeller's swirl puts a torque on a ring round
+  warns. Nor is that the only way to close it: the impeller's swirl puts a torque on a C round
   the shaft, which turns it about the riser against the port's seal, and as little as 1.27° of
   that does the same (1.25 mm over the riser's 56.5 mm from the axis). What the flow pushes and
   turns with is not known; this is the bench's question.
