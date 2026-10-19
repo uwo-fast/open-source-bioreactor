@@ -368,7 +368,9 @@ from bubble size: 1.56 mm from a microporous sparger against 4.18-4.25 mm from o
 ring is 8 × 3 mm holes — coarser than the 0.8 mm orifice that gave them 4 mm bubbles. Whatever mode a
 jar runs, a finer sparger is worth more than the choice between modes. It is a trade rather than an
 oversight: the hole size carries a settled anti-fouling reason, recorded in `TODO.md`. It has not
-been priced against the mass transfer it costs, and it should be.
+been priced against the mass transfer it costs, and it should be. Photos of past cultures show
+almost no buildup on the sparger, or on anything else that deep. It collects higher in the culture,
+in the headspace and on the lid.
 
 ---
 

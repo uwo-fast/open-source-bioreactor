@@ -69,6 +69,8 @@ closed it and in `docs/`.
   - unpriced: whether 1.0466 mm between two 5 mm flanges is enough to get a cloth into. The lever
     is a thinner cord: a 23x1 EPDM (McMaster 8785N348, not registered) takes the groove to
     Ø25.2 at 0.25 mm of squeeze
+  - the lid is where cleaning matters most. In photos of past cultures the buildup is high in the
+    culture, in the headspace and on the lid, with almost none low down on the sparger and probes
 
 - [ ] **model the support tubes' discharge holes, or decide not to**
   - every tube port but `air_in` is capped at its lower end and vents through a hole drilled up its
