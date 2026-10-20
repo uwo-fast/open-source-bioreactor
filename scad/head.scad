@@ -619,7 +619,7 @@ function head_print_parts(vessel, lid_flange_height, drive = "shaft", sparger = 
       ],
       // Every baffle port is the same part, so one part with a quantity, rendered off the first
       let (
-        _baffles = [for (i = [0:len(_ports) - 1]) if (head_port_type(_ports[i]) == "baffle") i]
+        _baffles = head_baffle_ports(_ports)
       )
         len(_baffles) == 0
           ? []
@@ -1042,8 +1042,6 @@ function head_sparge_cap_holes(reach) =
 // How far a point is from a segment, in plan.
 function head_point_segment_distance(p, a, b) =
   let (_t = max(0, min(1, (p - a) * (b - a) / ((b - a) * (b - a))))) norm(p - (a + _t * (b - a)));
-function head_lid_carries_baffles(mouth) =
-  len([for (p = head_ports_for(mouth)) if (head_port_type(p) == "baffle") p]) > 0;
 // Each bound as [what sets it, radius]; the loop takes the least.
 function head_sparge_loop_bounds(mouth, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter) =
   concat(
@@ -1052,7 +1050,7 @@ function head_sparge_loop_bounds(mouth, lid_flange_height, vessel_internal_heigh
       ["the mouth", mouth / 2 - sparge_ring_clearance - sparge_tube_extent() / 2],
       ["the hook", sparge_loop_largest(head_port_circle_radius(mouth), sparger_bend(sparge_tube()))],
     ],
-    !head_lid_carries_baffles(mouth) ? [] : [[
+    len(head_baffle_ports(head_ports_for(mouth))) == 0 ? [] : [[
       "the baffles",
       head_port_circle_radius(mouth)
       - head_baffle_width(mouth, impeller_diameter, head_baffle_lean(lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter), false) / 2
@@ -1590,6 +1588,8 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
 
 // Does this port type care which way round it ends up? A plate and a leaning collet do.
 function head_port_is_oriented(type) = type == "baffle" || type == "probe";
+// Which of a port table's holes carry a baffle, by index.
+function head_baffle_ports(ports) = [for (i = [0:len(ports) - 1]) if (head_port_type(ports[i]) == "baffle") i];
 
 // One port pin half, dispatched on its registered type.
 module head_port(port, panel_thickness, baffle_width, baffle_length, baffle_segments, do_tilt) {
@@ -1726,7 +1726,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   // Resolved once. head_shaft may pin a row; otherwise the shortest that reaches this vessel.
   _shaft = head_shaft_selected(lid_flange_height, vessel_internal_height, _build_shaft);
   _liquid_height = head_liquid_height(vessel_internal_height, vessel_profile, _build_fill_fraction);
-  _baffle_at = [for (i = [0:_n - 1]) if (head_port_type(_ports[i]) == "baffle") i];
+  _baffle_at = head_baffle_ports(_ports);
 
   // A lid need not carry baffles; everything that measures a plate asks first.
   _has_baffles = len(_baffle_at) > 0;
