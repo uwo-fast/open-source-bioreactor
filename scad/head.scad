@@ -3187,6 +3187,11 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     _sparger == "ring" || _sparger == "arm" || _sparger == "loop",
     str("The sparger is \"", _sparger, "\"; it is ring, arm or loop.")
   );
+  // The ring centres the draft tube; the arm and the loop sit under an impeller the airlift has not got.
+  assert(
+    !_airlift || _ring,
+    str("The airlift's draft tube is centred by the ring, and this build fits the ", _sparger_noun, "; an airlift takes the ring.")
+  );
 
   if (_ring) {
     echo(str(
