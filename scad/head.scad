@@ -401,7 +401,7 @@ port_position = "locked"; // [locked, entry]
 // A rigid tube from the lid port down into the sparge ring's socket, and the only thing holding
 // the ring. Above the port tables because they are bored for it.
 // The registered tube the sparger hangs from
-sparge_riser_tube = steel_tube_welded_4x0p5;
+sparge_riser_tube = sparger_riser();
 
 // a guide, not a grip: a ground steel tube does not hold itself in a printed bore the way
 // flexible tubing does
@@ -780,7 +780,7 @@ sparge_split_angle = 14;
 // by enough that a hex key reaches its end plug along the tube; reasoned, not cited
 sparge_loop_sweep = 300;
 // caps each cut end of the ring, self-tapping into a pilot
-sparge_plug_screw = set_screw_m4x6_316;
+sparge_plug_screw = sparger_screw();
 
 // Hidden to the next marker: registry row references a parameter set cannot name, derived values,
 // and settled design constants.
@@ -797,20 +797,20 @@ function head_sparge_support_ports(vessel_opening_diameter) =
   let (_p = head_ports_for(vessel_opening_diameter))
     [for (i = [0:len(_p) - 1])
       if (head_port_type(_p[i]) == "tube" && head_port_function(_p[i]) != "air_in") i];
-// allowance on a socket's bore over the riser: a slip fit, since a printed bore at the tube's own
-// size is a press fit that five blind sockets cannot take
-sparge_socket_allow = 0.2;
+// The socket's fit is sparger.scad's, which the bench puck shares; a -D here moves the lid's alone.
+// allowance on a socket's bore over the riser
+sparge_socket_allow = sparger_socket_allow();
 // bore of the socket the riser drops into, off the tube itself
 sparge_feed_bore = steel_tube_od(sparge_riser_tube) + sparge_socket_allow;
 // depth of every socket, which the riser lands at the bottom of
-sparge_socket_depth = 12;
+sparge_socket_depth = sparger_socket_depth();
 // The arm hangs on one riser, so its socket carries a boss and the ring's plug screw self-taps
 // through it to grip the tube; the ring rests on five and needs neither.
 // wall of that boss, which the screw runs through
-sparge_cap_boss_wall = 3;
-// Lead-in at each socket mouth: five tubes have to find five sockets blind. sparger() bounds it
-// against the wall it eats; the bore below is unchanged.
-sparge_socket_chamfer = 0.5;
+sparge_cap_boss_wall = sparger_boss_wall();
+// Lead-in at each socket mouth. sparger() bounds it against the wall it eats; the bore below is
+// unchanged.
+sparge_socket_chamfer = sparger_socket_chamfer();
 // The clamp that lands on the riser; its band width is what sets how far the tube stands proud.
 sparge_riser_clamp = clamp_sae4_316_5p16;
 // bare tube either side of the band, so the clamp lands wholly on the riser

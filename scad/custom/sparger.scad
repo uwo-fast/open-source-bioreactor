@@ -15,11 +15,33 @@
  */
 
 use <../utils/stirred_tank.scad>;
+include <../purchased/steel_tubes.scad>;
+include <../purchased/set_screws.scad>;
 
 // The end plug is one number, the radius a screw self-taps into, and the caller resolves the screw.
 
 z_fight = $preview ? 0.05 : 0;
 $fn = $preview ? 48 : 96;
+
+// ----- the riser socket -----
+//
+// What every part that takes the sparge riser is bored for: the lid's spargers, and the bench puck
+// that checks the fit before a lid is printed. One place, so the puck tests the socket the lid
+// drops into rather than a copy of it.
+
+// The registered tube the sparger hangs from, and the screw that grips it in a boss and plugs the
+// ring's cut ends.
+function sparger_riser() = steel_tube_welded_4x0p5;
+function sparger_screw() = set_screw_m4x6_316;
+// Allowance on a socket's bore over the riser: a slip fit, since a printed bore at the tube's own
+// size is a press fit that five blind sockets cannot take.
+function sparger_socket_allow() = 0.2;
+// Depth of every socket, which the riser lands at the bottom of.
+function sparger_socket_depth() = 12;
+// Lead-in at each socket mouth: five tubes have to find five sockets blind.
+function sparger_socket_chamfer() = 0.5;
+// Wall of the boss round a socket that hangs its part, which the screw runs through.
+function sparger_boss_wall() = 3;
 
 // ----- layout: what the duty asks for -----
 //
