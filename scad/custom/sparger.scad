@@ -15,11 +15,33 @@
  */
 
 use <../utils/stirred_tank.scad>;
+include <../purchased/steel_tubes.scad>;
+include <../purchased/set_screws.scad>;
 
 // The end plug is one number, the radius a screw self-taps into, and the caller resolves the screw.
 
 z_fight = $preview ? 0.05 : 0;
 $fn = $preview ? 48 : 96;
+
+// ----- the riser socket -----
+//
+// What every part that takes the sparge riser is bored for: the lid's spargers, and the bench puck
+// that checks the fit before a lid is printed. One place, so the puck tests the socket the lid
+// drops into rather than a copy of it.
+
+// The registered tube the sparger hangs from, and the screw that grips it in a boss and plugs the
+// ring's cut ends.
+function sparger_riser() = steel_tube_welded_4x0p5;
+function sparger_screw() = set_screw_m4x6_316;
+// Allowance on a socket's bore over the riser: a slip fit, since a printed bore at the tube's own
+// size is a press fit that five blind sockets cannot take.
+function sparger_socket_allow() = 0.2;
+// Depth of every socket, which the riser lands at the bottom of.
+function sparger_socket_depth() = 12;
+// Lead-in at each socket mouth: five tubes have to find five sockets blind.
+function sparger_socket_chamfer() = 0.5;
+// Wall of the boss round a socket that hangs its part, which the screw runs through.
+function sparger_boss_wall() = 3;
 
 // ----- layout: what the duty asks for -----
 //
@@ -924,6 +946,8 @@ module sparger_report(radii, holes, hole_diameter, tube, bore, gas_flow, paths =
 
 // ----- example usage -----
 //
+// The three side by side, each as head() hangs it from a riser at r 56.5: the ring, the loop
+// beside it and the arm beyond, every hole down or in and probed.
 // 8.23207 L at 0.5 vvm, quoted.
 _ex_radii = sparger_equal_area_radii(2, 90, 58);
 _ex_flow = 4.11604 / 60000; // m^3/s, 0.5 vvm on 8.23207 L
@@ -957,3 +981,32 @@ sparger_report(
   radii = _ex_radii, holes = _ex_holes, hole_diameter = 1.2, tube = 4 + 2 * 1.2, bore = 4,
   gas_flow = _ex_flow, paths = 2, holdup = 0.01 // fed at one point, so gas goes both ways round
 );
+
+// The loop and the arm, on the reactor's 6.4 mm tube over the 4.2 mm socket, the arm's boss and
+// screw. 3 mm holes as head() drills them.
+_ex_tube = sparger_socket_allow() + 4 + 2 * 1.1;
+_ex_boss = 4 + sparger_socket_allow() + 2 * sparger_boss_wall();
+_ex_tap = 1.65; // an M4 tap
+_ex_loop_at = [220, 0, 0];
+_ex_arm_at = [320, 0, 0];
+
+translate(_ex_loop_at)
+  sparge_loop(
+    radius = 38, feed_radius = 56.5, sweep = 300, holes = 8, hole_diameter = 3, tube = _ex_tube,
+    bore = 4, feed_bore = 4 + sparger_socket_allow(), feed_height = sparger_socket_depth(),
+    socket_chamfer = sparger_socket_chamfer(), plug_tap_radius = _ex_tap, socket_boss = _ex_boss,
+    screw_tap_radius = _ex_tap
+  );
+sparge_loop_hole_probes(radius = 38, sweep = 300, holes = 8, tube = _ex_tube, bore = 4, origin = _ex_loop_at);
+sparge_loop_report(radius = 38, sweep = 300, holes = 8, hole_diameter = 3, bore = 4, gas_flow = _ex_flow);
+
+// in from the same riser to 9 mm off the axis
+translate(_ex_arm_at)
+  sparge_arm(
+    reach = 47.5, holes = 3, hole_diameter = 3, tube = _ex_tube, bore = 4,
+    feed_bore = 4 + sparger_socket_allow(), feed_height = sparger_socket_depth(),
+    socket_chamfer = sparger_socket_chamfer(), plug_tap_radius = _ex_tap, socket_boss = _ex_boss,
+    screw_tap_radius = _ex_tap
+  );
+sparge_arm_hole_probes(reach = 47.5, holes = 3, tube = _ex_tube, bore = 4, origin = _ex_arm_at);
+sparge_arm_report(reach = 47.5, holes = 3, hole_diameter = 3, tube = _ex_tube, bore = 4, gas_flow = _ex_flow);

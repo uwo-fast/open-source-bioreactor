@@ -77,16 +77,13 @@ bench_depth = 190;
 // Emit the breakthrough probes check-holes tests. Off for a normal render.
 sparge_hole_probes = false;
 
-// The riser and the screw that grips it are the reactor's own rows, so a socket that fits here
-// fits the riser the lid drops. The allowance and the depth are the puck's: printing this is how
-// the 0.2 mm the lid's sockets carry gets bench-checked. They copy head.scad's sparge_plug_screw,
-// sparge_socket_allow, sparge_socket_depth and sparge_cap_boss_wall, which this file cannot read;
-// change them together.
-puck_riser = steel_tube_welded_4x0p5;
-puck_set_screw = set_screw_m4x6_316;
-puck_socket_allow = 0.2;
-puck_socket_depth = 12;
-puck_socket_chamfer = 0.5;
+// The riser, the screw that grips it and the socket's fit are sparger.scad's, the ones the lid's
+// spargers are bored to, so printing this is how the lid's socket gets bench-checked.
+puck_riser = sparger_riser();
+puck_set_screw = sparger_screw();
+puck_socket_allow = sparger_socket_allow();
+puck_socket_depth = sparger_socket_depth();
+puck_socket_chamfer = sparger_socket_chamfer();
 // The pump the bench is fed from: what it still pushes at the bench's flow is what a face may cost.
 puck_pump = air_pump_resun_35w;
 
@@ -96,8 +93,8 @@ puck_wall = 2;
 puck_plenum_height = 3;
 // Clearance from a hole's edge to the plenum wall, in mm
 puck_plenum_margin = 1.5;
-// Wall round the socket that the set screw runs through, as head.scad's arm boss
-puck_boss_wall = 3;
+// Wall round the socket that the set screw runs through, as the arm's boss
+puck_boss_wall = sparger_boss_wall();
 // Thinnest wall a barb's bore may leave under its shank, in mm: two 0.4 mm lines
 puck_barb_min_wall = 0.8;
 // Length of one barb ridge, in mm

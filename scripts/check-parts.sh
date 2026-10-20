@@ -76,7 +76,7 @@ not_exported=(
     scad/custom/impeller.scad
     scad/custom/motor_mount.scad
     scad/custom/sparger.scad                    # exported through head's manifest as "sparge_ring",
-                                                # "sparge_cap" or "sparge_loop";
+                                                # "sparge_arm" or "sparge_loop";
                                                 # this file's own render is a preview of it
     scad/custom/magnet_hub_cap.scad             # exported through frame's manifest as
                                                 # "frame_hub_cap", on the fan the frame chose
