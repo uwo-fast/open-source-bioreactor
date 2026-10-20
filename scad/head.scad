@@ -2177,6 +2177,12 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _riser_k = 3 * steel_tube_modulus() * _riser_I / pow(_riser_free, 3);
   _feed_free = -lid_thickness - _sparge_socket_top_feed;
   _feed_k = 3 * steel_tube_modulus() * _riser_I / pow(_feed_free, 3);
+  // A part hung from the feed riser alone is pushed where its tube is, not at the socket's top:
+  // the socket and elbow are a rigid lever below the riser's end, so it moves by the riser's end
+  // deflection and its slope over that lever.
+  _hung_lever = sparger_socket_top(sparge_tube(), sparge_tube_facets, sparge_socket_depth, "feed");
+  _hung_k = 3 * steel_tube_modulus() * _riser_I
+    / (pow(_feed_free, 3) + 3 * _hung_lever * pow(_feed_free, 2) + 3 * pow(_hung_lever, 2) * _feed_free);
 
   // Where to drill a support tube's vent: above the liquid, below the lid's inner face, measured
   // from the tube's top end. Nearer the lid is better, since foam finds the lowest hole.
@@ -3253,12 +3259,6 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
             for (p = sparge_loop_hook_points(_sparge_loop_radius, port_circle_radius, sparger_bend(sparge_tube())))
               head_point_segment_distance(p, (port_circle_radius - _baffle_width / 2) * _u, (port_circle_radius + _baffle_width / 2) * _u)
       ]) - baffle_thickness / 2 - sparge_tube_extent() / 2 - _sparge_loop_lean - _sparge_loop_riser_lean;
-    // The riser's cantilever, loaded at the loop rather than at the socket's top: the socket and
-    // elbow are a rigid lever below the tube's end, so the loop moves by the tube's end deflection
-    // and its slope over that lever.
-    _loop_lever = sparger_socket_top(sparge_tube(), sparge_tube_facets, sparge_socket_depth, "feed");
-    _loop_k = 3 * steel_tube_modulus() * _riser_I
-      / (pow(_feed_free, 3) + 3 * _loop_lever * pow(_feed_free, 2) + 3 * pow(_loop_lever, 2) * _feed_free);
 
     assert(
       _cap_z - sparge_tube_extent() / 2 > vessel_punt_height,
@@ -3312,14 +3312,14 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     echo(str(
       "sparge loop socket: the arm's, ", sparge_feed_bore, " mm bore in a ", _sparge_cap_boss,
       " mm boss, one ", set_screw_name(sparge_plug_screw), " biting the riser by ", _cap_bite,
-      " mm; it hangs on that riser alone, ", _loop_k, " N/mm at the loop, ", _loop_lever, " mm under the riser's end"
+      " mm; it hangs on that riser alone, ", _hung_k, " N/mm at the loop, ", _hung_lever, " mm under the riser's end"
     ));
     // As the ring's warning where it has no supports: what the flow pushes with is not known. Nor
     // is what turns it: the swirl's torque on a C round the shaft turns it about the riser,
     // against the port's seal alone, which nothing here prices.
     if (_has_baffles)
       echo(str(
-        "WARNING sparge loop: it hangs on the feed riser alone; ", _loop_baffle_gap * _loop_k,
+        "WARNING sparge loop: it hangs on the feed riser alone; ", _loop_baffle_gap * _hung_k,
         " N sideways closes its gap to the baffles, and turning it on its riser is not priced"
       ));
 
@@ -3515,7 +3515,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     if (len(_sparge_support_angles) == 0)
       echo(str(
         "WARNING sparge support: the ring hangs on the feed riser alone; ",
-        _sparge_baffle_gap * _feed_k, " N sideways closes its gap to the baffles"
+        _sparge_baffle_gap * _hung_k, " N sideways at the ring closes its gap to the baffles"
       ));
   }
 
