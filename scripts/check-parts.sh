@@ -108,6 +108,8 @@ not_exported=(
                                                 # reactor, so no manifest of the reactor's has it
     scad/custom/sampler.scad                    # the turbidity sampler prints from its own file
                                                 # until head places it on a port; see TODO.md
+    scad/custom/sparge_puck.scad                # bench test pieces, one outlet face per print,
+                                                # that never go in a jar; see docs/build.md
     scad/custom/condenser_cold_finger.scad      # the condenser variants under test, each printed
     scad/custom/condenser_coil.scad             # from its own file until one is chosen and head
                                                 # places it
