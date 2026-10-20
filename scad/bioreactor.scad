@@ -106,7 +106,7 @@ lid_center_name = "auto"; // [auto, bearing, plain]
 // What the gas comes out of: a ring between the impellers, an arm under the lower one, or a loop,
 // the arm's riser hooked round into a C under the lower one; auto is the arm under a drive and the
 // ring under none
-sparger_name = "auto"; // [auto, ring, cap, loop]
+sparger_name = "auto"; // [auto, ring, arm, loop]
 // The stir bar a magnetic drive turns; auto takes the head's own row
 stir_bar_name = "auto"; // [auto, 25x8, 38x8, 50x8]
 // The magnets on the fan hub, two; auto takes the frame's own row

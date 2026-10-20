@@ -466,7 +466,7 @@ bench measurement, which is why the fan and magnet sizes are parameters rather t
 
 ## The sparger
 
-Three spargers, one build parameter: `sparger_name` is `cap` — an **arm** — `ring` or `loop`, and
+Three spargers, one build parameter: `sparger_name` is `arm`, `ring` or `loop`, and
 `auto` is the arm. The ring is what runs under no drive and the airlift; the shaft and magnetic
 builds run the arm, and the loop is theirs to choose. All three hang off the same riser from the
 `air_in` port, and the other four tubes stay whichever is fitted — they are the dosing and vent

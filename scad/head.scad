@@ -731,8 +731,8 @@ baffle_joint_allowance = 0.1;
 // A ring between the impellers, an arm off the air inlet's riser ending under the lower impeller
 // with its holes down, or a loop: that riser's tube hooked round into a C under the lower
 // impeller; auto is the arm under a drive and the ring with none
-head_sparger = "auto"; // [auto, ring, cap, loop]
-function head_sparger_selected(sparger, drive) = sparger != "auto" ? sparger : head_gas_driven(drive) ? "ring" : "cap";
+head_sparger = "auto"; // [auto, ring, arm, loop]
+function head_sparger_selected(sparger, drive) = sparger != "auto" ? sparger : head_gas_driven(drive) ? "ring" : "arm";
 // how far the arm's holes sit below the lower impeller's underside, in mm
 sparge_cap_drop = 10;
 // what the arm's end keeps clear of the shaft, in mm
@@ -3178,8 +3178,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   );
 
   assert(
-    _sparger == "ring" || _sparger == "cap" || _sparger == "loop",
-    str("The sparger is \"", _sparger, "\"; it is ring, cap or loop.")
+    _sparger == "ring" || _sparger == "arm" || _sparger == "loop",
+    str("The sparger is \"", _sparger, "\"; it is ring, arm or loop.")
   );
 
   if (_ring) {
