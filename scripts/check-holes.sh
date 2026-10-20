@@ -78,7 +78,8 @@ for (kind, px, py, pz) in pts:
     if int(hit.sum()) % 2 == 1:
         bad.append((kind, px, py, pz))
 why = {'exit': 'does not break through the discharge face',
-       'feed': 'is not reached by the bore, so it opens into nothing'}
+       'feed': 'is not reached by the bore, so it opens into nothing',
+       'wall': 'stops short of the bore, so a skin of wall closes it'}
 if bad:
     n_holes = sum(1 for k, *_ in pts if k == 'exit')
     print(f"FAIL  {name}  {len(bad)} of {len(pts)} probes on {n_holes} holes are solid")

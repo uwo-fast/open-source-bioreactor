@@ -177,6 +177,57 @@ module sparger_elbow_solid(r, bend, across_flats, facets) {
             sparger_section(across_flats, facets);
 }
 
+// A socket the riser drops into: the tube's own section standing feed_height up from z = 0, or,
+// on a part that hangs from its riser, grown to a boss a screw can bite through, reached by a
+// 45 deg taper. Shared by the arm and the loop, so a hung part's socket is one expression.
+module sparger_socket_solid(tube, section_facets, feed_height, socket_boss = undef) {
+  _boss = is_undef(socket_boss) ? tube : socket_boss;
+  _taper = (_boss - tube) / 2;
+  assert(
+    _taper < feed_height / 2,
+    str("sparger socket: a ", _boss, " mm boss on a ", tube, " mm tube tapers over ", _taper, " mm, most of a ", feed_height, " mm socket")
+  );
+  if (is_undef(socket_boss))
+    linear_extrude(height = feed_height)
+      sparger_section(tube, section_facets);
+  else {
+    // The same section, tapered up to the boss at 45 deg, then straight. The taper starts a hair
+    // below z = 0 rather than on it: two solids that meet exactly face to face share that face,
+    // and the renderer keeps it as a pair of coincident triangles instead of merging them.
+    // Extended back along its own cone, so the taper is the same cone it always was and the lead
+    // is buried in whatever the socket stands on.
+    let (_lead = 0.01, _base = tube - _lead * (_boss - tube) / _taper)
+      translate([0, 0, -_lead])
+        linear_extrude(height = _taper + _lead, scale = _boss / _base)
+          sparger_section(_base, section_facets);
+    translate([0, 0, _taper])
+      linear_extrude(height = feed_height - _taper)
+        sparger_section(_boss, section_facets);
+  }
+}
+
+// The pilot for the screw that grips the riser: radial through a flat of the boss, at the middle
+// of its straight run, so the screw is reachable from the side. It runs on past the boss's
+// corners: ended on the flat it opens through, its end face is that flat, and the renderer leaves
+// a pinch there that reads as passages the part does not have.
+module sparger_socket_pilot(tube, section_facets, feed_height, socket_boss, screw_tap_radius) {
+  assert(!is_undef(socket_boss), "sparger socket: a screw pilot needs a socket_boss to run through");
+  _taper = (socket_boss - tube) / 2;
+  translate([0, 0, _taper + (feed_height - _taper) / 2])
+    rotate([-90, 0, 0])
+      cylinder(h = sparger_across_corners(socket_boss, section_facets) / 2 + 1, r = screw_tap_radius);
+}
+
+// A quarter-turn elbow from a riser at x = r down to a run along x at z = 0, turning outward (+x)
+// or, mirrored about the riser, inward.
+module sparger_feed_elbow(r, bend, across_flats, facets, inward = false) {
+  if (inward)
+    translate([r, 0, 0]) mirror([1, 0, 0]) translate([-r, 0, 0])
+      sparger_elbow_solid(r, bend, across_flats, facets);
+  else
+    sparger_elbow_solid(r, bend, across_flats, facets);
+}
+
 // ----- the part -----
 
 /**
@@ -471,9 +522,11 @@ module sparger(
         for (s = [-1, 1])
           rotate([0, 0, feed_angle + 180 + s * split_angle / 2])
             translate([radii[i], 0, 0])
-              // -90*s: the screw is driven from the gap into the material
+              // -90*s: the screw is driven from the gap into the material. Started a millimetre out
+              // in the gap rather than on the cut face, for the socket pilot's reason.
               rotate([-90 * s, 0, 0])
-                cylinder(h = plug_depth + z_fight, r = plug_tap_radius);
+                translate([0, 0, -1])
+                  cylinder(h = plug_depth + 1 + z_fight, r = plug_tap_radius);
     }
 }
 
@@ -554,17 +607,6 @@ module sparge_arm(
   _ac = sparger_across_corners(tube, section_facets);
   _bend = is_undef(bend_radius) ? sparger_bend(tube) : bend_radius;
   _bored = sparge_arm_bored(reach, _bend, end_depth);
-  _boss = is_undef(socket_boss) ? tube : socket_boss;
-  _taper = (_boss - tube) / 2;
-
-  assert(
-    is_undef(screw_tap_radius) || !is_undef(socket_boss),
-    "sparge_arm: a screw pilot needs a socket_boss to run through"
-  );
-  assert(
-    _taper < feed_height / 2,
-    str("sparge_arm: a ", _boss, " mm boss on a ", tube, " mm tube tapers over ", _taper, " mm, most of a ", feed_height, " mm socket")
-  );
 
   assert(
     hole_diameter < bore,
@@ -597,23 +639,7 @@ module sparge_arm(
         sparger_spoke_solid(_bend, reach, 0, tube, section_facets);
         sparger_elbow_solid(0, _bend, tube, section_facets);
         translate([0, 0, _bend])
-          if (is_undef(socket_boss))
-            linear_extrude(height = feed_height)
-              sparger_section(tube, section_facets);
-          else {
-            // The same section, tapered up to the boss at 45 deg, then straight. The taper starts
-            // a hair inside the elbow rather than on its end face: two solids that meet exactly
-            // face to face share that face, and the renderer keeps it as a pair of coincident
-            // triangles instead of merging them. Extended back along its own cone, so the taper
-            // is the same cone it always was and the lead is buried in the elbow.
-            let (_lead = 0.01, _base = tube - _lead * (_boss - tube) / _taper)
-              translate([0, 0, -_lead])
-                linear_extrude(height = _taper + _lead, scale = _boss / _base)
-                  sparger_section(_base, section_facets);
-            translate([0, 0, _taper])
-              linear_extrude(height = feed_height - _taper)
-                sparger_section(_boss, section_facets);
-          }
+          sparger_socket_solid(tube, section_facets, feed_height, socket_boss);
       }
       _fluid_path();
       if (socket_chamfer > 0)
@@ -624,19 +650,18 @@ module sparge_arm(
         translate([reach - end_depth - z_fight, 0, 0])
           rotate([0, 90, 0])
             cylinder(h = end_depth + 2 * z_fight, r = plug_tap_radius);
-      // the pilot, radial through a flat of the boss to the side of the run, so the screw is
-      // reachable; at the middle of the boss's straight run
       if (!is_undef(screw_tap_radius))
-        translate([0, 0, _bend + _taper + (feed_height - _taper) / 2])
-          rotate([-90, 0, 0])
-            cylinder(h = _boss / 2 + z_fight, r = screw_tap_radius);
+        translate([0, 0, _bend])
+          sparger_socket_pilot(tube, section_facets, feed_height, socket_boss, screw_tap_radius);
     }
 }
 
 // The arm's probes for check-holes, in the mesh's frame: the arm at `origin`, its run turned
 // `bearing` degrees from +x.
+// Drilled down, so a hole that stops short leaves a skin under the bore, where neither the face nor
+// the centreline is: the third probe sits in that skin, just under the bore.
 module sparge_arm_hole_probes(
-  reach, holes, tube, section_facets = 8, bend_radius = undef, end_depth = sparger_plug_depth(), margin = 0.05,
+  reach, holes, tube, bore, section_facets = 8, bend_radius = undef, end_depth = sparger_plug_depth(), margin = 0.05,
   origin = [0, 0, 0], bearing = 0
 ) {
   _bend = is_undef(bend_radius) ? sparger_bend(tube) : bend_radius;
@@ -644,6 +669,7 @@ module sparge_arm_hole_probes(
   for (x = sparge_arm_hole_positions(reach, holes, _bend, end_depth)) {
     echo(str("HOLEPROBE|exit|", origin[0] + x * cos(bearing), "|", origin[1] + x * sin(bearing), "|", origin[2] + _pz));
     echo(str("HOLEPROBE|feed|", origin[0] + x * cos(bearing), "|", origin[1] + x * sin(bearing), "|", origin[2]));
+    echo(str("HOLEPROBE|wall|", origin[0] + x * cos(bearing), "|", origin[1] + x * sin(bearing), "|", origin[2] - bore / 2 - margin));
   }
 }
 
@@ -665,6 +691,172 @@ module sparge_arm_report(reach, holes, hole_diameter, tube, bore, gas_flow, bend
   ));
   if (len(_dep) > 0)
     echo(str("WARNING sparge arm: extrapolated on ", _dep));
+}
+
+// ----- the loop -----
+//
+// The arm's socket and elbow turned inward, then one tube that hooks round and curls into a C
+// round the vessel's axis, closed at its end: the pigtail. No tee and no split; a brush goes in at
+// the end plug and round to the socket. In its own frame the vessel's axis is the z axis, the
+// socket stands at (feed_radius, 0) and the curl lies at z = 0, so a caller turns it to its feed.
+//
+// The hook is a horizontal bend of the elbow's radius turning the run off the radius onto the
+// curl, which it meets tangent from outside. That needs the elbow to end outside the hook's start,
+// so a loop can be no bigger than sparge_loop_largest().
+
+// Where the hook leaves the inward run, from the axis: its centre is a bend off the run and a bend
+// outside the curl.
+function sparge_loop_hook_x(radius, bend) = sqrt(pow(radius + bend, 2) - pow(bend, 2));
+// The largest curl a riser at feed_radius can hook into: the hook starts where the elbow ends.
+function sparge_loop_largest(feed_radius, bend) = sqrt(pow(feed_radius - bend, 2) + pow(bend, 2)) - bend;
+// The bearing at which the hook meets the curl, and the curl starts.
+function sparge_loop_join(radius, bend) = atan2(bend, sparge_loop_hook_x(radius, bend));
+// Points along the run and the hook, in the loop's frame: what the curl's own radius does not
+// stand for when something has to clear them.
+function sparge_loop_hook_points(radius, feed_radius, bend, steps = 12) =
+  let (_x = sparge_loop_hook_x(radius, bend), _j = sparge_loop_join(radius, bend))
+    concat(
+      [[feed_radius - bend, 0]],
+      [for (k = [0:steps]) let (_a = 270 - k * (90 - _j) / steps) [_x + bend * cos(_a), bend + bend * sin(_a)]]
+    );
+// What of the curl is bored, in degrees: the end keeps end_depth of solid for its plug.
+function sparge_loop_bored(radius, sweep, end_depth) = sweep - end_depth / radius * 180 / PI;
+// Where the holes sit, as bearings: evenly over the bored curl, half a pitch off each end.
+function sparge_loop_hole_angles(radius, holes, bend, sweep, end_depth) =
+  [for (i = [0:holes - 1]) sparge_loop_join(radius, bend) + (i + 0.5) * sparge_loop_bored(radius, sweep, end_depth) / holes];
+// Centre to centre along the curl, in mm.
+function sparge_loop_pitch(radius, holes, sweep, end_depth) =
+  sparge_loop_bored(radius, sweep, end_depth) * PI / 180 * radius / holes;
+
+/**
+ * @brief The loop: socket, elbow, a hook onto the curl, a bored C with holes down, a closed end.
+ * @param radius          The curl's centreline radius about the axis.
+ * @param feed_radius     Where the socket stands, on the port circle.
+ * @param sweep           How far the curl runs round from where the hook meets it, in degrees.
+ * Every other argument is the arm's.
+ */
+module sparge_loop(
+  radius, feed_radius, sweep, holes, hole_diameter, tube, bore, section_facets = 8, feed_bore = 4,
+  feed_height = 8, socket_chamfer = 0.5, bend_radius = undef, end_depth = sparger_plug_depth(),
+  plug_tap_radius = undef, socket_boss = undef, screw_tap_radius = undef, show_fluid_path = false
+) {
+  _ac = sparger_across_corners(tube, section_facets);
+  _bend = is_undef(bend_radius) ? sparger_bend(tube) : bend_radius;
+  _hook_x = sparge_loop_hook_x(radius, _bend);
+  _join = sparge_loop_join(radius, _bend);
+  _bored = sparge_loop_bored(radius, sweep, end_depth);
+  _end = _join + sweep;
+
+  assert(
+    radius <= sparge_loop_largest(feed_radius, _bend),
+    str("sparge_loop: a ", radius, " mm curl is past the ", sparge_loop_largest(feed_radius, _bend), " mm a riser at r ", feed_radius, " can hook into")
+  );
+  // the end stays clear of the run it curled away from, on the far side of the radius it left by
+  assert(
+    _end < 360 - _ac / radius * 180 / PI,
+    str("sparge_loop: a ", sweep, " deg curl brings its end round onto its own feed")
+  );
+  assert(
+    hole_diameter < bore,
+    str("sparge_loop: a ", hole_diameter, " mm hole does not open into a ", bore, " mm bore")
+  );
+  assert(
+    _bored * PI / 180 * radius > holes * hole_diameter,
+    str("sparge_loop: ", holes, " holes of ", hole_diameter, " mm do not fit along ", _bored * PI / 180 * radius, " mm of bore")
+  );
+
+  // The path in one section: the elbow down to the run, the run in to the hook, the hook onto the
+  // curl, and the curl round. The run is no more than what the elbow leaves. Each piece runs _lap
+  // into the next: pieces that meet exactly face to face stay separate shells touching there.
+  // Every joint is tangent, so the lap stands proud of its neighbour by nothing a print shows.
+  _lap = 0.01;
+  module _path(d, facets, curl) {
+    sparger_feed_elbow(feed_radius, _bend, d, facets, true);
+    sparger_spoke_solid(_hook_x - _lap, feed_radius - _bend + _lap, 0, d, facets);
+    // the hook, centred a bend to +y of the run, from the run round to where it meets the curl
+    let (_h = _lap / _bend * 180 / PI)
+      translate([_hook_x, _bend, 0])
+        rotate([0, 0, 180 + _join - _h])
+          rotate_extrude(angle = 90 - _join + 2 * _h, convexity = 6)
+            translate([_bend, 0])
+              sparger_section(d, facets);
+    let (_c = _lap / radius * 180 / PI)
+      rotate([0, 0, _join - _c])
+        rotate_extrude(angle = curl + _c, convexity = 6)
+          translate([radius, 0])
+            sparger_section(d, facets);
+  }
+
+  module _fluid_path() {
+    _path(bore, 0, _bored);
+    translate([feed_radius, 0, _bend])
+      cylinder(h = feed_height + z_fight, d = feed_bore);
+    for (a = sparge_loop_hole_angles(radius, holes, _bend, sweep, end_depth))
+      rotate([0, 0, a])
+        translate([radius, 0, -_ac / 2 - z_fight])
+          cylinder(h = _ac / 2 + 2 * z_fight, d = hole_diameter);
+  }
+
+  if (show_fluid_path)
+    color("lightblue", 0.5) _fluid_path();
+  else
+    difference() {
+      union() {
+        _path(tube, section_facets, sweep);
+        translate([feed_radius, 0, _bend])
+          sparger_socket_solid(tube, section_facets, feed_height, socket_boss);
+      }
+      _fluid_path();
+      if (socket_chamfer > 0)
+        translate([feed_radius, 0, _bend + feed_height - socket_chamfer])
+          cylinder(h = socket_chamfer + z_fight, d1 = feed_bore, d2 = feed_bore + 2 * socket_chamfer);
+      // the end pilot, back along the curl's tangent from a millimetre past the end face into the
+      // bore, for the socket pilot's reason
+      if (!is_undef(plug_tap_radius))
+        rotate([0, 0, _end])
+          translate([radius, 1, 0])
+            rotate([90, 0, 0])
+              cylinder(h = end_depth + 1 + z_fight, r = plug_tap_radius);
+      if (!is_undef(screw_tap_radius))
+        translate([feed_radius, 0, _bend])
+          rotate([0, 0, 180])
+            sparger_socket_pilot(tube, section_facets, feed_height, socket_boss, screw_tap_radius);
+    }
+}
+
+// The loop's probes for check-holes, as the arm's, in the mesh's frame: the loop at `origin`, its
+// feed turned `bearing` degrees from +x.
+module sparge_loop_hole_probes(
+  radius, sweep, holes, tube, bore, section_facets = 8, bend_radius = undef, end_depth = sparger_plug_depth(),
+  margin = 0.05, origin = [0, 0, 0], bearing = 0
+) {
+  _bend = is_undef(bend_radius) ? sparger_bend(tube) : bend_radius;
+  _pz = -sparger_face_distance(tube, section_facets, 270) + margin;
+  for (a = sparge_loop_hole_angles(radius, holes, _bend, sweep, end_depth))
+    let (_x = origin[0] + radius * cos(a + bearing), _y = origin[1] + radius * sin(a + bearing)) {
+      echo(str("HOLEPROBE|exit|", _x, "|", _y, "|", origin[2] + _pz));
+      echo(str("HOLEPROBE|feed|", _x, "|", _y, "|", origin[2]));
+      echo(str("HOLEPROBE|wall|", _x, "|", _y, "|", origin[2] - bore / 2 - margin));
+    }
+}
+
+// What the loop does to the gas, as the arm's report: one bore carries it all, to the end.
+module sparge_loop_report(radius, sweep, holes, hole_diameter, bore, gas_flow, end_depth = sparger_plug_depth()) {
+  _v = stirred_tank_orifice_velocity(gas_flow, holes, hole_diameter);
+  _db = stirred_tank_bubble_diameter(hole_diameter);
+  _bore_v = stirred_tank_sparge_bore_velocity(gas_flow, bore, 1);
+  _open = stirred_tank_sparge_open_area_ratio(holes, hole_diameter, bore, 1);
+  _pitch = sparge_loop_pitch(radius, holes, sweep, end_depth) / hole_diameter;
+  _dep = sparger_departures(_v, _pitch, _open, stirred_tank_sparge_bore_head(_bore_v), stirred_tank_orifice_pressure(_v));
+
+  echo(str(
+    "sparge loop holes: ", holes, " of ", hole_diameter, " mm round ", sparge_loop_bored(radius, sweep, end_depth),
+    " deg of curl at ", _pitch, " hole diameters, ", _v, " m/s each; bubbles ", _db, " mm at formation, ",
+    stirred_tank_bubble_rate(gas_flow, _db), " a second; the ", bore, " mm bore carries ", _bore_v,
+    " m/s, open area ratio ", _open
+  ));
+  if (len(_dep) > 0)
+    echo(str("WARNING sparge loop: extrapolated on ", _dep));
 }
 
 // ----- reporting -----

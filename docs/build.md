@@ -59,7 +59,7 @@ This is the part of the build nothing else will remind you about.
 - the **baffle ports and plates** — one plate per baffle port, each split into dovetailed pieces
 - the **motor mount**, in three parts: base plate, face plate, middle stand
 - **two impellers**
-- the **sparger** — the arm, or the ring if the build names it (`sparger_name`; see
+- the **sparger** — the arm, or the ring or the loop if the build names one (`sparger_name`; see
   [The sparger](#the-sparger))
 
 **From `frame.scad`:** the base, the top base, **eight ribs** and **twelve rod spacers**. The ribs
@@ -466,14 +466,14 @@ bench measurement, which is why the fan and magnet sizes are parameters rather t
 
 ## The sparger
 
-Two spargers, one build parameter: `sparger_name` is `cap` — an **arm** — or `ring`, and `auto` is
-the arm. The ring is what runs under no drive and the airlift; the shaft and magnetic builds run
-the arm. Both hang off the same riser from the `air_in` port, and the other four tubes stay whichever
-is fitted — they are the dosing and vent lines, and under the arm they simply have nothing to
-socket into.
+Three spargers, one build parameter: `sparger_name` is `cap` — an **arm** — `ring` or `loop`, and
+`auto` is the arm. The ring is what runs under no drive and the airlift; the shaft and magnetic
+builds run the arm, and the loop is theirs to choose. All three hang off the same riser from the
+`air_in` port, and the other four tubes stay whichever is fitted — they are the dosing and vent
+lines, and under the arm or the loop they simply have nothing to socket into.
 
 ```
-sparge arm: from the air inlet's riser at r 56.5 in to r 9, 66.9536 mm off the floor,
+sparge arm: from the air inlet's riser at r 56.5 in to r 9, 53 mm off the floor,
 10 mm under the lower impeller's blades, 5 mm short of the shaft; at 0.5 vvm that is
 4.08517 L/min
 sparge arm: 3 holes of 3 mm along 31.9 mm at 3.54444 hole diameters, 3.21074 m/s each;
@@ -487,6 +487,16 @@ bubbles rise into the lower impeller. It sits 10 mm under that impeller's blades
 sparger goes in the stirred-tank literature; the ring sat between the impellers on Birch & Ahmed's
 argument, and that argument stays with the ring. Same 3 mm holes as the ring, same anti-fouling
 reason; the count follows the arm's length at the pitch floor.
+
+**The loop is the arm hooked round into a C.** The same socket, boss and screw on the same riser,
+the elbow turned inward, then one tube that hooks onto a 300° C round the shaft at the arm's height
+with the ring's eight holes drilled down, so the gas rises into the lower impeller all the way
+round. It is as large as the baffles let it be: inside their inner edge by the lean they and its
+own riser can swing through at its height and 1.25 mm, which on `jar_10L` is 75.95 mm across,
+1.09 D. On the other jars the hook places it, smaller. It hangs on one riser, and `head()` warns
+what sideways force closes its gap to a baffle; seat it, square it to the shaft, and drive the
+screw before the lid goes on, since turning it 1.27° on the riser closes that gap as well. Its one
+end takes the ring's plug screw, and a pipe cleaner goes in there and round to the socket.
 
 **With no drive the ring goes to the floor.** Between the impellers is only a place when there are
 impellers; under `drive_name = "none"` the ring's underside sits `sparge_ring_floor_gap` (10 mm)
@@ -509,7 +519,9 @@ not take the ring.
 
 **Check-holes covers whichever is built.** The head's hole probes used to be echoed in the part's
 own frame while the mesh sat 170 mm lower, so they landed in empty space and passed without
-testing anything; they are placed with the part now, for the ring and the arm both.
+testing anything; they are placed with the part now, for the ring, the arm and the loop. A hole drilled down is cut
+from outside, so one that stops short leaves a skin under the bore, where the face and the bore's
+centreline are both open anyway; a third point, in that skin, catches it.
 
 ## The airlift's draft tube
 

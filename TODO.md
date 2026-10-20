@@ -79,12 +79,29 @@ closed it and in `docs/`.
     file cut clears it nearly 7x; a shallow pass that just breaks the wall does not
   - not parameterised on purpose: a default for a hand-cut window would be a guess
 
+- [ ] **whether the loop earns its one-riser hang**
+  - `sparger_name = "loop"` builds and checks, and no registered build takes it. On `jar_10L` it
+    sits 1.25 mm inside the baffles once they and its riser have leaned, and `head()` warns that
+    0.467 N sideways closes that, against a flow force nobody has measured
+  - the swirl is the likelier load: its torque on a C round the shaft turns the loop about its
+    riser, held only by the port's seal, and as little as 1.27° closes the same gap. Nothing prices
+    that; a key or flat on the riser in its port would stop it if the bench shows it turning
+  - a bench question: run the stirred `jar_10L` with the loop and look for it touching a plate. If it
+    holds, it is the case for making it the stirred default, since it puts the gas under the whole
+    impeller rather than one side of it. If not, a second socket on a dosing riser would steady it,
+    as the ring's supports do
+  - no registered build names it, so `just export-part` cannot reach it; `head.scad` with
+    `-D render_all=false -D render_sparger=true -D head_sparger="loop"` renders it alone
+  - one bore feeds all eight holes to a dead end, open area ratio 4.5: count bubbling holes along
+    the C, since they need not share the gas evenly
+
 - [ ] **where the sparger's gas actually goes, and whether the DO probe should move**
   - only for a stirred build given the ring (`sparger_name = "ring"`), which no registered build
     takes: the stirred builds default to the arm, and the airlift hangs DO straight inside its tube
   - there the DO face sits 20.6 mm above the sparge ring's centreline and 0.59 mm off its radius on
     `jar_10L`, over a ring of bubbles in the convergence zone: the one placement that can read wrong
-    both ways
+    both ways. The loop (`sparger_name = "loop"`) gets the same report, and on `jar_10L` puts the
+    face 103.9 mm above it and 29.0 mm off its radius, out of its gas
   - the flow rate is not the concern (bulk mean 16x what the probe needs); the gas path is not
     modelled, and no source found gives DO placement relative to a sparger
   - a bench question: run it and see whether the DO trace is spiky. If it matters, the free
