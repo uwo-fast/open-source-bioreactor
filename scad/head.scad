@@ -811,6 +811,8 @@ sparge_cap_boss_wall = sparger_boss_wall();
 // Lead-in at each socket mouth. sparger() bounds it against the wall it eats; the bore below is
 // unchanged.
 sparge_socket_chamfer = sparger_socket_chamfer();
+// The rod seal in each feed socket, under its screw: the lid port's ring, on the same riser.
+sparge_socket_seal = sparger_seal();
 // The clamp that lands on the riser; its band width is what sets how far the tube stands proud.
 sparge_riser_clamp = clamp_sae4_316_5p16;
 // bare tube either side of the band, so the clamp lands wholly on the riser
@@ -3551,6 +3553,28 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     " mm2 hole into the headspace"
   ));
 
+  // The feed socket's own seal, the same ring on the same riser: the gas climbs the annulus from
+  // the riser's end at the socket's bottom, so it sits under the screw that would otherwise vent it.
+  _socket_seal_top = sparger_seal_top(sparge_socket_depth, set_screw_tap_radius(sparge_plug_screw));
+  _socket_seal_stretch = oring_stretch(oring_inner_diameter(sparge_socket_seal), steel_tube_od(sparge_riser_tube));
+  assert(
+    _socket_seal_stretch >= 0 && _socket_seal_stretch <= 0.05,
+    str(
+      "sparge socket seal: a ", oring_name(sparge_socket_seal), " ring on a ",
+      steel_tube_od(sparge_riser_tube), " mm tube is ", _socket_seal_stretch * 100,
+      "% of stretch, outside the 0-5% a rod seal takes"
+    )
+  );
+  echo(str(
+    "sparge socket seal: ", oring_name(sparge_socket_seal), " (", oring_part_number(sparge_socket_seal),
+    ") in the ", _sparger_noun, "'s feed socket, its groove ", sparge_socket_depth - _socket_seal_top, " to ",
+    sparge_socket_depth - _socket_seal_top + sparger_seal_gland_length(sparge_socket_seal),
+    " mm down from the mouth, ", _ring ? "where the arm's screw sits over it" : "under the screw's pilot", "; ",
+    oring_rod_gland_squeeze(steel_tube_od(sparge_riser_tube), 2 * sparger_seal_gland_radius(sparge_socket_seal),
+      oring_cross_section(sparge_socket_seal)) * 100,
+    "% squeeze. Fold it, start it in the bore, and push it down with the riser's end until it snaps in"
+  ));
+
   if (len(_dosing_ports) > 0)
     echo(str(
       "dosing: ", peri_pump_name(head_dosing_pump), " pulls ",
@@ -3942,7 +3966,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
               socket_chamfer=sparge_socket_chamfer,
               plug_tap_radius=set_screw_tap_radius(sparge_plug_screw),
               socket_boss=_sparge_cap_boss,
-              screw_tap_radius=set_screw_tap_radius(sparge_plug_screw)
+              screw_tap_radius=set_screw_tap_radius(sparge_plug_screw),
+              seal=sparge_socket_seal
             );
 
   if ((render_sparger || render_all) && _loop)
@@ -3963,7 +3988,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           socket_chamfer=sparge_socket_chamfer,
           plug_tap_radius=set_screw_tap_radius(sparge_plug_screw),
           socket_boss=_sparge_cap_boss,
-          screw_tap_radius=set_screw_tap_radius(sparge_plug_screw)
+          screw_tap_radius=set_screw_tap_radius(sparge_plug_screw),
+          seal=sparge_socket_seal
         );
 
   if ((render_sparger || render_all) && _ring)
@@ -3985,7 +4011,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           socket_chamfer=sparge_socket_chamfer,
           support_angles=_sparge_support_angles,
           split_angle=sparge_split_angle,
-          plug_tap_radius=set_screw_tap_radius(sparge_plug_screw)
+          plug_tap_radius=set_screw_tap_radius(sparge_plug_screw),
+          socket_boss=_sparge_cap_boss,
+          seal=sparge_socket_seal
         );
 
   // Every lock in the lid's bores; the bore is bayonet_port_hole_fudge narrower, so they union in.
