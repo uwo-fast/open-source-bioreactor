@@ -117,7 +117,7 @@ closed it and in `docs/`.
     toward the hoop
   - print one top hoop and one blade first: the bar slides free between its detents and needs a
     firm push and a click through each; then the whole cage through the mouth, the blades out, the
-    lid on with the vent tube in the arm's slot; then 10 min at 320 rpm with no blade crept inward
+    lid on with the air inlet's riser in the arm's slot; then 10 min at 320 rpm with no blade crept inward
   - the slide fit (0.15 mm a side) and the detents' 0.5 mm are guesses until that; the steps are in
     `docs/build.md`
   - every other build still hangs lid plates: each needs the cage checked against its jar before it

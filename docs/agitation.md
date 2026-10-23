@@ -531,8 +531,8 @@ the cage, the rest the plates.
   90° blades. The pH probe moves from the 120° port to the 30° port a plate freed; 120, 150 and
   270° take blanks. Any port takes any function on this lid, so the move is a re-plug.
 - **The top hoop stands 1 mm over the culture**, out of the flow, and carries an arm that catches
-  the vent tube, which stops the cage turning: at the no-load 420 rpm each blade carries 0.29 N and
-  the tube 1.93 N at r 56.5, by the same `T / (n · r)` the plates use, reasoned, not cited.
+  the air inlet's riser, the tube the sparger hangs from, which stops the cage turning: at the
+  no-load 420 rpm each blade carries 0.29 N and the riser 1.93 N at r 56.5, by the same `T / (n · r)` the plates use, reasoned, not cited.
 - **Bench-decided, not modelled:** the slide fit, how hard a detent pushes through, and whether one
   holds a blade out under flow.
 

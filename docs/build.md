@@ -562,8 +562,8 @@ top. A blade is 238.7 mm long and needs that much bed in one direction.
 3. Lower the cage through the mouth onto the floor, bending the hoops where the pads catch: slid
    in, they stand 2.9 mm a side past it. Turn the gap in the hoops toward the DO probe's port.
 4. Reach in and push each blade out until it clicks, against the wall.
-5. Fit the lid. The vent tube drops into the slot in the top hoop's arm, which stops the cage
-   turning.
+5. Fit the lid. The air inlet's riser, the tube the sparger hangs from, drops into the slot in
+   the top hoop's arm, which stops the cage turning.
 
 **The lid under the cage.** The hoops are Cs, and the probes hang in the gap. The pH probe goes in
 the 30° port instead of the 120°, and 120, 150 and 270° take blanks (`baffle cage ports:`).
