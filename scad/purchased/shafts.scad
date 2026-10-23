@@ -20,7 +20,7 @@ shaft_8x800_316   = ["8x800_316",  "1265K68", [8,   -0.005,      0         ], [8
 shafts = [shaft_8x200_316, shaft_8x400_316, shaft_8x600_316, shaft_8x800_316];
 
 use <../utils/registries.scad>;
-function shaft_by_name(name) = registry_by_name(shafts, name);
+function shaft_by_name(name) = registry_by_name(shafts, name, 6);
 
 function shaft_name(type) = type[0];
 function shaft_part_number(type) = type[1];

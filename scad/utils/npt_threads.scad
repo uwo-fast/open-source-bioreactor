@@ -20,4 +20,4 @@ function npt_thread_pitch(type) = 25.4 / npt_thread_tpi(type); // derived, so th
 function npt_thread_hex_across_flats(type) = type[3];
 
 use <registries.scad>;
-function npt_thread_by_name(name) = registry_by_name(npt_threads, name);
+function npt_thread_by_name(name) = registry_by_name(npt_threads, name, 4);

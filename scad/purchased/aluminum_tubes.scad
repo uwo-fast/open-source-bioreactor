@@ -33,7 +33,7 @@ aluminum_tubes = [aluminum_tube_1_8x0p025, aluminum_tube_3_16x0p028, aluminum_tu
                   aluminum_tube_5_8x0p049];
 
 use <../utils/registries.scad>;
-function aluminum_tube_by_name(name) = registry_by_name(aluminum_tubes, name);
+function aluminum_tube_by_name(name) = registry_by_name(aluminum_tubes, name, 6);
 
 function aluminum_tube_name(type)          = type[0];
 function aluminum_tube_part_number(type)   = type[1];

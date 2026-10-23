@@ -436,10 +436,10 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
   - the pump and the filter drive the gas budget, so they are the ones worth a `_name` designation
     first. Left until a build needs it
 
-- [ ] **registry rows are read by position and not checked for shape**
-  - `registry_by_name` checks the name only. A missing field shows as an undef warning, which
-    `check-scad` fails on, but two fields of the same type swapped would pass
-  - low risk; a row-length assert in each `_by_name` wrapper would close most of it
+- [ ] **registry rows are read by position, and only their length is checked**
+  - every `_by_name` wrapper passes `registry_by_name` its row's field count, and a lookup fails
+    on any row of the wrong length. Two fields of the same type swapped still pass
+  - `fan_by_name` reads NopSCADlib's rows and is not checked
 
 ## long term / post paper submission
 

@@ -17,4 +17,4 @@ function check_valve_cracking(type) = type[2]; // Pa
 function check_valve_cv(type) = type[3];
 
 use <../utils/registries.scad>;
-function check_valve_by_name(name) = registry_by_name(check_valves, name);
+function check_valve_by_name(name) = registry_by_name(check_valves, name, 4);
