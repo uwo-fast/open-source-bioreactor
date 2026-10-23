@@ -147,8 +147,13 @@ not stay inline.
   costs: it took the plates from 17.09 to 10.35 mm. The plates come off the lid and set the baffling
   for every build; the loop is an option. So it goes inside their inner edge, less the lean they and
   its own riser can swing through at its height and 1.25 mm, which on `jar_10L` is 1.09 D against
-  Birch & Ahmed's 1.4 D, still inside the 1–2 D band. It is a choice, not the stirred default: the arm stays the
-  default until the bench says the loop is worth its one-riser hang.
+  Birch & Ahmed's 1.4 D, still inside the 1–2 D band.
+
+- **`jar_10L_220x305` runs the loop; every other stirred build keeps the arm.** On the bench under
+  lid plates the loop held off them and every hole bubbled with the C level (#70), and it puts the
+  gas under the whole lower impeller rather than one side of it. The reference build carries the
+  wall cage, whose bars stand at r 61 against the loop's r 41.74, so there it is set by its own
+  hook, 1.09 D. `auto` stays the arm, because a build under lid plates sits 1.25 mm off them.
 
 - **The sampler's halves screw together into heat-set inserts; the actuator's screws come up from
   under its face into nuts inside it.** Base to top, three screws go into inserts, as the motor
