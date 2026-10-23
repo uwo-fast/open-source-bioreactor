@@ -860,11 +860,13 @@ fresh piece rather than straightening one.
 
 ## The turbidity sampler
 
-Not on the lid's lists yet: it prints from its own file, `custom/sampler.scad` (`part = "base"`,
-`part = "top"`), for the port `dose_4` holds today. It is a flow cell round the turbidity probe's
-bare board, with a syringe actuator bolted on top drawing culture up a clear tube between the
-board's heads. Rendering the file echoes the riser's cut length, where to drill it, and the clear
-tube's length; the screws, nuts and inserts are on the purchase list.
+On the full lid it takes port 10, at 300°: at 330° it stood in the coil condenser on `air_out`.
+`just export-parts` writes its base and top as they print, and the render's `sampler:` line gives
+the riser's cut length, where to drill it and the clear tube's length for your jar. On `jar_10L`
+that is a 217.0 mm riser drilled 126.0 mm from its top end, 40 mm under the culture's surface, and a
+44.6 mm clear tube. It is a flow cell round the turbidity probe's bare board, with a syringe
+actuator bolted on top drawing culture up a clear tube between the board's heads; the screws, nuts
+and inserts are on the purchase list.
 
 **The riser is the dip tube.** It is the port's own sparge riser, cut so its top end stops inside
 the base and drilled across where the sample is drawn; it still reaches the ring. The clear tube

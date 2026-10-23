@@ -216,15 +216,16 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
 
 ## turbidity sampler
 
-Printed from its own file, `custom/sampler.scad`; nothing in `head()` places it yet.
+`head()` places it on the full lid's port 10, at 300 degrees, and derives its riser's cut and
+drilling.
 
-- [ ] **place the sampler on its port in `head()`**, its own PR
-  - a `sampler` port type where `dose_4` is today (port 11, 330 degrees), keeping the port's riser,
-    which is the sampler's dip tube
-  - the panel, the riser's stand and length and the fill line become arguments `head()` derives,
-    and the riser's cut and drilling join the cut list; so do the inserts, which a custom part may
-    not read (`docs/architecture.md`). The lid clash and the ±30 degree twist, checked in the spike
-    against an exported head, become `head()`'s own
+- [ ] **what `head()` still does not own of the sampler**
+  - the inserts, which a custom part may not read (`docs/architecture.md`): `custom/sampler.scad`
+    still includes `purchased/heat_set_inserts.scad`
+  - the lid clash and the ±30 degree twist: intersected with the probes, the port pins, the baffle
+    pins, the motor mount, the motor and the condenser on `jar_10L` and `jar_1gal_180x197`, it
+    touches none of them at -30, 0 or 30 degrees; at 330 degrees it ran into the condenser. No
+    assert holds that yet
 
 - [ ] **what the sampler still has to prove on the bench**
   - the bushing's seal under the syringe's suction, and the 40 mm sampling depth
