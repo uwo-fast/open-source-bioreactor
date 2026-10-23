@@ -51,7 +51,7 @@ thermocouple_probes = [mcmaster_3872K127_thermocouple_probe,
 use <thermocouple_probe.scad>;
 
 use <../utils/registries.scad>;
-function thermocouple_probe_by_name(name) = registry_by_name(thermocouple_probes, name);
+function thermocouple_probe_by_name(name) = registry_by_name(thermocouple_probes, name, 4);
 
 // example usage - keep commented, this file is include'd
 // thermocouple_probe(mcmaster_3872K117_thermocouple_probe, position_base=true);

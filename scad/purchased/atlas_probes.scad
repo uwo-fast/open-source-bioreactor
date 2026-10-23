@@ -106,7 +106,7 @@ use <atlas_probe.scad>;
 // ph_lab_g1 and do_lab_g1 are no longer sold and still in use, so they stay swept.
 
 use <../utils/registries.scad>;
-function atlas_probe_by_name(name) = registry_by_name(atlas_probes, name);
+function atlas_probe_by_name(name) = registry_by_name(atlas_probes, name, [7, 8]);
 
 // example usage - keep commented, this file is include'd
 // atlas_probe(ph_lab_g2);

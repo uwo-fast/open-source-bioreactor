@@ -12,6 +12,6 @@ stir_bar_50x8    = ["50x8",   undef,   [50,     8       ]];
 stir_bars = [stir_bar_25x8, stir_bar_38x8, stir_bar_50x8];
 
 use <../utils/registries.scad>;
-function stir_bar_by_name(name) = registry_by_name(stir_bars, name);
+function stir_bar_by_name(name) = registry_by_name(stir_bars, name, 3);
 
 use <stir_bar.scad>
