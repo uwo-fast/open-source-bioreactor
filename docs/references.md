@@ -15,7 +15,7 @@ turned out to be wrong. The status says how far each source was actually checked
 Grades: **[PR]** peer-reviewed · **[TH]** thesis · **[PAT]** patent · **[TX]** textbook ·
 **[TP]** trade press · **[VN]** vendor.
 
-Every literature source below is also in [`references.bib`](references.bib) — 60 entries, every one
+Every literature source below is also in [`references.bib`](references.bib) — 61 entries, every one
 carrying its grade and verification status in a `note` field, so the whole set imports into a
 reference manager in one go rather than one DOI at a time. Vendor pages, part numbers and software libraries
 are deliberately not in it: they are cited inline on the registry row or file that uses them.
@@ -279,6 +279,18 @@ located away from the impeller."_ They used 2, 3 and 6 mm holes. **Scale caveat*
 1.0 and 1.5 m diameter against this project's 0.21 m, and a pitched-blade **downflow** turbine,
 where this reactor's lower impeller pumps up.
 → `scad/utils/stirred_tank.scad` `stirred_tank_sparge_ring_band()` upper bound
+
+**Pálfy, T.G., Török, L., Kalicz, P. & Gribovszki, Z. (2021).** "3D printed receptacle with
+diffuser membrane for manipulating pressurized air and water." _HardwareX_ 9:e00192.
+[doi:10.1016/j.ohx.2021.e00192](https://doi.org/10.1016/j.ohx.2021.e00192) **[PR]** · **read**
+The one printed air-permeable membrane found with a measured point: PETG from a 0.4 mm nozzle, three
+0.2 mm layers on a 15 % honeycomb, walls at 115 % extrusion to seal and the membrane at 95 % by
+editing the G-code. Table 2: **14.7 L/h at 0.2 bar** through a 46.8 × 46.8 mm membrane (2190 mm²),
+with **50 entry points, all within 838 mm²** of it, and 1–3 mm bubbles; the active area shrank 20–25 %
+over about forty hours and twenty freezing cycles. One flow, and the paper does not say where the
+0.2 bar was read. So it is a membrane with fifty uncontrolled holes rather than an air stone, and a
+single point scales only by assumption.
+→ `scad/custom/sparge_puck.scad` `palfy_*()`, borrowed, scaled linearly
 
 ### Blade twist — measured in the literature, but out of this blade's range
 

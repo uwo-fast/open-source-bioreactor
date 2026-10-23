@@ -76,8 +76,8 @@ not_exported=(
     scad/custom/gasket_cutter.scad
     scad/custom/impeller.scad
     scad/custom/motor_mount.scad
-    scad/custom/sparger.scad                    # exported through head's manifest as "sparge_ring"
-                                                # or "sparge_cap";
+    scad/custom/sparger.scad                    # exported through head's manifest as "sparge_ring",
+                                                # "sparge_arm" or "sparge_loop";
                                                 # this file's own render is a preview of it
     scad/custom/magnet_hub_cap.scad             # exported through frame's manifest as
                                                 # "frame_hub_cap", on the fan the frame chose
@@ -111,6 +111,8 @@ not_exported=(
                                                 # reactor, so no manifest of the reactor's has it
     scad/custom/sampler.scad                    # the turbidity sampler prints from its own file
                                                 # until head places it on a port; see TODO.md
+    scad/custom/sparge_puck.scad                # bench test pieces, one outlet face per print,
+                                                # that never go in a jar; see docs/build.md
     scad/custom/condenser_cold_finger.scad      # the condenser variants under test, each printed
     scad/custom/condenser_coil.scad             # from its own file until one is chosen and head
                                                 # places it

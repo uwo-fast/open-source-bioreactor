@@ -1,18 +1,18 @@
-# Chlorella vulgaris (CCPC 90) photobioreactor run — telemetry export (2026-07)
+# Chlorella vulgaris (CPCC 90) photobioreactor run — telemetry export (2026-07)
 
 Full telemetry export of the July 2026 bioreactor culture, pulled from the Pi's
 InfluxDB just before the culture was evacuated and the bench sterilized.
 
 ## Culture
 
-- **Organism:** _Chlorella vulgaris_, strain **CCPC 90**
+- **Organism:** _Chlorella vulgaris_, strain **CPCC 90**
 - **Feed / medium:** 0.2 g/L Miracle-Gro in DI water (unbuffered)
 - **Control:** impeller stirring only; **no active pH control** (dose pumps configured but disabled the entire run)
 - **Vessel / stack:** bioreactor-v1 machine profile; anolis runtime `bioreactor-automation`, providers `bread0` (CRUMBS/I2C actuators) + `ezo0` (Atlas EZO pH/DO probes)
 
 ## Export provenance
 
-- **Source:** Pi `anolis-f95d50b1` (129.100.228.70), InfluxDB org/bucket `anolis` (native `--with-observability`, 30-day retention)
+- **Source:** Pi `anolis-f95d50b1`, InfluxDB org/bucket `anolis` (native `--with-observability`, 30-day retention)
 - **Window:** `2026-07-23T02:10:05Z → 2026-07-31T18:05:05Z` (~8.7 days, full retained history of this culture)
 - **Exported:** 2026-07-31 (~14:05 EDT) via **`anolis-telemetry-export` v0.1.1** (`POST /v1/exports/signals:query`, `resolution.mode=raw_event`, `format=csv`), run from source on the Pi.
 - All timestamps are **UTC (RFC3339 Z)**. EDT = UTC−4.
@@ -44,7 +44,7 @@ spans **multiple field types** (`value_double`/`value_int`/`value_bool`/`value_s
 587,061 rows twice. It is now regenerated:
 
 ```bash
-just analysis-run 2026-07-23-chlorella-ccpc90    # or: python pipeline.py --verify
+just analysis-run 2026-07-23-chlorella-cpcc90    # or: python pipeline.py --verify
 ```
 
 `--verify` cross-checks every regenerated split against the row counts in

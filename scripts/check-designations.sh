@@ -38,6 +38,7 @@ matrix=(
     "drive_name|airlift|differs|reactor_vessel_name=jar_1gal_155x251,drive_name=none"
     "lid_center_name|plain|differs|drive_name=magnetic"
     "sparger_name|ring|differs"
+    "sparger_name|loop|differs"
     "baffle_name|wall|differs"
     "stir_bar_name|50x8|builds"
     "stir_magnet_name|MAGRE6x2p5|builds"

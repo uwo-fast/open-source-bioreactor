@@ -5,7 +5,7 @@ dissolved oxygen and pH were logged alongside the stirring motor and sample
 pump for 8.9 days (2024-11-19 19:06 UTC → 2024-11-28 16:23 UTC).
 
 This run predates the anolis telemetry stack; see
-[`../2026-07-23-chlorella-ccpc90/`](../2026-07-23-chlorella-ccpc90/) for the
+[`../2026-07-23-chlorella-cpcc90/`](../2026-07-23-chlorella-cpcc90/) for the
 current export format.
 
 > **Provenance warning.** Organism, strain, medium and vessel were never

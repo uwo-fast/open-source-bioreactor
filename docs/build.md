@@ -62,7 +62,7 @@ This is the part of the build nothing else will remind you about.
   ports the plates would have taken (see [The wall baffle cage](#the-wall-baffle-cage))
 - the **motor mount**, in three parts: base plate, face plate, middle stand
 - **two impellers**
-- the **sparger** — the arm, or the ring if the build names it (`sparger_name`; see
+- the **sparger** — the arm, or the ring or the loop if the build names one (`sparger_name`; see
   [The sparger](#the-sparger))
 
 **From `frame.scad`:** the base, the top base, **eight ribs** and **twelve rod spacers**. The ribs
@@ -304,7 +304,7 @@ bore slides.
 | ------------------------------ | ---------------------------------------------------------- |
 | Lid plug, `AS568-160`          | **stretched 3.67 %** onto a groove cut from the jar's bore |
 | Port face seals, 12 of them    | seated in a gland cut to fit the ring, no stretch          |
-| Riser rod seals, `8785N364` ×5 | **0 % stretch** — the ring's ID _is_ the 4 mm tube         |
+| Riser rod seals, `8785N364` ×6 | **0 % stretch** — the ring's ID _is_ the 4 mm tube         |
 | Bearing rim seal, `8785N382`   | **0 % stretch** — the ring's ID _is_ the 22 mm bearing     |
 
 **The bearing seal goes in before the bearing.** Drop the 22×1.5 down the pocket and let it expand
@@ -315,7 +315,8 @@ pocket floor: the bearing still bottoms there.
 
 The rod seals go into an enclosed groove just above the lid's **inner** face, and they go in
 **before** the tubes pass through. That face is inaccessible once the lid is on the jar. There is
-one per tube port — five on the full lid, three on the six-port jars.
+one per tube port — five on the full lid, three on the six-port jars. A sixth seals the riser in
+the sparger's feed socket.
 
 **The silicone sits differently at every joint, and the risky ones are all downstream.** One bore,
 3/16 in ID, covers the whole run from the meter to the ring: **native** on the check valve's barb,
@@ -469,27 +470,38 @@ bench measurement, which is why the fan and magnet sizes are parameters rather t
 
 ## The sparger
 
-Two spargers, one build parameter: `sparger_name` is `cap` — an **arm** — or `ring`, and `auto` is
-the arm. The ring is what runs under no drive and the airlift; the shaft and magnetic builds run
-the arm. Both hang off the same riser from the `air_in` port, and the other four tubes stay whichever
-is fitted — they are the dosing and vent lines, and under the arm they simply have nothing to
-socket into.
+Three spargers, one build parameter: `sparger_name` is `arm`, `ring` or `loop`, and `auto` is the
+arm. The ring is what runs under no drive, and the only one the airlift takes, since it centres the
+draft tube; the shaft and magnetic builds run the arm, and the loop is theirs to choose. All three
+hang off the same riser from the `air_in` port, and the other four tubes stay whichever is fitted —
+they are the dosing and vent lines, and under the arm or the loop they simply have nothing to socket
+into.
 
 ```
-sparge arm: from the air inlet's riser at r 56.5 in to r 9, 66.9536 mm off the floor,
+sparge arm: from the air inlet's riser at r 56.5 in to r 9, 53 mm off the floor,
 10 mm under the lower impeller's blades, 5 mm short of the shaft; at 0.5 vvm that is
 4.08517 L/min
-sparge arm: 3 holes of 3 mm along 31.9 mm at 3.54444 hole diameters, 3.21074 m/s each;
-bubbles 5.09817 mm at formation, 981.337 a second; the 4 mm bore carries 5.41813 m/s,
-open area ratio 1.6875
+sparge arm: 10 holes of 1 mm along 31.9 mm at 3.19 hole diameters, 8.66901 m/s each;
+bubbles 3.53487 mm at formation, 2944.01 a second; the 4 mm bore carries 5.41813 m/s,
+open area ratio 0.625
 ```
 
 **The arm is the ring's feed without the ring**: the same socket the riser drops into, the same
 elbow, and one straight run turned inward to end 5 mm short of the shaft, holes drilled down so the
 bubbles rise into the lower impeller. It sits 10 mm under that impeller's blades, which is where a
 sparger goes in the stirred-tank literature; the ring sat between the impellers on Birch & Ahmed's
-argument, and that argument stays with the ring. Same 3 mm holes as the ring, same anti-fouling
-reason; the count follows the arm's length at the pitch floor.
+argument, and that argument stays with the ring. Same 1 mm holes as the ring; the count follows
+the arm's length at the pitch floor, which on `jar_10L` is ten.
+
+**The loop is the arm hooked round into a C.** The same socket, boss and screw on the same riser,
+the elbow turned inward, then one tube that hooks onto a 300° C round the shaft at the arm's height
+with the ring's sixteen holes drilled down, so the gas rises into the lower impeller all the way
+round. It is as large as the baffles let it be: inside their inner edge by the lean they and its
+own riser can swing through at its height and 1.25 mm, which on `jar_10L` is 75.95 mm across,
+1.09 D. On the other jars the hook places it, smaller. It hangs on one riser, and `head()` warns
+what sideways force closes its gap to a baffle; seat it, square it to the shaft, and drive the
+screw before the lid goes on, since turning it 1.27° on the riser closes that gap as well. Its one
+end takes the ring's plug screw, and a pipe cleaner goes in there and round to the socket.
 
 **With no drive the ring goes to the floor.** Between the impellers is only a place when there are
 impellers; under `drive_name = "none"` the ring's underside sits `sparge_ring_floor_gap` (10 mm)
@@ -504,6 +516,15 @@ ends self-taps into a pilot in that boss and bites the tube by 3 mm: seat the ar
 shaft, and drive the screw. The arm's end is open through a pilot like the ring's, so a brush
 passes, and a second of those screws plugs it.
 
+**The feed socket is sealed under its screw.** The gas leaves the riser at the socket's bottom and
+climbs the 0.1 mm annulus round it, and the screw's pilot opens into that annulus, so a seal above
+the screw would leave the gas the screw's thread. Bench runs held at low flow and let small bubbles
+out at higher. The screw now sits 2 mm under the mouth and a 4×1.5 EPDM ring, the lid port's,
+sits in an enclosed groove just under it, 6.3 to 8.55 mm down. Fold the ring, start it in the
+bore, and push it down with the riser's end until it snaps into the groove; then seat the riser
+and drive the screw. The ring's feed socket has no screw but takes the same boss and groove, since
+its 6.4 mm tube is narrower than the 6.46 mm groove.
+
 **The baffles are as wide as the sparger built lets them be.** Under the ring they stop at
 10.35 mm, which is what the ring leaves outside them. Under the arm the lock bore stops them, at
 17.09 mm on `jar_10L`; a larger impeller stops them first, since `baffle_impeller_clearance` is a
@@ -512,7 +533,9 @@ not take the ring.
 
 **Check-holes covers whichever is built.** The head's hole probes used to be echoed in the part's
 own frame while the mesh sat 170 mm lower, so they landed in empty space and passed without
-testing anything; they are placed with the part now, for the ring and the arm both.
+testing anything; they are placed with the part now, for the ring, the arm and the loop. A hole drilled down is cut
+from outside, so one that stops short leaves a skin under the bore, where the face and the bore's
+centreline are both open anyway; a third point, in that skin, catches it.
 
 ## The wall baffle cage
 
@@ -913,6 +936,67 @@ the closed size. `lid_thickness` has to be inside the panel range the e-stop's n
 **Fit the e-stop to the lid, then close the box.** The four lid screws are M3 self-tapping, into
 pilot holes in the base's corner posts; for heat-set inserts set `screw_pilot_diameter` to the
 insert's hole. Fit a grommet or gland in the wire hole before the wires go through it.
+
+## The sparge test pucks
+
+Bench parts, not reactor parts: each prints from `custom/sparge_puck.scad` with one outlet face,
+and none goes in a jar. They exist to measure what a printed outlet face costs at a flow, which is
+the one number the sparger model cannot work out. Drilled holes are priced by the orifice equation;
+a printed porous face is priced by nothing, and the only published one (Pálfy et al. 2021) is one
+point at 14.7 L/h, borrowed and scaled linearly in the render.
+
+**Print three hole pucks and one porous puck to start.** `hole_diameter` 3 is the arm's own holes
+and the control; 0.8 and 0.5 are the finer ones. `hole_count = 0` takes as many holes as keeps the
+drop through each well above what a `hole_scatter` difference in size does to the pressure a hole
+needs to launch a bubble, at `bench_flow`, so every hole flows there; the render's first line says
+by how much. The drop goes as the flow squared, so at lower flows the largest holes take the gas,
+and the render says so if `bench_flow` is set to them with `hole_count` fixed at the printed
+count. The 3 mm control also warns that its manifold is outside the range the sparger model is
+fitted to: the feed's 53.5 Pa of velocity head is more than the 16.5 Pa through a hole, so the
+jet into the plenum, not the scatter, may decide which holes flow. `outlet = "porous"` is a solid
+face `porous_layers` thick at Pálfy's area, over ribs.
+
+**The face prints on the bed, as rendered.** Finish each hole with a drill of `hole_diameter`: a
+0.4 mm nozzle does not hold a hole that small, and a drill's size is a number you know. For the
+porous face, make its layers leak: Pálfy et al. ran the walls at 115 % extrusion to seal them and
+dropped the three membrane layers to 95 % by editing the G-code. Their membrane was printed last,
+on top of its honeycomb; this one is printed first, pressed against the bed with the ribs on top,
+and a first layer squashed flat may leak less than theirs did. That is one more reason the borrowed
+point is a guess. Keep the sliced project with the results, since the face is the recipe as much as
+the geometry.
+
+**Seal-check every puck first.** Tape over the face, put it under water and blow: any bubble now is
+a wall leaking, and the face's numbers mean nothing until it stops.
+
+**Blank the feed first.** The pressure is read at a tee upstream of the puck, so it also carries
+what the tube and the riser offcut lose on the way, which for the 3 mm control is as large as the
+face's cost. With no puck on, and the offcut's end in air, read the tee at each flow below; take
+that off every reading after.
+
+Then, under `bench_depth` of water in a clear column, at three flows on the rotameter — 0.8, 2.5
+and 4 L/min span the reactor's band — record:
+
+1. **The plenum's pressure**, from that tee: a U-tube of clear tubing for the hole pucks, a
+   0-30 kPa gauge for the porous one. What it reads above the water's own head and the blank is the
+   face's cost. For a hole puck the render's `sparge puck gauge` line is the prediction to check: a
+   range, since the capillary part is a peak each bubble passes and the U-tube damps it.
+2. **How many outlets are bubbling, at `bench_flow`.** All of them is what the hole count was
+   chosen for; a few means the scatter is larger than `hole_scatter`. At the lower flows a few is
+   expected, and the count there is the reading.
+3. **Bubble size**, from a photo against a scale in the column. The render's figure is a floor.
+
+**The porous puck may not reach any of those flows.** Carried linearly from Pálfy's one point, its
+face costs so much that the pump flat out pushes about 0.28 L/min through it, and the render's
+warning gives the figure. So run it with the pump flat out and record the flow it passes and the
+pressure, then at two lower flows on a rotameter that reads them. If it passes much more than the
+render says, the borrowed point was the wrong guess, which is what the puck is for.
+
+**The socket puck hangs from an offcut of the 4 mm riser,** gripped by the M4 set screw as the
+arm's socket is, so it also checks the 0.2 mm slip fit nobody has measured. A barb puck hangs from
+soft tubing, which cannot hold it down: the render says whether it floats, and by how much.
+
+What it decides: a face whose cost fits under what the pump has left goes into `head()` as a
+measured row, with the line pricing it like the filter; one that does not stays on the bench.
 
 ## Commissioning
 

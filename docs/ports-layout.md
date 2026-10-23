@@ -278,7 +278,9 @@ take. `head()` reports both floors on every render.
 What the uniform lid costs is not packing but CLEANING. On the mixed twelve-port lid four gaps are
 1.0466 mm and eight are 5.85 or 10.65; uniform makes all twelve 1.0466. That does not create the
 problem - the four tight gaps were always there - but it does make it the whole lid's rather than a
-corner of it. See TODO.md, which was already asking whether a cloth goes through 1.0466 mm.
+corner of it. And the lid is where the growth goes. In photos of past cultures the buildup is high
+in the culture, in the headspace and on the lid, with almost none low down on the sparger and
+probes. See TODO.md, which was already asking whether a cloth goes through 1.0466 mm.
 
 | set         | ports | functions                                                            | worst pair | min mouth |
 | ----------- | ----- | -------------------------------------------------------------------- | ---------- | --------- |

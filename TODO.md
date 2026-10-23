@@ -24,11 +24,11 @@ closed it and in `docs/`.
     valve upstream of it; why these, `docs/procurement.md`). What is left is buying them and taking
     a reading
   - no sparger geometry waits on it: `sparge_design_vvm` appears only in echoes. The arm the stirred
-    builds take runs its 3 x 3 mm holes at 3.21 m/s at 0.5 vvm on `jar_10L`, inside Barbosa's
-    tested 0.4-5.4 m/s from about 0.06 to 0.84 vvm; on `jar_1gal_180` the same arm is at 8.02 m/s,
-    outside it, and `head()` warns
+    builds take runs its 10 x 1 mm holes at 8.67 m/s at 0.5 vvm on `jar_10L`, outside Barbosa's
+    tested 0.4-5.4 m/s, and `head()` warns; on `jar_1gal_180` the same arm runs 11 holes at
+    3.42 m/s, inside it
   - CO2 is answered by a run, not a calculation: air at 0.5 vvm supports about 0.09 g/L/day on a
-    30 % utilisation assumption, and the 2026-07-23 run grew CCPC 90 for 8.7 days on air alone. The
+    30 % utilisation assumption, and the 2026-07-23 run grew CPCC 90 for 8.7 days on air alone. The
     reactor's actual CO2 utilisation is the measurable unknown, and the bigger lever on productivity
 
 - [ ] **choose an outlet filter that fits in the budget `head()` reports**
@@ -69,6 +69,8 @@ closed it and in `docs/`.
   - unpriced: whether 1.0466 mm between two 5 mm flanges is enough to get a cloth into. The lever
     is a thinner cord: a 23x1 EPDM (McMaster 8785N348, not registered) takes the groove to
     Ø25.2 at 0.25 mm of squeeze
+  - the lid is where cleaning matters most. In photos of past cultures the buildup is high in the
+    culture, in the headspace and on the lid, with almost none low down on the sparger and probes
 
 - [ ] **model the support tubes' discharge holes, or decide not to**
   - every tube port but `air_in` is capped at its lower end and vents through a hole drilled up its
@@ -79,12 +81,29 @@ closed it and in `docs/`.
     file cut clears it nearly 7x; a shallow pass that just breaks the wall does not
   - not parameterised on purpose: a default for a hand-cut window would be a guess
 
+- [ ] **whether the loop earns its one-riser hang**
+  - `sparger_name = "loop"` builds and checks, and no registered build takes it. On `jar_10L` it
+    sits 1.25 mm inside the baffles once they and its riser have leaned, and `head()` warns that
+    0.467 N sideways closes that, against a flow force nobody has measured
+  - the swirl is the likelier load: its torque on a C round the shaft turns the loop about its
+    riser, held only by the port's seal, and as little as 1.27° closes the same gap. Nothing prices
+    that; a key or flat on the riser in its port would stop it if the bench shows it turning
+  - a bench question: run the stirred `jar_10L` with the loop and look for it touching a plate. If it
+    holds, it is the case for making it the stirred default, since it puts the gas under the whole
+    impeller rather than one side of it. If not, a second socket on a dosing riser would steady it,
+    as the ring's supports do
+  - no registered build names it, so `just export-part` cannot reach it; `head.scad` with
+    `-D render_all=false -D render_sparger=true -D head_sparger="loop"` renders it alone
+  - on the bench it held off the plates, and all eight 3 mm holes bubbled with the C level (#70).
+    It now drills sixteen 1 mm holes, open area ratio 1.00 on its one bore; count them again
+
 - [ ] **where the sparger's gas actually goes, and whether the DO probe should move**
   - only for a stirred build given the ring (`sparger_name = "ring"`), which no registered build
     takes: the stirred builds default to the arm, and the airlift hangs DO straight inside its tube
   - there the DO face sits 20.6 mm above the sparge ring's centreline and 0.59 mm off its radius on
     `jar_10L`, over a ring of bubbles in the convergence zone: the one placement that can read wrong
-    both ways
+    both ways. The loop (`sparger_name = "loop"`) gets the same report, and on `jar_10L` puts the
+    face 103.9 mm above it and 29.0 mm off its radius, out of its gas
   - the flow rate is not the concern (bulk mean 16x what the probe needs); the gas path is not
     modelled, and no source found gives DO placement relative to a sparger
   - a bench question: run it and see whether the DO trace is spiky. If it matters, the free
@@ -105,6 +124,18 @@ closed it and in `docs/`.
     `docs/build.md`
   - every other build still hangs lid plates: each needs the cage checked against its jar before it
     can name `baffle_name = "wall"`, and the magnetic, airlift and ring builds are refused today
+
+- [ ] **measure what a printed sparge face costs, before any reactor sparger changes**
+  - `custom/sparge_puck.scad` prints one outlet face per puck; the bench run is `docs/build.md`'s
+    _The sparge test pucks_
+  - a porous face is priced by one borrowed point: Pálfy et al.'s membrane carried linearly to
+    4 L/min wants 15 times the open area of a 52.8 mm face, and at that size the pump would push
+    about 0.28 L/min through it; the render's warning gives both. Linear is an assumption a
+    three-flow reading settles
+  - finer holes buy little on their own: the bubble floor goes as the cube root of the hole, and
+    near an impeller hole size has a negligible effect (Rewatkar & Joshi 1993, in 0.57-1.5 m
+    vessels). So a finer face is the airlift ring's question first, not the arm's
+  - closes with a measured row per face that `head()` prices in the gas line, as it does the filter
 
 - [ ] **on `jar_10L` the lid plates' width is the lean's to give back** (the magnetic build and
       head.scad's own default; the shaft reference build carries the wall cage)
@@ -362,7 +393,9 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
 
 - [ ] **the ring's bore is the departure, not its holes, and it is more than one designation**
   - on `jar_10L` given the ring (the stirred default is the arm), at its 4.11 L/min, sweeping the
-    bore with 8 x 3 mm holes held:
+    bore with 8 x 3 mm holes held. With 16 x 1 mm holes the 4.0 mm row is 5.42 m/s at an open
+    area of 1.00, and a hole's 49 Pa outweighs the 17.7 Pa of velocity head, so the bore is no
+    longer a departure on its own; the sweep wants redoing at that size:
 
     | bore        | feed velocity | open area | velocity head | verdict                             |
     | ----------- | ------------- | --------- | ------------- | ----------------------------------- |

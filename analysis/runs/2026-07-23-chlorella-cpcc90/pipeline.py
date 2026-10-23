@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild every derived artefact for the 2026-07-23 Chlorella CCPC 90 run.
+"""Rebuild every derived artefact for the 2026-07-23 Chlorella CPCC 90 run.
 
 The export ships one master file, ``raw/signals_raw_long.csv``. Everything
 else is regenerated here:
@@ -156,7 +156,7 @@ def plot(pivoted):
             fontsize=8,
             color="0.3",
         )
-    axes[0].set_title("Chlorella vulgaris CCPC 90 — 2026-07-23 to 07-31")
+    axes[0].set_title("Chlorella vulgaris CPCC 90 — 2026-07-23 to 07-31")
     axes[2].set_xlabel("Time (UTC)")
     fig.tight_layout()
     fig.savefig(FIGURES / "sensors.png", dpi=110)
