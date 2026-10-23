@@ -22,6 +22,7 @@ use <custom/impeller.scad>;
 use <custom/sparger.scad>;
 use <custom/bearing_blank.scad>;
 use <custom/draft_tube.scad>;
+use <custom/baffle_cage.scad>;
 
 include <purchased/dc_motors.scad>;
 include <purchased/gearboxes.scad>;
@@ -97,6 +98,12 @@ render_stir_bar = false;
 render_bearing_blank = false;
 // The airlift's draft tube, standing on the floor; only with the airlift
 render_draft_tube = false;
+// The wall baffle cage, where the build carries one instead of lid plates
+render_baffle_cage = false;
+// Which of it: the cage in the jar, or one print file as it sits on the bed, at the origin
+baffle_cage_part_to_render = "cage"; // [cage, hoop_top, hoop_bottom, blade]
+// How far the cage's blades are slid in, as they go through the mouth; 0 is out against the glass, in mm
+baffle_cage_slide = 0;
 // Which of the pair, or the top half of a split one, for a per-part export; whole, they are mirror images, so two different parts
 impeller_to_render = "both"; // [both, lower, upper, lower_half, upper_half]
 // the grub screws holding each impeller to the shaft
@@ -397,6 +404,7 @@ port_position = "locked"; // [locked, entry]
 //   "probe"        -> atlas probe holder (flex collet), bore 0, fourth slot the registered probe
 //   "thermocouple" -> NPT thread mount, bore_radius the through-hole, fourth slot the probe
 //   "baffle"       -> blind port carrying a swirl baffle, bore 0; count must divide the port count
+//   "blank"        -> a port left empty, closed by a blank; made by head_ports_walled(), not listed
 
 // A rigid tube from the lid port down into the sparge ring's socket, and the only thing holding
 // the ring. Above the port tables because they are bored for it.
@@ -578,14 +586,60 @@ function head_gas_line_pressure(flow, vessel_pressure, riser_length, vent_length
   + gas_valve_pressure_drop(flow, check_valve_cv(sparge_check_valve), vessel_pressure)
   + head_gas_exhaust_pressure(flow, vent_length);
 
+// ----- the lid under the wall cage -----
+//
+// The cage's hoops are Cs, and every probe has to hang in the gap: the hoops pass under the lid
+// inside the ports' reach, and a probe's body and lean reach past them. The gap is the sector
+// between two blades that holds the DO probe, less a block and its ramp on the dovetail's side and
+// a block on the other. A probe outside
+// it moves into a port the lid's plates free inside it, and every port left empty takes a blank.
+
+function head_wall_angle_in(a, from, to) = let (_x = ((a - from) % 360 + 360) % 360) _x > 0 && _x < to - from;
+function head_wall_gap(ports, blade_at) =
+  let (
+    _n = len(ports),
+    _step = 360 / len(blade_at),
+    _do = [for (i = [0:_n - 1]) if (head_port_function(ports[i]) == "do_probe") i],
+    _a = len(_do) == 0 ? undef : _do[0] * 360 / _n,
+    _k = is_undef(_a) ? undef : floor((((_a - blade_at[0]) % 360) + 360) % 360 / _step),
+    _from = is_undef(_k) ? undef : blade_at[0] + _k * _step
+  )
+    // from past the ramp on the dovetail's side of the blade at `from`, so the lip that holds the
+    // flange has the band behind it, to the block's side of the next blade
+    is_undef(_from) ? undef : [_from + baffle_cage_block() + baffle_cage_taper(), _from + _step - baffle_cage_block()];
+function head_ports_walled(ports, blade_at) =
+  let (
+    _n = len(ports),
+    _gap = head_wall_gap(ports, blade_at),
+    _in = [for (i = [0:_n - 1]) !is_undef(_gap) && head_wall_angle_in(i * 360 / _n, _gap[0], _gap[1])],
+    _free = [for (i = [0:_n - 1]) if (_in[i] && head_port_type(ports[i]) == "baffle") i],
+    _movers = [for (i = [0:_n - 1]) if (!_in[i] && head_port_type(ports[i]) == "probe") i]
+  )
+    assert(!is_undef(_gap), "The wall cage's gap is found from the DO probe's port, and this lid has none.")
+    assert(
+      len(_movers) <= len(_free),
+      str(len(_movers), " probes hang outside the wall cage's gap and only ", len(_free), " baffle ports inside it are free to take them.")
+    )
+    [
+      for (i = [0:_n - 1])
+        let (_slot = search(i, _free), _j = len(_slot) == 0 ? undef : _slot[0])
+          !is_undef(_j) && _j < len(_movers) ? ports[_movers[_j]]
+          : head_port_type(ports[i]) == "baffle" || len(search(i, _movers)) > 0 ? ["blank", "blank", 0, undef, ports[i][4]]
+          : ports[i]
+    ];
+function head_ports_for_baffles(vessel_opening_diameter, baffles) =
+  let (_p = head_ports_for(vessel_opening_diameter))
+    head_baffles_selected(baffles) == "wall" ? head_ports_walled(_p, wall_baffle_at) : _p;
+
 // The gas comes down whichever port is the air inlet, wherever that ends up sitting.
 function head_sparge_feed_port(vessel_opening_diameter) = head_port_index(vessel_opening_diameter, "air_in");
 
 // Every printed part this lid carries: [name, quantity, the flags that render it alone]. It
 // varies with the vessel, so it lives here; `just export-parts` walks it.
-function head_print_parts(vessel, lid_flange_height, drive = "shaft", sparger = "auto", lid_center = "auto") =
+function head_print_parts(vessel, lid_flange_height, drive = "shaft", sparger = "auto", lid_center = "auto", baffles = "auto") =
   let (
-    _ports = head_ports_for(vessel_opening_diameter(vessel)),
+    _ports = head_ports_for_baffles(vessel_opening_diameter(vessel), baffles),
+    _wall = head_baffles_selected(baffles) == "wall",
     _sparger = head_sparger_selected(sparger, drive),
     _segs = head_baffle_segments(vessel, lid_flange_height, _sparger == "ring")
   )
@@ -604,17 +658,27 @@ function head_print_parts(vessel, lid_flange_height, drive = "shaft", sparger = 
       !head_blank_carried(drive, lid_center) ? [] : [["bearing_blank", 1, "-D render_bearing_blank=true"]],
       drive != "airlift" ? [] : [["draft_tube", 1, "-D render_draft_tube=true"]],
       [[str("sparge_", _sparger), 1, "-D render_sparger=true"]],
-      // One blank per interface the lid carries, to close a port nothing is in.
+      // One blank per interface the lid carries, to close a port nothing is in, and one for each
+      // port the lid leaves empty.
       [
         for (f = head_port_interface_names(_ports))
-          [str("port_blank_", f), 1, str("-D blank_port_to_render=\"", f, "\"")],
+          [
+            str("port_blank_", f),
+            1 + len([for (p = _ports) if (head_port_type(p) == "blank" && bayonet_name(head_port_interface(p)) == f) p]),
+            str("-D blank_port_to_render=\"", f, "\""),
+          ],
+      ],
+      // the wall cage: two hoops, mirror images, and the blades
+      !_wall ? [] : [
+        for (c = [["hoop_top", 1], ["hoop_bottom", 1], ["blade", len(wall_baffle_at)]])
+          [str("baffle_cage_", c[0]), c[1], str("-D render_baffle_cage=true -D baffle_cage_part_to_render=\"", c[0], "\"")],
       ],
       // Ports, in the order they sit on the lid. A baffle's plate prints in pieces, so it is that
       // many parts; every other port is one.
       [
         for (i = [0:len(_ports) - 1])
           let (_n = head_port_export_name(_ports, i))
-            if (head_port_type(_ports[i]) != "baffle")
+            if (head_port_type(_ports[i]) != "baffle" && head_port_type(_ports[i]) != "blank")
               [str("port_", _n), 1, str("-D port_to_render=\"", _n, "\"")],
       ],
       // Every baffle port is the same part, so one part with a quantity, rendered off the first
@@ -649,7 +713,9 @@ function head_port_interface_names(ports) =
     [for (i = [0:len(_n) - 1]) if (i == 0 || len([for (j = [0:1:i - 1]) if (_n[j] == _n[i]) j]) == 0) _n[i]];
 
 function head_port_export_name(ports, i) =
-  head_port_function(ports[i]) == "baffle" ? str("baffle_", i) : head_port_function(ports[i]);
+  head_port_function(ports[i]) == "baffle" ? str("baffle_", i)
+  : head_port_function(ports[i]) == "blank" ? str("blank_", i)
+  : head_port_function(ports[i]);
 
 // Which ports have a rigid tube standing in them, and so want a seal around it.
 function head_port_carries_riser(port) = head_port_type(port) == "tube";
@@ -719,6 +785,29 @@ baffle_joint_neck = 4.2;
 baffle_joint_flare = 10;
 // slide fit between tail and socket; flank clearance only, the butt faces meet
 baffle_joint_allowance = 0.1;
+
+/* [Baffle Cage Parameters] */
+
+// The standard set instead of lid plates: four at T/12, T/72 off the wall, floor to surface, on two
+// hoops that pass the mouth with the blades slid in (custom/baffle_cage.scad). The lid's baffle
+// ports then take blanks, and a probe outside the hoops' gap moves into one of them.
+
+// Lid-hung plates, or the wall cage; auto is the lid's plates
+head_baffles = "auto"; // [auto, lid, wall]
+function head_baffles_selected(baffles) = baffles == "auto" ? "lid" : baffles;
+// Where the cage's blades stand, in degrees, equally spaced: between the frame's lit windows,
+// whose strips stand at 105-165 and 285-345 deg (frame.scad, light_places)
+wall_baffle_at = [0, 90, 180, 270];
+// what the top hoop's underside keeps over the culture, in mm
+wall_baffle_surface_clearance = 1;
+// what the bottom hoop's footing keeps over the floor at its inner edge, in mm
+wall_baffle_floor_clearance = 0.2;
+// what the slid-in bottom bars, detents and all, keep over the floor under them, in mm
+wall_baffle_bar_floor_clearance = 0.5;
+// what the cage keeps off the glass anywhere but its pads, in mm
+wall_baffle_glass_clearance = 1;
+// what the hoops and the bars' tips keep off the tubes and thermocouple hanging inside them, in mm
+wall_baffle_hardware_clearance = 1;
 
 /* [Sparger Parameters] */
 
@@ -1051,14 +1140,14 @@ function head_sparge_cap_holes(reach) =
 function head_point_segment_distance(p, a, b) =
   let (_t = max(0, min(1, (p - a) * (b - a) / ((b - a) * (b - a))))) norm(p - (a + _t * (b - a)));
 // Each bound as [what sets it, radius]; the loop takes the least.
-function head_sparge_loop_bounds(mouth, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter) =
+function head_sparge_loop_bounds(mouth, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, baffles = "auto") =
   concat(
     [
       ["Birch & Ahmed's 1.4 D", stirred_tank_sparge_ring_equal_volume_ratio() * impeller_diameter / 2],
       ["the mouth", mouth / 2 - sparge_ring_clearance - sparge_tube_extent() / 2],
       ["the hook", sparge_loop_largest(head_port_circle_radius(mouth), sparger_bend(sparge_tube()))],
     ],
-    len(head_baffle_ports(head_ports_for(mouth))) == 0 ? [] : [[
+    len(head_baffle_ports(head_ports_for_baffles(mouth, baffles))) == 0 ? [] : [[
       "the baffles",
       head_port_circle_radius(mouth)
       - head_baffle_width(mouth, impeller_diameter, head_baffle_lean(lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter), false) / 2
@@ -1067,8 +1156,8 @@ function head_sparge_loop_bounds(mouth, lid_flange_height, vessel_internal_heigh
       - sparge_ring_clearance - sparge_tube_extent() / 2,
     ]]
   );
-function head_sparge_loop_radius(mouth, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter) =
-  min([for (b = head_sparge_loop_bounds(mouth, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter)) b[1]]);
+function head_sparge_loop_radius(mouth, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, baffles = "auto") =
+  min([for (b = head_sparge_loop_bounds(mouth, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, baffles)) b[1]]);
 
 // Everything AXISYMMETRIC a hanging run has to miss, as annuli in the (radius, height)
 // half-plane. See utils/meridian.scad for why that is enough. The arm is not on the list: it
@@ -1076,7 +1165,7 @@ function head_sparge_loop_radius(mouth, lid_flange_height, vessel_internal_heigh
 // radial span would report a collision with every probe at every other port. What it does have
 // to miss is checked where it is placed - the floor, the shaft and the stir bar. The loop's ring
 // IS on the list as a whole ring, being a C round the axis; its feed and hook are the arm's case.
-function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, sparger = "ring", ring_z = undef, ring_r = undef) =
+function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, sparger = "ring", ring_z = undef, ring_r = undef, baffles = "auto") =
   let (
     _floor_z = -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height),
     _swept = head_impeller_swept_radius(impeller_diameter),
@@ -1086,7 +1175,7 @@ function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel
     _spacing = stirred_tank_impeller_spacing(impeller_diameter, head_impeller_spacing_factor()),
     _loop = sparger == "loop",
     _ring_r = !is_undef(ring_r) ? ring_r
-      : _loop ? head_sparge_loop_radius(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter)
+      : _loop ? head_sparge_loop_radius(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, baffles)
       : head_sparge_ring_radius(vessel_opening_diameter),
     _ring_z = !is_undef(ring_z) ? ring_z : _loop ? head_sparge_cap_z(impeller_diameter) : head_sparge_ring_z(impeller_diameter)
   )
@@ -1112,11 +1201,12 @@ function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel
     );
 
 // Does a probe at this lean clear the vessel's internals AND still pass the mouth on the way in?
-function head_probe_lean_fits(probe, vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, tilt, sparger = "ring", ring_z = undef) =
+function head_probe_lean_fits(probe, vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, tilt, sparger = "ring", ring_z = undef, baffles = "auto") =
   let (
     _runs = head_probe_runs(probe, vessel_opening_diameter, lid_flange_height, tilt),
     _obstacles = head_reach_obstacles(
-      vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, sparger, ring_z
+      vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, sparger, ring_z,
+      baffles=baffles
     ),
     _gaps = [
       for (r = _runs)
@@ -1128,14 +1218,14 @@ function head_probe_lean_fits(probe, vessel_opening_diameter, lid_flange_height,
     && (len(_gaps) == 0 || min(_gaps) > 0);
 
 // The most of `want` this jar allows, scanned down from the ceiling; 0 where nothing fits.
-function head_probe_tilt_ceiling(probe, vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, want, steps = 45, sparger = "ring", ring_z = undef) =
+function head_probe_tilt_ceiling(probe, vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, want, steps = 45, sparger = "ring", ring_z = undef, baffles = "auto") =
   let (
     _ok = [
       for (i = [0:steps])
         let (_t = want * (steps - i) / steps)
           if (head_probe_lean_fits(
                 probe, vessel_opening_diameter, lid_flange_height, vessel_internal_height,
-                vessel_punt_height, impeller_diameter, _t, sparger, ring_z
+                vessel_punt_height, impeller_diameter, _t, sparger, ring_z, baffles
               )) _t
     ]
   )
@@ -1322,6 +1412,24 @@ function sparge_tube_extent() = sparger_across_corners(sparge_tube(), sparge_tub
 function head_sparge_ring_radius(mouth, cap = undef) =
   let (_mouth = mouth / 2 - sparge_ring_clearance - sparge_tube_extent() / 2)
     is_undef(cap) ? _mouth : min(_mouth, cap);
+// The glass's inner radius at a height over the floor's lowest point, on the wall side, and the
+// least of it between two heights: at the ends and at every profile vertex between.
+function head_glass_radius(vessel, z) =
+  let (
+    _p = vessel_inner_profile(vessel),
+    _y = z + vessel_thickness(vessel),
+    _r = [
+      for (i = [0:len(_p) - 2])
+        let (a = _p[i], b = _p[i + 1])
+          if (a[1] != b[1] && (a[1] - _y) * (b[1] - _y) <= 0) a[0] + (_y - a[1]) * (b[0] - a[0]) / (b[1] - a[1])
+    ]
+  ) len(_r) == 0 ? undef : max(_r);
+function head_glass_radius_min(vessel, z0, z1) =
+  let (
+    _t = vessel_thickness(vessel),
+    _zs = concat([z0, z1], [for (q = vessel_inner_profile(vessel)) if (q[1] - _t > z0 && q[1] - _t < z1) q[1] - _t])
+  ) min([for (z = _zs) head_glass_radius(vessel, z)]);
+
 // How far the glass between two radii stands above the floor's lowest point, the datum heights
 // here are taken from: the highest floor across them, at an end or at a profile vertex between.
 function head_floor_rise(vessel, r0, r1) =
@@ -1650,6 +1758,8 @@ module head_port(port, panel_thickness, baffle_width, baffle_length, baffle_segm
       segment=baffle_segment_to_render,
       width=baffle_width
     );
+  } else if (_type == "blank") {
+    bayonet_port(type=_iface, part="pin", panel_thickness=panel_thickness, text_labels=true, label="BLANK");
   } else if (_type == "thermocouple") {
     assert(
       !is_undef(_probe),
@@ -1709,12 +1819,14 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _loop = _sparger == "loop";
   // what the report calls whichever is built
   _sparger_noun = _ring ? "ring" : _loop ? "loop" : "arm";
+  _baffles = head_baffles_selected(head_build(build, "baffles", head_baffles));
+  _wall = _baffles == "wall";
 
   // The table this lid carries, resolved once, with a designated probe spliced in. Safe because
   // every "probe" port gets bayonet_std whatever it carries; it would not be safe for a
   // thermocouple, whose interface follows its thread.
   _designated = [
-    for (p = head_ports_for(vessel_opening_diameter))
+    for (p = head_ports_for_baffles(vessel_opening_diameter, _baffles))
       let (
         _swap = head_port_function(p) == "do_probe" ? _build_do_probe
               : head_port_function(p) == "ph_probe" ? _build_ph_probe
@@ -1738,6 +1850,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   // A lid need not carry baffles; everything that measures a plate asks first.
   _has_baffles = len(_baffle_at) > 0;
+  // what breaks the swirl, the lid's plates or the cage's blades
+  _baffle_count = _wall ? len(wall_baffle_at) : len(_baffle_at);
   impeller_diameter = stirred_tank_impeller_diameter(_vessel_bore, head_impeller_bore_ratio());
 
   // ----- the airlift's draft tube -----
@@ -1786,7 +1900,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     : head_probe_tilt_ceiling(
       head_port_probe(_do_port[0]), vessel_opening_diameter, lid_flange_height,
       vessel_internal_height, vessel_punt_height, impeller_diameter, _build_do_tilt_max,
-      sparger=_sparger, ring_z=_loop ? undef : _sparge_ring_height
+      sparger=_sparger, ring_z=_loop ? undef : _sparge_ring_height, baffles=_baffles
     );
 
   // The mouth window this jar had to land in: too small and the ring will not pass, too large and
@@ -1882,7 +1996,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     for (i = [0, 1]) let (t = _impeller_types[i])
       _po_kind[i] != "correlated" ? [] : stirred_tank_medek_departures(
         impeller_blades(t), _clearance_ratio, _tank_ratio, _height_ratio, impeller_blade_angle(t),
-        len(_baffle_at), stirred_tank_reynolds(impeller_diameter, dc_motor_rated_output_rpm(_motor))
+        _baffle_count, stirred_tank_reynolds(impeller_diameter, dc_motor_rated_output_rpm(_motor))
       )
   ];
 
@@ -2004,6 +2118,52 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   _baffle_load = stirred_tank_baffle_load(_baffle_torque, len(_baffle_at), port_circle_radius);
 
+  // ----- the wall cage -----
+  // In the floor datum's frame, as the draft tube is: heights over the floor's lowest point.
+  _cage_bore = _vessel_bore / 2;
+  _cage_mouth = vessel_opening_diameter / 2;
+  _cage_ri = baffle_cage_hoop_inner(_cage_mouth);
+  _cage_ro = baffle_cage_hoop_outer(_cage_mouth);
+  _cage_out = baffle_cage_outer_edge(_cage_bore);
+  _cage_in = baffle_cage_inner_edge(_cage_bore);
+  _cage_width = baffle_cage_width(_cage_bore);
+  _cage_pad = baffle_cage_pad_proud(_cage_bore);
+  _cage_travel = baffle_cage_travel(_cage_bore, _cage_mouth);
+  _cage_gap = _wall ? head_wall_gap(_ports, wall_baffle_at) : undef;
+  _cage_surface = vessel_punt_height + _liquid_height;
+  _cage_top = _cage_surface + wall_baffle_surface_clearance;
+  _cage_bottom = head_floor_rise(vessel, _cage_ri, _cage_ro) + wall_baffle_floor_clearance;
+  // the footing lifts the slid-in bars, detents and all, clear of the floor rising under them
+  _cage_tip_in = baffle_cage_bar_tip(_cage_mouth) - _cage_travel;
+  _cage_foot = max(
+    0,
+    head_floor_rise(vessel, max(0, _cage_tip_in), _cage_ri) + wall_baffle_bar_floor_clearance
+    - baffle_cage_bar_low(_cage_bottom, 0)
+  );
+  _cage_blade_top = baffle_cage_blade_top(_cage_top);
+  _cage_blade_bottom = baffle_cage_blade_bottom(_cage_bottom, _cage_foot);
+  _cage_wetted = min(_cage_surface - _cage_blade_bottom, _liquid_height);
+  _cage_area_ratio = stirred_tank_baffle_area_ratio(_vessel_bore, _liquid_height, len(wall_baffle_at), _cage_width, _cage_wetted);
+  // the arm catches the air inlet's riser, the tube the sparger hangs from
+  _cage_key_i = [for (i = [0:_n - 1]) if (head_port_function(_ports[i]) == "air_in") i];
+  _cage_key = len(_cage_key_i) == 0 ? undef : [_cage_key_i[0] * 360 / _n, port_circle_radius, steel_tube_od(sparge_riser_tube)];
+  // what hangs inside the hoops, the probes aside: the tubes, and the thermocouple's sheath
+  _cage_hardware = port_circle_radius + max(concat(
+    [steel_tube_od(sparge_riser_tube) / 2],
+    [for (p = _ports) if (head_port_type(p) == "thermocouple") thermocouple_probe_tip_dia(head_port_probe(p)) / 2]
+  ));
+  _cage_probe_at = [for (i = [0:_n - 1]) if (head_port_type(_ports[i]) == "probe") i * 360 / _n];
+  _cage_raw = head_ports_for(vessel_opening_diameter);
+  _cage_moved = [for (i = [0:_n - 1]) if (_wall && head_port_function(_ports[i]) != head_port_function(_cage_raw[i]) && head_port_type(_ports[i]) != "blank") str(head_port_function(_ports[i]), " to ", i * 360 / _n)];
+  _cage_blanks = [for (i = [0:_n - 1]) if (head_port_type(_ports[i]) == "blank") i * 360 / _n];
+  // the pads, which are meant to sit in the straight bore
+  _cage_pad_zones = [
+    [_cage_blade_top - baffle_cage_pad_from_top() - baffle_cage_pad_height() - _cage_pad, _cage_blade_top - baffle_cage_pad_from_top() + _cage_pad],
+    [_cage_blade_bottom + baffle_cage_pad_from_bottom() - _cage_pad, _cage_blade_bottom + baffle_cage_pad_from_bottom() + baffle_cage_pad_height() + _cage_pad],
+  ];
+  _cage_load = stirred_tank_baffle_load(_baffle_torque, len(wall_baffle_at), (_cage_in + _cage_out) / 2);
+  _cage_key_load = _baffle_torque / (port_circle_radius / 1000);
+
   _baffle_solid_deflection = stirred_tank_baffle_deflection(
     _baffle_load, _baffle_length, _baffle_freeboard, _baffle_width, baffle_thickness, baffle_modulus);
 
@@ -2081,8 +2241,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _cap_holes = head_sparge_cap_holes(_cap_reach);
   _cap_velocity = stirred_tank_orifice_velocity(_sparge_flow, _cap_holes, sparge_hole_diameter);
   // The loop: the arm's riser and height, hooked into a C round the shaft, with the ring's holes.
-  _sparge_loop_bounds = head_sparge_loop_bounds(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter);
-  _sparge_loop_radius = head_sparge_loop_radius(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter);
+  _sparge_loop_bounds = head_sparge_loop_bounds(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, _baffles);
+  _sparge_loop_radius = head_sparge_loop_radius(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, _baffles);
   _sparge_loop_ratio = stirred_tank_sparge_ring_ratio(2 * _sparge_loop_radius, impeller_diameter);
   _sparge_loop_lean = head_baffle_lean_at(lid_flange_height, vessel_internal_height, vessel_punt_height, _cap_z);
   _sparge_loop_riser_lean = head_riser_lean_at(lid_flange_height, vessel_internal_height, vessel_punt_height, _cap_z);
@@ -2328,7 +2488,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _karcz_departures = stirred_tank_eccentric_departures(
     _impeller_ratio, _liquid_to_bore, _culture_volume,
     stirred_tank_reynolds(impeller_diameter, dc_motor_rated_output_rpm(_motor)),
-    _eccentricity_ratio, len(_baffle_at), impeller_to_render == "both", false
+    _eccentricity_ratio, _baffle_count, impeller_to_render == "both", false
   );
 
   // The joint posts are bored through the flange, and where its edge falls is the assembly's to set
@@ -3093,7 +3253,13 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   );
 
   echo(
-    !_has_baffles
+    _wall
+      ? str(
+        "baffles: ", len(wall_baffle_at), " on the wall cage at ", wall_baffle_at, " deg, ", _cage_width, " x ",
+        _cage_wetted, " mm wetted, ", _cage_bore - _cage_out, " mm (T/72) off the glass; ", _cage_area_ratio,
+        " of Oldshue's four-at-T/12 reference area"
+      )
+    : !_has_baffles
       ? "baffles: none on this lid, so the vessel is unbaffled and will swirl rather than mix"
       : str(
         "baffles: ", len(_baffle_at), " x ", _baffle_width, " x ", _baffle_length, " mm (",
@@ -3114,6 +3280,81 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         : str(len(_baffle_at), " is the most this port circle spaces equally"),
       "; see docs/agitation.md"
     ));
+
+  if (_wall) {
+    assert(
+      _shaft_drive && !_ring,
+      str("The wall cage is checked against the shaft drive with the arm or the loop; this build is a ", _drive, " drive with the ", _sparger, ".")
+    );
+    // The arm runs in from its riser, which the hardware check covers; the loop's C and hook stay
+    // inside the riser too, so this holds by construction and says so if that changes.
+    assert(
+      !_loop || _sparge_loop_radius + sparge_tube_extent() / 2 + wall_baffle_hardware_clearance <= baffle_cage_bar_tip(_cage_mouth),
+      str("The sparge loop reaches r ", _sparge_loop_radius + sparge_tube_extent() / 2, " and the cage's bars' tips stand at r ",
+        baffle_cage_bar_tip(_cage_mouth), ", inside ", wall_baffle_hardware_clearance, " mm of it.")
+    );
+    assert(_cage_travel > 0 && _cage_ro < _cage_mouth, "The wall cage's blades already pass the mouth; it needs no hoops.");
+    assert(!is_undef(_cage_key), "The wall cage's arm catches the air inlet's riser, and this lid has no air_in port.");
+    assert(
+      !head_wall_angle_in(_cage_key[0], _cage_gap[0], _cage_gap[1]),
+      str("The air inlet's riser at ", _cage_key[0], " deg hangs in the hoops' gap, ", _cage_gap, " deg, where there is no hoop for the arm.")
+    );
+    assert(
+      len([for (a = _cage_probe_at) if (!head_wall_angle_in(a, _cage_gap[0], _cage_gap[1])) a]) == 0,
+      str("A probe hangs at ", _cage_probe_at, " deg and the hoops' gap is ", _cage_gap, " deg; the hoops would cut through it.")
+    );
+    assert(
+      _cage_ri - _cage_hardware >= wall_baffle_hardware_clearance
+      && baffle_cage_bar_tip(_cage_mouth) - _cage_hardware >= wall_baffle_hardware_clearance,
+      str("The tubes and thermocouple reach r ", _cage_hardware, "; the hoops start at r ", _cage_ri, " and the bars' tips at r ",
+        baffle_cage_bar_tip(_cage_mouth), ", inside ", wall_baffle_hardware_clearance, " mm of them.")
+    );
+    assert(
+      head_glass_radius_min(vessel, _cage_top, _cage_top + baffle_cage_hoop_height()) - _cage_ro >= wall_baffle_glass_clearance,
+      str("The top hoop, at ", _cage_top, " mm over the floor, meets the shoulder: the glass closes to r ",
+        head_glass_radius_min(vessel, _cage_top, _cage_top + baffle_cage_hoop_height()), " against its r ", _cage_ro, ".")
+    );
+    assert(
+      head_glass_radius_min(vessel, _cage_surface, _cage_blade_top) - _cage_out >= wall_baffle_glass_clearance,
+      str("The blades' tops, over the culture to ", _cage_blade_top, " mm, meet the shoulder: the glass closes to r ",
+        head_glass_radius_min(vessel, _cage_surface, _cage_blade_top), " against their outer edge at r ", _cage_out, ".")
+    );
+    assert(
+      min([for (z = _cage_pad_zones) head_glass_radius_min(vessel, z[0], z[1])]) >= _cage_bore - 0.01,
+      "A wall cage pad sits where the glass curves, off the straight bore it is sized to."
+    );
+    assert(
+      head_glass_radius_min(vessel, _cage_blade_bottom, _cage_blade_bottom + baffle_cage_pad_from_bottom()) - _cage_out >= wall_baffle_glass_clearance
+      && _cage_blade_bottom - head_floor_rise(vessel, _cage_in, _cage_out) >= wall_baffle_glass_clearance,
+      str("The blades' feet, at ", _cage_blade_bottom, " mm, meet the glass at the base's corner.")
+    );
+    echo(str(
+      "baffle cage: hoops of r ", _cage_ri, "-", _cage_ro, " pass the ", vessel_opening_diameter, " mm mouth flat, ",
+      _cage_mouth - _cage_ro, " mm a side; each blade slides in ", _cage_travel, " mm to its stop, its pads then at r ",
+      baffle_cage_slid_pad(_cage_bore, _cage_mouth), ", and out to ",
+      _cage_bore - _cage_out - _cage_pad, " mm off the glass at its pads; the top hoop stands ",
+      wall_baffle_surface_clearance, " mm over the culture, the bottom on a ", _cage_foot, " mm footing; the gap at ",
+      _cage_gap, " deg holds the probes at ", _cage_probe_at, " deg; the arm catches air_in's riser at ", _cage_key[0], " deg"
+    ));
+    echo(str(
+      "baffle cage ports: ", len(_cage_moved) == 0 ? "no probe moves" : str("moved ", _cage_moved, " deg"),
+      "; blanks at ", _cage_blanks, " deg, where the lid's plates hung"
+    ));
+    echo(str(
+      "baffle cage print: hoop_top, hoop_bottom (its mirror image) and ", len(wall_baffle_at), " blades of ",
+      _cage_blade_top - baffle_cage_bar_low(_cage_bottom, _cage_foot), " mm, flat"
+    ));
+    echo(str(
+      "baffle cage clearance: the blades' inner edge at r ", _cage_in, ", ",
+      _cage_in - head_impeller_swept_radius(impeller_diameter), " mm outside the impellers; the hoops ",
+      _cage_ri - _cage_hardware, " mm and the bars' tips ", baffle_cage_bar_tip(_cage_mouth) - _cage_hardware,
+      " mm off the tubes and thermocouple"
+    ));
+    echo(str(
+      "baffle cage load: ", _cage_load, " N each at ", _baffle_rpm, " rpm, and the air inlet's riser stops the cage turning with ",
+      _cage_key_load, " N at r ", port_circle_radius, "; reasoned, not cited"
+    ));
+  }
 
   // Loaded by the impellers' torque and excited at the shaft's speeds, so the shaft drive's alone.
   if (_has_baffles && _shaft_drive)
@@ -3191,6 +3432,10 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     )
   );
 
+  assert(
+    _baffles == "lid" || _baffles == "wall",
+    str("head: no baffles named \"", _baffles, "\"; the lid's plates are \"lid\" and the cage is \"wall\".")
+  );
   assert(
     _sparger == "ring" || _sparger == "arm" || _sparger == "loop",
     str("The sparger is \"", _sparger, "\"; it is ring, arm or loop.")
@@ -3290,7 +3535,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     );
     assert(
       !_has_baffles || _loop_hook_gap > 0,
-      str("The sparge loop's hook runs ", -_loop_hook_gap, " mm into a baffle once both have leaned.")
+      str("The sparge loop's hook runs ", _has_baffles ? -_loop_hook_gap : 0, " mm into a baffle once both have leaned.")
     );
 
     echo(str(
@@ -3775,7 +4020,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       "eccentricity: the mount leaves ", _eccentricity_room, " mm of offset, e/T ", _eccentricity_ratio,
       " against Hall's measured 0.2, worth ", 100 * stirred_tank_eccentric_gain(_eccentricity_ratio),
       "% of the centred blend time on Karcz's up-pumping branch, to an unbaffled vessel (this one carries ",
-      len(_baffle_at), " baffles); extrapolated on ", _karcz_departures
+      _baffle_count, " baffles); extrapolated on ", _karcz_departures
     ));
   }
   assert(
@@ -4207,6 +4452,15 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           foot_width=draft_tube_foot_width,
           foot_fillet=draft_tube_foot_fillet
         );
+
+  // The wall cage, in the floor datum's frame, or one print file as it sits on the bed.
+  if (_wall && (render_baffle_cage || render_all))
+    color(prints2_color)
+      if (baffle_cage_part_to_render == "cage")
+        translate([0, 0, _tube_floor_z])
+          baffle_cage(_cage_bore, _cage_mouth, wall_baffle_at, _cage_gap, _cage_top, _cage_bottom, _cage_foot, _cage_key, baffle_cage_slide);
+      else
+        baffle_cage(_cage_bore, _cage_mouth, wall_baffle_at, _cage_gap, _cage_top, _cage_bottom, _cage_foot, _cage_key, part=baffle_cage_part_to_render);
 
   if (_blank && (render_bearing_blank || render_all))
     color(prints1_color)

@@ -56,7 +56,10 @@ This is the part of the build nothing else will remind you about.
   an NPT mount
 - a **blank port** for each bayonet size the lid uses — a pin with no bore, labelled `BLANK`, to
   close a port with nothing in it while cleaning, testing or servicing
-- the **baffle ports and plates** — one plate per baffle port, each split into dovetailed pieces
+- the **baffle ports and plates** — one plate per baffle port, each split into dovetailed pieces;
+  or, on a build that names the wall cage (`baffle_name = "wall"`, the `jar_10L_220x305` reference
+  build), the **cage**: a top hoop, a bottom hoop and four blades, and three more blanks for the
+  ports the plates would have taken (see [The wall baffle cage](#the-wall-baffle-cage))
 - the **motor mount**, in three parts: base plate, face plate, middle stand
 - **two impellers**
 - the **sparger** — the arm, or the ring or the loop if the build names one (`sparger_name`; see
@@ -533,6 +536,41 @@ own frame while the mesh sat 170 mm lower, so they landed in empty space and pas
 testing anything; they are placed with the part now, for the ring, the arm and the loop. A hole drilled down is cut
 from outside, so one that stops short leaves a skin under the bore, where the face and the bore's
 centreline are both open anyway; a third point, in that skin, catches it.
+
+## The wall baffle cage
+
+The standard four baffles stand on the wall, 17.5 mm wide and 2.92 mm off the glass, and their
+outer edges are 204 mm apart against a 142.2 mm mouth. So the cage changes shape: two hoops of
+r 64–70 pass the mouth lying flat, and each blade slides 30.6 mm in and out on a radial bar at each
+end, in a dovetail channel in each hoop. Each bar's outer end is closed under the flange, so it
+stops against the hoop and a blade cannot slide through into the middle. `head()` echoes the fit
+as `baffle cage:` and the parts as `baffle cage print:`; the geometry is
+`scad/custom/baffle_cage.scad`.
+
+**Printing.** PETG, no supports. Both hoops print channels up: the top one turned over with its
+arm on the bed, the bottom one as it sits, on its footing. They are mirror images, not one part
+printed twice: the dovetail is on one side of the bar only, so the blade prints flat with it on
+top. A blade is 238.7 mm long and needs that much bed in one direction.
+
+**Building it, on the bench.**
+
+1. Hold the hoops apart by a blade's length. Slide each blade's two bars into the channels from
+   outside, tip first, until the detent at each tip clicks out of the hoop's inside: the blade is
+   out, held both ways between that detent and the one outside the hoop.
+2. Push each blade in through its two detents' clicks to its stop, 30.6 mm.
+3. Lower the cage through the mouth onto the floor, bending the hoops where the pads catch: slid
+   in, they stand 2.9 mm a side past it. Turn the gap in the hoops toward the DO probe's port.
+4. Reach in and push each blade out until it clicks, against the wall.
+5. Fit the lid. The air inlet's riser, the tube the sparger hangs from, drops into the slot in
+   the top hoop's arm, which stops the cage turning.
+
+**The lid under the cage.** The hoops are Cs, and the probes hang in the gap. The pH probe goes in
+the 30° port instead of the 120°, and 120, 150 and 270° take blanks (`baffle cage ports:`).
+
+**What the bench decides.** The slide fit is 0.15 mm a side; if a bar binds, sand its flange. A
+detent is a 0.5 mm hump against 0.36 mm of slack in its channel; if it will not go through, sand
+it, and if it does not click, it needs to be taller. Whether a detent holds a blade out under flow is
+not modelled.
 
 ## The airlift's draft tube
 
