@@ -2144,8 +2144,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _cage_blade_bottom = baffle_cage_blade_bottom(_cage_bottom, _cage_foot);
   _cage_wetted = min(_cage_surface - _cage_blade_bottom, _liquid_height);
   _cage_area_ratio = stirred_tank_baffle_area_ratio(_vessel_bore, _liquid_height, len(wall_baffle_at), _cage_width, _cage_wetted);
-  // the arm catches the vent tube
-  _cage_key_i = [for (i = [0:_n - 1]) if (head_port_function(_ports[i]) == "air_out") i];
+  // the arm catches the air inlet's riser, the tube the sparger hangs from
+  _cage_key_i = [for (i = [0:_n - 1]) if (head_port_function(_ports[i]) == "air_in") i];
   _cage_key = len(_cage_key_i) == 0 ? undef : [_cage_key_i[0] * 360 / _n, port_circle_radius, steel_tube_od(sparge_riser_tube)];
   // what hangs inside the hoops, the probes aside: the tubes, and the thermocouple's sheath
   _cage_hardware = port_circle_radius + max(concat(
@@ -3294,10 +3294,10 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         baffle_cage_bar_tip(_cage_mouth), ", inside ", wall_baffle_hardware_clearance, " mm of it.")
     );
     assert(_cage_travel > 0 && _cage_ro < _cage_mouth, "The wall cage's blades already pass the mouth; it needs no hoops.");
-    assert(!is_undef(_cage_key), "The wall cage's arm catches the vent tube, and this lid has no air_out port.");
+    assert(!is_undef(_cage_key), "The wall cage's arm catches the air inlet's riser, and this lid has no air_in port.");
     assert(
       !head_wall_angle_in(_cage_key[0], _cage_gap[0], _cage_gap[1]),
-      str("The vent tube at ", _cage_key[0], " deg hangs in the hoops' gap, ", _cage_gap, " deg, where there is no hoop for the arm.")
+      str("The air inlet's riser at ", _cage_key[0], " deg hangs in the hoops' gap, ", _cage_gap, " deg, where there is no hoop for the arm.")
     );
     assert(
       len([for (a = _cage_probe_at) if (!head_wall_angle_in(a, _cage_gap[0], _cage_gap[1])) a]) == 0,
@@ -3334,7 +3334,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       baffle_cage_slid_pad(_cage_bore, _cage_mouth), ", and out to ",
       _cage_bore - _cage_out - _cage_pad, " mm off the glass at its pads; the top hoop stands ",
       wall_baffle_surface_clearance, " mm over the culture, the bottom on a ", _cage_foot, " mm footing; the gap at ",
-      _cage_gap, " deg holds the probes at ", _cage_probe_at, " deg; the arm catches air_out at ", _cage_key[0], " deg"
+      _cage_gap, " deg holds the probes at ", _cage_probe_at, " deg; the arm catches air_in's riser at ", _cage_key[0], " deg"
     ));
     echo(str(
       "baffle cage ports: ", len(_cage_moved) == 0 ? "no probe moves" : str("moved ", _cage_moved, " deg"),
@@ -3351,7 +3351,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       " mm off the tubes and thermocouple"
     ));
     echo(str(
-      "baffle cage load: ", _cage_load, " N each at ", _baffle_rpm, " rpm, and the vent tube stops the cage turning with ",
+      "baffle cage load: ", _cage_load, " N each at ", _baffle_rpm, " rpm, and the air inlet's riser stops the cage turning with ",
       _cage_key_load, " N at r ", port_circle_radius, "; reasoned, not cited"
     ));
   }
