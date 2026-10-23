@@ -38,6 +38,7 @@ ECHO: "port fit: ph_probe's collet reaches 63.1 mm from the axis leaning 0 deg, 
 ECHO: "sparge support drilling: a support tube vents through a hole drilled between 37.9375 and 145.575 mm from its top end (past the lid's inner face, short of the culture); nearer the first is better"
 ECHO: "sparge riser: 4 x 3 mm tube; the feed is 401.997 mm and each dosing or vent tube 341.974 mm (the feed socket sits 60.0237 mm lower); 14.9375 mm proud of its port, 12 mm inside the socket, 0.4 mm of slack through the port's bore"
 ECHO: "sparge riser seal: 4x1.5 EPDM (8785N364) in each of 3 ports, at 0% stretch and 18% squeeze; without it each port is a 2.63894 mm2 hole into the headspace"
+ECHO: "sparge socket seal: 4x1.5 EPDM (8785N364) in the arm's feed socket, its groove 6.3 to 8.55 mm down from the mouth, under the screw's pilot; 18% squeeze. Fold it, start it in the bore, and push it down with the riser's end until it snaps in"
 ECHO: "dosing: Kamoer NKP-DC-S10B pulls 3 x 5 mm tube over 1 riser of 4 mm, 1 mm of interference over 14.9375 mm of stub"
 ECHO: "sparge tube stock: 50415K21, 316 SS welded, hard temper; cut 1 x 401.997 mm and 2 x 341.974 mm = 1085.95 mm from a 2000 mm length, leaving 914.055 mm spare"
 ECHO: "sparge back-pressure: 266.023 mm of culture over the arm is 2604.98 Pa, plus 96 Pa of capillary = 2700.98 Pa the gas supply has to beat before anything bubbles"
