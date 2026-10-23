@@ -478,21 +478,21 @@ into.
 sparge arm: from the air inlet's riser at r 56.5 in to r 9, 53 mm off the floor,
 10 mm under the lower impeller's blades, 5 mm short of the shaft; at 0.5 vvm that is
 4.08517 L/min
-sparge arm: 3 holes of 3 mm along 31.9 mm at 3.54444 hole diameters, 3.21074 m/s each;
-bubbles 5.09817 mm at formation, 981.337 a second; the 4 mm bore carries 5.41813 m/s,
-open area ratio 1.6875
+sparge arm: 10 holes of 1 mm along 31.9 mm at 3.19 hole diameters, 8.66901 m/s each;
+bubbles 3.53487 mm at formation, 2944.01 a second; the 4 mm bore carries 5.41813 m/s,
+open area ratio 0.625
 ```
 
 **The arm is the ring's feed without the ring**: the same socket the riser drops into, the same
 elbow, and one straight run turned inward to end 5 mm short of the shaft, holes drilled down so the
 bubbles rise into the lower impeller. It sits 10 mm under that impeller's blades, which is where a
 sparger goes in the stirred-tank literature; the ring sat between the impellers on Birch & Ahmed's
-argument, and that argument stays with the ring. Same 3 mm holes as the ring, same anti-fouling
-reason; the count follows the arm's length at the pitch floor.
+argument, and that argument stays with the ring. Same 1 mm holes as the ring; the count follows
+the arm's length at the pitch floor, which on `jar_10L` is ten.
 
 **The loop is the arm hooked round into a C.** The same socket, boss and screw on the same riser,
 the elbow turned inward, then one tube that hooks onto a 300° C round the shaft at the arm's height
-with the ring's eight holes drilled down, so the gas rises into the lower impeller all the way
+with the ring's sixteen holes drilled down, so the gas rises into the lower impeller all the way
 round. It is as large as the baffles let it be: inside their inner edge by the lean they and its
 own riser can swing through at its height and 1.25 mm, which on `jar_10L` is 75.95 mm across,
 1.09 D. On the other jars the hook places it, smaller. It hangs on one riser, and `head()` warns
