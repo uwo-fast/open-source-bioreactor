@@ -51,7 +51,8 @@ This is the part of the build nothing else will remind you about.
   and all twelve bayonet _lock_ halves. The locks are not optional detail: their channels are the
   walls of the lid's bores, so a lid exported without them is twelve plain holes that nothing locks
   into
-- the **port pin halves**, one per port — tube ports for `air_in`, `air_out` and the dosing
+- the **port pin halves**, one per port — tube ports for `air_in`, `air_out` (only on the ring's
+  builds; elsewhere the coil condenser's body is that pin) and the dosing
   lines `dose_1` to `dose_3`; probe ports with their integral flex collets for DO and pH; a thermocouple port carrying
   an NPT mount
 - a **blank port** for each bayonet size the lid uses — a pin with no bore, labelled `BLANK`, to
@@ -622,33 +623,32 @@ and foam finds the lowest hole. A tube meant to discharge INTO the culture
 instead is drilled past the second.
 ```
 
-**Which end of that window depends on the port.** `air_out` is the exhaust and wants the first
-number — a vent belongs in the headspace. The dosing lines discharge into the culture, so
+**Which end of that window depends on the port.** `air_out`, where it carries a tube, is the
+exhaust and wants the first number — a vent belongs in the headspace. The dosing lines discharge into the culture, so
 they are drilled past the second, and low is better: the dose lands where the impeller will carry it
 away, and the tube below the hole is a dead leg that keeps whatever it is given.
 
-**Only `air_out`'s hole has a size to meet**, and the model prices it rather than saying it is the
-exhaust path and leaving it there:
+**Only `air_out`'s hole has a size to meet**, on the ring's builds, where no condenser takes that
+port. The model prices it rather than saying it is the exhaust path and leaving it there. On
+`jar_1gal_155x251`:
 
 ```
-gas exhaust slot: a slot of the tube's own 7.06858 mm2 bore costs 154.633 Pa at
-4.08517 L/min, and the tube above it 23.517-54.8192 Pa over the 37.9375-88.4342 mm
-drilling window, together 2.4985-2.93751% of the 7130.28 Pa the exhaust has to
-spend; file past 1.04095 mm2 (a 1.15125 mm round hole), which the bore clears
-6.7905x over
+gas exhaust slot: a slot of the tube's own 7.06858 mm2 bore costs 25.9379 Pa at
+1.67312 L/min, and the tube above it 9.63158-20.6526 Pa over the 37.9375-81.3477 mm
+drilling window, together 0.20844-0.273024% of the 17064.6 Pa the exhaust has to
+spend; file past 0.275582 mm2 (a 0.592353 mm round hole), which the bore clears
+25.6496x over
 ```
 
-**On this jar the floor is about 1.04 mm², which is a Ø1.15 mm hole** — a slot roughly 2.2 × 0.5 mm.
-A normal file cut clears it nearly seven times over, and it is _not_ too small to miss: a shallow pass that
-only just breaks the 0.5 mm wall over a couple of millimetres lands on the limit. Cut it, then hold
-the tube up to the light and look through the hole before it goes in.
+**On this jar the floor is about 0.28 mm², which is a Ø0.59 mm hole.** A normal file cut clears it
+many times over, and a shallow pass that only just breaks the 0.5 mm wall is the one way to land
+near it. Cut it, then hold the tube up to the light and look through the hole before it goes in.
 
 **Read the floor off your own render rather than off this page.** It moves with the jar, because it
-is set by the headroom that jar's gas line has left: 1.041 mm² here against 0.288 mm² on
-`jar_1gal_180x197`. And on `jar_6p5gal_305x470` there is no floor to quote at all — that build
-cannot hold the top of its own aeration band, so the echo says so instead of printing a number.
+is set by the headroom that jar's gas line has left: 0.276 mm² here against 0.108 mm² on
+`jar_1p5L_112x215`.
 
-That 7130.28 Pa is the same pressure the throttle is currently giving away, and the same headroom an
+That 17064.6 Pa is the same pressure the throttle is currently giving away, and the same headroom an
 outlet filter would have to fit inside - so what the slot spends comes off both. The slot and the
 tube are already in the line the pump is priced against, at the long end of the drilling window; an
 outlet filter, once one is named, joins them there. The three dosing holes meter nothing and need
@@ -787,18 +787,18 @@ optional.
 
 **Nothing filters the way out, and fitting the obvious part would cost you the top of the band.**
 A bioreactor normally filters the air in _and_ out. This one filters the inlet and vents the
-headspace through a support tube's bore into the room, so the 0.2 µm filter guards one direction of
+headspace through the coil condenser into the room, so the 0.2 µm filter guards one direction of
 two. The tempting fix is a second `1594522` — the filter is sold in tens, so it looks free.
 
 It is not. An outlet filter does not sit between the pump and the sparge holes, but it raises the
 headspace those holes discharge into, and the gas has to beat that too. A second identical filter
-puts the line at **32.3 kPa** against a pump that dead-heads at **27** — the reactor would settle at
-**3.17 L/min**, and 0.5 vvm would stop being a setting it can hold. `head()` reports the budget:
-an outlet filter may cost at most **1.7454 kPa per L/min**, which is 50.6 % of what the inlet one
-does, so it wants roughly **twice the membrane area** rather than the same part again. The vent slot
-and the tube above it are already priced into the line, so that budget is net of them.
+puts the line at **32.4 kPa** against a pump that dead-heads at **27** — the reactor would settle at
+**3.14 L/min**, and 0.5 vvm would stop being a setting it can hold. `head()` reports the budget:
+an outlet filter may cost at most **1.707 kPa per L/min**, which is 49.5 % of what the inlet one
+does, so it wants roughly **twice the membrane area** rather than the same part again. The coil
+condenser's outlet is already priced into the line, so that budget is net of it.
 
-Two numbers behind that are worth knowing. The pump's real ceiling on this line is **5.80 L/min**,
+Two numbers behind that are worth knowing. The pump's real ceiling on this line is **5.78 L/min**,
 not the 21.3 that a back pressure held at the design point suggests — the filter is linear in flow, so
 asking for more raises the line. And the inlet filter's own slope is still extrapolated rather than
 measured, so the budget moves with it: measure that first, and this number follows.
@@ -807,9 +807,13 @@ measured, so the budget moves with it: measure that first, and this number follo
 
 ## The exhaust condenser
 
-Not on the lid's lists yet: each variant prints from its own file, `custom/condenser_cold_finger.scad`
-or `custom/condenser_coil.scad`, and each part is exported in the orientation it prints in. See
-`TODO.md` for what the prints still have to prove.
+**The coil is on the lid's lists.** Its body is `air_out`'s pin, so that port carries no tube and
+no slot: the headspace leaves up the condenser's bore and out of its 4.5 mm outlet barb, which
+`head()` prices in the gas line. Every build whose sparger is not the ring takes it
+(`condenser_name`); the ring's builds keep `air_out`'s tube, which holds the ring. `just export-parts`
+writes the body, panel, former and both pucks, each in the orientation it prints in. The split cold
+finger prints from its own file, `custom/condenser_cold_finger.scad`. See `TODO.md` for what the
+prints still have to prove.
 
 **Print the bodies to hold gas, and anything that holds water to hold water.** A condenser body is
 the exhaust path: gas that leaks through its wall bypasses the cold and carries water out with it.

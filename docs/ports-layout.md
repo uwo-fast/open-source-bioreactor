@@ -108,7 +108,9 @@ far number instead, and low is better — the dose lands where the impeller carr
 tube below the hole is a dead leg that keeps whatever it is given.
 
 Only `air_out`'s hole has a size to meet, being the whole exhaust path: a slot under the tube's own
-7.07 mm² bore becomes the restriction in the gas line. The three dosing holes meter nothing.
+7.07 mm² bore becomes the restriction in the gas line. The three dosing holes meter nothing. Where
+the coil condenser takes `air_out`, which is every build but the ring's, that port carries no tube
+and there is no slot to cut.
 
 The feed socket is told apart from the supports **on the part**, because you cannot see inside one
 at the bottom of a jar: the feed's boss is an **octagon** and a support's is round. Otherwise they
