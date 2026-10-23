@@ -254,8 +254,12 @@ outlives the commit, in `docs/`.
   Rushtons discharge radially and nothing held here places a ring for them; the shaft
   drive's default is the arm. Supersedes
   Oldshue p. 214's 80 %-of-impeller ring, which two experimental studies contradict
-- **the ring's 8 × 3 mm holes are for spacing and against fouling, not for even flow.** Capillary is
-  96 Pa against 2.4 Pa of orifice, so they will not share equally at any count
+- **the spargers' holes are 16 × 1 mm, for bubble size; they were 8 × 3 mm against fouling.** The
+  culture photos show almost no buildup on the sparger, and 3 mm cost bubble size: 5.10 mm at
+  formation against 3.53. Barbosa's 5.4 m/s and an open area of 1 multiply to the bore's own
+  5.42 m/s, so 1 mm × 16 sits on that corner, and its 49 Pa a hole outweighs the bore's 18 Pa of
+  velocity head, which 3 mm's 2.4 Pa did not. Capillary is 288 Pa, so they still will not share
+  equally at any count. The arm fits ten at the pitch floor on `jar_10L`, at 8.67 m/s
 - **the working volume is DERIVED from a fraction of capacity, not pinned in litres.** 0.865 of what
   the jar holds, which is 8.17035 L on jar_10L and scales to every registered vessel. A litre figure
   is a statement about one jar: 8.25 L left jar_6p5gal_305x470's thermocouple in the headspace and

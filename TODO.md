@@ -24,9 +24,9 @@ closed it and in `docs/`.
     valve upstream of it; why these, `docs/procurement.md`). What is left is buying them and taking
     a reading
   - no sparger geometry waits on it: `sparge_design_vvm` appears only in echoes. The arm the stirred
-    builds take runs its 3 x 3 mm holes at 3.21 m/s at 0.5 vvm on `jar_10L`, inside Barbosa's
-    tested 0.4-5.4 m/s from about 0.06 to 0.84 vvm; on `jar_1gal_180` the same arm is at 8.02 m/s,
-    outside it, and `head()` warns
+    builds take runs its 10 x 1 mm holes at 8.67 m/s at 0.5 vvm on `jar_10L`, outside Barbosa's
+    tested 0.4-5.4 m/s, and `head()` warns; on `jar_1gal_180` the same arm runs 11 holes at
+    3.42 m/s, inside it
   - CO2 is answered by a run, not a calculation: air at 0.5 vvm supports about 0.09 g/L/day on a
     30 % utilisation assumption, and the 2026-07-23 run grew CPCC 90 for 8.7 days on air alone. The
     reactor's actual CO2 utilisation is the measurable unknown, and the bigger lever on productivity
@@ -94,8 +94,8 @@ closed it and in `docs/`.
     as the ring's supports do
   - no registered build names it, so `just export-part` cannot reach it; `head.scad` with
     `-D render_all=false -D render_sparger=true -D head_sparger="loop"` renders it alone
-  - one bore feeds all eight holes to a dead end, open area ratio 4.5: count bubbling holes along
-    the C, since they need not share the gas evenly
+  - on the bench it held off the plates, and all eight 3 mm holes bubbled with the C level (#70).
+    It now drills sixteen 1 mm holes, open area ratio 1.00 on its one bore; count them again
 
 - [ ] **where the sparger's gas actually goes, and whether the DO probe should move**
   - only for a stirred build given the ring (`sparger_name = "ring"`), which no registered build
@@ -376,7 +376,9 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
 
 - [ ] **the ring's bore is the departure, not its holes, and it is more than one designation**
   - on `jar_10L` given the ring (the stirred default is the arm), at its 4.11 L/min, sweeping the
-    bore with 8 x 3 mm holes held:
+    bore with 8 x 3 mm holes held. With 16 x 1 mm holes the 4.0 mm row is 5.42 m/s at an open
+    area of 1.00, and a hole's 49 Pa outweighs the 17.7 Pa of velocity head, so the bore is no
+    longer a departure on its own; the sweep wants redoing at that size:
 
     | bore        | feed velocity | open area | velocity head | verdict                             |
     | ----------- | ------------- | --------- | ------------- | ----------------------------------- |
