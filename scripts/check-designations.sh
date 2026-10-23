@@ -39,6 +39,7 @@ matrix=(
     "lid_center_name|plain|differs|drive_name=magnetic"
     "sparger_name|ring|differs"
     "sparger_name|loop|differs"
+    "condenser_name|none|differs"
     "stir_bar_name|50x8|builds"
     "stir_magnet_name|MAGRE6x2p5|builds"
     "culture_fill_fraction|0.7|number"
