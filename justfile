@@ -70,8 +70,8 @@ lint:
 
 # The checks a CGAL render puts out of the fast gate's reach: minutes, not seconds.
 #
-# The slow half of verification: mesh validity, gas-hole breakthrough and the sampler's fits.
-test: check-mesh check-holes check-sampler
+# The slow half of verification: mesh validity, holes, sampler fits and lid clashes.
+test: check-mesh check-holes check-sampler check-clash
 
 # Remove what the recipes build.
 clean:
@@ -160,6 +160,12 @@ check-holes file="" flags="-D render_all=false -D render_sparger=true":
 # Fail when the turbidity sampler stops fitting the board, the clear tube, its screws or the actuator.
 check-sampler:
     @scripts/check-sampler.sh
+
+# It needs the manifold backend, and says SKIP without it.
+#
+# Fail when the condenser or the sampler stands in anything else on the lid, locked or at entry.
+check-clash build="":
+    @scripts/check-clash.sh "{{build}}"
 
 # Only registries that carry a part number are checked, and only what the reference build
 # selects; it compares the part_number field, not the file. The script says what is not enrolled.
