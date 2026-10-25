@@ -1036,13 +1036,13 @@ _ex_arm_at = [320, 0, 0];
 
 translate(_ex_loop_at)
   sparge_loop(
-    radius = 38, feed_radius = 56.5, sweep = 300, holes = 16, hole_diameter = 1.2, tube = _ex_tube,
+    radius = 38, feed_radius = 56.5, sweep = 300, holes = 11, hole_diameter = 1.2, tube = _ex_tube,
     bore = 4, feed_bore = 4 + sparger_socket_allow(), feed_height = sparger_hung_socket_depth(),
     socket_chamfer = sparger_socket_chamfer(), plug_tap_radius = _ex_tap, socket_boss = _ex_boss,
     screw_tap_radius = _ex_tap, feed_bore_bottom = 4 - sparger_socket_press()
   );
-sparge_loop_hole_probes(radius = 38, sweep = 300, holes = 16, tube = _ex_tube, bore = 4, origin = _ex_loop_at);
-sparge_loop_report(radius = 38, sweep = 300, holes = 16, hole_diameter = 1.2, bore = 4, gas_flow = _ex_flow);
+sparge_loop_hole_probes(radius = 38, sweep = 300, holes = 11, tube = _ex_tube, bore = 4, origin = _ex_loop_at);
+sparge_loop_report(radius = 38, sweep = 300, holes = 11, hole_diameter = 1.2, bore = 4, gas_flow = _ex_flow);
 
 // in from the same riser to 9 mm off the axis
 translate(_ex_arm_at)

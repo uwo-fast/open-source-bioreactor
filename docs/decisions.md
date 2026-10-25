@@ -276,6 +276,10 @@ outlives the commit, in `docs/`.
   3.76 m/s at an open area of 1.44, past 1, so the holes nearest the feed take more of the gas;
   its 24 Pa a hole still outweighs the bore's 18 Pa of velocity head. Bubbles are 3.76 mm at
   formation, and the arm fits eight on `jar_10L`, at 7.53 m/s
+- **the loop drills 11 holes, not the ring's 16.** Its one bore feeds them to a dead end, and at 16
+  its far end bubbled weaker on the bench. 11 brings the open area to 0.99 and the push through a
+  hole from 24 to 50 Pa, at 5.47 m/s, a hair past Barbosa's 5.4. The ring keeps 16: it has two
+  paths, and an odd count puts a hole in its split
 - **the working volume is DERIVED from a fraction of capacity, not pinned in litres.** 0.865 of what
   the jar holds, which is 8.17035 L on jar_10L and scales to every registered vessel. A litre figure
   is a statement about one jar: 8.25 L left jar_6p5gal_305x470's thermocouple in the headspace and

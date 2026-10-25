@@ -886,6 +886,11 @@ sparge_hole_probes = false;
 // (docs/agitation.md).
 sparge_hole_diameter = 1.2;
 sparge_hole_count = 16;
+// The loop feeds its holes down one bore to a dead end, where the ring has two paths, so 16 left
+// its far end bubbling weaker on the bench. 11 brings the holes' area under the bore's (0.99) and
+// doubles the push through each (50 Pa against 24), at 5.47 m/s, a hair past Barbosa's 5.4.
+// The ring stays at 16: an odd count puts a hole in its split.
+sparge_loop_hole_count = 11;
 // Which ports drop a tube to the ring to hold it steady: every tube port but the feed. Each is
 // capped at the ring and takes a hole higher up, cut at the bench and not modelled.
 // Derived from the table, since a narrow jar's port set carries no dosing pair.
@@ -2244,6 +2249,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _cap_holes = head_sparge_cap_holes(_cap_reach);
   _cap_velocity = stirred_tank_orifice_velocity(_sparge_flow, _cap_holes, sparge_hole_diameter);
   // The loop: the arm's riser and height, hooked into a C round the shaft, with the ring's holes.
+  _loop_velocity = stirred_tank_orifice_velocity(_sparge_flow, sparge_loop_hole_count, sparge_hole_diameter);
   _sparge_loop_bounds = head_sparge_loop_bounds(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, _baffles);
   _sparge_loop_radius = head_sparge_loop_radius(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, _baffles);
   _sparge_loop_ratio = stirred_tank_sparge_ring_ratio(2 * _sparge_loop_radius, impeller_diameter);
@@ -2261,7 +2267,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   );
   // where the gas leaves, off the floor, and how fast: the ring's or the loop's, or the arm's
   _sparge_height = _ring ? _sparge_ring_height : _cap_z;
-  _sparge_hole_velocity = _ring || _loop ? _sparge_velocity : _cap_velocity;
+  _sparge_hole_velocity = _ring ? _sparge_velocity : _loop ? _loop_velocity : _cap_velocity;
 
   // ----- does anything hanging from the lid run into anything already in the vessel? -----
   //
@@ -3567,7 +3573,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       ));
 
     sparge_loop_report(
-      radius=_sparge_loop_radius, sweep=sparge_loop_sweep, holes=sparge_hole_count,
+      radius=_sparge_loop_radius, sweep=sparge_loop_sweep, holes=sparge_loop_hole_count,
       hole_diameter=sparge_hole_diameter, bore=sparge_bore(), gas_flow=_sparge_flow
     );
 
@@ -3590,7 +3596,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
     if (sparge_hole_probes)
       sparge_loop_hole_probes(
-        radius=_sparge_loop_radius, sweep=sparge_loop_sweep, holes=sparge_hole_count, tube=sparge_tube(),
+        radius=_sparge_loop_radius, sweep=sparge_loop_sweep, holes=sparge_loop_hole_count, tube=sparge_tube(),
         bore=sparge_bore(), section_facets=sparge_tube_facets, origin=[0, 0, _floor_z + _cap_z],
         bearing=_sparge_feed_angle
       );
@@ -4216,7 +4222,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           radius=_sparge_loop_radius,
           feed_radius=port_circle_radius,
           sweep=sparge_loop_sweep,
-          holes=sparge_hole_count,
+          holes=sparge_loop_hole_count,
           hole_diameter=sparge_hole_diameter,
           tube=sparge_tube(),
           bore=sparge_bore(),

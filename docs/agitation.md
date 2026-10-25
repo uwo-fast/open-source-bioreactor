@@ -428,13 +428,14 @@ holds.
   `sparge_loop_largest()`, 38.3 mm in radius at r 56.5. On `jar_10L` the baffles bind first. On
   the others that is what places it, and `head()` warns it is under the band: 25.2 mm (0.73 D) on
   `jar_1p5L`, 31.9 mm (0.64 D) on `jar_1gal_155` and 71.5 mm (0.76 D) on `jar_6p5gal`.
-- **The ring's sixteen 1.2 mm holes**, 3.76 m/s each at 0.5 vvm, inside Barbosa's 0.4–5.4 m/s,
-  and the same 3.76 mm bubble floor, spread over the 291° of C before the end plug's solid,
-  10.0 hole diameters apart. One bore carries all of it to a dead end at an open area ratio of
-  1.44, twice the ring's two paths, and `head()` flags it: the two multiply to the bore's own
-  5.42 m/s, so no size or count clears both. Each hole's 24 Pa still outweighs the bore's 18 Pa
-  of velocity head, which 3 mm's 2.4 Pa did not, but the holes nearest the feed take more of the
-  gas than at 1 mm.
+- **Eleven of the ring's 1.2 mm holes**, with the same 3.76 mm bubble floor, spread over the 291°
+  of C before the end plug's solid, 14.7 hole diameters apart. One bore carries all of it to a
+  dead end, where the ring has two paths, and with sixteen the far end bubbled weaker on the
+  bench: an open area ratio of 1.44, and each hole's 24 Pa only just over the bore's 18 Pa of
+  velocity head. Eleven bring the open area to 0.99 and the push through a hole to 50 Pa, at
+  5.47 m/s a hole, a hair past Barbosa's 5.4, and `head()` flags that: the two multiply to the
+  bore's own 5.42 m/s, so no size or count clears both. The ring keeps sixteen, since an odd
+  count puts a hole in its split.
 - **It hangs on the feed riser alone**, through the arm's boss and screw: 0.374 N/mm at the loop,
   21.6 mm under the riser's end, so 0.467 N sideways closes its 1.25 mm to a baffle, and `head()`
   warns. Nor is that the only way to close it: the impeller's swirl puts a torque on a C round

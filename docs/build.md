@@ -495,7 +495,7 @@ the arm's length at the pitch floor, which on `jar_10L` is eight.
 
 **The loop is the arm hooked round into a C.** The same socket, boss and screw on the same riser,
 the elbow turned inward, then one tube that hooks onto a 300° C round the shaft at the arm's height
-with the ring's sixteen holes drilled down, so the gas rises into the lower impeller all the way
+with eleven of the ring's holes drilled down, so the gas rises into the lower impeller all the way
 round. It is as large as the baffles let it be: inside their inner edge by the lean they and its
 own riser can swing through at its height and 1.25 mm, which on `jar_10L` is 75.95 mm across,
 1.09 D. On the other jars the hook places it, smaller. It hangs on one riser, and `head()` warns

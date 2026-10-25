@@ -93,8 +93,9 @@ closed it and in `docs/`.
     riser, held only by the port's seal, and as little as 1.27° closes the same gap. Nothing prices
     that; a key or flat on the riser in its port would stop it if the bench shows it turning
   - on the bench, under lid plates, it held off them, and all eight 3 mm holes bubbled with the
-    C level (#70). It now drills sixteen 1.2 mm holes, open area ratio 1.44 on its one bore; count
-    them again, and watch for it turning on its riser in the cage build
+    C level (#70). Sixteen 1.2 mm holes all bubbled, the far end weaker; it now drills eleven,
+    open area ratio 0.99 on its one bore. Check the far end again, and watch for it turning on its
+    riser in the cage build
 
 - [ ] **where the sparger's gas actually goes, and whether the DO probe should move**
   - only for a stirred build given the ring (`sparger_name = "ring"`), which no registered build
