@@ -690,8 +690,12 @@ module sparge_arm(
         sparger_elbow_solid(0, _bend, tube, section_facets);
         translate([0, 0, _bend])
           sparger_socket_solid(tube, section_facets, feed_height, socket_boss);
-        if (!is_undef(socket_boss))
+        // the run carried straight on into the foot, to the riser's axis, closing the gap under
+        // the bend's inside; the bore is cut after, so it stays open
+        if (!is_undef(socket_boss)) {
           sparger_socket_foot(tube, section_facets, _bend, socket_boss);
+          sparger_spoke_solid(0, _bend, 0, tube, section_facets);
+        }
       }
       _fluid_path();
       if (socket_chamfer > 0)
@@ -859,9 +863,12 @@ module sparge_loop(
         _path(tube, section_facets, sweep);
         translate([feed_radius, 0, _bend])
           sparger_socket_solid(tube, section_facets, feed_height, socket_boss);
-        if (!is_undef(socket_boss))
+        // as the arm's: the run carried straight on under the bend to the riser's axis
+        if (!is_undef(socket_boss)) {
           translate([feed_radius, 0, 0])
             sparger_socket_foot(tube, section_facets, _bend, socket_boss);
+          sparger_spoke_solid(feed_radius - _bend, feed_radius, 0, tube, section_facets);
+        }
       }
       _fluid_path();
       if (socket_chamfer > 0)
