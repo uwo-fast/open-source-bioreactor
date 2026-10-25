@@ -61,8 +61,10 @@ closed it and in `docs/`.
     at exactly its OD) and the flange lips are 1.0-1.2 mm. Neither is measured against a printer:
     print a std port, fit the rings, and key the allowance to a caliper reading. Every registered
     lid is on std now; a mini port only matters if that interface is wanted again
-  - the sparge sockets are bored 0.2 mm over the 4 mm riser (`sparge_socket_allow`); nobody has
-    pushed a tube into a printed one yet
+  - the ring's sockets are bored 0.2 mm over the 4 mm riser (`sparge_socket_allow`). The arm's and
+    the loop's taper from that at the mouth to 0.2 mm under it at the bottom
+    (`sparger_socket_press()`), a press fit over the lower 10 mm of 20: press one in and see
+    whether it seals, goes in at all, or splits the boss. If too tight, 0.1 is the next try
   - `jar_10L` carries the twelve-port set on 0.0466 mm of slack: the worst adjacent pair is
     1.0466 mm against a `lid_flange_gap` of 1.0. The next flange lip that grows moves it to the
     six-port set

@@ -304,7 +304,7 @@ bore slides.
 | ------------------------------ | ---------------------------------------------------------- |
 | Lid plug, `AS568-160`          | **stretched 3.67 %** onto a groove cut from the jar's bore |
 | Port face seals, 12 of them    | seated in a gland cut to fit the ring, no stretch          |
-| Riser rod seals, `8785N364` ×6 | **0 % stretch** — the ring's ID _is_ the 4 mm tube         |
+| Riser rod seals, `8785N364` ×5 | **0 % stretch** — the ring's ID _is_ the 4 mm tube         |
 | Bearing rim seal, `8785N382`   | **0 % stretch** — the ring's ID _is_ the 22 mm bearing     |
 
 **The bearing seal goes in before the bearing.** Drop the 22×1.5 down the pocket and let it expand
@@ -315,8 +315,7 @@ pocket floor: the bearing still bottoms there.
 
 The rod seals go into an enclosed groove just above the lid's **inner** face, and they go in
 **before** the tubes pass through. That face is inaccessible once the lid is on the jar. There is
-one per tube port — five on the full lid, three on the six-port jars. A sixth seals the riser in
-the sparger's feed socket.
+one per tube port — five on the full lid, three on the six-port jars.
 
 **The silicone sits differently at every joint, and the risky ones are all downstream.** One bore,
 3/16 in ID, covers the whole run from the meter to the ring: **native** on the check valve's barb,
@@ -509,22 +508,21 @@ impellers; under `drive_name = "none"` the ring's underside sits `sparge_ring_fl
 over the highest glass beneath it, so the column is sparged from the bottom. The supports lengthen
 to match - on `jar_1p5L` that moves their stock from a 500 mm length to a 1000 mm one.
 
-**How the riser is held.** Every socket is bored 0.2 mm over the 4 mm tube — a slip fit, since a
-printed bore at the tube's own size is a press fit and the ring's five blind sockets cannot take
-one. Every socket is 12 mm deep. The ring rests on its six tubes and needs nothing more. The arm
-hangs on one, so its socket carries a boss, and the same M4×6 316 set screw that plugs the ring's
+**How the riser is held.** The ring's sockets are bored 0.2 mm over the 4 mm tube — a slip fit,
+since a printed bore at the tube's own size is a press fit and the ring's five blind sockets cannot
+take one — and are 12 mm deep. The ring rests on its six tubes and needs nothing more. The arm and
+the loop hang on one, so their socket carries a boss, and the same M4×6 316 set screw that plugs the ring's
 ends self-taps into a pilot in that boss and bites the tube by 3 mm: seat the arm, point it at the
 shaft, and drive the screw. The arm's end is open through a pilot like the ring's, so a brush
 passes, and a second of those screws plugs it.
 
-**The feed socket is sealed under its screw.** The gas leaves the riser at the socket's bottom and
-climbs the 0.1 mm annulus round it, and the screw's pilot opens into that annulus, so a seal above
-the screw would leave the gas the screw's thread. Bench runs held at low flow and let small bubbles
-out at higher. The screw now sits 2 mm under the mouth and a 4×1.5 EPDM ring, the lid port's,
-sits in an enclosed groove just under it, 6.3 to 8.55 mm down. Fold the ring, start it in the
-bore, and push it down with the riser's end until it snaps into the groove; then seat the riser
-and drive the screw. The ring's feed socket has no screw but takes the same boss and groove, since
-its 6.4 mm tube is narrower than the 6.46 mm groove.
+**The arm's and the loop's socket seals by a press fit.** The gas leaves the riser at the socket's
+bottom, and with a slip fit it climbs the annulus round the riser and out of the screw's pilot:
+bench runs held at low flow and let small bubbles out at higher. So their socket is 20 mm deep and
+its bore tapers from 4.2 mm at the mouth to 3.8 mm at the bottom: the riser goes in freely and is
+gripped over the lower 10 mm. The boss is filled down to the part's underside, so stand the part on
+a flat surface and press the riser straight down into it until it bottoms, then drive the screw,
+which sits 2 mm under the mouth and stops the riser backing out.
 
 **The baffles are as wide as the sparger built lets them be.** Under the ring they stop at
 10.35 mm, which is what the ring leaves outside them. Under the arm the lock bore stops them, at
