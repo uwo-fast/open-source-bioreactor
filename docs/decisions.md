@@ -272,6 +272,10 @@ outlives the commit, in `docs/`.
   5.42 m/s, so 1 mm × 16 sits on that corner, and its 49 Pa a hole outweighs the bore's 18 Pa of
   velocity head, which 3 mm's 2.4 Pa did not. Capillary is 288 Pa, so they still will not share
   equally at any count. The arm fits ten at the pitch floor on `jar_10L`, at 8.67 m/s
+- **the spargers' holes are 1.2 mm, not 1.** 1 mm came out too small on a print. 16 × 1.2 mm runs
+  3.76 m/s at an open area of 1.44, past 1, so the holes nearest the feed take more of the gas;
+  its 24 Pa a hole still outweighs the bore's 18 Pa of velocity head. Bubbles are 3.76 mm at
+  formation, and the arm fits eight on `jar_10L`, at 7.53 m/s
 - **the working volume is DERIVED from a fraction of capacity, not pinned in litres.** 0.865 of what
   the jar holds, which is 8.17035 L on jar_10L and scales to every registered vessel. A litre figure
   is a statement about one jar: 8.25 L left jar_6p5gal_305x470's thermocouple in the headspace and

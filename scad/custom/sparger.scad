@@ -101,6 +101,8 @@ function sparger_ring_pitch(radius, count) = 2 * PI * radius / count;
 function sparger_pitch_ratio(radius, count, hole_diameter) =
   sparger_ring_pitch(radius, count) / hole_diameter;
 function sparger_pitch_ratio_floor() = 3;
+// Sides on a gas hole. Left to $fs, a 1 mm hole gets six.
+function sparger_hole_facets() = 24;
 
 // Where the holes sit on a ring, half a pitch off the feed. Shared by the cut, the split assert
 // and the breakthrough probe.
@@ -484,7 +486,7 @@ module sparger(
           for (r = sparger_equal_area_radii(spoke_holes, _outer, _inner))
             rotate([0, 0, a])
               translate([r, 0, -_ac / 2 - z_fight])
-                cylinder(h = _ac / 2 + 2 * z_fight, d = hole_diameter);
+                cylinder(h = _ac / 2 + 2 * z_fight, d = hole_diameter, $fn = sparger_hole_facets());
 
       // Gas holes, inward at the impeller (Birch & Ahmed) or down at the floor.
       for (i = [0:_n - 1])
@@ -493,10 +495,10 @@ module sparger(
             translate([radii[i], 0, 0])
               if (hole_bearing == "down")
                 translate([0, 0, -_ac / 2 - z_fight])
-                  cylinder(h = _ac / 2 + 2 * z_fight, d = hole_diameter);
+                  cylinder(h = _ac / 2 + 2 * z_fight, d = hole_diameter, $fn = sparger_hole_facets());
               else
                 rotate([0, -90, 0])
-                  cylinder(h = _reach_at(radii[i]) + z_fight, d = hole_diameter);
+                  cylinder(h = _reach_at(radii[i]) + z_fight, d = hole_diameter, $fn = sparger_hole_facets());
   }
 
   if (show_fluid_path)
@@ -678,7 +680,7 @@ module sparge_arm(
       cylinder(h = feed_height + z_fight, d1 = _bottom, d2 = feed_bore);
     for (x = sparge_arm_hole_positions(reach, holes, _bend, end_depth))
       translate([x, 0, -_ac / 2 - z_fight])
-        cylinder(h = _ac / 2 + 2 * z_fight, d = hole_diameter);
+        cylinder(h = _ac / 2 + 2 * z_fight, d = hole_diameter, $fn = sparger_hole_facets());
   }
 
   if (show_fluid_path)
@@ -852,7 +854,7 @@ module sparge_loop(
     for (a = sparge_loop_hole_angles(radius, holes, _bend, sweep, end_depth))
       rotate([0, 0, a])
         translate([radius, 0, -_ac / 2 - z_fight])
-          cylinder(h = _ac / 2 + 2 * z_fight, d = hole_diameter);
+          cylinder(h = _ac / 2 + 2 * z_fight, d = hole_diameter, $fn = sparger_hole_facets());
   }
 
   if (show_fluid_path)
@@ -1025,7 +1027,7 @@ sparger_report(
 );
 
 // The loop and the arm, on the reactor's 6.4 mm tube over the 4.2 mm socket, the arm's boss and
-// screw. 1 mm holes as head() drills them.
+// screw. 1.2 mm holes as head() drills them.
 _ex_tube = sparger_socket_allow() + 4 + 2 * 1.1;
 _ex_boss = 4 + sparger_socket_allow() + 2 * sparger_boss_wall();
 _ex_tap = 1.65; // an M4 tap
@@ -1034,21 +1036,21 @@ _ex_arm_at = [320, 0, 0];
 
 translate(_ex_loop_at)
   sparge_loop(
-    radius = 38, feed_radius = 56.5, sweep = 300, holes = 16, hole_diameter = 1, tube = _ex_tube,
+    radius = 38, feed_radius = 56.5, sweep = 300, holes = 16, hole_diameter = 1.2, tube = _ex_tube,
     bore = 4, feed_bore = 4 + sparger_socket_allow(), feed_height = sparger_hung_socket_depth(),
     socket_chamfer = sparger_socket_chamfer(), plug_tap_radius = _ex_tap, socket_boss = _ex_boss,
     screw_tap_radius = _ex_tap, feed_bore_bottom = 4 - sparger_socket_press()
   );
 sparge_loop_hole_probes(radius = 38, sweep = 300, holes = 16, tube = _ex_tube, bore = 4, origin = _ex_loop_at);
-sparge_loop_report(radius = 38, sweep = 300, holes = 16, hole_diameter = 1, bore = 4, gas_flow = _ex_flow);
+sparge_loop_report(radius = 38, sweep = 300, holes = 16, hole_diameter = 1.2, bore = 4, gas_flow = _ex_flow);
 
 // in from the same riser to 9 mm off the axis
 translate(_ex_arm_at)
   sparge_arm(
-    reach = 47.5, holes = 10, hole_diameter = 1, tube = _ex_tube, bore = 4,
+    reach = 47.5, holes = 8, hole_diameter = 1.2, tube = _ex_tube, bore = 4,
     feed_bore = 4 + sparger_socket_allow(), feed_height = sparger_hung_socket_depth(),
     socket_chamfer = sparger_socket_chamfer(), plug_tap_radius = _ex_tap, socket_boss = _ex_boss,
     screw_tap_radius = _ex_tap, feed_bore_bottom = 4 - sparger_socket_press()
   );
-sparge_arm_hole_probes(reach = 47.5, holes = 10, tube = _ex_tube, bore = 4, origin = _ex_arm_at);
-sparge_arm_report(reach = 47.5, holes = 10, hole_diameter = 1, tube = _ex_tube, bore = 4, gas_flow = _ex_flow);
+sparge_arm_hole_probes(reach = 47.5, holes = 8, tube = _ex_tube, bore = 4, origin = _ex_arm_at);
+sparge_arm_report(reach = 47.5, holes = 8, hole_diameter = 1.2, tube = _ex_tube, bore = 4, gas_flow = _ex_flow);

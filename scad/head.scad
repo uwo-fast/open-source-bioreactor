@@ -879,11 +879,12 @@ sparge_hole_probes = false;
 // Gas holes, drilled radially inward on the ring (Birch & Ahmed) and down on the arm and the loop.
 // Finer holes make finer bubbles, and bubble size set the fivefold kLa spread Uyar measured. The
 // orifice velocity times the open area is the bore's own velocity, 5.42 m/s at 0.5 vvm on jar_10L,
-// so no size or count keeps both inside Barbosa's 5.4 m/s and an open area of 1: 1 mm x 16 sits on
-// that corner, and its 49 Pa a hole outweighs the bore's 18 Pa of velocity head, which 3 mm did not.
+// so no size or count keeps both inside Barbosa's 5.4 m/s and an open area of 1: 1 mm x 16 sat on
+// that corner. 1 mm came out too small on a print, so 1.2 mm x 16 runs 3.76 m/s at an open area of
+// 1.44, and its 24 Pa a hole still outweighs the bore's 18 Pa of velocity head, which 3 mm did not.
 // 3 mm was held against fouling, which the culture photos do not show on the sparger
 // (docs/agitation.md).
-sparge_hole_diameter = 1;
+sparge_hole_diameter = 1.2;
 sparge_hole_count = 16;
 // Which ports drop a tube to the ring to hold it steady: every tube port but the feed. Each is
 // capped at the ring and takes a hole higher up, cut at the bench and not modelled.

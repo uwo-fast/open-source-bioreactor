@@ -481,17 +481,17 @@ into.
 sparge arm: from the air inlet's riser at r 56.5 in to r 9, 53 mm off the floor,
 10 mm under the lower impeller's blades, 5 mm short of the shaft; at 0.5 vvm that is
 4.08517 L/min
-sparge arm: 10 holes of 1 mm along 31.9 mm at 3.19 hole diameters, 8.66901 m/s each;
-bubbles 3.53487 mm at formation, 2944.01 a second; the 4 mm bore carries 5.41813 m/s,
-open area ratio 0.625
+sparge arm: 8 holes of 1.2 mm along 31.9 mm at 3.32292 hole diameters, 7.52518 m/s each;
+bubbles 3.75636 mm at formation, 2453.34 a second; the 4 mm bore carries 5.41813 m/s,
+open area ratio 0.72
 ```
 
 **The arm is the ring's feed without the ring**: the same socket the riser drops into, the same
 elbow, and one straight run turned inward to end 5 mm short of the shaft, holes drilled down so the
 bubbles rise into the lower impeller. It sits 10 mm under that impeller's blades, which is where a
 sparger goes in the stirred-tank literature; the ring sat between the impellers on Birch & Ahmed's
-argument, and that argument stays with the ring. Same 1 mm holes as the ring; the count follows
-the arm's length at the pitch floor, which on `jar_10L` is ten.
+argument, and that argument stays with the ring. Same 1.2 mm holes as the ring; the count follows
+the arm's length at the pitch floor, which on `jar_10L` is eight.
 
 **The loop is the arm hooked round into a C.** The same socket, boss and screw on the same riser,
 the elbow turned inward, then one tube that hooks onto a 300° C round the shaft at the arm's height
