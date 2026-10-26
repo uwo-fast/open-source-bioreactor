@@ -334,16 +334,6 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
     something else binds first. Worth fixing when a build makes the impellers bind, with that
     build as the test
 
-- [ ] **the port lettering is not pinned to a font, so it is whatever the host resolves `sans` to**
-  - `scad/custom/bayonet_port.scad` asks for `font="sans"` in three places (:324, :332, :509).
-    `sans` is a fontconfig alias, not a face, so the glyphs are whatever that host happens to
-    prefer: here `fc-match sans` gives Noto Sans, with Liberation Sans also installed. The CI
-    artifact's lettering was seen to differ from the bench's for exactly this reason
-  - pinning it to one installed face makes the exported STL the same everywhere. It moves every
-    port's mesh, so it wants its own commit
-  - it is cosmetic - the lettering says which port is which - but a figure that changes with the
-    machine is the kind of thing this project pins everywhere else
-
 - [ ] **the probe port's transition lands exactly on the collet, and the obvious fix costs material**
   - `bayonet_probe_port`'s transition cone ends at exactly `-_transition_length`, which is exactly
     where the collet begins, at exactly the same diameter. Same defect as the three that are fixed,
