@@ -24,7 +24,7 @@ motor_12v_5w            = ["12v_5w",           [27.5, 38  ], [2.3,     20     ],
 dc_motors = [motor_36gp_3530_5p18, motor_36pg_3429_5p2, motor_36pg_555pm_14_en, motor_12v_5w];
 
 use <../utils/registries.scad>;
-function dc_motor_by_name(name) = registry_by_name(dc_motors, name);
+function dc_motor_by_name(name) = registry_by_name(dc_motors, name, 10);
 
 use <dc_motor.scad>
 
