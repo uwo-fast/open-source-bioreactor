@@ -17,7 +17,7 @@ closed it and in `docs/`.
     Nothing else waits on it - the reference run had the dose pumps disabled
 
 - [ ] **measured gas flow**
-  - the model states a vvm and no builder can set one: the ReSun pump settles at 5.80 L/min where
+  - the model states a vvm and no builder can set one: the ReSun pump settles at 5.78 L/min where
     0.817-4.09 is wanted. The aeration a culture wants runs 0.1-1 vvm depending on what it is for;
     the model's band stops at 0.5, and this pump and filter reach about 0.7 on `jar_10L`, which is
     enough for now. The parts are in the BOM (Dwyer VFA-23 meter, Clippard MNV-3KP needle
@@ -32,11 +32,11 @@ closed it and in `docs/`.
     reactor's actual CO2 utilisation is the measurable unknown, and the bigger lever on productivity
 
 - [ ] **choose an outlet filter that fits in the budget `head()` reports**
-  - the exhaust is unguarded: the headspace vents through a support tube into the room. A second
-    1594522 on the outlet does not work: two put the line at 32.3 kPa against a pump that dead-heads
-    at 27 and it settles at 3.17 L/min, and 0.5 vvm stops being a setting it can hold
-  - `head()` reports the budget instead: at most 1.7454 kPa per L/min on `jar_10L`, 50.6 % of the
-    inlet filter's slope, net of the vent slot and the tube, which are priced into the line. Set
+  - the exhaust is unguarded: the headspace vents through the coil condenser into the room. A second
+    1594522 on the outlet does not work: two put the line at 32.4 kPa against a pump that dead-heads
+    at 27 and it settles at 3.14 L/min, and 0.5 vvm stops being a setting it can hold
+  - `head()` reports the budget instead: at most 1.707 kPa per L/min on `jar_10L`, 49.5 % of the
+    inlet filter's slope, net of the coil condenser's outlet, which is priced into the line. Set
     `sparge_outlet_filter` and `head()` prices the filter in too
   - the budget moves with the inlet filter's slope, which is extrapolated - measure that first
   - a trap or a longer tube would guard against splashback with no drop; a different sterility claim
@@ -76,9 +76,9 @@ closed it and in `docs/`.
   - every tube port but `air_in` is capped at its lower end and vents through a hole drilled up its
     length. `head()` reports the window (37.9-88.4 mm from the top on `jar_10L`) and `docs/build.md`
     says which end each port wants; the hole itself is a bench operation and is not drawn
-  - only `air_out`'s hole has a size to meet, and `head()` prices it: the floor is 1.041 mm2 on
-    `jar_10L`, 0.288 on `jar_1gal_180x197`, none on `jar_6p5gal` (its line beats the pump). A normal
-    file cut clears it nearly 7x; a shallow pass that just breaks the wall does not
+  - only `air_out`'s hole has a size to meet, and only where no condenser takes that port, which
+    today is the ring's builds; `head()` prices it there. A normal file cut clears it several
+    times over; a shallow pass that just breaks the wall does not
   - not parameterised on purpose: a default for a hand-cut window would be a guess
 
 - [ ] **whether the loop earns its one-riser hang**
@@ -198,8 +198,9 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
 
 ## exhaust condenser and humidifier
 
-Printed from their own files, `custom/condenser_cold_finger.scad`, `custom/condenser_coil.scad` and
-`custom/gl_port_cap.scad`; nothing in `head()` places them yet.
+`head()` places the coil condenser on `air_out` wherever the sparger is not the ring
+(`condenser_name`). The split cold finger and the humidifier cap print from their own files,
+`custom/condenser_cold_finger.scad` and `custom/gl_port_cap.scad`.
 
 - [ ] **bench-test the condensers, then place the one that works**
   - the test: a fixed flow, 48 h, the level marked (1 mm is 34.6 mL in the 210 mm bore), room and
@@ -212,17 +213,15 @@ Printed from their own files, `custom/condenser_cold_finger.scad`, `custom/conde
   - the flow insert's printed well is the only wall between coolant and gas: water-test it first, and
     feed it by gravity or through a valve on the inlet with the outlet draining freely
   - the aluminum coil never goes through the vessel's bleach step
-  - placing one in `head()` replaces the `air_out` slot and tube the gas budget prices today, and
-    renders its clearance to the motor mount and the probes, which is arithmetic until then
 
-- [ ] **place the condensers in the assembly, the coil by default, and check them against the motor
-      mount**
-  - the coil condenser has been built and works well, so `head()` places it by default; the
-    split cold finger stays a choice beside it. Both are options because neither has been checked
-    against the motor mount yet, and placing them is what renders that clearance
-  - the one-piece cold finger stays an option inside its own file only: nothing prints it, and it
-    should not reach `head()` or `bioreactor.scad`
-  - its own PR
+- [ ] **offer the split cold finger beside the coil in `head()`**
+  - the coil is placed: its body is `air_out`'s pin, the port carries no tube, and the gas line
+    prices its 4.5 mm outlet, 30.5 Pa at 4.09 L/min on `jar_10L`, where the slot and tube cost
+    178-209. Intersected with the probes, the port pins, the motor mount and the motor, it touches
+    none of them on `jar_10L`, `jar_1gal_180x197` or `jar_6p5gal`; no assert holds that yet
+  - the split cold finger is the second `condenser_name`. The one-piece cold finger stays an option
+    inside its own file only: nothing prints it, and it should not reach `head()` or
+    `bioreactor.scad`
 
 - [ ] **fit the humidifier cap to the bottle, and set it against the condenser**
   - the rim gasket's 34 mm bore is an estimate: caliper the bottle's rim. Try a short `din168_nut`
