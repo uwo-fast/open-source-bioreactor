@@ -65,27 +65,11 @@ cross_section_keep = 0.5;
 
 // example usage: the jar_10L lid's air_out port, which is std, and a 3/16 in aluminum coil
 _tube_od = aluminum_tube_od(aluminum_tube_by_name("3/16x0.028"));
-if (part == "body")
-  translate([0, 0, condenser_coil_rim_top_z(bayonet_std)]) rotate([180, 0, 0]) condenser_coil_body(bayonet_std);
-else if (part == "panel")
-  translate([0, 0, bayonet_flange_height(bayonet_xl)]) rotate([180, 0, 0])
-    condenser_coil_panel(tube_od=_tube_od, ring=oring_4p5x1p5_epdm);
-else if (part == "former")
-  // standing on its foot, which is how it is wound and how it prints
-  translate([0, 0, -condenser_coil_former_bottom_z(_tube_od)]) condenser_coil_former(_tube_od);
-else if (part == "coil")
-  // the formed tube alone, in the head's datum (the rim's top face at z = 0), bought, not printed
-  condenser_coil_tubing(
-    condenser_coil_former_radius, _tube_od, condenser_coil_pitch, condenser_coil_turns,
-    -condenser_coil_rim - condenser_coil_top_gap, bayonet_flange_height(bayonet_xl) + 15
-  );
-else if (part == "puck_bottom")
-  condenser_coil_puck(_tube_od, condenser_coil_bend_radius);
-else if (part == "puck_top")
-  condenser_coil_puck(_tube_od, condenser_coil_top_bend_radius);
-else
+if (part == "assembly")
   section(keep=cross_section_keep, size=400, active=cross_section_active && $preview)
     condenser_coil_assembly(bayonet_std, _tube_od, oring_4p5x1p5_epdm);
+else
+  condenser_coil_part(part, bayonet_std, _tube_od, oring_4p5x1p5_epdm);
 condenser_coil_report(bayonet_std, _tube_od);
 
 // The defaults every module and helper below starts from, named once so the print, assembly and
@@ -121,6 +105,9 @@ condenser_coil_screw_head_depth = 3.5;
 // cut, so the head's radius is what decides this: any lower and the counterbore opens through the
 // panel's underside. The asserts hold it between that face and the top of the socket.
 condenser_coil_screw_rise = 3.8;
+// The outlet barb's bore: the narrowest the exhaust passes through, so what the gas line prices.
+condenser_coil_outlet_bore = 4.5;
+function condenser_coil_outlet_bore() = condenser_coil_outlet_bore;
 
 // ----- the coil -----
 
@@ -178,7 +165,7 @@ module condenser_coil_body(
   wall = 2,
   rim = condenser_coil_rim,
   hose_inner_diameter = 6.35,
-  outlet_bore_diameter = 4.5,
+  outlet_bore_diameter = condenser_coil_outlet_bore,
   outlet_drop = 14
 ) {
   _rs = shell_inner_diameter / 2;
@@ -613,6 +600,30 @@ module condenser_coil_tubing(
 }
 
 // Body, head and tubing as assembled, in the lid's datum.
+// One part in the orientation it prints in, or the formed tube in the head's datum (the rim's top
+// face at z = 0), which is bought, not printed.
+module condenser_coil_part(part, type, tube_od, ring, head_type = bayonet_xl) {
+  if (part == "body")
+    translate([0, 0, condenser_coil_rim_top_z(type)]) rotate([180, 0, 0]) condenser_coil_body(type, head_type);
+  else if (part == "panel")
+    translate([0, 0, bayonet_flange_height(head_type)]) rotate([180, 0, 0])
+      condenser_coil_panel(head_type, tube_od=tube_od, ring=ring);
+  else if (part == "former")
+    // standing on its foot, which is how it is wound and how it prints
+    translate([0, 0, -condenser_coil_former_bottom_z(tube_od)]) condenser_coil_former(tube_od);
+  else if (part == "coil")
+    condenser_coil_tubing(
+      condenser_coil_former_radius, tube_od, condenser_coil_pitch, condenser_coil_turns,
+      -condenser_coil_rim - condenser_coil_top_gap, bayonet_flange_height(head_type) + 15
+    );
+  else if (part == "puck_bottom")
+    condenser_coil_puck(tube_od, condenser_coil_bend_radius);
+  else if (part == "puck_top")
+    condenser_coil_puck(tube_od, condenser_coil_top_bend_radius);
+  else
+    assert(false, str("condenser_coil_part: no part \"", part, "\""));
+}
+
 module condenser_coil_assembly(
   type, tube_od, ring, head_type = bayonet_xl, rim = condenser_coil_rim, top_gap = condenser_coil_top_gap,
   turns = condenser_coil_turns, pitch = condenser_coil_pitch, former_radius = condenser_coil_former_radius,

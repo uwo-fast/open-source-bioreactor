@@ -38,7 +38,7 @@ cat > "$tmp/m.scad" <<SCAD
 include <$PWD/scad/bioreactor.scad>
 _v = reactor_vessel;
 for (d = ["shaft", "magnetic", "none", "airlift"]) {
-  for (b = ["lid", "wall"], p = head_print_parts(_v, lid_flange_height, d, sparger_name, lid_center_name, b))
+  for (b = ["lid", "wall"], p = head_print_parts(_v, lid_flange_height, d, sparger_name, lid_center_name, condenser_name, b))
     echo(str("PART|", p[2]));
   for (p = frame_print_parts(n_rods, d, riser=true, heat_pad=heat_pads[0])) echo(str("PART|", p[2]));
 }
@@ -113,9 +113,10 @@ not_exported=(
                                                 # until head places it on a port; see TODO.md
     scad/custom/sparge_puck.scad                # bench test pieces, one outlet face per print,
                                                 # that never go in a jar; see docs/build.md
-    scad/custom/condenser_cold_finger.scad      # the condenser variants under test, each printed
-    scad/custom/condenser_coil.scad             # from its own file until one is chosen and head
-                                                # places it
+    scad/custom/condenser_cold_finger.scad      # the split cold finger, printed from its own file
+    scad/custom/condenser_coil.scad             # until head offers it; the coil's own example,
+                                                # which head's manifest exports for every build
+                                                # it places
     scad/custom/gasket_cutter_v2.scad           # WORK IN PROGRESS - a cutter built around a
                                                 # standard #11 blade rather than a printed edge.
                                                 # It renders so it can be previewed while it is

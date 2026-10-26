@@ -34,6 +34,11 @@ echo(str("BOM|", set_screw_part_number(sparge_plug_screw), "|sparger plug and ar
 echo(str("BOM|", heat_set_insert_part_number(motor_mount_base_insert), "|motor mount heat-set insert"));
 echo(str("BOM|", gas_filter_part_number(sparge_inlet_filter), "|sterile inlet filter"));
 echo(str("BOM|", check_valve_part_number(sparge_check_valve), "|gas line check valve"));
+if (head_condenser_selected(head_condenser, head_sparger_selected(head_sparger, head_drive)) == "coil") {
+  echo(str("BOM|", aluminum_tube_part_number(condenser_coil_tube), "|condenser coil tube"));
+  echo(str("BOM|", oring_part_number(condenser_coil_end_seal), "|condenser coil end seal"));
+  echo(str("BOM|", oring_part_number(bayonet_oring(bayonet_xl)), "|condenser head seal"));
+}
 SCAD
 "$OPENSCAD" -o "$tmp/b.csg" "$tmp/b.scad" 2>"$tmp/err" >/dev/null
 # The part_number column, so a match cannot come from a stale URL elsewhere in the row. System

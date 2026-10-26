@@ -23,12 +23,14 @@ use <custom/sparger.scad>;
 use <custom/bearing_blank.scad>;
 use <custom/draft_tube.scad>;
 use <custom/baffle_cage.scad>;
+use <custom/condenser_coil.scad>;
 
 include <purchased/dc_motors.scad>;
 include <purchased/gearboxes.scad>;
 include <purchased/vessels.scad>;
 include <purchased/atlas_probes.scad>;
 include <purchased/thermocouple_probes.scad>;
+include <purchased/aluminum_tubes.scad>;
 include <purchased/orings.scad>;
 include <purchased/heat_set_inserts.scad>;
 include <purchased/steel_tubes.scad>;
@@ -138,6 +140,10 @@ gasket_cutter_part_to_render = "all"; // [all, outer, inner]
 render_sparger = false;
 // The bought 316 riser and its supports; their own flag so a sparger export is a print file
 render_sparge_tubes = false;
+// The exhaust condenser on air_out, assembled in place
+render_condenser = false;
+// Which of its parts: one alone renders at the origin, as it prints
+condenser_part_to_render = "assembly"; // [assembly, body, panel, former, puck_bottom, puck_top]
 
 // Draw the lid's 24 bayonet halves as bare shells while previewing; renders are unaffected
 fast_bayonet_preview = true;
@@ -568,23 +574,27 @@ function head_port_index(vessel_opening_diameter, fn) =
     ) _at[0];
 
 // What the way out costs at a given flow, Pa: the hand-cut vent slot as an orifice of the tube's
-// bore, the tube above it, and an outlet filter if one is set. Priced with or without the
-// filter, since the headspace vents through the slot and the tube regardless.
-function head_gas_exhaust_pressure(flow, vent_length) =
+// bore and the tube above it, or, through the coil condenser, its outlet barb's bore as an
+// orifice, the narrowest it passes; and an outlet filter if one is set.
+function head_gas_exhaust_pressure(flow, vent_length, condenser = "none") =
   let (_bore = steel_tube_id(sparge_riser_tube))
-    stirred_tank_orifice_pressure(stirred_tank_orifice_velocity(flow / 60000, 1, _bore))
-    + gas_tube_pressure_drop(flow, _bore, vent_length)
+    (
+      condenser == "coil"
+        ? stirred_tank_orifice_pressure(stirred_tank_orifice_velocity(flow / 60000, 1, condenser_coil_outlet_bore()))
+        : stirred_tank_orifice_pressure(stirred_tank_orifice_velocity(flow / 60000, 1, _bore))
+          + gas_tube_pressure_drop(flow, _bore, vent_length)
+    )
     + (is_undef(sparge_outlet_filter) ? 0 : gas_filter_pressure_drop(flow, gas_filter_drop_slope(sparge_outlet_filter)));
 
 // What the line costs at a given flow, Pa, the vessel and the way out included. A function of
 // flow because the filter is linear in it and dominates.
-function head_gas_line_pressure(flow, vessel_pressure, riser_length, vent_length) =
+function head_gas_line_pressure(flow, vessel_pressure, riser_length, vent_length, condenser = "none") =
   vessel_pressure
   + gas_filter_pressure_drop(flow, gas_filter_drop_slope(sparge_inlet_filter))
   + gas_tube_pressure_drop(flow, steel_tube_id(sparge_riser_tube), riser_length)
   + check_valve_cracking(sparge_check_valve)
   + gas_valve_pressure_drop(flow, check_valve_cv(sparge_check_valve), vessel_pressure)
-  + head_gas_exhaust_pressure(flow, vent_length);
+  + head_gas_exhaust_pressure(flow, vent_length, condenser);
 
 // ----- the lid under the wall cage -----
 //
@@ -636,11 +646,12 @@ function head_sparge_feed_port(vessel_opening_diameter) = head_port_index(vessel
 
 // Every printed part this lid carries: [name, quantity, the flags that render it alone]. It
 // varies with the vessel, so it lives here; `just export-parts` walks it.
-function head_print_parts(vessel, lid_flange_height, drive = "shaft", sparger = "auto", lid_center = "auto", baffles = "auto") =
+function head_print_parts(vessel, lid_flange_height, drive = "shaft", sparger = "auto", lid_center = "auto", condenser = "auto", baffles = "auto") =
   let (
     _ports = head_ports_for_baffles(vessel_opening_diameter(vessel), baffles),
     _wall = head_baffles_selected(baffles) == "wall",
     _sparger = head_sparger_selected(sparger, drive),
+    _coil = head_condenser_selected(condenser, _sparger) == "coil",
     _segs = head_baffle_segments(vessel, lid_flange_height, _sparger == "ring")
   )
     concat(
@@ -658,6 +669,11 @@ function head_print_parts(vessel, lid_flange_height, drive = "shaft", sparger = 
       !head_blank_carried(drive, lid_center) ? [] : [["bearing_blank", 1, "-D render_bearing_blank=true"]],
       drive != "airlift" ? [] : [["draft_tube", 1, "-D render_draft_tube=true"]],
       [[str("sparge_", _sparger), 1, "-D render_sparger=true"]],
+      // the coil condenser's printed parts and the two pucks its ends are formed on; its body is air_out's pin
+      !_coil ? [] : [
+        for (c = ["body", "panel", "former", "puck_bottom", "puck_top"])
+          [str("condenser_coil_", c), 1, str("-D render_condenser=true -D condenser_part_to_render=\"", c, "\"")],
+      ],
       // One blank per interface the lid carries, to close a port nothing is in, and one for each
       // port the lid leaves empty.
       [
@@ -678,7 +694,10 @@ function head_print_parts(vessel, lid_flange_height, drive = "shaft", sparger = 
       [
         for (i = [0:len(_ports) - 1])
           let (_n = head_port_export_name(_ports, i))
-            if (head_port_type(_ports[i]) != "baffle" && head_port_type(_ports[i]) != "blank")
+            if (
+              head_port_type(_ports[i]) != "baffle" && head_port_type(_ports[i]) != "blank"
+              && !(_coil && head_port_function(_ports[i]) == "air_out")
+            )
               [str("port_", _n), 1, str("-D port_to_render=\"", _n, "\"")],
       ],
       // Every baffle port is the same part, so one part with a quantity, rendered off the first
@@ -894,10 +913,11 @@ sparge_loop_hole_count = 11;
 // Which ports drop a tube to the ring to hold it steady: every tube port but the feed. Each is
 // capped at the ring and takes a hole higher up, cut at the bench and not modelled.
 // Derived from the table, since a narrow jar's port set carries no dosing pair.
-function head_sparge_support_ports(vessel_opening_diameter) =
+function head_sparge_support_ports(vessel_opening_diameter, condenser = "none") =
   let (_p = head_ports_for(vessel_opening_diameter))
     [for (i = [0:len(_p) - 1])
-      if (head_port_type(_p[i]) == "tube" && head_port_function(_p[i]) != "air_in") i];
+      if (head_port_type(_p[i]) == "tube" && head_port_function(_p[i]) != "air_in"
+        && !(condenser != "none" && head_port_function(_p[i]) == "air_out")) i];
 // The socket's fit is sparger.scad's, which the bench puck shares; a -D here moves the lid's alone.
 // allowance on a socket's bore over the riser
 sparge_socket_allow = sparger_socket_allow();
@@ -929,6 +949,16 @@ sparge_inlet_filter = gas_filter_cp_1594522;
 // A filter on the way out. undef is what this build has: the headspace vents through a support
 // tube into the room. Set it and head() prices the exhaust; leave it and head() reports the budget.
 sparge_outlet_filter = undef;
+// What takes the air_out port: the coil condenser, whose body is that port's pin, so the port
+// carries no tube and the headspace leaves through the coil; or none, where a tube hangs from it
+// and the headspace vents through a slot cut in that tube. auto is the coil, unless the ring needs
+// air_out's tube as one of its supports.
+head_condenser = "auto"; // [auto, none, coil]
+function head_condenser_selected(condenser, sparger) =
+  condenser != "auto" ? condenser : sparger == "ring" ? "none" : "coil";
+// the coil's tubing, and the rod seal each of its two ends passes the panel on
+condenser_coil_tube = aluminum_tube_by_name("3/16x0.028");
+condenser_coil_end_seal = oring_4p5x1p5_epdm;
 // the check valve; cracking pressure and Cv both come off the row
 sparge_check_valve = check_valve_cp_5011521;
 // the aeration rate the holes are reported against, volumes of gas per volume of liquid per minute
@@ -1823,6 +1853,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _build_stir_bar = head_build(build, "stir_bar", undef);
   _stir_bar = is_undef(_build_stir_bar) ? head_stir_bar : _build_stir_bar;
   _sparger = head_sparger_selected(head_build(build, "sparger", head_sparger), _drive);
+  _condenser = head_condenser_selected(head_build(build, "condenser", head_condenser), _sparger);
+  _coil = _condenser == "coil";
   _ring = _sparger == "ring";
   _loop = _sparger == "loop";
   // what the report calls whichever is built
@@ -2226,7 +2258,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   // ----- sparger -----
   _sparge_feed_angle = head_sparge_feed_port(vessel_opening_diameter) * 360 / _n;
-  _sparge_support_ports = head_sparge_support_ports(vessel_opening_diameter);
+  _sparge_support_ports = head_sparge_support_ports(vessel_opening_diameter, _condenser);
   _sparge_support_angles = [for (i = _sparge_support_ports) i * 360 / _n];
 
   // A support tube is cut from the riser's own stock, so whichever ports carry one have to pass it.
@@ -2420,16 +2452,16 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _gas_vent_length = max(_vent_run);
 
   _gas_back_pressure =
-    head_gas_line_pressure(_gas_band[1], _gas_vessel_pressure, _sparge_feed_length, _gas_vent_length);
+    head_gas_line_pressure(_gas_band[1], _gas_vessel_pressure, _sparge_feed_length, _gas_vent_length, _condenser);
 
-  _gas_outlet_drop = head_gas_exhaust_pressure(_gas_band[1], _gas_vent_length);
+  _gas_outlet_drop = head_gas_exhaust_pressure(_gas_band[1], _gas_vent_length, _condenser);
 
   _gas_free_flow = air_pump_free_flow_min(head_air_pump);
   _gas_dead_head = air_pump_dead_head(head_air_pump);
 
   // The line priced at both ends of the band, so where the pump settles can be asked.
   _gas_line = gas_line_secant(
-    _gas_band[0], head_gas_line_pressure(_gas_band[0], _gas_vessel_pressure, _sparge_feed_length, _gas_vent_length),
+    _gas_band[0], head_gas_line_pressure(_gas_band[0], _gas_vessel_pressure, _sparge_feed_length, _gas_vent_length, _condenser),
     _gas_band[1], _gas_back_pressure);
 
   _gas_ceiling_flow = gas_operating_flow(_gas_free_flow, _gas_dead_head, _gas_line);
@@ -3448,6 +3480,10 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     str("head: no baffles named \"", _baffles, "\"; the lid's plates are \"lid\" and the cage is \"wall\".")
   );
   assert(
+    _condenser == "none" || _condenser == "coil",
+    str("The condenser is \"", _condenser, "\"; it is none or coil.")
+  );
+  assert(
     _sparger == "ring" || _sparger == "arm" || _sparger == "loop",
     str("The sparger is \"", _sparger, "\"; it is ring, arm or loop.")
   );
@@ -3794,7 +3830,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   echo(str(
     "sparge riser: ", steel_tube_od(sparge_riser_tube), " x ", steel_tube_id(sparge_riser_tube), " mm tube; the feed is ",
-    _sparge_feed_length, " mm and each ", _ring ? "support" : "dosing or vent tube", " ", _sparge_riser_length,
+    _sparge_feed_length, " mm and each ", _ring ? "support" : _coil ? "dosing tube" : "dosing or vent tube", " ", _sparge_riser_length,
     " mm (the feed socket sits ", abs(_sparge_socket_top_feed - _sparge_socket_top), " mm ",
     _sparge_socket_top_feed > _sparge_socket_top ? "higher" : "lower", "); ", sparge_riser_proud, " mm proud of its port, ",
     _sparge_feed_depth, " mm inside the feed socket, ",
@@ -3856,7 +3892,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     "gas line losses: filter ", _gas_filter_drop, " Pa (extrapolated), check valve ", _gas_check_valve_drop,
     " Pa (", check_valve_cracking(sparge_check_valve), " to crack) and riser ", _gas_riser_drop,
     " Pa at ", _gas_band[1], " L/min, on top of the vessel's ", _gas_vessel_pressure,
-    " and ", _gas_outlet_drop, " Pa on the way back out (the vent slot and up to ", _gas_vent_length, " mm of tube",
+    " and ", _gas_outlet_drop, " Pa on the way back out (",
+    _coil ? str("the coil condenser's ", condenser_coil_outlet_bore(), " mm outlet")
+      : str("the vent slot and up to ", _gas_vent_length, " mm of tube"),
     is_undef(sparge_outlet_filter) ? ")" : ", and the outlet filter)",
     "; the pump beats ", _gas_back_pressure, " Pa, and the filter alone is ",
     _gas_filter_drop / _gas_vessel_pressure, "x the vessel"
@@ -3880,12 +3918,12 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     is_undef(sparge_outlet_filter)
       ? _gas_outlet_budget <= 0
         ? str(
-          "gas exhaust: nothing filters the way out; the headspace vents through a support tube to the room, ",
+          "gas exhaust: nothing filters the way out; the headspace vents through ", _coil ? "the coil condenser" : "a support tube", " to the room, ",
           "and no outlet filter fits, because the line already beats the pump at ", _gas_band[1],
           " L/min; see the throttle warning"
         )
         : str(
-        "gas exhaust: nothing filters the way out; the headspace vents through a support tube to the room. ",
+        "gas exhaust: nothing filters the way out; the headspace vents through ", _coil ? "the coil condenser" : "a support tube", " to the room. ",
         "An outlet filter may cost at most ", _gas_outlet_budget, " kPa per L/min before ", _gas_band[1],
         " L/min stops being reachable, ", _gas_outlet_budget / gas_filter_drop_slope(sparge_inlet_filter),
         " of what the inlet filter costs"
@@ -3898,7 +3936,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   );
 
   // Only where there is headroom to spend; a line the pump cannot beat gives a negative budget.
-  if (len(_sparge_support_angles) > 0)
+  // Under the condenser there is no slot: the port carries no tube.
+  if (!_coil && len(_sparge_support_angles) > 0)
     echo(
       _gas_outlet_budget <= 0
         ? str(
@@ -3915,6 +3954,18 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           " mm round hole), which the bore clears ", _vent_bore_area / _vent_min_area, "x over"
         )
     );
+
+  if (_coil) {
+    _cond_i = head_port_index(vessel_opening_diameter, "air_out");
+    assert(!is_undef(_cond_i), "The coil condenser takes air_out's port, and this lid has none.");
+    _cond_iface = head_port_interface(_ports[_cond_i]);
+    echo(str(
+      "condenser: the coil, its body air_out's pin at ", _cond_i * 360 / _n, " deg, its rim ",
+      condenser_coil_rim_top_z(_cond_iface), " mm over the lid; air_out carries no tube, and the exhaust leaves through its ",
+      condenser_coil_outlet_bore(), " mm outlet at ", _gas_outlet_drop, " Pa at ", _gas_band[1], " L/min"
+    ));
+    condenser_coil_report(_cond_iface, aluminum_tube_od(condenser_coil_tube));
+  }
 
   if (_gas_throttle_drop > 0) {
     _gas_valve_cv = gas_valve_cv(_gas_band[1], _gas_throttle_drop, _gas_back_pressure);
@@ -4343,12 +4394,25 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         ? port_to_render == head_port_export_name(_ports, i)
         : render_all || (_type == "tube" && render_tube_pinlock) || (_type == "probe" && render_probe_pinlock) || (_type == "thermocouple" && render_thermocouple_pinlock) || (_type == "baffle" && render_baffle_pinlock);
 
-      if (_show)
+      // under the condenser, air_out's pin is the condenser's body
+      if (_show && !(_coil && head_port_function(_port) == "air_out"))
         color(prints1_color)
           head_port_at(i, vessel_opening_diameter)
             rotate([0, 0, _port_turn])
               head_port(_port, lid_thickness, _baffle_width, _baffle_length, _baffle_segments, _do_tilt);
     }
+  }
+
+  // The coil condenser in air_out's place, or one of its parts alone at the origin, as it prints.
+  if (_coil && (render_condenser || render_all)) {
+    _cond_i = head_port_index(vessel_opening_diameter, "air_out");
+    _cond_iface = head_port_interface(_ports[_cond_i]);
+    if (condenser_part_to_render == "assembly" || render_all)
+      color(prints1_color)
+        head_port_at(_cond_i, vessel_opening_diameter)
+          condenser_coil_assembly(_cond_iface, aluminum_tube_od(condenser_coil_tube), condenser_coil_end_seal);
+    else
+      condenser_coil_part(condenser_part_to_render, _cond_iface, aluminum_tube_od(condenser_coil_tube), condenser_coil_end_seal);
   }
 
   // A blank for each interface named, at the origin: it closes whichever port of that size is empty.
