@@ -17,8 +17,6 @@
 use <../utils/stirred_tank.scad>;
 include <../purchased/steel_tubes.scad>;
 include <../purchased/set_screws.scad>;
-include <../purchased/orings.scad>;
-use <../utils/oring_gland.scad>;
 
 // The end plug is one number, the radius a screw self-taps into, and the caller resolves the screw.
 
@@ -44,25 +42,19 @@ function sparger_socket_depth() = 12;
 function sparger_socket_chamfer() = 0.5;
 // Wall of the boss round a socket that hangs its part, which the screw runs through.
 function sparger_boss_wall() = 3;
-// The rod seal closing the annulus round the riser, the lid port's ring: its ID is the riser.
-function sparger_seal() = oring_4x1p5_epdm;
-// Solid between the screw's pilot and the socket's mouth, and between the pilot and the seal's
-// groove, in mm; reasoned, not cited.
+// A part that hangs from its riser alone, the arm or the loop, seals on it by a press fit: its
+// feed socket is deeper, and its bore tapers from the slip fit at the mouth to this much under the
+// riser at the bottom, so the riser goes in freely and is gripped over the lower half. The screw
+// near the mouth stops it backing out.
+function sparger_hung_socket_depth() = 20;
+function sparger_socket_press() = 0.2;
+// Solid between the screw's pilot and the socket's mouth, in mm; reasoned, not cited.
 function sparger_screw_cover() = 2;
-function sparger_seal_gap() = 1;
 
-// The gas leaves the riser at the socket's bottom and climbs the annulus, which the screw's pilot
-// opens into: a seal above the screw leaves the gas the screw's thread. So the screw goes as near
-// the mouth as its cover lets it and the groove just under it, as shallow as a seal below the
-// screw can be. Heights from the socket's base.
+// The screw goes as near the mouth as its cover lets it, where the bore is still a slip fit and
+// above the press fit that seals. Heights from the socket's base.
 function sparger_screw_z(feed_height, screw_tap_radius) =
   feed_height - sparger_screw_cover() - screw_tap_radius;
-function sparger_seal_top(feed_height, screw_tap_radius) =
-  sparger_screw_z(feed_height, screw_tap_radius) - screw_tap_radius - sparger_seal_gap();
-// The rod gland, from the ring alone: its ID is the riser, so its bottom is the riser's surface.
-function sparger_seal_gland_radius(ring) =
-  oring_rod_gland_diameter(oring_inner_diameter(ring), oring_cross_section(ring)) / 2;
-function sparger_seal_gland_length(ring) = oring_gland_width(oring_cross_section(ring));
 
 // ----- layout: what the duty asks for -----
 //
@@ -109,6 +101,8 @@ function sparger_ring_pitch(radius, count) = 2 * PI * radius / count;
 function sparger_pitch_ratio(radius, count, hole_diameter) =
   sparger_ring_pitch(radius, count) / hole_diameter;
 function sparger_pitch_ratio_floor() = 3;
+// Sides on a gas hole. Left to $fs, a 1 mm hole gets six.
+function sparger_hole_facets() = 24;
 
 // Where the holes sit on a ring, half a pitch off the feed. Shared by the cut, the split assert
 // and the breakthrough probe.
@@ -260,23 +254,14 @@ module sparger_socket_pilot(tube, section_facets, feed_height, socket_boss, scre
       cylinder(h = sparger_across_corners(socket_boss, section_facets) / 2 + 1, r = screw_tap_radius);
 }
 
-// The seal's groove in the socket, under where the screw's pilot is (sparger_seal_top()), enclosed
-// as the lid port's is: folded, pushed down the bore with the riser's end, and captive in it.
-// screw_tap_radius places it on a socket with no screw as on one with.
-module sparger_socket_gland(tube, section_facets, feed_height, socket_boss, ring, screw_tap_radius) {
-  _top = sparger_seal_top(feed_height, screw_tap_radius);
-  _len = sparger_seal_gland_length(ring);
-  _taper = (socket_boss - tube) / 2;
-  assert(
-    _top - _len >= _taper,
-    str("sparger socket: the seal's ", _len, " mm groove under the screw reaches down into the boss's taper")
-  );
-  assert(
-    sparger_seal_gland_radius(ring) + 1 <= socket_boss / 2,
-    str("sparger socket: a ", oring_name(ring), " groove out to r ", sparger_seal_gland_radius(ring), " leaves under 1 mm of a ", socket_boss, " mm boss")
-  );
-  translate([0, 0, _top - _len])
-    cylinder(h = _len, r = sparger_seal_gland_radius(ring));
+// Solid under a hung part's socket, in the boss's section, from the run's underside up to where
+// the socket's taper starts: the outside of the elbow filled, so pressing the riser in on a flat
+// surface bears straight down through it rather than on the bend.
+module sparger_socket_foot(tube, section_facets, bend, socket_boss) {
+  _floor = sparger_face_distance(tube, section_facets, 270);
+  translate([0, 0, -_floor])
+    linear_extrude(height = _floor + bend + (socket_boss - tube) / 2)
+      sparger_section(socket_boss, section_facets);
 }
 
 // A quarter-turn elbow from a riser at x = r down to a run along x at z = 0, turning outward (+x)
@@ -323,8 +308,8 @@ module sparger_feed_elbow(r, bend, across_flats, facets, inward = false) {
  * @param plug_tap_radius Radius the end screw self-taps into (set_screw_tap_radius()). undef
  *                        leaves the ends open.
  * @param plug_depth      How much solid each end carries for that screw to bite into.
- * @param socket_boss     Across flats of a boss round the feed socket; a seal's groove needs one.
- * @param seal            A registered o-ring sealing the riser in the feed socket; undef for none.
+ * @param socket_boss     Across flats of a boss round the feed socket; undef leaves the tube's own
+ *                        section.
  */
 module sparger(
   radii,
@@ -351,8 +336,7 @@ module sparger(
   split_angle = 0,
   plug_tap_radius = undef,
   plug_depth = sparger_plug_depth(),
-  socket_boss = undef,
-  seal = undef
+  socket_boss = undef
 ) {
   _n = len(radii);
   _outer = max(radii);
@@ -502,7 +486,7 @@ module sparger(
           for (r = sparger_equal_area_radii(spoke_holes, _outer, _inner))
             rotate([0, 0, a])
               translate([r, 0, -_ac / 2 - z_fight])
-                cylinder(h = _ac / 2 + 2 * z_fight, d = hole_diameter);
+                cylinder(h = _ac / 2 + 2 * z_fight, d = hole_diameter, $fn = sparger_hole_facets());
 
       // Gas holes, inward at the impeller (Birch & Ahmed) or down at the floor.
       for (i = [0:_n - 1])
@@ -511,10 +495,10 @@ module sparger(
             translate([radii[i], 0, 0])
               if (hole_bearing == "down")
                 translate([0, 0, -_ac / 2 - z_fight])
-                  cylinder(h = _ac / 2 + 2 * z_fight, d = hole_diameter);
+                  cylinder(h = _ac / 2 + 2 * z_fight, d = hole_diameter, $fn = sparger_hole_facets());
               else
                 rotate([0, -90, 0])
-                  cylinder(h = _reach_at(radii[i]) + z_fight, d = hole_diameter);
+                  cylinder(h = _reach_at(radii[i]) + z_fight, d = hole_diameter, $fn = sparger_hole_facets());
   }
 
   if (show_fluid_path)
@@ -534,9 +518,8 @@ module sparger(
         sparger_spoke_solid(_feed_r + _bend, _outer, 0, tube, section_facets);
         sparger_elbow_solid(_feed_r, _bend, tube, section_facets);
 
-        // Socket: the tube standing up, with the tube's own section, or the boss a seal's groove
-        // needs. Faceted where the supports are round, which is the only thing that tells them
-        // apart at the bottom of a jar.
+        // Socket: the tube standing up, with the tube's own section, or a boss. Faceted where the
+        // supports are round, which is the only thing that tells them apart at the bottom of a jar.
         translate([_feed_r, 0, _bend])
           sparger_socket_solid(tube, section_facets, feed_height, socket_boss);
       }
@@ -572,12 +555,6 @@ module sparger(
               h = socket_chamfer + z_fight,
               d1 = feed_bore, d2 = feed_bore + 2 * socket_chamfer
             );
-
-    // The feed socket's seal, placed as under a screw though the ring has none: the plug's.
-    if (!is_undef(seal))
-      rotate([0, 0, feed_angle])
-        translate([_feed_r, 0, _bend])
-          sparger_socket_gland(tube, section_facets, feed_height, socket_boss, seal, plug_tap_radius);
 
     // The cleaning gap, opposite the feed, as a pie so both cut faces are radial.
     if (split_angle > 0)
@@ -668,17 +645,20 @@ function sparge_arm_pitch(reach, holes, bend, end_depth) = sparge_arm_bored(reac
  *                        undef leaves the socket the tube's own section.
  * @param screw_tap_radius Radius of a radial pilot through that boss, near the mouth, for a set
  *                        screw to self-tap into and grip the riser; undef leaves none.
- * @param seal            A registered o-ring sealing the riser, in a groove under that screw.
+ * @param feed_bore_bottom The socket bore at its bottom, narrower than feed_bore for a press fit
+ *                        that tapers in; undef leaves it straight. Taken with a socket_boss, which
+ *                        also fills under the socket (sparger_socket_foot()).
  * @param show_fluid_path Draw the gas path on its own.
  */
 module sparge_arm(
   reach, holes, hole_diameter, tube, bore, section_facets = 8, feed_bore = 4, feed_height = 8,
   socket_chamfer = 0.5, bend_radius = undef, end_depth = sparger_plug_depth(), plug_tap_radius = undef,
-  socket_boss = undef, screw_tap_radius = undef, seal = undef, show_fluid_path = false
+  socket_boss = undef, screw_tap_radius = undef, feed_bore_bottom = undef, show_fluid_path = false
 ) {
   _ac = sparger_across_corners(tube, section_facets);
   _bend = is_undef(bend_radius) ? sparger_bend(tube) : bend_radius;
   _bored = sparge_arm_bored(reach, _bend, end_depth);
+  _bottom = is_undef(feed_bore_bottom) ? feed_bore : feed_bore_bottom;
 
   assert(
     hole_diameter < bore,
@@ -697,10 +677,10 @@ module sparge_arm(
     sparger_spoke_solid(_bend - z_fight, _bend + _bored, 0, bore, 0);
     sparger_elbow_solid(0, _bend, bore, 0);
     translate([0, 0, _bend])
-      cylinder(h = feed_height + z_fight, d = feed_bore);
+      cylinder(h = feed_height + z_fight, d1 = _bottom, d2 = feed_bore);
     for (x = sparge_arm_hole_positions(reach, holes, _bend, end_depth))
       translate([x, 0, -_ac / 2 - z_fight])
-        cylinder(h = _ac / 2 + 2 * z_fight, d = hole_diameter);
+        cylinder(h = _ac / 2 + 2 * z_fight, d = hole_diameter, $fn = sparger_hole_facets());
   }
 
   if (show_fluid_path)
@@ -712,6 +692,12 @@ module sparge_arm(
         sparger_elbow_solid(0, _bend, tube, section_facets);
         translate([0, 0, _bend])
           sparger_socket_solid(tube, section_facets, feed_height, socket_boss);
+        // the run carried straight on into the foot, to the riser's axis, closing the gap under
+        // the bend's inside; the bore is cut after, so it stays open
+        if (!is_undef(socket_boss)) {
+          sparger_socket_foot(tube, section_facets, _bend, socket_boss);
+          sparger_spoke_solid(0, _bend, 0, tube, section_facets);
+        }
       }
       _fluid_path();
       if (socket_chamfer > 0)
@@ -725,9 +711,6 @@ module sparge_arm(
       if (!is_undef(screw_tap_radius))
         translate([0, 0, _bend])
           sparger_socket_pilot(tube, section_facets, feed_height, socket_boss, screw_tap_radius);
-      if (!is_undef(seal))
-        translate([0, 0, _bend])
-          sparger_socket_gland(tube, section_facets, feed_height, socket_boss, seal, screw_tap_radius);
     }
 }
 
@@ -813,9 +796,11 @@ function sparge_loop_pitch(radius, holes, sweep, end_depth) =
 module sparge_loop(
   radius, feed_radius, sweep, holes, hole_diameter, tube, bore, section_facets = 8, feed_bore = 4,
   feed_height = 8, socket_chamfer = 0.5, bend_radius = undef, end_depth = sparger_plug_depth(),
-  plug_tap_radius = undef, socket_boss = undef, screw_tap_radius = undef, seal = undef, show_fluid_path = false
+  plug_tap_radius = undef, socket_boss = undef, screw_tap_radius = undef, feed_bore_bottom = undef,
+  show_fluid_path = false
 ) {
   _ac = sparger_across_corners(tube, section_facets);
+  _bottom = is_undef(feed_bore_bottom) ? feed_bore : feed_bore_bottom;
   _bend = is_undef(bend_radius) ? sparger_bend(tube) : bend_radius;
   _hook_x = sparge_loop_hook_x(radius, _bend);
   _join = sparge_loop_join(radius, _bend);
@@ -865,11 +850,11 @@ module sparge_loop(
   module _fluid_path() {
     _path(bore, 0, _bored);
     translate([feed_radius, 0, _bend])
-      cylinder(h = feed_height + z_fight, d = feed_bore);
+      cylinder(h = feed_height + z_fight, d1 = _bottom, d2 = feed_bore);
     for (a = sparge_loop_hole_angles(radius, holes, _bend, sweep, end_depth))
       rotate([0, 0, a])
         translate([radius, 0, -_ac / 2 - z_fight])
-          cylinder(h = _ac / 2 + 2 * z_fight, d = hole_diameter);
+          cylinder(h = _ac / 2 + 2 * z_fight, d = hole_diameter, $fn = sparger_hole_facets());
   }
 
   if (show_fluid_path)
@@ -880,6 +865,12 @@ module sparge_loop(
         _path(tube, section_facets, sweep);
         translate([feed_radius, 0, _bend])
           sparger_socket_solid(tube, section_facets, feed_height, socket_boss);
+        // as the arm's: the run carried straight on under the bend to the riser's axis
+        if (!is_undef(socket_boss)) {
+          translate([feed_radius, 0, 0])
+            sparger_socket_foot(tube, section_facets, _bend, socket_boss);
+          sparger_spoke_solid(feed_radius - _bend, feed_radius, 0, tube, section_facets);
+        }
       }
       _fluid_path();
       if (socket_chamfer > 0)
@@ -896,9 +887,6 @@ module sparge_loop(
         translate([feed_radius, 0, _bend])
           rotate([0, 0, 180])
             sparger_socket_pilot(tube, section_facets, feed_height, socket_boss, screw_tap_radius);
-      if (!is_undef(seal))
-        translate([feed_radius, 0, _bend])
-          sparger_socket_gland(tube, section_facets, feed_height, socket_boss, seal, screw_tap_radius);
     }
 }
 
@@ -1039,7 +1027,7 @@ sparger_report(
 );
 
 // The loop and the arm, on the reactor's 6.4 mm tube over the 4.2 mm socket, the arm's boss and
-// screw. 1 mm holes as head() drills them.
+// screw. 1.2 mm holes as head() drills them.
 _ex_tube = sparger_socket_allow() + 4 + 2 * 1.1;
 _ex_boss = 4 + sparger_socket_allow() + 2 * sparger_boss_wall();
 _ex_tap = 1.65; // an M4 tap
@@ -1048,21 +1036,21 @@ _ex_arm_at = [320, 0, 0];
 
 translate(_ex_loop_at)
   sparge_loop(
-    radius = 38, feed_radius = 56.5, sweep = 300, holes = 16, hole_diameter = 1, tube = _ex_tube,
-    bore = 4, feed_bore = 4 + sparger_socket_allow(), feed_height = sparger_socket_depth(),
+    radius = 38, feed_radius = 56.5, sweep = 300, holes = 11, hole_diameter = 1.2, tube = _ex_tube,
+    bore = 4, feed_bore = 4 + sparger_socket_allow(), feed_height = sparger_hung_socket_depth(),
     socket_chamfer = sparger_socket_chamfer(), plug_tap_radius = _ex_tap, socket_boss = _ex_boss,
-    screw_tap_radius = _ex_tap, seal = sparger_seal()
+    screw_tap_radius = _ex_tap, feed_bore_bottom = 4 - sparger_socket_press()
   );
-sparge_loop_hole_probes(radius = 38, sweep = 300, holes = 16, tube = _ex_tube, bore = 4, origin = _ex_loop_at);
-sparge_loop_report(radius = 38, sweep = 300, holes = 16, hole_diameter = 1, bore = 4, gas_flow = _ex_flow);
+sparge_loop_hole_probes(radius = 38, sweep = 300, holes = 11, tube = _ex_tube, bore = 4, origin = _ex_loop_at);
+sparge_loop_report(radius = 38, sweep = 300, holes = 11, hole_diameter = 1.2, bore = 4, gas_flow = _ex_flow);
 
 // in from the same riser to 9 mm off the axis
 translate(_ex_arm_at)
   sparge_arm(
-    reach = 47.5, holes = 10, hole_diameter = 1, tube = _ex_tube, bore = 4,
-    feed_bore = 4 + sparger_socket_allow(), feed_height = sparger_socket_depth(),
+    reach = 47.5, holes = 8, hole_diameter = 1.2, tube = _ex_tube, bore = 4,
+    feed_bore = 4 + sparger_socket_allow(), feed_height = sparger_hung_socket_depth(),
     socket_chamfer = sparger_socket_chamfer(), plug_tap_radius = _ex_tap, socket_boss = _ex_boss,
-    screw_tap_radius = _ex_tap, seal = sparger_seal()
+    screw_tap_radius = _ex_tap, feed_bore_bottom = 4 - sparger_socket_press()
   );
-sparge_arm_hole_probes(reach = 47.5, holes = 10, tube = _ex_tube, bore = 4, origin = _ex_arm_at);
-sparge_arm_report(reach = 47.5, holes = 10, hole_diameter = 1, tube = _ex_tube, bore = 4, gas_flow = _ex_flow);
+sparge_arm_hole_probes(reach = 47.5, holes = 8, tube = _ex_tube, bore = 4, origin = _ex_arm_at);
+sparge_arm_report(reach = 47.5, holes = 8, hole_diameter = 1.2, tube = _ex_tube, bore = 4, gas_flow = _ex_flow);
