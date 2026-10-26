@@ -32,12 +32,13 @@ not_printed=(
     render_heat_pads            # vitamin - the silicone pads the plates hold on the glass
 )
 # Every drive, because each manifest lists only its own drive's parts and a flag has to reach
-# at least one of them; and with a riser, which only a deep jar's magnetic build stands on.
+# at least one of them; and with a riser, which only a deep jar's magnetic build stands on. Both
+# baffle designations, for the same reason: the cage is only on a wall build's list.
 cat > "$tmp/m.scad" <<SCAD
 include <$PWD/scad/bioreactor.scad>
 _v = reactor_vessel;
 for (d = ["shaft", "magnetic", "none", "airlift"]) {
-  for (p = head_print_parts(_v, lid_flange_height, d, sparger_name, lid_center_name, condenser_name))
+  for (b = ["lid", "wall"], p = head_print_parts(_v, lid_flange_height, d, sparger_name, lid_center_name, condenser_name, b))
     echo(str("PART|", p[2]));
   for (p = frame_print_parts(n_rods, d, riser=true, heat_pad=heat_pads[0])) echo(str("PART|", p[2]));
 }
@@ -86,6 +87,8 @@ not_exported=(
                                                 # "bearing_blank", sized to the lid's pocket
     scad/custom/draft_tube.scad                 # exported through head's manifest as
                                                 # "draft_tube", sized to the airlift's jar
+    scad/custom/baffle_cage.scad                # exported through head's manifest as
+                                                # "baffle_cage_*", sized to the wall build's jar
     scad/custom/sheet_gasket.scad               # EPDM cut from a sheet with a knife, not printed
     # Bench furniture AROUND the reactor rather than part of it. Of the first three only ONE
     # makes anything printed - which is not what this list said until it was read.

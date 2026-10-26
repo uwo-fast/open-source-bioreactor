@@ -82,32 +82,46 @@ closed it and in `docs/`.
   - not parameterised on purpose: a default for a hand-cut window would be a guess
 
 - [ ] **whether the loop earns its one-riser hang**
-  - `sparger_name = "loop"` builds and checks, and no registered build takes it. On `jar_10L` it
-    sits 1.25 mm inside the baffles once they and its riser have leaned, and `head()` warns that
-    0.467 N sideways closes that, against a flow force nobody has measured
+  - `jar_10L_220x305` runs it, inside the wall cage, where it is set by its own hook at 76.54 mm
+    and stands 19.3 mm inside the cage's bars; nothing hangs near it. Every other stirred build
+    keeps the arm. Under lid plates, as on `jar_10L_magnetic`, it sits 1.25 mm inside them once
+    they and its riser have leaned, and `head()` warns that 0.467 N sideways closes that, against a
+    flow force nobody has measured
   - the swirl is the likelier load: its torque on a C round the shaft turns the loop about its
     riser, held only by the port's seal, and as little as 1.27° closes the same gap. Nothing prices
     that; a key or flat on the riser in its port would stop it if the bench shows it turning
-  - a bench question: run the stirred `jar_10L` with the loop and look for it touching a plate. If it
-    holds, it is the case for making it the stirred default, since it puts the gas under the whole
-    impeller rather than one side of it. If not, a second socket on a dosing riser would steady it,
-    as the ring's supports do
-  - no registered build names it, so `just export-part` cannot reach it; `head.scad` with
-    `-D render_all=false -D render_sparger=true -D head_sparger="loop"` renders it alone
-  - on the bench it held off the plates, and all eight 3 mm holes bubbled with the C level (#70).
-    It now drills sixteen 1 mm holes, open area ratio 1.00 on its one bore; count them again
+  - on the bench, under lid plates, it held off them, and all eight 3 mm holes bubbled with the
+    C level (#70). It now drills sixteen 1 mm holes, open area ratio 1.00 on its one bore; count
+    them again, and watch for it turning on its riser in the cage build
 
 - [ ] **where the sparger's gas actually goes, and whether the DO probe should move**
   - only for a stirred build given the ring (`sparger_name = "ring"`), which no registered build
-    takes: the stirred builds default to the arm, and the airlift hangs DO straight inside its tube
+    takes: `jar_10L_220x305` runs the loop, the other stirred builds the arm, and the airlift hangs
+    DO straight inside its tube
   - there the DO face sits 20.6 mm above the sparge ring's centreline and 0.59 mm off its radius on
     `jar_10L`, over a ring of bubbles in the convergence zone: the one placement that can read wrong
-    both ways. The loop (`sparger_name = "loop"`) gets the same report, and on `jar_10L` puts the
-    face 103.9 mm above it and 29.0 mm off its radius, out of its gas
+    both ways. The loop gets the same report, and on `jar_10L_220x305` puts the face 103.9 mm
+    above it and 28.7 mm off its radius, out of its gas
   - the flow rate is not the concern (bulk mean 16x what the probe needs); the gas path is not
     modelled, and no source found gives DO placement relative to a sparger
   - a bench question: run it and see whether the DO trace is spiky. If it matters, the free
     variables are the lean and the ring's height, both parameters already
+
+- [ ] **bench the wall baffle cage on `jar_10L`**
+  - the first print slid and held, but its slide was loose, and so was the 0° joint, where the
+    hoops' C ended at the dovetail's lip; the fit is now 0.15 mm a side, the detents 0.5 mm, and
+    the gap starts past that lip's ramp, at 17°
+  - a blade could also slide through its hoop into the middle; each bar's outer end is now closed
+    under the flange and stops against the hoop; and a third detent at each bar's tip clicks in
+    inside the hoop, so with the out-detent the blade is held out both ways, each steep on the face
+    toward the hoop
+  - print one top hoop and one blade first: the bar slides free between its detents and needs a
+    firm push and a click through each; then the whole cage through the mouth, the blades out, the
+    lid on with the air inlet's riser in the arm's slot; then 10 min at 320 rpm with no blade crept inward
+  - the slide fit (0.15 mm a side) and the detents' 0.5 mm are guesses until that; the steps are in
+    `docs/build.md`
+  - every other build still hangs lid plates: each needs the cage checked against its jar before it
+    can name `baffle_name = "wall"`, and the magnetic, airlift and ring builds are refused today
 
 - [ ] **measure what a printed sparge face costs, before any reactor sparger changes**
   - `custom/sparge_puck.scad` prints one outlet face per puck; the bench run is `docs/build.md`'s
@@ -121,7 +135,8 @@ closed it and in `docs/`.
     vessels). So a finer face is the airlift ring's question first, not the arm's
   - closes with a measured row per face that `head()` prices in the gas line, as it does the filter
 
-- [ ] **on `jar_10L` the baffle's width is the lean's to give back**
+- [ ] **on `jar_10L` the lid plates' width is the lean's to give back** (the magnetic build and
+      head.scad's own default; the shaft reference build carries the wall cage)
   - the plate is sized to keep 1 mm running to the blades after 2.27722 mm of lean: 3.27722 nominal,
     11.9456 mm wide. The ring's 10.3454 mm bound applies only where the ring is built, and
     `jar_1gal_180` is at the lock bore's 17.0892
