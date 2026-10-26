@@ -78,4 +78,4 @@ orings = [oring_4x1p5_epdm, oring_13x1p5_epdm, oring_17x1p5_epdm, oring_23x1p5_e
 use <oring.scad>;
 
 use <../utils/registries.scad>;
-function oring_by_name(name) = registry_by_name(orings, name);
+function oring_by_name(name) = registry_by_name(orings, name, 6);

@@ -19,7 +19,7 @@ heat_pad_20w_150x50 = ["20W 150x50", "B0C4GX3F76", [150,    50,     1.85     ], 
 heat_pads = [heat_pad_20w_150x50];
 
 use <../utils/registries.scad>;
-function heat_pad_by_name(name) = registry_by_name(heat_pads, name);
+function heat_pad_by_name(name) = registry_by_name(heat_pads, name, 6);
 
 use <heat_pad.scad>
 
