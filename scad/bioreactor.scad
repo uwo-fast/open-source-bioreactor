@@ -107,6 +107,9 @@ lid_center_name = "auto"; // [auto, bearing, plain]
 // the arm's riser hooked round into a C under the lower one; auto is the arm under a drive and the
 // ring under none
 sparger_name = "auto"; // [auto, ring, arm, loop]
+// What breaks the swirl: plates hung from the lid, or the standard four on the wall, on a cage that
+// goes in through the mouth; auto is the lid's plates
+baffle_name = "auto"; // [auto, lid, wall]
 // What takes the air_out port: the coil condenser, or none, where a tube hangs from it and the
 // headspace vents through a slot in it; auto is the coil, unless the ring needs that tube
 condenser_name = "auto"; // [auto, none, coil]
@@ -224,6 +227,7 @@ reactor_build = [
   ["lid_center", lid_center_name],
   ["stir_bar", _build_stir_bar],
   ["sparger", sparger_name],
+  ["baffles", baffle_name],
   ["condenser", condenser_name],
 ];
 
@@ -253,7 +257,8 @@ _designated = [
     ["shaft", shaft_name], ["plug o-ring", plug_oring_name], ["motor", motor_name],
     ["gasket sheet", gasket_sheet_name], ["DO probe", do_probe_name], ["pH probe", ph_probe_name],
     ["light", strip_light_name], ["stir bar", stir_bar_name], ["magnets", stir_magnet_name],
-    ["sparger", sparger_name], ["lid centre", lid_center_name], ["condenser", condenser_name],
+    ["sparger", sparger_name], ["lid centre", lid_center_name], ["baffles", baffle_name],
+    ["condenser", condenser_name],
   ]) if (d[1] != "auto") str(d[0], " ", d[1])
 ];
 function _joined(v, i = 0) = i >= len(v) ? "" : str(i == 0 ? "" : ", ", v[i], _joined(v, i + 1));
