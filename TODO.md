@@ -109,6 +109,22 @@ closed it and in `docs/`.
   - a bench question: run it and see whether the DO trace is spiky. If it matters, the free
     variables are the lean and the ring's height, both parameters already
 
+- [ ] **bench the wall baffle cage on `jar_10L`**
+  - the first print slid and held, but its slide was loose, and so was the 0° joint, where the
+    hoops' C ended at the dovetail's lip; the fit is now 0.15 mm a side, the detents 0.5 mm, and
+    the gap starts past that lip's ramp, at 17°
+  - a blade could also slide through its hoop into the middle; each bar's outer end is now closed
+    under the flange and stops against the hoop; and a third detent at each bar's tip clicks in
+    inside the hoop, so with the out-detent the blade is held out both ways, each steep on the face
+    toward the hoop
+  - print one top hoop and one blade first: the bar slides free between its detents and needs a
+    firm push and a click through each; then the whole cage through the mouth, the blades out, the
+    lid on with the air inlet's riser in the arm's slot; then 10 min at 320 rpm with no blade crept inward
+  - the slide fit (0.15 mm a side) and the detents' 0.5 mm are guesses until that; the steps are in
+    `docs/build.md`
+  - every other build still hangs lid plates: each needs the cage checked against its jar before it
+    can name `baffle_name = "wall"`, and the magnetic, airlift and ring builds are refused today
+
 - [ ] **measure what a printed sparge face costs, before any reactor sparger changes**
   - `custom/sparge_puck.scad` prints one outlet face per puck; the bench run is `docs/build.md`'s
     _The sparge test pucks_
@@ -121,7 +137,8 @@ closed it and in `docs/`.
     vessels). So a finer face is the airlift ring's question first, not the arm's
   - closes with a measured row per face that `head()` prices in the gas line, as it does the filter
 
-- [ ] **on `jar_10L` the baffle's width is the lean's to give back**
+- [ ] **on `jar_10L` the lid plates' width is the lean's to give back** (the magnetic build and
+      head.scad's own default; the shaft reference build carries the wall cage)
   - the plate is sized to keep 1 mm running to the blades after 2.27722 mm of lean: 3.27722 nominal,
     11.9456 mm wide. The ring's 10.3454 mm bound applies only where the ring is built, and
     `jar_1gal_180` is at the lock bore's 17.0892
