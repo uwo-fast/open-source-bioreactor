@@ -45,12 +45,14 @@ replaced (four baffles every third port, and one tube port fewer).
 | 7   | 210°  | tube Ø4.4    | dose 2           |
 | 8   | 240°  | tube Ø4.4    | air in           |
 | 9   | 270°  | **baffle**   |                  |
-| 10  | 300°  | tube Ø4.4    | dose 3           |
+| 10  | 300°  | sampler      | turbidity        |
 | 11  | 330°  | tube Ø4.4    | dose 4           |
 
 Every tube port is bored Ø4.4 for the steel riser it carries; what a port is for is engraved on
-its flange. The four dosing ports are numbered, not named: which carries acid, base, media or
-anything else is the user's to choose, and any of them can be given to another function.
+its flange. The three dosing ports are numbered, not named: which carries acid, base, media or
+anything else is the user's to choose, and any of them can be given to another function. They
+keep the numbers 1, 2 and 4 they were printed with: the turbidity sampler took dose 3's port,
+because at 330° it stood in the coil condenser on `air_out` at 0°.
 
 ## The heuristics, and where this layout lands against them
 
@@ -64,15 +66,15 @@ arrangement symmetric and manufacturable. Each is checked against the table abov
   foam region. Air out at 0°, 120° from air in. Impeller circulation direction is a secondary
   preference here, not a prediction.
 - **Dosing lines grouped near air in and the mixing sector**, so dosed solution disperses quickly,
-  and **away from the pH probe** so a fresh dose does not bias it. Doses 2 and 3, at 210° and 300°,
-  sit 30° and 60° from air in and 90° and 180° from pH, so they are the ones for acid and base.
-  Dose 1, at 180°, is 60° from pH, and dose 4, at 330°, 150°.
+  and **away from the pH probe** so a fresh dose does not bias it. Doses 2 and 4, at 210° and 330°,
+  sit 90° and 150° from pH, so they are the ones for acid and base. Dose 1, at 180°, is 60° from
+  pH.
 - **Thermocouple adjacent to the DO probe**, so the temperature used for DO compensation comes from
   the same region of liquid. They are at 90° and 60° — **adjacent**. An earlier three-baffle layout
   put the pH probe between them, 60° apart, which did not meet this rule.
 - **The other lines distributed through the space** with clearance from baffles, probes, the
-  other dosing lines, and the shaft. Dose 1 at 180°, and dose 4 at 330° between two small tube
-  ports, which is the port for anything tall that stands on the lid.
+  other dosing lines, and the shaft. Dose 1 at 180°, and dose 4 at 330°. The tall things that
+  stand on the lid, the condenser at 0° and the sampler at 300°, are two ports apart.
 
 ## What the air-in port now carries
 
@@ -284,10 +286,10 @@ corner of it. And the lid is where the growth goes. In photos of past cultures t
 in the culture, in the headspace and on the lid, with almost none low down on the sparger and
 probes. See TODO.md, which was already asking whether a cloth goes through 1.0466 mm.
 
-| set         | ports | functions                                                            | worst pair | min mouth |
-| ----------- | ----- | -------------------------------------------------------------------- | ---------- | --------- |
-| **full**    | 12    | 3 baffle, do_probe, ph_probe, temperature, air_in, air_out, dose_1–4 | std\|std   | 142.0 mm  |
-| **reduced** | 6     | do_probe, ph_probe, temperature, air_in, air_out, dose_1             | std\|mini  | 78.0 mm   |
+| set         | ports | functions                                                                                   | worst pair | min mouth |
+| ----------- | ----- | ------------------------------------------------------------------------------------------- | ---------- | --------- |
+| **full**    | 12    | 3 baffle, do_probe, ph_probe, temperature, air_in, air_out, dose_1, dose_2, dose_4, sampler | std\|std   | 142.0 mm  |
+| **reduced** | 6     | do_probe, ph_probe, temperature, air_in, air_out, dose_1                                    | std\|mini  | 78.0 mm   |
 
 A three-baffle set with the probes two steps from each baffle was tried: the worst pair becomes
 std against mini, which bought about 20 mm of mouth. The registered set does not do that, because it

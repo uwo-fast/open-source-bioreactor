@@ -109,14 +109,15 @@ not_exported=(
     scad/custom/peri_pump_head.scad             # a stretch goal rather than this build
     scad/custom/gl_port_cap.scad                # the inlet humidifier's cap: a bottle, not the
                                                 # reactor, so no manifest of the reactor's has it
-    scad/custom/sampler.scad                    # the turbidity sampler prints from its own file
-                                                # until head places it on a port; see TODO.md
+    scad/custom/sampler.scad                    # exported through head's manifest as
+                                                # "sampler_base" and "sampler_top" on a lid
+                                                # with a sampler port
     scad/custom/sparge_puck.scad                # bench test pieces, one outlet face per print,
                                                 # that never go in a jar; see docs/build.md
     scad/custom/condenser_cold_finger.scad      # the split cold finger, printed from its own file
-    scad/custom/condenser_coil.scad             # until head offers it; the coil's own example,
-                                                # which head's manifest exports for every build
-                                                # it places
+                                                # until head offers it
+    scad/custom/condenser_coil.scad             # exported through head's manifest as
+                                                # "condenser_coil_<part>" where head places it
     scad/custom/gasket_cutter_v2.scad           # WORK IN PROGRESS - a cutter built around a
                                                 # standard #11 blade rather than a printed edge.
                                                 # It renders so it can be previewed while it is

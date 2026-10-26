@@ -24,6 +24,7 @@ use <custom/bearing_blank.scad>;
 use <custom/draft_tube.scad>;
 use <custom/baffle_cage.scad>;
 use <custom/condenser_coil.scad>;
+use <custom/sampler.scad>;
 
 include <purchased/dc_motors.scad>;
 include <purchased/gearboxes.scad>;
@@ -142,6 +143,10 @@ render_sparger = false;
 render_sparge_tubes = false;
 // The exhaust condenser on air_out, assembled in place
 render_condenser = false;
+// The turbidity sampler on its port, assembled in place
+render_sampler = false;
+// Which of its prints: one alone renders at the origin, as it prints
+sampler_part_to_render = "assembly"; // [assembly, base, top]
 // Which of its parts: one alone renders at the origin, as it prints
 condenser_part_to_render = "assembly"; // [assembly, body, panel, former, puck_bottom, puck_top]
 
@@ -410,6 +415,8 @@ port_position = "locked"; // [locked, entry]
 //   "probe"        -> atlas probe holder (flex collet), bore 0, fourth slot the registered probe
 //   "thermocouple" -> NPT thread mount, bore_radius the through-hole, fourth slot the probe
 //   "baffle"       -> blind port carrying a swirl baffle, bore 0; count must divide the port count
+//   "sampler"      -> the turbidity sampler (custom/sampler.scad), whose base is the pin; the
+//                     port's riser is its dip tube, so bore_radius is the riser's, as a tube's
 //   "blank"        -> a port left empty, closed by a blank; made by head_ports_walled(), not listed
 
 // A rigid tube from the lid port down into the sparge ring's socket, and the only thing holding
@@ -437,7 +444,7 @@ head_port_set_full = [
   ["dose_2",      "tube",         tube_port_riser_bore], // 210
   ["air_in",      "tube",         tube_port_riser_bore], // 240   the sparger hangs from this one
   ["baffle",      "baffle",       0           ], // 270
-  ["dose_3",      "tube",         tube_port_riser_bore], // 300
+  ["sampler",     "sampler",      tube_port_riser_bore], // 300   clear of the condenser on air_out at 0
   ["dose_4",      "tube",         tube_port_riser_bore], // 330
 ];
 
@@ -669,6 +676,11 @@ function head_print_parts(vessel, lid_flange_height, drive = "shaft", sparger = 
       !head_blank_carried(drive, lid_center) ? [] : [["bearing_blank", 1, "-D render_bearing_blank=true"]],
       drive != "airlift" ? [] : [["draft_tube", 1, "-D render_draft_tube=true"]],
       [[str("sparge_", _sparger), 1, "-D render_sparger=true"]],
+      // the sampler's two prints, its base being its port's pin
+      len([for (q = _ports) if (head_port_type(q) == "sampler") q]) == 0 ? [] : [
+        for (c = ["base", "top"])
+          [str("sampler_", c), 1, str("-D render_sampler=true -D sampler_part_to_render=\"", c, "\"")],
+      ],
       // the coil condenser's printed parts and the two pucks its ends are formed on; its body is air_out's pin
       !_coil ? [] : [
         for (c = ["body", "panel", "former", "puck_bottom", "puck_top"])
@@ -696,6 +708,7 @@ function head_print_parts(vessel, lid_flange_height, drive = "shaft", sparger = 
           let (_n = head_port_export_name(_ports, i))
             if (
               head_port_type(_ports[i]) != "baffle" && head_port_type(_ports[i]) != "blank"
+              && head_port_type(_ports[i]) != "sampler"
               && !(_coil && head_port_function(_ports[i]) == "air_out")
             )
               [str("port_", _n), 1, str("-D port_to_render=\"", _n, "\"")],
@@ -737,7 +750,7 @@ function head_port_export_name(ports, i) =
   : head_port_function(ports[i]);
 
 // Which ports have a rigid tube standing in them, and so want a seal around it.
-function head_port_carries_riser(port) = head_port_type(port) == "tube";
+function head_port_carries_riser(port) = head_port_type(port) == "tube" || head_port_type(port) == "sampler";
 
 /* [Baffle Parameters] */
 
@@ -1802,6 +1815,9 @@ module head_port(port, panel_thickness, baffle_width, baffle_length, baffle_segm
       mount_height=thermocouple_mount_height,
       thread=thermocouple_probe_thread(_probe)
     );
+  } else if (_type == "sampler") {
+    assert(_iface == bayonet_std, "head_port: the sampler's base is cut as a std pin");
+    sampler_pin();
   } else {
     assert(false, str("head_port: unknown port type '", _type, "'"));
   }
@@ -2415,8 +2431,16 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _dosing_tube_id = peri_pump_tube_inner_diameter(head_dosing_pump);
   _riser_od = steel_tube_od(sparge_riser_tube);
 
+  // The sampler's dip tube is its port's riser, ending where every other riser does; its top end
+  // stops inside the sampler's base, under the clear tube, and it is drilled where it draws.
+  _sampler_at = [for (i = [0:_n - 1]) if (head_port_type(_ports[i]) == "sampler") i];
+  _sampler_i = len(_sampler_at) == 0 ? undef : _sampler_at[0];
+  _sampler = !is_undef(_sampler_i);
+  _sampler_riser_cut = !_sampler ? 0 : sampler_riser_top_z() - (_riser_top_z - _sparge_riser_length);
+  _sampler_drill = !_sampler ? undef : sampler_riser_top_z() - (_liquid_surface_z - sampler_sample_under_surface());
+
   // Bought as stock and cut, so the purchase list needs the stock length and the cut list.
-  _riser_total = _sparge_feed_length + len(_sparge_support_angles) * _sparge_riser_length;
+  _riser_total = _sparge_feed_length + len(_sparge_support_angles) * _sparge_riser_length + _sampler_riser_cut;
   _riser_stock = steel_tube_stock_for(_riser_total, 1);
 
   // ----- gas supply -----
@@ -3834,7 +3858,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   echo(str(
     "sparge riser seal: ", oring_name(tube_port_riser_oring), " (", oring_part_number(tube_port_riser_oring),
-    ") in each of ", 1 + len(_sparge_support_ports), " ports, at ", _riser_seal_stretch * 100,
+    ") in each of ", 1 + len(_sparge_support_ports) + (_sampler ? 1 : 0), " ports, at ", _riser_seal_stretch * 100,
     "% stretch and ", _riser_seal_squeeze * 100, "% squeeze; without it each port is a ",
     PI / 4 * (pow(_riser_port_bore, 2) - pow(steel_tube_od(sparge_riser_tube), 2)),
     " mm2 hole into the headspace"
@@ -3880,7 +3904,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     "sparge tube stock: ", steel_tube_part_number(sparge_riser_tube), ", ",
     steel_tube_material(sparge_riser_tube), " ", steel_tube_construction(sparge_riser_tube),
     ", ", steel_tube_temper(sparge_riser_tube), " temper; cut 1 x ", _sparge_feed_length,
-    " mm and ", len(_sparge_support_angles), " x ", _sparge_riser_length, " mm = ", _riser_total, " mm",
+    " mm and ", len(_sparge_support_angles), " x ", _sparge_riser_length, " mm",
+    _sampler ? str(" and 1 x ", _sampler_riser_cut, " mm for the sampler") : "", " = ", _riser_total, " mm",
     is_undef(_riser_stock)
       ? ", longer than any stock length"
       : str(" from a ", _riser_stock, " mm length, leaving ", _riser_stock - _riser_total, " mm spare")
@@ -3961,6 +3986,19 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           " mm round hole), which the bore clears ", _vent_bore_area / _vent_min_area, "x over"
         )
     );
+
+  if (_sampler) {
+    assert(
+      lid_thickness == sampler_panel(),
+      str("The sampler's pin is cut for a ", sampler_panel(), " mm panel and this lid is ", lid_thickness, " mm.")
+    );
+    echo(str(
+      "sampler: on port ", _sampler_i, " at ", _sampler_i * 360 / _n, " deg, its face ", sampler_face_z(),
+      " mm over the lid; its dip tube is the port's riser, cut ", _sampler_riser_cut, " mm and drilled ", _sampler_drill,
+      " mm from its top end, ", sampler_sample_under_surface(), " mm under the culture's surface; the clear tube is cut ",
+      sampler_clear_tube_cut(), " mm"
+    ));
+  }
 
   if (_coil) {
     _cond_i = head_port_index(vessel_opening_diameter, "air_out");
@@ -4422,6 +4460,17 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           condenser_coil_assembly(_cond_iface, aluminum_tube_od(condenser_coil_tube), condenser_coil_end_seal);
     else
       condenser_coil_part(condenser_part_to_render, _cond_iface, aluminum_tube_od(condenser_coil_tube), condenser_coil_end_seal);
+  }
+
+  // The sampler on its port, or one of its prints alone at the origin. Under render_all its base is
+  // already drawn as that port's pin.
+  if (_sampler && (render_sampler || render_all)) {
+    if (render_all)
+      head_port_at(_sampler_i, vessel_opening_diameter) sampler_top_placed();
+    else if (sampler_part_to_render == "assembly")
+      head_port_at(_sampler_i, vessel_opening_diameter) sampler_placed();
+    else
+      sampler_print(sampler_part_to_render);
   }
 
   // A blank for each interface named, at the origin: it closes whichever port of that size is empty.
