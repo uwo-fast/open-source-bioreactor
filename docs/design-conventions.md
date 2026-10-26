@@ -384,7 +384,8 @@ the head that cracked was not, since its job was to locate a finished coil.
 ## What the customizer can and cannot carry
 
 Measured on **OpenSCAD 2021.01**, by rendering probes rather than by reading documentation. Every
-rule in _Three layers_ rests on these, so a version bump re-runs them before anything else.
+rule in _Three layers_ rests on these. The probes were not kept, so a version bump means probing
+again before anything else.
 
 - **`-D` reaches a `use`d file's globals. `-p`/`-P` does not.** A parameter set assigns only
   parameters declared in the file being rendered; keys naming a `use`d file's globals do nothing,

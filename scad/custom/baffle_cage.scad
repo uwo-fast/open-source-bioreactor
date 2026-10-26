@@ -20,6 +20,11 @@
  * is where the probes hang. The bottom hoop is the top one mirrored in z, on a footing, without
  * the arm.
  *
+ * A blade agrees with its hoops on three things: the bar's section, the hoop's outer face, where
+ * the out-detent and the closed end bear, and its inner face, where the tip and in-detents sit.
+ * The slide fit is the hoop's channel alone, so a hoop change that keeps those faces reprints only
+ * the hoops.
+ *
  * DATUM: z = 0 is the floor datum the caller measures the hoops from; x, y on the jar's axis.
  * Blade angles are where the blades stand, the first one along +x.
  */

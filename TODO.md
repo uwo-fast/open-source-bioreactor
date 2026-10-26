@@ -123,6 +123,11 @@ closed it and in `docs/`.
     lid on with the air inlet's riser in the arm's slot; then 10 min at 320 rpm with no blade crept inward
   - the slide fit (0.15 mm a side) and the detents' 0.5 mm are guesses until that; the steps are in
     `docs/build.md`
+  - a top hoop printed before 3399521 carries its arm at 0°, on air_out, which now has no tube
+    under the condenser; reprint it before the lid-on step. The blades and bottom hoop did not
+    change
+  - whether a hand reaches the bottom bars 240 mm down to push them out; pushing mid-blade moves
+    both ends
   - every other build still hangs lid plates: each needs the cage checked against its jar before it
     can name `baffle_name = "wall"`, and the magnetic, airlift and ring builds are refused today
 
@@ -137,6 +142,8 @@ closed it and in `docs/`.
     near an impeller hole size has a negligible effect (Rewatkar & Joshi 1993, in 0.57-1.5 m
     vessels). So a finer face is the airlift ring's question first, not the arm's
   - closes with a measured row per face that `head()` prices in the gas line, as it does the filter
+  - a bent steel tube sparger, made on a tube bender of about 1/8 to 2 in, is the unprinted
+    alternative; keep its tube size a parameter across that range
 
 - [ ] **on `jar_10L` the lid plates' width is the lean's to give back** (the magnetic build and
       head.scad's own default; the shaft reference build carries the wall cage)
@@ -316,6 +323,9 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
 
 - [ ] **register the e-stop on `purchased-parts.csv` by model**: its row carries no part number or
       source, only the measured body the box was printed for
+- [ ] **refresh the needle valve's and barbs' prices and links**: the August order had MNV-3KP at
+      16.18 against the CSV's 15.11 and 11792-4-BLK at 1.54 against 0.60, both from direct product
+      pages where the CSV carries a category page and a datasheet
 
 - [ ] a lead-in at the mouth of the bayonet tube bore, to ease the tube past the rod gland's o-ring
       without nicking it; the gland does the gripping now
@@ -400,6 +410,10 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
     wider ring meets the pH probe's tip and then leaves no room for a baffle; the riser's port
     bore, rod gland, pressure drop, support tube and BOM row all follow. Unpriced
 
+- [ ] **`dovetail_pts` repeats `trapezium_pts`**: `dovetail_pts(20, 6, 13)` and
+      `trapezium_pts(13, 20, 6)` return the same four points. `dovetail()` keeps its allowance and
+      crown, so only the points would fold into `utils/trapezium.scad`
+
 - [ ] **`check-holes` still needs a CGAL render, so it stays outside `just check`**
   - both ends of every hole are probed - the arm's by default, the ring's with
     `-D head_sparger="ring"` - and it was proved by injection when written (a bore swept 180
@@ -450,6 +464,10 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
   - `fan_by_name` reads NopSCADlib's rows and is not checked
 
 ## long term / post paper submission
+
+- [ ] **describe parts by what they are, apart from who sells them**: a part's row says its
+      standard and dimensions, and a separate registry says where each can be bought. Commodity
+      fasteners carry a standard already (`docs/decisions.md`); the rest name a supplier's part
 
 - [ ] **a Rushton under a pitched blade: the hybrid, set aside for a standard design**
   - `head()` takes a lower and an upper type, so it is one line away:

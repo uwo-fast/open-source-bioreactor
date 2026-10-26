@@ -464,6 +464,14 @@ against stirring 0.65-1.30 W/m³**.
 Microalgal broth rheology: Newtonian with <30 % viscosity rise below 20 kg/m³. Covers _Chlorella_,
 _Nannochloris_ and _P. tricornutum_ — **not** _Arthrospira_.
 
+**Daub et al. (2014).** _J Biol Eng_ 8:17, PMC4099098. **[PR]** · **unread**
+Reported as measuring that larger impellers give a lower ratio of maximum to specific dissipation at
+equal power per volume: the measured case for `docs/agitation.md` §4's large-and-slow.
+
+**Podgórska (2019).** _Entropy_ 21:340. **[PR]** · **unread**
+Reported as finding that a low-Np hydrofoil made smaller droplets than a Rushton at equal P/V: a
+case for §4's caution that low shear is not reliably gentle.
+
 ---
 
 ## Seals and glands
@@ -520,6 +528,13 @@ Baffle Clearance on Scale Deposition in an Agitated Vessel." _ACS Omega_ 6(37):2
 [doi:10.1021/acsomega.1c03503](https://doi.org/10.1021/acsomega.1c03503) **[PR]** · **read**
 Flow accelerating behind a baffle keeps that region from going stagnant, which is why partial
 baffles standing inboard are not purely a loss. → `scad/head.scad` baffle block
+
+**Baffle inserts for jars, the prior art for the wall cage.** **[VN]** **[PAT]** · **read**
+The Eppendorf BioFlo 115 uses a 316L split ring that springs against the glass (manual M1369-0050
+§4.7.4 and §4.8.4). US4494878 has separate PTFE blades with a top ring, a snap-on bottom ring and
+wall standoff tabs. Corning EP3807394, now withdrawn, is a squeeze-and-release four-baffle insert.
+None goes in through a mouth narrower than the bore, and no open-hardware design that does was
+found. → `scad/custom/baffle_cage.scad`, `docs/decisions.md`
 
 **Note on status:** partial/inboard baffles are _characterised_ in the literature, not
 _recommended_. The relevant papers (_Chem Eng Res Des_ S0263876207730952, _Chem Eng Sci_

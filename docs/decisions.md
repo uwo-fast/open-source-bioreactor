@@ -237,6 +237,22 @@ outlives the commit, in `docs/`.
   a cage whose blades slide in to pass it (`docs/agitation.md`, `docs/build.md`), 1.00 of the
   reference area against the plates' 0.713. The lid plates stay for every other build until each
   is checked against a cage; the pH probe moves to the 30° port under it
+- **the cage is built on the bench and lowered whole, not sprung against the wall.** The first
+  spike's rigid rings went together inside the jar, which is where it stopped. Rings held against
+  the glass lost:
+  - a split PETG ring at the wall, 270° and closed end to end, is 0.75 × 210 = 157.5 mm across
+    against the 142.2 mm mouth, so it passes only by coiling its ends past each other, at 1.5 to
+    2.1 % strain;
+  - sprung out, a 6 × 8 ring preloaded 3 mm presses with 2.8 N, about 71 N·mm of friction at μ 0.25
+    (assumed) and r 102, and about 27 once PETG relaxes (62 % in 24 h for sheet, relayed), under
+    the 63 N·mm the cage's riser takes at 320 rpm;
+  - a ring set by a keystone wedge goes slack after 3.2 to 4.9 K of cooling, on an unsourced CTE
+    difference to the glass
+- **the slide cage, not half-rings or lugs.** The second print added half-rings and a stop nub on
+  each bar: the nubs broke, the half-rings would not stay in their hoops, and slid in, the pads
+  stood 2.4 mm a side past the mouth. A dovetail lug at each blade with a snap tooth followed. Both
+  added parts without making the cage work better, so it went back to the first print's slide,
+  tightened. The bar's closed outer end is the stop now, with nothing proud to snap off
 - **the probes still sit beside baffles at three.** Three baffles leave the middle of each triple
   of ports free of them, but a probe there cannot sit opposite the air inlet, which lands on a
   baffle. DO opposite air in was kept, and the lid is uniform std either way
