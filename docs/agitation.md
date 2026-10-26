@@ -535,6 +535,9 @@ the cage, the rest the plates.
 - **The top hoop stands 1 mm over the culture**, out of the flow, and carries an arm that catches
   the air inlet's riser, the tube the sparger hangs from, which stops the cage turning: at the
   no-load 420 rpm each blade carries 0.29 N and the riser 1.93 N at r 56.5, by the same `T / (n · r)` the plates use, reasoned, not cited.
+  Friction will not do it: the three prints' 109 cm³ of PETG weigh about 29 g in water, about
+  5 N·mm at μ 0.25 (assumed) on the bottom hoop's r 67, against the riser's 63 N·mm at the rated
+  320 rpm.
 - **Bench-decided, not modelled:** the slide fit, how hard a detent pushes through, and whether one
   holds a blade out under flow.
 
