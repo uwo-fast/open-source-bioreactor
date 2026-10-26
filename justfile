@@ -75,7 +75,7 @@ test: check-mesh check-holes check-sampler check-clash
 
 # Remove what the recipes build.
 clean:
-    rm -rf output working.tmp
+    rm -rf output
 
 # OpenSCAD reads only the line immediately above a variable, and /* [Hidden] */ runs to the next
 # marker, so both are checked.
