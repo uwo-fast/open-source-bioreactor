@@ -20,4 +20,4 @@ function gas_filter_micron(type) = type[3]; // absolute rating
 function gas_filter_area(type) = type[4]; // cm2 of membrane
 
 use <../utils/registries.scad>;
-function gas_filter_by_name(name) = registry_by_name(gas_filters, name);
+function gas_filter_by_name(name) = registry_by_name(gas_filters, name, 5);

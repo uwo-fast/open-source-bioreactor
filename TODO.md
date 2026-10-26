@@ -234,15 +234,16 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
 
 ## turbidity sampler
 
-Printed from its own file, `custom/sampler.scad`; nothing in `head()` places it yet.
+`head()` places it on the full lid's port 10, at 300 degrees, and derives its riser's cut and
+drilling.
 
-- [ ] **place the sampler on its port in `head()`**, its own PR
-  - a `sampler` port type where `dose_4` is today (port 11, 330 degrees), keeping the port's riser,
-    which is the sampler's dip tube
-  - the panel, the riser's stand and length and the fill line become arguments `head()` derives,
-    and the riser's cut and drilling join the cut list; so do the inserts, which a custom part may
-    not read (`docs/architecture.md`). The lid clash and the ±30 degree twist, checked in the spike
-    against an exported head, become `head()`'s own
+- [ ] **what `head()` still does not own of the sampler**
+  - the inserts, which a custom part may not read (`docs/architecture.md`): `custom/sampler.scad`
+    still includes `purchased/heat_set_inserts.scad`
+  - the lid clash and the ±30 degree twist: intersected with the probes, the port pins, the baffle
+    pins, the motor mount, the motor and the condenser on `jar_10L` and `jar_1gal_180x197`, it
+    touches none of them at -30, 0 or 30 degrees; at 330 degrees it ran into the condenser. No
+    assert holds that yet
 
 - [ ] **what the sampler still has to prove on the bench**
   - the bushing's seal under the syringe's suction, and the 40 mm sampling depth
@@ -336,16 +337,6 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
     magnetic builds alike, with the impellers counted or not and even raised to 2.5 D, so
     something else binds first. Worth fixing when a build makes the impellers bind, with that
     build as the test
-
-- [ ] **the port lettering is not pinned to a font, so it is whatever the host resolves `sans` to**
-  - `scad/custom/bayonet_port.scad` asks for `font="sans"` in three places (:324, :332, :509).
-    `sans` is a fontconfig alias, not a face, so the glyphs are whatever that host happens to
-    prefer: here `fc-match sans` gives Noto Sans, with Liberation Sans also installed. The CI
-    artifact's lettering was seen to differ from the bench's for exactly this reason
-  - pinning it to one installed face makes the exported STL the same everywhere. It moves every
-    port's mesh, so it wants its own commit
-  - it is cosmetic - the lettering says which port is which - but a figure that changes with the
-    machine is the kind of thing this project pins everywhere else
 
 - [ ] **the probe port's transition lands exactly on the collet, and the obvious fix costs material**
   - `bayonet_probe_port`'s transition cone ends at exactly `-_transition_length`, which is exactly
@@ -454,10 +445,10 @@ magnetic drive on a plain lid. Why, and what the three modes are, is
   - the pump and the filter drive the gas budget, so they are the ones worth a `_name` designation
     first. Left until a build needs it
 
-- [ ] **registry rows are read by position and not checked for shape**
-  - `registry_by_name` checks the name only. A missing field shows as an undef warning, which
-    `check-scad` fails on, but two fields of the same type swapped would pass
-  - low risk; a row-length assert in each `_by_name` wrapper would close most of it
+- [ ] **registry rows are read by position, and only their length is checked**
+  - every `_by_name` wrapper passes `registry_by_name` its row's field count, and a lookup fails
+    on any row of the wrong length. Two fields of the same type swapped still pass
+  - `fan_by_name` reads NopSCADlib's rows and is not checked
 
 ## long term / post paper submission
 

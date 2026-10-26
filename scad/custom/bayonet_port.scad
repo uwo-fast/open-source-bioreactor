@@ -76,6 +76,11 @@ function bayonet_key_margin_needed(type) =
 // Radial interference between the lid and the bayonet lock, for a clean union
 bayonet_port_hole_fudge = 0.1;
 
+// The face the lettering is cut in. A face, not the fontconfig alias "sans", which each host
+// resolves to its own preference; OpenSCAD's own builds bundle Liberation, and on Debian or Ubuntu
+// it is the fonts-liberation package. A face that is not installed falls back without a warning.
+bayonet_port_font = "Liberation Sans";
+
 // The clearance hole a port needs through the panel.
 function bayonet_port_hole_radius(type) = bayonet_interface_radius(type) + bayonet_shell_thickness(type) - bayonet_port_hole_fudge;
 
@@ -321,7 +326,7 @@ module bayonet_port(
         linear_extrude(_engrave_depth + z_fight)
           text(
             _boreString, size=_boreSize,
-            halign="center", valign="center", font="sans"
+            halign="center", valign="center", font=bayonet_port_font
           );
       }
 
@@ -329,7 +334,7 @@ module bayonet_port(
         linear_extrude(_engrave_depth + z_fight)
           text(
             _specString, size=_specSize,
-            halign="center", valign="center", font="sans"
+            halign="center", valign="center", font=bayonet_port_font
           );
       }
     }
@@ -506,7 +511,7 @@ module wrapped_text(s, radius, size, depth, angle = 0) {
       translate([radius - depth, 0, 0])
         rotate([90, 0, 90])
           linear_extrude(depth * 2) // overshoots the surface so the cut opens cleanly
-            text(s[i], size=size, halign="center", valign="center", font="sans");
+            text(s[i], size=size, halign="center", valign="center", font=bayonet_port_font);
 }
 
 // Wall the mount keeps outside its thread.

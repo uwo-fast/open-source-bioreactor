@@ -48,4 +48,4 @@ impellers = [impeller_rushton_6, impeller_pbt_45_4,
              impeller_twisted_paddle_4];
 
 use <../utils/registries.scad>;
-function impeller_by_name(name) = registry_by_name(impellers, name);
+function impeller_by_name(name) = registry_by_name(impellers, name, 8);

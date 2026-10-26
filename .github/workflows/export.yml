@@ -55,7 +55,9 @@ jobs:
       - name: Install OpenSCAD
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends openscad
+          sudo apt-get install -y --no-install-recommends openscad fonts-liberation fontconfig
+          # The port lettering names this face; a missing one falls back without a warning.
+          test "$(fc-match -f '%{family[0]}' 'Liberation Sans')" = "Liberation Sans"
           openscad --version
 
       - name: Setup

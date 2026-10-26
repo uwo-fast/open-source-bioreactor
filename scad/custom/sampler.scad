@@ -12,8 +12,9 @@
  * own sparge riser, drilled where the sample is drawn, bushed into the tube's bottom.
  *
  * Port frame: origin on the port's axis at the lid's outer face, +z out of the vessel, +x radially
- * outward. The reactor's figures are restated for jar_10L until head.scad places the sampler
- * (TODO.md). The fits are checked by `just check-sampler`.
+ * outward. head.scad places it on a lid port and derives the riser's cut and drilling for its own
+ * jar; the reactor's figures below are restated for jar_10L only for this file's own example. The
+ * fits are checked by `just check-sampler`.
  */
 
 use <turbidity-sensor/hardware/probe/probe.scad>
@@ -37,13 +38,13 @@ $fn = 64;
 panel = 18;
 flange_h = bayonet_flange_height(bayonet_std);
 // head.scad, jar_10L: the riser is 4 x 0.5 steel, bored 0.2 over, sealed by the 4x1.5 rod o-ring;
-// it stands 14.9375 over its port's top and is cut 188.174; the culture's surface is 88.4342 from
+// it stands 14.9375 over its port's top and is cut 219.474; the culture's surface is 88.4342 from
 // a riser's top end
 riser_od = 4;
 riser_id = 3;
 riser_bore = riser_od / 2 + 0.2;
 riser_proud = 14.9375;
-riser_l = 188.174;
+riser_l = 219.474;
 surface_z = flange_h + riser_proud - 88.4342;
 // turbidity-sensor hardware/case/README.md: the clear tube is 5/16 in outside, 1/4 in inside, and
 // a bore 0.2 over its outside holds it snugly
@@ -308,6 +309,36 @@ module sampler_fasteners(inserts=true, lift=0) {
 
 // print orientation: turned over about z
 module lay(z) if (orient == "print") translate([0, 0, z]) rotate([180, 0, 0]) children(); else children();
+
+// What head.scad reads to place it: the panel its pin is cut for, where the riser's top end stands
+// and how far under the surface the sample is drawn, all in the port frame.
+function sampler_panel() = panel;
+function sampler_riser_top_z() = riser_top_z;
+function sampler_sample_under_surface() = sample_under_surface;
+function sampler_face_z() = face_z;
+function sampler_clear_tube_cut() = tube_top_z - clear_z0;
+// Its two prints in the port frame, as they stand on the lid.
+// Each sets its own facets: a file that uses this one does not inherit its $fn.
+module sampler_pin() {
+  $fn = 64;
+  sampler_base();
+}
+module sampler_top_placed() {
+  $fn = 64;
+  sampler_top();
+}
+module sampler_placed() {
+  $fn = 64;
+  sampler_base();
+  sampler_top();
+}
+// One print as it lies on the bed.
+module sampler_print(part) {
+  $fn = 64;
+  if (part == "base") translate([0, 0, split_z]) rotate([180, 0, 0]) sampler_base();
+  else if (part == "top") translate([0, 0, face_z]) rotate([180, 0, 0]) sampler_top();
+  else assert(false, str("sampler_print: no part \"", part, "\""));
+}
 
 if (part == "base") lay(split_z) sampler_base();
 else if (part == "top") lay(face_z) sampler_top();

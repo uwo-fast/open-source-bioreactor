@@ -37,7 +37,7 @@ function strip_light_for(liquid_height) =
 use <strip_light.scad>
 
 use <../utils/registries.scad>;
-function strip_light_by_name(name) = registry_by_name(strip_lights, name);
+function strip_light_by_name(name) = registry_by_name(strip_lights, name, 3);
 
 // example usage - keep commented, this file is include'd
 // strip_light(rwntao_13in);

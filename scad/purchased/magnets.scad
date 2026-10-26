@@ -5,7 +5,7 @@ include <NopSCADlib/core.scad>;
 include <NopSCADlib/vitamins/magnets.scad>;
 
 use <../utils/registries.scad>;
-function magnet_by_name(name) = registry_by_name(magnets, name);
+function magnet_by_name(name) = registry_by_name(magnets, name, 6);
 // The library's magnet_name() is the description ("Magnet"); the row's first field is what a
 // build designates.
 function magnet_designation(type) = type[0];
