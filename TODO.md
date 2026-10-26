@@ -220,8 +220,8 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
 - [ ] **offer the split cold finger beside the coil in `head()`**
   - the coil is placed: its body is `air_out`'s pin, the port carries no tube, and the gas line
     prices its 4.5 mm outlet, 30.5 Pa at 4.09 L/min on `jar_10L`, where the slot and tube cost
-    178-209. Intersected with the probes, the port pins, the motor mount and the motor, it touches
-    none of them on `jar_10L`, `jar_1gal_180x197` or `jar_6p5gal`; no assert holds that yet
+    178-209. `just check-clash` holds it clear of the probes, the port pins, the motor, the motor
+    mount and the sampler, locked and at entry, on every build that carries it
   - the split cold finger is the second `condenser_name`. The one-piece cold finger stays an option
     inside its own file only: nothing prints it, and it should not reach `head()` or
     `bioreactor.scad`
@@ -240,10 +240,9 @@ drilling.
 - [ ] **what `head()` still does not own of the sampler**
   - the inserts, which a custom part may not read (`docs/architecture.md`): `custom/sampler.scad`
     still includes `purchased/heat_set_inserts.scad`
-  - the lid clash and the ±30 degree twist: intersected with the probes, the port pins, the baffle
-    pins, the motor mount, the motor and the condenser on `jar_10L` and `jar_1gal_180x197`, it
-    touches none of them at -30, 0 or 30 degrees; at 330 degrees it ran into the condenser. No
-    assert holds that yet
+  - the clash with the rest of the lid is `just check-clash`'s, locked and at entry; at 330 degrees
+    it fails on the condenser. It needs OpenSCAD's manifold backend, so CI, which runs apt's
+    2021.01, says SKIP: it is checked only where `just test` runs on a newer OpenSCAD
 
 - [ ] **what the sampler still has to prove on the bench**
   - the bushing's seal under the syringe's suction, and the 40 mm sampling depth

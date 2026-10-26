@@ -4442,24 +4442,29 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   }
 
   // The coil condenser in air_out's place, or one of its parts alone at the origin, as it prints.
+  // In place it turns with port_position, as the pins do.
   if (_coil && (render_condenser || render_all)) {
     _cond_i = head_port_index(vessel_opening_diameter, "air_out");
     _cond_iface = head_port_interface(_ports[_cond_i]);
     if (condenser_part_to_render == "assembly" || render_all)
       color(prints1_color)
         head_port_at(_cond_i, vessel_opening_diameter)
-          condenser_coil_assembly(_cond_iface, aluminum_tube_od(condenser_coil_tube), condenser_coil_end_seal);
+          rotate([0, 0, port_position == "entry" ? bayonet_entry_rotation(_cond_iface) : 0])
+            condenser_coil_assembly(_cond_iface, aluminum_tube_od(condenser_coil_tube), condenser_coil_end_seal);
     else
       condenser_coil_part(condenser_part_to_render, _cond_iface, aluminum_tube_od(condenser_coil_tube), condenser_coil_end_seal);
   }
 
   // The sampler on its port, or one of its prints alone at the origin. Under render_all its base is
-  // already drawn as that port's pin.
+  // already drawn as that port's pin. In place it turns with port_position, as the pins do.
+  _sampler_turn = _sampler && port_position == "entry"
+    ? bayonet_entry_rotation(head_port_interface(_ports[_sampler_i]))
+    : 0;
   if (_sampler && (render_sampler || render_all)) {
     if (render_all)
-      head_port_at(_sampler_i, vessel_opening_diameter) sampler_top_placed();
+      head_port_at(_sampler_i, vessel_opening_diameter) rotate([0, 0, _sampler_turn]) sampler_top_placed();
     else if (sampler_part_to_render == "assembly")
-      head_port_at(_sampler_i, vessel_opening_diameter) sampler_placed();
+      head_port_at(_sampler_i, vessel_opening_diameter) rotate([0, 0, _sampler_turn]) sampler_placed();
     else
       sampler_print(sampler_part_to_render);
   }
