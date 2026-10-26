@@ -47,8 +47,8 @@ foot = 2.2;
 key = [0, 56.5, 4];
 // how far the blades are slid in, 0 to the travel
 slide = 0;
-// what to draw: the cage, or one print file as it sits on the bed
-part = "cage"; // [cage, hoop_top, hoop_bottom, blade]
+// what to draw: the cage, its hoops or its blades in place, or one print file as it sits on the bed
+part = "cage"; // [cage, hoops, blades, hoop_top, hoop_bottom, blade]
 
 module dummy() {
   // stop the customizer detection from here onwards
@@ -113,6 +113,8 @@ function baffle_cage_bar_tip(mouth_radius) = baffle_cage_hoop_inner(mouth_radius
 function baffle_cage_bar_top() = baffle_cage_channel_depth() - baffle_cage_fit();
 function baffle_cage_hump_length() = 2 * baffle_cage_hump_ramp() + baffle_cage_hump_flat();
 // the arm sits above the bar and its humps, which slide in under it
+function baffle_cage_in_place(part) = part == "cage" || part == "hoops" || part == "blades";
+
 function baffle_cage_arm_z() = baffle_cage_bar_top() + baffle_cage_hump_height() + baffle_cage_fit();
 // the blade's ends, from the hoops' undersides
 function baffle_cage_blade_top(top_z) = top_z + baffle_cage_bar_top();
@@ -326,11 +328,15 @@ module baffle_cage(bore_radius, mouth_radius, blade_at, gap_at, top_z, bottom_z,
   assert(gap_at[0] < gap_at[1], "baffle_cage: the gap runs from the lower angle to the higher");
   assert(slide >= 0 && slide <= baffle_cage_travel(bore_radius, mouth_radius), "baffle_cage: a blade slides between out and its travel in");
 
-  if (part == "cage") {
-    translate([0, 0, top_z]) baffle_cage_hoop(ri, ro, blade_at, gap_at, key);
-    translate([0, 0, bottom_z]) baffle_cage_hoop_bottom(ri, ro, blade_at, gap_at, foot);
-    for (a = blade_at) rotate([0, 0, a]) translate([-slide, 0, 0])
-      baffle_cage_blade(bore_radius, mouth_radius, top_z, bottom_z, foot);
+  // in place, whole or apart; apart is for checking one against the other
+  if (baffle_cage_in_place(part)) {
+    if (part != "blades") {
+      translate([0, 0, top_z]) baffle_cage_hoop(ri, ro, blade_at, gap_at, key);
+      translate([0, 0, bottom_z]) baffle_cage_hoop_bottom(ri, ro, blade_at, gap_at, foot);
+    }
+    if (part != "hoops")
+      for (a = blade_at) rotate([0, 0, a]) translate([-slide, 0, 0])
+        baffle_cage_blade(bore_radius, mouth_radius, top_z, bottom_z, foot);
   }
   // Both hoops print channels up, so the lip's underside is a 45 deg overhang: the top one turned
   // over with its arm on the bed, the bottom one as it sits. The dovetail is on one side only, so
