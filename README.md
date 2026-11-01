@@ -21,10 +21,20 @@ Composable, modular, and extensible bioreactor design.
 
 ## OpenSCAD Libraries
 
+Run `just setup` first, after cloning and whenever `openscad-libraries.txt` changes. It
+installs the libraries below into `.openscad-libraries/`, each at the revision
+[`openscad-libraries.txt`](openscad-libraries.txt) pins, and every recipe puts that
+directory first on `OPENSCADPATH`. Without it most of `scad/` does not build, and
+`just check` and `just test` fail. Run it even with these libraries installed
+globally: a global copy at another revision is what the pins exist to rule out.
+
+- [github.com/nophead/NopSCADlib](https://github.com/nophead/NopSCADlib)
 - [github.com/CameronBrooks11/bayonet-lock-scad](https://github.com/CameronBrooks11/bayonet-lock-scad)
 - [github.com/thehans/FunctionalOpenSCAD](https://github.com/thehans/FunctionalOpenSCAD)
-- [github.com/nophead/NopSCADlib](https://github.com/nophead/NopSCADlib)
 - [github.com/rcolyer/threads-scad](https://github.com/rcolyer/threads-scad)
+- [github.com/CameronBrooks11/din168-thread-scad](https://github.com/CameronBrooks11/din168-thread-scad)
+- [github.com/uwo-fast/turbidity-sensor](https://github.com/uwo-fast/turbidity-sensor)
+- [github.com/uwo-fast/syringe-actuator](https://github.com/uwo-fast/syringe-actuator)
 
 ---
 
