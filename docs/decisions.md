@@ -384,3 +384,8 @@ outlives the commit, in `docs/`.
   inserts are set directly, and no parameter set can change them. The pump and the filter drive the
   gas budget, so they are the first to get a `_name` designation when a build needs a different one;
   until then a designation is a parameter with one value
+- **`bayonet_port.scad` receives every o-ring as a global, and that stays.** It includes
+  `bayonet_interfaces.scad`, the include `docs/architecture.md` names as the honest one, and that
+  file includes `orings.scad` so an interface row can name its ring (rule 6). The o-rings arrive
+  as a side effect of both allowed includes; moving them would mean the interface rows naming
+  their ring some other way than by its row

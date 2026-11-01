@@ -115,17 +115,6 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
     CI runner's CGAL. `export-parts` notes them and passes; it fails on a count that could only
     come from two solids sharing a face
 
-- [ ] **where the tree breaks `docs/architecture.md`**
-  - `head()` is one module in three sections - derived, checks and reports, geometry. The checks
-    cannot become a module of their own without restating the derived values, since a module
-    returns nothing; a split by subsystem is the next cut, and it is unsettled how the pieces
-    share head.scad's parameters without reading each other
-  - `custom/bayonet_interfaces.scad` includes `orings.scad` so rows can name their ring - rule 6
-    allows it - and `bayonet_port.scad` then includes that file and receives every o-ring as a
-    global. Recorded, not yet worth moving
-  - `custom/sampler.scad` includes `purchased/heat_set_inserts.scad`, which a custom part may not
-    read, until `head()` places it and passes the inserts in
-
 - [ ] **`check-scad`'s `-D '$fn=0'` pass is not the tessellation test it reads as**
   - a command-line `-D` crosses the `use` boundary on every version where an in-file assignment
     does not, so that pass also zeroes `sparger.scad`'s and the collet's own `$fn` - 48 and 64 in
