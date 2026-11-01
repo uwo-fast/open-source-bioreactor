@@ -1,5 +1,7 @@
 # open-source-bioreactor
 
+[![License: GPL-3.0-or-later](https://img.shields.io/badge/License-GPL--3.0--or--later-blue.svg)](LICENSE)
+
 Composable, modular, and extensible bioreactor design.
 
 ## status
@@ -18,6 +20,20 @@ Composable, modular, and extensible bioreactor design.
 - [`docs/ports-layout.md`](docs/ports-layout.md) — what sits at each port on the lid, and why
 - [`docs/procurement.md`](docs/procurement.md) — how the bought parts were chosen
 - [`docs/references.md`](docs/references.md) — the sources, and how far each one was actually read
+
+## License
+
+Copyright © 2024–2026 Cameron Brooks.
+
+This project is free software: you may redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later version.
+That covers the hardware design too: its source includes GPL-licensed libraries, so
+it cannot also carry CERN-OHL-S. The measurement data under `analysis/`, and its plots, are licensed
+instead under [CC-BY-4.0](LICENSES/CC-BY-4.0.txt). See
+[`LICENSING.md`](LICENSING.md) for what applies where, and the organization
+[licensing policy](https://github.com/uwo-fast/.github/blob/main/LICENSING.md) for
+why.
 
 ## OpenSCAD Libraries
 
