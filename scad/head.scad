@@ -103,8 +103,8 @@ render_bearing_blank = false;
 render_draft_tube = false;
 // The wall baffle cage, where the build carries one instead of lid plates
 render_baffle_cage = false;
-// Which of it: the cage in the jar, or one print file as it sits on the bed, at the origin
-baffle_cage_part_to_render = "cage"; // [cage, hoop_top, hoop_bottom, blade]
+// Which of it: the cage in the jar, its hoops or its blades there alone, or one print file as it sits on the bed, at the origin
+baffle_cage_part_to_render = "cage"; // [cage, hoops, blades, hoop_top, hoop_bottom, blade]
 // How far the cage's blades are slid in, as they go through the mouth; 0 is out against the glass, in mm
 baffle_cage_slide = 0;
 // Which of the pair, or the top half of a split one, for a per-part export; whole, they are mirror images, so two different parts
@@ -4565,9 +4565,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   // The wall cage, in the floor datum's frame, or one print file as it sits on the bed.
   if (_wall && (render_baffle_cage || render_all))
     color(prints2_color)
-      if (baffle_cage_part_to_render == "cage")
+      if (baffle_cage_in_place(baffle_cage_part_to_render))
         translate([0, 0, _tube_floor_z])
-          baffle_cage(_cage_bore, _cage_mouth, wall_baffle_at, _cage_gap, _cage_top, _cage_bottom, _cage_foot, _cage_key, baffle_cage_slide);
+          baffle_cage(_cage_bore, _cage_mouth, wall_baffle_at, _cage_gap, _cage_top, _cage_bottom, _cage_foot, _cage_key, baffle_cage_slide, baffle_cage_part_to_render);
       else
         baffle_cage(_cage_bore, _cage_mouth, wall_baffle_at, _cage_gap, _cage_top, _cage_bottom, _cage_foot, _cage_key, part=baffle_cage_part_to_render);
 

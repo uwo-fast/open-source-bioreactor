@@ -70,8 +70,8 @@ lint:
 
 # The checks a CGAL render puts out of the fast gate's reach: minutes, not seconds.
 #
-# The slow half of verification: mesh validity, holes, sampler fits and lid clashes.
-test: check-mesh check-holes check-sampler check-clash
+# The slow half of verification: mesh validity, holes, sampler fits, lid clashes and the wall cage.
+test: check-mesh check-holes check-sampler check-clash check-baffle-cage
 
 # Remove what the recipes build.
 clean:
@@ -166,6 +166,12 @@ check-sampler:
 # Fail when the condenser or the sampler stands in anything else on the lid, locked or at entry.
 check-clash build="":
     @scripts/check-clash.sh "{{build}}"
+
+# It needs the manifold backend, and says SKIP without it.
+#
+# Fail when the wall cage's blades stop sliding, stopping or holding, or the cage meets the glass or the lid's parts.
+check-baffle-cage build="":
+    @scripts/check-baffle-cage.sh "{{build}}"
 
 # Only registries that carry a part number are checked, and only what the reference build
 # selects; it compares the part_number field, not the file. The script says what is not enrolled.
