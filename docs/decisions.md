@@ -139,6 +139,11 @@ not stay inline.
   from 40 to 25.2 mm, `jar_1gal_155` from 47.4 to 31.9 mm and `jar_6p5gal` from 88.6 to 71.5 mm,
   all under the band, which `head()` warns. A tangent lead from the riser keeps nearly the whole
   radius, but on `jar_10L` it runs into the next plate round.
+- **`check-scad`'s `-D '$fn=0'` pass renders what no build renders.** It does not. A `use`d file
+  that sets `$fn = 48` for itself, called from a file that leaves `$fn` at 0: on 2026.10.03 its
+  module sees 0, the caller's, with or without the `-D`; on 2021.01 it sees 48, its own, unless
+  the `-D` is given, and then 0. So on CI's 2021.01 the `-D` pass is the only way to render what
+  a current OpenSCAD renders by default, which is what the pass's comment said all along
 
 ## Settled — do not re-open without new evidence
 
