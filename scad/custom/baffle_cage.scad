@@ -113,8 +113,6 @@ function baffle_cage_bar_tip(mouth_radius) = baffle_cage_hoop_inner(mouth_radius
 function baffle_cage_bar_top() = baffle_cage_channel_depth() - baffle_cage_fit();
 function baffle_cage_hump_length() = 2 * baffle_cage_hump_ramp() + baffle_cage_hump_flat();
 // the arm sits above the bar and its humps, which slide in under it
-function baffle_cage_in_place(part) = part == "cage" || part == "hoops" || part == "blades";
-
 function baffle_cage_arm_z() = baffle_cage_bar_top() + baffle_cage_hump_height() + baffle_cage_fit();
 // the blade's ends, from the hoops' undersides
 function baffle_cage_blade_top(top_z) = top_z + baffle_cage_bar_top();
@@ -122,6 +120,9 @@ function baffle_cage_blade_bottom(bottom_z, foot) =
   bottom_z + foot + baffle_cage_hoop_height() - baffle_cage_bar_top();
 // the lowest a slid-in bottom bar reaches, its detents included, from the footing's underside
 function baffle_cage_bar_low(bottom_z, foot) = baffle_cage_blade_bottom(bottom_z, foot) - baffle_cage_hump_height();
+
+// the parts drawn in the jar, whole or apart, rather than as one print file on the bed
+function baffle_cage_in_place(part) = part == "cage" || part == "hoops" || part == "blades";
 
 // ----- profiles -----
 
