@@ -237,8 +237,15 @@ outlives the commit, in `docs/`.
   advising microalgae researcher asked for the standard set. Lid plates pass the mouth, so they
   cannot reach the wall; four at T/12 against the wall cannot pass the mouth rigid. They go in on
   a cage whose blades slide in to pass it (`docs/agitation.md`, `docs/build.md`), 1.00 of the
-  reference area against the plates' 0.713. The lid plates stay for every other build until each
-  is checked against a cage; the pH probe moves to the 30° port under it
+  reference area against the plates' 0.713. The pH probe moves to the 30° port under it
+- **`auto` takes the cage wherever it fits, and the plates elsewhere.** It fits a shaft or
+  magnetic drive, not the ring, on a lid with baffle ports for a probe the hoops' gap leaves out,
+  where a blade slides past the 10.4 mm it needs to run free between its detents (the hoop's 6, a
+  4 mm detent and 0.2 mm of play at each end). Both `jar_10L` builds fit, at 30.58 mm. The 1 gal
+  jars do not: their 148 mm mouth against a 170 mm bore leaves 8.24 mm, every detent always in a
+  hoop, and `head()` refuses a cage named there. The six-port lids (`jar_6p5gal` and the two
+  narrow jars) carry no baffle ports, and their DO and pH stand 120° apart against the gap's 64°.
+  Both want new geometry, benched before it is trusted (#93)
 - **the cage is built on the bench and lowered whole, not sprung against the wall.** The first
   spike's rigid rings went together inside the jar, which is where it stopped. Rings held against
   the glass lost:

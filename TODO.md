@@ -49,14 +49,6 @@ labelled `post-pub`, all linked from #90; ideas nobody has planned are in `docs/
   - record in `docs/build.md` the fit and detents that held, and whether a hand reaches the bottom
     bars 240 mm down
 
-- [ ] **the wall cage on every build, the lid plates kept as an unused option**
-  - every build but `jar_10L_220x305` still hangs lid plates. The cage has to be checked against
-    `jar_1gal_180x197` and `jar_6p5gal_305x470` before they can name `baffle_name = "wall"`, and
-    `head()` refuses it on the magnetic and airlift drives and on the ring: decide what those
-    builds take, which may be no baffles
-  - `auto` picks the lid's plates today; it moves to the cage. The plates' own open questions are in
-    `docs/future-work.md`
-
 ## drive and aeration
 
 Follows from the agitation work; reasoning and citations in `docs/agitation.md`.

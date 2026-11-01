@@ -511,9 +511,10 @@ holds.
 
 ### Baffles
 
-`jar_10L_220x305`'s reference build carries the standard four on the wall, on a cage
-(`baffle_name = "wall"`). Every other build hangs plates from the lid; the first group of bullets is
-the cage, the rest the plates.
+Both `jar_10L` builds, the reference and the magnetic, carry the standard four on the wall, on a
+cage: `baffle_name = "auto"` takes it wherever it fits. The 1 gal jars hang plates from the lid,
+and the six-port lids carry no baffles (`docs/decisions.md`). The first group of bullets is the
+cage, the rest the plates.
 
 - **Four at T/12, T/72 off the glass, floor to surface.** The blades are 17.5 mm wide at 0, 90, 180
   and 270°, out of the lit windows, 2.92 mm off the wall, and 229.5 mm of each is under the
