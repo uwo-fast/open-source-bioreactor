@@ -21,6 +21,9 @@ insert_m2x4p78_ss = ["M2x4.78 18-8", 4.78, 3.6,     2.71,   2,     3.0,      1.0
 
 heat_set_inserts = [insert_m4x4p7_ss, insert_m3x5p56_ss, insert_m2x4p78_ss];
 
+use <../utils/registries.scad>;
+function heat_set_insert_by_name(name) = registry_by_name(heat_set_inserts, name, 14);
+
 function heat_set_insert_name(type) = type[0];
 function heat_set_insert_part_number(type) = type[11];
 function heat_set_insert_material(type) = type[12];
