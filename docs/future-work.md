@@ -2,7 +2,7 @@
 
 Ideas with their reasoning, kept so nobody has to rediscover them. Nothing here is planned or
 tracked. Open work before the paper is `TODO.md`; work planned for after it is a GitHub issue
-labelled `post-pub`. When one of these is picked up, it moves to one of those and leaves here.
+labelled `post-pub`, all linked from #90. When one of these is picked up, it moves to one of those and leaves here.
 
 ## gas line
 

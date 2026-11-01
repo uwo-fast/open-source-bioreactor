@@ -316,7 +316,8 @@ pocket floor: the bearing still bottoms there.
 
 The rod seals go into an enclosed groove just above the lid's **inner** face, and they go in
 **before** the tubes pass through. That face is inaccessible once the lid is on the jar. There is
-one per tube port — five on the full lid, three on the six-port jars.
+one per tube port — five on the full lid, three on the six-port jars. Each ring folds into its
+groove; work it round and seat it with a small flat screwdriver.
 
 **The silicone sits differently at every joint, and the risky ones are all downstream.** One bore,
 3/16 in ID, covers the whole run from the meter to the ring: **native** on the check valve's barb,

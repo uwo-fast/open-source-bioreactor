@@ -154,6 +154,8 @@ not stay inline.
   gas under the whole lower impeller rather than one side of it. The reference build carries the
   wall cage, whose bars stand at r 61 against the loop's r 41.74, so there it is set by its own
   hook, 1.09 D. `auto` stays the arm, because a build under lid plates sits 1.25 mm off them.
+  Run hard in the cage build, the loop did not turn on its one riser, so the swirl's torque that
+  could have closed its gap in 1.27° does not, and the riser needs no key or flat.
 
 - **The sampler's halves screw together into heat-set inserts; the actuator's screws come up from
   under its face into nuts inside it.** Base to top, three screws go into inserts, as the motor
@@ -356,3 +358,22 @@ outlives the commit, in `docs/`.
   drive, and it moved the jar against the lights. The riser is walls only, so it prints as it
   stands, and it keeps the carrier as it was by carrying the base's slot. `jar_1p5L` keeps its sunk
   floor: its 3.77 mm is far short of the 23.8 mm a riser needs to hold the carrier's ear
+- **the support tubes' discharge holes are not drawn.** Every tube port but `air_in` is capped at
+  its lower end and vents through a hole cut up its length, a bench operation. `head()` reports the
+  window (37.9-88.4 mm from the top on `jar_10L`) and `docs/build.md` says which end each port
+  wants. Only `air_out`'s hole has a size to meet, and only where no condenser takes that port;
+  `head()` prices it there. A default for a hand-cut window would be a guess, so it is not a
+  parameter either
+- **the stirred jars keep two impellers, though Fitschen's spacing band allows one.** Fitschen
+  eq. (5), `(H-d)/d > n > (H-2d)/(2d)` in impeller diameters, gives n = 1 on all three jars that
+  take the shaft drive (`jar_10L_220x305` H_L/d 2.429, `jar_1gal_180x197` 2.005,
+  `jar_6p5gal_305x470` 2.574), and every one of them spends coverage on the pair: `jar_1gal_180x197`
+  at 0.107 D against the 0.5 D floor is the worst. No primary stands behind the rule, so `head()`
+  reports it and nothing asserts. The count stays two: the sparge ring sits in the gap, the power is
+  per pair, the manifest lists two, the reference build physically exists, and the standard
+  configuration the paper runs is two Rushtons
+- **the pump, the inlet filter and the other gas-line hardware are assigned in `head.scad`, not
+  designated.** `head_air_pump`, `sparge_inlet_filter`, `sparge_check_valve`, the clamp and the
+  inserts are set directly, and no parameter set can change them. The pump and the filter drive the
+  gas budget, so they are the first to get a `_name` designation when a build needs a different one;
+  until then a designation is a parameter with one value
