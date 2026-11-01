@@ -162,3 +162,16 @@ labelled `post-pub`, all linked from #90. When one of these is picked up, it mov
   extrusion, two reactors a tier, on 12 3D corner brackets and four swivel plate castors: 635 x
   358 mm, 1387 mm tall with its castors. It prints nothing, its castor is a generic one with no
   part behind it, and it has not been built, so nothing of it is on the purchase list.
+
+## the model's structure
+
+- **split `head()` by subsystem.** It is one module in three sections - derived, checks and
+  reports, geometry - and the checks cannot become a module of their own without restating the
+  derived values, since a module returns nothing. A split by subsystem is the next cut;
+  `docs/architecture.md` (_Not yet settled_) holds the open question, how the pieces share
+  head.scad's parameters without reading each other. Deferred past the paper: it moves no
+  geometry a builder sees, and every echo transcript would be its safety net.
+- **`head()` passing the sampler its inserts.** The sampler picks its two by name for its own live
+  defaults. Taking them as arguments means rebuilding its housing's outline, skirt and asserts
+  around them, since the outer insert places the corner screws, and `head()` has no other row to
+  pass.

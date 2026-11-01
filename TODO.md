@@ -95,14 +95,3 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
 - [ ] **refresh the needle valve's and barbs' prices and links**: the August order had MNV-3KP at
       16.18 against the CSV's 15.11 and 11792-4-BLK at 1.54 against 0.60, both from direct product
       pages where the CSV carries a category page and a datasheet
-
-## tooling / infrastructure / documentation
-
-- [ ] **where the tree breaks `docs/architecture.md`**
-  - `head()` is one module in three sections - derived, checks and reports, geometry. The checks
-    cannot become a module of their own without restating the derived values, since a module
-    returns nothing; a split by subsystem is the next cut, and it is unsettled how the pieces
-    share head.scad's parameters without reading each other
-  - `custom/bayonet_interfaces.scad` includes `orings.scad` so rows can name their ring - rule 6
-    allows it - and `bayonet_port.scad` then includes that file and receives every o-ring as a
-    global. Recorded, not yet worth moving

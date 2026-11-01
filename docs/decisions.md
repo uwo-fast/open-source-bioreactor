@@ -396,3 +396,8 @@ outlives the commit, in `docs/`.
   `grow 13in` row with its per-cord count and its dimensions swapped fails with
   `registry rows ["grow 13in"] do not fit sln`. Two fields of the same type swapped still pass.
   Named fields would catch that, at the cost of rewriting every registry and every accessor
+- **`bayonet_port.scad` receives every o-ring as a global, and that stays.** It includes
+  `bayonet_interfaces.scad`, an include `docs/architecture.md` allows by name, and that file
+  includes `orings.scad` so an interface row can name its ring, the cross-registry include rule 6
+  calls honest. The o-rings arrive as a side effect of both allowed includes; moving them would
+  mean the interface rows naming their ring some other way than by its row
