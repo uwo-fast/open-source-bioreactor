@@ -124,15 +124,6 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
     allows it - and `bayonet_port.scad` then includes that file and receives every o-ring as a
     global. Recorded, not yet worth moving
 
-- [ ] **`check-scad`'s `-D '$fn=0'` pass is not the tessellation test it reads as**
-  - a command-line `-D` crosses the `use` boundary on every version where an in-file assignment
-    does not, so that pass also zeroes `sparger.scad`'s and the collet's own `$fn` - 48 and 64 in
-    the CSG it renders, 96 and 128 in an exported part - and renders what no build renders. It
-    still covers the crash a zero facet count causes
-  - what would test divergence is rendering one part both ways at the CSG level
-  - `OPENSCAD` is unset, so `just` runs whichever binary is first on PATH (2021.01 here, with a
-    2026.09 nightly beside it). Worth pinning
-
 - [ ] **printed bench parts are on no print list, and bench furniture is in no account**
   - `support/bottle_holder.scad` and `support/estop_box.scad` are the printed parts among the
     bench furniture; the cart prints nothing, and the stand's `print_corner` is a printed
