@@ -389,3 +389,10 @@ outlives the commit, in `docs/`.
   inserts are set directly, and no parameter set can change them. The pump and the filter drive the
   gas budget, so they are the first to get a `_name` designation when a build needs a different one;
   until then a designation is a parameter with one value
+- **registry rows stay positional, checked by a signature per field.** `registry_by_name` checks
+  every row of a registry on every lookup against a signature, one letter a field (string, number,
+  list, bool, capital where undef is allowed), and `fan_by_name` does the same for NopSCADlib's
+  unnamed rows. That catches a row that lost or gained a field, or a list where a number goes: a
+  `grow 13in` row with its per-cord count and its dimensions swapped fails with
+  `registry rows ["grow 13in"] do not fit sln`. Two fields of the same type swapped still pass.
+  Named fields would catch that, at the cost of rewriting every registry and every accessor

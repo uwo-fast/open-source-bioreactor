@@ -114,8 +114,3 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
     outside the manifests too, each from its own file. `check-parts` records all of them
   - the questions: does the reactor's print list cover an accessory, and is printing that bracket
     deliberate? The cart's extrusion, brackets and castors are on no purchase list either
-
-- [ ] **registry rows are read by position, and only their length is checked**
-  - every `_by_name` wrapper passes `registry_by_name` its row's field count, and a lookup fails
-    on any row of the wrong length. Two fields of the same type swapped still pass
-  - `fan_by_name` reads NopSCADlib's rows and is not checked
