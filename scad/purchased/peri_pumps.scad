@@ -13,6 +13,6 @@ peri_pump_kamoer_nkp   = ["Kamoer NKP-DC-S10B", "NKP-DC-S10B",   [67, 55, 41], [
 peri_pumps = [peri_pump_kamoer_nkp];
 
 use <../utils/registries.scad>;
-function peri_pump_by_name(name) = registry_by_name(peri_pumps, name, 5);
+function peri_pump_by_name(name) = registry_by_name(peri_pumps, name, "sslll");
 
 use <peri_pump.scad>;

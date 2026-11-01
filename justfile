@@ -47,7 +47,7 @@ setup:
     @scripts/install-libraries.sh
 
 # Everything CI runs.
-check: fmt-check lint check-recipes check-echo check-scad check-designations check-json check-builds check-bom check-parts check-customizer
+check: check-openscad fmt-check lint check-recipes check-echo check-scad check-designations check-json check-builds check-bom check-parts check-customizer
 
 # Prettier owns markdown, JSON and YAML; ruff owns the Python. Nothing formats SCAD: the registries
 # are aligned by hand. Versions are pinned so a style bump is not a surprise diff.
@@ -71,11 +71,18 @@ lint:
 # The checks a CGAL render puts out of the fast gate's reach: minutes, not seconds.
 #
 # The slow half of verification: mesh validity, holes, sampler fits, lid clashes and the wall cage.
-test: check-mesh check-holes check-sampler check-clash check-baffle-cage
+test: check-openscad check-mesh check-holes check-sampler check-clash check-baffle-cage
 
 # Remove what the recipes build.
 clean:
     rm -rf output
+
+# just runs whichever openscad is first on PATH unless OPENSCAD names one, so every gate starts by
+# saying which, and refuses one older than the 2021.01 CI is checked on.
+#
+# Fail when OpenSCAD is older than this repo is checked on, or cannot render; print its version.
+check-openscad:
+    @scripts/check-openscad.sh
 
 # OpenSCAD reads only the line immediately above a variable, and /* [Hidden] */ runs to the next
 # marker, so both are checked.

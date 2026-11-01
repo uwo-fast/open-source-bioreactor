@@ -21,6 +21,9 @@
 # A failing render still exits 0 and writes a small file, the same as check-mesh, so nothing
 # here may be gated on $?. stderr is the signal and the file size is the backstop.
 set -uo pipefail
+# what prints is only as good as the binary that rendered it, so say which and refuse an old one
+source "$(dirname "$0")/openscad-canary.sh"
+openscad_canary
 tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
 
 build="${1:-}"

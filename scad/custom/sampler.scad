@@ -25,8 +25,8 @@ include <NopSCADlib/core.scad>
 include <NopSCADlib/vitamins/screws.scad>
 include <NopSCADlib/vitamins/nuts.scad>
 include <NopSCADlib/vitamins/inserts.scad>
-// an exception to docs/architecture.md until head.scad passes the inserts in (TODO.md)
-include <../purchased/heat_set_inserts.scad>
+// by name, for its own live defaults (docs/architecture.md rule 2); nothing else crosses
+use <../purchased/heat_set_inserts.scad>
 
 part = "assembly"; // [assembly, base, top]
 // print: lay the base upside down on its parting face, the top face-down on its 4-hole face
@@ -73,10 +73,10 @@ barb_od = 9.75;
 // face, nuts inside the actuator's front wall, so the actuator goes on over bare screw ends.
 outer_screw = M3_dome_screw;   // ISO 7380, from below at the outer corners
 outer_screw_l = 8;
-outer_insert = insert_m3x5p56_ss;
+outer_insert = heat_set_insert_by_name("M3x5.56 18-8");
 inner_screw = M2_cs_cap_screw; // ISO 10642, from above at the inner end
 inner_screw_l = 6;
-inner_insert = insert_m2x4p78_ss;
+inner_insert = heat_set_insert_by_name("M2x4.78 18-8");
 face_screw = M3_cap_screw;     // ISO 4762, up through the face into the actuator
 face_screw_l = 10;
 face_nut = M3_nut;

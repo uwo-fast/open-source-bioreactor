@@ -98,23 +98,6 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
 
 ## tooling / infrastructure / documentation
 
-- [ ] **the probe port's transition lands exactly on the collet, and the obvious fix costs material**
-  - `bayonet_probe_port`'s transition cone ends at exactly `-_transition_length`, which is exactly
-    where the collet begins, at exactly the same diameter. Same defect as the three that are fixed,
-    and on the leaning DO ports of several builds - five on this host - it leaves one or two
-    near-degenerate triangles (two vertices 1e-5 apart) rather than a whole shared ring
-  - carrying the cone on past the joint did clear it when measured, but it added 5.21 mm3, because
-    the cone is solid out to the hex and the collet
-    below it is not, so the lead lands as a 0.034 mm ledge across the collet's mouth where the
-    probe body sits. Reverted for that reason
-  - the direction that costs nothing is to carry the _collet_ up into the cone instead: the cone is
-    wider there and solid, so the overlap adds no volume. That means reaching into
-    `cylindrical_flex_collet`, whose body length also places its tabs, so it is not a one-liner
-  - what is left is one or two triangles of zero volume in a closed mesh, and which side of the
-    rounding they land on depends on the machine: the same part measures none here and one on the
-    CI runner's CGAL. `export-parts` notes them and passes; it fails on a count that could only
-    come from two solids sharing a face
-
 - [ ] **where the tree breaks `docs/architecture.md`**
   - `head()` is one module in three sections - derived, checks and reports, geometry. The checks
     cannot become a module of their own without restating the derived values, since a module
@@ -123,19 +106,3 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
   - `custom/bayonet_interfaces.scad` includes `orings.scad` so rows can name their ring - rule 6
     allows it - and `bayonet_port.scad` then includes that file and receives every o-ring as a
     global. Recorded, not yet worth moving
-  - `custom/sampler.scad` includes `purchased/heat_set_inserts.scad`, which a custom part may not
-    read, until `head()` places it and passes the inserts in
-
-- [ ] **`check-scad`'s `-D '$fn=0'` pass is not the tessellation test it reads as**
-  - a command-line `-D` crosses the `use` boundary on every version where an in-file assignment
-    does not, so that pass also zeroes `sparger.scad`'s and the collet's own `$fn` - 48 and 64 in
-    the CSG it renders, 96 and 128 in an exported part - and renders what no build renders. It
-    still covers the crash a zero facet count causes
-  - what would test divergence is rendering one part both ways at the CSG level
-  - `OPENSCAD` is unset, so `just` runs whichever binary is first on PATH (2021.01 here, with a
-    2026.09 nightly beside it). Worth pinning
-
-- [ ] **registry rows are read by position, and only their length is checked**
-  - every `_by_name` wrapper passes `registry_by_name` its row's field count, and a lookup fails
-    on any row of the wrong length. Two fields of the same type swapped still pass
-  - `fan_by_name` reads NopSCADlib's rows and is not checked

@@ -139,6 +139,11 @@ not stay inline.
   from 40 to 25.2 mm, `jar_1gal_155` from 47.4 to 31.9 mm and `jar_6p5gal` from 88.6 to 71.5 mm,
   all under the band, which `head()` warns. A tangent lead from the riser keeps nearly the whole
   radius, but on `jar_10L` it runs into the next plate round.
+- **`check-scad`'s `-D '$fn=0'` pass renders what no build renders.** It does not. A `use`d file
+  that sets `$fn = 48` for itself, called from a file that leaves `$fn` at 0: on 2026.10.03 its
+  module sees 0, the caller's, with or without the `-D`; on 2021.01 it sees 48, its own, unless
+  the `-D` is given, and then 0. So on CI's 2021.01 the `-D` pass is the only way to render what
+  a current OpenSCAD renders by default, which is what the pass's comment said all along
 
 ## Settled — do not re-open without new evidence
 
@@ -384,3 +389,10 @@ outlives the commit, in `docs/`.
   inserts are set directly, and no parameter set can change them. The pump and the filter drive the
   gas budget, so they are the first to get a `_name` designation when a build needs a different one;
   until then a designation is a parameter with one value
+- **registry rows stay positional, checked by a signature per field.** `registry_by_name` checks
+  every row of a registry on every lookup against a signature, one letter a field (string, number,
+  list, bool, capital where undef is allowed), and `fan_by_name` does the same for NopSCADlib's
+  unnamed rows. That catches a row that lost or gained a field, or a list where a number goes: a
+  `grow 13in` row with its per-cord count and its dimensions swapped fails with
+  `registry rows ["grow 13in"] do not fit sln`. Two fields of the same type swapped still pass.
+  Named fields would catch that, at the cost of rewriting every registry and every accessor
