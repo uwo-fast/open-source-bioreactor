@@ -41,5 +41,5 @@ bayonet-lock-scad   https://github.com/CameronBrooks11/bayonet-lock-scad.git 959
 FunctionalOpenSCAD  https://github.com/thehans/FunctionalOpenSCAD.git        51588ff
 threads-scad        https://github.com/rcolyer/threads-scad.git              4ae9aeb
 din168-thread-scad  https://github.com/CameronBrooks11/din168-thread-scad.git 7ea65c3
-turbidity-sensor    https://github.com/uwo-fast/turbidity-sensor.git          b720490
+turbidity-sensor    https://github.com/uwo-fast/turbidity-sensor.git          4be431f
 syringe-actuator    https://github.com/uwo-fast/syringe-actuator.git          ea8b221
