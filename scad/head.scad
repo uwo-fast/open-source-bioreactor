@@ -1229,7 +1229,8 @@ function head_sparge_loop_radius(mouth, lid_flange_height, vessel_internal_heigh
 // radial span would report a collision with every probe at every other port. What it does have
 // to miss is checked where it is placed - the floor, the shaft and the stir bar. The loop's ring
 // IS on the list as a whole ring, being a C round the axis; its feed and hook are the arm's case.
-function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, sparger = "ring", ring_z = undef, ring_r = undef, baffles = "auto") =
+// The impellers are on it only under the shaft drive, which is the only one that turns them.
+function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, sparger = "ring", ring_z = undef, ring_r = undef, baffles = "auto", drive = "shaft") =
   let (
     _floor_z = -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height),
     _swept = head_impeller_swept_radius(impeller_diameter),
@@ -1244,7 +1245,7 @@ function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel
     _ring_z = !is_undef(ring_z) ? ring_z : _loop ? head_sparge_cap_z(impeller_diameter) : head_sparge_ring_z(impeller_diameter)
   )
     concat(
-      [
+      drive != "shaft" ? [] : [
         [
           "lower impeller",
           [0, _swept, _floor_z + _clearance - _lower / 2, _floor_z + _clearance + _lower / 2],
@@ -1265,12 +1266,12 @@ function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel
     );
 
 // Does a probe at this lean clear the vessel's internals AND still pass the mouth on the way in?
-function head_probe_lean_fits(probe, vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, tilt, sparger = "ring", ring_z = undef, baffles = "auto") =
+function head_probe_lean_fits(probe, vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, tilt, sparger = "ring", ring_z = undef, baffles = "auto", drive = "shaft") =
   let (
     _runs = head_probe_runs(probe, vessel_opening_diameter, lid_flange_height, tilt),
     _obstacles = head_reach_obstacles(
       vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, sparger, ring_z,
-      baffles=baffles
+      baffles=baffles, drive=drive
     ),
     _gaps = [
       for (r = _runs)
@@ -1282,14 +1283,14 @@ function head_probe_lean_fits(probe, vessel_opening_diameter, lid_flange_height,
     && (len(_gaps) == 0 || min(_gaps) > 0);
 
 // The most of `want` this jar allows, scanned down from the ceiling; 0 where nothing fits.
-function head_probe_tilt_ceiling(probe, vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, want, steps = 45, sparger = "ring", ring_z = undef, baffles = "auto") =
+function head_probe_tilt_ceiling(probe, vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, want, steps = 45, sparger = "ring", ring_z = undef, baffles = "auto", drive = "shaft") =
   let (
     _ok = [
       for (i = [0:steps])
         let (_t = want * (steps - i) / steps)
           if (head_probe_lean_fits(
                 probe, vessel_opening_diameter, lid_flange_height, vessel_internal_height,
-                vessel_punt_height, impeller_diameter, _t, sparger, ring_z, baffles
+                vessel_punt_height, impeller_diameter, _t, sparger, ring_z, baffles, drive
               )) _t
     ]
   )
@@ -1969,7 +1970,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     : head_probe_tilt_ceiling(
       head_port_probe(_do_port[0]), vessel_opening_diameter, lid_flange_height,
       vessel_internal_height, vessel_punt_height, impeller_diameter, _build_do_tilt_max,
-      sparger=_sparger, ring_z=_loop ? undef : _sparge_ring_height, baffles=_baffles
+      sparger=_sparger, ring_z=_loop ? undef : _sparge_ring_height, baffles=_baffles, drive=_drive
     );
 
   // The mouth window this jar had to land in: too small and the ring will not pass, too large and
@@ -2340,13 +2341,10 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   // are the shaft drive's.
   _punt_top_z = -head_punt_top_depth(lid_flange_height, vessel_internal_height);
   _obstacles = concat(
-    [
-      for (o = head_reach_obstacles(
-        vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, _sparger,
-        _loop ? _cap_z : _sparge_ring_height, _loop ? _sparge_loop_radius : _sparge_ring_radius
-      ))
-        if (_shaft_drive || o[0] != "lower impeller" && o[0] != "upper impeller") o
-    ],
+    head_reach_obstacles(
+      vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, _sparger,
+      _loop ? _cap_z : _sparge_ring_height, _loop ? _sparge_loop_radius : _sparge_ring_radius, drive=_drive
+    ),
     !_magnetic ? [] : [[
       "stir bar",
       [0, stir_bar_length(_stir_bar) / 2, _punt_top_z, _punt_top_z + stir_bar_diameter(_stir_bar)],

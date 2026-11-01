@@ -98,16 +98,6 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
 
 ## tooling / infrastructure / documentation
 
-- [ ] **the DO probe's lean is capped by impellers a non-shaft build does not have**
-  - `head_probe_tilt_ceiling()` reads `head_reach_obstacles()`, which lists both impellers under
-    every drive; `head()` drops them from its own clearance report but not from the ceiling. Latent:
-    every magnetic build reaches the full 4.5 deg today, and the airlift hangs DO straight without
-    asking the ceiling. Safe either way, since the lean only comes out smaller
-  - nothing reachable shows it: allowed 15 deg, `jar_10L` stops at 4.67 deg on its shaft and
-    magnetic builds alike, with the impellers counted or not and even raised to 2.5 D, so
-    something else binds first. Worth fixing when a build makes the impellers bind, with that
-    build as the test
-
 - [ ] **the probe port's transition lands exactly on the collet, and the obvious fix costs material**
   - `bayonet_probe_port`'s transition cone ends at exactly `-_transition_length`, which is exactly
     where the collet begins, at exactly the same diameter. Same defect as the three that are fixed,
