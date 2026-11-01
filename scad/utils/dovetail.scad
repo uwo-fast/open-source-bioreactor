@@ -15,19 +15,7 @@
  * a joint wanting the usual 7-15 degrees needs a root much closer to the crown width.
  */
 
-/**
- * @brief Points of a dovetail cross section, counter-clockwise from the root.
- * @param width      Width across the crown (the widest part)
- * @param height     Root-to-crown height
- * @param root_width Width across the root; defaults to two thirds of the crown
- */
-function dovetail_pts(width, height, root_width = undef) =
-  let (root = is_undef(root_width) ? width * 2 / 3 : root_width) [
-      [-root / 2, 0], // root left
-      [root / 2, 0], // root right
-      [width / 2, height], // crown right
-      [-width / 2, height], // crown left
-  ];
+use <trapezium.scad>
 
 /**
  * @brief Root width that gives a wanted flare, so a joint can be specified by its angle.
@@ -38,9 +26,13 @@ function dovetail_pts(width, height, root_width = undef) =
 function dovetail_root_width(width, height, angle) = width - 2 * height * tan(angle);
 
 /**
- * @brief A dovetail prism, extruded along z from the origin.
+ * @brief A dovetail prism, extruded along z from the origin: a trapezium from the root up to the
+ * crown, the root defaulting to two thirds of the crown.
+ * @param width        Width across the crown (the widest part)
+ * @param height       Root-to-crown height
  * @param length       Extrusion length
  * @param allowance    Grows the profile all round; 0 for the tail, the fit clearance for the socket
+ * @param root_width   Width across the root; defaults to two thirds of the crown
  * @param crown_radius Corner arc radius; defaults to height/4
  */
 module dovetail(width, height, length, allowance = 0, root_width = undef, crown_radius = undef) {
@@ -50,5 +42,5 @@ module dovetail(width, height, length, allowance = 0, root_width = undef, crown_
     offset(delta=allowance)
       // shrink then grow: every sharp corner comes back as an arc tangent to both edges
       offset(r=r) offset(r=-r)
-        polygon(dovetail_pts(width, height, root_width));
+        trapezium(is_undef(root_width) ? width * 2 / 3 : root_width, width, height);
 }
