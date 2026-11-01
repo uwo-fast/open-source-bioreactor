@@ -113,6 +113,10 @@ function baffle_cage_travel(bore_radius, mouth_radius) =
 // the pads' reach, slid in to the stop
 function baffle_cage_slid_pad(bore_radius, mouth_radius) =
   baffle_cage_outer_edge(bore_radius) + baffle_cage_pad_proud(bore_radius) - baffle_cage_travel(bore_radius, mouth_radius);
+// A blade slides free between its detents only once one has cleared the hoop and before the next
+// meets it: the hoop's width, a hump and its play at either end. Less travel and the bar never runs
+// free, so the cage cannot be built that way on that jar.
+function baffle_cage_travel_min() = baffle_cage_hoop_width() + baffle_cage_hump_length() + 2 * baffle_cage_hump_play();
 function baffle_cage_bar_tip(mouth_radius) = baffle_cage_hoop_inner(mouth_radius) - baffle_cage_tip_overlap();
 // the bar's top, in the top hoop's frame: z 0 is its underside, where the channel opens
 function baffle_cage_bar_top() = baffle_cage_channel_depth() - baffle_cage_fit();

@@ -655,9 +655,10 @@ function head_sparge_feed_port(vessel_opening_diameter) = head_port_index(vessel
 // varies with the vessel, so it lives here; `just export-parts` walks it.
 function head_print_parts(vessel, lid_flange_height, drive = "shaft", sparger = "auto", lid_center = "auto", condenser = "auto", baffles = "auto") =
   let (
-    _ports = head_ports_for_baffles(vessel_opening_diameter(vessel), baffles),
-    _wall = head_baffles_selected(baffles) == "wall",
     _sparger = head_sparger_selected(sparger, drive),
+    _baffles = head_baffles_selected(baffles, vessel, drive, _sparger),
+    _ports = head_ports_for_baffles(vessel_opening_diameter(vessel), _baffles),
+    _wall = _baffles == "wall",
     _coil = head_condenser_selected(condenser, _sparger) == "coil",
     _segs = head_baffle_segments(vessel, lid_flange_height, _sparger == "ring")
   )
@@ -824,9 +825,21 @@ baffle_joint_allowance = 0.1;
 // hoops that pass the mouth with the blades slid in (custom/baffle_cage.scad). The lid's baffle
 // ports then take blanks, and a probe outside the hoops' gap moves into one of them.
 
-// Lid-hung plates, or the wall cage; auto is the lid's plates
+// Lid-hung plates, or the wall cage; auto is the cage wherever it fits the build, else the plates
 head_baffles = "auto"; // [auto, lid, wall]
-function head_baffles_selected(baffles) = baffles == "auto" ? "lid" : baffles;
+// Where the cage fits: a shaft or magnetic drive, not the ring, a lid with baffle ports to take a
+// probe the hoops' gap leaves out, and travel enough for a blade to slide free between its detents.
+function head_wall_cage_fits(vessel, drive, sparger) =
+  (drive == "shaft" || drive == "magnetic") && sparger != "ring"
+  && len(head_baffle_ports(head_ports_for(vessel_opening_diameter(vessel)))) > 0
+  && baffle_cage_travel(vessel_diameter(vessel) / 2 - vessel_thickness(vessel), vessel_opening_diameter(vessel) / 2)
+    >= baffle_cage_travel_min();
+// head() and head_print_parts() resolve auto with the build in hand and pass the answer down; a
+// helper that is handed auto has no vessel, and takes the plates.
+function head_baffles_selected(baffles, vessel = undef, drive = "shaft", sparger = "arm") =
+  baffles != "auto" ? baffles
+  : !is_undef(vessel) && head_wall_cage_fits(vessel, drive, sparger) ? "wall"
+  : "lid";
 // Where the cage's blades stand, in degrees, equally spaced: between the frame's lit windows,
 // whose strips stand at 105-165 and 285-345 deg (frame.scad, light_places)
 wall_baffle_at = [0, 90, 180, 270];
@@ -1875,7 +1888,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _loop = _sparger == "loop";
   // what the report calls whichever is built
   _sparger_noun = _ring ? "ring" : _loop ? "loop" : "arm";
-  _baffles = head_baffles_selected(head_build(build, "baffles", head_baffles));
+  _baffles = head_baffles_selected(head_build(build, "baffles", head_baffles), vessel, _drive, _sparger);
   _wall = _baffles == "wall";
 
   // The table this lid carries, resolved once, with a designated probe spliced in. Safe because
@@ -3350,8 +3363,13 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   if (_wall) {
     assert(
-      _shaft_drive && !_ring,
-      str("The wall cage is checked against the shaft drive with the arm or the loop; this build is a ", _drive, " drive with the ", _sparger, ".")
+      (_shaft_drive || _magnetic) && !_ring,
+      str("The wall cage is checked against the shaft and magnetic drives with the arm or the loop; this build is a ", _drive, " drive with the ", _sparger, ".")
+    );
+    assert(
+      _cage_travel >= baffle_cage_travel_min(),
+      str("The wall cage's blades slide ", _cage_travel, " mm on this jar, and run free between their detents only past ",
+        baffle_cage_travel_min(), " mm: the hoop's width, a detent and its play at each end.")
     );
     // The arm runs in from its riser, which the hardware check covers; the loop's C and hook stay
     // inside the riser too, so this holds by construction and says so if that changes.
@@ -3413,10 +3431,15 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     ));
     echo(str(
       "baffle cage clearance: the blades' inner edge at r ", _cage_in, ", ",
-      _cage_in - head_impeller_swept_radius(impeller_diameter), " mm outside the impellers; the hoops ",
+      _shaft_drive
+        ? str(_cage_in - head_impeller_swept_radius(impeller_diameter), " mm outside the impellers")
+        : str(_cage_in - stir_bar_length(_stir_bar) / 2, " mm outside the stir bar's sweep"),
+      "; the hoops ",
       _cage_ri - _cage_hardware, " mm and the bars' tips ", baffle_cage_bar_tip(_cage_mouth) - _cage_hardware,
       " mm off the tubes and thermocouple"
     ));
+    // the impellers' torque, so the shaft drive's alone; a stir bar's is a measurement nobody has
+    if (_shaft_drive)
     echo(str(
       "baffle cage load: ", _cage_load, " N each at ", _baffle_rpm, " rpm, and the air inlet's riser stops the cage turning with ",
       _cage_key_load, " N at r ", port_circle_radius, "; reasoned, not cited"

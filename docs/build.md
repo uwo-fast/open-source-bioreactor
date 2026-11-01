@@ -58,8 +58,8 @@ This is the part of the build nothing else will remind you about.
 - a **blank port** for each bayonet size the lid uses — a pin with no bore, labelled `BLANK`, to
   close a port with nothing in it while cleaning, testing or servicing
 - the **baffle ports and plates** — one plate per baffle port, each split into dovetailed pieces;
-  or, on a build that names the wall cage (`baffle_name = "wall"`, the `jar_10L_220x305` reference
-  build), the **cage**: a top hoop, a bottom hoop and four blades, and three more blanks for the
+  or, on a build that carries the wall cage (both `jar_10L` builds, where `baffle_name = "auto"`
+  takes it), the **cage**: a top hoop, a bottom hoop and four blades, and three more blanks for the
   ports the plates would have taken (see [The wall baffle cage](#the-wall-baffle-cage))
 - the **motor mount**, in three parts: base plate, face plate, middle stand
 - **two impellers**
