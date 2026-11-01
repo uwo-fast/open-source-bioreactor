@@ -108,23 +108,6 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
     something else binds first. Worth fixing when a build makes the impellers bind, with that
     build as the test
 
-- [ ] **the probe port's transition lands exactly on the collet, and the obvious fix costs material**
-  - `bayonet_probe_port`'s transition cone ends at exactly `-_transition_length`, which is exactly
-    where the collet begins, at exactly the same diameter. Same defect as the three that are fixed,
-    and on the leaning DO ports of several builds - five on this host - it leaves one or two
-    near-degenerate triangles (two vertices 1e-5 apart) rather than a whole shared ring
-  - carrying the cone on past the joint did clear it when measured, but it added 5.21 mm3, because
-    the cone is solid out to the hex and the collet
-    below it is not, so the lead lands as a 0.034 mm ledge across the collet's mouth where the
-    probe body sits. Reverted for that reason
-  - the direction that costs nothing is to carry the _collet_ up into the cone instead: the cone is
-    wider there and solid, so the overlap adds no volume. That means reaching into
-    `cylindrical_flex_collet`, whose body length also places its tabs, so it is not a one-liner
-  - what is left is one or two triangles of zero volume in a closed mesh, and which side of the
-    rounding they land on depends on the machine: the same part measures none here and one on the
-    CI runner's CGAL. `export-parts` notes them and passes; it fails on a count that could only
-    come from two solids sharing a face
-
 - [ ] **where the tree breaks `docs/architecture.md`**
   - `head()` is one module in three sections - derived, checks and reports, geometry. The checks
     cannot become a module of their own without restating the derived values, since a module
