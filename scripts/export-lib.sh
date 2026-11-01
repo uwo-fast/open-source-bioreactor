@@ -70,6 +70,12 @@ export_half_flags() {
 export_render_one() {
     local sel file flags out err half
     IFS='|' read -r sel file flags out err <<< "$1"
+    # an accessory is a part in a file of its own, with no build to carry, so it renders from it
+    if [[ "$file" == scad/support/* ]]; then
+        # shellcheck disable=SC2086
+        "$OPENSCAD" $flags -o "$out" "$file" 2>"$err" >/dev/null
+        return
+    fi
     if ! half=$(export_half_flags "$file"); then
         echo "no render flags known for $file" > "$err"
         return
@@ -184,10 +190,9 @@ export_list_body() {
     echo "Assembly, and the numbers that go with it, are in [docs/build.md]($up/docs/build.md)."
     echo
     echo "**This is the reactor's own parts** - the lid and everything hanging from it, and the"
-    echo "frame's base, top base, ribs and rod spacers, plus the drive's own parts under whichever"
-    echo "drive this build names. It is NOT everything this repo prints: the cart, the electronics"
-    echo "stand, the bottle holder and the peri pump mount each render from their own file and reach"
-    echo "no manifest, which \`just check-parts\` records rather than hides."
+    echo "frame's base, top base, ribs, rod spacers and pump mounts, plus the drive's own parts under"
+    echo "whichever drive this build names. The bench around it - the bottle holders, the e-stop box"
+    echo "and the electronics stand's corner - is on its own list, from \`just export-accessories\`."
     echo
     echo "**Printers that take every part on this list:** $allfit. Reported, not targeted - the"
     echo "design is what it is and this says what it needs, measured off the meshes below rather"

@@ -135,14 +135,6 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
   - `OPENSCAD` is unset, so `just` runs whichever binary is first on PATH (2021.01 here, with a
     2026.09 nightly beside it). Worth pinning
 
-- [ ] **printed bench parts are on no print list, and bench furniture is in no account**
-  - `support/bottle_holder.scad` and `support/estop_box.scad` are the printed parts among the
-    bench furniture; the cart prints nothing, and the stand's `print_corner` is a printed
-    substitute for a bought NopSCADlib bracket. The condensers and the humidifier cap are printed
-    outside the manifests too, each from its own file. `check-parts` records all of them
-  - the questions: does the reactor's print list cover an accessory, and is printing that bracket
-    deliberate? The cart's extrusion, brackets and castors are on no purchase list either
-
 - [ ] **registry rows are read by position, and only their length is checked**
   - every `_by_name` wrapper passes `registry_by_name` its row's field count, and a lookup fails
     on any row of the wrong length. Two fields of the same type swapped still pass

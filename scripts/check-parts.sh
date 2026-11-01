@@ -93,20 +93,18 @@ not_exported=(
     scad/custom/baffle_cage.scad                # exported through head's manifest as
                                                 # "baffle_cage_*", sized to the wall build's jar
     scad/custom/sheet_gasket.scad               # EPDM cut from a sheet with a knife, not printed
-    # Bench furniture AROUND the reactor rather than part of it. Of the first three only ONE
-    # makes anything printed - which is not what this list said until it was read.
-    scad/support/bottle_holder.scad             # one printed part, a dovetailed sleeve. The
-                                                # only original printed geometry of the three,
-                                                # and an accessory rather than a reactor part
+    # Bench furniture AROUND the reactor rather than part of it, on no reactor manifest. Its
+    # printed parts are on accessory_print_parts() in scad/support/accessories.scad, which
+    # `just export-accessories` walks.
+    scad/support/bottle_holder.scad             # "bottle_holder" on the accessories list
     scad/support/equipment_cart.scad            # prints NOTHING: bought extrusion, bought
                                                 # NopSCADlib brackets, bought castors, and a
-                                                # translucent envelope that is a picture
-    scad/support/electronics_stand.scad         # prints nothing original either - print_corner
-                                                # renders a NopSCADlib BRACKET, which is a
-                                                # vitamin, so that is a printed substitute for
-                                                # a bought part. See TODO.md
-    scad/support/estop_box.scad                 # two printed parts, base and lid, from part=;
-                                                # bench equipment, so no reactor manifest has it
+                                                # translucent envelope that is a picture. Never
+                                                # built; see docs/future-work.md
+    scad/support/electronics_stand.scad         # "stand_corner" on the accessories list, its
+                                                # print_corner standing in for a bought bracket
+    scad/support/estop_box.scad                 # "estop_box_base" and "estop_box_lid" on the
+                                                # accessories list
     scad/custom/peri_pump_head.scad             # a stretch goal rather than this build
     scad/custom/gl_port_cap.scad                # the inlet humidifier's cap: a bottle, not the
                                                 # reactor, so no manifest of the reactor's has it
