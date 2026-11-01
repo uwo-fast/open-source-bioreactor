@@ -136,10 +136,6 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
   - `custom/sampler.scad` includes `purchased/heat_set_inserts.scad`, which a custom part may not
     read, until `head()` places it and passes the inserts in
 
-- [ ] **`dovetail_pts` repeats `trapezium_pts`**: `dovetail_pts(20, 6, 13)` and
-      `trapezium_pts(13, 20, 6)` return the same four points. `dovetail()` keeps its allowance and
-      crown, so only the points would fold into `utils/trapezium.scad`
-
 - [ ] **`check-scad`'s `-D '$fn=0'` pass is not the tessellation test it reads as**
   - a command-line `-D` crosses the `use` boundary on every version where an in-file assignment
     does not, so that pass also zeroes `sparger.scad`'s and the collet's own `$fn` - 48 and 64 in
