@@ -228,6 +228,14 @@ export-parts build="" out="":
 export-part part build="" out="output":
     @scripts/export-parts.sh "{{build}}" "{{out}}" "{{part}}"
 
+# The bench's own list, accessory_print_parts() in scad/support/accessories.scad: the bottle
+# holders, the e-stop box and the stand's corner, each from its own file, judged as export-parts
+# judges the reactor's parts.
+#
+# Export the bench's printed parts with a print list, to output/accessories.
+export-accessories out="output":
+    @scripts/export-accessories.sh "{{out}}"
+
 # check-scad exports the CSG tree, so CGAL never runs and a degenerate solid is invisible to it.
 # This builds the entry files into solids. Not part of `check`: minutes, not seconds. What to run
 # before printing is `just export-parts`, which covers the reactor's own parts.

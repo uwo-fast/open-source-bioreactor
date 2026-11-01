@@ -6,8 +6,10 @@ include <NopSCADlib/core.scad>;
 include <NopSCADlib/vitamins/fans.scad>;
 
 function fan_name(type) = str("fan", fan_width(type), "x", fan_depth(type));
+use <../utils/registries.scad>;
+// the library's rows carry no name, so they are checked here and named by size
 function fan_by_name(name) =
-  let (_m = [for (f = fans) if (fan_name(f) == name) f]) len(_m) == 1 ? _m[0] : undef;
+  let (_m = [for (f = registry_checked(fans, "nnnnlnnnnnN")) if (fan_name(f) == name) f]) len(_m) == 1 ? _m[0] : undef;
 
 // The circle the frame's rounded corners sweep: the square less its corner radius, on the
 // diagonal, plus the radius back. What a round pocket has to clear, and larger than the

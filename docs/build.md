@@ -188,10 +188,12 @@ tag, one job per build, and leaves the STLs and the print list as a downloadable
 (`stl-<build>`) on the run. It is also the only place the parts that print are CGAL-checked in CI —
 `just test` covers the entry files' previews, not the manifests.
 
-It is not everything in this repo that gets printed. The **cart**, the **electronics stand**, the
-**bottle holder** and the **e-stop box** each render from a file of their own and are on no
-manifest, so they appear on no print list. `just check-parts` holds the record of that rather than
-letting it go unnoticed, and giving them manifests is on [`TODO.md`](../TODO.md).
+It is not everything in this repo that gets printed. The bench around the reactor has its own
+list: `just export-accessories` writes three **bottle holders** (one per dosing bottle, at the
+86.1 mm round bottle), the **e-stop box**'s base and lid, and the **electronics stand**'s printed
+corner to `output/accessories/`, from `accessory_print_parts()` in
+`scad/support/accessories.scad`. The cart prints nothing and was never built
+([`docs/future-work.md`](future-work.md)).
 
 `bioreactor.scad` reports the printer
 answer independently, off the geometry rather than the meshes; the two agreeing is the check that

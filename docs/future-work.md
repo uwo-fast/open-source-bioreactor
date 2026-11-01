@@ -156,6 +156,13 @@ labelled `post-pub`, all linked from #90. When one of these is picked up, it mov
 - **optional end styles (a sensor gland) for the Atlas probes**, to match the product more
   closely.
 
+## bench
+
+- **a rolling cart for four reactors.** `support/equipment_cart.scad` draws two tiers of E3030
+  extrusion, two reactors a tier, on 12 3D corner brackets and four swivel plate castors: 635 x
+  358 mm, 1387 mm tall with its castors. It prints nothing, its castor is a generic one with no
+  part behind it, and it has not been built, so nothing of it is on the purchase list.
+
 ## the model's structure
 
 - **split `head()` by subsystem.** It is one module in three sections - derived, checks and

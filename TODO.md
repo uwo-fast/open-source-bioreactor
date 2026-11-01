@@ -95,18 +95,3 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
 - [ ] **refresh the needle valve's and barbs' prices and links**: the August order had MNV-3KP at
       16.18 against the CSV's 15.11 and 11792-4-BLK at 1.54 against 0.60, both from direct product
       pages where the CSV carries a category page and a datasheet
-
-## tooling / infrastructure / documentation
-
-- [ ] **printed bench parts are on no print list, and bench furniture is in no account**
-  - `support/bottle_holder.scad` and `support/estop_box.scad` are the printed parts among the
-    bench furniture; the cart prints nothing, and the stand's `print_corner` is a printed
-    substitute for a bought NopSCADlib bracket. The condensers and the humidifier cap are printed
-    outside the manifests too, each from its own file. `check-parts` records all of them
-  - the questions: does the reactor's print list cover an accessory, and is printing that bracket
-    deliberate? The cart's extrusion, brackets and castors are on no purchase list either
-
-- [ ] **registry rows are read by position, and only their length is checked**
-  - every `_by_name` wrapper passes `registry_by_name` its row's field count, and a lookup fails
-    on any row of the wrong length. Two fields of the same type swapped still pass
-  - `fan_by_name` reads NopSCADlib's rows and is not checked
