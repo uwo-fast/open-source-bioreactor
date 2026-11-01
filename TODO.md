@@ -98,32 +98,6 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
 
 ## tooling / infrastructure / documentation
 
-- [ ] **the probe port's transition lands exactly on the collet, and the obvious fix costs material**
-  - `bayonet_probe_port`'s transition cone ends at exactly `-_transition_length`, which is exactly
-    where the collet begins, at exactly the same diameter. Same defect as the three that are fixed,
-    and on the leaning DO ports of several builds - five on this host - it leaves one or two
-    near-degenerate triangles (two vertices 1e-5 apart) rather than a whole shared ring
-  - carrying the cone on past the joint did clear it when measured, but it added 5.21 mm3, because
-    the cone is solid out to the hex and the collet
-    below it is not, so the lead lands as a 0.034 mm ledge across the collet's mouth where the
-    probe body sits. Reverted for that reason
-  - the direction that costs nothing is to carry the _collet_ up into the cone instead: the cone is
-    wider there and solid, so the overlap adds no volume. That means reaching into
-    `cylindrical_flex_collet`, whose body length also places its tabs, so it is not a one-liner
-  - what is left is one or two triangles of zero volume in a closed mesh, and which side of the
-    rounding they land on depends on the machine: the same part measures none here and one on the
-    CI runner's CGAL. `export-parts` notes them and passes; it fails on a count that could only
-    come from two solids sharing a face
-
-- [ ] **`check-scad`'s `-D '$fn=0'` pass is not the tessellation test it reads as**
-  - a command-line `-D` crosses the `use` boundary on every version where an in-file assignment
-    does not, so that pass also zeroes `sparger.scad`'s and the collet's own `$fn` - 48 and 64 in
-    the CSG it renders, 96 and 128 in an exported part - and renders what no build renders. It
-    still covers the crash a zero facet count causes
-  - what would test divergence is rendering one part both ways at the CSG level
-  - `OPENSCAD` is unset, so `just` runs whichever binary is first on PATH (2021.01 here, with a
-    2026.09 nightly beside it). Worth pinning
-
 - [ ] **printed bench parts are on no print list, and bench furniture is in no account**
   - `support/bottle_holder.scad` and `support/estop_box.scad` are the printed parts among the
     bench furniture; the cart prints nothing, and the stand's `print_corner` is a printed
