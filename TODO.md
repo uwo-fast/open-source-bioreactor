@@ -106,11 +106,3 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
   - `custom/bayonet_interfaces.scad` includes `orings.scad` so rows can name their ring - rule 6
     allows it - and `bayonet_port.scad` then includes that file and receives every o-ring as a
     global. Recorded, not yet worth moving
-
-- [ ] **printed bench parts are on no print list, and bench furniture is in no account**
-  - `support/bottle_holder.scad` and `support/estop_box.scad` are the printed parts among the
-    bench furniture; the cart prints nothing, and the stand's `print_corner` is a printed
-    substitute for a bought NopSCADlib bracket. The condensers and the humidifier cap are printed
-    outside the manifests too, each from its own file. `check-parts` records all of them
-  - the questions: does the reactor's print list cover an accessory, and is printing that bracket
-    deliberate? The cart's extrusion, brackets and castors are on no purchase list either
