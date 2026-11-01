@@ -123,8 +123,6 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
   - `custom/bayonet_interfaces.scad` includes `orings.scad` so rows can name their ring - rule 6
     allows it - and `bayonet_port.scad` then includes that file and receives every o-ring as a
     global. Recorded, not yet worth moving
-  - `custom/sampler.scad` includes `purchased/heat_set_inserts.scad`, which a custom part may not
-    read, until `head()` places it and passes the inserts in
 
 - [ ] **`check-scad`'s `-D '$fn=0'` pass is not the tessellation test it reads as**
   - a command-line `-D` crosses the `use` boundary on every version where an in-file assignment
