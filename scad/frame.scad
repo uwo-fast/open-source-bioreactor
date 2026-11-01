@@ -11,9 +11,11 @@ include <purchased/heat_pads.scad>; // the pad a build holds on the glass, and w
 include <purchased/vessels.scad>; // the preview builds against a registered jar, not copied numbers
 include <purchased/fans.scad>; // the fan a magnetic drive turns under the jar, NopSCADlib's rows
 include <purchased/magnets.scad>; // the magnets on its hub, NopSCADlib's rows
+include <purchased/peri_pumps.scad>; // the dosing pumps the frame hangs
 
 use <custom/magnet_hub_cap.scad>;
 use <custom/heat_pad_mount.scad>;
+use <custom/peri_pump_frame_mount.scad>;
 
 use <utils/bolt_pattern.scad>;
 
@@ -63,6 +65,12 @@ render_heat_pads = false;
 render_heat_pad_plates = false;
 // Which plate, in emission order, for a per-part export; undef renders the set in place
 heat_pad_plate_to_render = undef;
+// The dosing pumps - bought, drawn hanging on their mounts
+render_dosing_pumps = false;
+// The printed mounts that hang the dosing pumps in empty light pockets
+render_dosing_pump_mounts = false;
+// Which mount, in emission order, for a per-part export; undef renders the set in place
+dosing_pump_mount_to_render = undef;
 
 /* [Vessel Selection] */
 
@@ -110,6 +118,12 @@ light_allow = 0.4;
 light_pocket_allow = 0.3;
 // clearance above a light in its seat, which is blind, so it drops in
 light_pocket_end_allow = 1;
+
+/* [Dosing Pump Parameters] */
+
+// Where the dosing pumps hang, each [quadrant, pocket]: an unlit quadrant's light pocket on the top
+// rib level, pockets counted from 0 as the lights are. A builder hangs them wherever the bench wants.
+dosing_pump_places = [[2, 0], [2, 2], [4, 1]];
 
 /* [Nut & Rod Parameters] */
 
@@ -265,7 +279,9 @@ function frame_print_parts(n_rods, drive = "shaft", riser = false, heat_pad = un
       : [],
     drive == "magnetic" && riser ? [["frame_stir_riser", 1, "-D render_stir_riser=true"]] : [],
     is_undef(heat_pad) ? []
-    : [["heat_pad_plate", 4 - len(light_quadrants), "-D render_heat_pad_plates=true -D heat_pad_plate_to_render=0"]]
+    : [["heat_pad_plate", 4 - len(light_quadrants), "-D render_heat_pad_plates=true -D heat_pad_plate_to_render=0"]],
+    len(dosing_pump_places) == 0 ? []
+    : [["peri_pump_frame_mount", len(dosing_pump_places), "-D render_dosing_pump_mounts=true -D dosing_pump_mount_to_render=0"]]
   );
 
 // The bore under the jar: the ring the jar lands on, less what the floor reaches inboard of it.
@@ -420,7 +436,7 @@ module frame_rod_at(i, n_rods, rod_shift) {
       children();
 }
 
-module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts, bolt_screw, drive = "shaft", magnet = undef, collapse_spacer_z_allow=true, lights_per_quadrant = lights_per_quadrant, heat_pad = undef) {
+module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts, bolt_screw, drive = "shaft", magnet = undef, collapse_spacer_z_allow=true, lights_per_quadrant = lights_per_quadrant, heat_pad = undef, dosing_pump = peri_pump_kamoer_nkp) {
 
   // The vessel's fields, read once.
   vessel_height = vessel_height(vessel);
@@ -970,6 +986,52 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
       magnet_hub_cap(fan_hub(_fan), _magnet, pedestal=carrier_fan_recess + _cap_lift, cap=false, magnets=true);
   }
 
+  // The dosing pumps, each on a printed mount in an unlit quadrant's light pocket on the top rib
+  // level, where that quadrant's arc is the level's upper ring. The insert's outer face, which
+  // carries the detent, bears on the pocket's outer wall; the flange sits on the rib and the pump
+  // stands on the flange, its motor down through the bore beside the rib.
+  _pump_r = light_bore_radius(vessel_outer_diameter) + light_cover_radius(light)
+    + strip_light_depth(light) + light_pocket_allow - peri_pump_frame_mount_insert_depth() / 2
+    + peri_pump_frame_mount_bore_offset();
+  _pump_gap = max(peri_pump_width(dosing_pump), peri_pump_frame_mount_span());
+  _pump_close = [
+    for (a = dosing_pump_places, b = dosing_pump_places)
+      if (a != b && a[0] == b[0]
+        && 2 * _pump_r * sin(abs(light_angle(a[1], lights_per_quadrant, occupy_angle) - light_angle(b[1], lights_per_quadrant, occupy_angle)) / 2) < _pump_gap)
+        a
+  ];
+  for (p = dosing_pump_places)
+    assert(
+      len([for (q = _slot_quadrants) if (q == p[0]) q]) == 1 && p[1] >= 0 && p[1] < lights_per_quadrant,
+      str("A dosing pump is placed at ", p, "; it hangs in an unlit quadrant's pocket, quadrants ", _slot_quadrants,
+        ", pockets 0 to ", lights_per_quadrant - 1, ".")
+    );
+  assert(
+    len(_pump_close) == 0,
+    str("The dosing pumps at ", _pump_close, " stand closer than ", _pump_gap, " mm, the wider of a pump and its mount's flange.")
+  );
+  assert(
+    dc_motor_diameter(peri_pump_motor(dosing_pump)) <= peri_pump_frame_mount_bore(),
+    str("The ", peri_pump_name(dosing_pump), "'s motor does not pass the mount's ", peri_pump_frame_mount_bore(), " mm bore.")
+  );
+
+  module frame_dosing_pumps(pumps = true, mounts = true) {
+    _top = rib_level_bottom(n_rib_levels) + 2 * rib_base_height;
+    _fh = peri_pump_frame_mount_flange_height();
+    if (len(dosing_pump_places) > 0)
+      for (i = [0:len(dosing_pump_places) - 1])
+        let (p = dosing_pump_places[i])
+          rotate([0, 0, (p[0] - 1) * 90 + light_angle(p[1], lights_per_quadrant, occupy_angle)])
+            translate([0, _pump_r - peri_pump_frame_mount_bore_offset(), _top + _fh]) {
+              if (mounts && (is_undef(dosing_pump_mount_to_render) || dosing_pump_mount_to_render == i))
+                color(prints2_color)
+                  peri_pump_frame_mount();
+              if (pumps)
+                translate([0, peri_pump_frame_mount_bore_offset(), 0])
+                  peri_pump(dosing_pump);
+            }
+  }
+
   // A heating pad in each unlit quadrant, behind the lower rib level's arc there. Its tabs ride the
   // quadrant's outermost light pockets, so they read the pockets the lights are cut by.
   module frame_heat_pads(pads = true, plates = true) {
@@ -1188,6 +1250,9 @@ module frame(vessel, light, wall_thickness, lid_flange_height, n_rods, bolt_pts,
         }
       }
     }
+
+    if (render_dosing_pumps || render_dosing_pump_mounts || render_all)
+      frame_dosing_pumps(pumps=render_dosing_pumps || render_all, mounts=render_dosing_pump_mounts || render_all);
 
     // drawn only when a build names a pad, like the magnetic drive
     if (!is_undef(heat_pad) && (render_heat_pads || render_heat_pad_plates || render_all))

@@ -55,16 +55,32 @@ peri_pump_frame_mount(
   detent_radius=detent_radius
 );
 
+// Where the motor's bore sits, from the insert's centre toward its outer face, which is where
+// whatever hangs a pump on this mount puts the pump's axis. The flange's top is z 0.
+function peri_pump_frame_mount_bore_offset(
+  motor_diameter = motor_diameter,
+  screw_diameter = screw_diameter,
+  flange_insert_separation = flange_insert_separation
+) = (motor_diameter + screw_diameter * 1.5 * 2) / 2 + screw_diameter * 1.5 / 2 + flange_insert_separation;
+
+function peri_pump_frame_mount_insert_depth() = insert_depth;
+function peri_pump_frame_mount_flange_height() = flange_height;
+function peri_pump_frame_mount_bore() = motor_diameter;
+// the flange's length across the screws, which two mounts side by side must not overlap
+function peri_pump_frame_mount_span() = screw_separation + screw_diameter * 1.5 * 2;
+
+// The defaults are this file's own parameters, so a caller that uses the file gets the mount as
+// it is printed.
 module peri_pump_frame_mount(
-  flange_height,
-  flange_insert_separation,
-  motor_diameter,
-  screw_diameter,
-  screw_separation,
-  insert_height,
-  insert_width,
-  insert_depth,
-  detent_radius,
+  flange_height = flange_height,
+  flange_insert_separation = flange_insert_separation,
+  motor_diameter = motor_diameter,
+  screw_diameter = screw_diameter,
+  screw_separation = screw_separation,
+  insert_height = insert_height,
+  insert_width = insert_width,
+  insert_depth = insert_depth,
+  detent_radius = detent_radius,
 ) {
 
   _flange_width = screw_diameter * 1.5;
@@ -94,7 +110,7 @@ module peri_pump_frame_mount(
 
     
     // flange the motor bolts to
-    _flange_y = outer_diameter / 2 + _flange_width / 2 + flange_insert_separation;
+    _flange_y = peri_pump_frame_mount_bore_offset(motor_diameter, screw_diameter, flange_insert_separation);
     translate([0, _flange_y, -flange_height / 2]) {
       difference() {
         // the ellipse, bridged straight back to the insert's footprint so the bridge lands on
