@@ -7,15 +7,6 @@ labelled `post-pub`, all linked from #90; ideas nobody has planned are in `docs/
 
 ## model completeness / enhancement
 
-- [ ] **place the bought pumps in the assembly**
-  - the registry half is done: `purchased/peri_pumps.scad` carries the Kamoer NKP-DC-S10B, drawn
-    as its envelope, and `head()` warns when its tube's bore will not grip the riser it goes over
-  - the mount is done too: `custom/peri_pump_frame_mount.scad`'s insert clicks into an empty light
-    pocket in a rib, and the Kamoer bolts to its flange as printed. The lights sit on the lower rib
-    of each stacked pair, so the upper ribs' pockets are the empty ones
-  - what is left is drawing three of them on the frame: all on one side, on upper-rib pockets. A
-    builder puts them wherever their bench and bottles want; the model shows one way
-
 - [ ] **read the gas line on the pump, with a filter at each end**
   - the runs so far were fed from the building's air line; the paper's runs are on the ReSun pump.
     The reading that settles the line: the rotameter with the pump on, the needle valve wide open
@@ -169,8 +160,8 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
 - [ ] **printed bench parts are on no print list, and bench furniture is in no account**
   - `support/bottle_holder.scad` and `support/estop_box.scad` are the printed parts among the
     bench furniture; the cart prints nothing, and the stand's `print_corner` is a printed
-    substitute for a bought NopSCADlib bracket. The condensers, the humidifier cap and the pump
-    mount are printed outside the manifests too, each from its own file. `check-parts` records all of them
+    substitute for a bought NopSCADlib bracket. The condensers and the humidifier cap are printed
+    outside the manifests too, each from its own file. `check-parts` records all of them
   - the questions: does the reactor's print list cover an accessory, and is printing that bracket
     deliberate? The cart's extrusion, brackets and castors are on no purchase list either
 

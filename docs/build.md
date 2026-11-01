@@ -189,8 +189,8 @@ tag, one job per build, and leaves the STLs and the print list as a downloadable
 `just test` covers the entry files' previews, not the manifests.
 
 It is not everything in this repo that gets printed. The **cart**, the **electronics stand**, the
-**bottle holder**, the **e-stop box** and the **peri pump mount** each render from a file of their
-own and are on no manifest, so they appear on no print list. `just check-parts` holds the record of that rather than
+**bottle holder** and the **e-stop box** each render from a file of their own and are on no
+manifest, so they appear on no print list. `just check-parts` holds the record of that rather than
 letting it go unnoticed, and giving them manifests is on [`TODO.md`](../TODO.md).
 
 `bioreactor.scad` reports the printer

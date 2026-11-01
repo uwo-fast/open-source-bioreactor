@@ -30,6 +30,7 @@ not_printed=(
     render_stir_fan             # vitamin - the fan, its screws and the magnets in the carrier
     render_stir_bar             # vitamin - the PTFE bar on the punt
     render_heat_pads            # vitamin - the silicone pads the plates hold on the glass
+    render_dosing_pumps         # vitamin - the bought pumps, hung on their printed mounts
 )
 # Every drive, because each manifest lists only its own drive's parts and a flag has to reach
 # at least one of them; and with a riser, which only a deep jar's magnetic build stands on. Both
@@ -83,6 +84,8 @@ not_exported=(
                                                 # "frame_hub_cap", on the fan the frame chose
     scad/custom/heat_pad_mount.scad             # exported through frame's manifest as
                                                 # "heat_pad_plate", where a build names a pad
+    scad/custom/peri_pump_frame_mount.scad      # exported through frame's manifest as
+                                                # "peri_pump_frame_mount", one per dosing pump
     scad/custom/bearing_blank.scad              # exported through head's manifest as
                                                 # "bearing_blank", sized to the lid's pocket
     scad/custom/draft_tube.scad                 # exported through head's manifest as
@@ -104,8 +107,6 @@ not_exported=(
                                                 # a bought part. See TODO.md
     scad/support/estop_box.scad                 # two printed parts, base and lid, from part=;
                                                 # bench equipment, so no reactor manifest has it
-    scad/custom/peri_pump_frame_mount.scad      # printed and part of the reactor, but waiting on
-                                                # where the bought pumps mount at all
     scad/custom/peri_pump_head.scad             # a stretch goal rather than this build
     scad/custom/gl_port_cap.scad                # the inlet humidifier's cap: a bottle, not the
                                                 # reactor, so no manifest of the reactor's has it
