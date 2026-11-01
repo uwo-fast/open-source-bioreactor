@@ -98,16 +98,6 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
 
 ## tooling / infrastructure / documentation
 
-- [ ] **the DO probe's lean is capped by impellers a non-shaft build does not have**
-  - `head_probe_tilt_ceiling()` reads `head_reach_obstacles()`, which lists both impellers under
-    every drive; `head()` drops them from its own clearance report but not from the ceiling. Latent:
-    every magnetic build reaches the full 4.5 deg today, and the airlift hangs DO straight without
-    asking the ceiling. Safe either way, since the lean only comes out smaller
-  - nothing reachable shows it: allowed 15 deg, `jar_10L` stops at 4.67 deg on its shaft and
-    magnetic builds alike, with the impellers counted or not and even raised to 2.5 D, so
-    something else binds first. Worth fixing when a build makes the impellers bind, with that
-    build as the test
-
 - [ ] **where the tree breaks `docs/architecture.md`**
   - `head()` is one module in three sections - derived, checks and reports, geometry. The checks
     cannot become a module of their own without restating the derived values, since a module
@@ -118,10 +108,6 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
     global. Recorded, not yet worth moving
   - `custom/sampler.scad` includes `purchased/heat_set_inserts.scad`, which a custom part may not
     read, until `head()` places it and passes the inserts in
-
-- [ ] **`dovetail_pts` repeats `trapezium_pts`**: `dovetail_pts(20, 6, 13)` and
-      `trapezium_pts(13, 20, 6)` return the same four points. `dovetail()` keeps its allowance and
-      crown, so only the points would fold into `utils/trapezium.scad`
 
 - [ ] **`check-scad`'s `-D '$fn=0'` pass is not the tessellation test it reads as**
   - a command-line `-D` crosses the `use` boundary on every version where an in-file assignment
