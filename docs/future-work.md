@@ -96,8 +96,9 @@ labelled `post-pub`, all linked from #90. When one of these is picked up, it mov
   a lower and an upper type, so it is one line away: `head_impeller_upper_type = impeller_pbt_45_4`.
   Modelled on `jar_10L` at 320 rpm: 4.76 W, 0.193 N m summed, 0.5 vvm held to 147 rpm below and
   287 rpm above. The case, from when it was the plan:
-  - light usually limits, CO2 supply can (a professor's reply, 2026-10-08): light is circulation,
-    the pitched blade's job; CO2 is dispersion, the Rushton's
+  - asked which limits his microalgae cultures, the professor who recommended the Rushton answered
+    light usually, CO2 supply can, O2 removal is secondary. Light is circulation, the pitched
+    blade's job; CO2 is dispersion, the Rushton's
   - **the gas ceiling binds inside the operating band.** `head()` checks Oldshue's 8x rule at each
     drive speed. The cap goes as N^3: 0.70 vvm at the rated 320 rpm, 0.35 vvm at the 255 rpm
     Chlorella optimum, against the 0.5 vvm design; the crossover is about 287 rpm. A radial
