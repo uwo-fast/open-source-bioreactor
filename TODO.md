@@ -30,11 +30,10 @@ labelled `post-pub`, all linked from #90; ideas nobody has planned are in `docs/
     variable if it is not
 
 - [ ] **finish the wall baffle cage on `jar_10L`**
-  - the cage went in with the loop and the lid, and the impeller turns clear of it, but some bottom
-    bars sat loose and pushed in at their lower end. The hoops' channels are going from 0.15 to
-    0.10 mm a side, with the blades' bars unchanged, and a bottom hoop at 0.10 is printing. Reprint
-    the top hoop to match if it holds, which also replaces any top hoop printed before 3399521 with
-    its arm at 0°; taller detents on the blades are the next lever if it does not
+  - the cage went in with the loop and the lid, and the impeller turns clear of it. At 0.15 mm a
+    side some bottom bars pushed in at their lower end; a bottom hoop reprinted with 0.10 mm
+    channels, the blades unchanged, holds them. Reprint the top hoop at 0.10 to match, which also
+    replaces any top hoop printed before 3399521 with its arm at 0°
   - the loop inside it was run hard and did not turn on its riser
   - still to see: 10 min at 320 rpm with no blade crept inward
   - record in `docs/build.md` the fit and detents that held, and whether a hand reaches the bottom
