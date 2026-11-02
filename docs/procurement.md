@@ -1,5 +1,26 @@
 # Procurement
 
+## Prices
+
+`purchased-parts.csv` is priced so it can be summed: `just cost` totals it by scope and
+currency, and `just cost 1.3960` folds the two currencies together at that many CAD per USD.
+`just check` fails on a row that cannot be summed.
+
+- `scope` — `reactor` is the reference build (the 10 L jar, shaft drive, coil condenser) with its
+  electronics; `sampler` is the turbidity sampler, `bench` the e-stop box, `tooling` the tools.
+- `qty` × `price` is what buying the row costs. `qty` counts purchase units and `unit` says what one
+  is (`pack of 50`, `2 m length`); `need` is how many the build uses, which a pack usually exceeds.
+- `currency` is the vendor's own, never converted in the file.
+- `price_confidence` says where the number came from: `read` off the vendor's listing on
+  `price_date`; `representative`, one listing that meets a spec given by standard rather than part
+  number; `cited` from a publication the row names; `estimate`, with its basis in the row;
+  `listed`, carried from before dates were recorded; `none`, not priced yet.
+
+The Slice boards are priced from their papers, not from their bills of materials: those belong to
+their own repositories.
+
+## Selection
+
 - bearing selection
   - McMaster-Carr 6153K71
   - shaft: 8mm
