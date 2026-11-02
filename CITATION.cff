@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this project, please cite it using the metadata below."
+title: "open-source-bioreactor"
+type: software
+authors:
+  - family-names: "Brooks"
+    given-names: "Cameron"
+url: "https://github.com/uwo-fast/open-source-bioreactor"
+# Only the software licence goes here. A licence list in CFF means "either licence,
+# at your option", which is not what a repository licensed separately by component
+# grants; LICENSING.md states the data licence.
+license: GPL-3.0-or-later
