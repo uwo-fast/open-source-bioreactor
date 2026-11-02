@@ -40,23 +40,24 @@ build="${3:-}"
 # One picture. A job is "name|build|view|scope|flags|out", out without its extension.
 #
 # A view is a name below, or a rotation as the GUI's Edit > Copy Viewport Rotation gives it,
-# "[55.00, 0.00, 25.00]", for an angle found by eye. The square views are orthographic, as a
-# drawing is; the iso views and a copied rotation are in perspective, as the GUI shows them.
+# "[55.00, 0.00, 25.00]", for an angle found by eye. Every view is orthographic, as a drawing is.
+# In perspective the eye can sit inside a section's cutter, and the preview then draws the model
+# uncut; this cut's cutter has not done that from any view here, but one that reaches further would.
 # The scope says which half a part belongs to: "assembly" draws through bioreactor.scad as it
 # stands, "head" and "frame" isolate that half the way export-parts does, part at the origin.
 render_one() {
-    local name build view scope flags out cam proj half box bg
+    local name build view scope flags out cam half box bg
     IFS='|' read -r name build view scope flags out <<< "$1"
     case "$view" in
-        iso)      cam=60,0,30;  proj=p ;;
-        iso_back) cam=60,0,210; proj=p ;;
-        front)    cam=90,0,0;   proj=o ;;
-        back)     cam=90,0,180; proj=o ;;
-        right)    cam=90,0,90;  proj=o ;;
-        left)     cam=90,0,270; proj=o ;;
-        top)      cam=0,0,0;    proj=o ;;
-        bottom)   cam=180,0,0;  proj=o ;;
-        *,*,*)    cam=$(tr -d '[] ' <<< "$view"); proj=p ;;
+        iso)      cam=60,0,30 ;;
+        iso_back) cam=60,0,210 ;;
+        front)    cam=90,0,0 ;;
+        back)     cam=90,0,180 ;;
+        right)    cam=90,0,90 ;;
+        left)     cam=90,0,270 ;;
+        top)      cam=0,0,0 ;;
+        bottom)   cam=180,0,0 ;;
+        *,*,*)    cam=$(tr -d '[] ' <<< "$view") ;;
         *) echo "FAIL  $name  no view is named $view"; return ;;
     esac
     case "$scope" in
@@ -69,7 +70,7 @@ render_one() {
     # shellcheck disable=SC2086
     "$OPENSCAD" -p scad/bioreactor.json -P "$build" --imgsize="$RENDER_SIZE" \
         --colorscheme="$RENDER_SCHEME" --viewall --autocenter \
-        --camera="0,0,0,$cam,0" --projection="$proj" \
+        --camera="0,0,0,$cam,0" --projection=o \
         -D cross_section_active=false $half $flags \
         -o "$out.png" scad/bioreactor.scad 2>"$out.err" >/dev/null
     # A failure keeps the log and not the picture, which could pass for a real one
