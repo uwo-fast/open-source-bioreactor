@@ -183,6 +183,12 @@ what is there is what the model prints now.
 It renders the parts in parallel, every core at once, so the whole list takes about as long as the
 lid alone - a minute and a half here, a few on a small runner.
 
+**Pictures** come from the same model. `just render-parts jar_10L_220x305` draws every part on
+that print list on its own, to `output/figures/jar_10L_220x305/parts/`. `just render` draws the
+views listed in `scad/views.tsv`: the assembly whole and cut open, the head and the frame apart,
+and the components. `just render 'head_*'` draws only the rows it matches. A new figure is a row
+in that file, and its header says what a row can name.
+
 **Without OpenSCAD:** the Export workflow on GitHub runs the same export on demand and on every
 tag, one job per build, and leaves the STLs and the print list as a downloadable artifact
 (`stl-<build>`) on the run. It is also the only place the parts that print are CGAL-checked in CI —

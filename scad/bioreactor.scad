@@ -49,6 +49,13 @@ render_head = false;
 render_frame = false;
 // Overrides the three above, which is the whole reactor as a picture
 render_all = true;
+// Draw the jar; off hides it whatever the flags above say. These are how a picture drops a half:
+// render_all is also head.scad's and frame.scad's own flag, so turning it off empties both.
+show_vessel = true;
+// Draw the head; off hides it whatever the flags above say
+show_head = true;
+// Draw the frame; off hides it whatever the flags above say
+show_frame = true;
 // Export a part where head.scad would have put it, not at its assembled height (see `just export-parts`)
 export_at_origin = false;
 
@@ -361,11 +368,11 @@ if (len(_printers_fitting) == 0)
 _section_active = cross_section_active && $preview;
 _section_size = vessel_height(reactor_vessel) * 2; // comfortably past anything the assembly reaches
 
-if (render_vessel || render_all) {
+if ((render_vessel || render_all) && show_vessel) {
   vessel(reactor_vessel, angle=(_section_active ? cross_section_keep * 360 : 360));
 }
 
-if (render_frame || render_all) {
+if ((render_frame || render_all) && show_frame) {
   section(keep=cross_section_keep, size=_section_size, active=_section_active)
   frame(
     vessel=reactor_vessel,
@@ -383,7 +390,7 @@ if (render_frame || render_all) {
   );
 }
 
-if (render_head || render_all) {
+if ((render_head || render_all) && show_head) {
   section(keep=cross_section_keep, size=_section_size, active=_section_active)
   translate(export_at_origin ? [0, 0, 0] : [0, 0, vessel_height(reactor_vessel) + lid_flange_height])
     head(
