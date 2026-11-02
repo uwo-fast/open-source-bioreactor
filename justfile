@@ -47,7 +47,7 @@ setup:
     @scripts/install-libraries.sh
 
 # Everything CI runs.
-check: check-openscad fmt-check lint check-recipes check-echo check-scad check-designations check-json check-builds check-bom check-parts check-customizer
+check: check-openscad fmt-check lint check-recipes check-echo check-scad check-designations check-json check-builds check-bom check-prices check-parts check-customizer
 
 # Prettier owns markdown, JSON and YAML; ruff owns the Python. Nothing formats SCAD: the registries
 # are aligned by hand. Versions are pinned so a style bump is not a surprise diff.
@@ -186,6 +186,17 @@ check-baffle-cage build="":
 # Fail when the purchase list misses a part the model prescribes.
 check-bom:
     @scripts/check-bom.sh
+
+# Fail when a purchase-list row cannot be summed: no scope, a qty that is not a count, a price with no currency.
+check-prices:
+    @/usr/bin/python3 scripts/bom-cost.py --check
+
+# The list is one file for every build; scope splits the reference reactor from the sampler, the
+# bench and the tools. Totals stay per currency unless you pass today's rate.
+#
+# Total the purchase list by scope, e.g. `just cost 1.3960` for one figure at that CAD per USD rate.
+cost rate="":
+    @/usr/bin/python3 scripts/bom-cost.py {{ if rate == "" { "" } else { "--cad-per-usd " + rate } }}
 
 # The .json beside each entry file is authored, one set per registered vessel, holding only what
 # that build changes from the defaults. The GUI reads <file>.json automatically and
