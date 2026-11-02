@@ -65,7 +65,11 @@ module dummy() {
 function baffle_cage_wall_gap(bore_radius) = 2 * bore_radius / 72; // T/72, the industry standard
 function baffle_cage_width(bore_radius) = 2 * bore_radius / 12; // T/12, the standard turbine's
 function baffle_cage_thickness() = 4;
-function baffle_cage_fit() = 0.15; // sliding clearance in a channel, each side
+// Sliding clearance in a channel, each side; the hoops alone carry it. 0.15 left the first cage's
+// bottom bars loose enough to push in; a bottom hoop reprinted at 0.10 held them.
+function baffle_cage_fit() = 0.10;
+// the clearance the blades' bars are drawn to, kept apart so a fit change reprints only the hoops
+function baffle_cage_bar_fit() = 0.15;
 // what each hoop's outer edge keeps off the mouth on the way down
 function baffle_cage_mouth_clearance() = 1.1;
 function baffle_cage_hoop_width() = 6;
@@ -119,7 +123,7 @@ function baffle_cage_slid_pad(bore_radius, mouth_radius) =
 function baffle_cage_travel_min() = baffle_cage_hoop_width() + baffle_cage_hump_length() + 2 * baffle_cage_hump_play();
 function baffle_cage_bar_tip(mouth_radius) = baffle_cage_hoop_inner(mouth_radius) - baffle_cage_tip_overlap();
 // the bar's top, in the top hoop's frame: z 0 is its underside, where the channel opens
-function baffle_cage_bar_top() = baffle_cage_channel_depth() - baffle_cage_fit();
+function baffle_cage_bar_top() = baffle_cage_channel_depth() - baffle_cage_bar_fit();
 function baffle_cage_hump_length() = 2 * baffle_cage_hump_ramp() + baffle_cage_hump_flat();
 // the arm sits above the bar and its humps, which slide in under it
 function baffle_cage_arm_z() = baffle_cage_bar_top() + baffle_cage_hump_height() + baffle_cage_fit();
