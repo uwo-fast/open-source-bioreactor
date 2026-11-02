@@ -31,7 +31,11 @@ openscad_canary
 tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
 # shellcheck source=scripts/export-lib.sh
 source "$(dirname "$0")/export-lib.sh"
-export OPENSCAD RENDER_SIZE RENDER_SCHEME
+# The crop and the blank check need ImageMagick; without it the pictures are written as rendered
+if command -v magick >/dev/null; then MAGICK=1; else
+    MAGICK=0; echo "skip  crop and blank check (ImageMagick not installed)"
+fi
+export OPENSCAD RENDER_SIZE RENDER_SCHEME MAGICK
 
 mode="${1:-views}"
 filter="${2:-*}"
@@ -83,15 +87,17 @@ render_one() {
         echo "FAIL  $name  wrote no picture; see $out.err"
         return
     fi
-    # The crop box of a frame holding only background is 0 wide
-    box=$(magick "$out.png" -fuzz 2% -format '%@' info: 2>/dev/null)
-    if [[ "$box" == 0x* ]]; then
-        echo "FAIL  $name  drew nothing: the flags hide everything ($flags)"
-        rm -f "$out.png"
-        return
+    if [ "$MAGICK" = 1 ]; then
+        # The crop box of a frame holding only background is 0 wide
+        box=$(magick "$out.png" -fuzz 2% -format '%@' info: 2>/dev/null)
+        if [[ "$box" == 0x* ]]; then
+            echo "FAIL  $name  drew nothing: the flags hide everything ($flags)"
+            rm -f "$out.png"
+            return
+        fi
+        bg=$(magick "$out.png" -format '%[pixel:p{0,0}]' info:)
+        magick "$out.png" -fuzz 2% -trim +repage -bordercolor "$bg" -border 40 "$out.png"
     fi
-    bg=$(magick "$out.png" -format '%[pixel:p{0,0}]' info:)
-    magick "$out.png" -fuzz 2% -trim +repage -bordercolor "$bg" -border 40 "$out.png"
     rm -f "$out.err"
     echo "ok    $name  $out.png"
 }
