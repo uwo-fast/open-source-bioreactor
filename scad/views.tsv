@@ -1,0 +1,40 @@
+# The pictures `just render` draws: name, build, view, scope, flags, tab-separated.
+#
+# view   iso, iso_back, front, back, right, left, top, bottom, or a rotation copied from the
+#        GUI (Edit > Copy Viewport Rotation), for an angle found by eye.
+# scope  assembly draws bioreactor.scad as it stands; head or frame draws one part of that half
+#        on its own at the origin, as export-parts isolates it.
+# flags  -D assignments, or any other OpenSCAD option. The cut is off unless a row turns it on:
+#        -D cross_section_active=true, and cross_section_keep=0.75 for a quarter removed.
+#        show_vessel, show_head and show_frame hide one part of the assembly; head.scad's
+#        render_* flags pick a part within the head scope.
+#
+# Exploded views, labels and callouts are drawn by hand over these.
+
+# the whole reactor
+assembly_iso	jar_10L_220x305	iso	assembly
+assembly_iso_back	jar_10L_220x305	iso_back	assembly
+assembly_front	jar_10L_220x305	front	assembly
+assembly_top	jar_10L_220x305	top	assembly
+assembly_section	jar_10L_220x305	front	assembly	-D cross_section_active=true
+assembly_section_iso	jar_10L_220x305	iso	assembly	-D cross_section_active=true
+assembly_quarter_iso	jar_10L_220x305	iso	assembly	-D cross_section_active=true -D cross_section_keep=0.75
+
+# the head: the lid and everything hanging from it
+head_iso	jar_10L_220x305	iso	assembly	-D show_vessel=false -D show_frame=false
+head_front	jar_10L_220x305	front	assembly	-D show_vessel=false -D show_frame=false
+head_top	jar_10L_220x305	top	assembly	-D show_vessel=false -D show_frame=false
+head_in_jar_section	jar_10L_220x305	front	assembly	-D show_frame=false -D cross_section_active=true
+
+# the frame
+frame_iso	jar_10L_220x305	iso	assembly	-D show_vessel=false -D show_head=false
+frame_with_jar_iso	jar_10L_220x305	iso	assembly	-D show_head=false
+
+# components, each on its own
+drive	jar_10L_220x305	iso	head	-D render_motor=true -D render_motor_mount=true -D render_shaft_coupler=true -D render_bearing=true
+impellers	jar_10L_220x305	iso	head	-D render_impeller=true
+sparger	jar_10L_220x305	iso	head	-D render_sparger=true -D render_sparge_tubes=true
+baffle_cage	jar_10L_220x305	iso	head	-D render_baffle_cage=true
+condenser	jar_10L_220x305	iso	head	-D render_condenser=true
+sampler	jar_10L_220x305	iso	head	-D render_sampler=true
+lid_top	jar_10L_220x305	top	head	-D render_lid=true

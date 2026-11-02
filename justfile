@@ -236,6 +236,17 @@ export-part part build="" out="output":
 export-accessories out="output":
     @scripts/export-accessories.sh "{{out}}"
 
+# Pictures for the paper and the docs, from the list in scad/views.tsv. Previews, so seconds each;
+# `just render-parts` covers every printed part without a row.
+#
+# Render the pictures in scad/views.tsv to output/figures: all, or `just render 'head_*'`.
+render filter="*" build="":
+    @scripts/render-views.sh views "{{filter}}" "{{build}}"
+
+# Render every printed part of a build on its own, e.g. `just render-parts jar_10L_magnetic`.
+render-parts build="jar_10L_220x305" filter="*":
+    @scripts/render-views.sh parts "{{filter}}" "{{build}}"
+
 # check-scad exports the CSG tree, so CGAL never runs and a degenerate solid is invisible to it.
 # This builds the entry files into solids. Not part of `check`: minutes, not seconds. What to run
 # before printing is `just export-parts`, which covers the reactor's own parts.
