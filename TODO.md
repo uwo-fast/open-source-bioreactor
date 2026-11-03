@@ -79,8 +79,6 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
 
 ## nice to haves
 
-- [ ] **register the e-stop on `purchased-parts.csv` by model**: its row carries no part number or
-      source, only the measured body the box was printed for
 - [ ] **an `explode` parameter, for exploded views in `just render`**: the model has no offsets, so
       today an exploded view is drawn by hand. A distance each part moves along its own axis,
       threaded through `head()` and `frame()`; start with the subassembly a figure needs, not all
