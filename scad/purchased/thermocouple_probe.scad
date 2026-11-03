@@ -70,10 +70,11 @@ module thermocouple_probe(
           cylinder(d=body_d, h=body_h);
         }
 
-      // Sensing Tip
+      // Sensing Tip: tip_h is the whole sheath past the threads, its rounded end included, as the
+      // catalogue's length is and as head_thermocouple_depth() reads it
       translate([0, 0, neck_h + body_h + flats_h]) color(colors[4]) union() {
-            cylinder(h=tip_h, d=tip_d, $fn=64);
-            translate([0, 0, tip_h]) sphere(d=tip_d, $fn=64);
+            cylinder(h=tip_h - tip_d / 2, d=tip_d, $fn=64);
+            translate([0, 0, tip_h - tip_d / 2]) sphere(d=tip_d, $fn=64);
           }
     }
 }
