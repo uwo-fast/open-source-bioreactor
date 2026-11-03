@@ -4517,6 +4517,21 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
                 rotate([180, 0, 0])
                   atlas_probe(_p);
 
+  // The thermocouple, screwed into the mount on its port. thermocouple_probe() draws tip-up from
+  // the neck, so it is flipped and lifted until its tip lands at head_thermocouple_depth(), the
+  // depth the floor and clearance checks hold it to.
+  if (render_probes || render_all)
+    for (i = [for (j = [0:_n - 1]) if (head_port_type(_ports[j]) == "thermocouple") j])
+      let (
+        _p = head_port_probe(_ports[i]),
+        _tip_end = thermocouple_probe_neck_height(_p) + thermocouple_probe_flats_height(_p)
+        + thermocouple_probe_body_height(_p) + thermocouple_probe_tip_height(_p)
+      )
+        head_port_at(i, vessel_opening_diameter)
+          translate([0, 0, _tip_end - head_thermocouple_depth(_p, head_port_interface(_ports[i]))])
+            rotate([180, 0, 0])
+              thermocouple_probe(_p);
+
   // The stir bar, lying on the punt plateau under whatever the lid hangs.
   if (_magnetic && (render_stir_bar || render_all))
     translate([0, 0, -head_punt_top_depth(lid_flange_height, vessel_internal_height) + stir_bar_diameter(_stir_bar) / 2])
