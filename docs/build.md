@@ -576,10 +576,14 @@ top. A blade is 238.7 mm long and needs that much bed in one direction.
 **The lid under the cage.** The hoops are Cs, and the probes hang in the gap. The pH probe goes in
 the 30° port instead of the 120°, and 120, 150 and 270° take blanks (`baffle cage ports:`).
 
-**What the bench decides.** The slide fit is 0.15 mm a side; if a bar binds, sand its flange. A
-detent is a 0.5 mm hump against 0.36 mm of slack in its channel; if it will not go through, sand
-it, and if it does not click, it needs to be taller. Whether a detent holds a blade out under flow is
-not modelled.
+**What the bench found.** The hoops' channels are cut 0.10 mm a side and the blades' bars drawn at
+0.15 (`baffle_cage_fit()` and `baffle_cage_bar_fit()`), so a change of fit reprints only the hoops.
+With the hoops at 0.15 too, some bottom bars sat loose and pushed in at their lower end. At 0.10
+both hoops hold the blades, and the cage ran 10 min at 320 rpm with no blade crept inward. A hand
+reaches the bottom bars, 240 mm down, for step 4. If a bar binds, sand its flange; if a detent will
+not go through, sand it, and if it does not click, it needs to be taller. The model reports the
+blades' load at 420 rpm (`baffle cage load:`) but not whether a detent holds against it; the
+bench's run is 320 rpm.
 
 ## The airlift's draft tube
 
