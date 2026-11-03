@@ -1,19 +1,23 @@
 // parameters for physical realization of peristaltic dosing pumps
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
-// A bought unit - head and motor in one body - inside the catalogue's 67 x 55 x 41 envelope. The 67
-// runs along the motor's axis: the motor below the faceplate, the head the rest. Flow, voltage and
-// power are on the purchase list; nothing here doses.
+// A bought unit - head and motor in one body. Flow, voltage and power are on the purchase list;
+// nothing here doses.
 //
-// head: what peri_pump() draws the head from, [cover_d, plate_t, [hole_spacing, hole_d],
-// [barb_pitch, barb_od, barb_reach]]. cover_d is a caliper reading, 27.99. Every other figure is
-// estimated from photos scaled off it, until calipers replace it; the envelope stays the
-// catalogue's, which the frame's spacing check reads, and the drawing sits inside it.
+// [l, w, h]: l is the catalogue's 67 along the motor's axis, terminals included; w x h is the
+// faceplate, by calipers, 54.6 x 40.5, which the catalogue rounds to 55 x 41. The frame's spacing
+// check reads w.
+//
+// head: [cover_d, depth, plate_t, [hole_spacing, hole_d], [barb_pitch, barb_od, barb_reach]].
+// By calipers: depth, the faceplate's face to the cover's top, 20; plate_t 3; hole_spacing 48,
+// which the printed frame mount's screws fit; barb_pitch 18, centre to centre. Estimated from
+// photos, until calipers replace them: cover_d, hole_d, barb_od and barb_reach, the barb's tip
+// from the motor's axis.
 
 include <dc_motors.scad>
 
-//                        ["name"                part_no          [l,  w,  h ], [tube_id, tube_od], motor,        head                                 ]
-peri_pump_kamoer_nkp   = ["Kamoer NKP-DC-S10B", "NKP-DC-S10B",   [67, 55, 41], [3,       5      ], motor_12v_5w, [28, 2.5, [40, 3], [15, 3.5, 23]]];
+//                        ["name"                part_no          [l,  w,    h   ], [tube_id, tube_od], motor,        head                                     ]
+peri_pump_kamoer_nkp   = ["Kamoer NKP-DC-S10B", "NKP-DC-S10B",   [67, 54.6, 40.5], [3,       5      ], motor_12v_5w, [34, 20, 3, [48, 3.5], [18, 3.5, 25]]];
 
 peri_pumps = [peri_pump_kamoer_nkp];
 
