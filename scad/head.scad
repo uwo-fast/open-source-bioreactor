@@ -141,6 +141,8 @@ gasket_cutter_part_to_render = "all"; // [all, outer, inner]
 render_sparger = false;
 // The bought 316 riser and its supports; their own flag so a sparger export is a print file
 render_sparge_tubes = false;
+// The open dosing tubes beside a loop or an arm, which are not the sparger's; a ring's are its supports
+render_dose_tubes = false;
 // The exhaust condenser on air_out, assembled in place
 render_condenser = false;
 // The turbidity sampler on its port, assembled in place
@@ -2430,6 +2432,23 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height)
   + vessel_punt_height + _liquid_height;
 
+  // Only the ring rests on the tubes in the other ports, so only the ring's are cut to its sockets
+  // and capped. Beside a loop or an arm a dosing tube holds nothing up, and ends open where the
+  // agitator draws the dose in: at the upper impeller's centre, where the impellers are drawn. A
+  // magnetic build has no impeller there, and takes the same height, as its arm takes its own from
+  // the impellers a stirred build turns. air_out's tube, where it carries one, vents the headspace
+  // and keeps the support's length and drilled slot.
+  _dose_bottom_z = _floor_z + _impeller_clearance + impeller_spacing;
+  _dose_length = _riser_top_z - _dose_bottom_z;
+  // each tube but the feed: [port, angle, length, open at its bottom end]
+  _sparge_others = [
+    for (i = _sparge_support_ports)
+      let (_dose = !_ring && head_port_function(_ports[i]) != "air_out")
+        [i, i * 360 / _n, _dose ? _dose_length : _sparge_riser_length, _dose]
+  ];
+  _dose_open_n = len([for (t = _sparge_others) if (t[3]) 1]);
+  _vent_tube = !_ring && _dose_open_n < len(_sparge_others);
+
   // The port's ring is chosen by its ID, and its ID is the tube: two registered rows compared.
   _riser_seal_stretch = oring_stretch(
     oring_inner_diameter(tube_port_riser_oring), steel_tube_od(sparge_riser_tube)
@@ -2453,7 +2472,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _dosing_tube_id = peri_pump_tube_inner_diameter(head_dosing_pump);
   _riser_od = steel_tube_od(sparge_riser_tube);
 
-  // The sampler's dip tube is its port's riser, ending where every other riser does; its top end
+  // The sampler's dip tube is its port's riser, ending where the ring's supports end; its top end
   // stops inside the sampler's base, under the clear tube, and it is drilled where it draws.
   _sampler_at = [for (i = [0:_n - 1]) if (head_port_type(_ports[i]) == "sampler") i];
   _sampler_i = len(_sampler_at) == 0 ? undef : _sampler_at[0];
@@ -2462,7 +2481,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _sampler_drill = !_sampler ? undef : sampler_riser_top_z() - (_liquid_surface_z - sampler_sample_under_surface());
 
   // Bought as stock and cut, so the purchase list needs the stock length and the cut list.
-  _riser_total = _sparge_feed_length + len(_sparge_support_angles) * _sparge_riser_length + _sampler_riser_cut;
+  _riser_total = _sparge_feed_length + _dose_open_n * _dose_length
+  + (len(_sparge_others) - _dose_open_n) * _sparge_riser_length + _sampler_riser_cut;
   _riser_stock = steel_tube_stock_for(_riser_total, 1);
 
   // ----- gas supply -----
@@ -3851,9 +3871,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       );
     }
 
-  if (len(_sparge_support_angles) > 0)
+  if (_ring ? len(_sparge_support_angles) > 0 : _vent_tube)
     echo(str(
-      "sparge support drilling: a support tube vents through a hole drilled between ",
+      "sparge support drilling: ", _ring ? "a support tube" : "air_out's tube", " vents through a hole drilled between ",
       _riser_top_z + lid_thickness, " and ", _riser_top_z - _liquid_surface_z,
       " mm from its top end (past the lid's inner face, short of the culture); nearer the first is better"
     ));
@@ -3875,9 +3895,19 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   echo(str(
     "sparge riser: ", steel_tube_od(sparge_riser_tube), " x ", steel_tube_id(sparge_riser_tube), " mm tube; the feed is ",
-    _sparge_feed_length, " mm and each ", _ring ? "support" : _coil ? "dosing tube" : "dosing or vent tube", " ", _sparge_riser_length,
-    " mm (the feed socket sits ", abs(_sparge_socket_top_feed - _sparge_socket_top), " mm ",
-    _sparge_socket_top_feed > _sparge_socket_top ? "higher" : "lower", "); ", sparge_riser_proud, " mm proud of its port, ",
+    _sparge_feed_length,
+    _ring
+      ? str(
+        " mm and each support ", _sparge_riser_length, " mm (the feed socket sits ",
+        abs(_sparge_socket_top_feed - _sparge_socket_top), " mm ",
+        _sparge_socket_top_feed > _sparge_socket_top ? "higher" : "lower", ")"
+      )
+      : str(
+        " mm, each dosing tube ", _dose_length, " mm, open at the upper impeller's centre ",
+        _liquid_surface_z - _dose_bottom_z, " mm under the surface",
+        _vent_tube ? str(", and air_out's vent ", _sparge_riser_length, " mm") : ""
+      ),
+    "; ", sparge_riser_proud, " mm proud of its port, ",
     _sparge_feed_depth, " mm inside the feed socket, ",
     head_port_bore_radius(head_ports_for(vessel_opening_diameter)[head_sparge_feed_port(vessel_opening_diameter)]) * 2 - steel_tube_od(sparge_riser_tube),
     " mm of slack through the port's bore"
@@ -3918,7 +3948,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     "sparge tube stock: ", steel_tube_part_number(sparge_riser_tube), ", ",
     steel_tube_material(sparge_riser_tube), " ", steel_tube_construction(sparge_riser_tube),
     ", ", steel_tube_temper(sparge_riser_tube), " temper; cut 1 x ", _sparge_feed_length,
-    " mm and ", len(_sparge_support_angles), " x ", _sparge_riser_length, " mm",
+    " mm",
+    _dose_open_n > 0 ? str(" and ", _dose_open_n, " x ", _dose_length, " mm") : "",
+    len(_sparge_others) > _dose_open_n ? str(" and ", len(_sparge_others) - _dose_open_n, " x ", _sparge_riser_length, " mm") : "",
     _sampler ? str(" and 1 x ", _sampler_riser_cut, " mm for the sampler") : "", " = ", _riser_total, " mm",
     is_undef(_riser_stock)
       ? ", longer than any stock length"
@@ -4284,7 +4316,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   // ===== geometry =====
 
-  // One tube down each of the sparger's ports, whether it carries gas or only load.
+  // One tube down a port: the sparger's, carrying gas or only load, or an open dosing tube. top is
+  // its socket's top and depth how far it goes in, so an open tube is placed by its bottom end.
   module _sparge_tube(top, length, depth = sparge_socket_depth) {
     translate([port_circle_radius, 0, top - depth])
       difference() {
@@ -4294,14 +4327,17 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       }
   }
 
-  if (render_sparge_tubes || render_all)
-    color("grey") {
+  color("grey") {
+    if (render_sparge_tubes || render_all)
       rotate([0, 0, _sparge_feed_angle])
         _sparge_tube(_sparge_socket_top_feed, _sparge_feed_length, _sparge_feed_depth);
-      for (a = _sparge_support_angles)
-        rotate([0, 0, a])
-          _sparge_tube(_sparge_socket_top, _sparge_riser_length);
-    }
+    for (t = _sparge_others)
+      rotate([0, 0, t[1]])
+        if (t[3] && (render_dose_tubes || render_all))
+          _sparge_tube(_dose_bottom_z, t[2], 0);
+        else if (!t[3] && (render_sparge_tubes || render_all))
+          _sparge_tube(_sparge_socket_top, t[2]);
+  }
 
   if ((render_sparger || render_all) && !_ring && !_loop)
     color(prints2_color)

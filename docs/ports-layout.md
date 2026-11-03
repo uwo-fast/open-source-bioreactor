@@ -99,20 +99,28 @@ the twelve-port lid, two on the six-port jars — and the model derives that fro
 than naming functions, so any lid answers it. It was a named list once, and naming the acid and base
 lines in it broke the six-port jars, which carried neither.
 
-The stock is what makes it free: a riser is 188.174 mm on `jar_10L` and this tube is sold by the
-metre. The six the full set wants come to 1192.3 mm, so they take a 2000 mm length.
+The stock is what makes it free: a support is cut to its socket, 253.01 mm on `jar_1gal_155x251`,
+and this tube is sold by the metre. That jar's feed and two supports come to 752.9 mm, so they take a
+1000 mm length.
+
+**Beside a loop or an arm, nothing rests on them.** The dosing ports carry the same tube, cut to dose
+rather than to hold: open at the upper impeller's centre, where the impeller draws the dose straight
+in, with no capped end below the hole to keep an old dose. On `jar_10L` each is 187.9 mm and ends
+99.5 mm under the surface; with the feed and the sampler's tube the cut list is 1046.2 mm, from a
+2000 mm length. A magnetic build has no impeller there and takes the same height, as its arm already
+takes its own from the impellers a stirred build turns.
 
 A support riser is the same tube in the same material as the feed, but its socket is **blind**. It
 carries load and no gas, which is what lets it double as whatever its port is for: the tube is capped
 at the bottom and does its job through a hole drilled higher up. The model is the only thing that
 knows where the culture line is, so it dimensions the drill in an echo rather than leaving a hand
-operation undimensioned — **37.9 to 88.3 mm from the tube's TOP end** on `jar_10L`, measured from
+operation undimensioned — **37.9 to 81.3 mm from the tube's TOP end** on `jar_1gal_155x251`, measured from
 that end because it is the one you can reach with the tube in your hand.
 
 **Which end of that window depends on the port.** `air_out` is the exhaust and wants the low number,
 past the lid's inner face and short of the liquid: the headspace is there for foam, and foam finds
-the lowest hole. The dosing lines discharge INTO the culture, so they are drilled past the
-far number instead, and low is better — the dose lands where the impeller carries it away, and the
+the lowest hole. On a ring build the dosing lines discharge INTO the culture through that hole, so
+they are drilled past the far number instead, and low is better — the dose lands where the impeller carries it away, and the
 tube below the hole is a dead leg that keeps whatever it is given.
 
 Only `air_out`'s hole has a size to meet, being the whole exhaust path: a slot under the tube's own

@@ -21,6 +21,7 @@ not_printed=(
     render_probes               # vitamin - the Atlas bodies in their collets, and the thermocouple
     render_seals                # purchased EPDM: the rim gasket, the plug ring, the port rings
     render_sparge_tubes         # vitamin - the 316 SS riser and support, bought as stock and cut
+    render_dose_tubes           # vitamin - the same stock, cut as open dosing tubes
     render_tube_pinlock         # a whole CLASS of port at once; the manifest names each one
     render_probe_pinlock        # through port_to_render, which is what makes them separate
     render_thermocouple_pinlock # parts rather than one STL of five

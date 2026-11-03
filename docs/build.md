@@ -224,11 +224,11 @@ is set by the rod bosses, so that bought nothing and was undone.
 
 ## What you cut
 
-| Stock                              | Cut                          | Yield                                           |
-| ---------------------------------- | ---------------------------- | ----------------------------------------------- |
-| M8 threaded rod, DIN 975 A2        | **4 × 322 mm**               | buy 1500 mm or more                             |
-| 316 SS tube 4 × 0.5 mm, `50415K21` | **1 × 251.4 + 5 × 188.2 mm** | 1192.3 mm from a 2000 mm length, 807.7 mm spare |
-| EPDM sheet 1/16 in 60A, `8525T65`  | **142.2 × 158.2 mm** per lid | 1 per 304.8 mm sheet                            |
+| Stock                              | Cut                                      | Yield                                           |
+| ---------------------------------- | ---------------------------------------- | ----------------------------------------------- |
+| M8 threaded rod, DIN 975 A2        | **4 × 322 mm**                           | buy 1500 mm or more                             |
+| 316 SS tube 4 × 0.5 mm, `50415K21` | **1 × 265.3 + 3 × 187.9 + 1 × 217.0 mm** | 1046.2 mm from a 2000 mm length, 953.8 mm spare |
+| EPDM sheet 1/16 in 60A, `8525T65`  | **142.2 × 158.2 mm** per lid             | 1 per 304.8 mm sheet                            |
 
 **The rod length follows the jar, not the design.** 322 mm is `jar_10L`; it is 214 mm on
 `jar_1gal_180` and 487 on `jar_6p5gal`. It is derived as vessel 305 + flange 8 + nut 6.5 + 2.5 mm
@@ -657,22 +657,26 @@ jars it is three.
 
 ### Drilling the support tubes
 
-Every tube port but `air_in` takes a support tube: capped where it meets the ring, and doing its job
+On a ring build every tube port but `air_in` takes a support tube: capped where it meets the ring, and doing its job
 through a hole you drill. Four of them on the twelve-port lid, two on the six-port jars. The model is
 the only thing that can dimension that hole, and it does:
 
 ```
 sparge support drilling: a support tube vents through a hole drilled between
-37.9375 and 88.4342 mm from its TOP end - past the lid's inner face, short of
-the culture. Nearer the first number is better; the headspace is there for foam
-and foam finds the lowest hole. A tube meant to discharge INTO the culture
-instead is drilled past the second.
+37.9375 and 81.3477 mm from its top end (past the lid's inner face, short of the
+culture); nearer the first is better
 ```
+
+That is `jar_1gal_155x251`. A tube meant to discharge INTO the culture is drilled past the second
+number instead.
 
 **Which end of that window depends on the port.** `air_out`, where it carries a tube, is the
 exhaust and wants the first number — a vent belongs in the headspace. The dosing lines discharge into the culture, so
 they are drilled past the second, and low is better: the dose lands where the impeller will carry it
 away, and the tube below the hole is a dead leg that keeps whatever it is given.
+
+**Beside a loop or an arm there is nothing to drill.** No ring rests on the dosing tubes, so they are
+cut open-ended at the upper impeller's centre, and `sparge tube stock:` gives the length to cut.
 
 **Only `air_out`'s hole has a size to meet**, on the ring's builds, where no condenser takes that
 port. The model prices it rather than saying it is the exhaust path and leaving it there. On
