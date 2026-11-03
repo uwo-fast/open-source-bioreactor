@@ -91,9 +91,6 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
 
 - [ ] **register the e-stop on `purchased-parts.csv` by model**: its row carries no part number or
       source, only the measured body the box was printed for
-- [ ] **refresh the needle valve's and barbs' prices and links**: the August order had MNV-3KP at
-      16.18 against the CSV's 15.11 and 11792-4-BLK at 1.54 against 0.60, both from direct product
-      pages where the CSV carries a category page and a datasheet
 - [ ] **an `explode` parameter, for exploded views in `just render`**: the model has no offsets, so
       today an exploded view is drawn by hand. A distance each part moves along its own axis,
       threaded through `head()` and `frame()`; start with the subassembly a figure needs, not all
