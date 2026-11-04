@@ -86,13 +86,15 @@ dose/other actuator + rlht static signals 204–755 each.
 ## Run timeline & caveats (read before analysis)
 
 The values, gaps and impeller commands below are read from `raw/signals_raw_long.csv`, where
-the impeller is `dcmt0`'s `motor2_target`. What was done - the failure, the restart, the doses,
-the outage and the clock - is from the run's incident notes, which are not published. Times are
-UTC, with EDT (UTC−4) beside them.
+the Slice board drives the impeller as `dcmt0`'s `motor2_target`. What was done - the external
+driver, the failure, the restart, the doses, the power losses and the clock - is from the run's
+operators and incident notes, which are not published. Times are UTC, with EDT (UTC−4) beside
+them.
 
-- **The impeller was commanded off for the first 12.8 h.** The record starts 07-23 02:10Z with
-  `motor2_target` at 0; it went to 60, 85 and then 100 at 14:59–15:00Z (10:59 EDT). A 36 min
-  telemetry gap, 13:58–14:34Z, comes just before.
+- **An external driver turned the impeller for the first 12.8 h**, while a fault on the Slice
+  motor driver was fixed, so `motor2_target` reads 0 from the start of the record, 07-23 02:10Z,
+  though the culture was stirred. The Slice board took over at 14:59–15:00Z (10:59 EDT), stepping
+  60, 85 and then 100. A 36 min telemetry gap, 13:58–14:34Z, comes just before.
 - **Impeller failed 2026-07-23 23:46Z (19:46 EDT)**, undetected ~22 h; recovered 07-25 ~00:19Z
   (07-24 ~20:19 EDT) by a board power-cycle and a staged restart, `motor2_target` 60 at 00:22Z and
   100 at 00:28Z.
@@ -102,10 +104,11 @@ UTC, with EDT (UTC−4) beside them.
 - **Base dose(s)** added manually on 07-27 (unbuffered medium, no pH-stat): pH was back above 6 by
   17:15Z and peaked at 9.54 that day. From 19:00Z it held at 8.0–8.4 (hourly means) until the
   outage, except 7.74 in the hour after the second reboot.
-- Two **unexplained reboots**, each a telemetry gap: **1.93 h**, 07-24 13:49–15:45Z (09:49–11:45
-  EDT), and **6.23 h**, 07-28 21:01Z–07-29 03:15Z (17:01–23:15 EDT).
-- **The impeller stayed off for 13.65 h after the second reboot:** `motor2_target` went to 0 at
-  07-29 04:07Z (00:07 EDT) and back to 100 at 17:46Z (13:46 EDT). The data does not say why.
+- Two **reboots**, each a telemetry gap: **1.93 h**, 07-24 13:49–15:45Z (09:49–11:45 EDT),
+  unexplained, and **6.23 h**, 07-28 21:01Z–07-29 03:15Z (17:01–23:15 EDT), a power loss.
+- **The impeller did not restart after that power loss**, and no operator was in the lab, so it
+  stood for 13.65 h: `motor2_target` 0 from 07-29 04:07Z (00:07 EDT) to 100 at 17:46Z (13:46
+  EDT).
 - **Planned power outage 2026-07-30 22:00Z → 07-31 10:15Z (18:00 → 06:15 EDT), 12.24 h:** hard
   power-off and no data. Unlit and unstirred, the culture **respired**: the record ends at DO
   135 % sat and pH 8.0, and resumes at DO 43 % and pH 7.0, back to 127 % and 7.6 by 11:00Z.
