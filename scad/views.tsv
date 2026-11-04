@@ -9,7 +9,7 @@
 #        show_vessel, show_head and show_frame hide one part of the assembly; head.scad's
 #        render_* flags pick a part within the head scope.
 #
-# Exploded views, labels and callouts are drawn by hand over these.
+# Exploded views come from head.scad's explode; labels and callouts are drawn by hand over these.
 
 # the whole reactor
 assembly_iso	jar_10L_220x305	iso	assembly
@@ -38,3 +38,9 @@ baffle_cage	jar_10L_220x305	iso	head	-D render_baffle_cage=true
 condenser	jar_10L_220x305	iso	head	-D render_condenser=true
 sampler	jar_10L_220x305	iso	head	-D render_sampler=true
 lid_top	jar_10L_220x305	top	head	-D render_lid=true
+
+# exploded, along the vessel's axis with the lid fixed; explode is the step between neighbours, in mm
+drive_exploded_iso	jar_10L_220x305	iso	head	-D explode=40 -D render_lid=true -D render_bearing=true -D render_motor_mount=true -D render_motor_mount_inserts=true -D render_motor_mount_screws=true -D render_shaft_coupler=true -D render_motor=true -D render_ext_shaft=true -D render_impeller=true -D render_set_screws=true
+drive_exploded_front	jar_10L_220x305	front	head	-D explode=40 -D render_lid=true -D render_bearing=true -D render_motor_mount=true -D render_motor_mount_inserts=true -D render_motor_mount_screws=true -D render_shaft_coupler=true -D render_motor=true -D render_ext_shaft=true -D render_impeller=true -D render_set_screws=true
+lid_exploded_iso	jar_10L_220x305	iso	head	-D explode=40 -D render_lid=true -D render_seals=true -D render_tube_pinlock=true -D render_probe_pinlock=true -D render_thermocouple_pinlock=true -D render_baffle_pinlock=true -D render_probes=true -D render_condenser=true -D render_sampler=true
+lid_exploded_front	jar_10L_220x305	front	head	-D explode=40 -D render_lid=true -D render_seals=true -D render_tube_pinlock=true -D render_probe_pinlock=true -D render_thermocouple_pinlock=true -D render_baffle_pinlock=true -D render_probes=true -D render_condenser=true -D render_sampler=true
