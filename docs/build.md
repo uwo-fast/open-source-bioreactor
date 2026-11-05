@@ -189,6 +189,13 @@ views listed in `scad/views.tsv`: the assembly whole and cut open, the head and 
 and the components. `just render 'head_*'` draws only the rows it matches. A new figure is a row
 in that file, and its header says what a row can name.
 
+**Exploded views** come from `head.scad`'s `explode`, the step in mm between neighbours along the
+vessel's axis; 0, the default, is assembled and moves nothing. The lid stays put. The drive stack
+lifts off it in the order it goes on - inserts, bearing, the mount's base, its screws, the coupler,
+the stand, the face plate, the motor - and the shaft and impellers drop below; the ports' o-rings,
+pins and probes lift off above, and the rim gasket and plug ring drop below. `just render
+'*exploded*'` draws the drive and the lid apart at 40 mm.
+
 **Without OpenSCAD:** the Export workflow on GitHub runs the same export on demand and on every
 tag, one job per build, and leaves the STLs and the print list as a downloadable artifact
 (`stl-<build>`) on the run. It is also the only place the parts that print are CGAL-checked in CI —

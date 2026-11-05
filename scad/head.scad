@@ -143,6 +143,8 @@ render_sparger = false;
 render_sparge_tubes = false;
 // The open dosing tubes beside a loop or an arm, which are not the sparger's; a ring's are its supports
 render_dose_tubes = false;
+// Pull the drive stack and the lid's ports apart along the vessel's axis, this far between neighbours, for an exploded view; 0 is assembled
+explode = 0;
 // The exhaust condenser on air_out, assembled in place
 render_condenser = false;
 // The turbidity sampler on its port, assembled in place
@@ -4316,6 +4318,18 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   // ===== geometry =====
 
+  // An exploded view: the lid stays put and each piece moves k steps of `explode` along the axis,
+  // up for what goes on from above and down for what goes on from below, in assembly order. A
+  // drawing aid only: at 0 it moves nothing, and no export or check reads it.
+  module _exploded(k) {
+    // no transform at all when assembled: even a zero translate moves the preview's pixels
+    if (explode == 0)
+      children();
+    else
+      translate([0, 0, k * explode])
+        children();
+  }
+
   // One tube down a port: the sparger's, carrying gas or only load, or an open dosing tube. top is
   // its socket's top and depth how far it goes in, so an open tube is placed by its bottom end.
   module _sparge_tube(top, length, depth = sparge_socket_depth) {
@@ -4449,24 +4463,28 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   // seals against by its squeeze.
   if (render_seals || render_all) {
     // rim gasket, standing proud of the flange by what the recess squeezes out of it
-    translate([0, 0, -lid_flange_height - (gasket_sheet_thickness(_gasket_sheet) - head_gasket_depth(_gasket_sheet))])
-      sheet_gasket(_gasket_ir * 2, _gasket_or * 2, gasket_sheet_thickness(_gasket_sheet));
+    _exploded(-1)
+      translate([0, 0, -lid_flange_height - (gasket_sheet_thickness(_gasket_sheet) - head_gasket_depth(_gasket_sheet))])
+        sheet_gasket(_gasket_ir * 2, _gasket_or * 2, gasket_sheet_thickness(_gasket_sheet));
 
     // plug o-ring, stretched onto its groove and reaching past the plug into the glass
-    translate([0, 0, -lid_flange_height - lid_plug_height / 2])
-      oring(_plug_ring, id=_ring_id);
+    _exploded(-1)
+      translate([0, 0, -lid_flange_height - lid_plug_height / 2])
+        oring(_plug_ring, id=_ring_id);
 
     // port o-rings, at free size, sitting on the groove's floor
     for (i = [0:_n - 1])
       let (_pi = head_port_interface(_ports[i]))
-        head_port_at(i, vessel_opening_diameter)
-          translate([0, 0, bayonet_gland_depth(_pi) - bayonet_oring_cs_diameter(_pi) / 2])
-            oring(bayonet_oring(_pi));
+        _exploded(0.5)
+          head_port_at(i, vessel_opening_diameter)
+            translate([0, 0, bayonet_gland_depth(_pi) - bayonet_oring_cs_diameter(_pi) / 2])
+              oring(bayonet_oring(_pi));
 
     // the pocket's seal, on the bearing's rim or the blank's boss; the lid runs downward from z 0
     if (_seated)
-    translate([0, 0, -head_bearing_gland_z()])
-      oring(bearing_oring);
+      _exploded(0.5)
+        translate([0, 0, -head_bearing_gland_z()])
+          oring(bearing_oring);
 
     // the rod seal on each riser, in the groove that holds it captive
     for (i = [0:_n - 1])
@@ -4492,6 +4510,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       // under the condenser, air_out's pin is the condenser's body
       if (_show && !(_coil && head_port_function(_port) == "air_out"))
         color(prints1_color)
+          _exploded(1)
           head_port_at(i, vessel_opening_diameter)
             rotate([0, 0, _port_turn])
               head_port(_port, lid_thickness, _baffle_width, _baffle_length, _baffle_segments, _do_tilt);
@@ -4505,6 +4524,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     _cond_iface = head_port_interface(_ports[_cond_i]);
     if (condenser_part_to_render == "assembly" || render_all)
       color(prints1_color)
+        _exploded(1)
         head_port_at(_cond_i, vessel_opening_diameter)
           rotate([0, 0, port_position == "entry" ? bayonet_entry_rotation(_cond_iface) : 0])
             condenser_coil_assembly(_cond_iface, aluminum_tube_od(condenser_coil_tube), condenser_coil_end_seal);
@@ -4519,9 +4539,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     : 0;
   if (_sampler && (render_sampler || render_all)) {
     if (render_all)
-      head_port_at(_sampler_i, vessel_opening_diameter) rotate([0, 0, _sampler_turn]) sampler_top_placed();
+      _exploded(2) head_port_at(_sampler_i, vessel_opening_diameter) rotate([0, 0, _sampler_turn]) sampler_top_placed();
     else if (sampler_part_to_render == "assembly")
-      head_port_at(_sampler_i, vessel_opening_diameter) rotate([0, 0, _sampler_turn]) sampler_placed();
+      _exploded(1) head_port_at(_sampler_i, vessel_opening_diameter) rotate([0, 0, _sampler_turn]) sampler_placed();
     else
       sampler_print(sampler_part_to_render);
   }
@@ -4542,6 +4562,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   if (render_probes || render_all)
     for (i = [for (j = [0:_n - 1]) if (head_port_type(_ports[j]) == "probe") j])
       let (_p = head_port_probe(_ports[i]))
+        _exploded(2)
         head_port_at(i, vessel_opening_diameter)
           translate([0, 0, -head_lid_thickness(lid_flange_height)])
             rotate([0, -head_probe_tilt(_ports[i], _do_tilt), 0])
@@ -4563,6 +4584,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         _tip_end = thermocouple_probe_neck_height(_p) + thermocouple_probe_flats_height(_p)
         + thermocouple_probe_body_height(_p) + thermocouple_probe_tip_height(_p)
       )
+        _exploded(2)
         head_port_at(i, vessel_opening_diameter)
           translate([0, 0, _tip_end - head_thermocouple_depth(_p, head_port_interface(_ports[i]))])
             rotate([180, 0, 0])
@@ -4577,6 +4599,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   if (_shaft_drive && (render_motor || render_all)) {
 
     // Motor, flipped so it hangs off the top of the mount with the gearbox output face flush on it.
+    _exploded(8)
     translate([0, 0, motor_mount_height + dc_motor_length(_motor) + gearbox_length(head_gearbox)])
       rotate([0, 180, 0])
         dc_motor(_motor);
@@ -4584,7 +4607,15 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   // motor mount; the module does not color itself, so all three telescoping parts take this one
   if (_shaft_drive && (render_motor_mount || render_all)) {
+    // Exploded, one call a piece so each takes its own step: the base on the lid, the stand, the
+    // face plate. Assembled, the one call as before: the pieces' coincident faces z-fight a few
+    // preview pixels differently when they are drawn apart.
+    for (m = explode == 0
+      ? [[motor_mount_part_to_render, 0]]
+      : [for (q = [["base_plate", 2], ["middle_stand", 6], ["face_plate", 7]])
+          if (motor_mount_part_to_render == "all" || motor_mount_part_to_render == q[0]) q])
     color(prints1_color)
+      _exploded(m[1])
       motor_mount(
         height=motor_mount_height,
         body_diameter=_mount_body_d,
@@ -4596,7 +4627,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         motor_boss_diameter=gearbox_out_boss(head_gearbox)[0],
         coupling_allowance=motor_mount_coupling_allowance,
         facets=motor_mount_facets,
-        part_render=motor_mount_part_to_render
+        part_render=m[0]
       );
   }
 
@@ -4611,10 +4642,12 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   // Separate flags: the insert stays in the lid, the screw comes out with what it holds down -
   // the mount, or the blank in its place.
   if (_seated && (render_motor_mount_inserts || render_all))
+    _exploded(0.5)
     motor_mount_fastener_at()
       insert(motor_mount_base_insert);
 
   if (_seated && (render_motor_mount_screws || render_all))
+    _exploded(3)
     motor_mount_fastener_at()
       translate([0, 0, _joint_grip])
         screw(motor_mount_base_screw, screw_length(motor_mount_base_screw, _joint_grip, 0, insert=motor_mount_base_insert));
@@ -4658,12 +4691,15 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   // The bearing in its pocket; ball_bearing() draws itself centred.
   if (_shaft_drive && (render_bearing || render_all))
+    _exploded(1)
     translate([0, 0, -bb_width(shaft_bearing) / 2])
       ball_bearing(shaft_bearing);
 
   // shaft coupling
   if (_shaft_drive && (render_shaft_coupler || render_all)) {
 
+    // it sits near the top of the stand, so its step lands it in the gap the stand leaves below
+    _exploded(2.5)
     translate(
       [0, 0, shaft_protrusion + shaft_shaft_coupling_offset / 2]
     )
@@ -4675,6 +4711,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   if (_shaft_drive && (render_ext_shaft || render_all)) {
 
     color("grey")
+      _exploded(-1)
       translate([0, 0, -head_punt_top_depth(lid_flange_height, vessel_internal_height) + shaft_jar_punt_clearance])
         cylinder(h=shaft_length(_shaft), d=shaft_diameter(_shaft), center=false);
   }
@@ -4818,10 +4855,12 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   if (_shaft_drive && (render_impeller || render_set_screws || render_all)) {
     translate([0, 0, -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height) + _impeller_clearance]) {
       if (impeller_to_render != "upper" && impeller_to_render != "upper_half")
+        _exploded(-2)
         head_impeller_assembly(head_impeller_lower_type);
 
       // Mirrored, not turned over, which is what makes the pair oppose each other.
       if (impeller_to_render != "lower" && impeller_to_render != "lower_half")
+        _exploded(-1.5)
         translate([0, 0, impeller_spacing])
           mirror([0, 1, 0])
             head_impeller_assembly(head_impeller_upper_type);

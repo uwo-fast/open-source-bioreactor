@@ -76,9 +76,3 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
   - the flow insert's printed well is the only wall between coolant and gas: water-test it first, and
     feed it by gravity or through a valve on the inlet with the outlet draining freely
   - the aluminum coil never goes through the vessel's bleach step
-
-## nice to haves
-
-- [ ] **an `explode` parameter, for exploded views in `just render`**: the model has no offsets, so
-      today an exploded view is drawn by hand. A distance each part moves along its own axis,
-      threaded through `head()` and `frame()`; start with the subassembly a figure needs, not all
