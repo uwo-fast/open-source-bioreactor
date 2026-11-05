@@ -6,7 +6,7 @@ reactor: `column_lid.scad` reads the bayonet port and NPT thread libraries and c
 theirs, and the repo's checks skip `scad/_spikes/`.
 
 ```sh
-just column-lid    # every variant to output/column_lid/<variant>.stl; fails on any that does not build
+just column-lid    # every lid to output/column_lid/<name>.stl, as it prints; fails on any that does not build
 ```
 
 ## The column, as measured
@@ -30,12 +30,21 @@ centres it. The column's o-ring seals on the flange's underside, so the lid need
 | `centre`  | one std bayonet port in the middle                                          |
 | `ring`    | a std port in the middle and as many round it as fit: 6, on a Ø70.8 mm ring |
 
+**A pocket for a deep headspace.** A column is not always full, and what hangs from a flat lid
+may not reach the culture. `pocket_depth` sinks the ports' panel that far down the bore, as the
+floor of a cup with a `pocket_wall` wall (5 mm, so 89.6 mm inside), open at the top so a hand
+reaches in to turn the pin. 0, the default, is the flat lid. It suits the `centre` lid: a ring
+cannot clear its middle port inside the cup, and the build says so. `just column-lid` builds
+`centre_pocket` at 100 mm, with 30.7 mm round the pin's flange for the fingers.
+
 The ring is derived, not chosen. It sits as far out as the plug leaves 2 mm round each hole, and
 takes as many ports as keep 3 mm between flanges. A different bore or interface recomputes it, and
 a ring that cannot clear the middle port fails the build.
 
-**Printing:** top face on the bed, plug up, no supports. All three variants are flat on top. The
-NPT is cut through the plate without a boss for that reason. 18 mm of plate holds a 1/2 NPT
+**Printing:** `just column-lid` writes each lid turned as it prints (`part = "print"`). The flat
+lids lie top face on the bed, plug up, with no supports; that is why the NPT is cut through the
+plate without a boss. The pocket lid stands on its floor, the cup rising, and only the flange's
+ledge needs supports. 18 mm of plate holds a 1/2 NPT
 fitting's 8.1 mm hand-tight and 13.6 mm made-up engagement.
 
 **Pins:** the reactor's own std pins and blanks fit these ports unchanged (`just export-parts`).

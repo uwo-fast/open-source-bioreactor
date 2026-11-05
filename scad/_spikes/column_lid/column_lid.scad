@@ -15,8 +15,13 @@
  * plug, because the bayonet pins are cut for that panel, so the reactor's printed pins and blanks
  * fit these ports unchanged.
  *
- * FRAME: z = 0 is the lid's top face, the face the bolt heads and the port flanges sit on; the
- * flange and the plug run down from it, the plug into the column's bore.
+ * A column is not always full: over a deep headspace, what hangs from a flat lid does not reach the
+ * culture. pocket_depth sinks the ports' panel that far down the bore, as the floor of a cup with
+ * a pocket_wall wall, open at the top so a hand reaches in to turn the pin. 0 is the flat lid.
+ *
+ * FRAME: z = 0 is the lid's top face, the face the bolt heads sit on; the flange and the plug run
+ * down from it, the plug into the column's bore. The ports' panel has its top face at
+ * z = -pocket_depth, which is the top face itself on a flat lid.
  */
 
 include <../../custom/bayonet_interfaces.scad>;
@@ -28,8 +33,8 @@ use <threads-scad/threads.scad>;
 
 // What the lid carries: a 1/2 NPT thread, one std bayonet port, or a ring of std ports round one, all in the middle
 variant = "ring"; // [npt, centre, ring]
-// The lid as it prints, or with a blank pin in each port, to see how it is used
-part = "lid"; // [lid, assembly]
+// The lid as it sits on the column, with a blank pin in each port, or turned as it prints
+part = "lid"; // [lid, assembly, print]
 
 /* [Column - measured] */
 
@@ -56,6 +61,10 @@ plug_allowance = 0.4;
 port_wall = 2;
 // Gap kept between neighbouring ports' flanges, mm
 port_gap = 3;
+// How far below the top face the ports' panel sinks into the bore, as a cup's floor; 0 is a flat lid, mm
+pocket_depth = 0;
+// The cup's wall, when there is one, mm
+pocket_wall = 5;
 
 /* [Hidden] */
 
@@ -70,9 +79,16 @@ plug_r = (tube_id - plug_allowance) / 2;
 hole_r = bayonet_port_hole_radius(port);
 flange_r = bayonet_flange_radius(port);
 
+pocketed = pocket_depth > 0;
+pocket_r = plug_r - pocket_wall; // the cup's inside
+floor_z = -pocket_depth; // the ports' panel's top face
+
 // The ring: as far out as the plug lets a hole go, and as many as fit round it with port_gap
-// between flanges. It has to clear the middle port's flange by the same gap.
-ring_r = plug_r - port_wall - hole_r;
+// between flanges. It has to clear the middle port's flange by the same gap. In a cup the pins'
+// flanges sit on its floor, so they have to stay port_gap inside its wall too.
+ring_r = pocketed
+  ? min(pocket_r - port_wall - hole_r, pocket_r - port_gap - flange_r)
+  : plug_r - port_wall - hole_r;
 ring_n = floor(180 / asin((flange_r + port_gap / 2) / ring_r));
 
 // Where each port sits, [x, y]; the first is the middle one.
@@ -108,15 +124,26 @@ assert(
   )
 );
 assert(variant != "ring" || ring_n >= 1, "column_lid: no port fits on the ring");
+assert(pocket_depth >= 0, str("column_lid: pocket_depth is how far down, not up; got ", pocket_depth));
 assert(
-  npt_thread_major_diameter(npt) / 2 < plug_r - port_wall,
+  !pocketed || len(ports) == 0 || flange_r + port_gap <= pocket_r,
+  str("column_lid: a pin's ", flange_r * 2, " mm flange does not sit in a ", pocket_r * 2, " mm cup")
+);
+assert(
+  npt_thread_major_diameter(npt) / 2 < (pocketed ? pocket_r : plug_r) - port_wall,
   str("column_lid: the NPT thread, r ", npt_thread_major_diameter(npt) / 2, ", does not fit in the plug")
 );
 
 echo(str(
   "column lid: ", variant, "; ", flange_od, " mm across, ", bolt_count, " x ", bolt_hole, " mm holes on ",
-  bolt_circle, " mm; a ", flange_thickness, " mm flange over a ", plug_height, " mm plug of ", plug_r * 2,
-  " mm in the ", tube_id, " mm bore; ",
+  bolt_circle, " mm; a ", flange_thickness, " mm flange over a ",
+  pocketed
+    ? str(
+      "cup of ", plug_r * 2, " mm in the ", tube_id, " mm bore, ", pocket_r * 2, " mm inside, its ", plate,
+      " mm floor ", pocket_depth, " mm below the top face, ", pocket_r - flange_r,
+      " mm round a pin's flange for the fingers; "
+    )
+    : str(plug_height, " mm plug of ", plug_r * 2, " mm in the ", tube_id, " mm bore; "),
   variant == "npt"
     ? str("a 1/2 NPT thread through the ", plate, " mm plate")
     : variant == "centre"
@@ -128,11 +155,19 @@ echo(str(
       )
 ));
 
+// The flange, and under it the plug - on a pocketed lid a cup down to the floor, hollowed above it.
 module column_lid_blank() {
-  translate([0, 0, -flange_thickness])
-    cylinder(d=flange_od, h=flange_thickness);
-  translate([0, 0, -plate])
-    cylinder(r=plug_r, h=plug_height + eps);
+  difference() {
+    union() {
+      translate([0, 0, -flange_thickness])
+        cylinder(d=flange_od, h=flange_thickness);
+      translate([0, 0, floor_z - plate])
+        cylinder(r=plug_r, h=plate - flange_thickness - floor_z + eps);
+    }
+    if (pocketed)
+      translate([0, 0, floor_z])
+        cylinder(r=pocket_r, h=pocket_depth + eps);
+  }
 }
 
 module column_lid() {
@@ -141,7 +176,7 @@ module column_lid() {
       ScrewHole(
         outer_diam=npt_thread_major_diameter(npt) - npt_allowance,
         height=plate * 1.1,
-        position=[0, 0, -plate - plate * 0.05],
+        position=[0, 0, floor_z - plate - plate * 0.05],
         rotation=[0, 0, 0],
         pitch=npt_thread_pitch(npt),
         tooth_angle=60,
@@ -155,21 +190,31 @@ module column_lid() {
         translate([bolt_circle / 2, 0, -plate])
           cylinder(d=bolt_hole, h=plate * 3, center=true);
     for (p = ports)
-      translate([p[0], p[1], -plate / 2])
+      translate([p[0], p[1], floor_z - plate / 2])
         cylinder(r=hole_r, h=plate + 2 * eps, center=true);
   }
 
   // The coupling's lock half in each hole, as the jar lid carries them: one printed piece.
   for (p = ports)
-    translate([p[0], p[1], 0])
+    translate([p[0], p[1], floor_z])
       bayonet_port(type=port, part="lock", panel_thickness=plate);
 }
 
-color("SlateBlue")
-  column_lid();
+// As it prints, with no supports but under a cup's flange: a flat lid on its top face, the plug
+// up; a pocketed one on its floor, the cup rising and the flange's ledge supported.
+if (part == "print")
+  if (pocketed)
+    translate([0, 0, plate - floor_z])
+      column_lid();
+  else
+    rotate([180, 0, 0])
+      column_lid();
+else
+  color("SlateBlue")
+    column_lid();
 
 if (part == "assembly")
   for (p = ports)
     color("DarkSlateGray")
-      translate([p[0], p[1], 0])
+      translate([p[0], p[1], floor_z])
         bayonet_port(type=port, part="pin", panel_thickness=plate, text_labels=true, label="BLANK");
