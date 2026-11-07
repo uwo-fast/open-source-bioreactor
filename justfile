@@ -247,6 +247,13 @@ export-part part build="" out="output":
 export-accessories out="output":
     @scripts/export-accessories.sh "{{out}}"
 
+# A spike, kept apart from the reactor in scad/_spikes/column_lid/: a printed top lid for the
+# lab's acrylic column reactors, carrying the same bayonet ports. The repo's checks skip it.
+#
+# Build every column lid variant to output/column_lid/, and fail on any that does not build.
+column-lid:
+    @scad/_spikes/column_lid/build.sh
+
 # Pictures for the paper and the docs, from the list in scad/views.tsv. Previews, so seconds each;
 # `just render-parts` covers every printed part without a row.
 #
