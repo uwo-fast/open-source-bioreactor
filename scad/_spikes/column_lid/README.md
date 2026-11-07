@@ -37,6 +37,10 @@ reaches in to turn the pin. 0, the default, is the flat lid. It suits the `centr
 cannot clear its middle port inside the cup, and the build says so. `just column-lid` builds
 `centre_pocket` at 100 mm, with 30.7 mm round the pin's flange for the fingers.
 
+**On the column:** `centre_pocket` at 100 mm has been printed and is in use on the lab's column.
+Its 99.6 mm cup in the 100 mm bore (0.4 mm diametral clearance) and the 10 mm bolt holes fit as
+modelled. The flat lids, the NPT thread and the ring have not been printed yet.
+
 The ring is derived, not chosen. It sits as far out as the plug leaves 2 mm round each hole, and
 takes as many ports as keep 3 mm between flanges. A different bore or interface recomputes it, and
 a ring that cannot clear the middle port fails the build.
