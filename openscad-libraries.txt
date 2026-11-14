@@ -16,15 +16,18 @@
 # HTTPS, so a machine with a key gets one and a machine without - CI - gets the
 # other, from the same line here.
 #
-# Tags where upstream publishes them, commit SHAs where it does not. Only
-# NopSCADlib tags at all; the others have no tags and no releases, so a SHA
-# is the only honest pin. Read from the upstream repositories on 2026-09-09.
+# Tags where upstream publishes them, commit SHAs where it does not. NopSCADlib
+# and bayonet-lock-scad publish tags; the others have no tags and no releases,
+# so a SHA is the only honest pin. Read from the upstream repositories on
+# 2026-09-09, and bayonet-lock-scad again on 2026-11-13.
 #
-# NOTE ON bayonet-lock-scad: custom/bayonet_port.scad asserts it is ">= 0.11.0",
-# but that repository publishes no tags and no releases, so nothing outside the
-# library can check that claim. The SHA below is what the assert passes against.
-# It is also what tests/seams.txt is measured against: 0.11.1 stopped the lock's
-# entry transition leaving coincident faces, and the lid closes cleanly from it.
+# NOTE ON bayonet-lock-scad: custom/bayonet_port.scad asserts it is ">= 0.11.0".
+# v0.12.0 is 0.11.1 (95953cc, which this pinned before) plus two parameter
+# checks - a sweep that leaves the lock no turn stop, and a channel that breaks
+# out of the bottom face - and bayonet_locked_rotation(); its geometry is
+# unchanged, so tests/seams.txt still holds. 0.11.1 is the release that stopped
+# the lock's entry transition leaving coincident faces, and the lid closes
+# cleanly from it.
 #
 # NOTE ON turbidity-sensor AND syringe-actuator: scad/custom/sampler.scad builds on the
 # probe board's library (hardware/probe/probe.scad) and on the actuator's layout
@@ -37,7 +40,7 @@
 # LICENSING.md's GPL-3.0-or-later grant over the sampler does not hold.
 
 NopSCADlib          https://github.com/nophead/NopSCADlib.git                v21.41.1
-bayonet-lock-scad   https://github.com/CameronBrooks11/bayonet-lock-scad.git 95953cc
+bayonet-lock-scad   https://github.com/CameronBrooks11/bayonet-lock-scad.git v0.12.0
 FunctionalOpenSCAD  https://github.com/thehans/FunctionalOpenSCAD.git        51588ff
 threads-scad        https://github.com/rcolyer/threads-scad.git              4ae9aeb
 din168-thread-scad  https://github.com/CameronBrooks11/din168-thread-scad.git 7ea65c3
