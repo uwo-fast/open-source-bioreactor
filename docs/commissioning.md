@@ -37,5 +37,5 @@ sending back:
    no width there; on a build where the impeller caps it, whatever the measurement takes off is
    plate width back.
 4. **Whether the joint holds.** Nobody has yet tightened twelve nuts a third of a turn onto a glass
-   jar with a printed flange in between. How much it relaxes, and over what time, is the number this
-   document most needs.
+   jar with a printed flange in between. How much it relaxes, and over what time, is the number the build
+   most needs.

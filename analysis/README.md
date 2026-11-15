@@ -16,7 +16,8 @@ in common — a 2024 paired-channel dump and a 2026 long-event export — so
 there is nothing worth factoring out, and each pipeline stays readable on its
 own.
 
-Every run and method directory has the same shape:
+Every run directory, and every method once it has data, has the same shape. A method can be a
+protocol alone, a README, until it does:
 
 | Path          | Committed? | What                                   |
 | ------------- | ---------- | -------------------------------------- |

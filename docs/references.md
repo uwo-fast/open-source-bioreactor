@@ -711,9 +711,6 @@ vessel runs 130. Air-water, besides. The model echoes both caveats rather than p
 bare.
 -> `scad/utils/stirred_tank.scad`, `scad/head.scad` transfer block
 
-What the geometry allows on each vessel, by Karcz's eq. (6), is worked through in
-[Agitation](agitation.md#eccentric-mounting).
-
 ---
 
 ## The airlift
