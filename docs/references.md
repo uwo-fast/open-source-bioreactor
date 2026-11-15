@@ -525,7 +525,7 @@ The Eppendorf BioFlo 115 uses a 316L split ring that springs against the glass (
 section 4.7.4 and section 4.8.4). US4494878 has separate PTFE blades with a top ring, a snap-on bottom ring and
 wall standoff tabs. Corning EP3807394, now withdrawn, is a squeeze-and-release four-baffle insert.
 None goes in through a mouth narrower than the bore, and no open-hardware design that does was
-found. -> `scad/custom/baffle_cage.scad`, [Decisions](decisions.md)
+found. -> `scad/custom/baffle_cage.scad`, [Decisions](../dev/decisions.md)
 
 **Note on status:** partial/inboard baffles are _characterised_ in the literature, not
 _recommended_. The relevant papers (_Chem Eng Res Des_ S0263876207730952, _Chem Eng Sci_
@@ -650,7 +650,8 @@ read off a figure.
 
 Cross-checked against Hall at the one point they share, e/T = 0.2: Karcz's equation predicts 42%
 faster than centred, Hall measured 36%. Different impellers, tanks 12x apart in size, agreeing
-within six points - which is why the correlation is used below rather than Hall's single point.
+within six points - which is why the correlation, not Hall's single point, is used in
+[Agitation](agitation.md#eccentric-mounting).
 
 **The departures are larger than Hall's.** `D = 0.33 T`, as here, is not one; a three-bladed
 **propeller**, or an HE 3, rather than this build's Rushtons; `H = T` against 1.09; and 270 L
@@ -709,62 +710,6 @@ Cited second-hand and used outside its range: the correlation is fitted over 500
 vessel runs 130. Air-water, besides. The model echoes both caveats rather than presenting the number
 bare.
 -> `scad/utils/stirred_tank.scad`, `scad/head.scad` transfer block
-
-**What the geometry says, with Karcz's correlation applied to it.** Eccentric mounting is real and
-well supported, and this architecture can barely use it. The motor mount is a dia 56 body centred on the
-lid and the port flanges reach inward to `head_port_circle_radius(mouth) - 14.1`, so the room for an
-offset is `Rpc - flange - lid_holes_offset - mount_radius`. On `jar_1p5L` that is already **-12.5 mm**
-and on `jar_1gal_155` **-8.30 mm** - an unasserted collision until `head()` gained the check for it,
-masked before that because the port-spacing assert fires first.
-
-The deeper problem is that **eccentricity is referenced to the tank diameter while the room for it is
-set by the mouth.** Hall's e = 0.2 T needs 20.7 mm on `jar_1p5L` and 42.0 mm on `jar_10L`; the widest
-offset any of these lids can give, with the mount shrunk to the dia 36 floor its own gearbox faceplate
-allows and every port on a mini flange, is 0.95 mm and 28.4 mm respectively. **e/T = 0.2 is out of
-reach on every registered vessel** - `jar_1gal_180` comes closest at 0.181 and misses it narrowly.
-What is reachable, by Karcz's equation:
-
-| vessel         | mouth/T | e/T today | gain | e/T at best | gain |
-| -------------- | ------- | --------- | ---- | ----------- | ---- |
-| `jar_1p5L`     | 0.854   | 0         | 0%   | 0.009       | 5%   |
-| `jar_1gal_155` | 0.642   | 0         | 0%   | 0.031       | 14%  |
-| `jar_6p5gal`   | 0.488   | 0.035     | 16%  | 0.090       | 31%  |
-| `jar_10L`      | 0.677   | 0.059     | 24%  | 0.135       | 37%  |
-| `jar_1gal_180` | 0.871   | 0.090     | 31%  | 0.181       | 41%  |
-
-**T is the BORE here**, `vessel_outer_diameter - 2 x vessel_wall_thickness`, which is what T means
-everywhere else in this project: `head.scad`'s D/T is cut from it and so is the H/T the model echoes.
-The offset itself, `Rpc - flange - lid_holes_offset - mount_radius`, is lid geometry in mm.
-
-**The gain columns are computed from eq. (6)**, up-pumping branch: `gain = 1 - Theta(2*e/T) /
-Theta(0)`, with `Theta(0) = 91.32`, so this table can be re-derived rather than trusted.
-
-**The `e/T today` columns are ECHOED BY THE MODEL, not transcribed.** `head()` computes the offset
-the mount leaves - the slack above the minimum its mount-versus-flange assert clears - divides it by
-the bore, and reports the gain with `stirred_tank_eccentric_gain()`, so those two columns can be
-read off a render rather than trusted. The figures above are that echo: 9.8 mm, 12.4 and 15.3, at
-e/T 0.035, 0.059 and 0.090. The two jars showing 0 render no echo at all, because an assert stops
-them first - the mount on `jar_1p5L`, and the pH probe on `jar_1gal_155x251`, which fails on the
-probe before it reaches the mount it would also fail. Their 0 is reasoning, not a render, and it is
-the same fact said another way: a lid with no room for the mount has none for an offset.
-
-**The `e/T at best` columns are still by hand**, because they describe a lid that does not exist:
-the mount shrunk to the dia 36 floor its own gearbox faceplate allows, with every port on a mini
-flange. Nothing renders that, so nothing can echo it. They are eq. (6) evaluated at an offset
-someone worked out, and they carry exactly that much authority.
-
-**And they carry one digit less than they show.** Those e/T were re-derived from the superseded
-column, which was quoted to three decimals, so each is uncertain by about +/-0.0005 - the offset in
-millimetres was never written down for three of the five rows. Run the interval through eq. (6) and
-four rows are unmoved: 31 %, 37 %, 41 % and `jar_1gal_155`'s 14 % hold across it. **`jar_1p5L`
-does not - it is 4.48 to 4.98 %, so 4 or 5**, and which of the two cannot be said from what was recorded. It is written
-as 5, the midpoint rounded, and it is the figure in this table that a re-derivation should expect
-to move.
-
-The result is the wrong way round: **the vessels with room for eccentricity are the ones already wide
-enough to carry baffles, and the two that need it have none.** Off-centring is not a rescue for the
-small jars. It is, separately, a cheap 25-31% on the large ones if they ever run unbaffled.
--> [Port layout](ports-layout.md#baffles-on-a-narrow-jar)
 
 ---
 

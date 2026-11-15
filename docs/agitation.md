@@ -183,14 +183,14 @@ because it prints with an overhang and has to be indexed against the blades; the
 binding problem, and a slipping impeller costs the whole run.
 
 It stays registered and drawn; a bench measurement of its power number is
-[future work](future-work.md#agitation).
+[future work](../dev/future-work.md#agitation).
 
 ### The pitched pair
 
 The alternative is two 45 deg four-blade pitched turbines, `impeller_pbt_45_4`, at D/T 0.45, the lower
 0.9 D off the floor and the pair 1 D apart. That layout is the row's own `tank` field, so it is one
 `head_impeller_lower_type` / `head_impeller_upper_type` setting away, and a Rushton under a pitched
-blade is [future work](future-work.md#agitation). For that layout:
+blade is [future work](../dev/future-work.md#agitation). For that layout:
 
 - **Po and flow number are correlated.** Medek's correlation (Fort et al. 2002) gives them from the
   geometry and names the conditions a vessel breaks - on `jar_10L`, T/D and H/T.
@@ -348,6 +348,68 @@ turn the downcomer's own area, inside Chisti & Moo-Young's 1.65 cap. Chisti's ci
 not run: its data start at 1.36 m tall and these loops are under 0.2 m. The DO probe hangs straight
 here, because its lean is for the shaft's shadow and inside the riser there is none.
 
+### Eccentric mounting
+
+Eq. (6) below is Karcz's, from his entry in
+[References](references.md#unbaffled-vessels-and-eccentric-agitation), and Theta(0) is its
+up-pumping branch at e = 0.
+
+**What the geometry says, with Karcz's correlation applied to it.** Eccentric mounting is real and
+well supported, and this architecture can barely use it. The motor mount is a dia 56 body centred on the
+lid and the port flanges reach inward to `head_port_circle_radius(mouth) - 14.1`, so the room for an
+offset is `Rpc - flange - lid_holes_offset - mount_radius`. On `jar_1p5L` that is already **-12.5 mm**
+and on `jar_1gal_155` **-8.30 mm** - an unasserted collision until `head()` gained the check for it,
+masked before that because the port-spacing assert fires first.
+
+The deeper problem is that **eccentricity is referenced to the tank diameter while the room for it is
+set by the mouth.** Hall's e = 0.2 T needs 20.7 mm on `jar_1p5L` and 42.0 mm on `jar_10L`; the widest
+offset any of these lids can give, with the mount shrunk to the dia 36 floor its own gearbox faceplate
+allows and every port on a mini flange, is 0.95 mm and 28.4 mm respectively. **e/T = 0.2 is out of
+reach on every registered vessel** - `jar_1gal_180` comes closest at 0.181 and misses it narrowly.
+What is reachable, by Karcz's equation:
+
+| vessel         | mouth/T | e/T today | gain | e/T at best | gain |
+| -------------- | ------- | --------- | ---- | ----------- | ---- |
+| `jar_1p5L`     | 0.854   | 0         | 0%   | 0.009       | 5%   |
+| `jar_1gal_155` | 0.642   | 0         | 0%   | 0.031       | 14%  |
+| `jar_6p5gal`   | 0.488   | 0.035     | 16%  | 0.090       | 31%  |
+| `jar_10L`      | 0.677   | 0.059     | 24%  | 0.135       | 37%  |
+| `jar_1gal_180` | 0.871   | 0.090     | 31%  | 0.181       | 41%  |
+
+**T is the BORE here**, `vessel_outer_diameter - 2 x vessel_wall_thickness`, which is what T means
+everywhere else in this project: `head.scad`'s D/T is cut from it and so is the H/T the model echoes.
+The offset itself, `Rpc - flange - lid_holes_offset - mount_radius`, is lid geometry in mm.
+
+**The gain columns are computed from eq. (6)**, up-pumping branch: `gain = 1 - Theta(2*e/T) /
+Theta(0)`, with `Theta(0) = 91.32`, so this table can be re-derived rather than trusted.
+
+**The `e/T today` columns are ECHOED BY THE MODEL, not transcribed.** `head()` computes the offset
+the mount leaves - the slack above the minimum its mount-versus-flange assert clears - divides it by
+the bore, and reports the gain with `stirred_tank_eccentric_gain()`, so those two columns can be
+read off a render rather than trusted. The figures above are that echo: 9.8 mm, 12.4 and 15.3, at
+e/T 0.035, 0.059 and 0.090. The two jars showing 0 render no echo at all, because an assert stops
+them first - the mount on `jar_1p5L`, and the pH probe on `jar_1gal_155x251`, which fails on the
+probe before it reaches the mount it would also fail. Their 0 is reasoning, not a render, and it is
+the same fact said another way: a lid with no room for the mount has none for an offset.
+
+**The `e/T at best` columns are still by hand**, because they describe a lid that does not exist:
+the mount shrunk to the dia 36 floor its own gearbox faceplate allows, with every port on a mini
+flange. Nothing renders that, so nothing can echo it. They are eq. (6) evaluated at an offset
+someone worked out, and they carry exactly that much authority.
+
+**And they carry one digit less than they show.** Those e/T were re-derived from the superseded
+column, which was quoted to three decimals, so each is uncertain by about +/-0.0005 - the offset in
+millimetres was never written down for three of the five rows. Run the interval through eq. (6) and
+four rows are unmoved: 31 %, 37 %, 41 % and `jar_1gal_155`'s 14 % hold across it. **`jar_1p5L`
+does not - it is 4.48 to 4.98 %, so 4 or 5**, and which of the two cannot be said from what was recorded. It is written
+as 5, the midpoint rounded, and it is the figure in this table that a re-derivation should expect
+to move.
+
+The result is the wrong way round: **the vessels with room for eccentricity are the ones already wide
+enough to carry baffles, and the two that need it have none.** Off-centring is not a rescue for the
+small jars. It is, separately, a cheap 25-31% on the large ones if they ever run unbaffled.
+-> [Port layout](ports-layout.md#baffles-on-a-narrow-jar)
+
 ### What outranks all three
 
 **The sparger, and it applies family-wide.** The five-fold kLa spread Uyar measured came entirely
@@ -364,7 +426,7 @@ collects higher in the culture, in the headspace and on the lid.
 
 Every figure below is what `head()` reports for `jar_10L_220x305` at the reference fill; the
 transcript is `tests/echo/head__jar_10L_220x305.txt`. What was believed before and got wrong is in
-[Decisions](decisions.md#corrections---readings-that-were-wrong).
+[Decisions](../dev/decisions.md#corrections---readings-that-were-wrong).
 
 ### Sparger
 
@@ -457,7 +519,7 @@ loop's are the reference build's, `tests/echo/build__jar_10L_220x305.txt`.
   velocity times their open area: 1.44 for the feed and 0.72 for each of the ring's two paths. No
   hole size clears both Barbosa's 5.4 m/s and an open area of 1 while the bore runs that fast, and
   `head()` flags the open area and the bore; the fix is a wider riser, which is one designation and a cascade
-  of fits ([future work](future-work.md#sparger)).
+  of fits ([future work](../dev/future-work.md#sparger)).
 - **The risers are structure.** Nothing else in the vessel touches the ring, so the five 4 x 0.5 mm
   316 tubes that drop from the tube ports - one feeding, four blind - are what hold it: 1.02 N/mm
   a support, 0.98 mm of sway per newton against 1.25 mm to the baffles. The feed's socket is the
@@ -498,7 +560,7 @@ loop's are the reference build's, `tests/echo/build__jar_10L_220x305.txt`.
 
 Both `jar_10L` builds, the reference and the magnetic, carry the standard four on the wall, on a
 cage: `baffle_name = "auto"` takes it wherever it fits. `jar_1gal_180` hangs plates from the lid,
-and the six-port lids carry no baffles ([Decisions](decisions.md#settled---do-not-re-open-without-new-evidence)). The first group of bullets is the
+and the six-port lids carry no baffles ([Decisions](../dev/decisions.md#settled---do-not-re-open-without-new-evidence)). The first group of bullets is the
 cage; the rest are the plates as `head()` reports them on `jar_10L` with `baffle_name = "lid"`,
 which no registered build carries and no transcript holds.
 

@@ -12,7 +12,7 @@ them were not typos but readings that were coherent, agreed with the documents a
 measuring the wrong thing. [`TODO.md`](../TODO.md) carries open work only; nothing here is a task.
 
 A corrected figure is replaced where it sits and recorded here
-([Design conventions](design-conventions.md#one-physical-thing-one-expression)).
+([Design conventions](../docs/design-conventions.md#one-physical-thing-one-expression)).
 
 ## Corrections - readings that were wrong
 
@@ -53,7 +53,7 @@ A corrected figure is replaced where it sits and recorded here
 - **The joint runs at 291.8 N per post and 2.51 MPa.** 352.9 N and 2.78 MPa since the seal moved
   onto the crown, and 351.0 N since the mouth measured 142.2 rather than 143. Worth its own entry
   because of HOW it survived: the commit that changed the seal corrected the echo block
-  [Building it](build.md) quotes and left every figure derived from it - the torque
+  [Building it](../docs/build.md) quotes and left every figure derived from it - the torque
   band, the bolt and rod stretch, a section heading, a ledger entry. Updating a quoted number is not
   the same as updating what was computed from it.
 - **The riser's gland must be a counterbore open to the vessel**, because a 4 x 1.5 ring is 7 mm
@@ -79,8 +79,9 @@ A corrected figure is replaced where it sits and recorded here
   reach.** That allowance is for fluidfoils; Fort's guidance fits a pitched blade and puts it at
   0.9 D. The uncited C/T quarter-to-third convention supported 0.6 D (C/T 0.27) and does not reach
   0.9 D (C/T 0.405).
-- **The eccentricity analysis measured T as the outer diameter.** [References](references.md)'s e/T
-  table read "Hall's e = 0.2 T needs 21.8 mm on `jar_1p5L`", with every ratio 0.2 x or / the glass
+- **The eccentricity analysis measured T as the outer diameter.** [References](../docs/references.md)'s e/T
+  table (now in [Agitation](../docs/agitation.md#eccentric-mounting)) read "Hall's e = 0.2 T
+  needs 21.8 mm on `jar_1p5L`", with every ratio 0.2 x or / the glass
   rather than the bore - the impeller-ratio defect, recurring in a document after it was fixed in
   the model. The numerator was lid geometry in mm and never in question; only the denominator
   moved, 4 to 8 % all one way. The e/T columns are echoed by `head()` now, not transcribed.
@@ -118,7 +119,7 @@ A corrected figure is replaced where it sits and recorded here
   Grenville 2017's Table 1 values for both blades, and near even with McCabe's 1.3 and 5.75 for
   the Rushton. And the pitched pair held its flow pattern to 1.57 vvm only at 420 rpm; Oldshue's
   8x rule scales as N^3, so at the 255 rpm Chlorella optimum the ceiling was 0.35 vvm, under the
-  0.5 vvm design. [Agitation](agitation.md) carried both as the case for the axial blade until the
+  0.5 vvm design. [Agitation](../docs/agitation.md) carried both as the case for the axial blade until the
   build moved to the standard turbine.
 - **`check-holes` proved the arm's holes break through.** It proved only their ends were open. A
   hole drilled down is cut from the outside in, and the probes sat at the outer face and on the
@@ -188,7 +189,7 @@ A corrected figure is replaced where it sits and recorded here
 
 - **Eight parts are designated end to end**: vessel, shaft, plug o-ring, strip light, gasket sheet,
   motor, DO probe and pH probe, each reaching the geometry, the readbacks and the exported STL. The
-  rules are in [Design conventions](design-conventions.md#three-layers-and-where-a-parameter-lives),
+  rules are in [Design conventions](../docs/design-conventions.md#three-layers-and-where-a-parameter-lives),
   `check-designations` guards the surface, and the registries carry names, part numbers and
   provenance. The refusals below go with it.
 - **`heat_set_inserts` and `shaft_couplings` are not rewrapped into the `set_screws` shape.** That
@@ -234,13 +235,13 @@ outlives the commit, in the other documents here.
   stiffness - deflection goes as the cube of height over diameter.
 - **The lid carries three baffles, not four, for a port** (where it carries plates; see the wall
   cage below). Three plates fall short of Oldshue's reference area
-  ([Agitation](agitation.md#baffles)); the fourth baffle's port went to a sampling line. Going back
+  ([Agitation](../docs/agitation.md#baffles)); the fourth baffle's port went to a sampling line. Going back
   to four relays the whole lid, since four equally spaced do not land on three-at-120 deg.
 - **`jar_10L`'s reference build carries the standard four on the wall, not the lid's three.** The
   advising microalgae researcher asked for the standard set. Lid plates pass the mouth, so they
   cannot reach the wall; four at T/12 against the wall cannot pass the mouth rigid. They go in on
-  a cage whose blades slide in to pass it ([Agitation](agitation.md#baffles),
-  [Building it](build.md#the-wall-baffle-cage)), 1.00 of the
+  a cage whose blades slide in to pass it ([Agitation](../docs/agitation.md#baffles),
+  [Building it](../docs/build.md#the-wall-baffle-cage)), 1.00 of the
   reference area against the plates' 0.713. The pH probe moves to the 30 deg port under it.
 - **`auto` takes the cage wherever it fits, and the plates elsewhere.** It fits a shaft or
   magnetic drive, not the ring, on a lid with baffle ports for a probe the hoops' gap leaves out,
@@ -275,15 +276,15 @@ outlives the commit, in the other documents here.
   carries something a spec does not.
 - **Cooke's blend-time correlation is deliberately absent.** It could not be made to reproduce the
   figures its own source prints beside it. Ruszkowski's is encoded and was validated first (1.96 s
-  against a published 1.9). See [References](references.md) before trying it again.
+  against a published 1.9). See [References](../docs/references.md) before trying it again.
 - **The reference build runs two `impeller_rushton_6` at the standard turbine**: D = T/3, the lower
   T/3 off the floor, the upper a further T/3 up (McCabe, Smith & Harriott 1993 pp. 241-243 and 253),
   on the advice of the microalgae researcher advising the project. The first paper is about the
   design, so the reactor runs at a standard wherever one exists; the pitched pair and a Rushton
-  under a pitched blade are knobs for later work ([Baseline](baseline.md)). The twisted paddle stays
+  under a pitched blade are knobs for later work ([Baseline](../docs/baseline.md)). The twisted paddle stays
   registered and drawn but has no Po that any correlation reaches.
 - **The Rushton's power number is Kaiser's measured 4.17, not McCabe's 5.75**, and no choice in
-  the build turns on which is right ([Agitation](agitation.md#2-this-reactor-in-the-units-that-matter)).
+  the build turns on which is right ([Agitation](../docs/agitation.md#2-this-reactor-in-the-units-that-matter)).
 - **The shaft is 400 mm and must be a ground rotary shaft.** 300 mm does not exist in the catalogue
   and 200 cannot reach. It runs directly in the 608 bearing's inner race, so plain h9 rod would allow
   0.043 mm and fret the bore.
@@ -314,7 +315,7 @@ outlives the commit, in the other documents here.
   post is 0.56 to 0.84 N.m across the 0.20-0.30 nut factor unlubricated 18-8 spans - a 40 % band
   from friction alone, on a fastener that galls, at a setting below most torque wrenches. The turn
   is the gasket's travel over the thread's pitch and has no modulus or friction in it. Both are in
-  [Building it](build.md#closing-the-lid-and-the-number-that-cracks-the-jar); the torque is there
+  [Building it](../docs/build.md#closing-the-lid-and-the-number-that-cracks-the-jar); the torque is there
   to say why it is not the instruction.
 - **The lid follows the frame's outer diameter, and trimming it buys nothing.** It was cut to 252
   once - its own floor, being the bolt circle plus a bore plus wall - because 257.40 put it past
@@ -354,7 +355,7 @@ outlives the commit, in the other documents here.
   parts for a build the airlift's already make.
   `drive_name = "none"` stays a drive the model builds; it is no longer a build the export writes.
 - **Under the airlift the DO probe hangs straight.** Its lean exists to take the tip out of the
-  shaft's shadow toward the flow ([Port layout](ports-layout.md#the-probes-lean-and-only-one-of-them)), and inside the riser there is no shaft and
+  shaft's shadow toward the flow ([Port layout](../docs/ports-layout.md#the-probes-lean-and-only-one-of-them)), and inside the riser there is no shaft and
   the whole core flows. Leaning it only walks it toward a tube that can shift up to 2.5 mm: with
   the tube among its obstacles the lean derived to within 0.08 mm of the wall on `jar_1p5L`, less
   than the tube's own play.
@@ -366,7 +367,7 @@ outlives the commit, in the other documents here.
   floor: its 3.77 mm is far short of the 23.8 mm a riser needs to hold the carrier's ear.
 - **The support tubes' discharge holes are not drawn.** Every tube port but `air_in` is capped at
   its lower end and vents through a hole cut up its length, a bench operation. `head()` reports the
-  window (37.9-88.4 mm from the top on `jar_10L`) and [Building it](build.md#drilling-the-support-tubes) says which end each port
+  window (37.9-88.4 mm from the top on `jar_10L`) and [Building it](../docs/build.md#drilling-the-support-tubes) says which end each port
   wants. Only `air_out`'s hole has a size to meet, and only where no condenser takes that port;
   `head()` prices it there. A default for a hand-cut window would be a guess, so it is not a
   parameter either.

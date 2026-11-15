@@ -16,7 +16,8 @@ in common — a 2024 paired-channel dump and a 2026 long-event export — so
 there is nothing worth factoring out, and each pipeline stays readable on its
 own.
 
-Every run and method directory has the same shape:
+A method can be a protocol alone, a README, until it has data. Every run directory, and every
+method once it has data, has the same shape:
 
 | Path          | Committed? | What                                   |
 | ------------- | ---------- | -------------------------------------- |
@@ -35,9 +36,10 @@ Every run and method directory has the same shape:
 
 ### Methods
 
-| Method                                                  | What                                   |
-| ------------------------------------------------------- | -------------------------------------- |
-| [`methods/light-irradiance`](methods/light-irradiance/) | LED vs fluorescent spectra, 300–800 nm |
+| Method                                                    | What                                       |
+| --------------------------------------------------------- | ------------------------------------------ |
+| [`methods/light-irradiance`](methods/light-irradiance/)   | LED vs fluorescent spectra, 300–800 nm     |
+| [`methods/sparge-test-pucks`](methods/sparge-test-pucks/) | what a printed sparge face costs at a flow |
 
 ## The one rule
 

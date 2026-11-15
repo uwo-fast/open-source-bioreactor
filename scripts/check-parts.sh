@@ -101,7 +101,7 @@ not_exported=(
     scad/support/equipment_cart.scad            # prints NOTHING: bought extrusion, bought
                                                 # NopSCADlib brackets, bought castors, and a
                                                 # translucent envelope that is a picture. Never
-                                                # built; see docs/future-work.md
+                                                # built; see dev/future-work.md
     scad/support/electronics_stand.scad         # "stand_corner" on the accessories list, its
                                                 # print_corner standing in for a bought bracket
     scad/support/estop_box.scad                 # "estop_box_base" and "estop_box_lid" on the
@@ -113,7 +113,8 @@ not_exported=(
                                                 # "sampler_base" and "sampler_top" on a lid
                                                 # with a sampler port
     scad/custom/sparge_puck.scad                # bench test pieces, one outlet face per print,
-                                                # that never go in a jar; see docs/build.md
+                                                # that never go in a jar; see
+                                                # analysis/methods/sparge-test-pucks
     scad/custom/condenser_cold_finger.scad      # the split cold finger, printed from its own file
                                                 # until head offers it
     scad/custom/condenser_coil.scad             # exported through head's manifest as

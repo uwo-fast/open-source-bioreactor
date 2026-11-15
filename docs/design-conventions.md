@@ -72,7 +72,7 @@ Prefer quoting an accessor or an echo over restating its result. Where a figure 
 **check it against the model rather than against another document** - several of these agreed with
 each other and with nothing else.
 
-**A corrected figure is replaced where it sits and recorded once in [Decisions](decisions.md#corrections---readings-that-were-wrong).** The old
+**A corrected figure is replaced where it sits and recorded once in [Decisions](../dev/decisions.md#corrections---readings-that-were-wrong).** The old
 value is evidence of which assumption failed, so it goes under _Corrections_ there, with what made
 it wrong. It does not stay inline: a superseded paragraph beside its replacement is a second
 expression of the same fact, and the commit that made the correction already holds the diff.

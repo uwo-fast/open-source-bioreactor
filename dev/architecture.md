@@ -1,6 +1,6 @@
 # Architecture
 
-Where a number is allowed to come from. [Design conventions](design-conventions.md) says how a
+Where a number is allowed to come from. [Design conventions](../docs/design-conventions.md) says how a
 number is justified; this says who may hand it to whom. It is normative: a file that breaks a rule
 here is a defect.
 

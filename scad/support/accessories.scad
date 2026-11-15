@@ -7,7 +7,7 @@
  * lives here: [file, name, quantity, the flags that render that part alone]. `just
  * export-accessories` walks it.
  *
- * The cart prints nothing, and is not built; docs/future-work.md has it.
+ * The cart prints nothing, and is not built; dev/future-work.md has it.
  */
 
 function accessory_print_parts() = [
