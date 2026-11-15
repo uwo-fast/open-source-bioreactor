@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: extractions/setup-just@v4
-      - uses: astral-sh/setup-uv@v10.0.1
+      - uses: astral-sh/setup-uv@v10.3.3
       - uses: actions/setup-node@v7
         with:
           node-version: "22"
@@ -59,7 +59,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: extractions/setup-just@v4
       # check-holes probes the rendered mesh with numpy, supplied by `uv run --with`.
-      - uses: astral-sh/setup-uv@v10.0.1
+      - uses: astral-sh/setup-uv@v10.3.3
 
       - name: Install OpenSCAD
         run: |
