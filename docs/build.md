@@ -126,7 +126,7 @@ baffle print: 1 piece of 165.218 mm, tallest standing 188.218 mm against a 200 m
 
 Where a plate is split, as on `jar_10L` given lid plates (`baffle_name = "lid"`, two pieces of
 136.997 mm), the pieces join with a dovetail. A larger printer can pin `baffle_segments = 1` and
-print each plate whole, which is stiffer: there the joints take 14 % of the tip deflection.
+print each plate whole, which is stiffer: split, the joints take 14 % of the tip deflection.
 
 **The slide runs along the plate's width, and that is a load choice.** The swirl pushes on the
 plate's face, so with the slide across the width that load bears on the dovetail's flanks and the
@@ -670,7 +670,7 @@ jars it is three.
 ### Drilling the support tubes
 
 On a ring build every tube port but `air_in` takes a support tube: capped where it meets the ring, and doing its job
-through a hole you drill. Four of them on the twelve-port lid, two on the six-port jars. The model is
+through a hole you drill. Five of them on the twelve-port lid, two on the six-port jars. The model is
 the only thing that can dimension that hole, and it does:
 
 ```

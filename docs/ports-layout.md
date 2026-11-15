@@ -95,7 +95,7 @@ silently taking the first.
 
 ## What the other tube ports also carry
 
-The ring hangs on more than its feed. **Every tube port but `air_in` drops a riser to it** — four on
+The ring hangs on more than its feed. **Every tube port but `air_in` drops a riser to it** — five on
 the twelve-port lid, two on the six-port jars — and the model derives that from the port table rather
 than naming functions, so any lid answers it. It was a named list once, and naming the acid and base
 lines in it broke the six-port jars, which carried neither.
