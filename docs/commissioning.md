@@ -8,14 +8,17 @@ worth sending back from it.
 The pump is seven times oversized, so the entire band sits in the first part of the needle valve's
 travel - that is why the valve is a 3 deg needle and not the 20 deg one.
 
-**Watch the DO trace on the first run.** `head()` reports where the DO probe's face sits against
-the sparger (`DO probe in the gas:`, printed only on a loop or ring build; of the transcripts,
-`build__jar_10L_220x305` carries it). A galvanic probe reads high with a bubble on the membrane and
-low with nothing moving past, so a probe over the bubbles can be wrong in both directions. A
-characteristically spiky trace means the probe is in the plume, and the fix is a bench one: lower
-the sparger, whose height is a parameter. The port's lean is not a lever - `head()` already leans it
-outward to its 4.5 deg ceiling or as far as the jar allows, so leaning it less only brings the face
-nearer the gas.
+**Watch the DO trace on the first run.** On a shaft-drive build with the loop or the ring, `head()`
+reports where the DO probe's face sits against the sparger (`DO probe in the gas:`; of the
+transcripts, `build__jar_10L_220x305` carries it), and warns when the face overlaps the sparger's
+radius. A galvanic probe reads high with a bubble on the membrane and low with nothing moving past,
+so a probe over the bubbles can be wrong in both directions. A characteristically spiky trace means
+the probe is in the plume. Where the bubbles go is a bench question, and the model has two levers.
+The port's lean moves the face across the gas: it leans outward, so leaning less takes the face
+inward, away from a ring outboard of it and toward a loop inboard of it. On `jar_10L` the lean is
+already at its 4.5 deg ceiling, away from the loop. The sparger's height (`sparge_cap_drop` for the
+loop and the arm, `sparge_ring_gap_fraction` for the ring) moves the gas up or down under the face.
+The echo gives the face's offset after either change.
 
 **Know the replace-the-filter signal.** The sterile filter can rise about **50 %** - from 14.1 kPa
 to roughly 21.1 - before 0.5 vvm becomes unreachable with the valve wide open. So _valve fully open
