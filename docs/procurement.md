@@ -135,7 +135,7 @@ Sized by calculation from the pump's own specification and the vessel geometry, 
   | vessel             | needs           | scale         |
   | ------------------ | --------------- | ------------- |
   | jar_1p5L_112x215   | 0.15-0.73 L/min | 0-1 L/min     |
-  | jar*1gal*x2        | 0.33-1.77       | 0-2 L/min     |
+  | jar_1gal (both)    | 0.33-1.77       | 0-2 L/min     |
   | jar_10L_220x305    | 0.82-4.09       | **0-5 L/min** |
   | jar_6p5gal_305x470 | 2.04-10.21      | 0-15 L/min    |
 
