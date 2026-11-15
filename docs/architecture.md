@@ -8,11 +8,11 @@ here is a defect.
 
 ```
 bioreactor.scad        the build: designations resolved, coupling derived once, head + frame composed
-  ├── head.scad        subassembly: takes its coupling as arguments, standalone defaults
-  ├── frame.scad       subassembly, same contract
-  │     ├── custom/    printed parts: arguments in, geometry out
-  │     ├── purchased/ bought parts: registry rows, accessors, a drawing of the vitamin
-  │     └── utils/     standards and laws: thread tables, gland ratios, physics, geometry helpers
+  |-- head.scad        subassembly: takes its coupling as arguments, standalone defaults
+  |-- frame.scad       subassembly, same contract
+  |     |-- custom/    printed parts: arguments in, geometry out
+  |     |-- purchased/ bought parts: registry rows, accessors, a drawing of the vitamin
+  |     `-- utils/     standards and laws: thread tables, gland ratios, physics, geometry helpers
 support/               furniture around the reactor; may compose bioreactor.scad, nothing composes it
 _shelf/  _archive/      off the tree; nothing on it imports them
 ```

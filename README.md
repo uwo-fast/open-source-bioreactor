@@ -24,16 +24,16 @@ then follow [`docs/build.md`](docs/build.md).
 
 ## Documentation
 
-- [`docs/build.md`](docs/build.md) — what to cut, print and tighten, and in what order
-- [`docs/architecture.md`](docs/architecture.md) — who may hand a number to whom
-- [`docs/design-conventions.md`](docs/design-conventions.md) — the rules the model is built to
-- [`docs/baseline.md`](docs/baseline.md) — what the reference build holds at a standard, and the knobs later work turns
-- [`docs/agitation.md`](docs/agitation.md) — why the impeller is the size it is
-- [`docs/ports-layout.md`](docs/ports-layout.md) — what sits at each port on the lid, and why
-- [`docs/procurement.md`](docs/procurement.md) — how the bought parts were chosen
-- [`docs/decisions.md`](docs/decisions.md) — what was settled and why, and the figures that were corrected
-- [`docs/future-work.md`](docs/future-work.md) — ideas with their reasoning, not planned or tracked
-- [`docs/references.md`](docs/references.md) — the sources, and how far each one was actually read
+- [`docs/build.md`](docs/build.md) - what to cut, print and tighten, and in what order
+- [`docs/architecture.md`](docs/architecture.md) - who may hand a number to whom
+- [`docs/design-conventions.md`](docs/design-conventions.md) - the rules the model is built to
+- [`docs/baseline.md`](docs/baseline.md) - what the reference build holds at a standard, and the knobs later work turns
+- [`docs/agitation.md`](docs/agitation.md) - why the impeller is the size it is
+- [`docs/ports-layout.md`](docs/ports-layout.md) - what sits at each port on the lid, and why
+- [`docs/procurement.md`](docs/procurement.md) - how the bought parts were chosen
+- [`docs/decisions.md`](docs/decisions.md) - what was settled and why, and the figures that were corrected
+- [`docs/future-work.md`](docs/future-work.md) - ideas with their reasoning, not planned or tracked
+- [`docs/references.md`](docs/references.md) - the sources, and how far each one was actually read
 
 ## Citation
 
@@ -42,7 +42,7 @@ repository" button reads the same file.
 
 ## License
 
-Copyright © 2024–2026 Cameron Brooks.
+Copyright (c) 2024-2026 Cameron Brooks.
 
 This project is free software: you may redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software

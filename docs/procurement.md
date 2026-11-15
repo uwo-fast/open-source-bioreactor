@@ -6,9 +6,9 @@
 by scope and currency, and `just cost 1.3960` folds the two currencies together at that many CAD per
 USD. `just check` fails on a row that cannot be summed.
 
-- `scope` — `reactor` is the reference build (the 10 L jar, shaft drive, coil condenser) with its
+- `scope` - `reactor` is the reference build (the 10 L jar, shaft drive, coil condenser) with its
   electronics; `sampler` is the turbidity sampler, `bench` the e-stop box, `tooling` the tools.
-- `qty` × `price` is what buying the row costs. `qty` counts purchase units and `unit` says what one
+- `qty` x `price` is what buying the row costs. `qty` counts purchase units and `unit` says what one
   is (`pack of 50`, `2 m length`); `need` is how many the build uses, which a pack usually exceeds.
 - `currency` is the vendor's own, never converted in the file.
 - `price_confidence` says where the number came from: `read` off the vendor's listing on
@@ -127,19 +127,19 @@ Sized by calculation from the pump's own specification and the vessel geometry, 
   | vessel             | needs           | scale         |
   | ------------------ | --------------- | ------------- |
   | jar_1p5L_112x215   | 0.15-0.73 L/min | 0-1 L/min     |
-  | jar*1gal*×2        | 0.33-1.77       | 0-2 L/min     |
+  | jar*1gal*x2        | 0.33-1.77       | 0-2 L/min     |
   | jar_10L_220x305    | 0.82-4.09       | **0-5 L/min** |
   | jar_6p5gal_305x470 | 2.04-10.21      | 0-15 L/min    |
 
 - **buy 0-5 L/min for the 10 L jar**, where 0.82-4.09 sits at 16.3-81.7 % of scale. No single range
-  covers the family — that is a property of a 70:1 spread between the smallest jar at 0.1 vvm and
+  covers the family - that is a property of a 70:1 spread between the smallest jar at 0.1 vvm and
   the largest at 0.5, not a bad choice.
-- enriching with CO₂ later does not invalidate the meter. A rotameter reads by gas density, and
-  0.5 % CO₂ in air changes density by 0.26 %
+- enriching with CO2 later does not invalidate the meter. A rotameter reads by gas density, and
+  0.5 % CO2 in air changes density by 0.26 %
 - the chain is in [`purchased-parts.csv`](../purchased-parts.csv): Dwyer `VFA-23` bare meter, Clippard `MNV-3KP` needle
   valve dropping **7.0 kPa** at 4.09 L/min, Cole-Parmer `5011521` check valve against the 1.0-1.9
   kPa of culture head that sits over the ring
-- the valve is the 3° needle `MNV-3KP` rather than the 20° `MNV-4K2`. Both are Cv 0.094, so both
+- the valve is the 3 deg needle `MNV-3KP` rather than the 20 deg `MNV-4K2`. Both are Cv 0.094, so both
   sit at about 37 % of travel; what differs is roughly seven times the rotation for the same
   change in flow, and the pump being seven times oversized puts the whole band in the first part
   of that travel
@@ -150,29 +150,29 @@ Sized by calculation from the pump's own specification and the vessel geometry, 
   - _Flowmeter, 13 candidates._ The discriminator was **scale unit and calibration pressure**,
     not range or price. Five McMaster tubes read **scfh**, which puts a conversion on every
     reading in the paper. The medical channel is referenced at **50 psig** and the welding
-    channel at **30**, so both would read about **87 % wrong** at this line's pressure — ruled
+    channel at **30**, so both would read about **87 % wrong** at this line's pressure - ruled
     out on calibration basis rather than cost. Cole-Parmer have no 5 L/min rung and their
-    nearest tube is 8.5 L/min full scale, which costs **±10.4 %** at the design point against
-    the Dwyer's ±6.1 %, for 69 % more money. A glass LZB-4WB was cheapest but its listing quotes
+    nearest tube is 8.5 L/min full scale, which costs **+/-10.4 %** at the design point against
+    the Dwyer's +/-6.1 %, for 69 % more money. A glass LZB-4WB was cheapest but its listing quotes
     "2.5 %, 4 %, 6 %" across the series without saying which applies to that model.
   - _Check valve, 13 candidates._ The discriminator was the **flowing drop at 4.087 L/min**,
-    which no spec sheet carries — every page quotes only static cracking pressure. Computing it
+    which no spec sheet carries - every page quotes only static cracking pressure. Computing it
     from published Cv reorders the field: an Air Logic umbrella at the same nominal cracking
     pressure costs about **0.9 kPa more**, because its flow capacity is a quarter. The
-    nylon/silicone sibling `5011519` was rejected on material — nylon is hygroscopic and swells
+    nylon/silicone sibling `5011519` was rejected on material - nylon is hygroscopic and swells
     in continuously humid air. `5011521` beat US Plastic `22577` **on procurement, not physics**:
     1.85 against 1.78 kPa by that arithmetic (`head()` puts this valve at 1.93 in the line) is
     inside the error on the filter figure that dominates the budget, and it shares a supplier with
     the sterile filter, so one shipment and one customs clearance.
   - _Metering valve._ Against the required Cv of 0.0349, `MNV-2` (Cv 0.032) runs out of authority
     and an Ideal Valve 52-1-12 (Cv 0.019) **cannot reach the design flow at all**. `MNV-4K2`
-    meets the Cv and was rejected on the **needle**: Clippard's catalogue gives it a 20° taper,
+    meets the Cv and was rejected on the **needle**: Clippard's catalogue gives it a 20 deg taper,
     coarser than the `MNV-1` already rejected for being coarse.
 
 ### Hose clamps
 
 - McMaster-Carr 5011T141, <https://www.mcmaster.com/5011T141/>
-- worm-drive hose clamp, 316 stainless band **and** screw, 5/16 in band × 0.023 in, SAE J1508
+- worm-drive hose clamp, 316 stainless band **and** screw, 5/16 in band x 0.023 in, SAE J1508
 - SAE 4: 7/32 in to 5/8 in, i.e. **5.556 to 15.875 mm**; 1/4 in hex, 7.5 in.-lbs maximum torque
 - 17 needed - 14 on the gas line and 3 on the dosing stubs - sold in tens, so 2 packs; US$19.82 a
   pack
@@ -182,27 +182,27 @@ Sized by calculation from the pump's own specification and the vessel geometry, 
   is 12.7 mm and would leave 2.3 mm of lead-in in total
 - **one size covers the whole line**, which the width decides for it: the 5/16 in band's smallest
   size is the SAE 4 at 5.556-15.875 mm and the next size up starts at 11 mm. Against the gas
-  line's four bores — 3/8, 1/4, 1/8 in PVC and 3/16 in silicone — the SAE 4 takes all fourteen
+  line's four bores - 3/8, 1/4, 1/8 in PVC and 3/16 in silicone - the SAE 4 takes all fourteen
   joints on one part number
 - those outside diameters follow the WALL, which is not the bore and is not pinned for a commodity
   tube. At 1/16 in wall they are 12.70, 9.53, 6.35 and 7.94 mm and every one is inside the range,
   the 1/8 in joints near the bottom of it but engaged. The joint that can leave the range is the
-  _largest_: 3/8 in line in a 1/8 in wall is 9.525 + 2 × 3.175 = **15.875 mm**, and the SAE 4's
+  _largest_: 3/8 in line in a 1/8 in wall is 9.525 + 2 x 3.175 = **15.875 mm**, and the SAE 4's
   upper limit is 5/8 in, which is **15.875 mm** - the same number twice, on a clamp wound out to
   its last thread. So [`purchased-parts.csv`](../purchased-parts.csv) specifies that run in 1/16 or 3/32 in wall, 12.70 or
   14.29 mm, rather than adding an SAE 6 for one joint
 - **316 rather than the three cheaper builds of the same clamp.** McMaster sell it as 301 band
-  with a zinc-plated, 410, 305 or 316 screw. The plated screw is the one to reject outright — the
+  with a zinc-plated, 410, 305 or 316 screw. The plated screw is the one to reject outright - the
   band survives and the screw rusts and seizes, and the riser clamp sits in a permanently humid
   headspace. Of the rest, 410 alone keeps the 10 in.-lbs rating; **305 and 316 are both derated to
   7.5**, so 316 costs nothing in torque against 305 and only $4.46 a pack. This reactor is
   chemically sterilised rather than autoclaved and already carries one recorded chloride
   vulnerability in the 440C bearing above; 316 is the grade that does not reopen that argument
-- **7.5 in.-lbs is a galling limit, not a strength one** — austenitic screw in an austenitic
+- **7.5 in.-lbs is a galling limit, not a strength one** - austenitic screw in an austenitic
   housing. These get opened at every filter change, so they are snugged with the 1/4 in nut driver
   and never a wrench. Nothing here needs the torque: the clamps close soft tubing over rigid
   barbs, and the tightest of them is 0.76 mm of slack on the riser
-- the rule this follows is the one set against the impeller set screws — wetted → 316, dry → 18-8.
+- the rule this follows is the one set against the impeller set screws - wetted -> 316, dry -> 18-8.
   Strictly these are dry, which would allow the 305, and the 305 would be a defensible row. What
   tips it is that one clamp size serves every joint, so the whole line inherits whichever grade is
   bought, including the sterile-side four and the one at the lid
@@ -260,16 +260,16 @@ Sized by calculation from the pump's own specification and the vessel geometry, 
 
 - **E-S Motor 36D gearmotor with encoder, RobotShop SKU RM-ESMO-071, mfr 36PG-555PM-14-EN 12V**,
   <https://ca.robotshop.com/products/e-s-motor-36d-dc-planetary-gearmotor-w-encoder-12v-420rpm>
-- 12 V DC, gear ratio 1/14, **no-load 420 rpm, rated 320 rpm** at 5 kg·cm (0.490 N·m), rated
-  current < 2 A, no-load current 400 mA, stall > 15 kg·cm / < 10 A, 30 W maximum
+- 12 V DC, gear ratio 1/14, **no-load 420 rpm, rated 320 rpm** at 5 kg-cm (0.490 N-m), rated
+  current < 2 A, no-load current 400 mA, stall > 15 kg-cm / < 10 A, 30 W maximum
 - motor 36 x 57 mm, gearbox 36 x 34.5 mm, shaft 8 x 20 mm D-shaped with 15 mm of flat at 7 mm
 - faceplate 4-M4 tapped 5 mm deep on a 28 mm bolt circle, 22 mm pilot register standing 2 mm proud
 - encoder is magnetic, 2 channels, 12 PPR at the motor shaft, which past the 14:1 is 672
-  quadrature counts per output revolution — around 0.9 rpm resolved over a 100 ms window, against
+  quadrature counts per output revolution - around 0.9 rpm resolved over a 100 ms window, against
   an operating band 155 rpm wide
 - six flying leads (motor M1/M2, Hall GND, Hall A, Hall B, Hall Vcc); no connector fitted, unlike
   the 3429 SKUs which ship an SM2P-2.54 on 90 mm cables
-- chosen because its 320–420 rpm spanned the whole speed band on the 94.5 mm pitched pair, the only
+- chosen because its 320-420 rpm spanned the whole speed band on the 94.5 mm pitched pair, the only
   candidate reaching that band's 410 rpm break-even, and because the encoder gives the drive speed
   feedback. On the 70 mm turbine it brackets the 344 rpm optimum and cannot reach the 554 rpm
   break-even ([Agitation](agitation.md#the-operating-point))
@@ -277,22 +277,22 @@ Sized by calculation from the pump's own specification and the vessel geometry, 
   so 34.5 mm is the 36PG-3429 sheet's figure at 14:1; and its drawing's 57 mm spans the whole
   motor block without dimensioning the encoder separately, which is the same 57 mm the plain 555
   can gets with no encoder on it. Both feed the reactor envelope and so the cart, where a
-  millimetre counts twice over two tiers — confirm with the vendor before ordering
+  millimetre counts twice over two tiers - confirm with the vendor before ordering
 - rejected **RM-ESMO-16Q** (36PG-3429-5.2): rated 950 rpm is 3.48 m/s at the 70 mm turbine's tip,
   1.7 times the break-even. Right family, wrong ratio. Still registered as a product
-- passed over **RM-ESMO-16N** (36PG-3429-19, 42.15 CAD), no-load 385 / rated 265 rpm at 2.4 kg·cm.
+- passed over **RM-ESMO-16N** (36PG-3429-19, 42.15 CAD), no-load 385 / rated 265 rpm at 2.4 kg-cm.
   Both ends sit inside the pitched pair's band and it is 27.6 mm shorter in the stack, but it
   cannot reach the 554 rpm break-even and carries no encoder. The fallback if stack height turns
   out to bind
 - passed over **RM-ESMO-0MX** (36PG-555K-1260-19, 34.50 CAD), no-load 315 / rated 240 rpm at
-  7 kg·cm. Its rated point falls below the growth optimum, and the torque it sells on is worth
-  nothing here — the impeller pair asks under 5 % of it. Bare copper tabs, no connector
+  7 kg-cm. Its rated point falls below the growth optimum, and the torque it sells on is worth
+  nothing here - the impeller pair asks under 5 % of it. Bare copper tabs, no connector
 
 ### 36PG gearbox family
 
 - one faceplate across the range: 4 screws on a **28 mm bolt circle**, a 22 mm pilot register
   standing **2 mm** proud, and an 8 x 20 mm D-cut output shaft. The 3429 and 555K are tapped M3,
   the 555PM-EN M4. This is what lets the printed mount stay common across the range
-- rated speed runs 0.68–0.71 of no-load across all ten ratios, so an unqualified catalogue speed
+- rated speed runs 0.68-0.71 of no-load across all ten ratios, so an unqualified catalogue speed
   is a no-load speed and the operating point is roughly 0.7 of it. This is why the registry keeps
   the two apart. The ratio tables are in `scad/purchased/gearboxes.scad`

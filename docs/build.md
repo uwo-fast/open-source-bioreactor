@@ -27,9 +27,9 @@ Three figures in particular are bands rather than measurements, and all three wa
   case
 
 Not every vessel takes every drive. `jar_1p5L_112x215` and `jar_1gal_155x251` cannot carry a
-top-entry drive on their lids at any mount size — the mount overlaps the port flanges on the first,
+top-entry drive on their lids at any mount size - the mount overlaps the port flanges on the first,
 and on the second the pH probe runs through the lower impeller, because in a 155 mm bore the port
-circle and the impeller want the same radius — so both are built as airlifts, with no drive and a
+circle and the impeller want the same radius - so both are built as airlifts, with no drive and a
 draft tube, and both also take the magnetic one. The builds that work are the sets in `scad/bioreactor.json`, and
 `just check-builds` fails if one of them stops building. What each vessel cannot yet take, and why,
 is on [`TODO.md`](../TODO.md).
@@ -43,27 +43,27 @@ This is the part of the build nothing else will remind you about.
 
 **From `head.scad`:**
 
-- the **lid**, one piece — flange, plug, bearing pocket, insert holes, gasket recess, o-ring groove,
+- the **lid**, one piece - flange, plug, bearing pocket, insert holes, gasket recess, o-ring groove,
   and all twelve bayonet _lock_ halves. The locks are not optional detail: their channels are the
   walls of the lid's bores, so a lid exported without them is twelve plain holes that nothing locks
   into
-- the **port pin halves**, one per port — tube ports for `air_in`, `air_out` (only on the ring's
+- the **port pin halves**, one per port - tube ports for `air_in`, `air_out` (only on the ring's
   builds; elsewhere the coil condenser's body is that pin) and the dosing
   lines `dose_1` to `dose_3`; probe ports with their integral flex collets for DO and pH; a thermocouple port carrying
   an NPT mount
-- a **blank port** for each bayonet size the lid uses — a pin with no bore, labelled `BLANK`, to
+- a **blank port** for each bayonet size the lid uses - a pin with no bore, labelled `BLANK`, to
   close a port with nothing in it while cleaning, testing or servicing
-- the **baffle ports and plates** — one plate per baffle port, each split into dovetailed pieces;
+- the **baffle ports and plates** - one plate per baffle port, each split into dovetailed pieces;
   or, on a build that carries the wall cage (both `jar_10L` builds, where `baffle_name = "auto"`
   takes it), the **cage**: a top hoop, a bottom hoop and four blades, and three more blanks for the
   ports the plates would have taken (see [The wall baffle cage](#the-wall-baffle-cage))
 - the **motor mount**, in three parts: base plate, face plate, middle stand
 - **two impellers**
-- the **sparger** — the arm, or the ring or the loop if the build names one (`sparger_name`; see
+- the **sparger** - the arm, or the ring or the loop if the build names one (`sparger_name`; see
   [The sparger](#the-sparger))
 
 **From `frame.scad`:** the base, the top base, **eight ribs** and **twelve rod spacers**. The ribs
-are one part printed eight times: each is rotated by a multiple of 90° and bitten by the same lights
+are one part printed eight times: each is rotated by a multiple of 90 deg and bitten by the same lights
 cutout, so the exported meshes differ only in how the cut surface tessellates.
 
 **The drive decides two of those lists.** `drive_name` in `bioreactor.scad` is `shaft` (above),
@@ -84,7 +84,7 @@ takes plain under `none` or `airlift` and bearing otherwise. A magnetic build st
 flange would not clear the ports, as `jar_1p5L_magnetic` and `jar_1gal_155_magnetic` do; that lid
 cannot later take the shaft.
 
-**Tools, printed once:** the three parts of the gasket cutter. The base is printed once for good —
+**Tools, printed once:** the three parts of the gasket cutter. The base is printed once for good -
 it is the same for every gasket; the outer disc and inner plate follow the cut and are reprinted
 when the vessel changes.
 
@@ -98,7 +98,7 @@ one, and the wetted parts are what the culture sits against for the length of a 
 disc turbine's disc overhangs the whole ring between hub and blades, and supports there leave the
 disc rough. Split at the disc's mid-plane, each half prints on its half-disc with nothing
 overhanging. Turn one half over onto another and line them up with two lengths of 1.75 mm filament
-in the pin holes at 90 and 270°; the blades sit on multiples of 60°, so they land on each other.
+in the pin holes at 90 and 270 deg; the blades sit on multiples of 60 deg, so they land on each other.
 `impeller_half` on the print list is the part, four off. A turbine too small for its half to take
 the set screw's hole prints whole, and `head()` warns.
 
@@ -125,32 +125,32 @@ print each plate whole, which is stiffer: split, the joints take 14 % of the tip
 **The slide runs along the plate's width, and that is a load choice.** The swirl pushes on the
 plate's face, so with the slide across the width that load bears on the dovetail's flanks and the
 one free axis carries only vibration. A blind end registers the pieces; the butt faces meet, so
-the 0.1 mm allowance is flank clearance only and the plate keeps its length. The neck — the only
-material crossing the joint plane — is the parameter rather than the tail's depth, and a shallow
-10° flare buys engagement without eating it.
+the 0.1 mm allowance is flank clearance only and the plate keeps its length. The neck - the only
+material crossing the joint plane - is the parameter rather than the tail's depth, and a shallow
+10 deg flare buys engagement without eating it.
 
 **Two things about the joint are not modelled.** The first mode `head()` reports is the solid
 plate's; the joints soften it by an amount not computed. And a 0.1 mm crevice at the joint sits in
-the culture, in a vessel that is chemically sterilised rather than autoclaved — a cleaning
+the culture, in a vessel that is chemically sterilised rather than autoclaved - a cleaning
 liability nothing here answers.
 
 **That cap is about the part, not about your printer.** It is a piece's height against **three
 times its own section**: a brim as wide as the part on each side, which is why a brim is worth
 printing on something this slender. The rule gives **205.07 mm**, and
-the **printer ceiling clamps the cap to 200 mm** — the shortest registered build height less 10 —
+the **printer ceiling clamps the cap to 200 mm** - the shortest registered build height less 10 -
 so 200 is what the echo reports, against `jar_1gal_180x197`'s 188 mm tallest piece.
 
 The piece that binds is not the obvious one. The piece carrying the port stands on a **28.2 mm
 flange**, which is a wide foot; a tip piece stands on the section alone and is half again as
-slender for it. That section is **17.09 × 10 mm** — the widest plate the port's lock bore will
-pass, which `jar_1gal_180x197`'s plates also are — so the cap is a property of the
+slender for it. That section is **17.09 x 10 mm** - the widest plate the port's lock bore will
+pass, which `jar_1gal_180x197`'s plates also are - so the cap is a property of the
 port and grades the same on every vessel.
 
 `just export-parts` writes every one of these as its own STL, with a print list beside them, and
-CGAL-renders each on the way past — so a part that is not a valid solid is caught there rather than
+CGAL-renders each on the way past - so a part that is not a valid solid is caught there rather than
 in a slicer. It measures each one too, and reports which registered printers take it. It covers the
-reactor's own parts — the lid and everything hanging from it, and the frame's base, top base, ribs
-and rod spacers — which comes to **49 pieces across 25 distinct parts** on `jar_10L_220x305`.
+reactor's own parts - the lid and everything hanging from it, and the frame's base, top base, ribs
+and rod spacers - which comes to **49 pieces across 25 distinct parts** on `jar_10L_220x305`.
 
 **A build is a parameter set in `scad/bioreactor.json`**: a vessel and whatever it designates.
 `just export-parts jar_10L_magnetic` exports that one to `output/jar_10L_magnetic/`, and the print
@@ -191,7 +191,7 @@ pins and probes lift off above, and the rim gasket and plug ring drop below. `ju
 
 **Without OpenSCAD:** the Export workflow on GitHub runs the same export on demand and on every
 tag, one job per build, and leaves the STLs and the print list as a downloadable artifact
-(`stl-<build>`) on the run. It is also the only place the parts that print are CGAL-checked in CI —
+(`stl-<build>`) on the run. It is also the only place the parts that print are CGAL-checked in CI -
 `just test` covers the entry files' previews, not the manifests.
 
 It is not everything in this repo that gets printed. The bench around the reactor has its own
@@ -201,8 +201,8 @@ corner to `output/accessories/`, from `accessory_print_parts()` in
 `scad/support/accessories.scad`. The cart prints nothing and was never built
 ([future work](future-work.md#bench)).
 
-**What you need to own.** Three parts are a **257.6 mm disc** — the lid, and the frame's base and
-top base — and they are the widest things in the build by a long way. A disc has the same width at
+**What you need to own.** Three parts are a **257.6 mm disc** - the lid, and the frame's base and
+top base - and they are the widest things in the build by a long way. A disc has the same width at
 every angle, so it cannot be turned to fit a narrow bed: what your printer needs is `min(X, Y)` of
 at least 257.6.
 
@@ -213,7 +213,7 @@ It checks against the machines registered in
 **Bambu H2D**, the **Sovol SV08**, a **Voron 2.4 350** and the **Prusa XL**.
 
 A **Bambu X1C** is 256, short by **1.6 mm**. A **Voron 250** is short by 7.6. A **Prusa CORE One**
-is 250 × 220 and cannot do it at any margin, because the jar alone is 220 mm across and the lid has
+is 250 x 220 and cannot do it at any margin, because the jar alone is 220 mm across and the lid has
 to overhang the glass to carry its bolts. Trimming the lid does not help: the frame's bases are
 257.6 too, and their wall is set by the rod bosses.
 
@@ -223,16 +223,16 @@ to overhang the glass to carry its bolts. Trimming the lid does not help: the fr
 
 | Stock                              | Cut                                      | Yield                                           |
 | ---------------------------------- | ---------------------------------------- | ----------------------------------------------- |
-| M8 threaded rod, DIN 975 A2        | **4 × 322 mm**                           | buy 1500 mm or more                             |
-| 316 SS tube 4 × 0.5 mm, `50415K21` | **1 × 265.3 + 3 × 187.9 + 1 × 217.0 mm** | 1046.2 mm from a 2000 mm length, 953.8 mm spare |
-| EPDM sheet 1/16 in 60A, `8525T65`  | **142.2 × 158.2 mm** per lid             | 1 per 304.8 mm sheet                            |
+| M8 threaded rod, DIN 975 A2        | **4 x 322 mm**                           | buy 1500 mm or more                             |
+| 316 SS tube 4 x 0.5 mm, `50415K21` | **1 x 265.3 + 3 x 187.9 + 1 x 217.0 mm** | 1046.2 mm from a 2000 mm length, 953.8 mm spare |
+| EPDM sheet 1/16 in 60A, `8525T65`  | **142.2 x 158.2 mm** per lid             | 1 per 304.8 mm sheet                            |
 
 **The rod length follows the jar, not the design.** 322 mm is `jar_10L`; it is 214 mm on
 `jar_1gal_180` and 487 on `jar_6p5gal`. It is derived as vessel 305 + flange 8 + nut 6.5 + 2.5 mm
 left proud of the top nut, so a different vessel height moves it directly.
 
 **Deburr the tube bore after cutting, and treat that as a step rather than a nicety.** A wheel
-cutter rolls a 0.5 mm wall inward at the cut, and the riser's bore is only 3 mm — so the restriction
+cutter rolls a 0.5 mm wall inward at the cut, and the riser's bore is only 3 mm - so the restriction
 lands exactly where gas enters. The registered tool is a NOGA RC1000, whose minimum bore is not
 published; check its blade actually reaches 3 mm before relying on it. A round needle file does the
 same job on two cuts. A jeweller's saw in a mitre jig avoids the problem instead of correcting it,
@@ -247,14 +247,14 @@ be lined up on a board by eye.
    every gasket size.
 2. **First cut.** Lay the sheet on the base, put the outer disc on it, and run a screw through the
    disc's centre into the central nut. Cut round the disc. The screw pierces the sheet at its
-   centre, which is waste — the inner cut removes it.
+   centre, which is waste - the inner cut removes it.
 3. **Second cut.** Leave a short screw standing in the centre and drop the blank over it, or just
    lay the blank on the base. Lower the inner plate onto it: the counterbore's mouth is flared, so
    it shepherds the blank into its seat as it comes down. Run the three clamp screws through the
    plate, through the base's slots, into the nuts. Cut down the bore.
 
-   The base has two rings of slots. A plate reaches whichever one clears its own blank — the inner
-   ring for the small jars, the outer for the large — so the nuts move to match the plate you
+   The base has two rings of slots. A plate reaches whichever one clears its own blank - the inner
+   ring for the small jars, the outer for the large - so the nuts move to match the plate you
    printed, and the ring the plate does not use stays clear of every cut.
 
 The plate stands `grip` (0.4 mm) proud of its seat, so it closes on rubber and pinches the blank
@@ -268,27 +268,27 @@ rather than your hand.
 Most of the fits in this reactor are bought. These are the ones you create at the bench, and each
 one has a number that decides whether it works.
 
-**The bearing is a press fit — heat the race and chill the shaft.** The shaft is 7.995–8 mm in an
+**The bearing is a press fit - heat the race and chill the shaft.** The shaft is 7.995-8 mm in an
 8 mm bore, so the fit runs from 0.007 mm interference to 0.005 mm clearance; the pocket in the lid
 is 22.2 mm for a 22 mm outside diameter. The joint feeling tight on assembly is the intended
 condition. **Keep the bearing out of the vessel's bleach step**: its 440C and Buna-N are the weak
 link against the sterilant ([why](procurement.md#bearing)).
 
 **Heat-set the four M4 inserts into the lid from the mount face.** 4.7 mm of insert into a 5.6 mm
-hole, with 13.25 mm of lid left beneath them. The inserts go in once and stay; the M4 × 8 screws
+hole, with 13.25 mm of lid left beneath them. The inserts go in once and stay; the M4 x 8 screws
 into them come out every time the mount does. The insert only offers 4.7 mm of thread, so a longer
-screw bottoms out instead of clamping, and the screw is 18-8 into 18-8 — take care not to round the
+screw bottoms out instead of clamping, and the screw is 18-8 into 18-8 - take care not to round the
 socket.
 
 **The impeller bore is a slip fit, and the set screws are what locate it.** The bore is 8.4 mm
-straight through on an 8 mm shaft — 0.4 to 0.405 mm of slack before print shrinkage — so an
+straight through on an 8 mm shaft - 0.4 to 0.405 mm of slack before print shrinkage - so an
 impeller slides to its height and is fixed there. Open the bore with a reamer or a drill if your
 printer closes it up; `head()` reports the slack it was cut for.
 
 **The impeller set screws cut their own thread.** The hole is printed at the 3.3 mm tap size and no
 thread is modelled; printed holes come out undersize, so expect to open one. A split impeller has no
-collar: each half takes two in its hub, in the gaps between the blades at 30 and 150°, so four per
-impeller. One printed whole takes two at 0 and 120°, through the 8 mm collar above the blades.
+collar: each half takes two in its hub, in the gaps between the blades at 30 and 150 deg, so four per
+impeller. One printed whole takes two at 0 and 120 deg, through the 8 mm collar above the blades.
 Either way it is 5.8 mm of thread. They are cup-point on purpose:
 they bite the shaft rather than relying on friction, which is all that holds the impeller once the
 bore slides.
@@ -299,18 +299,18 @@ bore slides.
 | ------------------------------ | ---------------------------------------------------------- |
 | Lid plug, `AS568-160`          | **stretched 3.67 %** onto a groove cut from the jar's bore |
 | Port face seals, 12 of them    | seated in a gland cut to fit the ring, no stretch          |
-| Riser rod seals, `8785N364` ×5 | **0 % stretch** — the ring's ID _is_ the 4 mm tube         |
-| Bearing rim seal, `8785N382`   | **0 % stretch** — the ring's ID _is_ the 22 mm bearing     |
+| Riser rod seals, `8785N364` x5 | **0 % stretch** - the ring's ID _is_ the 4 mm tube         |
+| Bearing rim seal, `8785N382`   | **0 % stretch** - the ring's ID _is_ the 22 mm bearing     |
 
-**The bearing seal goes in before the bearing.** Drop the 22×1.5 down the pocket and let it expand
+**The bearing seal goes in before the bearing.** Drop the 22x1.5 down the pocket and let it expand
 into the groove at mid-depth, then press the bearing past it. It seals on the bearing's **outer
-race**, which does not turn — the inner race does, and on a 608 both race faces are flush, so a
+race**, which does not turn - the inner race does, and on a 608 both race faces are flush, so a
 gasket under the bearing would be clamped against a rotating steel face. Nothing seats _on_ the
 pocket floor: the bearing still bottoms there.
 
 The rod seals go into an enclosed groove just above the lid's **inner** face, and they go in
 **before** the tubes pass through. That face is inaccessible once the lid is on the jar. There is
-one per tube port — five on the full lid, three on the six-port jars. Each ring folds into its
+one per tube port - five on the full lid, three on the six-port jars. Each ring folds into its
 groove; work it round and seat it with a small flat screwdriver.
 
 **The silicone sits differently at every joint, and the risky ones are all downstream.** One bore,
@@ -319,8 +319,8 @@ groove; work it round and seat it with a small flat screwdriver.
 which a worm clamp closes. Watch the filter joints: silicone creeps,
 and that joint is the sterile barrier. A leak upstream of the rotameter only costs flow you then
 dial back in; a leak downstream means the vessel gets less than the meter claims and every vvm
-figure in [Agitation](agitation.md) is wrong by that much. All four of the risky joints — the
-check valve twice, the filter twice — are downstream.
+figure in [Agitation](agitation.md) is wrong by that much. All four of the risky joints - the
+check valve twice, the filter twice - are downstream.
 
 ---
 
@@ -351,11 +351,11 @@ the shaft drive's impeller
 **The fan is picked by rule, not named.** Of NopSCADlib's fans, the one with the widest hub whose
 corners clear the carrier's pocket and whose depth fits under the jar with the joint's own depth
 reserved; the thinnest of that hub. The hub is the sort key because it is what the magnets are
-carried on, and a wider frame around a smaller hub buys nothing. An 80 × 25 on `jar_10L` and
-`jar_1gal_180`, a 40 × 11 on `jar_1p5L`, and on a riser a 60 × 25 on `jar_1gal_155` and a
-120 × 25 on `jar_6p5gal`. The magnets
+carried on, and a wider frame around a smaller hub buys nothing. An 80 x 25 on `jar_10L` and
+`jar_1gal_180`, a 40 x 11 on `jar_1p5L`, and on a riser a 60 x 25 on `jar_1gal_155` and a
+120 x 25 on `jar_6p5gal`. The magnets
 and the bar are named (`stir_magnet_name`, `stir_bar_name`), because a bench usually has some: the
-defaults are two Ø8 × 5 discs and a 38 mm bar, and the other registered sizes are in
+defaults are two dia 8 x 5 discs and a 38 mm bar, and the other registered sizes are in
 `purchased/magnets.scad` and `purchased/stir_bars.scad`.
 
 **The floor under the jar is sunk for that fan, up to a point.** The frame reaches below the jar by
@@ -401,7 +401,7 @@ nor a riser, and the model says so; no registered jar is in that band.
 
 **How high the carrier hangs is set by the magnets, not the fan.** Their faces are held
 `stir_magnet_glass_clearance` (1 mm) under the jar's punt, at the magnets' outer edge where the cone
-comes lowest, and the carrier's top follows down from there — never above the plane the jar lands
+comes lowest, and the carrier's top follows down from there - never above the plane the jar lands
 on. That is what "faces 1 mm under the punt and 6 mm from the floor inside" is: 1 mm of air and 5 of
 glass to the culture, with the bar's axis 4 mm above that.
 
@@ -415,11 +415,11 @@ on every other jar. Floor depth is not that jar's problem.
 
 **Assembly, in the order the parts allow:**
 
-1. **Print the carrier pocket up, as it is modelled** — there is nothing to support: it is solid
+1. **Print the carrier pocket up, as it is modelled** - there is nothing to support: it is solid
    under the fan, every wall is vertical and the ear's wedge slopes upward.
 2. **Four nuts into the hex pockets in the bottom face**, then the **fan into the pocket from
-   above**, hub up, with its lead on the side the pocket wall is cut down — that side faces the
-   base's slot. Four M4 × 40 screws down through the fan's own corner holes into those nuts: one
+   above**, hub up, with its lead on the side the pocket wall is cut down - that side faces the
+   base's slot. Four M4 x 40 screws down through the fan's own corner holes into those nuts: one
    driver, from above, and the nuts cannot turn. The fan is bolted rather than screwed into its
    own plastic, so it comes apart as many times as you like. The lead lies in the 8 mm cut above
    the 3 mm seat, wherever it leaves the fan, and drops down the notch in the middle of that side.
@@ -427,16 +427,16 @@ on every other jar. Floor depth is not that jar's problem.
    thread sit under the carrier, in the 8 mm the ear holds it clear by.
 
    The pocket is cut to the larger of an M4 nut and an M4 cap head, so **the joint also runs the
-   other way up** — cap screw up from the pocket, nut on the fan's face, hex key from below and a
+   other way up** - cap screw up from the pocket, nut on the fan's face, hex key from below and a
    spanner on top. Nothing about the print changes. Whether it closes does change with the jar,
    because the screw comes in 5 mm steps and the remainder stands over the nut: on `jar_10L` an
-   M4 × 40 is 1.76 mm into the glass, and on `jar_1gal_180` an M4 × 35 is 0.59 mm into it, so
+   M4 x 40 is 1.76 mm into the glass, and on `jar_1gal_180` an M4 x 35 is 0.59 mm into it, so
    either would have to be shortened. The `fan joint, head down` echo gives that number for the build
    in front of you. Build it heads up unless you have a reason not to.
 
 3. **Magnets into the cap**, opposite poles up: a bar follows a north and a south, and two norths
    hold nothing. Press-fit pockets (0.2 mm on the diameter); a drop of adhesive if they are loose.
-   Glue the cap to the hub's face, or stick it with double-sided foam tape, centred — it is a disc
+   Glue the cap to the hub's face, or stick it with double-sided foam tape, centred - it is a disc
    rather than a skirt because a skirt would foul the blade roots.
 4. **Carrier into the bore from above, before the jar.** Turn it until the ear finds the notch at
    the slot's light position and let it down: the ear lands on the two shoulders beside the wire
@@ -446,10 +446,10 @@ on every other jar. Floor depth is not that jar's problem.
    instead, before the frame is set on it, and the groove is the riser's doorway out.
 5. **Bar into the jar, jar into the base.** The bar sits centred on the punt plateau; the magnets
    find it through the glass.
-6. **Blank onto the lid.** The 22×1.5 ring goes in the pocket's groove as it would for the bearing;
+6. **Blank onto the lid.** The 22x1.5 ring goes in the pocket's groove as it would for the bearing;
    the blank's boss pushes past it, the pin down the bore, and four M4 screws into the inserts.
 
-**What the base gives up for this:** one T-shaped slot at an empty light position — the cord
+**What the base gives up for this:** one T-shaped slot at an empty light position - the cord
 notch's own profile carried across the floor ring to the bore, and above it a notch 3 mm wider each
 side, open at the top, that stops 8 mm short of where the jar lands. Nothing else moves, and the
 slot is cut under the shaft drive too, so a base printed today takes either. A base whose magnetic
@@ -459,8 +459,8 @@ build stands on a riser gives up nothing: the slot is the riser's.
 the size does, which is why none has a part number; `check-bom` says so in its header.
 
 **What it does not do.** The sparger, the baffles and the DO probe's lean are still sized and
-placed on the shaft drive's impeller — that geometry is their basis and stays. The echo says so.
-And nothing here models the coupling: how much torque two Ø8 discs hand a bar through 6 mm is a
+placed on the shaft drive's impeller - that geometry is their basis and stays. The echo says so.
+And nothing here models the coupling: how much torque two dia 8 discs hand a bar through 6 mm is a
 bench measurement, which is why the fan and magnet sizes are parameters rather than answers.
 
 ## The sparger
@@ -469,7 +469,7 @@ Three spargers, one build parameter: `sparger_name` is `arm`, `ring` or `loop`, 
 arm. The ring is what runs under no drive, and the only one the airlift takes, since it centres the
 draft tube; the shaft and magnetic builds run the arm, and the loop is theirs to choose.
 `jar_10L_220x305` chooses it. All three
-hang off the same riser from the `air_in` port, and the other four tubes stay whichever is fitted —
+hang off the same riser from the `air_in` port, and the other four tubes stay whichever is fitted -
 they are the dosing and vent lines, and under the arm or the loop they simply have nothing to socket
 into. `head()` reports each as `sparge arm:`, `sparge loop:` or `sparge ring:`, and
 [Agitation](agitation.md#sparger) has what those figures mean.
@@ -482,13 +482,13 @@ argument, and that argument stays with the ring. Same 1.2 mm holes as the ring; 
 the arm's length at the pitch floor, which on `jar_10L` is eight.
 
 **The loop is the arm hooked round into a C.** The same socket, boss and screw on the same riser,
-the elbow turned inward, then one tube that hooks onto a 300° C round the shaft at the arm's height
+the elbow turned inward, then one tube that hooks onto a 300 deg C round the shaft at the arm's height
 with eleven of the ring's holes drilled down, so the gas rises into the lower impeller all the way
 round. It is as large as the baffles let it be: inside their inner edge by the lean they and its
 own riser can swing through at its height and 1.25 mm, which on `jar_10L` is 75.95 mm across,
 1.09 D. On the other jars the hook places it, smaller. It hangs on one riser, and `head()` warns
 what sideways force closes its gap to a baffle; seat it, square it to the shaft, and drive the
-screw before the lid goes on, since turning it 1.27° on the riser closes that gap as well. Its one
+screw before the lid goes on, since turning it 1.27 deg on the riser closes that gap as well. Its one
 end takes the ring's plug screw, and a pipe cleaner goes in there and round to the socket.
 
 **With no drive the ring goes to the floor.** Between the impellers is only a place when there are
@@ -496,10 +496,10 @@ impellers; under `drive_name = "none"` the ring's underside sits `sparge_ring_fl
 over the highest glass beneath it, so the column is sparged from the bottom. The supports lengthen
 to match - on `jar_1p5L` that moves their stock from a 500 mm length to a 1000 mm one.
 
-**How the riser is held.** The ring's sockets are bored 0.2 mm over the 4 mm tube — a slip fit,
+**How the riser is held.** The ring's sockets are bored 0.2 mm over the 4 mm tube - a slip fit,
 since a printed bore at the tube's own size is a press fit and the ring's five blind sockets cannot
-take one — and are 12 mm deep. The ring rests on its six tubes and needs nothing more. The arm and
-the loop hang on one, so their socket carries a boss, and the same M4×6 316 set screw that plugs the ring's
+take one - and are 12 mm deep. The ring rests on its six tubes and needs nothing more. The arm and
+the loop hang on one, so their socket carries a boss, and the same M4x6 316 set screw that plugs the ring's
 ends self-taps into a pilot in that boss and bites the tube by 3 mm: seat the arm, point it at the
 shaft, and drive the screw. The arm's end is open through a pilot like the ring's, so a brush
 passes, and a second of those screws plugs it.
@@ -526,7 +526,7 @@ bore's centreline are both open anyway; a third probe point, in that skin, catch
 
 The standard four baffles stand on the wall, 17.5 mm wide and 2.92 mm off the glass, and their
 outer edges are 204 mm apart against a 142.2 mm mouth. So the cage changes shape: two hoops of
-r 64–70 pass the mouth lying flat, and each blade slides 30.6 mm in and out on a radial bar at each
+r 64-70 pass the mouth lying flat, and each blade slides 30.6 mm in and out on a radial bar at each
 end, in a dovetail channel in each hoop. Each bar's outer end is closed under the flange, so it
 stops against the hoop and a blade cannot slide through into the middle. `head()` echoes the fit
 as `baffle cage:` and the parts as `baffle cage print:`; the geometry is
@@ -550,7 +550,7 @@ top. A blade is 238.7 mm long and needs that much bed in one direction.
    the top hoop's arm, which stops the cage turning.
 
 **The lid under the cage.** The hoops are Cs, and the probes hang in the gap. The pH probe goes in
-the 30° port instead of the 120°, and 120, 150 and 270° take blanks (`baffle cage ports:`).
+the 30 deg port instead of the 120 deg, and 120, 150 and 270 deg take blanks (`baffle cage ports:`).
 
 **What the bench found.** The hoops' channels are cut 0.10 mm a side and the blades' bars drawn at
 0.15 (`baffle_cage_fit()` and `baffle_cage_bar_fit()`), so a change of fit reprints only the hoops.
@@ -596,12 +596,12 @@ The order is forced by geometry, not preference.
    pin half is the cartridge that carries the flange, the seal and whatever hangs into the vessel.
    It drops in from outside and turns to lock. Two catch pockets in each flange are there for
    pliers.
-2. **Everything that hangs below a port must pass the lock's bore on the way in** — that is what
+2. **Everything that hangs below a port must pass the lock's bore on the way in** - that is what
    sets the baffle plate's width, and the model asserts it.
-3. **Then the lid goes onto the jar**, and everything hanging from it passes down through the mouth
-   — so _every part of the assembly is level with the mouth at some moment on the way down_. What
+3. **Then the lid goes onto the jar**, and everything hanging from it passes down through the mouth -
+   so _every part of the assembly is level with the mouth at some moment on the way down_. What
    matters is the widest the assembly ever gets, not where it finishes. On `jar_10L` the DO probe's
-   collet is the binding part, reaching 70.78 mm against a 71.1 mm mouth — **0.32 mm to spare**.
+   collet is the binding part, reaching 70.78 mm against a 71.1 mm mouth - **0.32 mm to spare**.
 4. **The probes go in last**, down through the bayonet's bore into the collet. They never pass the
    mouth at all, which is why their length is not part of the clearance above.
 
@@ -611,7 +611,7 @@ The order is forced by geometry, not preference.
 arise.) The feed socket is an **octagon** and the
 support sockets are **round**, and that is the only thing telling them apart, because you cannot see
 inside a socket at the bottom of a jar. Get it wrong and the gas goes down a capped tube and
-straight back out its own vent hole into the headspace — while the rotameter reads flow and the
+straight back out its own vent hole into the headspace - while the rotameter reads flow and the
 culture gets nothing.
 
 **Count the facets.** Both sockets are 6.4 mm across the flats, and the octagon's corners stand only
@@ -624,8 +624,8 @@ into the headspace; a dosing line on the wrong one puts acid where base should g
 `AIR IN Ø4.4`, `DOSE 2 Ø4.4`: read the word, not the number. Which dose carries what is yours to
 record. Baffle ports are marked with the length of plate they carry.
 
-The sparge ring itself cannot be installed rotated: it carries a socket under every tube port —
-five on the full lid at 0, 180, 210, 240 and 330° — and that pattern is irregular enough that only
+The sparge ring itself cannot be installed rotated: it carries a socket under every tube port -
+five on the full lid at 0, 180, 210, 240 and 330 deg - and that pattern is irregular enough that only
 one rotation puts them all under ports. On the six-port jars it is three.
 
 ### Drilling the support tubes
@@ -644,7 +644,7 @@ That is `jar_1gal_155x251`. A tube meant to discharge INTO the culture is drille
 number instead.
 
 **Which end of that window depends on the port.** `air_out`, where it carries a tube, is the
-exhaust and wants the first number — a vent belongs in the headspace. The dosing lines discharge into the culture, so
+exhaust and wants the first number - a vent belongs in the headspace. The dosing lines discharge into the culture, so
 they are drilled past the second, and low is better: the dose lands where the impeller will carry it
 away, and the tube below the hole is a dead leg that keeps whatever it is given.
 
@@ -663,12 +663,12 @@ spend; file past 0.275196 mm2 (a 0.591938 mm round hole), which the bore clears
 25.6856x over
 ```
 
-**On this jar the floor is about 0.28 mm², which is a Ø0.59 mm hole.** A normal file cut clears it
+**On this jar the floor is about 0.28 mm^2, which is a dia 0.59 mm hole.** A normal file cut clears it
 many times over, and a shallow pass that only just breaks the 0.5 mm wall is the one way to land
 near it. Cut it, then hold the tube up to the light and look through the hole before it goes in.
 
 **Read the floor off your own render rather than off this page.** It moves with the jar, because it
-is set by the headroom that jar's gas line has left: 0.275 mm² here against 0.108 mm² on
+is set by the headroom that jar's gas line has left: 0.275 mm^2 here against 0.108 mm^2 on
 `jar_1p5L_112x215`.
 
 That 17112.5 Pa is the same pressure the throttle is currently giving away, and the same headroom an
@@ -701,16 +701,16 @@ lid gasket load: 3.23766 mm of contact, 4212.27 N to hold 25% squeeze,
 ```
 
 **351.0 N per post.** An M8 A2-70 proof load is about 16.5 kN, so the joint runs at **2.1 % of
-proof** — the fastener is nowhere near being the limit. A published tightening torque for the same
-bolt is 20–24 N·m. This joint wants something near **0.6**. Torque one of these to fastener spec and
+proof** - the fastener is nowhere near being the limit. A published tightening torque for the same
+bolt is 20-24 N-m. This joint wants something near **0.6**. Torque one of these to fastener spec and
 you put roughly forty times the intended load onto a soda-lime jar.
 
 ### Do not reach for a torque wrench
 
 Torque only ever reaches preload through a friction coefficient, and here you cannot know it. Across
-the 0.20–0.30 that an unlubricated stainless nut plausibly spans, 351.0 N is **0.56 to 0.84 N·m** —
+the 0.20-0.30 that an unlubricated stainless nut plausibly spans, 351.0 N is **0.56 to 0.84 N-m** -
 a 40 % band from the friction assumption alone. 18-8 galls, which is exactly what makes that
-coefficient unpredictable, and 0.7 N·m is below the bottom of most torque wrenches anyway.
+coefficient unpredictable, and 0.7 N-m is below the bottom of most torque wrenches anyway.
 
 ### Turn the nut instead
 
@@ -720,16 +720,16 @@ travel on a 1.25 mm pitch); the printed flange creeps, so go back to them
 ```
 
 A turn is geometry. The 1/16 in gasket is 1.5875 mm, 25 % squeeze is 0.3969 mm of travel, and an
-M8 × 1.25 thread converts that to **114°**. No modulus and no friction enter it.
+M8 x 1.25 thread converts that to **114 deg**. No modulus and no friction enter it.
 
 The rest of the stack barely moves: at 351.0 N an M8 bolt stretches 0.0010 mm over its 20.4 mm grip
-and a rod 0.0005 mm over the 10.4 mm between its top-base nut and its lid nut — under 0.3 % of the
+and a rod 0.0005 mm over the 10.4 mm between its top-base nut and its lid nut - under 0.3 % of the
 gasket's travel either way. The printed flange is the soft part, and it is the one number in this
 section without a source: roughly 0.02 mm under a nut face, from PETG's modulus and a nut's bearing
 area, which is an estimate and not a measurement. So:
 
-> **Snug, then a third of a turn.** 120° is 114° for the gasket plus a little for the plastic, and it
-> is a mark you can see on a nut where 114° is not.
+> **Snug, then a third of a turn.** 120 deg is 114 deg for the gasket plus a little for the plastic, and it
+> is a mark you can see on a nut where 114 deg is not.
 
 Snug is where the flange stops moving under hand pressure on a short key.
 
@@ -750,7 +750,7 @@ near enough incompressible, so the last quarter has to escape sideways first. Fl
 _past_ the design point, not at it.
 
 **And on every jar but the 6.5 gallon there is no land to stop you.** Those lips are crowned, so the
-flange has nothing to bottom on and the turn is the only thing setting the squeeze — which is why
+flange has nothing to bottom on and the turn is the only thing setting the squeeze - which is why
 this section instructs a turn rather than a torque, and why over-tightening is a real possibility
 rather than a theoretical one. Count the turn.
 
@@ -760,13 +760,13 @@ lid wants sixteen.
 
 ### How good is 351.0 N?
 
-Not very, and the model says so. `elastomer_shape_factor()` is the free-bulge form — it assumes both
+Not very, and the model says so. `elastomer_shape_factor()` is the free-bulge form - it assumes both
 edges of the pad can spread, and the recess walls are exactly where they cannot. The modulus behind
 it is correlated from hardness rather than measured. So 351.0 N and 2.78 MPa are figures for judging
 a design, not for cutting a part to, and `elastomer.scad` says as much at the top of the file.
 
 **The turn is the more robust of the two**, which is why it is the instruction. It comes from the
-gasket's thickness and the thread's pitch — neither of which is a correlation.
+gasket's thickness and the thread's pitch - neither of which is a correlation.
 
 ---
 
@@ -775,12 +775,12 @@ gasket's thickness and the thread's pitch — neither of which is a correlation.
 Order matters, and two of the joints are ordered for reasons that are not obvious.
 
 ```
-pump ──3/8 in── reducer ──1/4 in── reducer ──1/8 in── METERING VALVE ──
-      rotameter ──3/16 in silicone── check valve ── STERILE FILTER ── riser
+pump --3/8 in-- reducer --1/4 in-- reducer --1/8 in-- METERING VALVE --
+      rotameter --3/16 in silicone-- check valve -- STERILE FILTER -- riser
 ```
 
 **The metering valve goes upstream of the rotameter.** The meter is calibrated at 14.7 psia, and
-putting the throttle ahead of it means the meter only ever sees downstream line loss — which is what
+putting the throttle ahead of it means the meter only ever sees downstream line loss - which is what
 makes the correction 0.7 % instead of something that matters.
 
 **The rotameter's two adapters are deliberately different sizes**, 1/8 in in and 3/16 in out, so the
@@ -792,7 +792,7 @@ fittings on that side are rated for firm line rather than silicone.
 
 **One clamp size, `5011T141`, closes all fourteen joints**, as long as the 3/8 in run is bought in
 1/16 or 3/32 in wall: in 1/8 in wall it sits at the clamp's last thread. Snug each with the 1/4 in
-nut driver and stop — a wrench will strip one, and these get opened again at every filter change.
+nut driver and stop - a wrench will strip one, and these get opened again at every filter change.
 Why this clamp, this grade and this wall: [Procurement](procurement.md#hose-clamps).
 
 The check valve exists to stop culture siphoning back into the pump when it stops. It is not
@@ -824,25 +824,25 @@ infill, so walls are what to spend on. Water-test the flow insert before it goes
 
 **Print the open well's lid the other way: sparse.** It is insulation over the ice, so low infill in a
 pattern that boxes the air into cells, honeycomb or cubic rather than one that leaves it free to
-move. Keep its Ø1.5 vent open; ice melting and water warming push air out through it, and a sealed
+move. Keep its dia 1.5 vent open; ice melting and water warming push air out through it, and a sealed
 lid would pressurise the well.
 
 **The coil is wound on the former, and the former stays in.** A coil whose bottom end runs back up
 its own middle cannot come off a one-piece mandrel: to unscrew, the mandrel's ridge has to sweep
-through the leg. So there is no mandrel. The former is the arbor — chuck the stub below the coil,
+through the leg. So there is no mandrel. The former is the arbor - chuck the stub below the coil,
 wind, and it stays in the reactor holding the turns at pitch, in the dead space it already blocks.
 `part = "puck_bottom"` and `part = "puck_top"` are the only tools, one for each end's radius.
 
 1. Bend the bottom end while the tube is still straight and a bender has room, on `puck_bottom`: a
    quarter turn inward, then a quarter turn up, leaving a leg the height of the coil.
-2. Lay that end into the former's channel **from the side** — the bends into the foot, the leg up
+2. Lay that end into the former's channel **from the side** - the bends into the foot, the leg up
    the groove. Nothing is threaded into a hole, which is the step that cannot be done later. A tie
    through the stub holds the tail while the first turn goes on.
 3. Wind up the former, pushing each turn down onto the ridge below it. The ridge's flat top is what
    sets the pitch; the slack above each turn is there because a part printed standing cannot hold an
-   overhang past 45°, and it is why the winding direction matters.
+   overhang past 45 deg, and it is why the winding direction matters.
 4. Bend the top end on `puck_top`, in open air above the coil: inward a quarter turn, then up.
-5. Lower the panel onto the two ends — they are already vertical and parallel — and onto the
+5. Lower the panel onto the two ends - they are already vertical and parallel - and onto the
    former's spigot. An M3 x 14 cap head goes in radially through the counterbore in the coupling's
    face, crosses the socket and bites the spigot.
 
@@ -860,7 +860,7 @@ fresh piece rather than straightening one.
 
 ## The turbidity sampler
 
-On the full lid it takes port 10, at 300°: at 330° it stood in the coil condenser on `air_out`.
+On the full lid it takes port 10, at 300 deg: at 330 deg it stood in the coil condenser on `air_out`.
 `just export-parts` writes its base and top as they print, and the render's `sampler:` line gives
 the riser's cut length, where to drill it and the clear tube's length for your jar. On `jar_10L`
 that is a 217.0 mm riser drilled 126.0 mm from its top end, 40 mm under the culture's surface, and a
@@ -910,7 +910,7 @@ insert's hole. Fit a grommet or gland in the wire hole before the wires go throu
 Bench parts, not reactor parts: each prints from `custom/sparge_puck.scad` with one outlet face,
 and none goes in a jar. They exist to measure what a printed outlet face costs at a flow, which is
 the one number the sparger model cannot work out. Drilled holes are priced by the orifice equation;
-a printed porous face is priced by nothing, and the only published one (Pálfy et al. 2021) is one
+a printed porous face is priced by nothing, and the only published one (Palfy et al. 2021) is one
 point at 14.7 L/h, borrowed and scaled linearly in the render.
 
 **Print three hole pucks and one porous puck to start.** `hole_diameter` 3 is the arm's own holes
@@ -922,11 +922,11 @@ and the render says so if `bench_flow` is set to them with `hole_count` fixed at
 count. The 3 mm control also warns that its manifold is outside the range the sparger model is
 fitted to: the feed's 53.5 Pa of velocity head is more than the 16.5 Pa through a hole, so the
 jet into the plenum, not the scatter, may decide which holes flow. `outlet = "porous"` is a solid
-face `porous_layers` thick at Pálfy's area, over ribs.
+face `porous_layers` thick at Palfy's area, over ribs.
 
 **The face prints on the bed, as rendered.** Finish each hole with a drill of `hole_diameter`: a
 0.4 mm nozzle does not hold a hole that small, and a drill's size is a number you know. For the
-porous face, make its layers leak: Pálfy et al. ran the walls at 115 % extrusion to seal them and
+porous face, make its layers leak: Palfy et al. ran the walls at 115 % extrusion to seal them and
 dropped the three membrane layers to 95 % by editing the G-code. Their membrane was printed last,
 on top of its honeycomb; this one is printed first, pressed against the bed with the ribs on top,
 and a first layer squashed flat may leak less than theirs did. That is one more reason the borrowed
@@ -941,8 +941,8 @@ what the tube and the riser offcut lose on the way, which for the 3 mm control i
 face's cost. With no puck on, and the offcut's end in air, read the tee at each flow below; take
 that off every reading after.
 
-Then, under `bench_depth` of water in a clear column, at three flows on the rotameter — 0.8, 2.5
-and 4 L/min span the reactor's band — record:
+Then, under `bench_depth` of water in a clear column, at three flows on the rotameter - 0.8, 2.5
+and 4 L/min span the reactor's band - record:
 
 1. **The plenum's pressure**, from that tee: a U-tube of clear tubing for the hole pucks, a
    0-30 kPa gauge for the porous one. What it reads above the water's own head and the blank is the
@@ -953,7 +953,7 @@ and 4 L/min span the reactor's band — record:
    expected, and the count there is the reading.
 3. **Bubble size**, from a photo against a scale in the column. The render's figure is a floor.
 
-**The porous puck may not reach any of those flows.** Carried linearly from Pálfy's one point, its
+**The porous puck may not reach any of those flows.** Carried linearly from Palfy's one point, its
 face costs so much that the pump flat out pushes about 0.28 L/min through it, and the render's
 warning gives the figure. So run it with the pump flat out and record the flow it passes and the
 pressure, then at two lower flows on a rotameter that reads them. If it passes much more than the
@@ -968,19 +968,19 @@ stays on the bench.
 
 ## Commissioning
 
-**Set the gas rate before anything else.** 0.1–0.5 vvm on 8.17 L is **0.817–4.09 L/min**, which is
-16 % to 82 % of the registered 0–5 L/min meter — both ends on scale, which is what that range buys.
+**Set the gas rate before anything else.** 0.1-0.5 vvm on 8.17 L is **0.817-4.09 L/min**, which is
+16 % to 82 % of the registered 0-5 L/min meter - both ends on scale, which is what that range buys.
 The pump is seven times oversized, so the entire band sits in the first part of the needle valve's
-travel — that is why the valve is a 3° needle and not the 20° one.
+travel - that is why the valve is a 3 deg needle and not the 20 deg one.
 
 **Watch the DO trace on the first run.** `head()` reports where the DO probe's face sits against
 the sparger (`DO probe in the gas:`). A galvanic probe reads high with a bubble on the membrane and
 low with nothing moving past, so a probe over the bubbles can be wrong in both directions. A
-characteristically spiky trace means the probe is in the plume, and the fix is a bench one — the
+characteristically spiky trace means the probe is in the plume, and the fix is a bench one - the
 port's lean and the sparger's height are both parameters.
 
-**Know the replace-the-filter signal.** The sterile filter can rise about **51 %** — from 14.1 kPa
-to roughly 21.2 — before 0.5 vvm becomes unreachable with the valve wide open. So _valve fully open
+**Know the replace-the-filter signal.** The sterile filter can rise about **51 %** - from 14.1 kPa
+to roughly 21.2 - before 0.5 vvm becomes unreachable with the valve wide open. So _valve fully open
 and still short of the rate_ is the signal, and it is not a pump problem.
 
 ---
@@ -990,9 +990,9 @@ and still short of the rate_ is the signal, and it is not a pump problem.
 The model is waiting on four measurements. If you build one of these, these are the numbers worth
 sending back:
 
-1. **The sterile filter's ΔP** at the set flow, from a water manometer across it. It is the largest
+1. **The sterile filter's Delta P** at the set flow, from a water manometer across it. It is the largest
    term in the gas budget and the only one that is extrapolated.
-2. **The jar's rim**, calipered — the land width on top of the glass, the wall, and the mouth. Three
+2. **The jar's rim**, calipered - the land width on top of the glass, the wall, and the mouth. Three
    registered numbers disagree on two vessels and a caliper says which is wrong.
 3. **The baffle's lean.** Print the lid's baffle port and one plate segment, seat them, and measure
    the tilt at a known distance below the lid. The model keeps 1 mm running clearance after a

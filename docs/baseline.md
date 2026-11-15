@@ -41,7 +41,7 @@ On `jar_10L_220x305` (bore T = 210 mm, culture H/T 1.09).
 | ----------------- | ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
 | impeller type     | six-blade Rushton turbine at both positions                                                      | the standard fermentation configuration, on a microalgae researcher's advice                                                                                | chosen to be standard                                  | a Rushton under a pitched blade ([future work](future-work.md#agitation)); a pitched pair |
 | blade proportions | blades D/5 high, D/4 long, on a 3D/4 disc                                                        | McCabe 1993 p. 243 for the blades; Middleton & Ramshaw, US 5198156 for the disc                                                                             | borrowed                                               | none planned                                                                              |
-| power number      | 4.17 ± 0.14                                                                                      | Kaiser 2016; [Agitation](agitation.md#2-this-reactor-in-the-units-that-matter) says why not McCabe's 5.75                                                   | measured, by others                                    | a bench measurement of the printed part                                                   |
+| power number      | 4.17 +/- 0.14                                                                                    | Kaiser 2016; [Agitation](agitation.md#2-this-reactor-in-the-units-that-matter) says why not McCabe's 5.75                                                   | measured, by others                                    | a bench measurement of the printed part                                                   |
 | flow number       | 0.65                                                                                             | Grenville 2017, typical                                                                                                                                     | borrowed                                               | as above                                                                                  |
 | D/T               | 1/3 (70 mm)                                                                                      | the standard turbine, McCabe, Smith & Harriott 1993 pp. 242-243, after Rushton, Costich & Everett 1950; the Handbook of Industrial Mixing allows T/4 to T/2 | borrowed                                               | 0.45, where the pitched pair ran                                                          |
 | lower clearance   | T/3 (1 D, 70 mm)                                                                                 | McCabe 1993: E/T 1/3 for one turbine, and about one impeller diameter off the bottom for several (p. 241)                                                   | borrowed                                               | T/4, Rutherford et al.'s parallel flow                                                    |
@@ -51,12 +51,12 @@ On `jar_10L_220x305` (bore T = 210 mm, culture H/T 1.09).
 
 **What the baseline costs.** The motor was chosen when the impeller was 94.5 mm, to reach both ends
 of the speed band [Agitation](agitation.md#the-operating-point) builds from Leupold et al. 2012. On the 70 mm impeller its
-320–420 rpm gives 1.17–1.54 m/s at the tip: the _Chlorella_ optimum of 1.26 m/s falls at about
+320-420 rpm gives 1.17-1.54 m/s at the tip: the _Chlorella_ optimum of 1.26 m/s falls at about
 344 rpm, inside the band, and the 2.03 m/s break-even is out of reach. That band carries its own
 stated assumption, that a plate-and-skirt rig's rim speed transfers to an impeller's tip.
 
-**What it changes, on jar_10L at the rated 320 rpm**: 1.06 W, 130 W/m³ mean and 27.1 W/kg peak,
-the pair under 0.063 N·m of the 0.490 N·m rating. The gas holds at 0.5 vvm down to 242 rpm.
+**What it changes, on jar_10L at the rated 320 rpm**: 1.06 W, 130 W/m^3 mean and 27.1 W/kg peak,
+the pair under 0.063 N-m of the 0.490 N-m rating. The gas holds at 0.5 vvm down to 242 rpm.
 
 **Other jars.** The standard layout is written for H = T. `jar_1gal_180x197`, at H/T 0.90, still
 leaves 0.73 D over the upper impeller; `jar_1p5L_112x215` holds 0.5 vvm only above 399 rpm, which
@@ -73,4 +73,4 @@ is echoed as a warning.
 - The Handbook of Industrial Mixing's pages are relayed, not checked against the text.
 - The flow number: McCabe 1993 gives 1.3 for a standard flat-blade turbine (p. 245) where the model
   carries Grenville's typical 0.65. The circulation comparison with a pitched blade moves with it,
-  from about 1.8× in the pitched blade's favour to near even ([Agitation](agitation.md#impeller)).
+  from about 1.8x in the pitched blade's favour to near even ([Agitation](agitation.md#impeller)).

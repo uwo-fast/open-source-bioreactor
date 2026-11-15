@@ -18,7 +18,7 @@ labelled `post-pub`, all linked from #90. When one of these is picked up, it mov
 
 - **what a printed sparge face costs.** `custom/sparge_puck.scad` prints one outlet face per puck;
   the bench run is [The sparge test pucks](build.md#the-sparge-test-pucks).
-  - a porous face is priced by one borrowed point: Pálfy et al.'s membrane carried linearly to
+  - a porous face is priced by one borrowed point: Palfy et al.'s membrane carried linearly to
     4 L/min wants 15 times the open area of a 52.8 mm face, and at that size the pump would push
     about 0.28 L/min through it; the render's warning gives both. Linear is an assumption a
     three-flow reading settles
