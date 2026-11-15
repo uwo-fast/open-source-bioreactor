@@ -13,7 +13,8 @@ draw.io. It was in the repo and referenced by nothing, which is how a diagram go
 `jar_10L` builds, where `baffle_name = "auto"` takes it) carries no lid plates. Its hoops are Cs whose gap is the
 sector between the 0 and 90° blades, and every probe has to hang there, so `head_ports_walled()`
 moves the pH probe from 120° to the freed 30° port and puts blanks at 120, 150 and 270°. What
-follows describes the plate lid, which the 1 gal jars carry.
+follows describes the plate lid, which `jar_1gal_180x197` carries; `jar_1gal_155x251` takes the
+reduced set, which has no baffles.
 
 An equally spaced count has to divide the port circle. On twelve ports that allows 2, 3, 4, 6 or
 12 baffles, and `head()` asserts it rather than trusting the table.
@@ -21,8 +22,8 @@ An equally spaced count has to divide the port circle. On twelve ports that allo
 **Three at 120° is a departure, taken for a port.** Four at 90° is Oldshue's reference case (1997
 p. 202), and the lid ran four. He allows three, but at _"the same total projected area as exists
 with four baffles"_, and this lid cannot widen a plate to make that up: the lock bore caps the
-width and the floor caps the length. So three plates are three quarters of four, **0.713** of his
-reference area on `jar_10L` against 0.951. What the fourth plate bought back is a port, and the lid
+width and the floor caps the length. So three plates are three quarters of four, **0.847** of his
+reference area on `jar_1gal_180x197` against 1.129. What the fourth plate bought back is a port, and the lid
 needs one for a sampling line. `head()` keeps warning that the vessel is under-baffled, and names
 four plates as the next count that spaces equally.
 
@@ -84,7 +85,7 @@ the riser is a straight tube with no bend.
 
 That the arm can run inboard at all is a property of this layout: 240° sits **between** the baffles
 at 150° and 270°, so the whole radial band is clear there. It is the only reason a feed can cross
-from the port circle out to a ring at 1.44 D without fouling a plate. Move the air inlet to a baffle
+from the port circle out to a ring at 1.90 D without fouling a plate. Move the air inlet to a baffle
 port and the arm has nowhere to go — which is why `head()` asserts the `air_in` port is a tube.
 
 Nothing names the index 8. `head_sparge_feed_port()` asks the table which port is `air_in` and gets
@@ -94,7 +95,7 @@ silently taking the first.
 
 ## What the other tube ports also carry
 
-The ring hangs on more than its feed. **Every tube port but `air_in` drops a riser to it** — five on
+The ring hangs on more than its feed. **Every tube port but `air_in` drops a riser to it** — four on
 the twelve-port lid, two on the six-port jars — and the model derives that from the port table rather
 than naming functions, so any lid answers it. It was a named list once, and naming the acid and base
 lines in it broke the six-port jars, which carried neither.
@@ -164,12 +165,11 @@ rows against `oring_stretch` rather than trusting them to agree. `8785N364`, one
 same catalogue page as the port seals, at 18 % radial squeeze — Apple Rubber's Table A gives
 radial glands 14–23 % where a face gland takes 19–33 %.
 
-It is a **counterbore at the lid's inner face**, not an enclosed groove, and that is forced rather
-than chosen: a 4 × 1.5 ring is 7 mm across free and cannot be folded through a 4.4 mm bore to reach
-a groove behind it. Which face it opens at is then the whole of the design, and both reasons point
-the same way. The vessel is on that side, so headspace pressure drives the cord onto the shoulder
-instead of out past it; and that face is the one on the bed when the pin half is printed, so nothing
-bridges the bore.
+It is an **enclosed groove just above the lid's inner face**, behind a 1.2 mm lip: the ring is
+folded and pushed up the bore past the lip, and is captive after that. It was a counterbore open at
+that face until 2026-09, which nothing held — the vessel is on that side, so an unseated ring
+dropped into the culture. Headspace pressure still drives the cord onto the upper shoulder; the lip
+is what holds it when there is none.
 
 **Why it is worth a purchased part.** A bioreactor normally filters the air on the way in _and_ on
 the way out, and this build only has the inlet filter. That is worth fixing — but an exhaust filter
@@ -183,11 +183,11 @@ openings.
 
 Checking whether a socket could be misplumbed found the real hazard one level up. Tube ports were
 engraved with their **bore**, and this lid has pairs: `air_in` and `air_out` are both 3 mm, so both
-read `O6`, and acid and base are both 2.4 mm and both read `O4.8`. The lid could not tell you which
+read `Ø6`, and acid and base are both 2.4 mm and both read `Ø4.8`. The lid could not tell you which
 port was the gas line — and dosing acid into the base line is the same mistake with worse
 consequences.
 
-Tube ports now carry their **function and their bore**: `AIR IN O4.4`, `DOSE 2 O4.4`. They read 4.4
+Tube ports now carry their **function and their bore**: `AIR IN Ø4.4`, `DOSE 2 Ø4.4`. They read 4.4
 rather than the 6 above because every one of them is cut for the riser and not for a hose — see the
 section before this one. Since they are now all the same, the bore on those marks distinguishes
 nothing and the function word carries it: read the word, not the number.
@@ -301,7 +301,7 @@ probes. See TODO.md, which was already asking whether a cloth goes through 1.046
 
 A three-baffle set with the probes two steps from each baffle was tried: the worst pair becomes
 std against mini, which bought about 20 mm of mouth. The registered set does not do that, because it
-keeps DO opposite air in, so its smallest mouth is the four-baffle set's 142.0 mm.
+keeps DO opposite air in, so its smallest mouth is the three-baffle set's 142.0 mm.
 
 **Both sets are registered and the mouth picks between them** — `head_port_set_full` and
 `head_port_set_reduced` in `head.scad`, chosen by `head_port_set_for()`, which asks whether the

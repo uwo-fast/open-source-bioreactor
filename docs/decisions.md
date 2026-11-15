@@ -25,7 +25,7 @@ not stay inline.
   plate narrowed from 15.3 to 10.3454 mm, which opens the gap by half what it takes off the plate.
   **No commit set out to close it.** The cost was baffle area: 0.856 → 0.579 of reference, and six
   plates now reach 0.868 where they used to clear 1.284. A collision was traded for under-baffling.
-- **The baffle tilt wants measuring, first.** It does not want measuring at all. The 2.28 mm lean is
+- **The baffle tilt wants measuring, first.** It does not want measuring at all. The 2.44 mm lean is
   bore play alone with the flange's face contact ignored, so a measurement can only come in at or
   under it — and the clearance already clears there. Every outcome led to the same action, which is
   what makes it not a test. That held while the plate's width was set elsewhere; since the plate is
@@ -69,7 +69,7 @@ not stay inline.
   worst of the five at 7.5 mm of usable radius; `jar_1gal_155x251` the best at 36.5.
 - **The sparge ring is sized at 80 % of the impeller, after Oldshue p. 214.** Two experimental
   studies (Birch & Ahmed 1997, Rewatkar & Joshi 1993) find rings larger than the impeller better;
-  the ring is placed by the mouth at 1.44 D. And the flat 4 × 10 section that fit the radial band
+  the ring is placed by the mouth at 1.90 D. And the flat 4 × 10 section that fit the radial band
   could not be cleaned, so the sparger is a round tube split opposite the feed.
 - **The mouth assert charged 8 mm for a tip ring that had been moved inboard of the blades.** The
   D/T caps read 0.4594 and 0.59–0.82 while it did; the ratio was never in danger, only the headroom
@@ -284,8 +284,8 @@ outlives the commit, in `docs/`.
   under a pitched blade are knobs for later work (`docs/baseline.md`). The twisted paddle stays
   registered and drawn but has no Po that any correlation reaches
 - **the Rushton's power number is Kaiser's measured 4.17, not McCabe's 5.75.** 5.75 is from tanks
-  with four baffles at T/10, Kaiser's from laboratory scale, and this vessel has three plates at
-  0.71 of the four-at-T/12 area, so neither is measured at it. At 5.75 the torque is still under
+  with four baffles at T/10, Kaiser's from laboratory scale, and this vessel has four at T/12, so
+  neither is measured at it. At 5.75 the torque is still under about
   0.087 N·m of the drive's 0.490, so no choice in the build turns on it; a bench measurement of the
   printed part replaces both
 - **the shaft is 400 mm and must be a ground rotary shaft.** 300 mm does not exist in the catalogue
@@ -296,13 +296,9 @@ outlives the commit, in `docs/`.
   Rushtons discharge radially and nothing held here places a ring for them; the shaft
   drive's default is the arm. Supersedes
   Oldshue p. 214's 80 %-of-impeller ring, which two experimental studies contradict
-- **the spargers' holes are 16 × 1 mm, for bubble size; they were 8 × 3 mm against fouling.** The
+- **the spargers' holes are 1.2 mm, for bubble size; they were 8 × 3 mm against fouling.** The
   culture photos show almost no buildup on the sparger, and 3 mm cost bubble size: 5.10 mm at
-  formation against 3.53. Barbosa's 5.4 m/s and an open area of 1 multiply to the bore's own
-  5.42 m/s, so 1 mm × 16 sits on that corner, and its 49 Pa a hole outweighs the bore's 18 Pa of
-  velocity head, which 3 mm's 2.4 Pa did not. Capillary is 288 Pa, so they still will not share
-  equally at any count. The arm fits ten at the pitch floor on `jar_10L`, at 8.67 m/s
-- **the spargers' holes are 1.2 mm, not 1.** 1 mm came out too small on a print. 16 × 1.2 mm runs
+  formation against 3.76. They were 1 mm next, which came out too small on a print. 16 × 1.2 mm runs
   3.76 m/s at an open area of 1.44, past 1, so the holes nearest the feed take more of the gas;
   its 24 Pa a hole still outweighs the bore's 18 Pa of velocity head. Bubbles are 3.76 mm at
   formation, and the arm fits eight on `jar_10L`, at 7.53 m/s
@@ -348,7 +344,8 @@ outlives the commit, in `docs/`.
   compared the mode against the excitations at the drive's fastest setting and warned within 30 %,
   which is right for load and wrong for resonance: a DC motor sweeps every frequency below its
   maximum, so something is always crossed on the way up. What matters is the SPEED of the crossing
-  and whether the drive is asked to hold it - 264 rpm on the 10 mm plate against a 320-420 band, and
+  and whether the drive is asked to hold it - 491 rpm on `jar_1gal_180x197`'s 10 mm plate against a
+  320-420 band, and
   the clearance to that band is reported because that is what separates a 10 mm plate from an 11
 - **`check-mesh` is not in `just check`** - it renders solids, which is minutes to tens of minutes.
   The `$fn=0` second pass IS in `check-scad`, because that recipe is the cheap one. Both were proved
@@ -377,12 +374,11 @@ outlives the commit, in `docs/`.
   `head()` prices it there. A default for a hand-cut window would be a guess, so it is not a
   parameter either
 - **the stirred jars keep two impellers, though Fitschen's spacing band allows one.** Fitschen
-  eq. (5), `(H-d)/d > n > (H-2d)/(2d)` in impeller diameters, gives n = 1 on all three jars that
-  take the shaft drive (`jar_10L_220x305` H_L/d 2.429, `jar_1gal_180x197` 2.005,
-  `jar_6p5gal_305x470` 2.574), and every one of them spends coverage on the pair: `jar_1gal_180x197`
-  at 0.107 D against the 0.5 D floor is the worst. No primary stands behind the rule, so `head()`
-  reports it and nothing asserts. The count stays two: the sparge ring sits in the gap, the power is
-  per pair, the manifest lists two, the reference build physically exists, and the standard
+  eq. (5), `(H-d)/d > n > (H-2d)/(2d)` in impeller diameters, allows one on all three jars that
+  take the shaft drive: n is 1 or 2 on `jar_10L_220x305` (H_L/d 3.27862) and `jar_6p5gal_305x470`
+  (3.47503), and 1 on `jar_1gal_180x197` (2.7063), which `head()` reports short for a pair at
+  0.729831 D of culture over the upper impeller against the 0.5 D floor. No primary stands behind
+  the rule, so `head()` reports it and nothing asserts. The count stays two: the power is per pair, the manifest lists two, the reference build physically exists, and the standard
   configuration the paper runs is two Rushtons
 - **the pump, the inlet filter and the other gas-line hardware are assigned in `head.scad`, not
   designated.** `head_air_pump`, `sparge_inlet_filter`, `sparge_check_valve`, the clamp and the

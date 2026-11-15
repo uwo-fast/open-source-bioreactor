@@ -15,7 +15,7 @@ turned out to be wrong. The status says how far each source was actually checked
 Grades: **[PR]** peer-reviewed · **[TH]** thesis · **[PAT]** patent · **[TX]** textbook ·
 **[TP]** trade press · **[VN]** vendor.
 
-Every literature source below is also in [`references.bib`](references.bib) — 61 entries, every one
+Every literature source below is also in [`references.bib`](references.bib) — 64 entries, every one
 carrying its grade and verification status in a `note` field, so the whole set imports into a
 reference manager in one go rather than one DOI at a time. Vendor pages, part numbers and software libraries
 are deliberately not in it: they are cited inline on the registry row or file that uses them.
@@ -106,7 +106,7 @@ rises with angle about 4.4× faster than pumping does. Blade-count series 3/4/6 
 Czech Standards and both are drawn at **h/D = 0.2** — the simple PBT is ČVS 691020 (nB 3 at α 24°,
 35°, 45°; nB 6 at α 45°), the folded-blade impeller ČVS 691010 (nB 3, s/D 1.5, α 67°, β 25°, γ 48°).
 Measured in a T = 400 mm vessel with four wall baffles at H = T, D/T 0.36. Two caveats for
-transferring it: **H/T = 1.0 there against 1.124 here**, which is the one Medek departure this
+transferring it: **H/T = 1.0 there against 1.09 here**, which is the one Medek departure this
 vessel cannot remove; and the folded blade is a three-angle fold, not a flat plate at a pitch, so
 its measured Po does not transfer to a plate drawn at 45°.
 → `scad/custom/impellers.scad` `impeller_folded_axial_3/4/6` and `impeller_pbt_45_4` width_ratio,
@@ -201,9 +201,10 @@ The primary behind the numbers `Davis (2010)` relays, retrieved 2026-08-20. What
 - **Baffles, p. 202.** Four baffles, _"each 1/12 the tank diameter in width"_ — a single value,
   0.0833 T, not the 0.08-0.10 band Davis reports. And explicitly: _"Either 3, 6 or 8 baffles can be
   used if preferred. The general principle is to use the same total projected area as exists with
-  four baffles, each 1/12 the tank diameter in width."_ The project runs **three**, which the same
-  sentence permits only at four's total area, and it cannot widen the plates to get there, so it
-  carries three quarters of four's area (`docs/agitation.md`). The constraint is total projected
+  four baffles, each 1/12 the tank diameter in width."_ The reference build runs **four** at T/12 on
+  a wall cage; the lid-plate builds run **three**, which the same sentence permits only at four's
+  total area, and they cannot widen the plates to get there, so they carry three quarters of four's
+  area (`docs/agitation.md`). The constraint is total projected
   area, not the count.
 - **Off-bottom clearance, p. 192.** _"If the impeller can be placed one to two impeller diameters
   off bottom, which means that mixing is not provided at low levels during draw off, these
@@ -514,7 +515,7 @@ such rather than dressed up as the standard.
 
 **Baffle width and number calculation** —
 <https://myengineeringtools.com/references/pages/baffle_width_and_number_calculation.html> **[VN]**
-· **read** → `scad/custom/bayonet_baffle_port.scad`
+· **read** → `scad/custom/bayonet_port.scad` `bayonet_baffle_port`
 
 **Dynamix Agitators. "Baffled by Baffles."** Technical note, uploaded 2015.
 <https://www.dynamixinc.com/wp-content/uploads/dlm_uploads/2015/12/Dynamix-Baffled-by-Baffles.pdf>
@@ -538,7 +539,7 @@ found. → `scad/custom/baffle_cage.scad`, `docs/decisions.md`
 
 **Note on status:** partial/inboard baffles are _characterised_ in the literature, not
 _recommended_. The relevant papers (_Chem Eng Res Des_ S0263876207730952, _Chem Eng Sci_
-S0009250906007950) are paywalled and unread. This design's three inboard baffles rest on an
+S0009250906007950) are paywalled and unread. The lid-plate builds' three inboard baffles rest on an
 unresolved citation.
 
 ---
@@ -559,7 +560,7 @@ its entry below, and the eccentricity geometry further down that now rests on it
 on the hydrodynamics of unbaffled stirred tanks." _Chemical Engineering Science_ 61:2807-2814.
 [doi:10.1016/j.ces.2005.09.021](https://doi.org/10.1016/j.ces.2005.09.021) **[PR]** · **read**
 PIV plus RANS CFD in a T = 23.6 cm closed vessel, **Rushton turbine** D = T/3 at C = T/2, 400 rpm,
-Re 4.1e4 — within 15% of this design's rated Re of 4.7e4. The vessel carried a lid deliberately, "in
+Re 4.1e4 — about 1.6 times this design's rated Re of 2.6e4. The vessel carried a lid deliberately, "in
 order to avoid uncertainties in the velocity measurements due to air bubbles entrainment", so this is
 a closed vessel with no free-surface vortex, like ours.
 The number that matters: with the shaft **centred** and no baffles, the measured impeller flow number
@@ -597,7 +598,7 @@ recommended by name**: "consistently more efficient in terms of power requiremen
 given kLa" and "may be recommended as a best choice for growing shear sensitive cells". Its critical
 point is `N_crit` 650 rpm, P/V 126 W/m3, Np 0.52, kLa 2.34e-3 1/s (Table 1).
 Super-critical: unbaffled becomes comparable to standard sparged baffled reactors, but only above
-about **500 W/m3** — this design runs 209 W/m3 at its rated 320 rpm and 473 W/m3 at no-load 420 rpm,
+about **500 W/m3** — this design runs 130 W/m3 at its rated 320 rpm and 294 W/m3 at no-load 420 rpm,
 so it sits below that crossover.
 Both regimes here are **unsparged**. For a vessel that is both unbaffled and sparged, as ours would
 be, the paper points to Cabaret et al. (2008), _Chem Eng Sci_ 63:1636-1647, who measured kLa of
@@ -635,8 +636,8 @@ bore. Table 1 also fixes the fourth row: T88E's 2.21 s is the 88 mm vessel, so t
 above are one vessel and are comparable to each other.
 
 **Where it departs from this design**, which was not recorded before: Table 1 gives **D/T of 0.58
-and 0.55** against 0.45 here, **H/T = 1** against 1.124 on `jar_10L`, and Re of 8237-19280 against
-about 4.7e4. The impeller class, the blade angle, the pumping direction and the scale all match; the
+and 0.55** against 0.33 here, **H/T = 1** against 1.09 on `jar_10L`, and Re of 8237-19280 against
+about 2.6e4. The impeller class, the blade angle, the pumping direction and the scale all match; the
 diameter ratio and the fill do not. The 36% is measured on a fatter impeller in a shallower vessel.
 
 **Karcz, J.; Cudak, M.; Szoplik, J. (2005).** "Stirring of a liquid in a stirred tank with an
@@ -656,7 +657,7 @@ thing in the equation to get wrong. Mean relative error **±10 %**.
 Its envelope, from Table 1 and the text: **unbaffled**, `T = 0.7 m` inner diameter, `H = T`,
 `V = 270 dm3`, a **propeller at `D = 0.33 T`** with pitch `S = D` and blade width `w = 0.2 D`,
 off-bottom clearance `h = 0.33 H`, `e/R` in ⟨0, 0.57⟩ — so `e/T` up to 0.285, which covers every
-value this design can reach — and **Re in ⟨2e4, 8e4⟩**, where this design sits at 4.7e4. Table 1's
+value this design can reach — and **Re in ⟨2e4, 8e4⟩**, where this design sits at 2.6e4. Table 1's
 first row reads "Inner diameter of the tank, T", which is the second independent confirmation that
 T is the bore.
 
@@ -668,9 +669,9 @@ Cross-checked against Hall at the one point they share, e/T = 0.2: Karcz's equat
 faster than centred, Hall measured 36%. Different impellers, tanks 12x apart in size, agreeing
 within six points — which is why the correlation is used below rather than Hall's single point.
 
-**The departures are larger than Hall's and want stating.** `D = 0.33 T` against 0.45 here; a
-three-bladed **propeller**, or an HE 3, rather than a pitched blade turbine; `H = T` against 1.124;
-and 270 L against 8.23. Worst of all, **`M` has only two values and this design is neither** — the
+**The departures are larger than Hall's and want stating.** `D = 0.33 T`, as here, is not one; a
+three-bladed **propeller**, or an HE 3, rather than a pitched blade turbine; `H = T` against 1.09;
+and 270 L against 8.17. Worst of all, **`M` has only two values and this design is neither** — the
 build runs a mirrored counter-pumping pair, where eq. (6) offers up-pumping or down-pumping and the
 two branches disagree about the centred case by a factor of nearly two (`Theta` 91.3 against 48.3).
 Every figure quoted from eq. (6) in this document is the **up-pumping** branch, which is the one
@@ -731,11 +732,11 @@ Transfer in Stirred Vessels." _Industrial & Engineering Chemistry Process Design
 18:357-364. [doi:10.1021/i260071a001](https://doi.org/10.1021/i260071a001) **[PR]** · **unread**
 The standard first estimate for kLa, in two forms because coalescence sets the bubble size and so
 the interfacial area: `0.026 (P/V)^0.4 us^0.5` coalescing, `0.002 (P/V)^0.7 us^0.2` not. Miracle-Gro
-at 0.2 g/L is dilute enough to be the coalescing case, which gives 0.0098 1/s at the rated 320 rpm -
-inside the 0.01-0.06 1/s Cabaret measured for sparged unbaffled tanks, which is the only independent
+at 0.2 g/L is dilute enough to be the coalescing case, which gives 0.0081 1/s at the rated 320 rpm -
+just under the 0.01-0.06 1/s Cabaret measured for sparged unbaffled tanks, which is the only independent
 check available here.
 Cited second-hand and used outside its range: the correlation is fitted over 500-10000 W/m3 and this
-vessel runs 209. Air-water, besides. The model echoes both caveats rather than presenting the number
+vessel runs 130. Air-water, besides. The model echoes both caveats rather than presenting the number
 bare.
 → `scad/utils/stirred_tank.scad`, `scad/head.scad` transfer block
 
@@ -758,7 +759,7 @@ What is reachable, by Karcz's equation:
 | `jar_1p5L`     | 0.854   | 0         | 0%   | 0.009       | 5%   |
 | `jar_1gal_155` | 0.642   | 0         | 0%   | 0.031       | 14%  |
 | `jar_6p5gal`   | 0.488   | 0.035     | 16%  | 0.090       | 31%  |
-| `jar_10L`      | 0.681   | 0.059     | 24%  | 0.135       | 37%  |
+| `jar_10L`      | 0.677   | 0.059     | 24%  | 0.135       | 37%  |
 | `jar_1gal_180` | 0.871   | 0.090     | 31%  | 0.181       | 41%  |
 
 **T is the BORE here**, `vessel_outer_diameter − 2 × vessel_wall_thickness`, which is what T means
@@ -785,9 +786,9 @@ someone worked out, and they carry exactly that much authority.
 **And they carry one digit less than they show.** Those e/T were re-derived from the superseded
 column, which was quoted to three decimals, so each is uncertain by about ±0.0005 — the offset in
 millimetres was never written down for three of the five rows. Run the interval through eq. (6) and
-four rows are unmoved: 3 %, 31 %, 37 % and 41 % hold across it. **`jar_1gal_155` does not — it is
+three rows are unmoved: 31 %, 37 % and 41 % hold across it; `jar_1p5L`'s is 4.5 to 5.0 %, written 5. **`jar_1gal_155` does not — it is
 14 to 15 %**, and which one cannot be said from what was recorded. It is written as 14 because that
-is the midpoint, and it is the one figure in this table that a re-derivation should expect to move.
+is the midpoint, and it is the figure in this table that a re-derivation should expect to move.
 
 The result is the wrong way round: **the vessels with room for eccentricity are the ones already wide
 enough to carry baffles, and the two that need it have none.** Off-centring is not a rescue for the
@@ -925,7 +926,7 @@ the failure mode the DO port's lean is for. Gives no angle for it.
 sensor page and Hamilton's pH installation note both surface in search saying vertical installations
 are the troublesome case, and neither could be fetched to confirm it — HTTP 406 and an empty
 response respectively. So the 4.5° the DO port leans is **reasoned, not cited**. It is also moot:
-the jar's mouth caps it at 4.79° and `head()` asserts that, so the geometry decides the number and
+the jar's mouth caps it at 4.5° and `head()` asserts that, so the geometry decides the number and
 the sources only decide its direction.
 
 ---
