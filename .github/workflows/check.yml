@@ -45,7 +45,8 @@ jobs:
               - 'scripts/**'
               - 'tests/**'
               - 'justfile'
-              - 'openscad-libraries.txt'
+              - 'scadman.toml'
+              - 'scadman.lock'
               - '.github/workflows/check.yml'
 
   check:
