@@ -6,7 +6,7 @@
 # gates on the absence of output renders something known first. Not on $? alone: a failing export
 # still exits 0, so the file's size is the signal.
 
-# The oldest OpenSCAD anything here runs on: CI installs it from apt. Below it the checks' own
+# The oldest OpenSCAD anything here runs on: apt's 2021.01 (CI runs a pinned snapshot). Below it the checks' own
 # assumptions (the echo format, -D crossing a use boundary) are untested.
 OPENSCAD_MIN=2021.01
 

@@ -10,7 +10,7 @@
 # pass.
 #
 # It needs the manifold backend: about 16 s a render on it, and over ten minutes for the rest of
-# the lid alone on CGAL, which is all the apt build CI uses has. Without it, it says SKIP.
+# the lid alone on CGAL, which is all apt's 2021.01 build has. Without it, it says SKIP.
 set -uo pipefail
 : "${OPENSCAD:=openscad}"
 # "Nothing rendered" is also what a binary that renders nothing says.
