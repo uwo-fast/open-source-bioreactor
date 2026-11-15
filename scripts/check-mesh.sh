@@ -14,7 +14,8 @@ tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
 # on a non-manifold, so ask for CGAL wherever the binary offers a choice; one without --backend
 # is CGAL already.
 backend=""
-"$OPENSCAD" --help 2>&1 | grep -q -- '--backend' && backend="--backend=CGAL"
+help=$("$OPENSCAD" --help 2>&1)
+case "$help" in *--backend*) backend="--backend=CGAL" ;; esac
 # Flags that turn a file's preview into the part it prints, where the default is an assembly.
 mesh_flags() {
     case "$1" in

@@ -4,7 +4,7 @@
 # the actuator.
 #
 # tests/sampler/fit.scad draws each fit as the material that should not exist, so it passes only
-# by rendering EMPTY, and OpenSCAD writes no file then. Under `just test`: about 40 s.
+# by rendering EMPTY, and OpenSCAD writes no file then. Runs under `just test`.
 set -uo pipefail
 : "${OPENSCAD:=openscad}"
 # "Nothing rendered" is also what a binary that renders nothing says.

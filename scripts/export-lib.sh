@@ -73,7 +73,7 @@ export_render_one() {
     # an accessory is a part in a file of its own, with no build to carry, so it renders from it
     if [[ "$file" == scad/support/* ]]; then
         # shellcheck disable=SC2086
-        "$OPENSCAD" $flags -o "$out" "$file" 2>"$err" >/dev/null
+        "$OPENSCAD" $EXPORT_BACKEND $flags -o "$out" "$file" 2>"$err" >/dev/null
         return
     fi
     if ! half=$(export_half_flags "$file"); then
@@ -81,11 +81,18 @@ export_render_one() {
         return
     fi
     # shellcheck disable=SC2086
-    "$OPENSCAD" $sel -D render_all=false $half $flags -o "$out" scad/bioreactor.scad 2>"$err" >/dev/null
+    "$OPENSCAD" $EXPORT_BACKEND $sel -D render_all=false $half $flags -o "$out" scad/bioreactor.scad 2>"$err" >/dev/null
 }
 export_render() {
     export -f export_render_one export_half_flags
     export OPENSCAD
+    # CGAL wherever the binary offers a backend choice: the "2-manifold" warning the judge fails
+    # on comes from CGAL, and a build that defaults to manifold stays silent on a non-manifold.
+    local help
+    help=$("$OPENSCAD" --help 2>&1)
+    EXPORT_BACKEND=""
+    case "$help" in *--backend*) EXPORT_BACKEND="--backend=CGAL" ;; esac
+    export EXPORT_BACKEND
     xargs -d '\n' -P "$JOBS" -I{} bash -c 'export_render_one "$1"' _ {} < "$1"
 }
 
