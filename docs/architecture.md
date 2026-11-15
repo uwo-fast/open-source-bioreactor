@@ -1,18 +1,18 @@
 # Architecture
 
-Where a number is allowed to come from. `design-conventions.md` says how a number is justified;
-this says who may hand it to whom. It is normative: a file that breaks a rule here is a defect, and
-the audit of which files do is in `TODO.md`, not here.
+Where a number is allowed to come from. [Design conventions](design-conventions.md) says how a
+number is justified; this says who may hand it to whom. It is normative: a file that breaks a rule
+here is a defect.
 
 ## The layers
 
 ```
 bioreactor.scad        the build: designations resolved, coupling derived once, head + frame composed
-  ├── head.scad        subassembly: takes its coupling as arguments, standalone defaults
-  ├── frame.scad       subassembly, same contract
-  │     ├── custom/    printed parts: arguments in, geometry out
-  │     ├── purchased/ bought parts: registry rows, accessors, a drawing of the vitamin
-  │     └── utils/     standards and laws: thread tables, gland ratios, physics, geometry helpers
+  |-- head.scad        subassembly: takes its coupling as arguments, standalone defaults
+  |-- frame.scad       subassembly, same contract
+  |     |-- custom/    printed parts: arguments in, geometry out
+  |     |-- purchased/ bought parts: registry rows, accessors, a drawing of the vitamin
+  |     `-- utils/     standards and laws: thread tables, gland ratios, physics, geometry helpers
 support/               furniture around the reactor; may compose bioreactor.scad, nothing composes it
 _shelf/  _archive/      off the tree; nothing on it imports them
 ```
@@ -67,7 +67,7 @@ subassembly including the registries it resolves designations from, `bayonet_por
 
 8. **Minimal.** Every argument is consumed. Every exported function has a caller. A wrapper that
    forwards its arguments unchanged is deleted. A comment says what a number is and why; what it
-   used to be is in git and `decisions.md`.
+   used to be is in git and [Decisions](decisions.md).
 
 ## Not yet settled
 
