@@ -4,24 +4,20 @@ What you do with tools in your hands. The other documents say why the reactor is
 this one says what to cut, what to print, in what order to put it together, and which numbers will
 break something if you get them wrong.
 
-**Numbers here come from one of three places, and it is worth knowing which.** Most are quoted from
-the model's own echoes, and those are the authority — this document repeats them for the reference
-build, `jar_10L_220x305`, the vessel the registry selects. Build a different jar and they move,
-sometimes a lot: render `scad/bioreactor.scad` and read yours back. Some come from the notes on
-[`purchased-parts.csv`](../purchased-parts.csv), which is where a bought part's tolerances live. A
-few are worked out here, from the two — the torque band and the stiffness of the bolted stack are
-the only ones that matter — and each of those says so where it appears.
+The figures here are the reference build's, `jar_10L_220x305`, from its echo transcript; a bought
+part's tolerances come from [`purchased-parts.csv`](../purchased-parts.csv). Build a different jar
+and they move: render `scad/bioreactor.scad` for yours and read them back.
 
 ---
 
 ## Nothing here has been built yet
 
 This reactor has not been printed or assembled. Every number below is derived from the model, and
-the model has never been contradicted by a part in someone's hand. That is a real limitation and it
-is worth stating plainly rather than burying: a first build should expect to correct this document.
+the model has never been contradicted by a part in someone's hand. A first build should expect to
+correct this document.
 
-Three figures in particular are bands rather than measurements, and all three are on
-[`TODO.md`](../TODO.md) waiting for a bench:
+Three figures in particular are bands rather than measurements, and all three wait on a bench (see
+[What to record](#what-to-record)):
 
 - the **sterile filter's pressure drop**, extrapolated from a comparable disc, and the largest single
   term in the gas budget
@@ -67,10 +63,8 @@ This is the part of the build nothing else will remind you about.
   [The sparger](#the-sparger))
 
 **From `frame.scad`:** the base, the top base, **eight ribs** and **twelve rod spacers**. The ribs
-are one part printed eight times, which took measuring rather than reading — each is rotated by a
-multiple of 90° and bitten by the same lights cutout, and the exported meshes disagree because the
-cut surface tessellates differently at each angle. Intersecting one with another turned to its angle
-returns a whole rib, so it is one solid meshed two ways.
+are one part printed eight times: each is rotated by a multiple of 90° and bitten by the same lights
+cutout, so the exported meshes differ only in how the cut surface tessellates.
 
 **The drive decides two of those lists.** `drive_name` in `bioreactor.scad` is `shaft` (above),
 `magnetic`, `none` or `airlift`. Magnetic takes the motor mount and the impellers off the head's list, adds a
@@ -140,11 +134,9 @@ plate's; the joints soften it by an amount not computed. And a 0.1 mm crevice at
 the culture, in a vessel that is chemically sterilised rather than autoclaved — a cleaning
 liability nothing here answers.
 
-**That cap is about the part, not about your printer.** It used to be a literal 170, justified by
-180 mm machines being "the small end of what anyone building this owns" — and no 180 mm machine was
-ever going to build this reactor, so the number was measuring nothing. It is now a piece's height
-against **three times its own section**: a brim as wide as the part on each side, which is why a
-brim is worth printing on something this slender. The rule gives **205.07 mm**, and
+**That cap is about the part, not about your printer.** It is a piece's height against **three
+times its own section**: a brim as wide as the part on each side, which is why a brim is worth
+printing on something this slender. The rule gives **205.07 mm**, and
 the **printer ceiling clamps the cap to 200 mm** — the shortest registered build height less 10 —
 so 200 is what the echo reports, against `jar_1gal_180x197`'s 188 mm tallest piece.
 
@@ -182,7 +174,7 @@ own parts out. Each distinct part renders once, and each vessel's folder is repl
 what is there is what the model prints now.
 
 It renders the parts in parallel, every core at once, so the whole list takes about as long as the
-lid alone - a minute and a half here, a few on a small runner.
+lid alone.
 
 **Pictures** come from the same model. `just render-parts jar_10L_220x305` draws every part on
 that print list on its own, to `output/figures/jar_10L_220x305/parts/`. `just render` draws the
@@ -207,26 +199,23 @@ list: `just export-accessories` writes three **bottle holders** (one per dosing 
 86.1 mm round bottle), the **e-stop box**'s base and lid, and the **electronics stand**'s printed
 corner to `output/accessories/`, from `accessory_print_parts()` in
 `scad/support/accessories.scad`. The cart prints nothing and was never built
-([`docs/future-work.md`](future-work.md)).
-
-`bioreactor.scad` reports the printer
-answer independently, off the geometry rather than the meshes; the two agreeing is the check that
-nothing has fallen off a manifest.
+([future work](future-work.md#bench)).
 
 **What you need to own.** Three parts are a **257.6 mm disc** — the lid, and the frame's base and
 top base — and they are the widest things in the build by a long way. A disc has the same width at
 every angle, so it cannot be turned to fit a narrow bed: what your printer needs is `min(X, Y)` of
 at least 257.6.
 
-`scad/bioreactor.scad` reports this on every render, against the machines registered in
-[`scad/purchased/printers.scad`](../scad/purchased/printers.scad). Today that is the **Prusa CORE
-One L**, the **Bambu H2D**, the **Sovol SV08**, a **Voron 2.4 350** and the **Prusa XL**.
+`scad/bioreactor.scad` reports this on every render, off the geometry rather than the meshes, so
+its answer agreeing with `just export-parts` is the check that nothing has fallen off a manifest.
+It checks against the machines registered in
+[`scad/purchased/printers.scad`](../scad/purchased/printers.scad): the **Prusa CORE One L**, the
+**Bambu H2D**, the **Sovol SV08**, a **Voron 2.4 350** and the **Prusa XL**.
 
-What misses, and by how little, is worth knowing. A **Bambu X1C** is 256 — short by **1.6 mm**. A
-**Voron 250** is short by 7.6. A **Prusa CORE One** is 250 × 220 and cannot do it at any margin,
-because the jar alone is 220 mm across and the lid has to overhang the glass to carry its bolts.
-The lid was briefly trimmed to 252 to reach the X1C; the frame's bases are 257.6 too and its wall
-is set by the rod bosses, so that bought nothing and was undone.
+A **Bambu X1C** is 256, short by **1.6 mm**. A **Voron 250** is short by 7.6. A **Prusa CORE One**
+is 250 × 220 and cannot do it at any margin, because the jar alone is 220 mm across and the lid has
+to overhang the glass to carry its bolts. Trimming the lid does not help: the frame's bases are
+257.6 too, and their wall is set by the rod bosses.
 
 ---
 
@@ -272,10 +261,6 @@ The plate stands `grip` (0.4 mm) proud of its seat, so it closes on rubber and p
 rather than resting on the base. The concentricity of the finished ring is a printed counterbore
 rather than your hand.
 
-> Earlier versions had no base: the blank was loaded into an upturned plate and the pair turned
-> over onto a board, which is awkward and drops the blank. The flare at the counterbore's mouth is
-> what removes that step, and the base is what removes the board.
-
 ---
 
 ## Fits you make
@@ -283,16 +268,11 @@ rather than your hand.
 Most of the fits in this reactor are bought. These are the ones you create at the bench, and each
 one has a number that decides whether it works.
 
-**The bearing is a press fit — heat the race and chill the shaft.** That is what McMaster specify,
-not a workaround for a wrong hole. The shaft is 7.995–8 mm in an 8 mm bore, so the fit runs from
-0.007 mm interference to 0.005 mm clearance; the pocket in the lid is 22.2 mm for a 22 mm outside
-diameter. The joint feeling tight on assembly is the intended condition.
-
-> **The bearing is the weak link against the sterilant.** This reactor is chemically sterilised
-> rather than autoclaved: 7.5 % hydrogen peroxide for everything but the pH and DO probes, and bleach
-> or chlorite only ever on the glass vessel. 440C is not rated for bleach and Buna-N is poor against
-> oxidisers, peroxide among them; the shaft is 316 for that reason. The bearing sits in a blind lid
-> pocket and is not submerged — keep it that way, and keep it out of the vessel's bleach step.
+**The bearing is a press fit — heat the race and chill the shaft.** The shaft is 7.995–8 mm in an
+8 mm bore, so the fit runs from 0.007 mm interference to 0.005 mm clearance; the pocket in the lid
+is 22.2 mm for a 22 mm outside diameter. The joint feeling tight on assembly is the intended
+condition. **Keep the bearing out of the vessel's bleach step**: its 440C and Buna-N are the weak
+link against the sterilant ([why](procurement.md#bearing)).
 
 **Heat-set the four M4 inserts into the lid from the mount face.** 4.7 mm of insert into a 5.6 mm
 hole, with 13.25 mm of lid left beneath them. The inserts go in once and stay; the M4 × 8 screws
@@ -302,10 +282,8 @@ socket.
 
 **The impeller bore is a slip fit, and the set screws are what locate it.** The bore is 8.4 mm
 straight through on an 8 mm shaft — 0.4 to 0.405 mm of slack before print shrinkage — so an
-impeller slides to its height and is fixed there. It used to taper to the shaft's nominal over the
-hub's height, which is a fit you drive on: tolerable with one impeller sitting at the bottom of
-the shaft, wrong with two that each have a height to hold. Open the bore with a reamer or a drill
-if your printer closes it up; `head()` reports the slack it was cut for.
+impeller slides to its height and is fixed there. Open the bore with a reamer or a drill if your
+printer closes it up; `head()` reports the slack it was cut for.
 
 **The impeller set screws cut their own thread.** The hole is printed at the 3.3 mm tap size and no
 thread is modelled; printed holes come out undersize, so expect to open one. A split impeller has no
@@ -341,7 +319,7 @@ groove; work it round and seat it with a small flat screwdriver.
 which a worm clamp closes. Watch the filter joints: silicone creeps,
 and that joint is the sterile barrier. A leak upstream of the rotameter only costs flow you then
 dial back in; a leak downstream means the vessel gets less than the meter claims and every vvm
-figure in [`agitation.md`](agitation.md) is wrong by that much. All four of the risky joints — the
+figure in [Agitation](agitation.md) is wrong by that much. All four of the risky joints — the
 check valve twice, the filter twice — are downstream.
 
 ---
@@ -350,7 +328,7 @@ check valve twice, the filter twice — are downstream.
 
 A PC fan in a printed carrier hung in the base's bore, two magnets in a cap on its hub, and a PTFE
 stir bar on the jar's punt inside. Nothing passes through the lid. What the model picks and where it
-puts it:
+puts it, on `jar_10L_magnetic`:
 
 ```
 stir drive: fan80x25 in a 164.6 mm carrier 36.75 mm tall, its top 0 mm under
@@ -381,16 +359,16 @@ defaults are two Ø8 × 5 discs and a 38 mm bar, and the other registered sizes 
 `purchased/magnets.scad` and `purchased/stir_bars.scad`.
 
 **The floor under the jar is sunk for that fan, up to a point.** The frame reaches below the jar by
-whatever the light stack overshoots its height by — an accident of which light the jar took, which
-left the drive at its mercy. The floor now takes the deeper of that and what the fan and the magnets
-need, so a jar whose light happens to be short still gets a drive. `jar_1p5L` is 3.77 mm deeper for
+whatever the light stack overshoots its height by. The floor takes the deeper of that and what the
+fan and the magnets need, so a jar whose light happens to be short still gets a drive. `jar_1p5L` is 3.77 mm deeper for
 it and gains a carrier. `carrier_floor_lift_max` (10 mm) is how far that goes: past it the base
 would be mostly added floor. The floor does not depend on which drive a build names, so the base is
 still one print for either.
 
 **Past that limit the magnetic build stands on a riser.** `jar_1gal_155` wants 36 mm more than its
 light leaves and `jar_6p5gal` 35, so their bases keep the light's floor and a magnetic build of
-either adds `frame_stir_riser`, which makes up the rest under the whole frame:
+either adds `frame_stir_riser`, which makes up the rest under the whole frame. On
+`jar_1gal_155_magnetic`:
 
 ```
 stir riser: 36 mm under the base, which keeps the light's 4 mm floor; walls at r [50.15,
@@ -493,16 +471,8 @@ draft tube; the shaft and magnetic builds run the arm, and the loop is theirs to
 `jar_10L_220x305` chooses it. All three
 hang off the same riser from the `air_in` port, and the other four tubes stay whichever is fitted —
 they are the dosing and vent lines, and under the arm or the loop they simply have nothing to socket
-into.
-
-```
-sparge arm: from the air inlet's riser at r 56.5 in to r 9, 53 mm off the floor,
-10 mm under the lower impeller's blades, 5 mm short of the shaft; at 0.5 vvm that is
-4.08517 L/min
-sparge arm: 8 holes of 1.2 mm along 31.9 mm at 3.32292 hole diameters, 7.52518 m/s each;
-bubbles 3.75636 mm at formation, 2453.34 a second; the 4 mm bore carries 5.41813 m/s,
-open area ratio 0.72
-```
+into. `head()` reports each as `sparge arm:`, `sparge loop:` or `sparge ring:`, and
+[Agitation](agitation.md#sparger) has what those figures mean.
 
 **The arm is the ring's feed without the ring**: the same socket the riser drops into, the same
 elbow, and one straight run turned inward to end 5 mm short of the shaft, holes drilled down so the
@@ -548,11 +518,9 @@ which sits 2 mm under the mouth and stops the riser backing out.
 running clearance, 1 mm to the blades after the lean the port coupling allows. A lid whose plates were printed for the arm does
 not take the ring.
 
-**Check-holes covers whichever is built.** The head's hole probes used to be echoed in the part's
-own frame while the mesh sat 170 mm lower, so they landed in empty space and passed without
-testing anything; they are placed with the part now, for the ring, the arm and the loop. A hole drilled down is cut
-from outside, so one that stops short leaves a skin under the bore, where the face and the bore's
-centreline are both open anyway; a third point, in that skin, catches it.
+**Check-holes covers whichever is built**: the ring, the arm and the loop. A hole drilled down is
+cut from outside, so one that stops short leaves a skin under the bore, where the face and the
+bore's centreline are both open anyway; a third probe point, in that skin, catches it.
 
 ## The wall baffle cage
 
@@ -646,26 +614,19 @@ inside a socket at the bottom of a jar. Get it wrong and the gas goes down a cap
 straight back out its own vent hole into the headspace — while the rotameter reads flow and the
 culture gets nothing.
 
-**And the tell is weaker than it was, which is worth knowing before you rely on it.** The feed
-socket used to be a hexagon and is now the tube's own section, so it follows the tube instead of
-being a second size — a good change for the joint, and a worse one for telling sockets apart. Both
-sockets are the same 6.4 mm across the flats; the octagon's corners stand only **0.264 mm** proud of
-the circle, where a hexagon's stood 0.49. Count the facets or feel for the corners rather than
-glancing.
+**Count the facets.** Both sockets are 6.4 mm across the flats, and the octagon's corners stand only
+**0.264 mm** proud of the circle, so feel for the corners rather than glancing. The feed socket is
+an octagon because it is the tube's own section.
 
-**The ports are labelled by function for the same reason.** `air_in` and `air_out` have the same
-bore, so marking them by bore alone put `Ø6` on both. A gas line on the wrong one vents into the
-headspace; a dosing line on the wrong one puts acid where base should go. The marks read
-`AIR IN Ø4.4`, `DOSE 2 Ø4.4`, and which dose carries what is yours to record. Baffle ports are marked with the length of plate they carry.
+**The ports are labelled by function for the same reason.** Every tube port bores the same 4.4 mm
+for the same 4 mm riser, so the bore on a mark tells you nothing. A gas line on the wrong one vents
+into the headspace; a dosing line on the wrong one puts acid where base should go. The marks read
+`AIR IN Ø4.4`, `DOSE 2 Ø4.4`: read the word, not the number. Which dose carries what is yours to
+record. Baffle ports are marked with the length of plate they carry.
 
-**Every tube port bores the same Ø4.4 now**, because every one of them passes the same 4 mm riser,
-so the bore on those marks tells you nothing and the function name is carrying all of it. Read the
-word, not the number.
-
-The sparge ring itself cannot be installed rotated, and it is better keyed than it was: it now
-carries a socket under every tube port — five on the full lid at 0, 180, 210, 240 and 330° — and
-that pattern is irregular enough that only one rotation puts them all under ports. On the six-port
-jars it is three.
+The sparge ring itself cannot be installed rotated: it carries a socket under every tube port —
+five on the full lid at 0, 180, 210, 240 and 330° — and that pattern is irregular enough that only
+one rotation puts them all under ports. On the six-port jars it is three.
 
 ### Drilling the support tubes
 
@@ -727,7 +688,7 @@ Measured from the **top** end, because that is the end you can reach with the tu
 Twelve posts hold the lid down on a 239 mm circle, 62.6 mm apart: **eight M8 bolts and four M8 tie
 rods**, the rods occupying every third position. The bolts' heads bear under the top base; the rods
 run the full height of the frame from the lower base. All twelve are tightened by a **nut sitting on
-top of the lid flange**, so the operation is the same at every post.
+top of the lid flange**, so the operation is the same at every post. On `jar_10L_220x305`:
 
 ```
 joint load: 4212.27 N of gasket seating over 12 posts = 351.023 N each, on M8
@@ -829,41 +790,18 @@ line steps up inside the meter's own bore rather than through a coupler. One les
 and is platinum-cure silicone; everything upstream can be PVC or polyurethane, and the barbed
 fittings on that side are rated for firm line rather than silicone.
 
-**One clamp size closes all fourteen joints.** `5011T141` is an SAE 4 on a 5/16 in band — 5.6 to
-15.875 mm — which at the 1/16 in wall these bores are sold in reaches under the 1/8 in line's
-6.35 mm outside and over the 3/8 in line's 12.70. The band width is not a free choice: it is what
-`sparge_riser_proud` in `head.scad` is derived from, and the next band up is 12.70 mm, which would
-leave 2.3 mm of lead-in on a tube that stands 14.94 mm proud.
-
-**The joint that can escape the range is the largest, and it does not escape by a little.** Buy the
-3/8 in run in a 1/8 in wall and it measures **15.875 mm** against a clamp whose limit is **15.875** —
-the same number twice, on a clamp wound out to its last thread. Buy that run in 1/16 or 3/32 in wall
-and the problem does not arise.
-
-They are 316 in both halves, which is why they are rated to 7.5 in.-lbs and not 10: an austenitic
-screw in an austenitic housing galls. Snug them with the 1/4 in nut driver and stop — a wrench will
-strip one, and these get opened again at every filter change.
+**One clamp size, `5011T141`, closes all fourteen joints**, as long as the 3/8 in run is bought in
+1/16 or 3/32 in wall: in 1/8 in wall it sits at the clamp's last thread. Snug each with the 1/4 in
+nut driver and stop — a wrench will strip one, and these get opened again at every filter change.
+Why this clamp, this grade and this wall: [Procurement](procurement.md#hose-clamps).
 
 The check valve exists to stop culture siphoning back into the pump when it stops. It is not
 optional.
 
-**Nothing filters the way out, and fitting the obvious part would cost you the top of the band.**
-A bioreactor normally filters the air in _and_ out. This one filters the inlet and vents the
-headspace through the coil condenser into the room, so the 0.2 µm filter guards one direction of
-two. The tempting fix is a second `1594522` — the filter is sold in tens, so it looks free.
-
-It is not. An outlet filter does not sit between the pump and the sparge holes, but it raises the
-headspace those holes discharge into, and the gas has to beat that too. A second identical filter
-puts the line at **32.4 kPa** against a pump that dead-heads at **27** — the reactor would settle at
-**3.14 L/min**, and 0.5 vvm would stop being a setting it can hold. `head()` reports the budget:
-an outlet filter may cost at most **1.719 kPa per L/min**, which is 49.8 % of what the inlet one
-does, so it wants roughly **twice the membrane area** rather than the same part again. The coil
-condenser's outlet is already priced into the line, so that budget is net of it.
-
-Two numbers behind that are worth knowing. The pump's real ceiling on this line is **5.79 L/min**,
-not the 21.0 that a back pressure held at the design point suggests — the filter is linear in flow, so
-asking for more raises the line. And the inlet filter's own slope is still extrapolated rather than
-measured, so the budget moves with it: measure that first, and this number follows.
+**Nothing filters the way out, and do not fit a second inlet filter there.** The headspace vents
+through the coil condenser into the room. A second `1594522` on the outlet would hold the reactor
+under 0.5 vvm; an outlet filter has to fit the budget `head()` reports as `gas exhaust:`. Why:
+[Procurement](procurement.md#gas-metering).
 
 ---
 
@@ -874,8 +812,8 @@ no slot: the headspace leaves up the condenser's bore and out of its 4.5 mm outl
 `head()` prices in the gas line. Every build whose sparger is not the ring takes it
 (`condenser_name`); the ring's builds keep `air_out`'s tube, which holds the ring. `just export-parts`
 writes the body, panel, former and both pucks, each in the orientation it prints in. The split cold
-finger prints from its own file, `custom/condenser_cold_finger.scad`. See `TODO.md` for what the
-prints still have to prove.
+finger prints from its own file, `custom/condenser_cold_finger.scad`. See [`TODO.md`](../TODO.md)
+for what the prints still have to prove.
 
 **Print the bodies to hold gas, and anything that holds water to hold water.** A condenser body is
 the exhaust path: gas that leaks through its wall bypasses the cold and carries water out with it.
@@ -1025,8 +963,8 @@ render says, the borrowed point was the wrong guess, which is what the puck is f
 arm's socket is, so it also checks the 0.2 mm slip fit nobody has measured. A barb puck hangs from
 soft tubing, which cannot hold it down: the render says whether it floats, and by how much.
 
-What it decides: a face whose cost fits under what the pump has left goes into `head()` as a
-measured row, with the line pricing it like the filter; one that does not stays on the bench.
+A face whose cost fits under what the pump has left can be used on the reactor; one that does not
+stays on the bench.
 
 ## Commissioning
 
@@ -1035,12 +973,11 @@ measured row, with the line pricing it like the filter; one that does not stays 
 The pump is seven times oversized, so the entire band sits in the first part of the needle valve's
 travel — that is why the valve is a 3° needle and not the 20° one.
 
-**Watch the DO trace on the first run, with the ring.** The DO probe's face sits 20.6 mm above the sparge ring's
-centreline and 0.87 mm off its radius, which is directly over a ring of bubbles. A galvanic probe
-reads high with a bubble on the membrane and low with nothing moving past, so this is the one
-placement that can be wrong in both directions. A characteristically spiky trace means the probe is
-in the plume, and the fix is a bench one — the port's lean and the ring's height are both
-parameters.
+**Watch the DO trace on the first run.** `head()` reports where the DO probe's face sits against
+the sparger (`DO probe in the gas:`). A galvanic probe reads high with a bubble on the membrane and
+low with nothing moving past, so a probe over the bubbles can be wrong in both directions. A
+characteristically spiky trace means the probe is in the plume, and the fix is a bench one — the
+port's lean and the sparger's height are both parameters.
 
 **Know the replace-the-filter signal.** The sterile filter can rise about **51 %** — from 14.1 kPa
 to roughly 21.2 — before 0.5 vvm becomes unreachable with the valve wide open. So _valve fully open

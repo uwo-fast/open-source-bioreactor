@@ -72,7 +72,7 @@ Prefer quoting an accessor or an echo over restating its result. Where a figure 
 **check it against the model rather than against another document** — several of these agreed with
 each other and with nothing else.
 
-**A corrected figure is replaced where it sits and recorded once in `decisions.md`.** The old
+**A corrected figure is replaced where it sits and recorded once in [Decisions](decisions.md#corrections--readings-that-were-wrong).** The old
 value is evidence of which assumption failed, so it goes under _Corrections_ there, with what made
 it wrong. It does not stay inline: a superseded paragraph beside its replacement is a second
 expression of the same fact, and the commit that made the correction already holds the diff.
@@ -233,10 +233,6 @@ Working it properly then changed the design rather than the number: the radial b
 6.95 mm, no round section of 6 mm fits it at any diameter, and the squeeze is entirely radial while
 73 mm of height sits unused. The ring's section became 4 × 10 mm, which is also the reason it is
 printed rather than bent — **a tube is round, and round does not fit**.
-
-The 4 × 10 section was itself overtaken by a requirement the fit report could not see — a sealed
-slot cannot be cleaned — and the sparger is a round tube now, placed by the mouth; see
-`decisions.md`. The lesson stands: the fit report is what caught the −1.40 mm.
 
 A model whose checks only run after the geometry exists will confirm whatever was built.
 

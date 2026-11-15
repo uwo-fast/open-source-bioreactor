@@ -1,7 +1,7 @@
 # Future work
 
 Ideas with their reasoning, kept so nobody has to rediscover them. Nothing here is planned or
-tracked. Open work before the paper is `TODO.md`; work planned for after it is a GitHub issue
+tracked. Open work before the paper is [`TODO.md`](../TODO.md); work planned for after it is a GitHub issue
 labelled `post-pub`, all linked from #90. When one of these is picked up, it moves to one of those and leaves here.
 
 ## gas line
@@ -10,14 +10,14 @@ labelled `post-pub`, all linked from #90. When one of these is picked up, it mov
   L/min is extrapolated from an equivalent 0.2 um PTFE disc; area-correcting Pall's Acro 50 gives
   3.02, so it sits 14 % conservative. A water manometer at 1 and 2 L/min (35 and 70 cm of column)
   tests the slope and its linearity both; not at the set flow, where 14.1 kPa is 1.44 m of water.
-  The paper's runs fit the slope to a rotameter reading instead (`TODO.md`), since a builder will
+  The paper's runs fit the slope to a rotameter reading instead ([`TODO.md`](../TODO.md)), since a builder will
   not make or buy a manometer. A differential pressure bench is a separate project.
 
 - **a trap or a longer exhaust tube instead of an outlet filter.** It would guard against
   splashback with no pressure drop, but it is a different sterility claim from a filter.
 
 - **what a printed sparge face costs.** `custom/sparge_puck.scad` prints one outlet face per puck;
-  the bench run is `docs/build.md`'s _The sparge test pucks_.
+  the bench run is [The sparge test pucks](build.md#the-sparge-test-pucks).
   - a porous face is priced by one borrowed point: Pálfy et al.'s membrane carried linearly to
     4 L/min wants 15 times the open area of a 52.8 mm face, and at that size the pump would push
     about 0.28 L/min through it; the render's warning gives both. Linear is an assumption a
@@ -34,9 +34,8 @@ labelled `post-pub`, all linked from #90. When one of these is picked up, it mov
 
 - **where the ring's gas goes, if a stirred build takes the ring.** No registered build does:
   `jar_10L_220x305` runs the loop, the other stirred builds the arm, and the airlift hangs DO
-  straight inside its tube. Given the ring, the DO face sits 20.6 mm above its centreline and
-  0.59 mm off its radius on `jar_10L`, over a ring of bubbles in the convergence zone: the one
-  placement that can read wrong both ways. The flow rate is not the concern (bulk mean 16x what the
+  straight inside its tube. Given the ring, the DO face sits over a ring of bubbles in the
+  convergence zone: the one placement that can read wrong both ways. The flow rate is not the concern (bulk mean 16x what the
   probe needs); the gas path is not modelled, and no source found gives DO placement relative to a
   sparger. The free variables are the lean and the ring's height, both parameters already.
 
@@ -77,7 +76,7 @@ labelled `post-pub`, all linked from #90. When one of these is picked up, it mov
     built, and `jar_1gal_180` is at the same 17.0892
   - the price is area: 0.713 of Oldshue's four-at-T/12 at three plates on `jar_10L` and 0.847 on
     `jar_1gal_180`, which gave their fourth port to a sampling line. The tip ring is off and stays a
-    flag (`docs/decisions.md`)
+    flag ([Decisions](decisions.md))
   - the 2.44 mm lean is a worst case - bore play alone, levered 12.2x, ignoring the flange's face
     contact
   - fixes, cheapest first, costed against the old 15.3 mm plate: taper the plate's inner edge with
@@ -98,16 +97,15 @@ labelled `post-pub`, all linked from #90. When one of these is picked up, it mov
 - **a Rushton under a pitched blade: the hybrid, set aside for a standard design.** `head()` takes
   a lower and an upper type, so it is one line away: `head_impeller_upper_type = impeller_pbt_45_4`.
   Modelled on `jar_10L` at 320 rpm: 4.76 W, 0.193 N m summed, 0.5 vvm held to 147 rpm below and
-  287 rpm above. The case, from when it was the plan:
+  287 rpm above. The case for it:
   - asked which limits his microalgae cultures, the professor who recommended the Rushton answered
     light usually, CO2 supply can, O2 removal is secondary. Light is circulation, the pitched
     blade's job; CO2 is dispersion, the Rushton's
   - **the gas ceiling binds inside the operating band.** `head()` checks Oldshue's 8x rule at each
-    drive speed. The cap goes as N^3: 0.70 vvm at the rated 320 rpm, 0.35 vvm at the 255 rpm
-    Chlorella optimum, against the 0.5 vvm design; the crossover is about 287 rpm. A radial
-    impeller at the same power, 3x not 8x, would hold about 0.94 vvm at 255 rpm
+    drive speed, and the cap goes as N^3, so the pitched blade holds the 0.5 vvm design only above
+    about 287 rpm. A radial impeller at the same power needs 3x, not 8x
   - **circulation per watt**: about 1.8x in the pitched blade's favour at equal power and
-    diameter, not the 4x `agitation.md` once claimed (`docs/decisions.md`)
+    diameter ([Agitation](agitation.md#impeller))
   - **at equal power a Rushton is the gentler of the two**: peak dissipation goes as
     `x Po^(-1/4) D^-3`, so about 0.56x the pitched blade at the same diameter, about 1.4x at
     D = T/3. Both are orders of magnitude under any damage figure. Grenville's Figs. 6-7 have the
@@ -119,12 +117,11 @@ labelled `post-pub`, all linked from #90. When one of these is picked up, it mov
 - **the twisted paddle's power number, to publish the blade.** The build runs `impeller_rushton_6`;
   the twisted row stays registered with no Po any correlation reaches, and its 0.634921 width ratio
   is the one unsourced ratio in `impellers.scad`. `Po = P/(rho N^3 D^5)` from shaft power at three
-  or four speeds in water settles it. Kumaresan & Joshi 2006 (doi:10.1016/j.cej.2005.10.002) is
-  paywalled and may say something.
+  or four speeds in water settles it.
 
 - **the annulus-sparged airlift (B).** The tube as downcomer, the annulus as riser, bubbles up the
   lit wall. It wants a sparger outside the tube, which the mouth-limited ring cannot reach, and
-  Chisti & Moo-Young 1987 recommend a cone under the turn for it (`docs/references.md`).
+  Chisti & Moo-Young 1987 recommend a cone under the turn for it ([References](references.md#the-airlift)).
 
 - **fix the draft tube, if standing it proves loose.** A plain lid leaves its centre free; a
   bayonet there, as the other ports carry what hangs from them, would locate the tube from above
@@ -171,7 +168,7 @@ labelled `post-pub`, all linked from #90. When one of these is picked up, it mov
 - **split `head()` by subsystem.** It is one module in three sections - derived, checks and
   reports, geometry - and the checks cannot become a module of their own without restating the
   derived values, since a module returns nothing. A split by subsystem is the next cut;
-  `docs/architecture.md` (_Not yet settled_) holds the open question, how the pieces share
+  [Architecture](architecture.md#not-yet-settled) holds the open question, how the pieces share
   head.scad's parameters without reading each other. Deferred past the paper: it moves no
   geometry a builder sees, and every echo transcript would be its safety net.
 - **`head()` passing the sampler its inserts.** The sampler picks its two by name for its own live

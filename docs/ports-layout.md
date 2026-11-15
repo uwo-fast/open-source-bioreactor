@@ -5,7 +5,7 @@ _is_ comes entirely from `head_ports` in `scad/head.scad` — this document is t
 that table, and the table is the statement of record.
 
 [`ports_layout.drawio`](ports_layout.drawio) is the sketch of the same circle, editable in
-draw.io. It was in the repo and referenced by nothing, which is how a diagram goes stale unnoticed.
+draw.io.
 
 ## Why three baffles, and why they set everything else
 
@@ -19,13 +19,10 @@ reduced set, which has no baffles.
 An equally spaced count has to divide the port circle. On twelve ports that allows 2, 3, 4, 6 or
 12 baffles, and `head()` asserts it rather than trusting the table.
 
-**Three at 120° is a departure, taken for a port.** Four at 90° is Oldshue's reference case (1997
-p. 202), and the lid ran four. He allows three, but at _"the same total projected area as exists
-with four baffles"_, and this lid cannot widen a plate to make that up: the lock bore caps the
-width and the floor caps the length. So three plates are three quarters of four, **0.847** of his
-reference area on `jar_1gal_180x197` against 1.129. What the fourth plate bought back is a port, and the lid
-needs one for a sampling line. `head()` keeps warning that the vessel is under-baffled, and names
-four plates as the next count that spaces equally.
+**Three at 120° is a departure, taken for a port.** Four at 90° is Oldshue's reference, and three
+plates that cannot widen fall short of his area, so the plate lid is under-baffled
+([Agitation](agitation.md#baffles)); the fourth plate's port went to a sampling line. `head()` warns,
+and names four plates as the next count that spaces equally.
 
 Three baffles sit every fourth port, and the remaining nine fall into **three adjacent triples,
 one between each pair of baffles**. Going back to four is not a matter of turning one port into a
@@ -71,13 +68,12 @@ arrangement symmetric and manufacturable. Each is checked against the table abov
   sit 90° and 150° from pH, so they are the ones for acid and base. Dose 1, at 180°, is 60° from
   pH.
 - **Thermocouple adjacent to the DO probe**, so the temperature used for DO compensation comes from
-  the same region of liquid. They are at 90° and 60° — **adjacent**. An earlier three-baffle layout
-  put the pH probe between them, 60° apart, which did not meet this rule.
+  the same region of liquid. They are at 90° and 60° — **adjacent**.
 - **The other lines distributed through the space** with clearance from baffles, probes, the
   other dosing lines, and the shaft. Dose 1 at 180°, and dose 4 at 330°. The tall things that
   stand on the lid, the condenser at 0° and the sampler at 300°, are two ports apart.
 
-## What the air-in port now carries
+## What the air-in port carries
 
 The **sparger** is not on this circle, but it hangs from it. The port at 240° carries the function
 `air_in`, and the ring's feed arm runs inboard along that sector to a socket directly beneath it, so
@@ -97,8 +93,7 @@ silently taking the first.
 
 The ring hangs on more than its feed. **Every tube port but `air_in` drops a riser to it** — four on
 the twelve-port lid, two on the six-port jars — and the model derives that from the port table rather
-than naming functions, so any lid answers it. It was a named list once, and naming the acid and base
-lines in it broke the six-port jars, which carried neither.
+than naming functions, so any lid answers it.
 
 The stock is what makes it free: a support is cut to its socket, 253.01 mm on `jar_1gal_155x251`,
 and this tube is sold by the metre. That jar's feed and two supports come to 752.9 mm, so they take a
@@ -111,51 +106,24 @@ in, with no capped end below the hole to keep an old dose. On `jar_10L` each is 
 2000 mm length. A magnetic build has no impeller there and takes the same height, as its arm already
 takes its own from the impellers a stirred build turns.
 
-A support riser is the same tube in the same material as the feed, but its socket is **blind**. It
-carries load and no gas, which is what lets it double as whatever its port is for: the tube is capped
-at the bottom and does its job through a hole drilled higher up. The model is the only thing that
-knows where the culture line is, so it dimensions the drill in an echo rather than leaving a hand
-operation undimensioned — **37.9 to 81.3 mm from the tube's TOP end** on `jar_1gal_155x251`, measured from
-that end because it is the one you can reach with the tube in your hand.
+A support riser is the same tube in the same material as the feed, but its socket is **blind**: it
+carries load and no gas, is capped at the bottom, and does its port's job through a hole drilled
+higher up, which the model dimensions and [Building it](build.md#drilling-the-support-tubes) says how
+to drill. Only `air_out`'s hole has a size to meet, being the whole exhaust path, and only on the
+ring's builds; everywhere else the coil condenser takes that port.
 
-**Which end of that window depends on the port.** `air_out` is the exhaust and wants the low number,
-past the lid's inner face and short of the liquid: the headspace is there for foam, and foam finds
-the lowest hole. On a ring build the dosing lines discharge INTO the culture through that hole, so
-they are drilled past the far number instead, and low is better — the dose lands where the impeller carries it away, and the
-tube below the hole is a dead leg that keeps whatever it is given.
-
-Only `air_out`'s hole has a size to meet, being the whole exhaust path: a slot under the tube's own
-7.07 mm² bore becomes the restriction in the gas line. The three dosing holes meter nothing. Where
-the coil condenser takes `air_out`, which is every build but the ring's, that port carries no tube
-and there is no slot to cut.
-
-The feed socket is told apart from the supports **on the part**, because you cannot see inside one
-at the bottom of a jar: the feed's boss is an **octagon** and a support's is round. Otherwise they
-are the same boss — same bore, same height, same arm — and the difference is entirely internal.
-Sized across the flats, so the wall is unchanged and only the corners are new material.
-
-**That tell got weaker as the count grew.** There is one feed against four supports on the full lid,
-so there are now four ways to put the gas line on a capped tube rather than one, and the octagon's
-corners stand only 0.264 mm proud of the circle. Count the facets or feel for the corners; do not
-glance. Every socket also carries a 0.5 mm lead-in chamfer, which is about getting six rigid tubes
-into six sockets at once and tells you nothing about which is which.
+The feed socket is told apart from the supports **on the part**: the feed's boss is an **octagon**
+and a support's is round, and that is the only difference
+([how to tell them apart](build.md#two-ways-to-assemble-it-wrong-that-nothing-will-catch)). Every
+socket also carries a 0.5 mm lead-in chamfer, for getting several rigid tubes into their sockets at
+once.
 
 ## Every tube port is bored for a tube, and sealed around it
 
-A tube port used to pass **flexible tubing**, which deforms into a printed bore and holds itself
-there. They all pass a **rigid steel riser** now, which does neither, and for a long time the two gas
-ports were bored as though they did not know the difference: `air_in` and `air_out` each carried a
-literal bore radius of 3 — a hose radius on a port no hose enters, since the supply line pushes over
-the riser's 14.94 mm proud end and is clamped there. So a 4 mm tube hung in a 6 mm hole with **2 mm
-of slack**, neither located nor closed.
-
-Every bore comes off `sparge_riser_tube` now, at OD plus 0.2 mm, which is the same allowance the
-bearing and shaft holes take. Slack **2 mm → 0.4**. That is a guide and nothing more: printed
-plastic on ground steel leaks along the layer lines however close it is cut.
-
-The dosing lines joined them when every tube port got a riser, so all five bore alike and
-all five carry the gland below. What changed for the dosing lines is where they are gripped: the
-soft tube pushes OVER the riser's proud end and is clamped there, as the gas lines always did,
+Every tube port passes a **rigid steel riser** and is bored off `sparge_riser_tube` at OD plus
+0.2 mm, the same allowance the bearing and shaft holes take; that is a guide and nothing more,
+since printed plastic on ground steel leaks along the layer lines however close it is cut. The soft
+tube of a gas or dosing line pushes OVER the riser's 14.94 mm proud end and is clamped there,
 rather than into the port's own bore.
 
 What closes it is a **rod gland** — the only one in the build, and the opposite of the face seals
@@ -166,35 +134,21 @@ same catalogue page as the port seals, at 18 % radial squeeze — Apple Rubber's
 radial glands 14–23 % where a face gland takes 19–33 %.
 
 It is an **enclosed groove just above the lid's inner face**, behind a 1.2 mm lip: the ring is
-folded and pushed up the bore past the lip, and is captive after that. It was a counterbore open at
-that face until 2026-09, which nothing held — the vessel is on that side, so an unseated ring
-dropped into the culture. Headspace pressure still drives the cord onto the upper shoulder; the lip
-is what holds it when there is none.
+folded and pushed up the bore past the lip, and is captive after that: the vessel is on that side,
+so a groove open to it would let an unseated ring drop into the culture. Headspace pressure drives
+the cord onto the upper shoulder; the lip is what holds it when there is none.
 
-**Why it is worth a purchased part.** A bioreactor normally filters the air on the way in _and_ on
-the way out, and this build only has the inlet filter. That is worth fixing — but an exhaust filter
-does nothing at all while the lid has open holes beside it. Unsealed, each gas port was a
-**15.7 mm² annulus** against the support tube's **7.07 mm² bore**, so about **82 %** of the exhaust
-left by the gaps rather than by the vent; boring for the tube alone would still have left 43 %. A
-0.2 µm sterile filter guarding a vessel that is open to the room is a filter on one of several
-openings.
+**Why it is worth a purchased part.** An exhaust filter does nothing while the lid has open holes
+beside it: without the seal each port is a 2.64 mm² hole into the headspace, and a 0.2 µm sterile
+filter guarding a vessel open to the room is a filter on one of several openings.
 
 ## The lid says which port is which
 
-Checking whether a socket could be misplumbed found the real hazard one level up. Tube ports were
-engraved with their **bore**, and this lid has pairs: `air_in` and `air_out` are both 3 mm, so both
-read `Ø6`, and acid and base are both 2.4 mm and both read `Ø4.8`. The lid could not tell you which
-port was the gas line — and dosing acid into the base line is the same mistake with worse
-consequences.
-
-Tube ports now carry their **function and their bore**: `AIR IN Ø4.4`, `DOSE 2 Ø4.4`. They read 4.4
-rather than the 6 above because every one of them is cut for the riser and not for a hose — see the
-section before this one. Since they are now all the same, the bore on those marks distinguishes
-nothing and the function word carries it: read the word, not the number.
-
-The ring itself cannot be installed rotated, and is better keyed than it was: it carries a socket
-under every tube port — six on the full lid at 0, 180, 210, 240, 300 and 330° — and that pattern is
-irregular enough that only one rotation puts them all under ports.
+Tube ports carry their **function and their bore**: `AIR IN Ø4.4`, `DOSE 2 Ø4.4`. Every one is cut
+for the same riser, so the bore distinguishes nothing and the function word carries it: read the
+word, not the number. A gas line on the wrong port vents into the headspace, and acid in the base
+line is the same mistake with worse consequences. The ring is keyed so it cannot be installed
+rotated ([Building it](build.md#two-ways-to-assemble-it-wrong-that-nothing-will-catch)).
 
 ## The probes lean, and only one of them
 
@@ -233,11 +187,11 @@ What sets the limit is the **worst adjacent pair**, not the port count:
 2·Rpc·sin(180/n)  ≥  hole_r(i)   + hole_r(i+1)   + lid_holes_offset   (lid wall between bores)
 ```
 
-Three consequences, all invisible while every port was the same size:
+Three consequences:
 
 1. **Order matters, where there is a choice.** The layout above puts a baffle beside a probe twice,
    so the binding pair is 14.1 + 14.1 even though half the ports are 1.5–3 mm tubes. On this lid
-   there is no choice — see the correction below — but on a lid with fewer baffles there is.
+   there is no choice — see below — but on a lid with fewer baffles there is.
 2. **Big ports must be at most half the count**, or two are forced adjacent and every saving
    elsewhere is wasted. Necessary, not sufficient: equally-spaced baffles can force the adjacency
    anyway.
@@ -253,7 +207,7 @@ That returns 23 mm for the standard interface, which is exactly the registered r
 rule the design already used. Ø16 probe body, 2 mm collet wall each side, Ø20 opening, Ø23 ring,
 14.1 mm flange. **Nothing in that chain has slack**, which is why every limit below traces back to
 the two probes. `fit` is the 0.2 mm the groove needs to RECEIVE a moulded ring rather than only seal
-it; it was 0 until a printed 23x1.5 would not go into the 26.00 mm groove cut for its 26.00 mm OD.
+it: a printed 23x1.5 does not go into a groove cut to its own 26.00 mm OD.
 
 | interface | iface_r | flange_r | baffle width, 10 mm plate                      |
 | --------- | ------- | -------- | ---------------------------------------------- |
@@ -268,12 +222,10 @@ Baffles cannot be small: the plate drops through the lock bore, so `width = 2·�
 **The ports cannot be arranged freely, and the reason is the baffles.**
 
 **This layout puts each probe beside a baffle,** both are std, and the worst pair is 14.1 + 14.1
-whatever size the tubes are. Under the four baffles this lid used to carry, every third port, that
-was forced: no port was not adjacent to one. Mixed port sizes do not move the twelve-port lid at all -
-`jar_10L`'s binding gap is 1.0466 mm before and after - and **spreading the big ports so no two touch
-was not achievable at that port count and baffle spacing.** Three baffles leave the middle port of
-each triple free of them, but a probe there cannot sit opposite the air inlet, which lands on a
-baffle; the layout keeps DO opposite air in and pays for it in mouth it does not need.
+whatever size the tubes are. Mixed port sizes do not move the twelve-port lid at all - `jar_10L`'s
+binding gap is 1.0466 mm either way. Three baffles leave the middle port of each triple free of
+them, but a probe there cannot sit opposite the air inlet, which lands on a baffle; the layout keeps
+DO opposite air in and pays for it in mouth it does not need.
 
 **So the model stops paying for what it does not get.** `head_ports_uniform()` asks whether a lid can
 carry std on every port, and `head_interface_for()` gives it std throughout where the answer is yes.
@@ -292,16 +244,16 @@ What the uniform lid costs is not packing but CLEANING. On the mixed twelve-port
 problem - the four tight gaps were always there - but it does make it the whole lid's rather than a
 corner of it. And the lid is where the growth goes. In photos of past cultures the buildup is high
 in the culture, in the headspace and on the lid, with almost none low down on the sparger and
-probes. See TODO.md, which was already asking whether a cloth goes through 1.0466 mm.
+probes. Whether a cloth goes through 1.0466 mm is open in [`TODO.md`](../TODO.md).
 
 | set         | ports | functions                                                                                   | worst pair | min mouth |
 | ----------- | ----- | ------------------------------------------------------------------------------------------- | ---------- | --------- |
 | **full**    | 12    | 3 baffle, do_probe, ph_probe, temperature, air_in, air_out, dose_1, dose_2, dose_4, sampler | std\|std   | 142.0 mm  |
 | **reduced** | 6     | do_probe, ph_probe, temperature, air_in, air_out, dose_1                                    | std\|mini  | 78.0 mm   |
 
-A three-baffle set with the probes two steps from each baffle was tried: the worst pair becomes
-std against mini, which bought about 20 mm of mouth. The registered set does not do that, because it
-keeps DO opposite air in, so its smallest mouth is the full set's 142.0 mm.
+A three-baffle set with the probes two steps from each baffle makes the worst pair std against
+mini, about 20 mm of mouth. The registered set does not do that, because it keeps DO opposite air
+in, so its smallest mouth is the full set's 142.0 mm.
 
 **Both sets are registered and the mouth picks between them** — `head_port_set_full` and
 `head_port_set_reduced` in `head.scad`, chosen by `head_port_set_for()`, which asks whether the
@@ -321,7 +273,8 @@ flanges (`lid_flange_gap`); `head()` reports the assigned set's on every render.
 
 `jar_6p5gal` takes the reduced set today and **builds** because of it. Its 137 mm mouth misses the
 full set by 1.30 mm. A three-baffle set with its probes off the baffles would clear the flanges, and
-the vessel then fails on its impeller, which leaves no room for a baffle (`docs/agitation.md`).
+the vessel then fails on its impeller, which leaves no room for a baffle
+([Agitation](agitation.md#5-agitation-mode-per-vessel)).
 
 The reduced set keeps both probes, temperature, the gas path in and out, and one liquid line. It
 drops the three baffles and three of the four dosing lines. What a narrow jar gives up is pH
@@ -353,8 +306,9 @@ Off-centring the shaft is the established fix and is well supported — Hall mea
 36% faster than unbaffled centred. **It is not available here.** Eccentricity is referenced to the
 tank diameter while the room for it is set by the mouth, and the motor mount sits in that room:
 Hall's e = 0.2 T wants 20.7 mm on `jar_1p5L`, where the best any lid can offer is 0.95 mm. See
-`docs/references.md` for the numbers on every vessel, and for why T is the bore.
+[References](references.md#unbaffled-vessels-and-eccentric-agitation) for the numbers on every
+vessel, and for why T is the bore.
 
-So the narrow jars trade baffles for a real change of agitation, not for a shrug. That is the airlift
-variant in `TODO.md`, and it is the same change that removes the motor mount — the part that blocks
-the ports and the eccentricity both.
+So the narrow jars trade baffles for a real change of agitation: the airlift
+([Agitation](agitation.md#5-agitation-mode-per-vessel)), the same change that removes the motor
+mount — the part that blocks the ports and the eccentricity both.

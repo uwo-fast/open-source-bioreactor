@@ -9,10 +9,10 @@ beside the thing that replaced it.
 **Corrections** is what this project believed and got wrong. Each entry keeps the old reading in
 full, because a figure that survived review is worth more as a warning than as a deletion: most of
 them were not typos but readings that were coherent, agreed with the documents around them, and were
-measuring the wrong thing. `TODO.md` carries open work only; nothing here is a task.
+measuring the wrong thing. [`TODO.md`](../TODO.md) carries open work only; nothing here is a task.
 
-A corrected figure in a document or in source is replaced where it sits and recorded here; it does
-not stay inline.
+A corrected figure is replaced where it sits and recorded here
+([Design conventions](design-conventions.md#one-physical-thing-one-expression)).
 
 ## Corrections — readings that were wrong
 
@@ -51,8 +51,9 @@ not stay inline.
   the gasket — but where it goes splits by lip kind, and on a crown it flows into the 4.762 mm of
   the 8 mm gasket the contact chord never touches. The figures quoted a 3 mm gasket no jar carries.
 - **The joint runs at 291.8 N per post and 2.51 MPa.** 352.9 N and 2.78 MPa since the seal moved
-  onto the crown, and 351.0 N since the mouth measured 142.2 rather than 143. Worth its own entry because of HOW it survived: the commit that changed the seal
-  corrected the echo block `docs/build.md` quotes and left every figure derived from it — the torque
+  onto the crown, and 351.0 N since the mouth measured 142.2 rather than 143. Worth its own entry
+  because of HOW it survived: the commit that changed the seal corrected the echo block
+  [Building it](build.md) quotes and left every figure derived from it — the torque
   band, the bolt and rod stretch, a section heading, a ledger entry. Updating a quoted number is not
   the same as updating what was computed from it.
 - **The riser's gland must be a counterbore open to the vessel**, because a 4 × 1.5 ring is 7 mm
@@ -78,7 +79,7 @@ not stay inline.
   reach.** That allowance is for fluidfoils; Fořt's guidance fits a pitched blade and puts it at
   0.9 D. The uncited C/T quarter-to-third convention supported 0.6 D (C/T 0.27) and does not reach
   0.9 D (C/T 0.405).
-- **The eccentricity analysis measured T as the outer diameter.** `docs/references.md`'s e/T
+- **The eccentricity analysis measured T as the outer diameter.** [References](references.md)'s e/T
   table read "Hall's e = 0.2 T needs 21.8 mm on `jar_1p5L`", with every ratio 0.2 × or ÷ the glass
   rather than the bore - the impeller-ratio defect, recurring in a document after it was fixed in
   the model. The numerator was lid geometry in mm and never in question; only the denominator
@@ -117,8 +118,8 @@ not stay inline.
   Grenville 2017's Table 1 values for both blades, and near even with McCabe's 1.3 and 5.75 for
   the Rushton. And the pitched pair held its flow pattern to 1.57 vvm only at 420 rpm; Oldshue's
   8× rule scales as N³, so at the 255 rpm Chlorella optimum the ceiling was 0.35 vvm, under the
-  0.5 vvm design. `docs/agitation.md` carried both as the case for the axial blade until the build
-  moved to the standard turbine.
+  0.5 vvm design. [Agitation](agitation.md) carried both as the case for the axial blade until the
+  build moved to the standard turbine.
 - **`check-holes` proved the arm's holes break through.** It proved only their ends were open. A
   hole drilled down is cut from the outside in, and the probes sat at the outer face and on the
   bore's centreline, both open whether the hole reached the bore or not: an arm whose holes
@@ -143,9 +144,12 @@ not stay inline.
   that sets `$fn = 48` for itself, called from a file that leaves `$fn` at 0: on 2026.10.03 its
   module sees 0, the caller's, with or without the `-D`; on 2021.01 it sees 48, its own, unless
   the `-D` is given, and then 0. So on CI's 2021.01 the `-D` pass is the only way to render what
-  a current OpenSCAD renders by default, which is what the pass's comment said all along
+  a current OpenSCAD renders by default, which is what the pass's comment said all along.
 
 ## Settled — do not re-open without new evidence
+
+Each of these was asked and answered. The reasoning is in the commit that closed it and, where it
+outlives the commit, in the other documents here.
 
 - **The loop yields to the baffles, not the baffles to the loop.** A ring under the lower impeller
   sits among the plates, and the ring between the impellers had already shown what the other way
@@ -185,64 +189,58 @@ not stay inline.
   power number is defined on, so off is the more faithful geometry as well as the more printable one.
   `impeller_tip_ring = true` restores it if the baffle is ever widened enough to need it.
 
-- **the architecture campaign is done, and these are its refusals.** Eight parts are designated end
-  to end - vessel, shaft, plug o-ring, strip light, gasket sheet, motor, DO probe, pH probe -
-  reaching the geometry, the readbacks and the exported STL. The rules are in
-  `docs/design-conventions.md` ("Three layers, and where a parameter lives", "What the customizer
-  can and cannot carry"), `check-designations` guards the surface, and the registries carry names,
-  part numbers and provenance
-- **REWRAPPING `heat_set_inserts` OR `shaft_couplings` into the `set_screws` shape was refused.**
-  That template wraps because the LIBRARY owns the geometry and the row adds purchase identity;
-  these are the opposite - the project registers the part in NopSCADlib's own schema - so a wrap
-  costs about nine call-site edits in `head.scad` to buy uniformity and nothing else. The insert's
-  fields ride the row's tail instead, starting at [11] because the library reads [9] and [10]
-- **THREADING THE PORT TABLE through its ~53 call sites was refused**, and a guard against the
-  hazard was refused with it. `head_interface_for` gives every probe port `bayonet_std` whatever it
-  carries, so no expressible designation can move an interface, and an equality guard would be a
-  dead assert by the sweep test. **What reopens it** is a designation that can move a port's
-  INTERFACE - a thermocouple thread swap - or one that changes the table's count
-- **do not hoist the remaining BUILD rows mechanically.** `0304a3a`'s arithmetic: five moved
+- **Eight parts are designated end to end**: vessel, shaft, plug o-ring, strip light, gasket sheet,
+  motor, DO probe and pH probe, each reaching the geometry, the readbacks and the exported STL. The
+  rules are in [Design conventions](design-conventions.md#three-layers-and-where-a-parameter-lives),
+  `check-designations` guards the surface, and the registries carry names, part numbers and
+  provenance. The refusals below go with it.
+- **`heat_set_inserts` and `shaft_couplings` are not rewrapped into the `set_screws` shape.** That
+  template wraps because the LIBRARY owns the geometry and the row adds purchase identity; these
+  are the opposite - the project registers the part in NopSCADlib's own schema - so a wrap costs
+  about nine call-site edits in `head.scad` to buy uniformity and nothing else. The insert's fields
+  ride the row's tail instead, starting at [11] because the library reads [9] and [10].
+- **The port table is not threaded through its ~53 call sites**, and there is no guard against the
+  hazard either. `head_interface_for` gives every probe port `bayonet_std` whatever it carries, so
+  no expressible designation can move an interface, and an equality guard would be a dead assert by
+  the sweep test. **What reopens it** is a designation that can move a port's INTERFACE - a
+  thermocouple thread swap - or one that changes the table's count.
+- **The remaining BUILD rows are not hoisted mechanically.** `0304a3a`'s arithmetic: five moved
   declarations bought one carryable number. Relocation without the name-lookup layer multiplies
-  duplicated defaults and carries nothing
-- **do not build `motor_for` / `air_pump_for` / `coupler_for` yet.** Those registries hold 4, 1 and
-  1 rows; a selection over one candidate is a fit check wearing a selector's clothes. Registering
-  rows is the prerequisite, not writing selectors
+  duplicated defaults and carries nothing.
+- **No `motor_for` / `air_pump_for` / `coupler_for` yet.** Those registries hold 4, 1 and 1 rows; a
+  selection over one candidate is a fit check wearing a selector's clothes. Registering rows is the
+  prerequisite, not writing selectors.
 
 - **A designation is a STRING, and `"auto"` means derive it.** Not `undef`, which the customizer
   cannot see at all, and not a numeric sentinel: `0` litres or `-1` degrees is exactly the plausible
   number that propagates unnoticed, and on a research instrument a negative lean is a value someone
   could be studying rather than a flag. A string is carried, is visible in the surface, and is
-  consumed by a mode branch that never multiplies it by anything. Rejected outright: numeric
-  sentinels anywhere
+  consumed by a mode branch that never multiplies it by anything. Numeric sentinels are rejected
+  everywhere.
 - **Cited bands at the pressure boundary may assert; `reasoned, not cited` limits may not.** The
   three o-ring checks guard the seal between culture and room and come from gland practice rather
   than this project's judgement, so they keep refusal authority. The distinction is the provenance,
-  not the severity - which is why the mount slenderness limit loses its
+  not the severity - which is why the mount slenderness limit loses its refusal authority.
 - **No `builds/` escape file yet.** The only thing that genuinely cannot ride a parameter set is a
   nested table, and nobody has needed a custom port table - the two registered sets cover all six
   jars. `-D` is the escape hatch. Revisit only if a custom table becomes recurring; if it is ever
-  adopted it must never be rendered with `-p`, which silently un-pins the file's own assignments
+  adopted it must never be rendered with `-p`, which silently un-pins the file's own assignments.
 - **`peri_pump_frame_mount.scad` is left alone deliberately**, `flange_screw_distance = 48.0` and
-  all. It is a stretch goal waiting on a faceplate the bought Kamoer has not got, it blocks nothing,
-  and the campaign has enough surface. See the pump item above for what it actually needs
-
-Each of these was asked and answered. The reasoning is in the commit that closed it and, where it
-outlives the commit, in `docs/`.
-
-- **the motor mount stays at Ø56.** It can go to 42; below that its base inserts hit the bearing
+  all. It is a stretch goal waiting on a faceplate the bought Kamoer has not got, and it blocks
+  nothing.
+- **The motor mount stays at Ø56.** It can go to 42; below that its base inserts hit the bearing
   pocket. Shrinking buys only eccentricity headroom on a vessel that is baffled anyway, and costs
-  stiffness - deflection goes as the cube of height over diameter
-- **the lid carries three baffles, not four, for a port** (where it carries plates; see the wall
-  cage below). Four at 90° is Oldshue's reference;
-  he allows three at the same total projected area, and these plates cannot widen to give it, so
-  three reach 0.713 of his reference on `jar_10L` against four's 0.951. The fourth baffle's port
-  went to a sampling line. Going back to four relays the whole lid, since four equally spaced do
-  not land on three-at-120°
+  stiffness - deflection goes as the cube of height over diameter.
+- **The lid carries three baffles, not four, for a port** (where it carries plates; see the wall
+  cage below). Three plates fall short of Oldshue's reference area
+  ([Agitation](agitation.md#baffles)); the fourth baffle's port went to a sampling line. Going back
+  to four relays the whole lid, since four equally spaced do not land on three-at-120°.
 - **`jar_10L`'s reference build carries the standard four on the wall, not the lid's three.** The
   advising microalgae researcher asked for the standard set. Lid plates pass the mouth, so they
   cannot reach the wall; four at T/12 against the wall cannot pass the mouth rigid. They go in on
-  a cage whose blades slide in to pass it (`docs/agitation.md`, `docs/build.md`), 1.00 of the
-  reference area against the plates' 0.713. The pH probe moves to the 30° port under it
+  a cage whose blades slide in to pass it ([Agitation](agitation.md#baffles),
+  [Building it](build.md#the-wall-baffle-cage)), 1.00 of the
+  reference area against the plates' 0.713. The pH probe moves to the 30° port under it.
 - **`auto` takes the cage wherever it fits, and the plates elsewhere.** It fits a shaft or
   magnetic drive, not the ring, on a lid with baffle ports for a probe the hoops' gap leaves out,
   where a blade slides past the 10.4 mm it needs to run free between its detents (the hoop's 6, a
@@ -250,8 +248,8 @@ outlives the commit, in `docs/`.
   jars do not: their 148 mm mouth against a 170 mm bore leaves 8.24 mm, every detent always in a
   hoop, and `head()` refuses a cage named there. The six-port lids (`jar_6p5gal` and the two
   narrow jars) carry no baffle ports, and their DO and pH stand 120° apart against the gap's 64°.
-  Both want new geometry, benched before it is trusted (#93)
-- **the cage is built on the bench and lowered whole, not sprung against the wall.** The first
+  Both want new geometry, benched before it is trusted (#93).
+- **The cage is built on the bench and lowered whole, not sprung against the wall.** The first
   spike's rigid rings went together inside the jar, which is where it stopped. Rings held against
   the glass lost:
   - a split PETG ring at the wall, 270° and closed end to end, is 0.75 × 210 = 157.5 mm across
@@ -261,139 +259,137 @@ outlives the commit, in `docs/`.
     (assumed) and r 102, and about 27 once PETG relaxes (62 % in 24 h for sheet, relayed), under
     the 63 N·mm the cage's riser takes at 320 rpm;
   - a ring set by a keystone wedge goes slack after 3.2 to 4.9 K of cooling, on an unsourced CTE
-    difference to the glass
-- **the slide cage, not half-rings or lugs.** The second print added half-rings and a stop nub on
+    difference to the glass.
+- **The slide cage, not half-rings or lugs.** The second print added half-rings and a stop nub on
   each bar: the nubs broke, the half-rings would not stay in their hoops, and slid in, the pads
   stood 2.4 mm a side past the mouth. A dovetail lug at each blade with a snap tooth followed. Both
   added parts without making the cage work better, so it went back to the first print's slide,
-  tightened. The bar's closed outer end is the stop now, with nothing proud to snap off
-- **the probes still sit beside baffles at three.** Three baffles leave the middle of each triple
+  tightened. The bar's closed outer end is the stop now, with nothing proud to snap off.
+- **The probes still sit beside baffles at three.** Three baffles leave the middle of each triple
   of ports free of them, but a probe there cannot sit opposite the air inlet, which lands on a
-  baffle. DO opposite air in was kept, and the lid is uniform std either way
-- **commodity fasteners carry a STANDARD, not a supplier code.** `ISO 4017 M8x30 A2-70` is buyable
+  baffle. DO opposite air in was kept, and the lid is uniform std either way.
+- **Commodity fasteners carry a STANDARD, not a supplier code.** `ISO 4017 M8x30 A2-70` is buyable
   anywhere and does not go stale; nothing in the model reads a property of them beyond nominal size
   and a derived length. The sealing and mount hardware stays pinned by number, because each of those
-  carries something a spec does not
+  carries something a spec does not.
 - **Cooke's blend-time correlation is deliberately absent.** It could not be made to reproduce the
   figures its own source prints beside it. Ruszkowski's is encoded and was validated first (1.96 s
-  against a published 1.9). See `docs/references.md` before trying it again
-- **the reference build runs two `impeller_rushton_6` at the standard turbine**: D = T/3, the lower
+  against a published 1.9). See [References](references.md) before trying it again.
+- **The reference build runs two `impeller_rushton_6` at the standard turbine**: D = T/3, the lower
   T/3 off the floor, the upper a further T/3 up (McCabe, Smith & Harriott 1993 pp. 241-243 and 253),
   on the advice of the microalgae researcher advising the project. The first paper is about the
   design, so the reactor runs at a standard wherever one exists; the pitched pair and a Rushton
-  under a pitched blade are knobs for later work (`docs/baseline.md`). The twisted paddle stays
-  registered and drawn but has no Po that any correlation reaches
-- **the Rushton's power number is Kaiser's measured 4.17, not McCabe's 5.75.** 5.75 is from tanks
-  with four baffles at T/10, Kaiser's from laboratory scale, and this vessel has four at T/12, so
-  neither is measured at it. At 5.75 the torque is still under about
-  0.087 N·m of the drive's 0.490, so no choice in the build turns on it; a bench measurement of the
-  printed part replaces both
-- **the shaft is 400 mm and must be a ground rotary shaft.** 300 mm does not exist in the catalogue
+  under a pitched blade are knobs for later work ([Baseline](baseline.md)). The twisted paddle stays
+  registered and drawn but has no Po that any correlation reaches.
+- **The Rushton's power number is Kaiser's measured 4.17, not McCabe's 5.75**, and no choice in
+  the build turns on which is right ([Agitation](agitation.md#2-this-reactor-in-the-units-that-matter)).
+- **The shaft is 400 mm and must be a ground rotary shaft.** 300 mm does not exist in the catalogue
   and 200 cannot reach. It runs directly in the 608 bearing's inner race, so plain h9 rod would allow
-  0.043 mm and fret the bore
-- **the sparge ring sits in the gap between the impellers**, from Birch & Ahmed: above an up-pumping
+  0.043 mm and fret the bore.
+- **The sparge ring sits in the gap between the impellers**, from Birch & Ahmed: above an up-pumping
   impeller, below a down-pumping one. The pitched pair converged, so one ring served both; two
   Rushtons discharge radially and nothing held here places a ring for them; the shaft
   drive's default is the arm. Supersedes
-  Oldshue p. 214's 80 %-of-impeller ring, which two experimental studies contradict
-- **the spargers' holes are 1.2 mm, for bubble size; they were 8 × 3 mm against fouling.** The
+  Oldshue p. 214's 80 %-of-impeller ring, which two experimental studies contradict.
+- **The spargers' holes are 1.2 mm, for bubble size; they were 8 × 3 mm against fouling.** The
   culture photos show almost no buildup on the sparger, and 3 mm cost bubble size: 5.10 mm at
   formation against 3.76. They were 1 mm next, which came out too small on a print. 16 × 1.2 mm runs
   3.76 m/s at an open area of 1.44, past 1, so the holes nearest the feed take more of the gas;
   its 24 Pa a hole still outweighs the bore's 18 Pa of velocity head. Bubbles are 3.76 mm at
-  formation, and the arm fits eight on `jar_10L`, at 7.53 m/s
-- **the loop drills 11 holes, not the ring's 16.** Its one bore feeds them to a dead end, and at 16
+  formation, and the arm fits eight on `jar_10L`, at 7.53 m/s.
+- **The loop drills 11 holes, not the ring's 16.** Its one bore feeds them to a dead end, and at 16
   its far end bubbled weaker on the bench. 11 brings the open area to 0.99 and the push through a
   hole from 24 to 50 Pa, at 5.47 m/s, a hair past Barbosa's 5.4. The ring keeps 16: it has two
-  paths, and an odd count puts a hole in its split
-- **the working volume is DERIVED from a fraction of capacity, not pinned in litres.** 0.865 of what
+  paths, and an odd count puts a hole in its split.
+- **The working volume is DERIVED from a fraction of capacity, not pinned in litres.** 0.865 of what
   the jar holds, which is 8.17035 L on jar_10L and scales to every registered vessel. A litre figure
   is a statement about one jar: 8.25 L left jar_6p5gal_305x470's thermocouple in the headspace and
-  stopped that vessel rendering at all
-- **the riser is welded hard-temper 316, not seamless soft.** Temper does not move the modulus, but a
-  support tube that stays where it is put is the whole point - and it is $22.72/m against $181.42
-- **the plug o-ring cord is 3/32 in, not 1/8.** The groove and the port bores are cut into the same
-  wall, so a fatter cord fouls the bores on every vessel rather than just a tight one
-- **the lid joint is instructed as a TURN, not a torque, and that is not an omission.** 351.0 N per
+  stopped that vessel rendering at all.
+- **The riser is welded hard-temper 316, not seamless soft.** Temper does not move the modulus, but a
+  support tube that stays where it is put is the whole point - and it is $22.72/m against $181.42.
+- **The plug o-ring cord is 3/32 in, not 1/8.** The groove and the port bores are cut into the same
+  wall, so a fatter cord fouls the bores on every vessel rather than just a tight one.
+- **The lid joint is instructed as a TURN, not a torque, and that is not an omission.** 351.0 N per
   post is 0.56 to 0.84 N.m across the 0.20-0.30 nut factor unlubricated 18-8 spans - a 40 % band
   from friction alone, on a fastener that galls, at a setting below most torque wrenches. The turn
   is the gasket's travel over the thread's pitch and has no modulus or friction in it. Both are in
-  `docs/build.md`; the torque is there to say why it is not the instruction
-- **the lid follows the frame's outer diameter, and trimming it buys nothing.** It was cut to 252
+  [Building it](build.md#closing-the-lid-and-the-number-that-cracks-the-jar); the torque is there
+  to say why it is not the instruction.
+- **The lid follows the frame's outer diameter, and trimming it buys nothing.** It was cut to 252
   once - its own floor, being the bolt circle plus a bore plus wall - because 257.40 put it past
   every 256 mm machine by 1.4 mm. Then the FRAME was measured: its base and top base are 257.40 as
   well, and its wall cannot come down because the rod bosses want 36.8 mm of it. So the trim thinned
   the lid's flange and put a 2.7 mm step in the joint to reach a printer the frame ruled out anyway.
-  What can print this is REPORTED by bioreactor.scad instead of designed to
-- **the baffle cap is a PRINT-QUALITY rule, not a bed one.** It was a literal 170 defended by
+  What can print this is REPORTED by bioreactor.scad instead of designed to.
+- **The baffle cap is a PRINT-QUALITY rule, not a bed one.** It was a literal 170 defended by
   180 mm machines, which could never have built this reactor at all. It is now a piece's height
   against three times its own section - a brim as wide as the part on each side - and the piece that
   binds is the TIP, not the one carrying the port: a flange is a wide foot, so the bare plate is
-  half again as slender. Do not re-derive it from a printer; that is the mistake it replaced
-- **the riser's gland is an ENCLOSED GROOVE above a 1.2 mm lip.** A counterbore open to the vessel
+  half again as slender. Do not re-derive it from a printer; that is the mistake it replaced.
+- **The riser's gland is an ENCLOSED GROOVE above a 1.2 mm lip.** A counterbore open to the vessel
   has nothing under the cord, so an unseated ring drops into the culture - which is what it did.
   Pressure still seats the cord on the upper shoulder; the lip holds it when there is none. The ring
   is folded and pushed up the bore past the lip, which a printed port proved is reasonable by hand.
-  Reversed 2026-09 - see Corrections
-- **lights per cord is registered, and it does NOT decide how many lights there are.** These are
+  See Corrections.
+- **Lights per cord is registered, and it does NOT decide how many lights there are.** These are
   sold as a cord and a controller driving a fixed number of tubes, so a layout that is not a whole
   number of cords buys the next one up. frame() reports the cords a layout needs; the layout stays
   an illumination decision. Deriving the count from the packaging would be letting the shop set the
-  design, which is the direction the arrow must not point
-- **the baffle's resonance check asks WHERE the mode is crossed, not whether it is near one.** It
+  design, which is the direction the arrow must not point.
+- **The baffle's resonance check asks WHERE the mode is crossed, not whether it is near one.** It
   compared the mode against the excitations at the drive's fastest setting and warned within 30 %,
   which is right for load and wrong for resonance: a DC motor sweeps every frequency below its
   maximum, so something is always crossed on the way up. What matters is the SPEED of the crossing
   and whether the drive is asked to hold it - 491 rpm on `jar_1gal_180x197`'s 10 mm plate against a
   320-420 band, and
-  the clearance to that band is reported because that is what separates a 10 mm plate from an 11
+  the clearance to that band is reported because that is what separates a 10 mm plate from an 11.
 - **`check-mesh` is not in `just check`** - it renders solids, which is minutes to tens of minutes.
   The `$fn=0` second pass IS in `check-scad`, because that recipe is the cheap one. Both were proved
-  to FIRE on a deliberately broken input before being trusted
-- **the two gas-driven jars are registered as airlifts, not bubble columns.** Take the draft tube
+  to FIRE on a deliberately broken input before being trusted.
+- **The two gas-driven jars are registered as airlifts, not bubble columns.** Take the draft tube
   out of the airlift build and what is left is the bubble column: the same lid and parts but for
   the ring, drawn in a few millimetres to fit inside the tube with its supports cut to match, and
   the DO port, which hangs its probe straight. A second registration would export near-duplicate
   parts for a build the airlift's already make.
-  `drive_name = "none"` stays a drive the model builds; it is no longer a build the export writes
-- **under the airlift the DO probe hangs straight.** Its lean exists to take the tip out of the
-  shaft's shadow toward the flow (`docs/ports-layout.md`), and inside the riser there is no shaft and
+  `drive_name = "none"` stays a drive the model builds; it is no longer a build the export writes.
+- **Under the airlift the DO probe hangs straight.** Its lean exists to take the tip out of the
+  shaft's shadow toward the flow ([Port layout](ports-layout.md#the-probes-lean-and-only-one-of-them)), and inside the riser there is no shaft and
   the whole core flows. Leaning it only walks it toward a tube that can shift up to 2.5 mm: with
   the tube among its obstacles the lean derived to within 0.08 mm of the wall on `jar_1p5L`, less
-  than the tube's own play
-- **a magnetic build wanting more floor than the base gives stands on a riser.** The base stays the
+  than the tube's own play.
+- **A magnetic build wanting more floor than the base gives stands on a riser.** The base stays the
   light's floor, so it is one print for every drive on its jar and an airlift build does not grow
   for a drive it lacks. A hollowed deep base was the other way: one print, but under every
   drive, and it moved the jar against the lights. The riser is walls only, so it prints as it
   stands, and it keeps the carrier as it was by carrying the base's slot. `jar_1p5L` keeps its sunk
-  floor: its 3.77 mm is far short of the 23.8 mm a riser needs to hold the carrier's ear
-- **the support tubes' discharge holes are not drawn.** Every tube port but `air_in` is capped at
+  floor: its 3.77 mm is far short of the 23.8 mm a riser needs to hold the carrier's ear.
+- **The support tubes' discharge holes are not drawn.** Every tube port but `air_in` is capped at
   its lower end and vents through a hole cut up its length, a bench operation. `head()` reports the
-  window (37.9-88.4 mm from the top on `jar_10L`) and `docs/build.md` says which end each port
+  window (37.9-88.4 mm from the top on `jar_10L`) and [Building it](build.md#drilling-the-support-tubes) says which end each port
   wants. Only `air_out`'s hole has a size to meet, and only where no condenser takes that port;
   `head()` prices it there. A default for a hand-cut window would be a guess, so it is not a
-  parameter either
-- **the stirred jars keep two impellers, though Fitschen's spacing band allows one.** Fitschen
+  parameter either.
+- **The stirred jars keep two impellers, though Fitschen's spacing band allows one.** Fitschen
   eq. (5), `(H-d)/d > n > (H-2d)/(2d)` in impeller diameters, allows one on all three jars that
   take the shaft drive: n is 1 or 2 on `jar_10L_220x305` (H_L/d 3.27862) and `jar_6p5gal_305x470`
   (3.47503), and 1 on `jar_1gal_180x197` (2.7063), which `head()` reports short for a pair at
   0.729831 D of culture over the upper impeller against the 0.5 D floor. No primary stands behind
   the rule, so `head()` reports it and nothing asserts. The count stays two: the power is per pair, the manifest lists two, the reference build physically exists, and the standard
-  configuration the paper runs is two Rushtons
-- **the pump, the inlet filter and the other gas-line hardware are assigned in `head.scad`, not
+  configuration the paper runs is two Rushtons.
+- **The pump, the inlet filter and the other gas-line hardware are assigned in `head.scad`, not
   designated.** `head_air_pump`, `sparge_inlet_filter`, `sparge_check_valve`, the clamp and the
   inserts are set directly, and no parameter set can change them. The pump and the filter drive the
   gas budget, so they are the first to get a `_name` designation when a build needs a different one;
-  until then a designation is a parameter with one value
-- **registry rows stay positional, checked by a signature per field.** `registry_by_name` checks
+  until then a designation is a parameter with one value.
+- **Registry rows stay positional, checked by a signature per field.** `registry_by_name` checks
   every row of a registry on every lookup against a signature, one letter a field (string, number,
   list, bool, capital where undef is allowed), and `fan_by_name` does the same for NopSCADlib's
   unnamed rows. That catches a row that lost or gained a field, or a list where a number goes: a
   `grow 13in` row with its per-cord count and its dimensions swapped fails with
   `registry rows ["grow 13in"] do not fit sln`. Two fields of the same type swapped still pass.
-  Named fields would catch that, at the cost of rewriting every registry and every accessor
+  Named fields would catch that, at the cost of rewriting every registry and every accessor.
 - **`bayonet_port.scad` receives every o-ring as a global, and that stays.** It includes
-  `bayonet_interfaces.scad`, an include `docs/architecture.md` allows by name, and that file
+  `bayonet_interfaces.scad`, an include [Architecture](architecture.md) allows by name, and that file
   includes `orings.scad` so an interface row can name its ring, the cross-registry include rule 6
   calls honest. The o-rings arrive as a side effect of both allowed includes; moving them would
-  mean the interface rows naming their ring some other way than by its row
+  mean the interface rows naming their ring some other way than by its row.
