@@ -44,8 +44,8 @@ jobs:
           test "$(fc-match -f '%{family[0]}' 'Liberation Sans')" = "Liberation Sans"
           openscad --version
 
-      # Clones the pinned OpenSCAD libraries. The runner has no SSH key, so this
-      # is also the live test of the HTTPS fallback in the installer.
+      # Installs the pinned scadman and, through it, the OpenSCAD libraries
+      # scadman.lock pins.
       - name: Setup
         run: just setup
 

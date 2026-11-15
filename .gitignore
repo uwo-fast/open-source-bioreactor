@@ -29,5 +29,7 @@ __pycache__/
 .pytest_cache/
 node_modules/
 
-# Project-local OpenSCAD libraries, installed by `just setup` from openscad-libraries.txt
+# Project-local OpenSCAD libraries, installed by `just setup` from scadman.lock
+.scadman/
+# Where `just setup` installed them before scadman, still present in older clones
 .openscad-libraries/

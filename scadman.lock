@@ -1,0 +1,43 @@
+version = 1
+
+[[package]]
+name = "FunctionalOpenSCAD"
+source = "https://github.com/thehans/FunctionalOpenSCAD"
+rev = "51588ffe13d3124b5ea5c04e521cd8e25ab5d0a9"
+hash = "eceb7721cf71190a831d3d83c9e776b892c8daf3a9864a848b196cf824f6f496"
+
+[[package]]
+name = "NopSCADlib"
+source = "https://github.com/nophead/NopSCADlib"
+rev = "e4f6227e9acb7b76a560d1d92a90b3cb91113083"
+hash = "6409345aa88d905f838837c7942cbde82250b5fe54ea5cd1a62bb8e62d91093e"
+
+[[package]]
+name = "bayonet-lock-scad"
+source = "https://github.com/CameronBrooks11/bayonet-lock-scad"
+rev = "d5bd0077183b0c884f616ea544827a25c7c6aec4"
+hash = "b53dfb90167596d70e0d391d3c67aba37e3372e0d20e3b74914f9f72fae80139"
+
+[[package]]
+name = "din168-thread-scad"
+source = "https://github.com/CameronBrooks11/din168-thread-scad"
+rev = "7ea65c3482da508d2a8ba22a1ba4239454fb8c0f"
+hash = "0a7b40cfadd078583c8661712c42a738a6fdea774e25f3b14696d628390f13ba"
+
+[[package]]
+name = "syringe-actuator"
+source = "https://github.com/uwo-fast/syringe-actuator"
+rev = "ea8b22178aba858fd69874eac33b015b322954d6"
+hash = "9daa24d10e6c9e9931e231621252545a185e9fab762d579ae93b5fb9aaad0697"
+
+[[package]]
+name = "threads-scad"
+source = "https://github.com/rcolyer/threads-scad"
+rev = "4ae9aeb3b136f9858200f77a304b909a000ce3b4"
+hash = "6daa2b750256b60fd64d1e35fefb653ddfba72ccefe3d0d2d8558168c1b3a937"
+
+[[package]]
+name = "turbidity-sensor"
+source = "https://github.com/uwo-fast/turbidity-sensor"
+rev = "4be431f4bca66a97372ead7a33406cc4bf8fc3df"
+hash = "3d01e29c99f1042b4c724dfa08adcb9ccd117222bd507037c7f6764e3718a23f"

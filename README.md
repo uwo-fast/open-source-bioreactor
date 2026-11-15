@@ -58,17 +58,24 @@ why.
 
 ## OpenSCAD Libraries
 
-Run `just setup` first, after cloning and whenever `openscad-libraries.txt` changes. It
-installs the libraries below into `.openscad-libraries/`, each at the revision
-[`openscad-libraries.txt`](openscad-libraries.txt) pins, and every recipe puts that
-directory first on `OPENSCADPATH`. Without it most of `scad/` does not build, and
-`just check` and `just test` fail. Run it even with these libraries installed
+Run `just setup` first, after cloning and whenever `scadman.lock` changes. It installs the
+libraries below into `.scadman/env/` with [scadman](https://github.com/CameronBrooks11/scadman),
+each at the revision [`scadman.lock`](scadman.lock) pins and checked against its content hash,
+and every recipe puts that directory first on `OPENSCADPATH`. Without it most of `scad/` does
+not build, and `just check` and `just test` fail. Run it even with these libraries installed
 globally: a global copy at another revision is what the pins exist to rule out.
 
-- [github.com/nophead/NopSCADlib](https://github.com/nophead/NopSCADlib)
-- [github.com/CameronBrooks11/bayonet-lock-scad](https://github.com/CameronBrooks11/bayonet-lock-scad)
-- [github.com/thehans/FunctionalOpenSCAD](https://github.com/thehans/FunctionalOpenSCAD)
-- [github.com/rcolyer/threads-scad](https://github.com/rcolyer/threads-scad)
-- [github.com/CameronBrooks11/din168-thread-scad](https://github.com/CameronBrooks11/din168-thread-scad)
-- [github.com/uwo-fast/turbidity-sensor](https://github.com/uwo-fast/turbidity-sensor)
-- [github.com/uwo-fast/syringe-actuator](https://github.com/uwo-fast/syringe-actuator)
+`just setup` fetches the scadman release it needs into `.cache/` on Linux x86_64 and macOS.
+Elsewhere it uses a `scadman` on `PATH`. Without scadman, install each library below into a
+folder with the name shown, at the pin shown, and put that folder on `OPENSCADPATH`.
+[`scadman.toml`](scadman.toml) says why each one is at its pin.
+
+| Name                 | Repository                                                                                  | Pin        |
+| -------------------- | ------------------------------------------------------------------------------------------- | ---------- |
+| `NopSCADlib`         | [nophead/NopSCADlib](https://github.com/nophead/NopSCADlib)                                 | `v21.41.1` |
+| `bayonet-lock-scad`  | [CameronBrooks11/bayonet-lock-scad](https://github.com/CameronBrooks11/bayonet-lock-scad)   | `v0.12.0`  |
+| `FunctionalOpenSCAD` | [thehans/FunctionalOpenSCAD](https://github.com/thehans/FunctionalOpenSCAD)                 | `51588ff`  |
+| `threads-scad`       | [rcolyer/threads-scad](https://github.com/rcolyer/threads-scad)                             | `4ae9aeb`  |
+| `din168-thread-scad` | [CameronBrooks11/din168-thread-scad](https://github.com/CameronBrooks11/din168-thread-scad) | `7ea65c3`  |
+| `turbidity-sensor`   | [uwo-fast/turbidity-sensor](https://github.com/uwo-fast/turbidity-sensor)                   | `4be431f`  |
+| `syringe-actuator`   | [uwo-fast/syringe-actuator](https://github.com/uwo-fast/syringe-actuator)                   | `ea8b221`  |
