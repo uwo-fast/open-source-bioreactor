@@ -61,7 +61,8 @@ labelled `post-pub`, all linked from #90. When one of these is picked up, it mov
 
 - **`check-holes` without a CGAL render, so it can join `just check`.** Both ends of every hole
   are probed, and an arm's or a loop's hole a third time, in the wall just under the bore. The
-  arm is checked by default, the ring with `-D head_sparger="ring"`. It was proved by injection
+  arm is checked by default, the ring with `-D head_sparger="ring"` and the loop with
+  `-D head_sparger="loop"`. It was proved by injection
   when written (a bore swept 180 degrees failed 5 of 20 on `feed`). What would let it
   into the gate is a probe that needs no rendered mesh: the claim is geometric and the part is a
   union of primitives. `spoke_holes` is unprobed; no caller sets it and `sparger()` refuses the

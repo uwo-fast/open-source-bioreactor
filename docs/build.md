@@ -670,7 +670,7 @@ jars it is three.
 ### Drilling the support tubes
 
 On a ring build every tube port but `air_in` takes a support tube: capped where it meets the ring, and doing its job
-through a hole you drill. Five of them on the twelve-port lid, two on the six-port jars. The model is
+through a hole you drill. Four of them on the twelve-port lid, two on the six-port jars. The model is
 the only thing that can dimension that hole, and it does:
 
 ```

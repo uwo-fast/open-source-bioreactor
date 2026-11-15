@@ -787,7 +787,7 @@ someone worked out, and they carry exactly that much authority.
 column, which was quoted to three decimals, so each is uncertain by about ±0.0005 — the offset in
 millimetres was never written down for three of the five rows. Run the interval through eq. (6) and
 four rows are unmoved: 31 %, 37 %, 41 % and `jar_1gal_155`'s 14 % hold across it. **`jar_1p5L`
-does not — it is 4.48 to 4.98 %, so 4 or 5**, and which cannot be said from what was recorded. It is written
+does not — it is 4.48 to 4.98 %, so 4 or 5**, and which of the two cannot be said from what was recorded. It is written
 as 5, the midpoint rounded, and it is the figure in this table that a re-derivation should expect
 to move.
 

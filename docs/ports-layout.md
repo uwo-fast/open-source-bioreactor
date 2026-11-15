@@ -95,7 +95,7 @@ silently taking the first.
 
 ## What the other tube ports also carry
 
-The ring hangs on more than its feed. **Every tube port but `air_in` drops a riser to it** — five on
+The ring hangs on more than its feed. **Every tube port but `air_in` drops a riser to it** — four on
 the twelve-port lid, two on the six-port jars — and the model derives that from the port table rather
 than naming functions, so any lid answers it. It was a named list once, and naming the acid and base
 lines in it broke the six-port jars, which carried neither.
@@ -134,8 +134,8 @@ at the bottom of a jar: the feed's boss is an **octagon** and a support's is rou
 are the same boss — same bore, same height, same arm — and the difference is entirely internal.
 Sized across the flats, so the wall is unchanged and only the corners are new material.
 
-**That tell got weaker as the count grew.** There is one feed against five supports on the full lid,
-so there are now five ways to put the gas line on a capped tube rather than one, and the octagon's
+**That tell got weaker as the count grew.** There is one feed against four supports on the full lid,
+so there are now four ways to put the gas line on a capped tube rather than one, and the octagon's
 corners stand only 0.264 mm proud of the circle. Count the facets or feel for the corners; do not
 glance. Every socket also carries a 0.5 mm lead-in chamfer, which is about getting six rigid tubes
 into six sockets at once and tells you nothing about which is which.
