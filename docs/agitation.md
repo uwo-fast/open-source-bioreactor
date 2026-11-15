@@ -35,15 +35,15 @@ higher growth against unstirred - with activity falling back to the unstirred co
 is a rigid-walled green alga, the most shear-tolerant class.
 
 > **Assumption, stated once and carried everywhere below.** Leupold's apparatus is a Gust microcosm
->
-> - 1.75 L, mixed by a **spinning plate with skirt** 5 cm off the bottom - not a stirred tank with
->   an impeller. Their tip speed is that plate's rim speed, and the shear it makes lives in a
->   plate-to-wall gap rather than an impeller's discharge jet. **Reading 1.26 and 2.03 m/s as impeller
->   tip speeds is this project's transfer, not their result.** It is the only _Chlorella_-specific
->   agitation measurement available, so the band below is built on it anyway - but every speed, every
->   D/T argument and the motor selection itself inherit that assumption. See
->   [References](references.md#cell-damage-shear-and-agitation) for what the paper actually reports, including that its calibration is direct only to 250 rpm and that
->   the quoted Pa figures are the stress the authors call secondary in their own experiment.
+> of 1.75 L, mixed by a **spinning plate with skirt** 5 cm off the bottom - not a stirred tank with
+> an impeller. Their tip speed is that plate's rim speed, and the shear it makes lives in a
+> plate-to-wall gap rather than an impeller's discharge jet. **Reading 1.26 and 2.03 m/s as impeller
+> tip speeds is this project's transfer, not their result.** It is the only _Chlorella_-specific
+> agitation measurement available, so the band below is built on it anyway - but every speed, every
+> D/T argument and the motor selection itself inherit that assumption. See
+> [References](references.md#cell-damage-shear-and-agitation) for what the paper actually reports,
+> including that its calibration is direct only to 250 rpm and that the quoted Pa figures are the
+> stress the authors call secondary in their own experiment.
 
 ---
 
@@ -94,7 +94,7 @@ On the 70 mm impeller the band worth aiming at is wider than the drive:
 | break-even, stirring stops paying | 2.03 m/s  | **554 rpm** |
 
 **The registered drive is the 36PG-555PM-14-EN**, 14:1, rated 320 rpm and no-load 420 rpm - 1.17 to
-1.54 m/s. It was chosen on the 94.5 mm pitched pair this build ran before, where that span was
+1.54 m/s. It was chosen for the alternative 94.5 mm pitched pair, where that span was
 1.58 to 2.08 m/s and it was the only motor examined that reached the break-even end of the band. On
 the standard turbine it brackets the optimum and stops short of break-even, so the
 optimum-against-break-even comparison wants either a faster motor or the larger impeller back
@@ -172,9 +172,14 @@ the advice of the microalgae researcher advising the project.
 
 ### The twisted paddle
 
-`impeller_twisted_paddle_4` is a constant-pitch helicoid running 83 deg at the hub to 53 deg at the tip,
+`impeller_twisted_paddle_4` is a constant-pitch helicoid, so the blade angle beta from the plane of
+rotation varies with radius, `tan(beta) = P/(2 pi r)`, running 83 deg at the hub to 53 deg at the tip,
 and no correlation reaches it: Medek's envelope stops at 60 deg, and the twist papers tested at most
 20 deg of twist where this is 30 deg ([References](references.md#blade-twist---measured-in-the-literature-but-out-of-this-blades-range)).
+Its blade height has no source either. Its hub is 10 mm radius (0.212 D) to carry the set screws,
+within the 0.2-0.33 D hubs carry in practice; a local boss leaving the blade alone was rejected
+because it prints with an overhang and has to be indexed against the blades.
+
 It stays registered and drawn; a bench measurement of its power number is
 [future work](future-work.md#agitation).
 
@@ -192,7 +197,7 @@ blade is [future work](future-work.md#agitation). For that layout:
   axial impeller loses its strong axial motion.
 - **Clearance 0.9 D, after Fort.** He tested pitched blades at C/D 0.5 and 1.0 and found hydraulic
   efficiency higher at 1.0, tying low clearances to solids suspension and high ones to blending.
-  Medek's correlation reproduces it, since `Po ~ (C/D)^-0.165` and `N_Q ~ (C/D)^0.254`:
+  Medek's correlation reproduces it, since `Po` scales as `(C/D)^-0.165` and `N_Q` as `(C/D)^0.254`:
 
   | C/D     | Po        | N_Q       | N_Q/Po    | vs 0.6      |
   | ------- | --------- | --------- | --------- | ----------- |
@@ -227,12 +232,12 @@ blade is [future work](future-work.md#agitation). For that layout:
 At **fixed tip speed**, peak dissipation falls as the impeller grows:
 
 ```text
-epsilon_max = 1.04 * x * Po^(3/4) * N^3 * D^2        with v_tip = pi N D fixed:   epsilon_max ~ 1/D
+epsilon_max = 1.04 * x * Po^(3/4) * N^3 * D^2        with v_tip = pi N D fixed:   epsilon_max scales as 1/D
 ```
 
 Doubling impeller diameter halves the maximum local energy dissipation, because at fixed tip speed
 the power grows only as D^2 while the swept volume it is spread over grows as D^3. At **constant power per volume** in a fixed vessel,
-`v_tip` ~ D^(-2/3) while pumping Q ~ D^(4/3) - a larger impeller runs slower at the tip _and_ pumps
+`v_tip` scales as D^(-2/3) while pumping Q scales as D^(4/3) - a larger impeller runs slower at the tip _and_ pumps
 more. Peak-to-mean dissipation scales as (T/D)^3, so moving D/T from 0.33 to 0.50 cuts it by ~3.5x.
 
 This is why shear-sensitive culture wants a large impeller turning slowly, and it runs opposite to
@@ -312,7 +317,7 @@ not arise, because neither can carry a shaft to centre or offset. Four things po
 - **Measured, on this organism, at this scale.** Uyar 2024 ran _C. sorokiniana_ in 2 L
   side-illuminated columns and moved the stirrer from 100 to 200 rpm for **15 %** on kLa and **18 %**
   on mixing time, while the sparger moved kLa **five-fold**. Productivity ranked bubble column 0.097,
-  airlift 0.072, stirred tank 0.064 gdw/L-day. The impeller is not what makes a vessel of this size
+  airlift 0.072, stirred tank 0.064 gdw/(L day). The impeller is not what makes a vessel of this size
   work.
 - **Swirl is specifically wrong for a side-illuminated column.** Molina Grima: average irradiance
   "considers only the total length of the dark and the light periods, not the frequency of switch".

@@ -99,7 +99,7 @@ the upper bound on D/T.
 **Fort, I., Jirout, T., Sperling, R., Jambere, S. & Rieger, F. (2002).** "Study of Pumping Capacity
 of Pitched Blade Impellers." _Acta Polytechnica_ 42(4). [doi:10.14311/380](https://doi.org/10.14311/380) **[PR]** - **read**
 Power number against blade angle and blade count, and the Medek correlations
-`Po ~ (sin alpha)^2.077` and `N_Qp ~ (sin alpha)^0.468` (valid alpha 15-60 deg, Re > 1e4, four baffles) - power
+`Po` scales as `(sin alpha)^2.077` and `N_Qp` as `(sin alpha)^0.468` (valid alpha 15-60 deg, Re > 1e4, four baffles) - power
 rises with angle about 4.4x faster than pumping does. Blade-count series 3/4/6 -> 0.79/0.99/1.34.
 
 **Also gives the blade width.** Both impeller families are
@@ -114,8 +114,8 @@ its measured Po does not transfer to a plate drawn at 45 deg.
 
 **Medek, J. & Fort, I.** - the correlations this model actually computes with, reached through
 Fort et al. (2002) above rather than obtained. **[PR]** - **unread**
-`stirred_tank_medek_power_number()` and `..._flow_number()` implement `Po ~ (sin alpha)^2.077` and
-`N_Qp ~ (sin alpha)^0.468` as Fort et al. state them; the primary papers have not been read. Crossref
+`stirred_tank_medek_power_number()` and `..._flow_number()` implement `Po` scaling as `(sin alpha)^2.077` and
+`N_Qp` as `(sin alpha)^0.468` as Fort et al. state them; the primary papers have not been read. Crossref
 gives two candidates in _Coll. Czech. Chem. Commun._ - "Pumping effect of impellers with flat
 inclined blades," 44:3077-3089 (1979), [doi:10.1135/cccc19793077](https://doi.org/10.1135/cccc19793077),
 and Fort, Medek & Placek, "Hydraulic characteristics of paddle impellers with flat inclined blades,"
@@ -214,7 +214,8 @@ The primary behind the numbers `Davis (2010)` relays. What it actually says:
   fully effective. On the other hand, the axial flow impeller must have **eight to ten times** more
   power than in the gas stream for it to establish the axial flow pattern."_ `head()` evaluates
   the radial rule for the two Rushtons at each drive speed (`gas against the lower impeller:`); what
-  it gives is in [Agitation](agitation.md#impeller).
+  it gives is in [Agitation](agitation.md#impeller). At the rated 320 rpm the alternative 94.5 mm
+  pitched pair (D/T 0.45) holds its axial pattern to 0.70 vvm against the 0.5 vvm design.
 - **Sparger, p. 214.** _"A sparge ring about 80 % of the impeller diameter is more effective than
   an open pipe beneath the impeller or sparge rings larger than the impeller... the desired entry
   point for the gas is where it can pass initially through the high shear zone around the
@@ -238,7 +239,7 @@ power penalty below 1.0 d, and any top-impeller submergence depth.
 for reliable power input measurements in conventional and single-use stirred bioreactors at
 laboratory scale." _Engineering in Life Sciences_ 17(5):500-511.
 [doi:10.1002/elsc.201600096](https://doi.org/10.1002/elsc.201600096) **[PR]** - **read**
-The power-number definition `Np = P/(rhoN^3d^5)` and measured Rushton Np 4.17 +/- 0.14. Cited in the SCAD
+The power-number definition `Np = P/(rho N^3 d^5)` and measured Rushton Np 4.17 +/- 0.14. Cited in the SCAD
 as "Kaiser 2016", which is the online publication date; the issue is 2017.
 -> `scad/custom/impellers.scad` `impeller_rushton_6`
 

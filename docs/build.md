@@ -482,7 +482,7 @@ argument, and that argument stays with the ring. Same 1.2 mm holes as the ring; 
 the arm's length at the pitch floor, which on `jar_10L` is eight.
 
 **The loop is the arm hooked round into a C.** The same socket, boss and screw on the same riser,
-the elbow turned inward, then one tube that hooks onto a 300 deg C round the shaft at the arm's height
+the elbow turned inward, then one tube that hooks onto a C-shape spanning 300 deg round the shaft at the arm's height
 with eleven of the ring's holes drilled down, so the gas rises into the lower impeller all the way
 round. It is as large as the baffles let it be: inside their inner edge by the lean they and its
 own riser can swing through at its height and 1.25 mm, which on `jar_10L` is 75.95 mm across,
@@ -644,7 +644,8 @@ That is `jar_1gal_155x251`. A tube meant to discharge INTO the culture is drille
 number instead.
 
 **Which end of that window depends on the port.** `air_out`, where it carries a tube, is the
-exhaust and wants the first number - a vent belongs in the headspace. The dosing lines discharge into the culture, so
+exhaust and wants the first number - the headspace is there for foam, and foam finds the lowest
+hole. The dosing lines discharge into the culture, so
 they are drilled past the second, and low is better: the dose lands where the impeller will carry it
 away, and the tube below the hole is a dead leg that keeps whatever it is given.
 
@@ -974,7 +975,8 @@ The pump is seven times oversized, so the entire band sits in the first part of 
 travel - that is why the valve is a 3 deg needle and not the 20 deg one.
 
 **Watch the DO trace on the first run.** `head()` reports where the DO probe's face sits against
-the sparger (`DO probe in the gas:`). A galvanic probe reads high with a bubble on the membrane and
+the sparger (`DO probe in the gas:`, printed only on a loop or ring build; of the transcripts,
+`build__jar_10L_220x305` carries it). A galvanic probe reads high with a bubble on the membrane and
 low with nothing moving past, so a probe over the bubbles can be wrong in both directions. A
 characteristically spiky trace means the probe is in the plume, and the fix is a bench one - the
 port's lean and the sparger's height are both parameters.

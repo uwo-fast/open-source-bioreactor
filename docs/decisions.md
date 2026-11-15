@@ -148,9 +148,6 @@ A corrected figure is replaced where it sits and recorded here
 
 ## Settled - do not re-open without new evidence
 
-Each of these was asked and answered. The reasoning is in the commit that closed it and, where it
-outlives the commit, in the other documents here.
-
 - **The loop yields to the baffles, not the baffles to the loop.** A ring under the lower impeller
   sits among the plates, and the ring between the impellers had already shown what the other way
   costs: it took the plates from 17.09 to 10.35 mm. The plates come off the lid and set the baffling
@@ -228,6 +225,10 @@ outlives the commit, in the other documents here.
 - **`peri_pump_frame_mount.scad` is left alone deliberately**, `flange_screw_distance = 48.0` and
   all. It is a stretch goal waiting on a faceplate the bought Kamoer has not got, and it blocks
   nothing.
+
+Each of these was asked and answered. The reasoning is in the commit that closed it and, where it
+outlives the commit, in the other documents here.
+
 - **The motor mount stays at dia 56.** It can go to 42; below that its base inserts hit the bearing
   pocket. Shrinking buys only eccentricity headroom on a vessel that is baffled anyway, and costs
   stiffness - deflection goes as the cube of height over diameter.

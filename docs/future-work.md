@@ -103,7 +103,9 @@ labelled `post-pub`, all linked from #90. When one of these is picked up, it mov
     blade's job; CO2 is dispersion, the Rushton's
   - **the gas ceiling binds inside the operating band.** `head()` checks Oldshue's 8x rule at each
     drive speed, and the cap goes as N^3, so the pitched blade holds the 0.5 vvm design only above
-    about 287 rpm. A radial impeller at the same power needs 3x, not 8x
+    about 287 rpm. For the 94.5 mm pitched blade (D/T 0.45) that is 0.70 vvm at the rated 320 rpm
+    and 0.35 vvm at its 255 rpm Chlorella optimum; a radial impeller at the same power needs 3x,
+    not 8x, and would hold about 0.94 vvm at 255 rpm
   - **circulation per watt**: about 1.8x in the pitched blade's favour at equal power and
     diameter ([Agitation](agitation.md#impeller))
   - **at equal power a Rushton is the gentler of the two**: peak dissipation goes as

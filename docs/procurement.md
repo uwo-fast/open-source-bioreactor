@@ -57,6 +57,11 @@ their own repositories.
 - eight needed: each Rushton prints as two halves, and each half takes two in its own hub, 120
   degrees apart between the blades; an impeller printed whole takes two in a collar above the
   blades, where no blade stands at any angle on any registered impeller type
+- the collar exists because a screw in the hub fouled a fin: at the hub surface the fins occupy
+  58.0-86.3 deg and every 90 after, while a 3.3 mm hole at 10 mm radius spans 19 deg, so the screw
+  nicked the fin root and put blade in front of the socket where a hex key could not reach it
+- indexing the screws into the gaps instead was rejected: each fin is `resize()`d, which scales
+  its y by 1.107 against its x, and the twist moves it again, so no one angle holds for every type
 - **the screws are the whole joint.** The hub bore is a straight 8.4 mm on a shaft supplied at
   7.995-8.000 (`impeller_shaft_draft` is 0), which is a slip fit
 - an interference fit was rejected. On paper 0.02 mm radial gives 8 N-m against the 0.034 N-m one
@@ -117,7 +122,10 @@ Sized by calculation from the pump's own specification and the vessel geometry, 
 - **nothing filters the way out, and a second inlet filter will not do it.** A bioreactor normally
   filters the air in _and_ out; this one vents the headspace through the coil condenser into the
   room. An outlet filter does not sit between the pump and the sparge holes, but it raises the
-  headspace those holes discharge into, and the gas has to beat that too. `head()` reports the
+  headspace those holes discharge into, and the gas has to beat that too. A second identical
+  filter adds its 14.1 kPa and puts the line at **32.4 kPa** at 4.09 L/min, against a pump that
+  dead-heads at 27; the reactor would settle at **3.14 L/min**, and 0.5 vvm would stop being a
+  setting it can hold. `head()` reports the
   budget: an outlet filter may cost at most **1.719 kPa per L/min**, 0.498 of what the inlet one
   costs, so it wants roughly **twice the membrane area** rather than a second `1594522`. The coil
   condenser's outlet is already priced into the line, so that budget is net of it. The inlet
@@ -287,6 +295,9 @@ Sized by calculation from the pump's own specification and the vessel geometry, 
 - passed over **RM-ESMO-0MX** (36PG-555K-1260-19, 34.50 CAD), no-load 315 / rated 240 rpm at
   7 kg-cm. Its rated point falls below the growth optimum, and the torque it sells on is worth
   nothing here - the impeller pair asks under 5 % of it. Bare copper tabs, no connector
+- the motor on the bench is a discontinued **36GP-3530** (12 V, "1154 RPM"); the listing's 1154 is
+  unqualified, so it is registered as a no-load speed, and no rated figure is published for it.
+  <https://electric-b2c.com/products/36gp-3530-planetary-gear-dc-motor-torque-50kg-12v-24v-reduce-speed-8pm-to-1154rpm-pwm-reverse-forward-electric-12-volt-motor?variant=47572164116673>
 
 ### 36PG gearbox family
 
