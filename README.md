@@ -2,7 +2,9 @@
 
 [![License: GPL-3.0-or-later](https://img.shields.io/badge/License-GPL--3.0--or--later-blue.svg)](LICENSE)
 
-Composable, modular, and extensible bioreactor design.
+A parametric OpenSCAD bioreactor built on glass jars from 1.5 L to 6.5 gal. It is stirred by a shaft
+or magnetic drive, or run as an airlift, and a printed lid carries the drive, sparger, probes and
+ports.
 
 ## status
 
