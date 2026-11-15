@@ -350,8 +350,9 @@ here, because its lean is for the shaft's shadow and inside the riser there is n
 
 ### Eccentric mounting
 
-Eq. (6) and Theta(0) below are Karcz's, from his entry in
-[References](references.md#unbaffled-vessels-and-eccentric-agitation).
+Eq. (6) below is Karcz's, from his entry in
+[References](references.md#unbaffled-vessels-and-eccentric-agitation), and Theta(0) is its
+up-pumping branch at e = 0.
 
 **What the geometry says, with Karcz's correlation applied to it.** Eccentric mounting is real and
 well supported, and this architecture can barely use it. The motor mount is a dia 56 body centred on the

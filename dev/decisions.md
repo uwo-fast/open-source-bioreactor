@@ -80,7 +80,8 @@ A corrected figure is replaced where it sits and recorded here
   0.9 D. The uncited C/T quarter-to-third convention supported 0.6 D (C/T 0.27) and does not reach
   0.9 D (C/T 0.405).
 - **The eccentricity analysis measured T as the outer diameter.** [References](../docs/references.md)'s e/T
-  table (now in [Agitation](../docs/agitation.md#eccentric-mounting)) read "Hall's e = 0.2 T needs 21.8 mm on `jar_1p5L`", with every ratio 0.2 x or / the glass
+  table (now in [Agitation](../docs/agitation.md#eccentric-mounting)) read "Hall's e = 0.2 T
+  needs 21.8 mm on `jar_1p5L`", with every ratio 0.2 x or / the glass
   rather than the bore - the impeller-ratio defect, recurring in a document after it was fixed in
   the model. The numerator was lid geometry in mm and never in question; only the denominator
   moved, 4 to 8 % all one way. The e/T columns are echoed by `head()` now, not transcribed.

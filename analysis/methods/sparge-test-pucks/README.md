@@ -1,9 +1,8 @@
 # Sparge test pucks
 
-The puck model is `scad/custom/sparge_puck.scad`, and Palfy et al. 2021 is in
-[References](../../../docs/references.md).
+The sources cited below are in [References](../../../docs/references.md).
 
-Bench parts, not reactor parts: each prints from `custom/sparge_puck.scad` with one outlet face,
+Bench parts, not reactor parts: each prints from `scad/custom/sparge_puck.scad` with one outlet face,
 and none goes in a jar. They exist to measure what a printed outlet face costs at a flow, which is
 the one number the sparger model cannot work out. Drilled holes are priced by the orifice equation;
 a printed porous face is priced by nothing, and the only published one (Palfy et al. 2021) is one
