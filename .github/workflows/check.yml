@@ -93,7 +93,8 @@ jobs:
   test:
     name: test
     needs: changes
-    if: github.event_name == 'push' || needs.changes.outputs.cad == 'true'
+    # !cancelled() so a failed changes job cannot skip test on main.
+    if: ${{ !cancelled() && (github.event_name == 'push' || needs.changes.outputs.cad == 'true') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7

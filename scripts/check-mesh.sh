@@ -10,6 +10,11 @@
 # manifold complaint on stderr is the signal and the file size is the backstop.
 set -uo pipefail
 tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
+# The complaint comes from CGAL. A build with a manifold backend defaults to it and stays silent
+# on a non-manifold, so ask for CGAL wherever the binary offers a choice; one without --backend
+# is CGAL already.
+backend=""
+"$OPENSCAD" --help 2>&1 | grep -q -- '--backend' && backend="--backend=CGAL"
 # Flags that turn a file's preview into the part it prints, where the default is an assembly.
 mesh_flags() {
     case "$1" in
@@ -48,7 +53,7 @@ fi
 failed=0
 for f in $targets; do
     out="$tmp/$(echo "$f" | tr / _).stl"
-    "$OPENSCAD" $(mesh_flags "$f") -o "$out" "$f" 2>"$tmp/err" >/dev/null
+    "$OPENSCAD" $backend $(mesh_flags "$f") -o "$out" "$f" 2>"$tmp/err" >/dev/null
     size=$(stat -c%s "$out" 2>/dev/null || echo 0)
     if grep -qi '2-manifold' "$tmp/err"; then
         echo "FAIL  $f  not a valid 2-manifold"
