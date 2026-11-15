@@ -25,6 +25,7 @@ then follow [`docs/build.md`](docs/build.md).
 ## Documentation
 
 - [`docs/build.md`](docs/build.md) - what to cut, print and tighten, and in what order
+- [`docs/commissioning.md`](docs/commissioning.md) - the first run, and what to record from it
 - [`docs/architecture.md`](docs/architecture.md) - who may hand a number to whom
 - [`docs/design-conventions.md`](docs/design-conventions.md) - the rules the model is built to
 - [`docs/baseline.md`](docs/baseline.md) - what the reference build holds at a standard, and the knobs later work turns
