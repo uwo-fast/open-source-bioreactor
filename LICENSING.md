@@ -26,7 +26,7 @@ picture lives.
 | `analysis/runs/*/figures/`, `analysis/methods/*/figures/` — plots of that data                        | `CC-BY-4.0`        |
 | `scripts/`, `tests/`, `justfile`, `scadman.toml`, `scadman.lock`, `.github/`, and other build tooling | `GPL-3.0-or-later` |
 | `docs/`, including the drawing `docs/ports_layout.drawio`                                             | `GPL-3.0-or-later` |
-| `README.md`, `TODO.md`                                                                                | `GPL-3.0-or-later` |
+| `README.md`                                                                                           | `GPL-3.0-or-later` |
 
 Add a row to the table above for each new top-level directory.
 

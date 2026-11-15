@@ -1,8 +1,8 @@
 # Future work
 
 Ideas with their reasoning, kept so nobody has to rediscover them. Nothing here is planned or
-tracked. Open work before the paper is [`TODO.md`](../TODO.md); work planned for after it is a GitHub issue
-labelled `post-pub`, all linked from #90. When one of these is picked up, it moves to one of those and leaves here.
+tracked. Open work is a GitHub issue: before the paper unlabelled, after it labelled `post-pub` and
+linked from #90. When one of these is picked up, it moves to one of those and leaves here.
 
 ## gas line
 
@@ -10,7 +10,7 @@ labelled `post-pub`, all linked from #90. When one of these is picked up, it mov
   L/min is extrapolated from an equivalent 0.2 um PTFE disc; area-correcting Pall's Acro 50 gives
   3.02, so it sits 14 % conservative. A water manometer at 1 and 2 L/min (35 and 70 cm of column)
   tests the slope and its linearity both; not at the set flow, where 14.1 kPa is 1.44 m of water.
-  The paper's runs fit the slope to a rotameter reading instead ([`TODO.md`](../TODO.md)), since a builder will
+  The paper's runs fit the slope to a rotameter reading instead (#131), since a builder will
   not make or buy a manometer. A differential pressure bench is a separate project.
 
 - **a trap or a longer exhaust tube instead of an outlet filter.** It would guard against

@@ -9,7 +9,7 @@ beside the thing that replaced it.
 **Corrections** is what this project believed and got wrong. Each entry keeps the old reading in
 full, because a figure that survived review is worth more as a warning than as a deletion: most of
 them were not typos but readings that were coherent, agreed with the documents around them, and were
-measuring the wrong thing. [`TODO.md`](../TODO.md) carries open work only; nothing here is a task.
+measuring the wrong thing. Open work is in the issue tracker; nothing here is a task.
 
 A corrected figure is replaced where it sits and recorded here
 ([Design conventions](../docs/design-conventions.md#one-physical-thing-one-expression)).

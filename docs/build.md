@@ -32,7 +32,7 @@ and on the second the pH probe runs through the lower impeller, because in a 155
 circle and the impeller want the same radius - so both are built as airlifts, with no drive and a
 draft tube, and both also take the magnetic one. The builds that work are the sets in `scad/bioreactor.json`, and
 `just check-builds` fails if one of them stops building. What each vessel cannot yet take, and why,
-is on [`TODO.md`](../TODO.md).
+is in #93.
 
 ---
 
@@ -813,7 +813,7 @@ no slot: the headspace leaves up the condenser's bore and out of its 4.5 mm outl
 `head()` prices in the gas line. Every build whose sparger is not the ring takes it
 (`condenser_name`); the ring's builds keep `air_out`'s tube, which holds the ring. `just export-parts`
 writes the body, panel, former and both pucks, each in the orientation it prints in. The split cold
-finger prints from its own file, `custom/condenser_cold_finger.scad`. See [`TODO.md`](../TODO.md)
+finger prints from its own file, `custom/condenser_cold_finger.scad`. See #134 and #135
 for what the prints still have to prove.
 
 **Print the bodies to hold gas, and anything that holds water to hold water.** A condenser body is
