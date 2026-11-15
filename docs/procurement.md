@@ -59,7 +59,7 @@ their own repositories.
   blades, where no blade stands at any angle on any registered impeller type
 - the collar exists because a screw in the hub fouled a fin: at the hub surface the fins occupy
   58.0-86.3 deg and every 90 after, while a 3.3 mm hole at 10 mm radius spans 19 deg, so the screw
-  nicked the fin root and put blade in front of the socket where a hex key could not reach it
+  nicked the fin root, where bending stress is highest, and put blade in front of the socket where a hex key could not reach it
 - indexing the screws into the gaps instead was rejected: each fin is `resize()`d, which scales
   its y by 1.107 against its x, and the twist moves it again, so no one angle holds for every type
 - **the screws are the whole joint.** The hub bore is a straight 8.4 mm on a shaft supplied at

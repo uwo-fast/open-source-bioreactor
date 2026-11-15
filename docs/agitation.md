@@ -94,7 +94,7 @@ On the 70 mm impeller the band worth aiming at is wider than the drive:
 | break-even, stirring stops paying | 2.03 m/s  | **554 rpm** |
 
 **The registered drive is the 36PG-555PM-14-EN**, 14:1, rated 320 rpm and no-load 420 rpm - 1.17 to
-1.54 m/s. It was chosen for the alternative 94.5 mm pitched pair, where that span was
+1.54 m/s. It was chosen on the alternative 94.5 mm pitched pair, where that span was
 1.58 to 2.08 m/s and it was the only motor examined that reached the break-even end of the band. On
 the standard turbine it brackets the optimum and stops short of break-even, so the
 optimum-against-break-even comparison wants either a faster motor or the larger impeller back
@@ -176,9 +176,11 @@ the advice of the microalgae researcher advising the project.
 rotation varies with radius, `tan(beta) = P/(2 pi r)`, running 83 deg at the hub to 53 deg at the tip,
 and no correlation reaches it: Medek's envelope stops at 60 deg, and the twist papers tested at most
 20 deg of twist where this is 30 deg ([References](references.md#blade-twist---measured-in-the-literature-but-out-of-this-blades-range)).
-Its blade height has no source either. Its hub is 10 mm radius (0.212 D) to carry the set screws,
+That is steeper than 45 deg everywhere - a twisted paddle biased toward radial pumping, not the
+axial impeller the D/T guidance is written about. Its blade height has no source either. Its hub is 10 mm radius (0.212 D) to carry the set screws,
 within the 0.2-0.33 D hubs carry in practice; a local boss leaving the blade alone was rejected
-because it prints with an overhang and has to be indexed against the blades.
+because it prints with an overhang and has to be indexed against the blades; the joint was the
+binding problem, and a slipping impeller costs the whole run.
 
 It stays registered and drawn; a bench measurement of its power number is
 [future work](future-work.md#agitation).
