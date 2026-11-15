@@ -12,11 +12,13 @@ travel - that is why the valve is a 3 deg needle and not the 20 deg one.
 the sparger (`DO probe in the gas:`, printed only on a loop or ring build; of the transcripts,
 `build__jar_10L_220x305` carries it). A galvanic probe reads high with a bubble on the membrane and
 low with nothing moving past, so a probe over the bubbles can be wrong in both directions. A
-characteristically spiky trace means the probe is in the plume, and the fix is a bench one - the
-port's lean and the sparger's height are both parameters.
+characteristically spiky trace means the probe is in the plume, and the fix is a bench one: lower
+the sparger, whose height is a parameter. The port's lean is not a lever - `head()` already leans it
+outward to its 4.5 deg ceiling or as far as the jar allows, so leaning it less only brings the face
+nearer the gas.
 
-**Know the replace-the-filter signal.** The sterile filter can rise about **51 %** - from 14.1 kPa
-to roughly 21.2 - before 0.5 vvm becomes unreachable with the valve wide open. So _valve fully open
+**Know the replace-the-filter signal.** The sterile filter can rise about **50 %** - from 14.1 kPa
+to roughly 21.1 - before 0.5 vvm becomes unreachable with the valve wide open. So _valve fully open
 and still short of the rate_ is the signal, and it is not a pump problem.
 
 ---
