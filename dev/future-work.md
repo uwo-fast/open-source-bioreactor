@@ -1,7 +1,7 @@
 # Future work
 
 Ideas with their reasoning, kept so nobody has to rediscover them. Nothing here is planned or
-tracked. Open work is a GitHub issue: before the paper unlabelled, after it labelled `post-pub` and
+tracked. Open work is a GitHub issue; work planned for after the paper is labelled `post-pub` and
 linked from #90. When one of these is picked up, it moves to one of those and leaves here.
 
 ## gas line

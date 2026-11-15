@@ -3839,7 +3839,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           echo(str(
             "WARNING DO probe: its face overlaps the sparge ", _sparger_noun, "'s radius and hangs ",
             _over, " mm over it; a galvanic probe reads high with a bubble ",
-            "on the membrane and low with none moving past (#132)"
+            "on the membrane and low with none moving past (docs/commissioning.md)"
           ));
       }
     }

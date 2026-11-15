@@ -32,7 +32,8 @@ and on the second the pH probe runs through the lower impeller, because in a 155
 circle and the impeller want the same radius - so both are built as airlifts, with no drive and a
 draft tube, and both also take the magnetic one. The builds that work are the sets in `scad/bioreactor.json`, and
 `just check-builds` fails if one of them stops building. What each vessel cannot yet take, and why,
-is in #93.
+is in [Agitation mode per vessel](agitation.md#5-agitation-mode-per-vessel), and the benches that
+would settle the airlift and magnetic builds are #86 and #87.
 
 ---
 
