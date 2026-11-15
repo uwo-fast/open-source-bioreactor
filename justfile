@@ -3,9 +3,9 @@ set dotenv-load := false
 PY := "analysis/.venv/bin/python"
 export OPENSCAD := env("OPENSCAD", "openscad")
 
-# The libraries openscad-libraries.txt pins, installed by `just setup`. Project-local so a
-# render is reproducible or fails loudly.
-export OPENSCADPATH := justfile_directory() + "/.openscad-libraries"
+# The libraries scadman.lock pins, installed by `just setup`. Project-local so a render is
+# reproducible or fails loudly.
+export OPENSCADPATH := justfile_directory() + "/.scadman/env"
 
 # Tool caches live in the repository too, so the gate runs the same on a bench, in CI and in a
 # sandbox that cannot write the home directory. Gitignored.

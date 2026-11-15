@@ -1,0 +1,60 @@
+# The OpenSCAD libraries this model needs, and the exact revision of each. scadman.lock
+# records the commit and a content hash for every one; `just setup` installs them.
+#
+# Each name is the directory the library is exposed as, and it must match what the .scad
+# files `use` or `include`: `NopSCADlib/core.scad` needs the library called NopSCADlib.
+#
+# A `tag` or a `rev`, never a `branch`. A library on a branch makes "it renders here" a
+# statement about a moving target, which is the whole reason the pins exist: the model
+# built on one machine for months and could not build anywhere else, because these
+# libraries were installed globally and nothing in the repository said so.
+#
+# Tags where upstream publishes them, full commit SHAs where it does not. NopSCADlib and
+# bayonet-lock-scad publish tags; the others have no tags and no releases, so a SHA is the
+# only honest pin. Read from the upstream repositories on 2026-09-09, and
+# bayonet-lock-scad again on 2026-11-13.
+
+[project]
+name = "open-source-bioreactor"
+
+[dependencies.NopSCADlib]
+git = "https://github.com/nophead/NopSCADlib"
+tag = "v21.41.1"
+
+# custom/bayonet_port.scad asserts it is ">= 0.11.0". v0.12.0 is 0.11.1 (95953cc, which
+# this pinned before) plus two parameter checks - a sweep that leaves the lock no turn
+# stop, and a channel that breaks out of the bottom face - and bayonet_locked_rotation();
+# its geometry is unchanged, so tests/seams.txt still holds. 0.11.1 is the release that
+# stopped the lock's entry transition leaving coincident faces, and the lid closes
+# cleanly from it.
+[dependencies.bayonet-lock-scad]
+git = "https://github.com/CameronBrooks11/bayonet-lock-scad"
+tag = "v0.12.0"
+
+[dependencies.FunctionalOpenSCAD]
+git = "https://github.com/thehans/FunctionalOpenSCAD"
+rev = "51588ffe13d3124b5ea5c04e521cd8e25ab5d0a9"
+
+[dependencies.threads-scad]
+git = "https://github.com/rcolyer/threads-scad"
+rev = "4ae9aeb3b136f9858200f77a304b909a000ce3b4"
+
+[dependencies.din168-thread-scad]
+git = "https://github.com/CameronBrooks11/din168-thread-scad"
+rev = "7ea65c3482da508d2a8ba22a1ba4239454fb8c0f"
+
+# scad/custom/sampler.scad builds on the probe board's library (hardware/probe/probe.scad)
+# and on the actuator's layout (cad/main.scad). Neither publishes tags, so each is pinned
+# to the commit on its main that carries what the sampler reads: the probe's measured
+# heights and optical axis, and the actuator's front_face(), front_x() and tip_x().
+#
+# turbidity-sensor must also be at or after its relicensing to GPL-3.0-or-later
+# (uwo-fast/turbidity-sensor#37). Before it the probe library is GPL-3.0-only, and
+# LICENSING.md's GPL-3.0-or-later grant over the sampler does not hold.
+[dependencies.turbidity-sensor]
+git = "https://github.com/uwo-fast/turbidity-sensor"
+rev = "4be431f4bca66a97372ead7a33406cc4bf8fc3df"
+
+[dependencies.syringe-actuator]
+git = "https://github.com/uwo-fast/syringe-actuator"
+rev = "ea8b22178aba858fd69874eac33b015b322954d6"

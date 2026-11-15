@@ -16,17 +16,17 @@ picture lives.
 
 ## What applies where
 
-| Path                                                                                            | Licence            |
-| ----------------------------------------------------------------------------------------------- | ------------------ |
-| `scad/` — parametric CAD source                                                                 | `GPL-3.0-or-later` |
-| `printing/` — print-ready geometry (3MF)                                                        | `GPL-3.0-or-later` |
-| `purchased-parts.csv`, `purchased-parts_1p5L_legacy.csv` — bills of materials                   | `GPL-3.0-or-later` |
-| `analysis/` — the pipelines, `pyproject.toml` and the READMEs                                   | `GPL-3.0-or-later` |
-| `analysis/runs/*/raw/`, `analysis/methods/*/raw/` — measurement data                            | `CC-BY-4.0`        |
-| `analysis/runs/*/figures/`, `analysis/methods/*/figures/` — plots of that data                  | `CC-BY-4.0`        |
-| `scripts/`, `tests/`, `justfile`, `openscad-libraries.txt`, `.github/`, and other build tooling | `GPL-3.0-or-later` |
-| `docs/`, including the drawing `docs/ports_layout.drawio`                                       | `GPL-3.0-or-later` |
-| `README.md`, `TODO.md`                                                                          | `GPL-3.0-or-later` |
+| Path                                                                                                  | Licence            |
+| ----------------------------------------------------------------------------------------------------- | ------------------ |
+| `scad/` — parametric CAD source                                                                       | `GPL-3.0-or-later` |
+| `printing/` — print-ready geometry (3MF)                                                              | `GPL-3.0-or-later` |
+| `purchased-parts.csv`, `purchased-parts_1p5L_legacy.csv` — bills of materials                         | `GPL-3.0-or-later` |
+| `analysis/` — the pipelines, `pyproject.toml` and the READMEs                                         | `GPL-3.0-or-later` |
+| `analysis/runs/*/raw/`, `analysis/methods/*/raw/` — measurement data                                  | `CC-BY-4.0`        |
+| `analysis/runs/*/figures/`, `analysis/methods/*/figures/` — plots of that data                        | `CC-BY-4.0`        |
+| `scripts/`, `tests/`, `justfile`, `scadman.toml`, `scadman.lock`, `.github/`, and other build tooling | `GPL-3.0-or-later` |
+| `docs/`, including the drawing `docs/ports_layout.drawio`                                             | `GPL-3.0-or-later` |
+| `README.md`, `TODO.md`                                                                                | `GPL-3.0-or-later` |
 
 Add a row to the table above for each new top-level directory.
 
@@ -48,7 +48,7 @@ the design or the tooling that builds it.
 ## Third-party components
 
 Anything included keeps its own licence, unaffected by this document. None of these
-is vendored: `just setup` fetches each at the revision `openscad-libraries.txt` pins.
+is vendored: `just setup` fetches each at the revision `scadman.lock` pins.
 
 | Component                                                                                      | Licence                                                                     |
 | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
