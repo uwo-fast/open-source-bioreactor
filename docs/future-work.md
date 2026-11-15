@@ -41,17 +41,17 @@ labelled `post-pub`, all linked from #90. When one of these is picked up, it mov
   sparger. The free variables are the lean and the ring's height, both parameters already.
 
 - **the ring's bore is the departure, not its holes, and it is more than one designation.** On
-  `jar_10L` given the ring, at its 4.11 L/min, sweeping the bore with 8 x 3 mm holes held. With
+  `jar_10L` given the ring, at its 4.09 L/min, sweeping the bore with 8 x 3 mm holes held. With
   16 x 1.2 mm holes the 4.0 mm row is 5.42 m/s at an open area of 1.44, and a hole's 24 Pa
   outweighs the 17.7 Pa of velocity head, though `head()` flags the bore again; the sweep wants
   redoing at that size:
 
-  | bore        | feed velocity | open area | velocity head | verdict                             |
-  | ----------- | ------------- | --------- | ------------- | ----------------------------------- |
-  | 4.0 (today) | 5.46 m/s      | 4.50      | 17.9 Pa       | 2 departures                        |
-  | 8.0         | 1.36          | 1.12      | 1.1           | 1 departure; pH tip hits the ring   |
-  | 8.5         | 1.21          | 1.00      | 0.9           | clean sparger; pH tip hits the ring |
-  | 10.0        | 0.87          | 0.72      | 0.5           | no room for a baffle                |
+  | bore, holes             | feed velocity | open area | velocity head | verdict                             |
+  | ----------------------- | ------------- | --------- | ------------- | ----------------------------------- |
+  | 4.0, 16 x 1.2 (today)   | 5.42 m/s      | 1.44      | 17.7 Pa       | 2 departures                        |
+  | 8.0, 8 x 3 (old sweep)  | 1.36          | 1.12      | 1.1           | 1 departure; pH tip hits the ring   |
+  | 8.5, 8 x 3 (old sweep)  | 1.21          | 1.00      | 0.9           | clean sparger; pH tip hits the ring |
+  | 10.0, 8 x 3 (old sweep) | 0.87          | 0.72      | 0.5           | no room for a baffle                |
 
   `sparge_bore()` is the riser's own OD, so the bore is a designation: `steel_tube_welded_10x0p5`
   is registered; there is no 8.5 row. What it costs is the cascade: the tube goes 6.4 -> 12.4
@@ -60,8 +60,10 @@ labelled `post-pub`, all linked from #90. When one of these is picked up, it mov
   follow. Unpriced.
 
 - **`check-holes` without a CGAL render, so it can join `just check`.** Both ends of every hole
-  are probed - the arm's by default, the ring's with `-D head_sparger="ring"` - and it was proved
-  by injection when written (a bore swept 180 degrees failed 5 of 20 on `feed`). What would let it
+  are probed, and an arm's or a loop's hole a third time, in the wall just under the bore. The
+  arm is checked by default, the ring with `-D head_sparger="ring"` and the loop with
+  `-D head_sparger="loop"`. It was proved by injection
+  when written (a bore swept 180 degrees failed 5 of 20 on `feed`). What would let it
   into the gate is a probe that needs no rendered mesh: the claim is geometric and the part is a
   union of primitives. `spoke_holes` is unprobed; no caller sets it and `sparger()` refuses the
   unbored-arm case.
@@ -69,13 +71,14 @@ labelled `post-pub`, all linked from #90. When one of these is picked up, it mov
 ## baffles and lid
 
 - **the lid plates' width is the lean's to give back**, on any build that still hangs them.
-  - on `jar_10L` the plate is sized to keep 1 mm running to the blades after 2.27722 mm of lean:
-    3.27722 nominal, 11.9456 mm wide. The ring's 10.3454 mm bound applies only where the ring is
-    built, and `jar_1gal_180` is at the lock bore's 17.0892
-  - the price is area: 0.499 of Oldshue's four-at-T/12 at three plates, which gave their fourth
-    port to a sampling line. The impeller alone would allow 14.5 mm (0.606), at -0.28 running in
-    the worst case. The tip ring is off and stays a flag (`docs/decisions.md`)
-  - the 2.28 mm lean is a worst case - bore play alone, levered 11.4x, ignoring the flange's face
+  - on `jar_10L` under lid plates (`baffle_name = "lid"`; both its registered builds carry the
+    cage) the plate stops at the lock bore's 17.0892 mm, 12.9554 nominal and 10.511 running to the
+    blades after 2.44444 mm of lean. The ring's 10.3454 mm bound applies only where the ring is
+    built, and `jar_1gal_180` is at the same 17.0892
+  - the price is area: 0.713 of Oldshue's four-at-T/12 at three plates on `jar_10L` and 0.847 on
+    `jar_1gal_180`, which gave their fourth port to a sampling line. The tip ring is off and stays a
+    flag (`docs/decisions.md`)
+  - the 2.44 mm lean is a worst case - bore play alone, levered 12.2x, ignoring the flange's face
     contact
   - fixes, cheapest first, costed against the old 15.3 mm plate: taper the plate's inner edge with
     depth; deepen the bayonet engagement to 36 mm (halves the lean, adds a third joint); a
@@ -158,7 +161,7 @@ labelled `post-pub`, all linked from #90. When one of these is picked up, it mov
 
 ## bench
 
-- **a rolling cart for four reactors.** `support/equipment_cart.scad` draws two tiers of E3030
+- **a rolling cart for four reactors.** `scad/support/equipment_cart.scad` draws two tiers of E3030
   extrusion, two reactors a tier, on 12 3D corner brackets and four swivel plate castors: 635 x
   358 mm, 1387 mm tall with its castors. It prints nothing, its castor is a generic one with no
   part behind it, and it has not been built, so nothing of it is on the purchase list.

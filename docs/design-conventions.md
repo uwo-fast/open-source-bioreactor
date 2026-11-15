@@ -116,7 +116,8 @@ and it is consumed by a mode branch that never multiplies it by anything.
 Nothing is ever declared live in two files with defaults kept in step by hand.
 
 **A value read back out of a component is an argument whose default is that component's own.**
-`function head_gasket_factor(sheet = lid_gasket_sheet)` — verified: a default argument resolves in
+`function hub_cap_height(magnet, floor = hub_cap_floor)` in `magnet_hub_cap.scad`, which `frame.scad`
+reads back — verified: a default argument resolves in
 the file that defines the function, not the caller's, so one expression serves both the standalone
 preview and the assembled build and the readback cannot disagree with the geometry it describes.
 
@@ -201,13 +202,13 @@ blade at the lower position echoes:
 
 ```
 impeller, lower: pbt_45_4 Po 1.49248 and flow number 0.887217 from Medek's correlation
-at 45 deg, extrapolated on ["T/D", "H/T", "baffle count"]
+at 45 deg, extrapolated on ["T/D", "H/T"]
 ```
 
 `stirred_tank_medek_departures()` returns a list because an extrapolation that is out on one count
 is a different thing from one that is out on four, and a caller that only learns `false` cannot tell
-them apart or say which to fix. Two of those three departures are removable — a fourth baffle
-would retire one, D/T another — and that is only visible because they are named.
+them apart or say which to fix. One of those two departures is removable — D/T — and that is only
+visible because they are named; the baffle count was a third until the cage's four retired it.
 
 The same shape applies to bands the design is measured against: echo the value, the band, and the
 source's own framing. Oldshue's `1–2 d` is an **allowance** — _"if the impeller can be placed…
@@ -357,7 +358,7 @@ geometry alone IS a 2-manifold, and what breaks it is `render_seals`, `render_pr
 bearing with its coupling — EPDM in its grooves, Atlas bodies in their collets, a bearing on the
 shaft, every one of them already on `check-parts`' `not_printed` list. So the check failed on
 vitamins the repo had declared are not printed, could never pass, and taught anyone who ran it to
-ignore it. `support/electronics_stand.scad` was on that list too and is not even slow: 14 s as a picture,
+ignore it. `scad/support/electronics_stand.scad` was on that list too and is not even slow: 14 s as a picture,
 and 4 s as the bracket it prints, which is a clean 2-manifold. It is checked now.
 
 **A check that cannot pass is worse than no check**, because the next real failure reads as more of

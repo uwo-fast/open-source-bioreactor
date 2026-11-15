@@ -113,10 +113,10 @@ their own repositories.
 
     | vessel             | culture  | 0.5 vvm        |
     | ------------------ | -------- | -------------- |
-    | jar_1p5L_112x215   | 1.45 L   | 0.72 L/min     |
+    | jar_1p5L_112x215   | 1.45 L   | 0.73 L/min     |
     | jar_1gal_155x251   | 3.35     | 1.67           |
     | jar_1gal_180x197   | 3.54     | 1.77           |
-    | jar_10L_220x305    | **8.23** | **4.12 L/min** |
+    | jar_10L_220x305    | **8.17** | **4.09 L/min** |
     | jar_6p5gal_305x470 | 20.42    | 10.21          |
 
     The volumes are now integrated over each jar's own wetted profile rather than a cylinder on its
@@ -125,37 +125,37 @@ their own repositories.
     which is only computed for the vessel being built. `head()` echoes them at render.
 
   - **the pump is still not the constraint, but the margin is a fraction of what this said.**
-    Against the whole line it settles at **5.78 L/min** where 4.09 is wanted - not the 60+ this
-    claimed, which counted only the vessel's own 1.1 kPa, and not the **23.1** that replaced it,
+    Against the whole line it settles at **5.79 L/min** where 4.09 is wanted - not the 60+ this
+    claimed, which counted only the vessel's own 1.1 kPa, and not the **21.0** that replaced it,
     which held back pressure at the design point. The filter is linear in flow, so asking for more
-    raises the line; `head()` echoes the 5.80 and says so
+    raises the line; `head()` echoes the 5.79 and says so
   - **and the second bullet here used to be wrong in a way worth keeping visible.** It said the
     filter, the tubing and the orifice "all sit against a valve dropping 24 kPa, so none of them
-    move the operating point materially". The sterile filter alone drops **14.2 kPa** - twelve times
-    the vessel - and the check valve another **1.9**, of which 1.2 is just cracking it open. Counting
-    them took the line to **17.4 kPa** and left the valve only **7.9** to drop, which raised the Cv
-    it has to have from 0.020 to **0.0333**. The thing dismissed as immaterial was the largest term
+    move the operating point materially". The sterile filter alone drops **14.1 kPa** - nearly seven
+    times the vessel - and the check valve another **1.9**, of which 1.2 is just cracking it open. Counting
+    them took the line to **18.3 kPa** and left the valve only **7.0** to drop, which raised the Cv
+    it has to have from 0.020 to **0.0349**. The thing dismissed as immaterial was the largest term
     in the budget
   - **range: a rotameter reads 10-100 % of full scale**, so for 0.1-0.5 vvm:
 
     | vessel             | needs           | scale         |
     | ------------------ | --------------- | ------------- |
-    | jar_1p5L_112x215   | 0.14-0.72 L/min | 0-1 L/min     |
+    | jar_1p5L_112x215   | 0.15-0.73 L/min | 0-1 L/min     |
     | jar*1gal*×2        | 0.33-1.77       | 0-2 L/min     |
-    | jar_10L_220x305    | 0.82-4.12       | **0-5 L/min** |
+    | jar_10L_220x305    | 0.82-4.09       | **0-5 L/min** |
     | jar_6p5gal_305x470 | 2.04-10.21      | 0-15 L/min    |
 
-  - **buy 0-5 L/min for the 10 L jar**, where 0.82-4.12 sits at 16.5-82.3 % of scale. No single range
-    covers the family — that is a property of a 73:1 spread between the smallest jar at 0.1 vvm and
+  - **buy 0-5 L/min for the 10 L jar**, where 0.82-4.09 sits at 16.3-81.7 % of scale. No single range
+    covers the family — that is a property of a 70:1 spread between the smallest jar at 0.1 vvm and
     the largest at 0.5, not a bad choice.
   - enriching with CO₂ later does not invalidate the meter. A rotameter reads by gas density, and
     0.5 % CO₂ in air changes density by 0.26 %
   - **all three are now bought rather than wanted**, and the whole chain is in
     `purchased-parts.csv`: Dwyer `VFA-23` bare meter, Clippard `MNV-3KP` needle valve dropping
-    **7.9 kPa** at 4.12 L/min (not the 24 this asked for - the filter took most of it), Cole-Parmer
+    **7.0 kPa** at 4.09 L/min (not the 24 this asked for - the filter took most of it), Cole-Parmer
     `5011521` check valve against the 1.0-1.9 kPa of culture head that sits over the ring
   - the valve is the 3° needle rather than the 20° `MNV-4K2` first chosen. Both are Cv 0.094, so
-    both sit at about 35 % of travel; what differs is roughly seven times the rotation for the same
+    both sit at about 37 % of travel; what differs is roughly seven times the rotation for the same
     change in flow, and the pump being seven times oversized puts the whole band in the first part
     of that travel
   - the meter is the BARE `VFA-23`, not the valved `-BV`. Dwyer do not publish the integral valve's
@@ -176,10 +176,11 @@ their own repositories.
       pressure costs about **0.9 kPa more**, because its flow capacity is a quarter. The
       nylon/silicone sibling `5011519` was rejected on material — nylon is hygroscopic and swells
       in continuously humid air. `5011521` beat US Plastic `22577` **on procurement, not physics**:
-      1.85 against 1.78 kPa is inside the error on the filter figure that dominates the budget,
+      1.85 against 1.78 kPa by that arithmetic (`head()` puts this valve at 1.93 in the line) is inside
+      the error on the filter figure that dominates the budget,
       and it shares a supplier with the sterile filter, so one shipment and one customs clearance.
     - _Metering valve._ Required Cv moved twice as the line was accounted — **0.020 → 0.0296 →
-      0.0333** (0.0335 once the exhaust was priced in) — which retired two picks. `MNV-2` (Cv 0.032) ended at 92 % of wide open with no
+      0.0333** (0.0335 once the exhaust was priced in, 0.0349 as the line stands now) — which retired two picks. `MNV-2` (Cv 0.032) ended at 92 % of wide open with no
       authority left; an Ideal Valve 52-1-12 (Cv 0.019) **could not reach the design flow at all**.
       `MNV-4K2` was then chosen on Cv alone and retired on the **needle**: Clippard's catalogue
       gives it a 20° taper, coarser than the `MNV-1` already rejected for being coarse.
@@ -188,13 +189,14 @@ their own repositories.
   - McMaster-Carr 5011T141
   - worm-drive hose clamp, 316 stainless band **and** screw, 5/16 in band × 0.023 in, SAE J1508
   - SAE 4: 7/32 in to 5/8 in, i.e. **5.556 to 15.875 mm**; 1/4 in hex, 7.5 in.-lbs maximum torque
-  - 14 needed, sold in tens, so 2 packs; US$19.82 a pack
+  - 17 needed - 14 on the gas line and 3 on the dosing stubs - sold in tens, so 2 packs; US$19.82 a
+    pack
   - <https://www.mcmaster.com/5011T141/>
   - **the band width was decided by the model, and the model now reads it back.** The riser stood
     a literal 15 mm proud, justified against "a worm clamp's band is about 9 mm wide" — so once a
     clamp was actually chosen, one band had two numbers. The clamp is registered in
     `scad/purchased/hose_clamps.scad` and `sparge_riser_proud` derives from its **7.9375 mm** band
-    plus 3.5 mm of lead-in either side: **14.9375 mm**, and the riser is 188.174 rather than 186.7.
+    plus 3.5 mm of lead-in either side: **14.9375 mm**, and the feed riser is 265.337 and each dosing tube 187.938.
     The 5/16 in band is also the narrowest McMaster offer this clamp in; the 1/2 in band is 12.7 mm
     and would leave 2.3 mm of lead-in in total
   - **one size covers the whole line**, which the width decides for it: the 5/16 in band's smallest
@@ -296,8 +298,9 @@ their own repositories.
     an operating band 155 rpm wide
   - six flying leads (motor M1/M2, Hall GND, Hall A, Hall B, Hall Vcc); no connector fitted, unlike
     the 3429 SKUs which ship an SM2P-2.54 on 90 mm cables
-  - chosen because 320–420 rpm spans the whole band `agitation.md` sets and is the only candidate
-    reaching the 410 rpm break-even, and because the encoder retires the no-speed-feedback gap that
+  - chosen because 320–420 rpm spanned the whole band `agitation.md` set on the 94.5 mm pitched pair
+    this build ran before, the only candidate reaching its 410 rpm break-even; on the 70 mm turbine it
+    brackets the 344 rpm optimum and the 554 rpm break-even (`baseline.md`'s 2.03 m/s at 70 mm) is out of reach. And because the encoder retires the no-speed-feedback gap that
     band containment was working around
   - <https://ca.robotshop.com/products/e-s-motor-36d-dc-planetary-gearmotor-w-encoder-12v-420rpm>
   - **two numbers here are inferred, not published.** The encoder sheet tabulates no gearbox length,
@@ -306,11 +309,11 @@ their own repositories.
     can gets with no encoder on it. Both feed the reactor envelope and so the cart, where a
     millimetre counts twice over two tiers — confirm with the vendor before ordering
   - superseded **RM-ESMO-16Q** (36PG-3429-5.2), which this document previously named: rated 950 rpm
-    is 4.70 m/s at the tip, more than twice the break-even. Right family, wrong ratio. Still
+    is 3.48 m/s at the 70 mm turbine's tip, 1.7 times the break-even. Right family, wrong ratio. Still
     registered as a product
   - passed over **RM-ESMO-16N** (36PG-3429-19, 42.15 CAD), no-load 385 / rated 265 rpm at 2.4 kg·cm.
-    Both ends sit inside the band and it is 27.6 mm shorter in the stack, but it cannot reach the
-    410 rpm break-even and carries no encoder. The fallback if stack height turns out to bind
+    Both ends sat inside the pitched pair's band and it is 27.6 mm shorter in the stack, but it cannot reach the
+    554 rpm break-even and carries no encoder. The fallback if stack height turns out to bind
   - passed over **RM-ESMO-0MX** (36PG-555K-1260-19, 34.50 CAD), no-load 315 / rated 240 rpm at
     7 kg·cm. Its rated point falls below the growth optimum, and the torque it sells on is worth
     nothing here — the impeller pair asks under 5 % of it. Bare copper tabs, no connector

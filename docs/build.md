@@ -33,8 +33,8 @@ Three figures in particular are bands rather than measurements, and all three ar
 Not every vessel takes every drive. `jar_1p5L_112x215` and `jar_1gal_155x251` cannot carry a
 top-entry drive on their lids at any mount size — the mount overlaps the port flanges on the first,
 and on the second the pH probe runs through the lower impeller, because in a 155 mm bore the port
-circle and the impeller want the same radius — so both are built with no drive, and `jar_1p5L` also
-takes the magnetic one. The builds that work are the sets in `scad/bioreactor.json`, and
+circle and the impeller want the same radius — so both are built as airlifts, with no drive and a
+draft tube, and both also take the magnetic one. The builds that work are the sets in `scad/bioreactor.json`, and
 `just check-builds` fails if one of them stops building. What each vessel cannot yet take, and why,
 is on [`TODO.md`](../TODO.md).
 
@@ -73,7 +73,7 @@ cut surface tessellates differently at each angle. Intersecting one with another
 returns a whole rib, so it is one solid meshed two ways.
 
 **The drive decides two of those lists.** `drive_name` in `bioreactor.scad` is `shaft` (above),
-`magnetic` or `none`. Magnetic takes the motor mount and the impellers off the head's list, adds a
+`magnetic`, `none` or `airlift`. Magnetic takes the motor mount and the impellers off the head's list, adds a
 **bearing blank** in their place, and adds the **stir carrier** and the **hub cap** to the frame's,
 and on `jar_1gal_155` and `jar_6p5gal` the **stir riser** too.
 On the default lid the lid and the base are the same parts either way: the lid keeps its bearing pocket, bore and
@@ -83,10 +83,10 @@ screws - and the base is slotted for the carrier whichever drive a build names, 
 whose magnetic build stands on a riser, where the riser carries the slot. See
 [The magnetic drive](#the-magnetic-drive).
 
-`none` prints neither drive's parts: the gas is all that moves the culture, and the sparger is the
+`none` prints neither drive's parts, and `airlift` is `none` with a draft tube added: the gas is all that moves the culture, and the sparger is the
 ring unless the build names the arm. Its lid is plain - no pocket, bore or inserts - which
 `lid_center_name` sets: `bearing` for the convertible lid above, `plain` for this one, and `auto`
-takes plain under `none` and bearing otherwise. A magnetic build states `plain` where the blank's
+takes plain under `none` or `airlift` and bearing otherwise. A magnetic build states `plain` where the blank's
 flange would not clear the ports, as `jar_1p5L_magnetic` and `jar_1gal_155_magnetic` do; that lid
 cannot later take the shaft.
 
@@ -117,15 +117,16 @@ sparge ring. A Rushton's flat blades have no hand, so the reference build's two 
 build a mount, and the mount it builds does not match the holes the assembly drills in the lid. The
 file says so itself.
 
-The baffle plates are split so no piece is too slender to print standing:
+The baffle plates are split when a piece would be too slender to print standing. On
+`jar_1gal_180x197`, the registered jar that hangs them, one piece passes:
 
 ```
-baffle print: 2 pieces of 136.997 mm, tallest standing 159.997 mm against a 200 mm slenderness cap;
-the dovetail leaves 4.2 mm of 10 crossing each joint, 0.074088 of the plate's second moment
+baffle print: 1 piece of 165.218 mm, tallest standing 188.218 mm against a 200 mm slenderness cap
 ```
 
-A larger printer can pin `baffle_segments = 1` and print each plate whole, which is stiffer: the
-joints already take 14 % of the tip deflection.
+Where a plate is split, as on `jar_10L` given lid plates (`baffle_name = "lid"`, two pieces of
+136.997 mm), the pieces join with a dovetail. A larger printer can pin `baffle_segments = 1` and
+print each plate whole, which is stiffer: split, the joints take 14 % of the tip deflection.
 
 **The slide runs along the plate's width, and that is a load choice.** The swirl pushes on the
 plate's face, so with the slide across the width that load bears on the dovetail's flanks and the
@@ -143,14 +144,14 @@ liability nothing here answers.
 180 mm machines being "the small end of what anyone building this owns" — and no 180 mm machine was
 ever going to build this reactor, so the number was measuring nothing. It is now a piece's height
 against **three times its own section**: a brim as wide as the part on each side, which is why a
-brim is worth printing on something this slender. On `jar_10L` the rule gives **205.07 mm**, and
+brim is worth printing on something this slender. The rule gives **205.07 mm**, and
 the **printer ceiling clamps the cap to 200 mm** — the shortest registered build height less 10 —
-so 200 is what the echo reports, against a 163 mm tallest piece.
+so 200 is what the echo reports, against `jar_1gal_180x197`'s 188 mm tallest piece.
 
 The piece that binds is not the obvious one. The piece carrying the port stands on a **28.2 mm
 flange**, which is a wide foot; a tip piece stands on the section alone and is half again as
 slender for it. That section is **17.09 × 10 mm** — the widest plate the port's lock bore will
-pass, not the 11.9456 mm this jar's impeller actually leaves — so the cap is a property of the
+pass, which `jar_1gal_180x197`'s plates also are — so the cap is a property of the
 port and grades the same on every vessel.
 
 `just export-parts` writes every one of these as its own STL, with a print list beside them, and
@@ -365,8 +366,8 @@ other way up
 stir magnets: 2 x MAG5x8 on the 40 mm hub at 28 mm pitch, faces 1.24242 mm under the
 punt and 6.24242 mm from the floor inside
 stir bar: 38x8 centred on the 30 mm punt plateau, overhanging it by 4 mm each end;
-sweeps r 19 under the sparge arm, 55.49 mm over it and the baffles at r 51.3273; the
-sparger is still placed on the shaft drive's impeller
+sweeps r 19 under the sparge arm, 41.5363 mm over it; the sparger is still placed on
+the shaft drive's impeller
 ```
 
 **The fan is picked by rule, not named.** Of NopSCADlib's fans, the one with the widest hub whose
@@ -596,11 +597,11 @@ bench's run is 320 rpm.
 
 `drive_name = "airlift"` adds one printed part, `draft_tube`: a plain tube on three feet, standing on
 the jar's floor round everything that hangs from the lid. The gas rises inside it and the culture
-comes down outside. Nothing holds it but the ring.
+comes down outside. Nothing holds it but the ring. On `jar_1p5L_112x215`:
 
 ```
-draft tube: 80.7 mm bore, 84.7 mm outside, 151.501 mm long from 12.3179 to 163.819 mm off the
-floor, on 3 feet of 10.9608 mm; 1.4 mm each side through the mouth, and the ring inside it keeps
+draft tube: 81.6 mm bore, 85.6 mm outside, 153.172 mm long from 11.6501 to 164.823 mm off the
+floor, on 3 feet of 10.3704 mm; 1.4 mm each side through the mouth, and the ring inside it keeps
 1.25 mm to its wall, so it shifts up to 1.25 mm
 ```
 
@@ -662,7 +663,7 @@ so the bore on those marks tells you nothing and the function name is carrying a
 word, not the number.
 
 The sparge ring itself cannot be installed rotated, and it is better keyed than it was: it now
-carries a socket under every tube port — six on the full lid at 0, 180, 210, 240, 300 and 330° — and
+carries a socket under every tube port — five on the full lid at 0, 180, 210, 240 and 330° — and
 that pattern is irregular enough that only one rotation puts them all under ports. On the six-port
 jars it is three.
 
@@ -696,9 +697,9 @@ port. The model prices it rather than saying it is the exhaust path and leaving 
 ```
 gas exhaust slot: a slot of the tube's own 7.06858 mm2 bore costs 25.9379 Pa at
 1.67312 L/min, and the tube above it 9.63158-20.6526 Pa over the 37.9375-81.3477 mm
-drilling window, together 0.20844-0.273024% of the 17064.6 Pa the exhaust has to
-spend; file past 0.275582 mm2 (a 0.592353 mm round hole), which the bore clears
-25.6496x over
+drilling window, together 0.207856-0.272259% of the 17112.5 Pa the exhaust has to
+spend; file past 0.275196 mm2 (a 0.591938 mm round hole), which the bore clears
+25.6856x over
 ```
 
 **On this jar the floor is about 0.28 mm², which is a Ø0.59 mm hole.** A normal file cut clears it
@@ -706,10 +707,10 @@ many times over, and a shallow pass that only just breaks the 0.5 mm wall is the
 near it. Cut it, then hold the tube up to the light and look through the hole before it goes in.
 
 **Read the floor off your own render rather than off this page.** It moves with the jar, because it
-is set by the headroom that jar's gas line has left: 0.276 mm² here against 0.108 mm² on
+is set by the headroom that jar's gas line has left: 0.275 mm² here against 0.108 mm² on
 `jar_1p5L_112x215`.
 
-That 17064.6 Pa is the same pressure the throttle is currently giving away, and the same headroom an
+That 17112.5 Pa is the same pressure the throttle is currently giving away, and the same headroom an
 outlet filter would have to fit inside - so what the slot spends comes off both. The slot and the
 tube are already in the line the pump is priced against, at the long end of the drilling window; an
 outlet filter, once one is named, joins them there. The three dosing holes meter nothing and need
@@ -855,12 +856,12 @@ It is not. An outlet filter does not sit between the pump and the sparge holes, 
 headspace those holes discharge into, and the gas has to beat that too. A second identical filter
 puts the line at **32.4 kPa** against a pump that dead-heads at **27** — the reactor would settle at
 **3.14 L/min**, and 0.5 vvm would stop being a setting it can hold. `head()` reports the budget:
-an outlet filter may cost at most **1.707 kPa per L/min**, which is 49.5 % of what the inlet one
+an outlet filter may cost at most **1.719 kPa per L/min**, which is 49.8 % of what the inlet one
 does, so it wants roughly **twice the membrane area** rather than the same part again. The coil
 condenser's outlet is already priced into the line, so that budget is net of it.
 
-Two numbers behind that are worth knowing. The pump's real ceiling on this line is **5.78 L/min**,
-not the 21.3 that a back pressure held at the design point suggests — the filter is linear in flow, so
+Two numbers behind that are worth knowing. The pump's real ceiling on this line is **5.79 L/min**,
+not the 21.0 that a back pressure held at the design point suggests — the filter is linear in flow, so
 asking for more raises the line. And the inlet filter's own slope is still extrapolated rather than
 measured, so the budget moves with it: measure that first, and this number follows.
 

@@ -21,6 +21,11 @@ Composable, modular, and extensible bioreactor design.
 - [`docs/procurement.md`](docs/procurement.md) — how the bought parts were chosen
 - [`docs/references.md`](docs/references.md) — the sources, and how far each one was actually read
 
+## Citation
+
+To cite this project, use the metadata in [`CITATION.cff`](CITATION.cff). GitHub's "Cite this
+repository" button reads the same file.
+
 ## License
 
 Copyright © 2024–2026 Cameron Brooks.

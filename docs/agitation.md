@@ -68,9 +68,9 @@ floor and both summed as the torque's ceiling, and does not pick a factor betwee
 
 **The power number is Kaiser's, not the textbook's.** McCabe's Table 9.3 gives 5.75 for the
 standard disc turbine, from tanks with four baffles at T/10. Kaiser measured 4.17 at laboratory
-scale. This vessel has neither: three plates at 0.71 of the four-at-T/12 area. The model keeps the
+scale. This vessel matches neither exactly: four at T/12 rather than T/10. The model keeps the
 measured figure, and the difference is 38 % on every power and torque figure: at 5.75 the rated
-speed draws 1.46 W, 179 W/m³, and the pair stays under 0.087 N·m of the 0.490 rating, so nothing
+speed draws 1.46 W, 179 W/m³, and the pair stays under about 0.087 N·m of the 0.490 rating, so nothing
 about the drive turns on which is right. A bench measurement of the printed part settles it
 (`TODO.md`).
 
@@ -251,8 +251,8 @@ At **fixed tip speed**, peak dissipation falls as the impeller grows:
 ε_max = 1.04 · x · Po^(3/4) · N³ · D²        with v_tip = πND fixed:   ε_max ∝ 1/D
 ```
 
-Doubling impeller diameter halves the maximum local energy dissipation, because the same power is
-spread over a swept volume that grows as D³. At **constant power per volume** in a fixed vessel,
+Doubling impeller diameter halves the maximum local energy dissipation, because at fixed tip speed
+the power grows only as D² while the swept volume it is spread over grows as D³. At **constant power per volume** in a fixed vessel,
 `v_tip` ∝ D^(−2/3) while pumping Q ∝ D^(4/3) — a larger impeller runs slower at the tip _and_ pumps
 more. Peak-to-mean dissipation scales as (T/D)³, so moving D/T from 0.33 to 0.50 cuts it by ~3.5×.
 
@@ -302,8 +302,8 @@ either, though the set has not been rendered again at it.
 ### The three modes
 
 **Baffled stirred** — `jar_10L`, `jar_1gal_180`. The reference configuration; nothing here changes it.
-`jar_10L`'s reference build carries the four on the wall that the table counts; its magnetic build
-and `jar_1gal_180` hang three plates from the lid.
+`jar_10L`'s builds, the reference and the magnetic, carry the four on the wall that the table counts;
+`jar_1gal_180` hangs three plates from the lid.
 
 **Unbaffled eccentric stirred** — `jar_6p5gal`. It is the family's worst case today: the largest
 vessel, unbaffled and centred, which Montante measured at flow number **0.25, 65 % below the same
@@ -357,7 +357,7 @@ goes up the core and down the lit annulus — not biomass.
 
 `drive_name = "airlift"` is that mode: the no-drive build plus a draft tube standing on the floor
 round everything that hangs from the lid, sparged inside by the ring, which also centres it. On
-`jar_1p5L` the tube is 84.7 mm across with A_d/A_r 0.54; on `jar_1gal_155`, 93 mm and 1.72 — the
+`jar_1p5L` the tube is 85.6 mm across with A_d/A_r 0.508; on `jar_1gal_155`, 93 mm and 1.72 — the
 narrower mouth caps the tube while the bore sets the annulus. The gaps under and over it give the
 turn the downcomer's own area, inside Chisti & Moo-Young's 1.65 cap. Chisti's circulation model is
 not run: its data start at 1.36 m tall and these loops are under 0.2 m. The DO probe hangs straight
@@ -386,8 +386,8 @@ transcript is `tests/echo/head__jar_10L_220x305.txt`. What was believed before a
 Three spargers share the riser from the `air_in` port, and a build names one (`sparger_name`): the
 **arm** is the default under the shaft and magnetic drives, and the **ring** under no drive and
 the airlift; the **loop** is chosen, never defaulted. What `head()` reports for each follows; the
-ring's and the loop's figures are `jar_10L` builds with `sparger_name` set, which no transcript
-holds.
+ring's figures are a `jar_10L` build with `sparger_name` set, which no transcript holds, and the
+loop's are the reference build's, `tests/echo/build__jar_10L_220x305.txt`.
 
 #### The arm
 
@@ -416,17 +416,17 @@ holds.
   r 56.5, a horizontal bend of the elbow's radius hooks it onto the curl tangent from outside, and
   the C runs 300° round from there, 53 mm off the floor, 10 mm under the lower impeller's blades,
   holes down, to a plugged end.
-- **75.95 mm across, 1.09 D, and the baffles place it.** Birch & Ahmed's 1.4 D would be 99 mm,
-  but at this height the loop sits among the plates, which come off the lid first: it stops
-  1.25 mm inside their inner edge after the 2.63 mm they can lean at its height and the 2.63 mm
-  its own riser can, by the same coupling rule. 1.09 D is inside the 1–2 D band. The mouth and
-  the shaft are far off, 29.7 and 30.5 mm. The hook swings off the riser's bearing toward the next
-  plate, outside the C, and is measured against each plate in plan: 3.15 mm to the nearest once
-  both have leaned.
+- **76.54 mm across, 1.09 D, and the hook places it.** Birch & Ahmed's 1.4 D would be 99 mm,
+  but the C can be no larger than its hook allows (below). 1.09 D is inside the 1–2 D band. The
+  mouth and the shaft are far off, 29.36 and 30.81 mm. Under lid plates instead of the cage the
+  loop sits among them and they place it: it stops 1.25 mm inside their inner edge after the
+  2.63 mm they can lean at its height and the 2.63 mm its own riser can, by the same coupling rule,
+  and the hook, swinging off the riser's bearing toward the next plate, keeps 3.15 mm to the
+  nearest once both have leaned.
 - **The hook has to start where the elbow ends,** a bend inside the riser, and meet the C from
   outside, which costs about another bend: the C can be no more than
-  `sparge_loop_largest()`, 38.3 mm in radius at r 56.5. On `jar_10L` the baffles bind first. On
-  the others that is what places it, and `head()` warns it is under the band: 25.2 mm (0.73 D) on
+  `sparge_loop_largest()`, 38.3 mm in radius at r 56.5. That is what places it on `jar_10L`, and
+  on the others, where `head()` warns it is under the band: 25.2 mm (0.73 D) on
   `jar_1p5L`, 31.9 mm (0.64 D) on `jar_1gal_155` and 71.5 mm (0.76 D) on `jar_6p5gal`.
 - **Eleven of the ring's 1.2 mm holes**, with the same 3.76 mm bubble floor, spread over the 291°
   of C before the end plug's solid, 14.7 hole diameters apart. One bore carries all of it to a
@@ -437,12 +437,12 @@ holds.
   bore's own 5.42 m/s, so no size or count clears both. The ring keeps sixteen, since an odd
   count puts a hole in its split.
 - **It hangs on the feed riser alone**, through the arm's boss and screw: 0.374 N/mm at the loop,
-  21.6 mm under the riser's end, so 0.467 N sideways closes its 1.25 mm to a baffle, and `head()`
-  warns. Nor is that the only way to close it: the impeller's swirl puts a torque on a C round
+  29.6 mm under the riser's end; under lid plates, 0.467 N sideways closes its 1.25 mm to a baffle,
+  and `head()` warns. Nor is that the only way to close it: the impeller's swirl puts a torque on a C round
   the shaft, which turns it about the riser against the port's seal, and as little as 1.27° of
   that does the same (1.25 mm over the riser's 56.5 mm from the axis). What the flow pushes and
   turns with is not known; this is the bench's question.
-- **The plates keep the width the arm gives them**, 17.09 mm, and the gas has the arm's 2066 Pa to
+- **Lid plates keep the width the arm gives them**, 17.09 mm, and the gas has the arm's 2066 Pa to
   beat, from the same height.
 
 #### The ring
@@ -473,8 +473,8 @@ holds.
   hole size clears both Barbosa's 5.4 m/s and an open area of 1 while the bore runs that fast, and
   `head()` flags the open area and the bore; the fix is a wider riser, which is one designation and a cascade
   of fits (`TODO.md`).
-- **The risers are structure.** Nothing else in the vessel touches the ring, so the six 4 × 0.5 mm
-  316 tubes that drop from the tube ports — one feeding, five blind — are what hold it: 1.02 N/mm
+- **The risers are structure.** Nothing else in the vessel touches the ring, so the five 4 × 0.5 mm
+  316 tubes that drop from the tube ports — one feeding, four blind — are what hold it: 1.02 N/mm
   a support, 0.98 mm of sway per newton against 1.25 mm to the baffles. The feed's socket is the
   ring's own tube standing up; the supports' are round, which is the only thing that tells them
   apart at the bottom of a jar.
@@ -512,9 +512,10 @@ holds.
 ### Baffles
 
 Both `jar_10L` builds, the reference and the magnetic, carry the standard four on the wall, on a
-cage: `baffle_name = "auto"` takes it wherever it fits. The 1 gal jars hang plates from the lid,
+cage: `baffle_name = "auto"` takes it wherever it fits. `jar_1gal_180` hangs plates from the lid,
 and the six-port lids carry no baffles (`docs/decisions.md`). The first group of bullets is the
-cage, the rest the plates.
+cage; the rest are the plates as `head()` reports them on `jar_10L` with `baffle_name = "lid"`,
+which no registered build carries and no transcript holds.
 
 - **Four at T/12, T/72 off the glass, floor to surface.** The blades are 17.5 mm wide at 0, 90, 180
   and 270°, out of the lit windows, 2.92 mm off the wall, and 229.5 mm of each is under the
