@@ -650,7 +650,8 @@ read off a figure.
 
 Cross-checked against Hall at the one point they share, e/T = 0.2: Karcz's equation predicts 42%
 faster than centred, Hall measured 36%. Different impellers, tanks 12x apart in size, agreeing
-within six points - which is why the correlation is used below rather than Hall's single point.
+within six points - which is why the correlation, not Hall's single point, is used in
+[Agitation](agitation.md#eccentric-mounting).
 
 **The departures are larger than Hall's.** `D = 0.33 T`, as here, is not one; a three-bladed
 **propeller**, or an HE 3, rather than this build's Rushtons; `H = T` against 1.09; and 270 L
