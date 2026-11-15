@@ -1,9 +1,9 @@
 # TODO
 
 Open work before the paper only. A finished item is deleted. What was decided, and what this
-project got wrong on the way, is in `docs/decisions.md`; the reasoning behind a closed item is in
+project got wrong on the way, is in `dev/decisions.md`; the reasoning behind a closed item is in
 the commit that closed it and in `docs/`. Work planned for after the paper is a GitHub issue
-labelled `post-pub`, all linked from #90; ideas nobody has planned are in `docs/future-work.md`.
+labelled `post-pub`, all linked from #90; ideas nobody has planned are in `dev/future-work.md`.
 
 ## model completeness / enhancement
 
@@ -36,7 +36,7 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
 - [ ] **run two Rushtons, the standard configuration**
   - a professor recommended the six-blade disc turbine (2026-10-08) and, on his advice
     (2026-10-13), the reference build runs a Rushton at both positions; the hybrid is in
-    `docs/future-work.md`
+    `dev/future-work.md`
   - his source, McCabe, Smith & Harriott 1993 ch. 9 (2026-10-14), gives the standard turbine's
     D = E = T/3 and the blades D/5 by D/4; in person he asked for two, the lower T/3 off the floor and
     the upper a further T/3 up, which is Rutherford's merging flow. Both are on the row now. Still
@@ -44,7 +44,7 @@ Follows from the agitation work; reasoning and citations in `docs/agitation.md`.
   - if the paper states power: a bench measurement of the printed Rushton's power number,
     `Po = P/(rho N^3 D^5)` from shaft power at three or four speeds in water. The model keeps
     Kaiser's measured 4.17 where McCabe's Table 9.3 gives 5.75, 38% more power, and Grenville's
-    flow number 0.65 where McCabe gives 1.3 (`docs/decisions.md`)
+    flow number 0.65 where McCabe gives 1.3 (`dev/decisions.md`)
   - the row: height D/5, length D/4, disc 3D/4. Middleton & Ramshaw, US 5198156 "Agitators" (ICI,
     1993), gives exactly these as typical; the Czech standard behind Fořt's "standard Rushton" is
     ČSN 69 1021 (1984, withdrawn 2005), not read. Zhou 2003, which the row cites now, gives D/4 by

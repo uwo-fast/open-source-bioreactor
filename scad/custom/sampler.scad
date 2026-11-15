@@ -25,7 +25,7 @@ include <NopSCADlib/core.scad>
 include <NopSCADlib/vitamins/screws.scad>
 include <NopSCADlib/vitamins/nuts.scad>
 include <NopSCADlib/vitamins/inserts.scad>
-// by name, for its own live defaults (docs/architecture.md rule 2); nothing else crosses
+// by name, for its own live defaults (dev/architecture.md rule 2); nothing else crosses
 use <../purchased/heat_set_inserts.scad>
 
 part = "assembly"; // [assembly, base, top]

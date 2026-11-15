@@ -183,14 +183,14 @@ because it prints with an overhang and has to be indexed against the blades; the
 binding problem, and a slipping impeller costs the whole run.
 
 It stays registered and drawn; a bench measurement of its power number is
-[future work](future-work.md#agitation).
+[future work](../dev/future-work.md#agitation).
 
 ### The pitched pair
 
 The alternative is two 45 deg four-blade pitched turbines, `impeller_pbt_45_4`, at D/T 0.45, the lower
 0.9 D off the floor and the pair 1 D apart. That layout is the row's own `tank` field, so it is one
 `head_impeller_lower_type` / `head_impeller_upper_type` setting away, and a Rushton under a pitched
-blade is [future work](future-work.md#agitation). For that layout:
+blade is [future work](../dev/future-work.md#agitation). For that layout:
 
 - **Po and flow number are correlated.** Medek's correlation (Fort et al. 2002) gives them from the
   geometry and names the conditions a vessel breaks - on `jar_10L`, T/D and H/T.
@@ -364,7 +364,7 @@ collects higher in the culture, in the headspace and on the lid.
 
 Every figure below is what `head()` reports for `jar_10L_220x305` at the reference fill; the
 transcript is `tests/echo/head__jar_10L_220x305.txt`. What was believed before and got wrong is in
-[Decisions](decisions.md#corrections---readings-that-were-wrong).
+[Decisions](../dev/decisions.md#corrections---readings-that-were-wrong).
 
 ### Sparger
 
@@ -457,7 +457,7 @@ loop's are the reference build's, `tests/echo/build__jar_10L_220x305.txt`.
   velocity times their open area: 1.44 for the feed and 0.72 for each of the ring's two paths. No
   hole size clears both Barbosa's 5.4 m/s and an open area of 1 while the bore runs that fast, and
   `head()` flags the open area and the bore; the fix is a wider riser, which is one designation and a cascade
-  of fits ([future work](future-work.md#sparger)).
+  of fits ([future work](../dev/future-work.md#sparger)).
 - **The risers are structure.** Nothing else in the vessel touches the ring, so the five 4 x 0.5 mm
   316 tubes that drop from the tube ports - one feeding, four blind - are what hold it: 1.02 N/mm
   a support, 0.98 mm of sway per newton against 1.25 mm to the baffles. The feed's socket is the
@@ -498,7 +498,7 @@ loop's are the reference build's, `tests/echo/build__jar_10L_220x305.txt`.
 
 Both `jar_10L` builds, the reference and the magnetic, carry the standard four on the wall, on a
 cage: `baffle_name = "auto"` takes it wherever it fits. `jar_1gal_180` hangs plates from the lid,
-and the six-port lids carry no baffles ([Decisions](decisions.md#settled---do-not-re-open-without-new-evidence)). The first group of bullets is the
+and the six-port lids carry no baffles ([Decisions](../dev/decisions.md#settled---do-not-re-open-without-new-evidence)). The first group of bullets is the
 cage; the rest are the plates as `head()` reports them on `jar_10L` with `baffle_name = "lid"`,
 which no registered build carries and no transcript holds.
 

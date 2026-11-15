@@ -101,7 +101,7 @@ not_exported=(
     scad/support/equipment_cart.scad            # prints NOTHING: bought extrusion, bought
                                                 # NopSCADlib brackets, bought castors, and a
                                                 # translucent envelope that is a picture. Never
-                                                # built; see docs/future-work.md
+                                                # built; see dev/future-work.md
     scad/support/electronics_stand.scad         # "stand_corner" on the accessories list, its
                                                 # print_corner standing in for a bought bracket
     scad/support/estop_box.scad                 # "estop_box_base" and "estop_box_lid" on the

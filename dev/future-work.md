@@ -107,7 +107,7 @@ labelled `post-pub`, all linked from #90. When one of these is picked up, it mov
     and 0.35 vvm at its 255 rpm Chlorella optimum; a radial impeller at the same power needs 3x,
     not 8x, and would hold about 0.94 vvm at 255 rpm
   - **circulation per watt**: about 1.8x in the pitched blade's favour at equal power and
-    diameter ([Agitation](agitation.md#impeller))
+    diameter ([Agitation](../docs/agitation.md#impeller))
   - **at equal power a Rushton is the gentler of the two**: peak dissipation goes as
     `x Po^(-1/4) D^-3`, so about 0.56x the pitched blade at the same diameter, about 1.4x at
     D = T/3. Both are orders of magnitude under any damage figure. Grenville's Figs. 6-7 have the
@@ -123,7 +123,7 @@ labelled `post-pub`, all linked from #90. When one of these is picked up, it mov
 
 - **the annulus-sparged airlift (B).** The tube as downcomer, the annulus as riser, bubbles up the
   lit wall. It wants a sparger outside the tube, which the mouth-limited ring cannot reach, and
-  Chisti & Moo-Young 1987 recommend a cone under the turn for it ([References](references.md#the-airlift)).
+  Chisti & Moo-Young 1987 recommend a cone under the turn for it ([References](../docs/references.md#the-airlift)).
 
 - **fix the draft tube, if standing it proves loose.** A plain lid leaves its centre free; a
   bayonet there, as the other ports carry what hangs from them, would locate the tube from above

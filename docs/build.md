@@ -199,7 +199,7 @@ list: `just export-accessories` writes three **bottle holders** (one per dosing 
 86.1 mm round bottle), the **e-stop box**'s base and lid, and the **electronics stand**'s printed
 corner to `output/accessories/`, from `accessory_print_parts()` in
 `scad/support/accessories.scad`. The cart prints nothing and was never built
-([future work](future-work.md#bench)).
+([future work](../dev/future-work.md#bench)).
 
 **What you need to own.** Three parts are a **257.6 mm disc** - the lid, and the frame's base and
 top base - and they are the widest things in the build by a long way. A disc has the same width at

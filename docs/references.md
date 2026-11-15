@@ -525,7 +525,7 @@ The Eppendorf BioFlo 115 uses a 316L split ring that springs against the glass (
 section 4.7.4 and section 4.8.4). US4494878 has separate PTFE blades with a top ring, a snap-on bottom ring and
 wall standoff tabs. Corning EP3807394, now withdrawn, is a squeeze-and-release four-baffle insert.
 None goes in through a mouth narrower than the bore, and no open-hardware design that does was
-found. -> `scad/custom/baffle_cage.scad`, [Decisions](decisions.md)
+found. -> `scad/custom/baffle_cage.scad`, [Decisions](../dev/decisions.md)
 
 **Note on status:** partial/inboard baffles are _characterised_ in the literature, not
 _recommended_. The relevant papers (_Chem Eng Res Des_ S0263876207730952, _Chem Eng Sci_
