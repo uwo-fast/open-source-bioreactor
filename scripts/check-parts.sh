@@ -113,7 +113,8 @@ not_exported=(
                                                 # "sampler_base" and "sampler_top" on a lid
                                                 # with a sampler port
     scad/custom/sparge_puck.scad                # bench test pieces, one outlet face per print,
-                                                # that never go in a jar; see docs/build.md
+                                                # that never go in a jar; see
+                                                # analysis/methods/sparge-test-pucks
     scad/custom/condenser_cold_finger.scad      # the split cold finger, printed from its own file
                                                 # until head offers it
     scad/custom/condenser_coil.scad             # exported through head's manifest as

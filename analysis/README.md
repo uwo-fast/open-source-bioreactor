@@ -35,9 +35,10 @@ Every run and method directory has the same shape:
 
 ### Methods
 
-| Method                                                  | What                                   |
-| ------------------------------------------------------- | -------------------------------------- |
-| [`methods/light-irradiance`](methods/light-irradiance/) | LED vs fluorescent spectra, 300–800 nm |
+| Method                                                    | What                                       |
+| --------------------------------------------------------- | ------------------------------------------ |
+| [`methods/light-irradiance`](methods/light-irradiance/)   | LED vs fluorescent spectra, 300–800 nm     |
+| [`methods/sparge-test-pucks`](methods/sparge-test-pucks/) | what a printed sparge face costs at a flow |
 
 ## The one rule
 
