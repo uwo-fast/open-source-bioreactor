@@ -8,7 +8,8 @@
 # Any set in scad/bioreactor.json resolves (`just check-builds`); the defaults are the two 10 L
 # builds, and a run can name any other.
 #
-# OpenSCAD is pinned to what apt ships, as in check.yml.
+# OpenSCAD is the snapshot check.yml pins, so the parts export with the same renderer the
+# checks used.
 
 name: Export
 
@@ -53,12 +54,25 @@ jobs:
       - uses: extractions/setup-just@v4
 
       - name: Install OpenSCAD
+        env:
+          OPENSCAD_SNAPSHOT: "2026.10.15"
+          OPENSCAD_SHA256: "9d26e390d3a5c94f2e304d94d7b2eff77fb11fcd25829f2814de147ba92ac363"
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends openscad fonts-liberation fontconfig
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends libegl1 libgl1 libopengl0 libglx0 libgbm1 libwayland-client0 libx11-xcb1 fonts-liberation fontconfig
           # The port lettering names this face; a missing one falls back without a warning.
           test "$(fc-match -f '%{family[0]}' 'Liberation Sans')" = "Liberation Sans"
-          openscad --version
+          dir="$RUNNER_TEMP/openscad"
+          file="OpenSCAD-$OPENSCAD_SNAPSHOT-x86_64.AppImage"
+          mkdir -p "$dir/bin"
+          curl -fsSL -o "$dir/$file" "https://files.openscad.org/snapshots/$file"
+          echo "$OPENSCAD_SHA256  $dir/$file" | sha256sum -c -
+          chmod +x "$dir/$file"
+          (cd "$dir" && "./$file" --appimage-extract > /dev/null)
+          printf '#!/bin/sh\nexec "%s/squashfs-root/AppRun" "$@"\n' "$dir" > "$dir/bin/openscad"
+          chmod +x "$dir/bin/openscad"
+          echo "$dir/bin" >> "$GITHUB_PATH"
+          "$dir/bin/openscad" --version
 
       - name: Setup
         run: just setup
