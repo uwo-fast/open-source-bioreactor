@@ -46,12 +46,12 @@ labelled `post-pub`, all linked from #90. When one of these is picked up, it mov
   outweighs the 17.7 Pa of velocity head, though `head()` flags the bore again; the sweep wants
   redoing at that size:
 
-  | bore        | feed velocity | open area | velocity head | verdict                             |
-  | ----------- | ------------- | --------- | ------------- | ----------------------------------- |
-  | 4.0 (today) | 5.42 m/s      | 1.44      | 17.7 Pa       | 2 departures                        |
-  | 8.0         | 1.36          | 1.12      | 1.1           | 1 departure; pH tip hits the ring   |
-  | 8.5         | 1.21          | 1.00      | 0.9           | clean sparger; pH tip hits the ring |
-  | 10.0        | 0.87          | 0.72      | 0.5           | no room for a baffle                |
+  | bore, holes             | feed velocity | open area | velocity head | verdict                             |
+  | ----------------------- | ------------- | --------- | ------------- | ----------------------------------- |
+  | 4.0, 16 x 1.2 (today)   | 5.42 m/s      | 1.44      | 17.7 Pa       | 2 departures                        |
+  | 8.0, 8 x 3 (old sweep)  | 1.36          | 1.12      | 1.1           | 1 departure; pH tip hits the ring   |
+  | 8.5, 8 x 3 (old sweep)  | 1.21          | 1.00      | 0.9           | clean sparger; pH tip hits the ring |
+  | 10.0, 8 x 3 (old sweep) | 0.87          | 0.72      | 0.5           | no room for a baffle                |
 
   `sparge_bore()` is the riser's own OD, so the bore is a designation: `steel_tube_welded_10x0p5`
   is registered; there is no 8.5 row. What it costs is the cascade: the tube goes 6.4 -> 12.4

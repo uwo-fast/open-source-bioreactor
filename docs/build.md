@@ -124,8 +124,9 @@ The baffle plates are split when a piece would be too slender to print standing.
 baffle print: 1 piece of 165.218 mm, tallest standing 188.218 mm against a 200 mm slenderness cap
 ```
 
-A larger printer can pin `baffle_segments = 1` and print each plate whole, which is stiffer: the
-joints already take 14 % of the tip deflection.
+Where a plate is split, as on `jar_10L` given lid plates (`baffle_name = "lid"`, two pieces of
+136.997 mm), the pieces join with a dovetail. A larger printer can pin `baffle_segments = 1` and
+print each plate whole, which is stiffer: there the joints take 14 % of the tip deflection.
 
 **The slide runs along the plate's width, and that is a load choice.** The swirl pushes on the
 plate's face, so with the slide across the width that load bears on the dovetail's flanks and the

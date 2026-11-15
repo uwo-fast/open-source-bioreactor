@@ -155,7 +155,7 @@ their own repositories.
     **7.0 kPa** at 4.09 L/min (not the 24 this asked for - the filter took most of it), Cole-Parmer
     `5011521` check valve against the 1.0-1.9 kPa of culture head that sits over the ring
   - the valve is the 3° needle rather than the 20° `MNV-4K2` first chosen. Both are Cv 0.094, so
-    both sit at about 35 % of travel; what differs is roughly seven times the rotation for the same
+    both sit at about 37 % of travel; what differs is roughly seven times the rotation for the same
     change in flow, and the pump being seven times oversized puts the whole band in the first part
     of that travel
   - the meter is the BARE `VFA-23`, not the valved `-BV`. Dwyer do not publish the integral valve's
@@ -300,7 +300,7 @@ their own repositories.
     the 3429 SKUs which ship an SM2P-2.54 on 90 mm cables
   - chosen because 320–420 rpm spanned the whole band `agitation.md` set on the 94.5 mm pitched pair
     this build ran before, the only candidate reaching its 410 rpm break-even; on the 70 mm turbine it
-    brackets the 344 rpm optimum and the 554 rpm break-even is out of reach (`baseline.md`). And because the encoder retires the no-speed-feedback gap that
+    brackets the 344 rpm optimum and the 554 rpm break-even (`baseline.md`'s 2.03 m/s at 70 mm) is out of reach. And because the encoder retires the no-speed-feedback gap that
     band containment was working around
   - <https://ca.robotshop.com/products/e-s-motor-36d-dc-planetary-gearmotor-w-encoder-12v-420rpm>
   - **two numbers here are inferred, not published.** The encoder sheet tabulates no gearbox length,

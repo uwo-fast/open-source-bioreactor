@@ -786,9 +786,10 @@ someone worked out, and they carry exactly that much authority.
 **And they carry one digit less than they show.** Those e/T were re-derived from the superseded
 column, which was quoted to three decimals, so each is uncertain by about ±0.0005 — the offset in
 millimetres was never written down for three of the five rows. Run the interval through eq. (6) and
-three rows are unmoved: 31 %, 37 % and 41 % hold across it; `jar_1p5L`'s is 4.5 to 5.0 %, written 5. **`jar_1gal_155` does not — it is
-14 to 15 %**, and which one cannot be said from what was recorded. It is written as 14 because that
-is the midpoint, and it is the figure in this table that a re-derivation should expect to move.
+four rows are unmoved: 31 %, 37 %, 41 % and `jar_1gal_155`'s 14 % hold across it. **`jar_1p5L`
+does not — it is 4.5 to 5.0 %**, and which one cannot be said from what was recorded. It is written
+as 5, the midpoint rounded, and it is the figure in this table that a re-derivation should expect
+to move.
 
 The result is the wrong way round: **the vessels with room for eccentricity are the ones already wide
 enough to carry baffles, and the two that need it have none.** Off-centring is not a rescue for the

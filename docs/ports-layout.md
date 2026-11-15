@@ -301,7 +301,7 @@ probes. See TODO.md, which was already asking whether a cloth goes through 1.046
 
 A three-baffle set with the probes two steps from each baffle was tried: the worst pair becomes
 std against mini, which bought about 20 mm of mouth. The registered set does not do that, because it
-keeps DO opposite air in, so its smallest mouth is the three-baffle set's 142.0 mm.
+keeps DO opposite air in, so its smallest mouth is the full set's 142.0 mm.
 
 **Both sets are registered and the mouth picks between them** — `head_port_set_full` and
 `head_port_set_reduced` in `head.scad`, chosen by `head_port_set_for()`, which asks whether the
