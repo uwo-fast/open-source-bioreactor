@@ -2,12 +2,16 @@
 #
 # `just check` is the same command run locally before a commit, so CI and the bench
 # cannot disagree about what passing means. `just test` is a separate job because it
-# needs a CGAL render of every entry file and takes minutes where check takes seconds -
-# that cost is why those two checks sit outside the gate in the first place.
+# renders every entry file and takes minutes where check takes seconds - that cost is
+# why those two checks sit outside the gate in the first place. On a pull request,
+# test runs only when something it renders or runs has changed; on main it always runs.
 #
-# OPENSCAD IS PINNED TO WHAT apt SHIPS. The model asserts its own tessellation, so the
-# binary does not change the geometry, but it does change render times and error text.
-# If a newer OpenSCAD is ever needed, pin a version here rather than tracking a channel.
+# OPENSCAD IS PINNED to a development snapshot, the version the repo is developed on,
+# rather than apt's 2021.01. The model asserts its own tessellation, so the binary does
+# not change the geometry, but it does change render times and error text, and
+# check-clash and check-baffle-cage need the snapshot's manifold backend. Snapshots
+# stay on files.openscad.org for months, not forever: move the date and its sha256
+# together, in both jobs.
 
 name: Check
 
@@ -25,6 +29,25 @@ permissions:
   contents: read
 
 jobs:
+  changes:
+    name: changes
+    runs-on: ubuntu-latest
+    outputs:
+      cad: ${{ steps.filter.outputs.cad }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: |
+            cad:
+              - 'scad/**'
+              - 'scripts/**'
+              - 'tests/**'
+              - 'justfile'
+              - 'openscad-libraries.txt'
+              - '.github/workflows/check.yml'
+
   check:
     name: check
     runs-on: ubuntu-latest
@@ -36,13 +59,28 @@ jobs:
         with:
           node-version: "22"
 
+      # The AppImage is extracted, so it needs no FUSE; it takes its GL libraries
+      # and fonts from the host.
       - name: Install OpenSCAD
+        env:
+          OPENSCAD_SNAPSHOT: "2026.10.15"
+          OPENSCAD_SHA256: "9d26e390d3a5c94f2e304d94d7b2eff77fb11fcd25829f2814de147ba92ac363"
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends openscad fonts-liberation fontconfig
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends libegl1 libgl1 libopengl0 libglx0 libgbm1 libwayland-client0 libx11-xcb1 fonts-liberation fontconfig
           # The port lettering names this face; a missing one falls back without a warning.
           test "$(fc-match -f '%{family[0]}' 'Liberation Sans')" = "Liberation Sans"
-          openscad --version
+          dir="$RUNNER_TEMP/openscad"
+          file="OpenSCAD-$OPENSCAD_SNAPSHOT-x86_64.AppImage"
+          mkdir -p "$dir/bin"
+          curl -fsSL -o "$dir/$file" "https://files.openscad.org/snapshots/$file"
+          echo "$OPENSCAD_SHA256  $dir/$file" | sha256sum -c -
+          chmod +x "$dir/$file"
+          (cd "$dir" && "./$file" --appimage-extract > /dev/null)
+          printf '#!/bin/sh\nexec "%s/squashfs-root/AppRun" "$@"\n' "$dir" > "$dir/bin/openscad"
+          chmod +x "$dir/bin/openscad"
+          echo "$dir/bin" >> "$GITHUB_PATH"
+          "$dir/bin/openscad" --version
 
       # Installs the pinned scadman and, through it, the OpenSCAD libraries
       # scadman.lock pins.
@@ -54,6 +92,9 @@ jobs:
 
   test:
     name: test
+    needs: changes
+    # !cancelled() so a failed changes job cannot skip test on main.
+    if: ${{ !cancelled() && (github.event_name == 'push' || needs.changes.outputs.cad == 'true') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -62,11 +103,25 @@ jobs:
       - uses: astral-sh/setup-uv@v10.3.3
 
       - name: Install OpenSCAD
+        env:
+          OPENSCAD_SNAPSHOT: "2026.10.15"
+          OPENSCAD_SHA256: "9d26e390d3a5c94f2e304d94d7b2eff77fb11fcd25829f2814de147ba92ac363"
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends openscad fonts-liberation fontconfig
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends libegl1 libgl1 libopengl0 libglx0 libgbm1 libwayland-client0 libx11-xcb1 fonts-liberation fontconfig
           # The port lettering names this face; a missing one falls back without a warning.
           test "$(fc-match -f '%{family[0]}' 'Liberation Sans')" = "Liberation Sans"
+          dir="$RUNNER_TEMP/openscad"
+          file="OpenSCAD-$OPENSCAD_SNAPSHOT-x86_64.AppImage"
+          mkdir -p "$dir/bin"
+          curl -fsSL -o "$dir/$file" "https://files.openscad.org/snapshots/$file"
+          echo "$OPENSCAD_SHA256  $dir/$file" | sha256sum -c -
+          chmod +x "$dir/$file"
+          (cd "$dir" && "./$file" --appimage-extract > /dev/null)
+          printf '#!/bin/sh\nexec "%s/squashfs-root/AppRun" "$@"\n' "$dir" > "$dir/bin/openscad"
+          chmod +x "$dir/bin/openscad"
+          echo "$dir/bin" >> "$GITHUB_PATH"
+          "$dir/bin/openscad" --version
 
       - name: Setup
         run: just setup

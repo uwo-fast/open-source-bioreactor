@@ -13,7 +13,7 @@
 #
 # Rendered in the configuration that makes the part, not the picture: the default flags are what
 # the print manifest exports the sparger with. A file that emits no HOLEPROBE has nothing to say.
-# Not in `just check`: it needs a CGAL render.
+# Not in `just check`: it needs a full render.
 set -uo pipefail
 # "No probe lines" is also what a binary that renders nothing says.
 source "$(dirname "$0")/openscad-canary.sh"
