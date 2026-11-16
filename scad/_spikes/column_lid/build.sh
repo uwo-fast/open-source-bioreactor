@@ -5,18 +5,22 @@
 # export.
 #
 # A failing render still exits 0, so stderr is the signal: an ERROR, or a WARNING, which is where
-# OpenSCAD says a solid is not a 2-manifold; and a file that is not there or is empty.
+# OpenSCAD says a solid is not a 2-manifold; and a file that is not there or is empty. Only CGAL
+# prints that warning, so a build that offers a backend is pinned to it, as check-mesh does.
 set -uo pipefail
 : "${OPENSCAD:=openscad}"
 : "${OUT:=output/column_lid}"
 src=scad/_spikes/column_lid/column_lid.scad
 mkdir -p "$OUT"
+backend=""
+help=$("$OPENSCAD" --help 2>&1)
+case "$help" in *--backend*) backend="--backend=CGAL" ;; esac
 
 # One lid: its name, then the settings that make it.
 build() {
     local name=$1
     shift
-    "$OPENSCAD" "$@" -D 'part="print"' -o "$OUT/$name.stl" "$src" 2>"$OUT/$name.err" >/dev/null
+    "$OPENSCAD" $backend "$@" -D 'part="print"' -o "$OUT/$name.stl" "$src" 2>"$OUT/$name.err" >/dev/null
 }
 build npt -D 'variant="npt"' &
 build centre -D 'variant="centre"' &
