@@ -8,17 +8,20 @@ worth sending back from it.
 The pump is seven times oversized, so the entire band sits in the first part of the needle valve's
 travel - that is why the valve is a 3 deg needle and not the 20 deg one.
 
-**Watch the DO trace on the first run.** On a shaft-drive build with the loop or the ring, `head()`
-reports where the DO probe's face sits against the sparger (`DO probe in the gas:`; of the
-transcripts, `build__jar_10L_220x305` carries it), and warns when the face overlaps the sparger's
-radius. A galvanic probe reads high with a bubble on the membrane and low with nothing moving past,
-so a probe over the bubbles can be wrong in both directions. A characteristically spiky trace means
-the probe is in the plume. Where the bubbles go is a bench question, and the model has two levers.
-The port's lean moves the face across the gas: it leans outward, so leaning less takes the face
-inward, away from a ring outboard of it and toward a loop inboard of it. On `jar_10L` the lean is
-already at its 4.5 deg ceiling, away from the loop. The sparger's height (`sparge_cap_drop` for the
-loop and the arm, `sparge_ring_gap_fraction` for the ring) moves the gas up or down under the face.
-The echo gives the face's offset after either change.
+**Watch the DO trace on the first run.** On a shaft-drive build with the loop or the ring, where the
+upper impeller's flow number is known, `head()` reports where the DO probe's face sits against the
+sparger (`DO probe in the gas:`; of the transcripts, `build__jar_10L_220x305` carries it), and warns
+when the face sits above the sparger and over its radius. A galvanic probe reads high with a bubble
+on the membrane and low with nothing moving past, so a probe over the bubbles can be wrong in both
+directions. A characteristically spiky trace means the probe is in the plume. Where the bubbles go
+is a bench question, and the model has two levers: the port's lean (`do_probe_port_tilt_max`, a
+ceiling) and the sparger's height (`sparge_cap_drop` for the loop, `sparge_ring_gap_fraction` for
+the ring). The lean leans outward, so leaning less moves the face inward. On `jar_10L` the loop is
+inboard and the lean already at its 4.5 deg ceiling, so leaning less only brings the face nearer the
+loop: 28.7 mm off its radius at 4.5 deg, 18.2 at 0. With the ring, on `jar_6p5gal_305x470`, the face
+sits 0.59 mm outboard of the ring's radius at the ceiling, crosses it near 4.25 deg, and clears the
+warning only at 0, 9.89 mm inboard. The height moves the gas up or down under the face. The echo
+gives the face's position after either change.
 
 **Know the replace-the-filter signal.** The sterile filter can rise about **50 %** - from 14.1 kPa
 to roughly 21.1 - before 0.5 vvm becomes unreachable with the valve wide open. So _valve fully open
