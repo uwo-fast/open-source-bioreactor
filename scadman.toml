@@ -41,7 +41,7 @@ rev = "4ae9aeb3b136f9858200f77a304b909a000ce3b4"
 
 [dependencies.din168-thread-scad]
 git = "https://github.com/CameronBrooks11/din168-thread-scad"
-rev = "7ea65c3482da508d2a8ba22a1ba4239454fb8c0f"
+tag = "v0.1.0"
 
 # scad/custom/sampler.scad builds on the probe board's library (hardware/probe/probe.scad)
 # and on the actuator's layout (cad/main.scad). Neither publishes tags, so each is pinned

@@ -21,8 +21,8 @@ hash = "b53dfb90167596d70e0d391d3c67aba37e3372e0d20e3b74914f9f72fae80139"
 [[package]]
 name = "din168-thread-scad"
 source = "https://github.com/CameronBrooks11/din168-thread-scad"
-rev = "7ea65c3482da508d2a8ba22a1ba4239454fb8c0f"
-hash = "0a7b40cfadd078583c8661712c42a738a6fdea774e25f3b14696d628390f13ba"
+rev = "8d8bb8f81b48aeca447e8caa71adb7aa1ce69892"
+hash = "85b2c49bb0425df3aaf3fefdcc8a31da54a53800a1cbfd92a7df1a7ff5ff36c2"
 
 [[package]]
 name = "syringe-actuator"

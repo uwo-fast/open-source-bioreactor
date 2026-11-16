@@ -78,6 +78,6 @@ folder with the name shown, at the pin shown, and put that folder on `OPENSCADPA
 | `bayonet-lock-scad`  | [CameronBrooks11/bayonet-lock-scad](https://github.com/CameronBrooks11/bayonet-lock-scad)   | `v0.12.0`  |
 | `FunctionalOpenSCAD` | [thehans/FunctionalOpenSCAD](https://github.com/thehans/FunctionalOpenSCAD)                 | `51588ff`  |
 | `threads-scad`       | [rcolyer/threads-scad](https://github.com/rcolyer/threads-scad)                             | `4ae9aeb`  |
-| `din168-thread-scad` | [CameronBrooks11/din168-thread-scad](https://github.com/CameronBrooks11/din168-thread-scad) | `7ea65c3`  |
+| `din168-thread-scad` | [CameronBrooks11/din168-thread-scad](https://github.com/CameronBrooks11/din168-thread-scad) | `v0.1.0`   |
 | `turbidity-sensor`   | [uwo-fast/turbidity-sensor](https://github.com/uwo-fast/turbidity-sensor)                   | `4be431f`  |
 | `syringe-actuator`   | [uwo-fast/syringe-actuator](https://github.com/uwo-fast/syringe-actuator)                   | `ea8b221`  |
