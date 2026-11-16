@@ -72,7 +72,7 @@ scale. This vessel matches neither exactly: four at T/12 rather than T/10. The m
 measured figure, and the difference is 38 % on every power and torque figure: at 5.75 the rated
 speed draws 1.46 W, 179 W/m^3, and the pair stays under about 0.087 N-m of the 0.490 rating, so nothing
 about the drive turns on which is right. A bench measurement of the printed part settles it
-([`TODO.md`](../TODO.md)).
+(#133).
 
 **The vessel is fully turbulent throughout the band.** Every speed above clears both the textbook
 Re > 10^4 threshold and Nienow's stricter 2x10^4.
@@ -527,7 +527,7 @@ loop's are the reference build's, `tests/echo/build__jar_10L_220x305.txt`.
   apart at the bottom of a jar.
 - **The gas supply has to beat 1557 Pa before anything bubbles**: 134.5 mm of culture over the
   ring plus 240 Pa of capillary. The line's own losses are an order of magnitude more, and the
-  sterile filter's slope is extrapolated ([`TODO.md`](../TODO.md)).
+  sterile filter's slope is extrapolated (#131).
 
 ### Impeller
 

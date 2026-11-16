@@ -244,7 +244,7 @@ What the uniform lid costs is not packing but CLEANING. On the mixed twelve-port
 problem - the four tight gaps were always there - but it does make it the whole lid's rather than a
 corner of it. And the lid is where the growth goes. In photos of past cultures the buildup is high
 in the culture, in the headspace and on the lid, with almost none low down on the sparger and
-probes. Whether a cloth goes through 1.0466 mm is open in [`TODO.md`](../TODO.md).
+probes. Whether a cloth goes through 1.0466 mm is untested.
 
 | set         | ports | functions                                                                                   | worst pair | min mouth |
 | ----------- | ----- | ------------------------------------------------------------------------------------------- | ---------- | --------- |

@@ -315,8 +315,8 @@ impeller_bore_ratio = undef;
 // one needs 8x (Oldshue p. 228); docs/agitation.md has the case.
 // The registered type of the lower impeller
 head_impeller_lower_type = impeller_rushton_6;
-// A pitched blade here, for the circulation the light needs, is the hybrid TODO.md keeps as
-// future work; pbt_45_4 is the one whose Po a correlation gives.
+// A pitched blade here, for the circulation the light needs, is the hybrid dev/future-work.md
+// keeps; pbt_45_4 is the one whose Po a correlation gives.
 // The registered type of the upper impeller
 head_impeller_upper_type = impeller_rushton_6;
 
@@ -3839,7 +3839,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           echo(str(
             "WARNING DO probe: its face overlaps the sparge ", _sparger_noun, "'s radius and hangs ",
             _over, " mm over it; a galvanic probe reads high with a bubble ",
-            "on the membrane and low with none moving past (TODO.md)"
+            "on the membrane and low with none moving past (docs/commissioning.md)"
           ));
       }
     }
