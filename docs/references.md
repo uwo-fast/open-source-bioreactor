@@ -865,7 +865,8 @@ which sets the ASME gasket factor), port o-ring **8785N383**.
 
 ## Software and libraries
 
-- **OpenSCAD** 2021.01
+- **OpenSCAD** 2026.10.15, the snapshot CI runs (`.github/workflows/check.yml`); 2021.01 is the
+  oldest supported
 - **NopSCADlib** - vitamins: screws, nuts, inserts, ball bearings, shaft couplings, extrusions
 - **bayonet-lock-scad** - the bayonet coupling this project's ports are built on
 - `scad/custom/impeller.scad` is adapted from

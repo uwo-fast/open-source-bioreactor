@@ -78,9 +78,10 @@ clean:
     rm -rf output
 
 # just runs whichever openscad is first on PATH unless OPENSCAD names one, so every gate starts by
-# saying which, and refuses one older than the 2021.01 CI is checked on.
+# saying which, and refuses one older than 2021.01, the oldest supported locally. CI runs the
+# snapshot .github/workflows/check.yml pins.
 #
-# Fail when OpenSCAD is older than this repo is checked on, or cannot render; print its version.
+# Fail when OpenSCAD is older than the oldest supported, or cannot render; print its version.
 check-openscad:
     @scripts/check-openscad.sh
 

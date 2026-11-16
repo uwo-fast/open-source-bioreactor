@@ -18,7 +18,7 @@ openscad_canary() {
         exit 1
     fi
     if [ "$(printf '%s\n%s\n' "$OPENSCAD_MIN" "$ver" | sort -V | head -1)" != "$OPENSCAD_MIN" ]; then
-        echo "FAIL  $OPENSCAD is OpenSCAD $ver, older than the $OPENSCAD_MIN this repo is checked on"
+        echo "FAIL  $OPENSCAD is OpenSCAD $ver, older than $OPENSCAD_MIN, the oldest this repo supports"
         exit 1
     fi
     dir=$(mktemp -d)
