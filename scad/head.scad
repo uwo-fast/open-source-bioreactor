@@ -2474,13 +2474,12 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _dosing_tube_id = peri_pump_tube_inner_diameter(head_dosing_pump);
   _riser_od = steel_tube_od(sparge_riser_tube);
 
-  // The sampler's dip tube is its port's riser, ending where the ring's supports end; its top end
-  // stops inside the sampler's base, under the clear tube, and it is drilled where it draws.
+  // The sampler's dip tube is its port's riser, ending open at the culture's mid-depth, where it
+  // draws; its top end stops inside the sampler's base, under the clear tube.
   _sampler_at = [for (i = [0:_n - 1]) if (head_port_type(_ports[i]) == "sampler") i];
   _sampler_i = len(_sampler_at) == 0 ? undef : _sampler_at[0];
   _sampler = !is_undef(_sampler_i);
-  _sampler_riser_cut = !_sampler ? 0 : sampler_riser_top_z() - (_riser_top_z - _sparge_riser_length);
-  _sampler_drill = !_sampler ? undef : sampler_riser_top_z() - (_liquid_surface_z - sampler_sample_under_surface());
+  _sampler_riser_cut = !_sampler ? 0 : sampler_riser_top_z() - (_liquid_surface_z - _liquid_height / 2);
 
   // Bought as stock and cut, so the purchase list needs the stock length and the cut list.
   _riser_total = _sparge_feed_length + _dose_open_n * _dose_length
@@ -4042,8 +4041,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     );
     echo(str(
       "sampler: on port ", _sampler_i, " at ", _sampler_i * 360 / _n, " deg, its face ", sampler_face_z(),
-      " mm over the lid; its dip tube is the port's riser, cut ", _sampler_riser_cut, " mm and drilled ", _sampler_drill,
-      " mm from its top end, ", sampler_sample_under_surface(), " mm under the culture's surface; the clear tube is cut ",
+      " mm over the lid; its dip tube is the port's riser, cut ", _sampler_riser_cut, " mm to end open at the culture's mid-depth, ",
+      _liquid_height / 2, " mm under its surface; the clear tube is cut ",
       sampler_clear_tube_cut(), " mm"
     ));
   }
@@ -4351,6 +4350,10 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           _sparge_tube(_dose_bottom_z, t[2], 0);
         else if (!t[3] && (render_sparge_tubes || render_all))
           _sparge_tube(_sparge_socket_top, t[2]);
+    // the sampler's dip tube, from its open end at mid-depth up into the sampler's base
+    if (_sampler && (render_sparge_tubes || render_all))
+      rotate([0, 0, _sampler_i * 360 / _n])
+        _sparge_tube(_liquid_surface_z - _liquid_height / 2, _sampler_riser_cut, 0);
   }
 
   if ((render_sparger || render_all) && !_ring && !_loop)

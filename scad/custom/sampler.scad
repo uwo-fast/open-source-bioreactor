@@ -9,10 +9,11 @@
  * the board. The top houses the board, split at the PCB's underside, and grows a shroud that flares
  * into the face the actuator bolts to. The board drops into the top upside down and the base
  * closes it; a clear tube runs through both between the board's heads. The dip tube is the port's
- * own sparge riser, drilled where the sample is drawn, bushed into the tube's bottom.
+ * own sparge riser, cut to end open at the culture's mid-depth, where the sample is drawn, and
+ * bushed into the tube's bottom.
  *
  * Port frame: origin on the port's axis at the lid's outer face, +z out of the vessel, +x radially
- * outward. head.scad places it on a lid port and derives the riser's cut and drilling for its own
+ * outward. head.scad places it on a lid port and derives the riser's cut for its own
  * jar; the reactor's figures below are restated for jar_10L only for this file's own example. The
  * fits are checked by `just check-sampler`.
  */
@@ -39,13 +40,14 @@ panel = 18;
 flange_h = bayonet_flange_height(bayonet_std);
 // head.scad, jar_10L: the riser is 4 x 0.5 steel, bored 0.2 over, sealed by the 4x1.5 rod o-ring;
 // it stands 14.9375 over its port's top and is cut 219.474; the culture's surface is 88.4342 from
-// a riser's top end
+// a riser's top end, and the culture stands 229.503 deep
 riser_od = 4;
 riser_id = 3;
 riser_bore = riser_od / 2 + 0.2;
 riser_proud = 14.9375;
 riser_l = 219.474;
 surface_z = flange_h + riser_proud - 88.4342;
+culture_depth = 229.503;
 // turbidity-sensor hardware/case/README.md: the clear tube is 5/16 in outside, 1/4 in inside, and
 // a bore 0.2 over its outside holds it snugly
 tube_od = 7.9375;
@@ -100,7 +102,6 @@ bushing_l = 16;
 // the clear tube's seat in the base, wider than bore_r: the sleeve swells the tube's end, and a
 // print wanted 8.5 to 8.6 across there
 tube_seat_d = 8.6;
-sample_under_surface = 40;
 clamp_t = 2.2;      // base under each outer screw's head
 seat_t = 2.5;       // top under the inner screw's countersink
 shroud_id = barrel_od + 1;
@@ -159,9 +160,9 @@ outer_screws = [for (s = [-1, 1]) [outer_screw_x, s * (half_w - corner_r)]];
 outline_reach = norm([outer_x - corner_r, half_w - corner_r]) + corner_r;
 top_skirt_h = outline_reach - shroud_r; // 45 degrees where it reaches farthest
 flare_h = max([for (p = face_outline) norm(p)]) - shroud_r;
-sampler_riser_l = riser_l - (flange_h + riser_proud - riser_top_z);
-hole_from_top = riser_top_z - (surface_z - sample_under_surface);
-line_ml = (hole_from_top * PI * pow(riser_id / 2, 2) + (window_z - riser_top_z) * PI * pow(tube_id / 2, 2)) / 1000;
+// the dip tube ends open at the culture's mid-depth, where it draws
+sampler_riser_l = riser_top_z - (surface_z - culture_depth / 2);
+line_ml = (sampler_riser_l * PI * pow(riser_id / 2, 2) + (window_z - riser_top_z) * PI * pow(tube_id / 2, 2)) / 1000;
 
 assert(tube_od < probe_gap(), "the clear tube does not pass between the heads");
 assert(half_w >= neck_r, "the pin's flange reaches past the housing's inner end, which would overhang");
@@ -176,8 +177,8 @@ assert(clear_z0 - (tube_seat_r - riser_bore) > bayonet_bore_gland_centre(oring_4
 assert(plate_z0 - flare_h > roof_z + top_skirt_h, "the face's flare reaches down into the top skirt");
 
 echo(str("sampler: housing ", outer_x + half_w, " x ", 2 * half_w, ", face ", face_z, " over the lid; riser cut ",
-         sampler_riser_l, ", drilled ", hole_from_top, " from its top end; clear tube cut ",
-         tube_top_z - clear_z0, "; ", line_ml, " mL from the hole to the window"));
+         sampler_riser_l, ", its open end at the culture's mid-depth; clear tube cut ",
+         tube_top_z - clear_z0, "; ", line_ml, " mL from the riser's end to the window"));
 
 // The board in the port frame: its optical axis on the port's, its connector end outward (+x).
 module board_place() {
@@ -311,10 +312,9 @@ module sampler_fasteners(inserts=true, lift=0) {
 module lay(z) if (orient == "print") translate([0, 0, z]) rotate([180, 0, 0]) children(); else children();
 
 // What head.scad reads to place it: the panel its pin is cut for, where the riser's top end stands
-// and how far under the surface the sample is drawn, all in the port frame.
+// all in the port frame.
 function sampler_panel() = panel;
 function sampler_riser_top_z() = riser_top_z;
-function sampler_sample_under_surface() = sample_under_surface;
 function sampler_face_z() = face_z;
 function sampler_clear_tube_cut() = tube_top_z - clear_z0;
 // Its two prints in the port frame, as they stand on the lid.
