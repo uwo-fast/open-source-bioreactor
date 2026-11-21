@@ -67,12 +67,14 @@ arrangement symmetric and manufacturable. Each is checked against the table abov
 - **Dosing lines grouped near air in and the mixing sector**, so dosed solution disperses quickly,
   and **away from the pH probe** so a fresh dose does not bias it. Doses 1 and 4, at 300 deg and 330 deg,
   sit 180 deg and 150 deg from pH, so they are the ones for acid and base. Dose 2, at 210 deg, is 90 deg
-  from pH.
+  from pH. Under the wall cage pH moves to 30 deg, and the order turns over: dose 2 is 180 deg from
+  it, dose 1 90 deg and dose 4 60 deg, so there doses 2 and 1 are the ones for acid and base.
 - **Thermocouple adjacent to the DO probe**, so the temperature used for DO compensation comes from
   the same region of liquid. They are at 90 deg and 60 deg - **adjacent**.
 - **The other lines distributed through the space** with clearance from baffles, probes, the
-  other dosing lines, and the shaft. Dose 1 at 300 deg, and dose 4 at 330 deg. The tall things that
-  stand on the lid, the condenser at 0 deg and the sampler at 180 deg, are opposite each other.
+  other dosing lines, and the shaft. The dosing lines are at 210, 300 and 330 deg; doses 1 and 4 are
+  on adjacent ports. The tall things that stand on the lid, the condenser at 0 deg and the sampler at 180 deg, are
+  opposite each other.
 
 ## What the air-in port carries
 
