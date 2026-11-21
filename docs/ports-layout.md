@@ -4,8 +4,8 @@ The lid carries twelve bayonet locks on one circle, 30 deg apart. They are ident
 _is_ comes entirely from `head_ports` in `scad/head.scad` - this document is the derivation behind
 that table, and the table is the statement of record.
 
-[`ports_layout.drawio`](ports_layout.drawio) is the sketch of the same circle, editable in
-draw.io.
+[`ports_layout.drawio`](ports_layout.drawio) is the sketch of the same circle on the plate lid,
+seen from above, editable in draw.io.
 
 ## Why three baffles, and why they set everything else
 
