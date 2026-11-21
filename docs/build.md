@@ -626,7 +626,7 @@ into the headspace; a dosing line on the wrong one puts acid where base should g
 record. Baffle ports are marked with the length of plate they carry.
 
 The sparge ring itself cannot be installed rotated: it carries a socket under every tube port -
-five on the full lid at 0, 180, 210, 240 and 330 deg - and that pattern is irregular enough that only
+five on the full lid at 0, 210, 240, 300 and 330 deg - and that pattern is irregular enough that only
 one rotation puts them all under ports. On the six-port jars it is three.
 
 ### Drilling the support tubes
