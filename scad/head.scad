@@ -4542,9 +4542,15 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     : 0;
   if (_sampler && (render_sampler || render_all)) {
     if (render_all)
-      _exploded(2) head_port_at(_sampler_i, vessel_opening_diameter) rotate([0, 0, _sampler_turn]) sampler_top_placed();
+      _exploded(2) head_port_at(_sampler_i, vessel_opening_diameter) rotate([0, 0, _sampler_turn]) {
+        sampler_top_placed();
+        sampler_bought();
+      }
     else if (sampler_part_to_render == "assembly")
-      _exploded(1) head_port_at(_sampler_i, vessel_opening_diameter) rotate([0, 0, _sampler_turn]) sampler_placed();
+      _exploded(1) head_port_at(_sampler_i, vessel_opening_diameter) rotate([0, 0, _sampler_turn]) {
+        sampler_placed();
+        sampler_bought();
+      }
     else
       sampler_print(sampler_part_to_render);
   }
