@@ -45,19 +45,23 @@ This is the part of the build nothing else will remind you about.
 **From `head.scad`:**
 
 - the **lid**, one piece - flange, plug, bearing pocket, insert holes, gasket recess, o-ring groove,
-  and all twelve bayonet _lock_ halves. The locks are not optional detail: their channels are the
-  walls of the lid's bores, so a lid exported without them is twelve plain holes that nothing locks
-  into
+  and all its bayonet _lock_ halves, twelve or six. The locks are not optional detail: their
+  channels are the walls of the lid's bores, so a lid exported without them is plain holes that
+  nothing locks into
 - the **port pin halves**, one per port - tube ports for `air_in`, `air_out` (only on the ring's
-  builds; elsewhere the coil condenser's body is that pin) and the dosing
-  lines `dose_1` to `dose_3`; probe ports with their integral flex collets for DO and pH; a thermocouple port carrying
-  an NPT mount
+  builds; elsewhere the coil condenser's body is that pin) and the dosing lines, `dose_1`, `dose_2`
+  and `dose_4` on the twelve-port lid and `dose_1` on the six-port one; probe ports with their
+  integral flex collets for DO and pH; a thermocouple port carrying an NPT mount
 - a **blank port** for each bayonet size the lid uses - a pin with no bore, labelled `BLANK`, to
   close a port with nothing in it while cleaning, testing or servicing
 - the **baffle ports and plates** - one plate per baffle port, each split into dovetailed pieces;
   or, on a build that carries the wall cage (both `jar_10L` builds, where `baffle_name = "auto"`
   takes it), the **cage**: a top hoop, a bottom hoop and four blades, and three more blanks for the
   ports the plates would have taken (see [The wall baffle cage](#the-wall-baffle-cage))
+- the **coil condenser** on `air_out`, in five parts: body, panel, former and two pucks, on every
+  build whose sparger is not the ring (see [The exhaust condenser](#the-exhaust-condenser))
+- the **turbidity sampler** on its port, in two parts: its base, which is the port's pin, and its
+  top, on the builds that carry it (see [The turbidity sampler](#the-turbidity-sampler))
 - the **motor mount**, in three parts: base plate, face plate, middle stand
 - **two impellers**
 - the **sparger** - the arm, or the ring or the loop if the build names one (`sparger_name`; see
