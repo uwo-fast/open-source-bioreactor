@@ -444,11 +444,11 @@ head_port_set_full = [
   ["temperature", "thermocouple", 3, mcmaster_1245N31_thermocouple_probe], //  90  beside DO, which compensates from it
   ["ph_probe",    "probe",        0, ph_lab_g2], // 120      away from the dosing lines
   ["baffle",      "baffle",       0           ], // 150
-  ["dose_1",      "tube",         tube_port_riser_bore], // 180
+  ["sampler",     "sampler",      tube_port_riser_bore], // 180   opposite the condenser on air_out at 0
   ["dose_2",      "tube",         tube_port_riser_bore], // 210
   ["air_in",      "tube",         tube_port_riser_bore], // 240   the sparger hangs from this one
   ["baffle",      "baffle",       0           ], // 270
-  ["sampler",     "sampler",      tube_port_riser_bore], // 300   clear of the condenser on air_out at 0
+  ["dose_1",      "tube",         tube_port_riser_bore], // 300
   ["dose_4",      "tube",         tube_port_riser_bore], // 330
 ];
 

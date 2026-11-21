@@ -862,7 +862,8 @@ fresh piece rather than straightening one.
 
 ## The turbidity sampler
 
-On the full lid it takes port 10, at 300 deg: at 330 deg it stood in the coil condenser on `air_out`.
+On the full lid it takes port 6, at 180 deg, opposite the coil condenser on `air_out`: at 330 deg the
+sampler stood in the condenser, and at 300 deg its syringe actuator did.
 `just export-parts` writes its base and top as they print, and the render's `sampler:` line gives
 the riser's cut length and the clear tube's length for your jar. On `jar_10L` that is a 200.7 mm
 riser, ending 114.8 mm under the culture's surface, and a 44.6 mm clear tube. It is a flow cell

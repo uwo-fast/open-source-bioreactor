@@ -39,18 +39,19 @@ replaced (four baffles every third port, and one tube port fewer).
 | 3   | 90 deg  | thermocouple | temperature      |
 | 4   | 120 deg | probe        | pH               |
 | 5   | 150 deg | **baffle**   |                  |
-| 6   | 180 deg | tube dia 4.4 | dose 1           |
+| 6   | 180 deg | sampler      | turbidity        |
 | 7   | 210 deg | tube dia 4.4 | dose 2           |
 | 8   | 240 deg | tube dia 4.4 | air in           |
 | 9   | 270 deg | **baffle**   |                  |
-| 10  | 300 deg | sampler      | turbidity        |
+| 10  | 300 deg | tube dia 4.4 | dose 1           |
 | 11  | 330 deg | tube dia 4.4 | dose 4           |
 
 Every tube port is bored dia 4.4 for the steel riser it carries; what a port is for is engraved on
 its flange. The three dosing ports are numbered, not named: which carries acid, base, media or
 anything else is the user's to choose, and any of them can be given to another function. They
 keep the numbers 1, 2 and 4 they were printed with: the turbidity sampler took dose 3's port,
-because at 330 deg it stood in the coil condenser on `air_out` at 0 deg.
+because at 330 deg it stood in the coil condenser on `air_out` at 0 deg. At 300 deg its syringe
+actuator stood in the condenser too, so it moved opposite it, to 180 deg, and dose 1 took 300 deg.
 
 ## The heuristics, and where this layout lands against them
 
@@ -64,14 +65,14 @@ arrangement symmetric and manufacturable. Each is checked against the table abov
   foam region. Air out at 0 deg, 120 deg from air in. Impeller circulation direction is a secondary
   preference here, not a prediction.
 - **Dosing lines grouped near air in and the mixing sector**, so dosed solution disperses quickly,
-  and **away from the pH probe** so a fresh dose does not bias it. Doses 2 and 4, at 210 deg and 330 deg,
-  sit 90 deg and 150 deg from pH, so they are the ones for acid and base. Dose 1, at 180 deg, is 60 deg from
-  pH.
+  and **away from the pH probe** so a fresh dose does not bias it. Doses 1 and 4, at 300 deg and 330 deg,
+  sit 180 deg and 150 deg from pH, so they are the ones for acid and base. Dose 2, at 210 deg, is 90 deg
+  from pH.
 - **Thermocouple adjacent to the DO probe**, so the temperature used for DO compensation comes from
   the same region of liquid. They are at 90 deg and 60 deg - **adjacent**.
 - **The other lines distributed through the space** with clearance from baffles, probes, the
-  other dosing lines, and the shaft. Dose 1 at 180 deg, and dose 4 at 330 deg. The tall things that
-  stand on the lid, the condenser at 0 deg and the sampler at 300 deg, are two ports apart.
+  other dosing lines, and the shaft. Dose 1 at 300 deg, and dose 4 at 330 deg. The tall things that
+  stand on the lid, the condenser at 0 deg and the sampler at 180 deg, are opposite each other.
 
 ## What the air-in port carries
 
