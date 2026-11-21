@@ -102,7 +102,7 @@ and this tube is sold by the metre. That jar's feed and two supports come to 752
 **Beside a loop or an arm, nothing rests on them.** The dosing ports carry the same tube, cut to dose
 rather than to hold: open at the upper impeller's centre, where the impeller draws the dose straight
 in, with no capped end below the hole to keep an old dose. On `jar_10L` each is 187.9 mm and ends
-99.5 mm under the surface; with the feed and the sampler's tube the cut list is 1046.2 mm, from a
+99.5 mm under the surface; with the feed and the sampler's tube the cut list is 1029.9 mm, from a
 2000 mm length. A magnetic build has no impeller there and takes the same height, as its arm already
 takes its own from the impellers a stirred build turns.
 

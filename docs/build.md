@@ -225,7 +225,7 @@ to overhang the glass to carry its bolts. Trimming the lid does not help: the fr
 | Stock                              | Cut                                      | Yield                                           |
 | ---------------------------------- | ---------------------------------------- | ----------------------------------------------- |
 | M8 threaded rod, DIN 975 A2        | **4 x 322 mm**                           | buy 1500 mm or more                             |
-| 316 SS tube 4 x 0.5 mm, `50415K21` | **1 x 265.3 + 3 x 187.9 + 1 x 217.0 mm** | 1046.2 mm from a 2000 mm length, 953.8 mm spare |
+| 316 SS tube 4 x 0.5 mm, `50415K21` | **1 x 265.3 + 3 x 187.9 + 1 x 200.7 mm** | 1029.9 mm from a 2000 mm length, 970.1 mm spare |
 | EPDM sheet 1/16 in 60A, `8525T65`  | **142.2 x 158.2 mm** per lid             | 1 per 304.8 mm sheet                            |
 
 **The rod length follows the jar, not the design.** 322 mm is `jar_10L`; it is 214 mm on
@@ -864,15 +864,14 @@ fresh piece rather than straightening one.
 
 On the full lid it takes port 10, at 300 deg: at 330 deg it stood in the coil condenser on `air_out`.
 `just export-parts` writes its base and top as they print, and the render's `sampler:` line gives
-the riser's cut length, where to drill it and the clear tube's length for your jar. On `jar_10L`
-that is a 217.0 mm riser drilled 126.0 mm from its top end, 40 mm under the culture's surface, and a
-44.6 mm clear tube. It is a flow cell round the turbidity probe's bare board, with a syringe
-actuator bolted on top drawing culture up a clear tube between the board's heads; the screws, nuts
-and inserts are on the purchase list.
+the riser's cut length and the clear tube's length for your jar. On `jar_10L` that is a 200.7 mm
+riser, ending 114.8 mm under the culture's surface, and a 44.6 mm clear tube. It is a flow cell
+round the turbidity probe's bare board, with a syringe actuator bolted on top drawing culture up a
+clear tube between the board's heads; the screws, nuts and inserts are on the purchase list.
 
 **The riser is the dip tube.** It is the port's own sparge riser, cut so its top end stops inside
-the base and drilled across where the sample is drawn; it still reaches the ring. The clear tube
-runs 16 mm down over its top end, a sleeve of 1/8 by 1/4 in silicone tubing between them.
+the base and its open end stands at the culture's mid-depth, where the sample is drawn. The clear
+tube runs 16 mm down over its top end, a sleeve of 1/8 by 1/4 in silicone tubing between them.
 
 **Fit the luer-to-barb fitting first.** Warm the clear tube's end with a heat gun, push the barb in
 until the tube reaches the fitting's centre flange, and let it cool. The stretched 18 mm stands above
