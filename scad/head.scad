@@ -4350,6 +4350,10 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           _sparge_tube(_dose_bottom_z, t[2], 0);
         else if (!t[3] && (render_sparge_tubes || render_all))
           _sparge_tube(_sparge_socket_top, t[2]);
+    // the sampler's dip tube, from its open end at mid-depth up into the sampler's base
+    if (_sampler && (render_sparge_tubes || render_all))
+      rotate([0, 0, _sampler_i * 360 / _n])
+        _sparge_tube(_liquid_surface_z - _liquid_height / 2, _sampler_riser_cut, 0);
   }
 
   if ((render_sparger || render_all) && !_ring && !_loop)
