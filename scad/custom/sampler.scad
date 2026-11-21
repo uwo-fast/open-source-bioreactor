@@ -20,6 +20,7 @@
 
 use <turbidity-sensor/hardware/probe/probe.scad>
 use <syringe-actuator/cad/main.scad>
+use <sampler_actuator.scad>
 use <bayonet_port.scad>
 include <bayonet_interfaces.scad>
 include <NopSCADlib/core.scad>
@@ -308,6 +309,37 @@ module sampler_fasteners(inserts=true, lift=0) {
   }
 }
 
+// The actuator in the port frame: its x (the syringe's axis, nozzle towards -x) down the port's z,
+// its front face's outside on the sampler's face, and its [y, z] turned by to_port.
+module actuator_place() {
+  multmatrix([[0, 0, -1, axis_z], [0, 1, 0, 0], [1, 0, 0, face_z - front_x(act)], [0, 0, 0, 1]]) children();
+}
+
+// Every bought part in place but the dip tube, which the head cuts and draws with the other tubes:
+// the board, the clear tube with its stretched top end, the silicone sleeve over the riser's top,
+// the luer-to-barb fitting (simplified to its barb and hub), the fasteners, and the actuator in its
+// body, the plunger at crank angle a (180 pushed in).
+module sampler_bought(a = 180) {
+  color("darkgreen") board_place() probe();
+  color("white", 0.5) difference() {
+    union() {
+      translate([0, 0, clear_z0]) cylinder(d=tube_od, h=tube_top_z - barb_l - clear_z0);
+      translate([0, 0, tube_top_z - barb_l]) cylinder(d=barb_od, h=barb_l);
+    }
+    translate([0, 0, clear_z0 - 1]) cylinder(d=tube_id, h=tube_top_z - clear_z0 + 2);
+  }
+  color("gainsboro") difference() {
+    translate([0, 0, clear_z0]) cylinder(d=tube_id, h=bushing_l);
+    translate([0, 0, clear_z0 - 1]) cylinder(d=riser_od, h=bushing_l + 2);
+  }
+  color("whitesmoke") {
+    translate([0, 0, tube_top_z - barb_l]) cylinder(d=tube_id, h=barb_l);
+    translate([0, 0, tube_top_z]) cylinder(d=barb_od, h=fitting_l);
+  }
+  sampler_fasteners();
+  actuator_place() sampler_actuator(act, a);
+}
+
 // print orientation: turned over about z
 module lay(z) if (orient == "print") translate([0, 0, z]) rotate([180, 0, 0]) children(); else children();
 
@@ -345,8 +377,9 @@ else if (part == "top") lay(face_z) sampler_top();
 else if (part == "assembly") {
   color("orange") sampler_base();
   color("darkorange") sampler_top();
-  %board_place() probe();
-  sampler_fasteners();
-  %translate([0, 0, clear_z0]) cylinder(d=tube_od, h=tube_top_z - clear_z0);
-  %translate([0, 0, riser_top_z - sampler_riser_l]) cylinder(d=riser_od, h=sampler_riser_l);
+  sampler_bought();
+  color("grey") translate([0, 0, riser_top_z - sampler_riser_l]) difference() {
+    cylinder(d=riser_od, h=sampler_riser_l);
+    translate([0, 0, -1]) cylinder(d=riser_id, h=sampler_riser_l + 2);
+  }
 }
