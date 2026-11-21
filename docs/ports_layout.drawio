@@ -70,10 +70,10 @@
                 <mxCell id="27" value="Turbidity sampler" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#b0e3e6;strokeColor=#0e8088;" vertex="1" parent="1">
                     <mxGeometry x="10" y="780" width="120" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="28" value="Twelve-port plate lid, seen from above. On the wall cage (both jar_10L builds) pH moves to 30 deg, and 120, 150 and 270 deg are blanks." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;" vertex="1" parent="1">
+                <mxCell id="28" value="Twelve-port plate lid, seen from above: air out is 0 deg, and the ports and the shaft both run counter-clockwise. On the wall cage (both jar_10L builds) pH moves to 30 deg, and 120, 150 and 270 deg are blanks." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;" vertex="1" parent="1">
                     <mxGeometry x="200" y="60" width="500" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="26" value="" style="html=1;shadow=0;dashed=0;align=center;verticalAlign=middle;shape=mxgraph.arrows2.jumpInArrow;dy=15;dx=38;arrowHead=55;fillColor=#1A1A1A;" vertex="1" parent="1">
+                <mxCell id="26" value="" style="html=1;shadow=0;dashed=0;align=center;verticalAlign=middle;shape=mxgraph.arrows2.jumpInArrow;dy=15;dx=38;arrowHead=55;flipH=1;fillColor=#1A1A1A;" vertex="1" parent="1">
                     <mxGeometry x="350" y="290" width="170" height="150" as="geometry"/>
                 </mxCell>
             </root>

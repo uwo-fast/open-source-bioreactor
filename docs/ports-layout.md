@@ -10,7 +10,8 @@ seen from above, editable in draw.io.
 ## Why three baffles, and why they set everything else
 
 **Under the wall cage the plates' three ports are freed.** A build on the wall cage (both
-`jar_10L` builds, where `baffle_name = "auto"` takes it) carries no lid plates. Its hoops are Cs whose gap is the
+`jar_10L` builds: `jar_10L_220x305` names it, and `baffle_name = "auto"` takes it on
+`jar_10L_magnetic`) carries no lid plates. Its hoops are Cs whose gap is the
 sector between the 0 and 90 deg blades, and every probe has to hang there, so `head_ports_walled()`
 moves the pH probe from 120 deg to the freed 30 deg port and puts blanks at 120, 150 and 270 deg. What
 follows describes the plate lid, which `jar_1gal_180x197` carries; `jar_1gal_155x251` takes the
