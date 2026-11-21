@@ -45,27 +45,35 @@ This is the part of the build nothing else will remind you about.
 **From `head.scad`:**
 
 - the **lid**, one piece - flange, plug, bearing pocket, insert holes, gasket recess, o-ring groove,
-  and all twelve bayonet _lock_ halves. The locks are not optional detail: their channels are the
-  walls of the lid's bores, so a lid exported without them is twelve plain holes that nothing locks
-  into
+  and all its bayonet _lock_ halves, twelve or six. The locks are not optional detail: their
+  channels are the walls of the lid's bores, so a lid exported without them is plain holes that
+  nothing locks into
 - the **port pin halves**, one per port - tube ports for `air_in`, `air_out` (only on the ring's
-  builds; elsewhere the coil condenser's body is that pin) and the dosing
-  lines `dose_1` to `dose_3`; probe ports with their integral flex collets for DO and pH; a thermocouple port carrying
-  an NPT mount
+  builds; elsewhere the coil condenser's body is that pin) and the dosing lines, `dose_1`, `dose_2`
+  and `dose_4` on the twelve-port lid and `dose_1` on the six-port one; probe ports with their
+  integral flex collets for DO and pH; a thermocouple port carrying an NPT mount
 - a **blank port** for each bayonet size the lid uses - a pin with no bore, labelled `BLANK`, to
   close a port with nothing in it while cleaning, testing or servicing
-- the **baffle ports and plates** - one plate per baffle port, each split into dovetailed pieces;
-  or, on a build that carries the wall cage (both `jar_10L` builds, where `baffle_name = "auto"`
-  takes it), the **cage**: a top hoop, a bottom hoop and four blades, and three more blanks for the
-  ports the plates would have taken (see [The wall baffle cage](#the-wall-baffle-cage))
+- the **baffle ports and plates** - one plate per baffle port, split into dovetailed pieces only
+  where one would be too slender to print standing (see below), and none on the six-port lids; or,
+  on a build that carries the wall cage (both `jar_10L` builds: `jar_10L_220x305` names it, and
+  `baffle_name = "auto"` takes it on `jar_10L_magnetic`), the **cage**: a top hoop, a bottom hoop
+  and four blades, and three more blanks for the ports the plates would have taken (see
+  [The wall baffle cage](#the-wall-baffle-cage))
+- the **coil condenser** on `air_out`, in five parts: body, panel, former and two pucks, on every
+  build whose sparger is not the ring (see [The exhaust condenser](#the-exhaust-condenser))
+- the **turbidity sampler**, on the twelve-port lids, in two parts: its base, which is its port's
+  pin, and its top (see [The turbidity sampler](#the-turbidity-sampler))
 - the **motor mount**, in three parts: base plate, face plate, middle stand
 - **two impellers**
 - the **sparger** - the arm, or the ring or the loop if the build names one (`sparger_name`; see
   [The sparger](#the-sparger))
 
-**From `frame.scad`:** the base, the top base, **eight ribs** and **twelve rod spacers**. The ribs
-are one part printed eight times: each is rotated by a multiple of 90 deg and bitten by the same lights
-cutout, so the exported meshes differ only in how the cut surface tessellates.
+**From `frame.scad`:** the base, the top base, **eight ribs**, **twelve rod spacers** and **three
+dosing pump mounts**, and on a build that names a heating pad (both `jar_10L` builds) **two heat
+pad plates**. The ribs are one part printed eight times: each is rotated by a multiple of 90 deg
+and bitten by the same lights cutout, so the exported meshes differ only in how the cut surface
+tessellates.
 
 **The drive decides two of those lists.** `drive_name` in `bioreactor.scad` is `shaft` (above),
 `magnetic`, `none` or `airlift`. Magnetic takes the motor mount and the impellers off the head's list, adds a
