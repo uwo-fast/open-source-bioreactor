@@ -168,8 +168,10 @@ in, outward, away from the shaft. Two reasons it is not zero:
   75 deg. Which is fortunate, because the pH probe is the long one - the only thing on this lid that
   reaches the sparge ring's height, and at any lean at all it goes through the ring
 
-Both angles are **per-build**, on the same footing as `culture_fill_fraction`: 4.5 deg is what
-`jar_10L` allows, and `jar_1gal_180x197` is shorter, so its own ceiling is nearer 2.5 deg.
+Both angles are **per-build**, on the same footing as `culture_fill_fraction`. 4.5 deg is the DO
+port's ceiling (`do_probe_port_tilt_max`), and `head()` leans it as far toward that as each jar's
+internals allow: on every registered build that leans it, `jar_1gal_180x197` included, that is the
+full 4.5 deg, and the two airlifts hang it straight inside the draft tube.
 `check-echo` sweeps the registry with both flat, because vertical clears every jar.
 
 What checks this is `scad/utils/meridian.scad`. The vessel's obstructions are axisymmetric - an
