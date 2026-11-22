@@ -9,7 +9,7 @@ ports.
 This repository is the reference build: the jar reactor itself, the one its paper describes. Parts
 another reactor needs live in tagged libraries it pins, and move there as they gain a second user:
 the bayonet ports in [bayonet-port-scad](https://github.com/CameronBrooks11/bayonet-port-scad), the
-turbidity sampler's housing in [turbidity-sensor](https://github.com/uwo-fast/turbidity-sensor),
+turbidity sampler's case in [turbidity-sensor](https://github.com/uwo-fast/turbidity-sensor),
 and its syringe actuator in [syringe-actuator](https://github.com/uwo-fast/syringe-actuator). The
 acrylic column reactor is [column-bioreactor](https://github.com/uwo-fast/column-bioreactor), built
 on the same port library.

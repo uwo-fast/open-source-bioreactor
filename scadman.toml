@@ -43,15 +43,16 @@ rev = "4ae9aeb3b136f9858200f77a304b909a000ce3b4"
 git = "https://github.com/CameronBrooks11/din168-thread-scad"
 tag = "v0.1.0"
 
-# scad/custom/sampler.scad stands turbidity-sensor's sampler housing (hardware/sampler/) on
-# this lid's bayonet pin. turbidity-sensor pins the syringe-actuator layout the housing reads
+# scad/custom/sampler.scad stands turbidity-sensor's sampler case (hardware/sampler-case/) on
+# this lid's bayonet pin. turbidity-sensor pins the syringe-actuator layout the case reads
 # (v0.1.1, 5ml-gnr2), NopSCADlib and bayonet-port-scad in its own scadman.toml, at the same
 # tags this file pins NopSCADlib and bayonet-port-scad, so the lock resolves one revision of
-# each. turbidity-sensor is pinned to its v0.2.0 tag, which carries syringe-actuator v0.1.1.
+# each. turbidity-sensor is pinned to its v0.3.0 tag, which carries syringe-actuator v0.1.1 and
+# names the enclosure the sampler case.
 #
 # turbidity-sensor must also be at or after its relicensing to GPL-3.0-or-later
 # (uwo-fast/turbidity-sensor#37). Before it the probe library is GPL-3.0-only, and
 # LICENSING.md's GPL-3.0-or-later grant over the sampler does not hold.
 [dependencies.turbidity-sensor]
 git = "https://github.com/uwo-fast/turbidity-sensor"
-tag = "v0.2.0"
+tag = "v0.3.0"
