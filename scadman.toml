@@ -43,19 +43,15 @@ rev = "4ae9aeb3b136f9858200f77a304b909a000ce3b4"
 git = "https://github.com/CameronBrooks11/din168-thread-scad"
 tag = "v0.1.0"
 
-# scad/custom/sampler.scad builds on the probe board's library (hardware/probe/probe.scad)
-# and on the actuator's layout (cad/main.scad). turbidity-sensor publishes no tags, so it is
-# pinned to the commit on its main that carries what the sampler reads: the probe's measured
-# heights and optical axis. syringe-actuator is pinned to its v0.1.0 tag, whose 5ml-gnr2
-# layout carries the actuator's front_face(), front_x() and tip_x().
+# scad/custom/sampler.scad stands turbidity-sensor's sampler housing (hardware/sampler/) on
+# this lid's bayonet pin. turbidity-sensor pins the syringe-actuator layout the housing reads
+# (v0.1.0, 5ml-gnr2) and NopSCADlib in its own scadman.toml, so neither is listed here for
+# it; NopSCADlib is, for the rest of the model, at the same tag. turbidity-sensor is pinned to
+# its v0.1.0 tag, the first release that carries the housing.
 #
 # turbidity-sensor must also be at or after its relicensing to GPL-3.0-or-later
 # (uwo-fast/turbidity-sensor#37). Before it the probe library is GPL-3.0-only, and
 # LICENSING.md's GPL-3.0-or-later grant over the sampler does not hold.
 [dependencies.turbidity-sensor]
 git = "https://github.com/uwo-fast/turbidity-sensor"
-rev = "4be431f4bca66a97372ead7a33406cc4bf8fc3df"
-
-[dependencies.syringe-actuator]
-git = "https://github.com/uwo-fast/syringe-actuator"
 tag = "v0.1.0"

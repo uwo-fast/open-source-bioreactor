@@ -71,7 +71,7 @@ lint:
 # The checks a CGAL render puts out of the fast gate's reach: minutes, not seconds.
 #
 # The slow half of verification: mesh validity, holes, sampler fits, lid clashes and the wall cage.
-test: check-openscad check-mesh check-holes check-sampler check-clash check-baffle-cage
+test: check-openscad check-mesh check-holes check-clash check-baffle-cage
 
 # Remove what the recipes build.
 clean:
@@ -164,10 +164,6 @@ check-designations:
 # Fail when a gas hole the model declares does not actually break through.
 check-holes file="" flags="-D render_all=false -D render_sparger=true":
     @scripts/check-holes.sh "{{file}}" "{{flags}}"
-
-# Fail when the turbidity sampler stops fitting the board, the clear tube, its screws or the actuator.
-check-sampler:
-    @scripts/check-sampler.sh
 
 # It needs the manifold backend, and says SKIP without it.
 #

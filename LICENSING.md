@@ -34,7 +34,7 @@ Add a row to the table above for each new top-level directory.
 [organization policy](https://github.com/uwo-fast/.github/blob/main/LICENSING.md)
 licenses hardware design files `CERN-OHL-S-2.0` where it can. It cannot here: the
 parametric source includes GPL-licensed libraries — NopSCADlib, and through the
-sampler, turbidity-sensor's probe library — and GPL-3.0 is not a Compatible Licence
+sampler, turbidity-sensor's sampler housing and probe library — and GPL-3.0 is not a Compatible Licence
 under CERN-OHL-S-2.0 §1.2, so the whole-work licensing its §3.3(d) requires cannot be
 granted over source entangled with them. The whole design chain is therefore
 `GPL-3.0-or-later`: source, geometry, drawings and bills of materials alike. That
