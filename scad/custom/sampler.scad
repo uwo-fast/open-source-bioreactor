@@ -293,7 +293,8 @@ module sampler_top() {
     translate([0, 0, heads_top_z + _cone]) cylinder(d=shroud_id, h=face_z - heads_top_z - _cone + 1);
     // the actuator's screws: clearance through face_clamp_t, counterbored down and out through the
     // flare's underside, where they go in from; and below each a groove down the housing's side and
-    // out through the parting face, so a key of any length reaches the head straight up
+    // out through the parting face, so a key's long arm reaches the head straight up from the base's
+    // top, the length from the head to the parting face
     for (h = holes) translate([each to_port(h), 0]) {
       translate([0, 0, face_z - face_clamp_t - 1]) cylinder(d=face_clear_d, h=face_clamp_t + 2);
       translate([0, 0, plate_z0 - flare_h]) cylinder(d=face_cbore_d, h=face_z - face_clamp_t - plate_z0 + flare_h);
