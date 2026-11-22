@@ -165,7 +165,7 @@ assert(
 _build_plug_oring = plug_oring_name == "auto" ? undef : oring_by_name(plug_oring_name);
 assert(
   plug_oring_name == "auto" || !is_undef(_build_plug_oring),
-  str("No registered o-ring is named \"", plug_oring_name, "\", or it is registered twice. See scad/purchased/orings.scad.")
+  str("No registered o-ring is named \"", plug_oring_name, "\", or it is registered twice. See bayonet-port-scad's purchased/orings.scad.")
 );
 
 _build_motor = motor_name == "auto" ? undef : dc_motor_by_name(motor_name);
@@ -186,13 +186,13 @@ lid_gasket_factor = head_gasket_factor(_build_gasket_sheet);
 _build_do_probe = do_probe_name == "auto" ? undef : atlas_probe_by_name(do_probe_name);
 assert(
   do_probe_name == "auto" || !is_undef(_build_do_probe),
-  str("No registered Atlas probe is named \"", do_probe_name, "\", or it is registered twice. See scad/purchased/atlas_probes.scad.")
+  str("No registered Atlas probe is named \"", do_probe_name, "\", or it is registered twice. See bayonet-port-scad's purchased/atlas_probes.scad.")
 );
 
 _build_ph_probe = ph_probe_name == "auto" ? undef : atlas_probe_by_name(ph_probe_name);
 assert(
   ph_probe_name == "auto" || !is_undef(_build_ph_probe),
-  str("No registered Atlas probe is named \"", ph_probe_name, "\", or it is registered twice. See scad/purchased/atlas_probes.scad.")
+  str("No registered Atlas probe is named \"", ph_probe_name, "\", or it is registered twice. See bayonet-port-scad's purchased/atlas_probes.scad.")
 );
 
 _build_stir_bar = stir_bar_name == "auto" ? undef : stir_bar_by_name(stir_bar_name);

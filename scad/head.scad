@@ -9,7 +9,7 @@
 use <utils/bolt_pattern.scad>;
 use <utils/facets.scad>;
 use <utils/elastomer.scad>;
-use <utils/oring_gland.scad>;
+use <bayonet-port-scad/utils/oring_gland.scad>;
 use <utils/stirred_tank.scad>;
 use <utils/gas_supply.scad>;
 use <utils/meridian.scad>;
@@ -17,7 +17,7 @@ use <custom/sheet_gasket.scad>;
 use <custom/gasket_cutter.scad>;
 
 use <custom/motor_mount.scad>;
-use <custom/bayonet_port.scad>;
+use <bayonet-port-scad/custom/bayonet_port.scad>;
 use <custom/impeller.scad>;
 use <custom/sparger.scad>;
 use <custom/bearing_blank.scad>;
@@ -29,10 +29,10 @@ use <custom/sampler.scad>;
 include <purchased/dc_motors.scad>;
 include <purchased/gearboxes.scad>;
 include <purchased/vessels.scad>;
-include <purchased/atlas_probes.scad>;
+include <bayonet-port-scad/purchased/atlas_probes.scad>;
 include <purchased/thermocouple_probes.scad>;
 include <purchased/aluminum_tubes.scad>;
-include <purchased/orings.scad>;
+include <bayonet-port-scad/purchased/orings.scad>;
 include <purchased/heat_set_inserts.scad>;
 include <purchased/steel_tubes.scad>;
 include <purchased/shaft_couplings.scad>;
@@ -44,7 +44,7 @@ include <purchased/hose_clamps.scad>;
 include <purchased/gas_filters.scad>;
 include <purchased/check_valves.scad>;
 
-include <custom/bayonet_interfaces.scad>;
+include <bayonet-port-scad/custom/bayonet_interfaces.scad>;
 include <custom/impellers.scad>;
 
 include <NopSCADlib/core.scad>;
@@ -4227,7 +4227,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     str(
       "No registered o-ring suits a ", vessel_opening_diameter, " mm mouth. Its groove wants a ring of ",
       _ring_id / 1.05, " to ", _ring_id, " mm free ID on a ", _plug_cord_nominal,
-      " mm cord; register one in scad/purchased/orings.scad."
+      " mm cord; register one in bayonet-port-scad's purchased/orings.scad."
     )
   );
 

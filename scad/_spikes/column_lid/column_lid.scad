@@ -24,9 +24,9 @@
  * z = -pocket_depth, which is the top face itself on a flat lid.
  */
 
-include <../../custom/bayonet_interfaces.scad>;
-use <../../custom/bayonet_port.scad>;
-include <../../utils/npt_threads.scad>;
+include <bayonet-port-scad/custom/bayonet_interfaces.scad>;
+use <bayonet-port-scad/custom/bayonet_port.scad>;
+include <bayonet-port-scad/utils/npt_threads.scad>;
 use <threads-scad/threads.scad>;
 
 /* [Variant] */

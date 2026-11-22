@@ -22,15 +22,14 @@ name = "open-source-bioreactor"
 git = "https://github.com/nophead/NopSCADlib"
 tag = "v21.41.1"
 
-# custom/bayonet_port.scad asserts it is ">= 0.11.0". v0.12.0 is 0.11.1 (95953cc, which
-# this pinned before) plus two parameter checks - a sweep that leaves the lock no turn
-# stop, and a channel that breaks out of the bottom face - and bayonet_locked_rotation();
-# its geometry is unchanged, so tests/seams.txt still holds. 0.11.1 is the release that
-# stopped the lock's entry transition leaving coincident faces, and the lid closes
-# cleanly from it.
-[dependencies.bayonet-lock-scad]
-git = "https://github.com/CameronBrooks11/bayonet-lock-scad"
-tag = "v0.12.0"
+# The bayonet ports, their interfaces, the o-ring and Atlas probe registries, the o-ring gland
+# and NPT threads, which were scad/custom, scad/purchased and scad/utils files here until they
+# moved into their own library. It pins bayonet-lock-scad and threads-scad in its own
+# scadman.toml; threads-scad is also pinned below, at the same revision, for the thermocouple
+# probes and the column lid, which use it directly.
+[dependencies.bayonet-port-scad]
+git = "https://github.com/CameronBrooks11/bayonet-port-scad"
+tag = "v0.1.0"
 
 [dependencies.FunctionalOpenSCAD]
 git = "https://github.com/thehans/FunctionalOpenSCAD"

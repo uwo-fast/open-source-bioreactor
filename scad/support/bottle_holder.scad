@@ -9,7 +9,7 @@
  * male-female dovetails on opposing faces let holders be stacked into a grid.
  */
 
-use <../utils/dovetail.scad>;
+use <bayonet-port-scad/utils/dovetail.scad>;
 
 $fn = $preview ? 48 : 96;
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview

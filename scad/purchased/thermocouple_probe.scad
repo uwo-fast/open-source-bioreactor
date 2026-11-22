@@ -12,7 +12,7 @@ use <threads-scad/threads.scad>;
 
 $fn = $preview ? 64 : 128;
 
-include <../utils/npt_threads.scad>
+include <bayonet-port-scad/utils/npt_threads.scad>
 
 function thermocouple_probe_name(type) = type[0];
 function thermocouple_probe_part_number(type) = type[1];

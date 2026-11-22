@@ -18,8 +18,8 @@
 use <din168-thread-scad/din168.scad>
 use <../utils/facets.scad>
 use <sheet_gasket.scad>
-use <bayonet_port.scad>
-include <bayonet_interfaces.scad>
+use <bayonet-port-scad/custom/bayonet_port.scad>
+include <bayonet-port-scad/custom/bayonet_interfaces.scad>
 
 // Tessellate by feature size - see utils/facets.scad.
 $fn = 0;
