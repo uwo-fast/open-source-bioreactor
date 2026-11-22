@@ -13,21 +13,21 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SCADMAN_VERSION=v0.1.0-alpha.6
+SCADMAN_VERSION=v0.1.0-alpha.9
 
 # The sha256 of each release archive, from that release's checksums.txt.
 case "$(uname -s)-$(uname -m)" in
 Linux-x86_64)
     target=x86_64-unknown-linux-gnu
-    sha256=17c65a0a7ab7d50eab510aec4f133c11c677f8e58e7f26ba6b462ffa49b18fb0
+    sha256=130704c73406ac9193cbfdc4c99a3a68b82426a7399d0d86df094c48bcfaf03f
     ;;
 Darwin-arm64)
     target=aarch64-apple-darwin
-    sha256=34803c8d7d2c2875a5fdfd4021a35d21b05db4bb77a9f9663f6c15155bdc3af0
+    sha256=9443597d905cfcc4043ad94e213b6bf85fa1ff7f7343e26dbe23eb5f01be47cf
     ;;
 Darwin-x86_64)
     target=x86_64-apple-darwin
-    sha256=dedef33415fe1cbc7505c048c45132a89f8465688ab217e0249c2919a8b7a294
+    sha256=faba979905330e66ecfb74beba0eb9de1b0ace91d45c5f4c1987facddd8554f1
     ;;
 *) target="" ;;
 esac
