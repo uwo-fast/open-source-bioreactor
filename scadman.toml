@@ -9,10 +9,11 @@
 # built on one machine for months and could not build anywhere else, because these
 # libraries were installed globally and nothing in the repository said so.
 #
-# Tags where upstream publishes them, full commit SHAs where it does not. NopSCADlib and
-# bayonet-lock-scad publish tags; the others have no tags and no releases, so a SHA is the
-# only honest pin. Read from the upstream repositories on 2026-09-09, and
-# bayonet-lock-scad again on 2026-11-13.
+# Tags where upstream publishes them, full commit SHAs where it does not. NopSCADlib,
+# bayonet-lock-scad, din168-thread-scad and syringe-actuator publish tags; the others have
+# no tags and no releases, so a SHA is the only honest pin. Read from the upstream
+# repositories on 2026-09-09, bayonet-lock-scad again on 2026-11-13, and syringe-actuator
+# on 2026-11-21.
 
 [project]
 name = "open-source-bioreactor"
@@ -44,9 +45,10 @@ git = "https://github.com/CameronBrooks11/din168-thread-scad"
 tag = "v0.1.0"
 
 # scad/custom/sampler.scad builds on the probe board's library (hardware/probe/probe.scad)
-# and on the actuator's layout (cad/main.scad). Neither publishes tags, so each is pinned
-# to the commit on its main that carries what the sampler reads: the probe's measured
-# heights and optical axis, and the actuator's front_face(), front_x() and tip_x().
+# and on the actuator's layout (cad/main.scad). turbidity-sensor publishes no tags, so it is
+# pinned to the commit on its main that carries what the sampler reads: the probe's measured
+# heights and optical axis. syringe-actuator is pinned to its v0.1.0 tag, whose 5ml-gnr2
+# layout carries the actuator's front_face(), front_x() and tip_x().
 #
 # turbidity-sensor must also be at or after its relicensing to GPL-3.0-or-later
 # (uwo-fast/turbidity-sensor#37). Before it the probe library is GPL-3.0-only, and
@@ -57,4 +59,4 @@ rev = "4be431f4bca66a97372ead7a33406cc4bf8fc3df"
 
 [dependencies.syringe-actuator]
 git = "https://github.com/uwo-fast/syringe-actuator"
-rev = "ea8b22178aba858fd69874eac33b015b322954d6"
+tag = "v0.1.0"

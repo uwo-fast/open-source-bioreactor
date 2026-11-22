@@ -27,8 +27,8 @@ hash = "85b2c49bb0425df3aaf3fefdcc8a31da54a53800a1cbfd92a7df1a7ff5ff36c2"
 [[package]]
 name = "syringe-actuator"
 source = "https://github.com/uwo-fast/syringe-actuator"
-rev = "ea8b22178aba858fd69874eac33b015b322954d6"
-hash = "9daa24d10e6c9e9931e231621252545a185e9fab762d579ae93b5fb9aaad0697"
+rev = "a30b42ae87a93ef3b71d5c0da153c2a2a1fa45de"
+hash = "857dc8c45147bc0f4d7ff7b3eac7a84a14c6db8e7d48fd061f855b8ee48844a1"
 
 [[package]]
 name = "threads-scad"
