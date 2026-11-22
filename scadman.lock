@@ -19,6 +19,16 @@ rev = "d5bd0077183b0c884f616ea544827a25c7c6aec4"
 hash = "b53dfb90167596d70e0d391d3c67aba37e3372e0d20e3b74914f9f72fae80139"
 
 [[package]]
+name = "bayonet-port-scad"
+source = "https://github.com/CameronBrooks11/bayonet-port-scad"
+rev = "f67c8466af73606b6c11f76d46a999f6eecec2dd"
+hash = "66c3766c710e3e9a88ea0afc99ae161589047bd18427a11cf51822ca04501211"
+dependencies = [
+    "bayonet-lock-scad",
+    "threads-scad",
+]
+
+[[package]]
 name = "din168-thread-scad"
 source = "https://github.com/CameronBrooks11/din168-thread-scad"
 rev = "8d8bb8f81b48aeca447e8caa71adb7aa1ce69892"

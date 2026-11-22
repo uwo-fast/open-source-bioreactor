@@ -44,10 +44,10 @@
 
 use <../utils/facets.scad>
 use <../utils/section.scad>
-use <bayonet_port.scad>
+use <bayonet-port-scad/custom/bayonet_port.scad>
 use <condenser_body.scad>
 use <../purchased/aluminum_tubes.scad>
-include <bayonet_interfaces.scad>
+include <bayonet-port-scad/custom/bayonet_interfaces.scad>
 
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 

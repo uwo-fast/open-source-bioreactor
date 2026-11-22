@@ -1,4 +1,4 @@
-use <../utils/trapezium.scad>;
+use <bayonet-port-scad/utils/trapezium.scad>;
 
 z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;

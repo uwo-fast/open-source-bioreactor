@@ -472,7 +472,7 @@ case for section 4's caution that low shear is not reliably gentle.
 **read**
 Table A static-seal bands: 19-33 % axial squeeze, 14-23 % radial; groove width ratios by cord; fill
 never above 85 %, hard limit 90 %. Table B for the groove's outer diameter under internal pressure.
--> `scad/utils/oring_gland.scad`, `scad/head.scad` lid seal block
+-> bayonet-port-scad's `utils/oring_gland.scad`, `scad/head.scad` lid seal block
 
 ---
 
@@ -505,7 +505,7 @@ such rather than dressed up as the standard.
 
 **Baffle width and number calculation** -
 <https://myengineeringtools.com/references/pages/baffle_width_and_number_calculation.html> **[VN]** -
-**read** -> `scad/custom/bayonet_port.scad` `bayonet_baffle_port`
+**read** -> bayonet-port-scad's `custom/bayonet_port.scad` `bayonet_baffle_port`
 
 **Dynamix Agitators. "Baffled by Baffles."** Technical note, uploaded 2015.
 <https://www.dynamixinc.com/wp-content/uploads/dlm_uploads/2015/12/Dynamix-Baffled-by-Baffles.pdf>
@@ -822,14 +822,14 @@ stagnant water takes the reading from 90 % to 20 % **in thirty seconds**, so a s
 read a bit low, it reports the hole it has eaten around itself. Silent on mounting angle.
 -> `scad/head.scad` `do_probe_flow_requirement`, and `stirred_tank_circulation_velocity()` for what
 the vessel offers against it
--> `scad/purchased/atlas_probes.scad` `do_lab_g2`
+-> bayonet-port-scad's `purchased/atlas_probes.scad` `do_lab_g2`
 
 **Atlas Scientific, lab-grade pH probe datasheet** -
 <https://files.atlas-scientific.com/pH_probe.pdf> **[VN]** - **read**
 Silent on mounting angle. Its only bubble note is about air inside the probe's own stem after
 shipping, cleared by shaking it down "as done with a clinical thermometer" - _not_ about bubbles on
 the sensing face.
--> `scad/purchased/atlas_probes.scad` `ph_lab_g2`
+-> bayonet-port-scad's `purchased/atlas_probes.scad` `ph_lab_g2`
 
 **Sensorex, _Operating Dissolved Oxygen Probes in Bioreactors and Cell Culture_** -
 <https://sensorex.com/operating-dissolved-oxygen-probes-bioreactors-cell-culture/> **[VN]** -
@@ -852,7 +852,7 @@ the sources only decide its direction.
 Vendor pages and datasheets are cited inline on the registry row that uses them, since the row is
 the thing being justified:
 
-- `scad/purchased/atlas_probes.scad` - Atlas Scientific product pages and datasheets, one per row
+- bayonet-port-scad's `purchased/atlas_probes.scad` - Atlas Scientific product pages and datasheets, one per row
 - `scad/purchased/vessels.scad` - the jar listings each vessel row was measured from
 - `scad/purchased/strip_lights.scad` - LED strip listings
 - [Procurement](procurement.md) and [`purchased-parts.csv`](../purchased-parts.csv) - McMaster part numbers with their specifications

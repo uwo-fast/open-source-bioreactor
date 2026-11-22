@@ -69,12 +69,6 @@ done
 exported=(scad/head.scad scad/frame.scad)
 not_exported=(
     scad/bioreactor.scad                        # the whole reactor as a picture, not a part
-    scad/custom/bayonet_port.scad               # a COMPONENT, and now all four port kinds: head
-                                                # renders each into a manifest row of its own, so
-                                                # they reach a print list through head rather than
-                                                # on their own. The standalone render previews all
-                                                # four side by side,
-    scad/custom/cylindrical_flex_collet.scad    # not a second copy of it
     scad/custom/gasket_cutter.scad
     scad/custom/impeller.scad
     scad/custom/motor_mount.scad

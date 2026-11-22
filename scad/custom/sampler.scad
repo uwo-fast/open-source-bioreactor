@@ -21,8 +21,8 @@
 use <turbidity-sensor/hardware/probe/probe.scad>
 use <syringe-actuator/cad/main.scad>
 use <sampler_actuator.scad>
-use <bayonet_port.scad>
-include <bayonet_interfaces.scad>
+use <bayonet-port-scad/custom/bayonet_port.scad>
+include <bayonet-port-scad/custom/bayonet_interfaces.scad>
 include <NopSCADlib/core.scad>
 include <NopSCADlib/vitamins/screws.scad>
 include <NopSCADlib/vitamins/nuts.scad>

@@ -37,10 +37,19 @@ DESIGNATIONS = {
 }
 
 
+# Registries that live in the bayonet-port-scad library, on OPENSCADPATH, not in scad/purchased/.
+LIBRARY_REGISTRIES = {"orings", "atlas_probes"}
+
+
 def registry_names():
     """Every registry's row names, read from the registries themselves."""
     pairs = sorted(set(DESIGNATIONS.values()))
-    src = "".join(f"include <{REPO}/scad/purchased/{r}.scad>\n" for r, _ in pairs)
+    src = "".join(
+        f"include <bayonet-port-scad/purchased/{r}.scad>\n"
+        if r in LIBRARY_REGISTRIES
+        else f"include <{REPO}/scad/purchased/{r}.scad>\n"
+        for r, _ in pairs
+    )
     for reg, fn in pairs:
         src += f'for (x = {reg}) echo(str("N|{reg}|", {fn}(x)));\n'
     out = subprocess.run(

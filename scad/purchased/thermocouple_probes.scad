@@ -2,14 +2,14 @@
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
 // All Type K, 304 sheath, grounded junction, 4 ft fiberglass lead, rated to 900 F. The rows differ
-// by thread, reach and sheath diameter. The row names its NPT thread (utils/npt_threads.scad);
+// by thread, reach and sheath diameter. The row names its NPT thread (bayonet-port-scad's utils/npt_threads.scad);
 // hex and body derive from it.
 //
 // Ungrounded ("insulated") is the option to check: a grounded sheath puts the probe electrically
 // in the culture beside the pH and DO electrodes, the classic ground-loop source. Not decided.
 //
 // Lengths are the nominal inch immersion depths, 76.2 / 152.4 / 228.6 / 304.8 mm.
-include <../utils/npt_threads.scad>;
+include <bayonet-port-scad/utils/npt_threads.scad>;
 
 //                                       ["name"               part_no      thread     [neck_d, neck_h, flats_h, body_h, tip_d,  tip_h,  wire_d, wire_h]]
 generic_thermocouple_probe =             ["generic",           "",          npt_1_2,   [10,     12,     5,       20,     3.5,    115,    2.5,    10    ]];
