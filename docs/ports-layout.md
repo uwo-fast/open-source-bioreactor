@@ -1,6 +1,7 @@
 # Port layout
 
-The lid carries twelve bayonet locks on one circle, 30 deg apart. They are identical, so what a port
+The twelve-port lid carries twelve bayonet locks on one circle, 30 deg apart; on a jar whose mouth
+is under the 142 mm those need, the six-port lid carries six, 60 deg apart. They are identical, so what a port
 _is_ comes entirely from `head_ports` in `scad/head.scad` - this document is the derivation behind
 that table, and the table is the statement of record.
 

@@ -1000,8 +1000,9 @@ head_air_pump = air_pump_resun_35w;
 // what doses the culture; what this model knows of it is the tube it pushes
 head_dosing_pump = peri_pump_kamoer_nkp;
 // which ports it feeds. They are numbered, not named for acid, base or media: what each carries is
-// the user's to choose, and a narrow jar's set has only the first
-dosing_pump_functions = ["dose_1", "dose_2", "dose_3", "dose_4"];
+// the user's to choose. The twelve-port set has 1, 2 and 4, keeping the numbers they were printed
+// with after the sampler took dose 3's port; a narrow-mouthed jar's six-port set has only the first
+dosing_pump_functions = ["dose_1", "dose_2", "dose_4"];
 
 /* [Probe Port Parameters] */
 
