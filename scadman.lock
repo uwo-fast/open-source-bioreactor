@@ -37,8 +37,8 @@ hash = "85b2c49bb0425df3aaf3fefdcc8a31da54a53800a1cbfd92a7df1a7ff5ff36c2"
 [[package]]
 name = "syringe-actuator"
 source = "https://github.com/uwo-fast/syringe-actuator"
-rev = "a30b42ae87a93ef3b71d5c0da153c2a2a1fa45de"
-hash = "857dc8c45147bc0f4d7ff7b3eac7a84a14c6db8e7d48fd061f855b8ee48844a1"
+rev = "2badd762dc28d9fd53815e6578e27931001f6cd3"
+hash = "4bbf58bee07066d64b399d79ceb1ac9ecbe56de7224571fee507e5d67ac61a49"
 
 [[package]]
 name = "threads-scad"
@@ -49,9 +49,10 @@ hash = "6daa2b750256b60fd64d1e35fefb653ddfba72ccefe3d0d2d8558168c1b3a937"
 [[package]]
 name = "turbidity-sensor"
 source = "https://github.com/uwo-fast/turbidity-sensor"
-rev = "cb3a9fe5d55190f49256ccfee5c4bd88559c9ba1"
-hash = "54f3a8806670573d77fbec1c7613c209b91ad82e6a182826245364451590923c"
+rev = "e8340daf7824ea1833246ff1ee7280f5fe9c1a73"
+hash = "e7ce77b1046e1e5384bb617afe473a03654e33d400d7bf7c974377a379abc630"
 dependencies = [
     "NopSCADlib",
+    "bayonet-port-scad",
     "syringe-actuator",
 ]
