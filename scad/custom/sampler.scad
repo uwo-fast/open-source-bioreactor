@@ -1,10 +1,10 @@
 /**
  * @file sampler.scad
- * @brief The turbidity sampler on a lid port: turbidity-sensor's housing on this lid's bayonet pin
+ * @brief The turbidity sampler on a lid port: turbidity-sensor's sampler case on this lid's bayonet pin
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * The housing, its fits and its bought parts are turbidity-sensor's (hardware/sampler/sampler.scad):
+ * The case, its fits and its bought parts are turbidity-sensor's (hardware/sampler-case/sampler_case.scad):
  * a flow cell round the probe's board, drawn through by a syringe actuator bolted on top. Its base
  * stands on a foot it is given; here the foot is the std bayonet pin, cut for this lid's panel with
  * the riser's bore and o-ring, and unioned into the base so the base stays one print. The dip tube
@@ -26,7 +26,7 @@ include <bayonet-port-scad/custom/bayonet_interfaces.scad>
 // head.scad: the lid is lid_flange_height 8 + lid_plug_height 10 thick
 panel = 18;
 
-include <turbidity-sensor/hardware/sampler/sampler.scad>
+include <turbidity-sensor/hardware/sampler-case/sampler_case.scad>
 
 // turbidity-sensor's own preview off; this file's is below
 part = "none";

@@ -169,7 +169,7 @@ A corrected figure is replaced where it sits and recorded here
   mount's do: an M3 nut is 6.4 mm across its corners against the insert's 3.57 mm hole, so nuts
   would widen the corners they sit in, and a loose nut is one more thing to lose with the top
   upside down beside the vessel. One of the three is an M2, from above, because the pin's flange
-  stands under the housing's inner end. The actuator first went on with its screws from inside its
+  stands under the case's inner end. The actuator first went on with its screws from inside its
   front wall into nuts trapped in the face, and getting it onto four screws it had to carry down
   was the hard part of assembling it; now the screws stand up out of counterbores under the face
   and the actuator drops over them, its nuts inside on a flat to its side wall, which holds them
