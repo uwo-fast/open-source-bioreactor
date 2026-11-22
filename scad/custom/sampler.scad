@@ -54,9 +54,10 @@ culture_depth = 229.503;
 tube_od = 7.9375;
 tube_id = 6.35;
 tube_fit = 0.2;
-// syringe-actuator, 5 mL, from its layout, in its frame: x along the syringe's axis, the nozzle
-// towards -x, z up from the plate's underside. Its front face's holes and outline are [y, z].
-act = actuator("5ml");
+// syringe-actuator's 5ml-gnr2 layout, the syringe the sampler runs, in its frame: x along the
+// syringe's axis, the nozzle towards -x, z up from the plate's underside. Its front face's holes and
+// outline are [y, z].
+act = actuator("5ml-gnr2");
 act_body = get(act, "body");
 holes = get(act_body, "mount_front");
 axis_z = get(act, "axis_z");

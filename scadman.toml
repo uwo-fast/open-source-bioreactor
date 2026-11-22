@@ -57,4 +57,4 @@ rev = "4be431f4bca66a97372ead7a33406cc4bf8fc3df"
 
 [dependencies.syringe-actuator]
 git = "https://github.com/uwo-fast/syringe-actuator"
-rev = "ea8b22178aba858fd69874eac33b015b322954d6"
+tag = "v0.1.0"
