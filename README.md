@@ -6,6 +6,14 @@ A parametric OpenSCAD bioreactor built on glass jars from 1.5 L to 6.5 gal. It i
 or magnetic drive, or run as an airlift, and a printed lid carries the drive, sparger, probes and
 ports.
 
+This repository is the reference build: the jar reactor itself, the one its paper describes. Parts
+another reactor needs live in tagged libraries it pins, and move there as they gain a second user:
+the bayonet ports in [bayonet-port-scad](https://github.com/CameronBrooks11/bayonet-port-scad), the
+turbidity sampler's housing in [turbidity-sensor](https://github.com/uwo-fast/turbidity-sensor),
+and its syringe actuator in [syringe-actuator](https://github.com/uwo-fast/syringe-actuator). The
+acrylic column reactor is [column-bioreactor](https://github.com/uwo-fast/column-bioreactor), built
+on the same port library.
+
 ## status
 
 > Under development, not yet ready for use.
@@ -72,12 +80,13 @@ Elsewhere it uses a `scadman` on `PATH`. Without scadman, install each library b
 folder with the name shown, at the pin shown, and put that folder on `OPENSCADPATH`.
 [`scadman.toml`](scadman.toml) says why each one is at its pin.
 
-| Name                 | Repository                                                                                  | Pin        |
-| -------------------- | ------------------------------------------------------------------------------------------- | ---------- |
-| `NopSCADlib`         | [nophead/NopSCADlib](https://github.com/nophead/NopSCADlib)                                 | `v21.41.1` |
-| `bayonet-lock-scad`  | [CameronBrooks11/bayonet-lock-scad](https://github.com/CameronBrooks11/bayonet-lock-scad)   | `v0.12.0`  |
-| `FunctionalOpenSCAD` | [thehans/FunctionalOpenSCAD](https://github.com/thehans/FunctionalOpenSCAD)                 | `51588ff`  |
-| `threads-scad`       | [rcolyer/threads-scad](https://github.com/rcolyer/threads-scad)                             | `4ae9aeb`  |
-| `din168-thread-scad` | [CameronBrooks11/din168-thread-scad](https://github.com/CameronBrooks11/din168-thread-scad) | `v0.1.0`   |
-| `turbidity-sensor`   | [uwo-fast/turbidity-sensor](https://github.com/uwo-fast/turbidity-sensor)                   | `4be431f`  |
-| `syringe-actuator`   | [uwo-fast/syringe-actuator](https://github.com/uwo-fast/syringe-actuator)                   | `ea8b221`  |
+| Name                 | Repository                                                                                  | Pin        | Pinned by                                                 |
+| -------------------- | ------------------------------------------------------------------------------------------- | ---------- | --------------------------------------------------------- |
+| `NopSCADlib`         | [nophead/NopSCADlib](https://github.com/nophead/NopSCADlib)                                 | `v21.41.1` | this repository, and turbidity-sensor at the same tag     |
+| `bayonet-port-scad`  | [CameronBrooks11/bayonet-port-scad](https://github.com/CameronBrooks11/bayonet-port-scad)   | `v0.1.0`   | this repository                                           |
+| `bayonet-lock-scad`  | [CameronBrooks11/bayonet-lock-scad](https://github.com/CameronBrooks11/bayonet-lock-scad)   | `v0.12.0`  | bayonet-port-scad                                         |
+| `FunctionalOpenSCAD` | [thehans/FunctionalOpenSCAD](https://github.com/thehans/FunctionalOpenSCAD)                 | `51588ff`  | this repository                                           |
+| `threads-scad`       | [rcolyer/threads-scad](https://github.com/rcolyer/threads-scad)                             | `4ae9aeb`  | this repository, and bayonet-port-scad at the same commit |
+| `din168-thread-scad` | [CameronBrooks11/din168-thread-scad](https://github.com/CameronBrooks11/din168-thread-scad) | `v0.1.0`   | this repository                                           |
+| `turbidity-sensor`   | [uwo-fast/turbidity-sensor](https://github.com/uwo-fast/turbidity-sensor)                   | `v0.1.0`   | this repository                                           |
+| `syringe-actuator`   | [uwo-fast/syringe-actuator](https://github.com/uwo-fast/syringe-actuator)                   | `v0.1.0`   | turbidity-sensor                                          |
