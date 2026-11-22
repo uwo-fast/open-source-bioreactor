@@ -3795,12 +3795,14 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           );
         }
 
-  if (_shaft_drive && len(_do_probe) > 0 && !is_undef(_impeller_flow_number[1]))
+  if (_shaft_drive && len(_do_probe) > 0)
     let (
       _do = head_port_probe(_do_probe[0]),
       _face = PI / 4 * pow(atlas_probe_tip_dia(_do), 2),
       _needed = do_probe_flow_requirement * 1000 / 60 / _face
     ) {
+      // the feed past the face needs the upper impeller's flow number; the plume check below does not
+      if (!is_undef(_impeller_flow_number[1]))
       for (sp = _drive_speeds)
         let (
           _v = stirred_tank_circulation_velocity(
