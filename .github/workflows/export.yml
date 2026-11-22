@@ -74,8 +74,15 @@ jobs:
           echo "$dir/bin" >> "$GITHUB_PATH"
           "$dir/bin/openscad" --version
 
-      - name: Setup
-        run: just setup
+      # Installs scadman through its own setup action, which is what lists this repository as one
+      # of scadman's users, and syncs the libraries scadman.lock pins into .scadman/env. Locally
+      # `just setup` installs the same version through scripts/install-libraries.sh; the step
+      # after this one fails if the two ever name different versions.
+      - uses: CameronBrooks11/scadman/setup@v0.1.0-alpha.9
+        with:
+          sync: "true"
+      - name: scadman matches scripts/install-libraries.sh
+        run: test "v$(scadman --version | cut -d' ' -f2)" = "$(sed -n 's/^SCADMAN_VERSION=//p' scripts/install-libraries.sh)"
 
       # Fails on a part that does not build, is not a 2-manifold, or fits no registered printer.
       - name: Export
