@@ -433,8 +433,9 @@ transcript is `tests/echo/head__jar_10L_220x305.txt`. What was believed before a
 Three spargers share the riser from the `air_in` port, and a build names one (`sparger_name`): the
 **arm** is the default under the shaft and magnetic drives, and the **ring** under no drive and
 the airlift; the **loop** is chosen, never defaulted. What `head()` reports for each follows; the
-ring's figures are a `jar_10L` build with `sparger_name` set, which no transcript holds, and the
-loop's are the reference build's, `tests/echo/build__jar_10L_220x305.txt`.
+ring's figures are a `jar_10L` build with `sparger_name` set to the ring and `baffle_name` to
+`lid`, since the wall cage refuses the ring, which no transcript holds; the loop's are the reference
+build's, `tests/echo/build__jar_10L_220x305.txt`.
 
 #### The arm
 

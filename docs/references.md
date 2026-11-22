@@ -836,14 +836,15 @@ the sensing face.
 **read**
 "It's possible for air bubbles to collect on the tip of the sensor or to cross over it." Confirms
 the failure mode the DO port's lean is for. Gives no angle for it.
--> `scad/head.scad` `do_probe_port_tilt_degrees`
+-> `scad/head.scad` `do_probe_port_tilt_max`
 
 **No retrievable source gives a mounting ANGLE for a DO probe.** Mettler-Toledo's bioreactor DO
 sensor page and Hamilton's pH installation note both surface in search saying vertical installations
 are the troublesome case, and neither could be fetched to confirm it - HTTP 406 and an empty
-response respectively. So the 4.5 deg the DO port leans is **reasoned, not cited**. It is also moot:
-the jar's mouth caps it at 4.5 deg and `head()` asserts that, so the geometry decides the number and
-the sources only decide its direction.
+response respectively. So the 4.5 deg the DO port leans is **reasoned, not cited**: it is a bench
+limit, past which the probe gets very hard to put through the port's mouth, set as the ceiling
+`do_probe_port_tilt_max`. `head()` leans the probe as far toward it as the jar's internals allow,
+so the geometry can only lower it, and the sources only decide its direction.
 
 ---
 
