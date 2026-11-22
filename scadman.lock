@@ -49,5 +49,9 @@ hash = "6daa2b750256b60fd64d1e35fefb653ddfba72ccefe3d0d2d8558168c1b3a937"
 [[package]]
 name = "turbidity-sensor"
 source = "https://github.com/uwo-fast/turbidity-sensor"
-rev = "4be431f4bca66a97372ead7a33406cc4bf8fc3df"
-hash = "3d01e29c99f1042b4c724dfa08adcb9ccd117222bd507037c7f6764e3718a23f"
+rev = "5e7eafe9099b69de36138e4f6dcb56908b5d1494"
+hash = "54f3a8806670573d77fbec1c7613c209b91ad82e6a182826245364451590923c"
+dependencies = [
+    "NopSCADlib",
+    "syringe-actuator",
+]

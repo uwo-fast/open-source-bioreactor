@@ -173,7 +173,3 @@ linked from #90. When one of these is picked up, it moves to one of those and le
   [Architecture](architecture.md#not-yet-settled) holds the open question, how the pieces share
   head.scad's parameters without reading each other. Deferred past the paper: it moves no
   geometry a builder sees, and every echo transcript would be its safety net.
-- **`head()` passing the sampler its inserts.** The sampler picks its two by name for its own live
-  defaults. Taking them as arguments means rebuilding its housing's outline, skirt and asserts
-  around them, since the outer insert places the corner screws, and `head()` has no other row to
-  pass.
