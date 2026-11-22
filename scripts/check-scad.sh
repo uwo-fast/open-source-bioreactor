@@ -21,7 +21,7 @@ openscad_canary
 
 entry=($ENTRY)
 tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
-# _spikes/ holds self-contained experiments with checks of their own (`just column-lid`)
+# _spikes/ holds self-contained experiments, which carry checks of their own
 files=$(find scad -name '*.scad' -not -path '*/_archive/*' -not -path '*/_shelf/*' -not -path '*/_spikes/*' | sort)
 # Both passes of every file render JOBS at a time (every core, unless set) into files of their
 # own, and are judged in order below.
