@@ -120,6 +120,10 @@ inner_insert_l = insert_hole_length(inner_insert) + 0.5;
 face_clear_d = 2 * screw_clearance_radius(face_screw);
 face_cbore_d = 2 * screw_head_radius(face_screw) + 0.5;
 face_clamp_t = 2.5;  // face over each face screw's head
+// the hex key the face screws are turned with from below, kept clear straight up into each head:
+// a 2.5 mm key's long arm
+face_key_d = 2.5;
+face_key_l = 50;
 
 // ---- derived ----
 pocket = probe_bbox(clr);            // board frame, its clearance included
@@ -176,6 +180,8 @@ assert(tube_seat_r + min_wall <= bayonet_interface_radius(bayonet_std) - bayonet
 assert(clear_z0 - (tube_seat_r - riser_bore) > bayonet_bore_gland_centre(oring_4x1p5_epdm, panel)
        + bayonet_bore_gland_length(oring_4x1p5_epdm) / 2 + min_wall, "the clear tube's seat reaches the riser's o-ring");
 assert(plate_z0 - flare_h > roof_z + top_skirt_h, "the face's flare reaches down into the top skirt");
+assert(min([for (h = holes) abs(to_port(h)[1])]) - (face_key_d / 2 + clr) - pocket[1][0] >= min_wall,
+       "a face screw's key groove leaves less than min_wall to the board's pocket");
 
 echo(str("sampler: housing ", outer_x + half_w, " x ", 2 * half_w, ", face ", face_z, " over the lid; riser cut ",
          sampler_riser_l, ", its open end at the culture's mid-depth; clear tube cut ",
@@ -285,10 +291,13 @@ module sampler_top() {
     translate([0, 0, heads_top_z]) cylinder(r1=bore_r, r2=shroud_id / 2, h=_cone + 0.01);
     translate([0, 0, heads_top_z + _cone]) cylinder(d=shroud_id, h=face_z - heads_top_z - _cone + 1);
     // the actuator's screws: clearance through face_clamp_t, counterbored down and out through the
-    // flare's underside, where they go in from
+    // flare's underside, where they go in from; and below each a groove down the housing's side, so
+    // the key reaches the head straight up from face_key_l below it
     for (h = holes) translate([each to_port(h), 0]) {
       translate([0, 0, face_z - face_clamp_t - 1]) cylinder(d=face_clear_d, h=face_clamp_t + 2);
       translate([0, 0, plate_z0 - flare_h]) cylinder(d=face_cbore_d, h=face_z - face_clamp_t - plate_z0 + flare_h);
+      _head = face_z - face_clamp_t - screw_head_height(face_screw);
+      translate([0, 0, _head - face_key_l - 1]) cylinder(d=face_key_d + 2 * clr, h=face_key_l + 1.01);
     }
   }
 }

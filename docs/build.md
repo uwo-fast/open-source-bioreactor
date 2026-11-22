@@ -895,7 +895,8 @@ the heads, where the tube's bore has widened for it.
    the tube's end seats in the base; the riser comes up through the pin's o-ring into its bottom.
 5. Open the actuator's four front knockouts. Push four M3 x 10 screws up through the face from the
    counterbores under it, lower the actuator over them, and run a nut onto each from inside through
-   its roof's window, a flat against the side wall, which holds it. Tighten from below.
+   its roof's window, a flat against the side wall, which holds it. Tighten from below with a 2.5 mm
+   hex key's long arm, straight up the groove in the housing's side under each screw.
 
 This order is the design's; the first full assembly will confirm it.
 

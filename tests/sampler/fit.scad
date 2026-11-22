@@ -33,10 +33,10 @@ intersection() {
   translate([inner_screw_x, 0, inner_head_z + 0.3]) rotate([0, -10, 0]) cylinder(d=1.6, h=150, $fn=16);
   sampler_top();
 }
-// a 2.5 mm hex key 50 mm up into each face screw's counterbore, inside either part: out of reach
+// the face screws' hex key, face_key_l straight up into each head, inside either part: out of reach
 intersection() {
-  for (h = holes) translate([each to_port(h), face_z - face_clamp_t - screw_head_height(face_screw) - 50])
-    cylinder(d=2.5, h=50, $fn=16);
+  for (h = holes) translate([each to_port(h), face_z - face_clamp_t - screw_head_height(face_screw) - face_key_l])
+    cylinder(d=face_key_d, h=face_key_l, $fn=16);
   parts();
 }
 // any screw or nut inside either part, each head 0.01 off its seat; the inserts are left out, since
