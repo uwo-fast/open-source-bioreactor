@@ -12,6 +12,10 @@
 # check-clash and check-baffle-cage need the snapshot's manifold backend. Snapshots
 # stay on files.openscad.org for months, not forever: move the date and its sha256
 # together, in both jobs.
+#
+# The floor job runs the same two gates on apt's OpenSCAD, 2021.01, the oldest the repo supports
+# (scripts/openscad-canary.sh), so that claim is tested. That build has no manifold backend, so
+# check-clash and check-baffle-cage say SKIP there; the job fails if any other check skips.
 
 name: Check
 
@@ -141,6 +145,43 @@ jobs:
 
       - name: Test
         run: just test
+
+  floor:
+    name: floor (OpenSCAD 2021.01)
+    needs: changes
+    if: ${{ !cancelled() && (github.event_name == 'push' || needs.changes.outputs.cad == 'true') }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: extractions/setup-just@v4
+      - uses: astral-sh/setup-uv@v10.3.3
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+
+      - name: Install OpenSCAD 2021.01
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends openscad fonts-liberation fontconfig
+          test "$(fc-match -f '%{family[0]}' 'Liberation Sans')" = "Liberation Sans"
+          v="$(openscad --version 2>&1)"
+          echo "$v"
+          test "$v" = "OpenSCAD version 2021.01"
+
+      - uses: CameronBrooks11/scadman/setup@v0.1.0-alpha.9
+        with:
+          sync: "true"
+
+      - name: Check
+        run: just check
+
+      # Only the two checks that need the manifold backend may skip here.
+      - name: Test
+        run: |
+          set -o pipefail
+          just test 2>&1 | tee "$RUNNER_TEMP/test.log"
+          grep -o '^SKIP  [a-z-]*' "$RUNNER_TEMP/test.log" | sort > "$RUNNER_TEMP/skipped"
+          printf 'SKIP  check-baffle-cage\nSKIP  check-clash\n' | diff - "$RUNNER_TEMP/skipped"
 
   stats:
     name: stats
