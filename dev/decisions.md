@@ -149,6 +149,20 @@ A corrected figure is replaced where it sits and recorded here
 
 ## Settled - do not re-open without new evidence
 
+- **The gas line and the electronics stay off the CAD, on purpose.** The assembly draws what has
+  geometry to check against the vessel, the head and the frame. These two groups have none:
+  - **The gas line:** the air pump, the sterile inline filter, the rotameter and its adapters, the
+    metering, check and needle valves, the reducers, the tubing and the hose clamps. It is bought
+    parts joined by tubing, whose routing is the bench's. What the design needs from it is figures,
+    not shapes: `head()` echoes the filter's, check valve's and riser's losses against the vessel's
+    back-pressure, and `purchased-parts.csv` carries the parts.
+  - **The electronics:** the power supply, the Raspberry Pi 4B, the Slice_DCMT, Slice_RLHT and
+    Slice_PHDO boards, the EZO pH and DO circuits, and the e-stop. They reach the reactor by cable,
+    nothing drawn mounts them, and where they sit is the bench's.
+
+  The parts the gas line ends in are drawn: the sparge riser, the sparger and the condenser coil.
+  Draw either group if a mount for it on the frame is designed, and record it here then.
+
 - **The loop yields to the baffles, not the baffles to the loop.** A ring under the lower impeller
   sits among the plates, and the ring between the impellers had already shown what the other way
   costs: it took the plates from 17.09 to 10.35 mm. The plates come off the lid and set the baffling
