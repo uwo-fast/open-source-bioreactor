@@ -1,11 +1,11 @@
 # References
 
-Every external source this design rests on, what it is used for, and where in the repo that use
-lives. Kept so a number in the CAD can be traced back to the thing that justifies it, and so
-nobody has to reconstruct the reasoning later.
+This document lists every external source the design relies on, what each one is used for, and
+where in the repository it is used. It lets a number in the CAD be traced back to its
+justification, so that nobody has to reconstruct the reasoning later.
 
-**Verification status is recorded per source.** It says how far each source was actually checked,
-since a claim relayed through a summary can be wrong:
+**Each source has a verification status.** It records how thoroughly the source was checked,
+because a claim relayed through a summary can be wrong:
 
 - **read** - the full text was retrieved and the cited passage confirmed
 - **abstract** - only the abstract was available; the claim is from it
@@ -14,10 +14,11 @@ since a claim relayed through a summary can be wrong:
 Grades: **[PR]** peer-reviewed - **[TH]** thesis - **[PAT]** patent - **[TX]** textbook -
 **[TP]** trade press - **[VN]** vendor.
 
-Every literature source below is also in [`references.bib`](references.bib) - 64 entries, every one
-carrying its grade and verification status in a `note` field, so the whole set imports into a
-reference manager in one go rather than one DOI at a time. Vendor pages, part numbers and software libraries
-are deliberately not in it: they are cited inline on the registry row or file that uses them.
+Every literature source below is also in [`references.bib`](references.bib), which has 64 entries.
+Each entry records its grade and verification status in a `note` field, so the whole set can be
+imported into a reference manager at once rather than one DOI at a time. Vendor pages, part numbers
+and software libraries are deliberately left out of it. They are cited inline on the registry row
+or file that uses them.
 
 ---
 
@@ -27,138 +28,143 @@ are deliberately not in it: they are cited inline on the registry row or file th
 "Influence of Spacing of Multiple Impellers on Power Input in an Industrial-Scale Aerated Stirred
 Tank Reactor." _Chemie Ingenieur Technik_ 91(11):1794-1801. [doi:10.1002/cite.201900121](https://doi.org/10.1002/cite.201900121) **[PR]** -
 **read**
-D/T 0.3-0.5 and ~0.3 for radial impellers; impeller spacing 1.0-2.0 d; the up-to-35 % power
-penalty for spacing too close. Their own rig ran d/D = 0.33, a radial ratio, so the spacing rule is
-carried from the literature they review rather than measured on an axial impeller.
-**And the literature it is carried from is Davis.** Fitschen's ref for both the 1.0-2.0 d band and
-his eq. (5) impeller-count inequality is his **[37] = Davis (2010)** - the thesis graded unreliable
-below, whose own two refs contain neither claim. So this entry does not re-source the spacing band
-away from that thesis, which is what it was being used for; it relays it. His [33] Uhl & Gray (1966)
-and [35] Hudcova, Machon & Nienow (1989) carry the 35 % power penalty, not the band.
-**Fitschen eq. (5) is still what `stirred_tank_impeller_count_bounds()` implements**, because it is
-the only stated form of the rule anyone here has found and the arithmetic follows from the band
-regardless - but it is reported, never asserted, and there is no primary behind it.
+Gives D/T 0.3-0.5 (about 0.3 for radial impellers), impeller spacing of 1.0-2.0 d, and a power
+penalty of up to 35 % when impellers are spaced too closely. Their own rig used d/D = 0.33, a
+radial-impeller ratio, so the spacing rule comes from the literature they review and was not
+measured on an axial impeller.
+**That literature is Davis.** Fitschen's reference for both the 1.0-2.0 d band and the
+impeller-count inequality in his eq. (5) is his **[37] = Davis (2010)**. That is the thesis graded
+unreliable below, and neither claim appears in its own two references. This entry was used to give
+the spacing band a source other than that thesis, but it only relays the thesis. His [33] Uhl &
+Gray (1966) and [35] Hudcova, Machon & Nienow (1989) support the 35 % power penalty, not the band.
+**`stirred_tank_impeller_count_bounds()` still implements Fitschen eq. (5).** It is the only stated
+form of the rule found so far, and the arithmetic follows from the band either way. The model
+reports the result and never asserts it, because there is no primary source behind it.
 -> `scad/utils/stirred_tank.scad`, `scad/head.scad` impeller guideline block
 
 **McCabe, W.L., Smith, J.C. & Harriott, P. (1993).** _Unit Operations of Chemical Engineering_, 5th
 ed. McGraw-Hill. ISBN 0-07-044844-2 **[TX]** - **read**
 The standard turbine (ch. 9, pp. 242-243, Fig. 9.7 after Rushton, Costich & Everett, _Chem. Eng.
-Prog._ 46:395, 467, 1950): D/T 1/3, H/T 1, baffles T/12 and four of them, the impeller T/3 off the
-floor, blades D/5 high and D/4 long, 6 or 8 of them. With several impellers the bottom one sits
-about one impeller diameter off the bottom (p. 241), and two turbines at least one impeller diameter
-apart draw about 1.9 times one (p. 253). The reference to this book came from the microalgae
-researcher advising the project. It gives no disc diameter, and its own power number for the disc
-turbine, 5.75 at T/10 baffles (Table 9.3), is not the one the model uses
+Prog._ 46:395, 467, 1950): D/T 1/3, H/T 1, four baffles of width T/12, the impeller T/3 off the
+floor, and 6 or 8 blades, each D/5 high and D/4 long. With several impellers, the bottom one sits
+about one impeller diameter off the bottom (p. 241). Two turbines at least one impeller diameter
+apart draw about 1.9 times the power of one (p. 253). The microalgae researcher advising the
+project recommended this book. It gives no disc diameter. Its power number for the disc turbine,
+5.75 with T/10 baffles (Table 9.3), is not the one the model uses
 ([Agitation](agitation.md#2-this-reactor-in-the-units-that-matter)).
 -> `scad/custom/impellers.scad` (the Rushton's blades and tank layout), [Baseline](baseline.md)
 
 **Rutherford, K., Lee, K.C., Mahmoudi, S.M.S. & Yianneskis, M. (1996).** "Hydrodynamic
 characteristics of dual Rushton impeller stirred vessels." _AIChE Journal_ 42(2):332-346.
 [doi:10.1002/aic.690420204](https://doi.org/10.1002/aic.690420204) **[PR]** - **abstract**
-Three dual-Rushton layouts at H = T: parallel flow (lower 0.25T off the floor, the pair 0.5T apart),
-merging flow (equal thirds), diverging flow (lower 0.15T). The reference build runs the merging
-flow's equal thirds, which is also McCabe's T/3 off the floor and one impeller diameter apart. Read
-through Li et al. 2007's Fig. 1 and the abstract; the thresholds between the patterns are not
-claimed here.
+Three dual-Rushton layouts at H = T: parallel flow (lower impeller 0.25T off the floor, impellers
+0.5T apart), merging flow (equal thirds) and diverging flow (lower impeller 0.15T off the floor).
+The reference build uses the merging-flow layout of equal thirds. This also matches McCabe: T/3 off
+the floor and one impeller diameter apart. The layouts were read from Fig. 1 of Li et al. 2007 and
+from the abstract. The thresholds between the flow patterns are not claimed here.
 -> `scad/custom/impellers.scad`
 
 **Li, Z., Gao, Z., Smith, J.M. & Thorpe, R.B. (2007).** "Large Eddy Simulation of Flow Fields in
 Vessels Stirred by Dual Rushton Impeller Agitators." _Journal of Chemical Engineering of Japan_
 40(8):684-691. [doi:10.1252/jcej.40.684](https://doi.org/10.1252/jcej.40.684) **[PR]** - **read**
-Fig. 1 relays Rutherford et al.'s three layouts with their clearances.
+Fig. 1 reproduces the three layouts of Rutherford et al. with their clearances.
 -> `scad/custom/impellers.scad`
 
 **Paul, E.L., Atiemo-Obeng, V.A. & Kresta, S.M. (eds.) (2004).** _Handbook of Industrial Mixing:
 Science and Practice_. Wiley-Interscience. **[TX]** - **unread**
-Relayed by a literature search and not checked against the text: baffles T/12 to T/10 (ch. 6 p.
+Found through a literature search and not checked against the text: baffles T/12 to T/10 (ch. 6 p.
 350), D and C each T/4 to T/2 (Fig. 11-1 p. 592), one impeller up to Z/T 1.0 for gas dispersion and
 two to 1.8 (Table 6-6 p. 372).
 -> [Baseline](baseline.md)
 
 **Nienow, A.W. (2006).** "Reactor engineering in large scale animal cell culture." _Cytotechnology_
 50(1-3):9-33. [doi:10.1007/s10616-006-9005-8](https://doi.org/10.1007/s10616-006-9005-8) **[PR]** - **read**
-Design guideline (a): axial hydrofoils at 0.4-0.5 of the vessel diameter, dual, clearance between
-them 0.33-0.5 T, sparger below the lower impeller, baffles required. Also the dimensional objection
-to tip speed, the honest Kolmogorov statement, the four regions of bubble damage, and the estimate
-of peak dissipation from power over impeller swept volume.
+Design guideline (a): two axial hydrofoils at 0.4-0.5 of the vessel diameter, 0.33-0.5 T apart,
+with the sparger below the lower impeller and baffles required. Also the source of the dimensional
+objection to tip speed, a qualified statement of the Kolmogorov criterion, the four regions of
+bubble damage, and the estimate of peak dissipation as power divided by impeller swept volume.
 -> `scad/utils/stirred_tank.scad`, `scad/head.scad`
 
 **Nienow, A.W. (2021).** "The Impact of Fluid Dynamic Stress in Stirred Bioreactors - The Scale of
 the Biological Entity: A Personal View." _Chemie Ingenieur Technik_ 93(1-2):17-30.
 [doi:10.1002/cite.202000176](https://doi.org/10.1002/cite.202000176) **[PR]** - **read**
-Restates the tip-speed objection fourteen years on; turbulence at Re > ~2e4; "high" and "low shear"
-impeller labels described as largely disproven.
+Restates the objection to tip speed fourteen years later. Gives turbulence at Re > ~2e4, and
+describes the "high" and "low shear" impeller labels as largely disproven.
 -> `scad/utils/stirred_tank.scad`
 
 **Rotondi, M. et al. (2021).** _Biotechnology Letters_ 43:1103-1116.
 [doi:10.1007/s10529-021-03076-3](https://doi.org/10.1007/s10529-021-03076-3) **[PR]** - **read**
-As impeller diameter approaches 50 % of vessel diameter, axial flow loses its strong axial motion -
-the upper bound on D/T.
+As impeller diameter approaches 50 % of vessel diameter, an axial-flow impeller loses its strong
+axial motion. This sets the upper bound on D/T.
 -> `scad/utils/stirred_tank.scad`
 
 **Fort, I., Jirout, T., Sperling, R., Jambere, S. & Rieger, F. (2002).** "Study of Pumping Capacity
 of Pitched Blade Impellers." _Acta Polytechnica_ 42(4). [doi:10.14311/380](https://doi.org/10.14311/380) **[PR]** - **read**
-Power number against blade angle and blade count, and the Medek correlations
-`Po` scales as `(sin alpha)^2.077` and `N_Qp` as `(sin alpha)^0.468` (valid alpha 15-60 deg, Re > 1e4, four baffles) - power
-rises with angle about 4.4x faster than pumping does. Blade-count series 3/4/6 -> 0.79/0.99/1.34.
+Gives power number against blade angle and blade count, and the Medek correlations: `Po` scales as
+`(sin alpha)^2.077` and `N_Qp` as `(sin alpha)^0.468` (valid for alpha 15-60 deg, Re > 1e4, four
+baffles). Power therefore rises with blade angle about 4.4x faster than pumping does. Blade-count
+series: 3, 4 and 6 blades give 0.79, 0.99 and 1.34.
 
-**Also gives the blade width.** Both impeller families are
-Czech Standards and both are drawn at **h/D = 0.2** - the simple PBT is CVS 691020 (nB 3 at alpha 24 deg,
-35 deg, 45 deg; nB 6 at alpha 45 deg), the folded-blade impeller CVS 691010 (nB 3, s/D 1.5, alpha 67 deg, beta 25 deg, gamma 48 deg).
-Measured in a T = 400 mm vessel with four wall baffles at H = T, D/T 0.36. Two caveats for
-transferring it: **H/T = 1.0 there against 1.09 here**, which is the one Medek departure this
-vessel cannot remove; and the folded blade is a three-angle fold, not a flat plate at a pitch, so
-its measured Po does not transfer to a plate drawn at 45 deg.
+**It also gives the blade width.** Both impeller families are Czech standards, and both are drawn
+at **h/D = 0.2**. The simple PBT is CVS 691020 (nB 3 at alpha 24 deg, 35 deg, 45 deg; nB 6 at alpha
+45 deg). The folded-blade impeller is CVS 691010 (nB 3, s/D 1.5, alpha 67 deg, beta 25 deg, gamma
+48 deg). The measurements were made in a T = 400 mm vessel with four wall baffles, at H = T and D/T
+0.36. Two caveats apply when transferring the results. First, **H/T is 1.0 there and 1.09 here**.
+This is the one departure from Medek's conditions that this vessel cannot remove. Second, the
+folded blade is folded at three angles rather than being a flat plate at a pitch, so its measured
+Po does not transfer to a plate drawn at 45 deg.
 -> `scad/custom/impellers.scad` `impeller_folded_axial_3/4/6` and `impeller_pbt_45_4` width_ratio,
 `scad/head.scad` `impeller_n_fins`
 
-**Medek, J. & Fort, I.** - the correlations this model actually computes with, reached through
-Fort et al. (2002) above rather than obtained. **[PR]** - **unread**
-`stirred_tank_medek_power_number()` and `..._flow_number()` implement `Po` scaling as `(sin alpha)^2.077` and
-`N_Qp` as `(sin alpha)^0.468` as Fort et al. state them; the primary papers have not been read. Crossref
-gives two candidates in _Coll. Czech. Chem. Commun._ - "Pumping effect of impellers with flat
+**Medek, J. & Fort, I.** - the correlations the model uses. They are taken from Fort et al. (2002)
+above; the original papers were not obtained. **[PR]** - **unread**
+`stirred_tank_medek_power_number()` and `..._flow_number()` implement `Po` scaling as
+`(sin alpha)^2.077` and `N_Qp` as `(sin alpha)^0.468`, as Fort et al. state them. The primary papers
+have not been read. Crossref gives two candidates in _Coll. Czech. Chem. Commun._: "Pumping effect of impellers with flat
 inclined blades," 44:3077-3089 (1979), [doi:10.1135/cccc19793077](https://doi.org/10.1135/cccc19793077),
 and Fort, Medek & Placek, "Hydraulic characteristics of paddle impellers with flat inclined blades,"
-40:3443-3458 (1975), [doi:10.1135/cccc19753443](https://doi.org/10.1135/cccc19753443) - but WHICH
-of them Fort et al. drew from has not been checked, so neither is claimed here.
+40:3443-3458 (1975), [doi:10.1135/cccc19753443](https://doi.org/10.1135/cccc19753443). Which of
+them Fort et al. used has not been checked, so neither is claimed here.
 -> `scad/utils/stirred_tank.scad` `stirred_tank_medek_*`
 
 **Jirout, T. & Rieger, F.** "Impeller design for mixing of suspensions." CTU Prague -
 <https://users.fs.cvut.cz/tomas.jirout/vyuka/p2_hmp/chep_vyuka.pdf> **[TX]** - **read**
-Reproduces the above and adds the folded-blade series, including **Np = 0.99 +/- 0.04** for a 4-blade
-folded axial impeller - the closest measured analogue to this project's blade.
+Reproduces the data above and adds the folded-blade series, including **Np = 0.99 +/- 0.04** for a
+4-blade folded axial impeller. This is the closest measured analogue to the blade used here.
 -> `scad/custom/impellers.scad` `impeller_folded_axial_4`
 
 **Zhou, G., Shi, L. & Yu, P. (2003).** "CFD Study of Mixing Process in Rushton Turbine Stirred
 Tanks." 3rd Int. Conf. on CFD in the Minerals and Process Industries, CSIRO, Melbourne -
 <https://www.cfd.com.au/cfd_conf03/papers/002Guo.pdf> **[PR]** - **read**
-The classic standard tank configuration: H = T, D = T/3, C = T/3, four baffles at T/10. Also gives
-the reference Rushton: six blades with width and height both D/4.
+The standard tank configuration: H = T, D = T/3, C = T/3, four baffles at T/10. Also gives the
+reference Rushton turbine: six blades, each D/4 wide and D/4 high.
 -> `scad/custom/impellers.scad` `impeller_rushton_6`
 
 **Grenville, R., Giacomelli, J., Padron, G. & Brown, D. (2017).** "Impeller Performance in Stirred
 Tanks." _Chemical Engineering_, August 2017, pp. 46-54 -
 <https://framatomebhr.com/Portals/0/PDF/Publications/Impeller-Perfomance-in-Stirred-Tanks.pdf>
 **[TP]** - **read**
-The peak-dissipation correlation `epsilon_max = 1.04*x*Po^(3/4)*N^3*D^2` (+/-15 %) and the peak-to-mean form
-`0.82*(x/Po^(1/4))*(T/D)^3`. **Trade press, not peer-reviewed** - the weakest-graded source carrying
-real weight in this design. The impeller constant x - Rushton 12, pitched blade 16, hydrofoil 17 -
-is a property of the shape, so it is carried per type.
+Gives the peak-dissipation correlation `epsilon_max = 1.04*x*Po^(3/4)*N^3*D^2` (+/-15 %) and its
+peak-to-mean form `0.82*(x/Po^(1/4))*(T/D)^3`. **This is trade press, not peer-reviewed**, and it is
+the lowest-graded source that carries significant weight in this design. The impeller constant x
+(Rushton 12, pitched blade 16, hydrofoil 17) depends on the impeller shape, so it is stored per
+impeller type.
 -> `scad/custom/impellers.scad` x column, `scad/utils/stirred_tank.scad`
 
 **Lonza Biologics, US10883076B2** - <https://patents.google.com/patent/US10883076B2/en> **[PAT]** -
 **read**
-Axial impellers at D/T 0.35-0.55, preferred 0.40-0.48, "most preferred" 0.44-0.46. Self-contradictory
-on its own upper bound; superseded as the D/T citation by Nienow 2006 and Rotondi 2021.
+Axial impellers at D/T 0.35-0.55, preferred 0.40-0.48, "most preferred" 0.44-0.46. The patent
+contradicts itself on its upper bound. Nienow 2006 and Rotondi 2021 replace it as the citation for
+D/T.
 
 **Davis, R.Z. (2010).** "Design and Scale-Up of Production Scale Stirred Tank Fermentors." MS
 thesis, Mechanical and Aerospace Engineering, Utah State University -
 <https://digitalcommons.usu.edu/etd/537> **[TH]** - **read**
-Spacing 1.0-2.0 d with the bottom impeller 1.0 d off the floor, and power falling to about 80 % of
-the properly-spaced value below 1.0 d; top impeller >= 1.5 d below the liquid surface; baffles
-0.08-0.10 T, four on 90 deg centres.
-**Davis relays these rather than measuring them**, from his refs [15] and [17]. Both primaries have
-been read, and **four of the five relayed claims are not in either of them.**
+Impeller spacing of 1.0-2.0 d, with the bottom impeller 1.0 d off the floor. Below 1.0 d, power
+falls to about 80 % of the value at correct spacing. The top impeller sits >= 1.5 d below the
+liquid surface. Four baffles of 0.08-0.10 T, on 90 deg centres.
+**Davis cites these from his references [15] and [17]; he does not measure them.** Both primary
+sources have been read, and **four of the five claims appear in neither of them.**
 
 | Davis's claim                               | In Oldshue [15]?            | In Xing [17]? |
 | ------------------------------------------- | --------------------------- | ------------- |
@@ -168,70 +174,75 @@ been read, and **four of the five relayed claims are not in either of them.**
 | top impeller >= 1.5 d below the surface     | no                          | no            |
 | baffles 0.08-0.10 T, four on 90 deg centres | **partly** - four at 1/12 T | no            |
 
-- **[15] = Oldshue (1997)**, chapter 5 of the handbook - retrieved and read, see its own entry
-  below. The one thing that matches is p. 192: _"If the impeller can be placed **one to two impeller
-  diameters off bottom**..."_ - an **off-bottom clearance** for fluidfoil impellers, stated as a
-  conditional trade-off. Davis appears to have read that as an impeller-**to-impeller** spacing
-  rule; the numbers 1-2 d are the same, the quantity is not. Nothing in the chapter gives an
-  impeller separation, an 80 % penalty, or a submergence depth.
+- **[15] = Oldshue (1997)**, chapter 5 of the handbook. Retrieved and read; see its own entry
+  below. The only match is on p. 192: _"If the impeller can be placed **one to two impeller
+  diameters off bottom**..."_. That is an **off-bottom clearance** for fluidfoil impellers, stated
+  as a conditional trade-off. Davis appears to have read it as an impeller-**to-impeller** spacing
+  rule. The numbers (1-2 d) are the same, but the quantity is different. Nothing in the chapter
+  gives an impeller separation, an 80 % penalty, or a submergence depth.
 - **[17] = Xing, Z., Kenty, B.M., Li, Z.J. & Lee, S.S. (2009)**, _Biotechnol Bioeng_ 103(4),
-  [doi:10.1002/bit.22287](https://doi.org/10.1002/bit.22287). Retrieved and read. A mixing-time,
-  kLa and CO2-removal scale-up study on 5,000 L CHO bioreactors that **contains no impeller-spacing
-  guideline at all** - "impeller distance" and "off-bottom clearance" appear only as nomenclature
-  symbols for its own vessel. (Davis also cites it Kenty-first; Xing is the first author.)
+  [doi:10.1002/bit.22287](https://doi.org/10.1002/bit.22287). Retrieved and read. It is a scale-up
+  study of mixing time, kLa and CO2 removal in 5,000 L CHO bioreactors, and it **contains no
+  impeller-spacing guideline at all**. "Impeller distance" and "off-bottom clearance" appear only as
+  nomenclature symbols for its own vessel. (Davis also lists Kenty as first author; the first
+  author is Xing.)
 
 **Treat this entry as unreliable for numbers.** Cite Oldshue directly for the off-bottom clearance
 and the baffles.
 
-So the spacing band, the 1.0 d off-bottom clearance, the 80 % penalty and the baffle geometry all
-trace to a handbook nobody here has opened, relayed through a thesis. Treat them as leads, not as
-design targets; the **read** against the thesis says only that Davis says them.
+The spacing band, the 1.0 d off-bottom clearance, the 80 % penalty and the baffle geometry
+therefore all trace back, through a thesis, to a handbook nobody here has opened. Treat them as
+leads, not as design targets. The **read** status on the thesis confirms only that Davis states
+them.
 
 **Oldshue, J.Y. (1997).** "Agitation," chapter 5 of Vogel, H.C. & Todaro, C.L. (eds.),
 _Fermentation and Biochemical Engineering Handbook: Principles, Process Design, and Equipment_,
 2nd ed., Noyes Publications, Westwood NJ, 1997, pp. 181-241. ISBN 0-8155-1407-7. **[TX]** - **read**
-The primary behind the numbers `Davis (2010)` relays. What it actually says:
+The primary source for the numbers that `Davis (2010)` relays. What it says:
 
-- **Baffles, p. 202.** Four baffles, _"each 1/12 the tank diameter in width"_ - a single value,
-  0.0833 T, not the 0.08-0.10 band Davis reports. And explicitly: _"Either 3, 6 or 8 baffles can be
+- **Baffles, p. 202.** Four baffles, _"each 1/12 the tank diameter in width"_. That is a single
+  value, 0.0833 T, not the 0.08-0.10 band Davis reports. It also states: _"Either 3, 6 or 8 baffles can be
   used if preferred. The general principle is to use the same total projected area as exists with
   four baffles, each 1/12 the tank diameter in width."_ The constraint is total projected area, not
-  the count; how the lid-plate builds fall short of it is in [Agitation](agitation.md#baffles).
+  the number of baffles. [Agitation](agitation.md#baffles) explains how the lid-plate builds fall
+  short of it.
 - **Off-bottom clearance, p. 192.** _"If the impeller can be placed one to two impeller diameters
   off bottom, which means that mixing is not provided at low levels during draw off, these
   impellers offer an excellent flow pattern as well as considerable economies in shaft design."_
-  Read the grammar: **"if ... can ... offer"** makes this an allowance for **fluidfoil** impellers with
-  a stated cost, not a rule to meet. `head()` reports a departure from it rather than warning.
-- **Coverage over the impeller, p. 191-192** - the sentence immediately _before_ the band, and the
-  one that decides this reactor's clearance. _"However, there is a tendency for these impellers to
+  The wording (**"if ... can ... offer"**) makes this an option for **fluidfoil** impellers with a
+  stated cost, not a rule to meet. `head()` reports a departure from it rather than warning.
+- **Coverage over the impeller, p. 191-192.** This is the sentence immediately _before_ the band,
+  and it determines this reactor's clearance. _"However, there is a tendency for these impellers to
   short-circuit the fluid to a relatively low distance above the impeller. Very careful
-  consideration of the coverage over the impeller is important."_ He gives **no number**. On the
-  pitched pair at D/T 0.45 the two requirements do not overlap: the band needs C >= 94.5 mm and half
-  a diameter of coverage allows C <= 69.2, because two impellers span 154.5 mm of a 241 mm column.
+  consideration of the coverage over the impeller is important."_ He gives **no number**. For the
+  pitched pair at D/T 0.45, the two requirements do not overlap. The band needs C >= 94.5 mm, while
+  half a diameter of coverage allows C <= 69.2, because the two impellers span 154.5 mm of a 241 mm
+  column.
 - **Axial impellers in a gassed system, p. 228.** _"the upward flow of gas tends to negate the
   downward action of the pumping capacity of the axial flow turbine. A radial flow turbine must
   have **three times** more power than the power in the gas stream for the mixer power level to be
   fully effective. On the other hand, the axial flow impeller must have **eight to ten times** more
   power than in the gas stream for it to establish the axial flow pattern."_ `head()` evaluates
-  the radial rule for the two Rushtons at each drive speed (`gas against the lower impeller:`); what
-  it gives is in [Agitation](agitation.md#impeller). At the rated 320 rpm the alternative 94.5 mm
-  pitched pair (D/T 0.45) holds its axial pattern to 0.70 vvm against the 0.5 vvm design.
+  the radial rule for the two Rushtons at each drive speed and reports it as
+  `gas against the lower impeller:`. The results are in [Agitation](agitation.md#impeller). At the
+  rated 320 rpm, the alternative 94.5 mm pitched pair (D/T 0.45) keeps its axial flow pattern up to
+  0.70 vvm, compared with the design value of 0.5 vvm.
 - **Sparger, p. 214.** _"A sparge ring about 80 % of the impeller diameter is more effective than
   an open pipe beneath the impeller or sparge rings larger than the impeller... the desired entry
   point for the gas is where it can pass initially through the high shear zone around the
-  impeller."_ Two experimental studies find the opposite - Birch & Ahmed 1997 and Rewatkar & Joshi
-  1993, both above - and both recommend rings _larger_ than the impeller, which is what the model
-  follows. What survives is the second half: gas should enter where the impeller immediately works
-  it, which agrees with Nienow 2006.
-- **Gas dispersion.** The lower impeller does most of the gas-dispersing work, and a common
-  three-impeller power split is 40 % lower / 30 % each upper.
+  impeller."_ Two experimental studies, Birch & Ahmed 1997 and Rewatkar & Joshi 1993 (both above),
+  find the opposite. Both recommend rings _larger_ than the impeller, and the model follows them.
+  The second half of the quote still holds: gas should enter where the impeller acts on it
+  immediately. This agrees with Nienow 2006.
+- **Gas dispersion.** The lower impeller does most of the gas dispersion. A common power split for
+  three impellers is 40 % to the lower one and 30 % to each upper one.
 - **kLa by gassing out, p. 226.** _"an unsteady state reaeration test in which the tank is stripped
   of oxygen; air is started with the mixer running and the dissolved oxygen level increase is
-  monitored until the tank is saturated"_ - the method this project needs, since Van't Riet's
-  correlation does not reach its P/V. He warns the endpoint sits between top and bottom saturation
-  values, so the driving force used to reduce it is not the log-mean one.
+  monitored until the tank is saturated"_. This project needs this method, because Van't Riet's
+  correlation does not extend to its P/V. Oldshue warns that the endpoint lies between the top and
+  bottom saturation values, so the driving force used to reduce the data is not the log-mean one.
 
-**Not in it**, despite being attributed to it: any impeller-to-impeller spacing rule, the 80 %
+**Not in it**, although attributed to it: any impeller-to-impeller spacing rule, the 80 %
 power penalty below 1.0 d, and any top-impeller submergence depth.
 -> [Agitation](agitation.md#baffles), [sparger](agitation.md#sparger)
 
@@ -239,13 +250,14 @@ power penalty below 1.0 d, and any top-impeller submergence depth.
 for reliable power input measurements in conventional and single-use stirred bioreactors at
 laboratory scale." _Engineering in Life Sciences_ 17(5):500-511.
 [doi:10.1002/elsc.201600096](https://doi.org/10.1002/elsc.201600096) **[PR]** - **read**
-The power-number definition `Np = P/(rho N^3 d^5)` and measured Rushton Np 4.17 +/- 0.14. Cited in the SCAD
-as "Kaiser 2016", which is the online publication date; the issue is 2017.
+The power-number definition `Np = P/(rho N^3 d^5)` and a measured Rushton Np of 4.17 +/- 0.14. The
+SCAD cites it as "Kaiser 2016", the online publication date. The issue is dated 2017.
 -> `scad/custom/impellers.scad` `impeller_rushton_6`
 
 ### Sparger geometry and location
 
-Together these overturn the 80 %-of-impeller ring Oldshue gives on p. 214 - see that entry.
+Together these contradict the ring at 80 % of the impeller diameter that Oldshue gives on p. 214
+(see that entry).
 
 **Birch, D. & Ahmed, N. (1997).** "The Influence of Sparger Design and Location on Gas Dispersion
 in Stirred Vessels." _Chemical Engineering Research and Design_ (Trans IChemE Part A) 75(A5):487-496.
@@ -253,10 +265,10 @@ in Stirred Vessels." _Chemical Engineering Research and Design_ (Trans IChemE Pa
 From the abstract: _"Significant performance improvements, in terms of improved power draw and
 delayed onset of flooding on aeration, are achieved through the use of **'larger than impeller'
 ring spargers**, positioned within the discharge stream from the impeller. There is little or no
-penalty in terms of the gas holdup generated."_ They tested a ring at **1.4 D**, which is not
-arbitrary - the annulus from R out to 1.41 R encloses the same volume the impeller sweeps, a
-physical rationale Oldshue's 80 % has never had. Gas belongs in the impeller's **discharge** stream,
-so above an up-pumping impeller and below a down-pumping one.
+penalty in terms of the gas holdup generated."_ They tested a ring at **1.4 D**. The value is not
+arbitrary: the annulus from R to 1.41 R encloses the same volume the impeller sweeps. Oldshue's
+80 % has no such physical rationale. Gas should enter the impeller **discharge** stream, which is
+above an up-pumping impeller and below a down-pumping one.
 -> `scad/utils/stirred_tank.scad` `stirred_tank_sparge_ring_band()` lower bound
 
 **Rewatkar, V.B. & Joshi, J.B. (1993).** "Role of Sparger Design on Gas Dispersion in Mechanically
@@ -265,34 +277,35 @@ Agitated Gas-Liquid Contactors." _The Canadian Journal of Chemical Engineering_ 
 _"The use of a large ring is recommended"_, with the critical speed for gas dispersion **lowest at
 a ring twice the impeller diameter**. Also: _"Hole size and number of holes on the ring sparger have **negligible effect when the sparger
 is located near the impeller**. However, these variables become important when the sparger is
-located away from the impeller."_ They used 2, 3 and 6 mm holes. **Scale caveat**: vessels of 0.57,
-1.0 and 1.5 m diameter against this project's 0.21 m, and a pitched-blade **downflow** turbine,
-where this reactor's lower impeller is a radial Rushton.
+located away from the impeller."_ They used 2, 3 and 6 mm holes. **Scale caveat**: they used
+vessels of 0.57, 1.0 and 1.5 m diameter, against 0.21 m here, and a pitched-blade **downflow**
+turbine, whereas this reactor's lower impeller is a radial Rushton.
 -> `scad/utils/stirred_tank.scad` `stirred_tank_sparge_ring_band()` upper bound
 
 **Palfy, T.G., Torok, L., Kalicz, P. & Gribovszki, Z. (2021).** "3D printed receptacle with
 diffuser membrane for manipulating pressurized air and water." _HardwareX_ 9:e00192.
 [doi:10.1016/j.ohx.2021.e00192](https://doi.org/10.1016/j.ohx.2021.e00192) **[PR]** - **read**
-The one printed air-permeable membrane found with a measured point: PETG from a 0.4 mm nozzle, three
-0.2 mm layers on a 15 % honeycomb, walls at 115 % extrusion to seal and the membrane at 95 % by
-editing the G-code. Table 2: **14.7 L/h at 0.2 bar** through a 46.8 x 46.8 mm membrane (2190 mm^2),
-with **50 entry points, all within 838 mm^2** of it, and 1-3 mm bubbles; the active area shrank 20-25 %
-over about forty hours and twenty freezing cycles. One flow, and the paper does not say where the
-0.2 bar was read. So it is a membrane with fifty uncontrolled holes rather than an air stone, and a
-single point scales only by assumption.
+The only printed air-permeable membrane found with a measured operating point. It is PETG printed
+from a 0.4 mm nozzle as three 0.2 mm layers on a 15 % honeycomb. The walls are printed at 115 %
+extrusion to seal, and the membrane at 95 %, set by editing the G-code. Table 2 gives **14.7 L/h at
+0.2 bar** through a 46.8 x 46.8 mm membrane (2190 mm^2), with **50 entry points, all within
+838 mm^2** of it, and 1-3 mm bubbles. The active area shrank by 20-25 % over about forty hours and
+twenty freezing cycles. Only one flow rate was measured, and the paper does not say where the
+0.2 bar was measured. It is therefore a membrane with fifty uncontrolled holes rather than an air
+stone, and scaling from a single point rests on assumption.
 -> `scad/custom/sparge_puck.scad` `palfy_*()`, borrowed, scaled linearly
 
 ### Blade twist - measured in the literature, but out of this blade's range
 
-Twist _is_ characterised, with a consistent direction of effect. What is missing is coverage of
-the twisted paddle's range.
+The effect of twist _is_ characterised, and its direction is consistent. The published data do not
+cover the twisted paddle's range.
 
-Both papers define **blade twist as the hub angle minus the tip angle**. On that definition the
-twisted paddle is a **30 deg twist** - 83 deg at the hub falling to 53 deg at the tip
-([Agitation](agitation.md#the-twisted-paddle)) - which
-is 1.5x the largest twist either paper tested, at hub angles 23 deg steeper than either explored.
-`impeller_twist_ang` and `impeller_height` therefore remain **uncharacterised design parameters**,
-documented by derivation in `scad/head.scad` rather than by citation.
+Both papers define **blade twist as the hub angle minus the tip angle**. By that definition the
+twisted paddle has a **30 deg twist**, from 83 deg at the hub to 53 deg at the tip
+([Agitation](agitation.md#the-twisted-paddle)). That is 1.5x the largest twist either paper tested,
+at a hub angle 23 deg steeper than either explored. `impeller_twist_ang` and `impeller_height`
+therefore remain **uncharacterised design parameters**. They are documented by derivation in
+`scad/head.scad`, not by citation.
 
 - **Patwardhan, A.W. & Joshi, J.B. (1999).** _Ind Eng Chem Res_. [doi:10.1021/ie980772s](https://doi.org/10.1021/ie980772s) **[PR]** -
   **read** - section 3.4.3 tests 10 deg and 20 deg twist on 30 deg, 45 deg and 60 deg blades: _"For a particular blade
@@ -300,23 +313,24 @@ documented by derivation in `scad/head.scad` rather than by citation.
   N_QS are affected to a much smaller extent. As a result of these, the mixing time decreases with
   an increase in the blade twist."_
 - **Kumaresan, T. & Joshi, J.B. (2006).** _Chem Eng J_ 115:173-193. [doi:10.1016/j.cej.2005.10.002](https://doi.org/10.1016/j.cej.2005.10.002) **[PR]** -
-  **read** - section 3.1.3.3, 10 deg twist on a six-blade 30 deg pitched turbine lowers the power number, cuts
-  secondary flow number 3 % and averaged shear rate 1 %. Small in magnitude, same direction as
-  Patwardhan.
+  **read** - section 3.1.3.3: a 10 deg twist on a six-blade 30 deg pitched turbine lowers the power
+  number, and reduces the secondary flow number by 3 % and the average shear rate by 1 %. The
+  effect is small, but in the same direction as in Patwardhan.
 
-**Consequence for the model.** Two independent studies agree that twist _reduces_ the power number,
-so the Po = 0.99 of an **untwisted** 4-blade folded axial impeller is most likely an over-estimate
-for the twisted paddle, and anything derived from it is conservative in the safe direction. Neither
-paper reaches 30 deg twist at 83 deg hub angle, so this is a direction, not a correction factor.
+**Consequence for the model.** Two independent studies agree that twist _reduces_ the power number.
+The Po = 0.99 of an **untwisted** 4-blade folded axial impeller is therefore most likely an
+over-estimate for the twisted paddle, and anything derived from it errs on the safe side. Neither
+paper reaches a 30 deg twist at an 83 deg hub angle, so this gives the direction of the effect, not
+a correction factor.
 
 - **Lightnin / General Signal patents** - <https://patents.google.com/patent/US5158434A/en>,
   <https://patents.google.com/patent/US4468130A/en> **[PAT]** - **read** - the only published twist
   numbers found (30-45 deg twist, 18-30 deg tip chord angle). They describe a cambered foil with a
-  tangential chord; this project's blade is a thick radial fin, so they do not transfer.
-- Helical-ribbon and screw-impeller work is **creeping-flow, Re < 20**, four orders from this
-  reactor's duty, and does not apply: Ameur et al. 2018,
+  tangential chord. The blade here is a thick radial fin, so the numbers do not transfer.
+- Helical-ribbon and screw-impeller studies are in **creeping flow, Re < 20**, four orders of
+  magnitude below this reactor's operating range, and do not apply. Ameur et al. 2018,
   [doi:10.3390/chemengineering2020026](https://doi.org/10.3390/chemengineering2020026) **[PR]** -
-  **read** - its simulations run at Re = 10.
+  **read** - runs its simulations at Re = 10.
 
 ---
 
@@ -326,8 +340,9 @@ paper reaches 30 deg twist at 83 deg hub angle, so this is a direction, not a co
 "Photobioreactors: light regime, mass transfer, and scaleup." _Journal of Biotechnology_
 70(1-3):231-247. [doi:10.1016/S0168-1656(99)00078-4](<https://doi.org/10.1016/S0168-1656(99)00078-4>)
 **[PR]** - **read** (archived reprint `Asterio.pdf`)
-Source of the _"frequency of switch"_ criterion [Agitation](agitation.md) quotes - that a photobioreactor
-is judged by how often a cell crosses between lit and dark zones, not by a blend-time multiple.
+Source of the _"frequency of switch"_ criterion quoted in [Agitation](agitation.md): a
+photobioreactor is judged by how often a cell moves between lit and dark zones, not by a multiple of
+the blend time.
 Confirmed on p. 234: average irradiance _"considers only the total length of the dark and the light
 periods, not the frequency of switch."_
 -> [Agitation](agitation.md#impeller) mixing-criterion paragraph
@@ -335,24 +350,25 @@ periods, not the frequency of switch."_
 **Mazzuca Sobczuk, T., Garcia Camacho, F., Molina Grima, E. & Chisti, Y. (2006).** "Effects of
 agitation on the microalgae _Phaeodactylum tricornutum_ and _Porphyridium cruentum_." _Bioprocess
 and Biosystems Engineering_ 28(4):243-250. [doi:10.1007/s00449-005-0030-3](https://doi.org/10.1007/s00449-005-0030-3) **[PR]** - **read**
-The central mechanism: _"Mechanical agitation was not the direct cause of cell damage. Damage
-occurred because of the rupture of small gas bubbles at the surface of the culture."_ Tip speeds
-
-> 1.56 m/s (_P. tricornutum_) and 2.45-2.89 m/s (_P. cruentum_). Pluronic F-68 protective.
+The key mechanism: _"Mechanical agitation was not the direct cause of cell damage. Damage
+occurred because of the rupture of small gas bubbles at the surface of the culture."_ Tip speeds of
+more than 1.56 m/s (_P. tricornutum_) and 2.45-2.89 m/s (_P. cruentum_). Pluronic F-68 was
+protective.
 
 **Leupold, M., Hindersin, S., Gust, G., Kerner, M. & Hanelt, D. (2013).** "Influence of mixing and
 shear stress on _Chlorella vulgaris_, _Scenedesmus obliquus_, and _Chlamydomonas reinhardtii_."
 _J Appl Phycol_ 25:485-495. [doi:10.1007/s10811-012-9882-5](https://doi.org/10.1007/s10811-012-9882-5) **[PR]** - **read**
-Optimum tip speed **1.26 m/s = 0.45 Pa** (+48 % growth for _C. vulgaris_, +71 % for _S. obliquus_);
-at **2.03 m/s = 0.9 Pa** photosynthetic activity falls back to the unstirred control; at 5.89 m/s it
-is 7-8 % below control. _C. reinhardtii_ does not benefit (-2.3 % PA at the optimum).
+Optimum tip speed **1.26 m/s = 0.45 Pa** (+48 % growth for _C. vulgaris_, +71 % for _S. obliquus_).
+At **2.03 m/s = 0.9 Pa**, photosynthetic activity falls back to that of the unstirred control. At
+5.89 m/s it is 7-8 % below the control. _C. reinhardtii_ does not benefit (-2.3 % PA at the
+optimum).
 
-**Read the apparatus before transferring the tip speed.** This is not a stirred tank with an
-impeller. It is a **Gust (1989) microcosm** - 1.75 L of culture in PMMA, _"mixing was created by the
-tip speed of a **spinning plate with skirt**"_ sitting 5 cm above the bottom, with metered fluid
-recirculated through the centre axis. Their `u_tip = r*omega` is that **plate's** rim speed.
+**Check the apparatus before transferring the tip speed.** It is not a stirred tank with an
+impeller but a **Gust (1989) microcosm**: 1.75 L of culture in PMMA, _"mixing was created by the
+tip speed of a **spinning plate with skirt**"_, 5 cm above the bottom, with metered fluid
+recirculated through the centre axis. Their `u_tip = r*omega` is the rim speed of the **plate**.
 
-Three consequences for how this project uses the numbers:
+This has three consequences for how this project uses the numbers:
 
 - **The shear is generated in a plate-to-wall gap, not an impeller discharge.** The paper puts the
   main force at _"a surface of 644 cm^2 at the wall and spinning plate"_, as a Reynolds stress in the
@@ -361,42 +377,43 @@ Three consequences for how this project uses the numbers:
   paper does not claim it does.
 - **The Pa figures are the _bottom_ stress, which the authors call the secondary force.** Calibrated
   friction velocity _"occurs at 314 cm^2 of the bottom of the microcosm and is the secondary, minor
-  shear force in present study"_. So the 0.45 and 0.9 Pa quoted above are not the dominant stress in
-  their own experiment.
+  shear force in present study"_. The 0.45 and 0.9 Pa quoted above are therefore not the dominant
+  stress in their own experiment.
 - **Direct calibration stops at 250 rpm.** Rates above that _"are calculated by means of an empirical
   model based on hydrodynamics of a boundary layer theory (Schlichting 1968)"_.
 
-None of this makes the measurement wrong, and it remains the only _Chlorella_-specific agitation
-figure this project has. What it means is that **treating 1.26 and 2.03 m/s as impeller tip speeds is
-an assumption this project makes, not a result the paper reports** - and it is the assumption that
-sets the operating band and, through it, D/T. The physically transferable quantity the authors
-themselves emphasise is friction velocity; converting that to an impeller would require estimating
-the shear our own impeller produces, which has not been done.
+None of this makes the measurement wrong, and it is still the only _Chlorella_-specific agitation
+figure this project has. But **treating 1.26 and 2.03 m/s as impeller tip speeds is an assumption
+made here, not a result the paper reports**. That assumption sets the operating band and, through
+it, D/T. The authors emphasise friction velocity as the physically transferable quantity.
+Converting it to an impeller would require estimating the shear this reactor's impeller produces,
+which has not been done.
 -> [Agitation](agitation.md#the-operating-point)
 
 **Hu, W., Berdugo, C. & Chalmers, J.J. (2011).** "The potential of hydrodynamic damage to animal
 cells of industrial relevance." _Cytotechnology_ 63(5):445-460. [doi:10.1007/s10616-011-9368-3](https://doi.org/10.1007/s10616-011-9368-3)
 **[PR]** - **read**
-With no gas-liquid interface, cells are unaffected at 100-450 rpm, 600 rpm in a full vessel, and
-1500 rpm for hybridomas. Bubble rupture 1e7-1e9 W/m^3. A **review**, so those three results are
-restated from Zhang & Thomas 1993 and Kunas & Papoutsakis 1990.
+With no gas-liquid interface, cells are unaffected at 100-450 rpm, at 600 rpm in a full vessel,
+and at 1500 rpm for hybridomas. Bubble rupture: 1e7-1e9 W/m^3. This is a **review**, so the three
+results are restated from Zhang & Thomas 1993 and Kunas & Papoutsakis 1990.
 
 **Ma, N., Koelling, K.W. & Chalmers, J.J. (2002).** _Biotechnol Bioeng_ 80(4):428-437.
 [doi:10.1002/bit.10387](https://doi.org/10.1002/bit.10387) **[PR]** - **read**
-Bubble-rupture dissipation orders of magnitude above impeller dissipation: rupture reaches
-1.66e4-4e5 kW/m3 against no detected damage below 1e4 kW/m3, and the peak falls two orders as
-bubble diameter grows 1.7 to 6.32 mm.
+Bubble-rupture dissipation is orders of magnitude above impeller dissipation. Rupture reaches
+1.66e4-4e5 kW/m3, while no damage was detected below 1e4 kW/m3. The peak falls by two orders of
+magnitude as bubble diameter increases from 1.7 to 6.32 mm.
 
 **Barbosa, M.J., Albrecht, M. & Wijffels, R.H. (2003).** _Biotechnol Bioeng_ 83(1):112-120.
 [doi:10.1002/bit.10657](https://doi.org/10.1002/bit.10657) **[PR]** - **read**
-Damage originates at the **sparger**, during bubble formation, rather than at bursting:
+Damage originates at the **sparger** during bubble formation, rather than when bubbles burst:
 _"Superficial gas velocity alone cannot be used to estimate cell damage in sparged microalgal
 cultures, which means that bubble bursting is not the only factor, and might not even be the most
-important factor, leading to cell death."_ Gas entrance velocity is named as the parameter to
-watch, damage is strain-dependent, and the cell wall is confirmed protective.
-**No critical velocity is established.** Barbosa's own runs were 0.4-5.4 m/s; the larger figures
-quoted in it (13.3 m/s lab, 47.8 m/s pilot) are two comparison reactors from Camacho et al. 2001,
-and the paper closes "more work remains to be done to clarify the influence of this parameter".
+important factor, leading to cell death."_ The paper names gas entrance velocity as the parameter
+to watch, finds damage to be strain-dependent, and confirms that the cell wall is protective.
+**It establishes no critical velocity.** Barbosa's own runs were at 0.4-5.4 m/s. The larger figures
+quoted in the paper (13.3 m/s lab, 47.8 m/s pilot) are from two comparison reactors in Camacho et
+al. 2001, and the paper ends with "more work remains to be done to clarify the influence of this
+parameter".
 
 **Michels, M.H.A. et al. (2010).** _Bioprocess Biosyst Eng_ 33:921-927,
 [doi:10.1007/s00449-010-0415-9](https://doi.org/10.1007/s00449-010-0415-9); and **Michels, M.H.A.;
@@ -404,26 +421,27 @@ van der Goot, A.J.; Vermue, M.H.; Wijffels, R.H. (2016).** "Cultivation of shear
 and tolerant microalgal species in a tubular photobioreactor equipped with a centrifugal pump."
 _Journal of Applied Phycology_ 28(1):53-62.
 [doi:10.1007/s10811-015-0559-8](https://doi.org/10.1007/s10811-015-0559-8) **[PR]** - **read**
-Shear thresholds in Pa for four marine species; damage is instantaneous rather than cumulative; the
-rigid-cell-wall rule; measured shear in real photobioreactors (circulation tube 0.57 Pa, pump
-pressure side 1.82 Pa, centrifugal impeller tip 26 Pa). The 2016 paper prints _J Appl Phycol (2016)
-28:53-62_ on the page and 20 March 2015 as the online date. Context only - it tests four marine
-aquaculture species and **not Chlorella**. Useful for scale: severe damage to _I. galbana_,
-_S. costatum_ and _C. muelleri_ between 1.2 and 5.4 Pa, while _T. suecica_ tolerates 80 Pa. Shear
-tolerance spans more than an order of magnitude between species, which is why a number borrowed
-from one alga says little about another.
+Covers shear thresholds in Pa for four marine species, the finding that damage is instantaneous
+rather than cumulative, the rigid-cell-wall rule, and measured shear in working photobioreactors
+(circulation tube 0.57 Pa, pump pressure side 1.82 Pa, centrifugal impeller tip 26 Pa). The 2016
+paper prints _J Appl Phycol (2016) 28:53-62_ on the page and gives 20 March 2015 as the online
+date. Used for context only: it tests four marine aquaculture species and **not Chlorella**. It is
+useful for scale. _I. galbana_, _S. costatum_ and _C. muelleri_ are severely damaged between 1.2
+and 5.4 Pa, while _T. suecica_ tolerates 80 Pa. Shear tolerance varies by more than an order of
+magnitude between species, so a number taken from one alga says little about another.
 
 **Wang, C. & Lan, C.Q. (2018).** _Biotechnology Advances_ 36(4):986-1002.
 [doi:10.1016/j.biotechadv.2018.03.001](https://doi.org/10.1016/j.biotechadv.2018.03.001) **[PR]** - **read**
 Taxonomic shear-tolerance ranking: greens > cyanobacteria > haptophytes > reds > diatoms >
-dinoflagellates. _Chlorella_ is a rigid-walled green alga, the most tolerant class.
+dinoflagellates. _Chlorella_ is a rigid-walled green alga, in the most tolerant class.
 
 **Varley, J. & Birch, J. (1999).** _Cytotechnology_ 29(3):177-205. [doi:10.1023/A:1008008021481](https://doi.org/10.1023/A:1008008021481)
 **[PR]** - **read**
-The provenance of the widely-quoted 1.5 m/s tip-speed limit - attributed to Kioukia et al. 1992 for
-human melanoma cells in 5 % serum, then generalised, in a paper that also reports 6 m/s causing no
-measurable harm to a hybridoma line. Also the correct rule that large slow agitators beat small fast
-ones at equal power input. **Cited here as a caution, not as a design input.**
+Traces the widely quoted 1.5 m/s tip-speed limit. It is attributed to Kioukia et al. 1992, for
+human melanoma cells in 5 % serum, and was then generalised, in a paper that also reports 6 m/s
+causing no measurable harm to a hybridoma line. Also states the rule, which is correct, that large
+slow agitators perform better than small fast ones at equal power input. **Cited here as a
+caution, not as a design input.**
 
 **Brindley Alias, C. et al. (2004).** _Biotechnol Bioeng_ 87(6):723-733. [doi:10.1002/bit.20179](https://doi.org/10.1002/bit.20179)
 **[PR]** - **read** - damage above 30-80 s^-1 in a **pump-driven tubular** photobioreactor.
@@ -431,19 +449,20 @@ ones at equal power input. **Cited here as a caution, not as a design input.**
 **Contreras, A., Garcia, F., Molina, E. & Merchuk, J.C. (1998).** _Biotechnol Bioeng_ 60(3):317-325
 [doi:10.1002/(SICI)1097-0290(19981105)60:3<317::AID-BIT7>3.0.CO;2-K](https://doi.org/10.1002/%28SICI%291097-0290%2819981105%2960:3%3C317::AID-BIT7%3E3.0.CO;2-K)
 **[PR]** - **read** - growth optimum at ~7000 s^-1 in a **concentric tube airlift**.
-_These two are often presented as contradictory. They are not - different equipment, different
-shear mechanism._
+_These two are often presented as contradictory. They are not: they use different equipment, with
+different shear mechanisms._
 
 **Godoy-Silva, R. et al. (2009).** _Biotechnol Bioeng_ 103(6):1103-1117. [doi:10.1002/bit.22339](https://doi.org/10.1002/bit.22339)
-**[PR]** - **read** - CHO resistant to the highest EDR tested, 6.4e6 W/m^3, with most product
-quality attributes unaffected; the glycosylation shift begins at 6.0e4 W/m^3, two orders lower.
+**[PR]** - **read** - CHO cells are resistant to the highest EDR tested, 6.4e6 W/m^3, with most
+product quality attributes unaffected. The glycosylation shift begins at 6.0e4 W/m^3, two orders of
+magnitude lower.
 
 **Walls, P.L.L. et al. (2017).** _Sci Rep_ 7:15102. [doi:10.1038/s41598-017-14531-5](https://doi.org/10.1038/s41598-017-14531-5) **[PR]** -
-**read** - bubble-rupture energy simulation; repeated exposure lowers the lethal threshold.
+**read** - simulation of bubble-rupture energy. Repeated exposure lowers the lethal threshold.
 
 **Karimi Alavijeh, M., Lee, K. & Gras, S.L. (2024).** _Eng Life Sci_ 24(7):e2400023.
-[doi:10.1002/elsc.202400023](https://doi.org/10.1002/elsc.202400023) **[PR]** - **read** - measured Kolmogorov length 78 um against a <20 um
-cell, so the criterion is not binding at these scales.
+[doi:10.1002/elsc.202400023](https://doi.org/10.1002/elsc.202400023) **[PR]** - **read** - measured a Kolmogorov length of 78 um, against a
+cell of <20 um, so the criterion is not binding at these scales.
 
 **Uyar, B., Ali, M.D. & Uyar, G.E.O. (2024).** _Bioprocess Biosyst Eng_ 47(2):195-209.
 [doi:10.1007/s00449-023-02952-8](https://doi.org/10.1007/s00449-023-02952-8) **[PR]** - **read**
@@ -456,12 +475,13 @@ Microalgal broth rheology: Newtonian with <30 % viscosity rise below 20 kg/m^3. 
 _Nannochloris_ and _P. tricornutum_ - **not** _Arthrospira_.
 
 **Daub et al. (2014).** _J Biol Eng_ 8:17, PMC4099098. **[PR]** - **unread**
-Reported as measuring that larger impellers give a lower ratio of maximum to specific dissipation at
-equal power per volume: the measured case for [Agitation](agitation.md#4-why-large-and-slow)'s large-and-slow.
+Reported to show that larger impellers give a lower ratio of maximum to specific dissipation at
+equal power per volume. This is the measured evidence for the large-and-slow argument in
+[Agitation](agitation.md#4-why-large-and-slow).
 
 **Podgorska (2019).** _Entropy_ 21:340. **[PR]** - **unread**
-Reported as finding that a low-Np hydrofoil made smaller droplets than a Rushton at equal P/V: a
-case for section 4's caution that low shear is not reliably gentle.
+Reported to find that a low-Np hydrofoil made smaller droplets than a Rushton at equal P/V. This
+supports the caution in section 4 that low shear is not reliably gentle.
 
 ---
 
@@ -470,8 +490,9 @@ case for section 4's caution that low shear is not reliably gentle.
 **Apple Rubber, Seal Types and Gland Design Tables**, Section 4 -
 <https://www.applerubber.com/src/pdf/section4-seal-types-and-gland-design-tables.pdf> **[VN]** -
 **read**
-Table A static-seal bands: 19-33 % axial squeeze, 14-23 % radial; groove width ratios by cord; fill
-never above 85 %, hard limit 90 %. Table B for the groove's outer diameter under internal pressure.
+Table A gives the static-seal ranges: 19-33 % axial squeeze and 14-23 % radial squeeze, groove
+width ratios by cord size, and a fill of no more than 85 % (hard limit 90 %). Table B gives the
+groove outer diameter under internal pressure.
 -> bayonet-port-scad's `utils/oring_gland.scad`, `scad/head.scad` lid seal block
 
 ---
@@ -483,21 +504,21 @@ Construction of Pressure Vessels._ ASME BPVC.VIII.1-2019, Mandatory Appendix 2, 
 Flange Connections With Ring Type Gaskets," **Table 2-5.1 p.399**. **[TX]** - **read**
 Gasket factor _m_ and minimum design seating stress _y_, for
 "elastomers without fabric or high percent of mineral fiber": **below 75A Shore, m = 0.50 and
-y = 0 psi; 75A or higher, m = 1.00 and y = 200 psi (1.4 MPa)**. Self-energizing types, o-rings among
-them, are m = 0 and y = 0. All four figures the model encodes were confirmed against the table
-rather than the summary they came from.
-**Two things the table says.** _y_ is **zero** for this build's 60A sheet,
-so there is no seating-stress minimum to meet and the model is right to compute none. And the
-table's own note reads: the values "are suggested only and **are not mandatory**" - so this is
-guidance the design follows, not a requirement it satisfies, and a reviewer should be told which.
+y = 0 psi; 75A or higher, m = 1.00 and y = 200 psi (1.4 MPa)**. Self-energizing types, including
+o-rings, have m = 0 and y = 0. All four figures the model uses were checked against the table
+itself, not against the summary they were taken from.
+**Two points from the table.** First, _y_ is **zero** for the 60A sheet used in this build, so there
+is no minimum seating stress to meet, and the model correctly computes none. Second, the table's
+own note says the values "are suggested only and **are not mandatory**". This is therefore guidance
+the design follows, not a requirement it meets, and a reviewer should be told so.
 -> `scad/utils/bolt_pattern.scad`, `scad/head.scad` `head_gasket_factor()`
 
 **Codesign Engineering - "Flange Design per Appendix 2"** (LinkedIn article, re-hosted) -
 <https://codesignengg.com/wp-content/uploads/2025/05/LinkedIn-Article-Flange-Design-per-Appendix-2.pdf>
 **[TP]** - **read**
-The working reference the _m_ values were actually taken from. A trade-press summary of the entry
-above, re-hosted on a consultancy's WordPress: it is where the number came from, so it is cited as
-such rather than dressed up as the standard.
+The reference the _m_ values were actually taken from. It is a trade-press summary of the ASME
+entry above, re-hosted on a consultancy's WordPress site. Because the values came from it, it is
+cited as their source rather than presented as the standard.
 
 ---
 
@@ -510,85 +531,89 @@ such rather than dressed up as the standard.
 **Dynamix Agitators. "Baffled by Baffles."** Technical note, uploaded 2015.
 <https://www.dynamixinc.com/wp-content/uploads/dlm_uploads/2015/12/Dynamix-Baffled-by-Baffles.pdf>
 **[VN]** - **read**
-A baffle stands a sixth of its width off the wall: J/6, which at T/12 is T/72, the wall cage's gap. The Handbook
-of Industrial Mixing's T/50 to T/72 reached this project through a trade article and is unread.
+A baffle stands off the wall by a sixth of its width, J/6. For a T/12 baffle this is T/72, the gap
+the wall cage uses. The Handbook of Industrial Mixing gives T/50 to T/72; that figure reached this
+project through a trade article, and the handbook is unread.
 -> `scad/custom/baffle_cage.scad`, [Agitation](agitation.md#baffles)
 
 **Sato, E., Ochi, Y., Horiguchi, H., Takenaka, K., Wu, J. & Parthasarathy, R. (2021).** "Effect of
 Baffle Clearance on Scale Deposition in an Agitated Vessel." _ACS Omega_ 6(37):24070-24074.
 [doi:10.1021/acsomega.1c03503](https://doi.org/10.1021/acsomega.1c03503) **[PR]** - **read**
-Flow accelerating behind a baffle keeps that region from going stagnant, which is why partial
-baffles standing inboard are not purely a loss. -> `scad/head.scad` baffle block
+Flow accelerating behind a baffle keeps that region from going stagnant, so partial baffles set
+inboard from the wall are not purely a loss. -> `scad/head.scad` baffle block
 
-**Baffle inserts for jars, the prior art for the wall cage.** **[VN]** **[PAT]** - **read**
+**Baffle inserts for jars: prior art for the wall cage.** **[VN]** **[PAT]** - **read**
 The Eppendorf BioFlo 115 uses a 316L split ring that springs against the glass (manual M1369-0050
 section 4.7.4 and section 4.8.4). US4494878 has separate PTFE blades with a top ring, a snap-on bottom ring and
 wall standoff tabs. Corning EP3807394, now withdrawn, is a squeeze-and-release four-baffle insert.
-None goes in through a mouth narrower than the bore, and no open-hardware design that does was
-found. -> `scad/custom/baffle_cage.scad`, [Decisions](../dev/decisions.md)
+None of them fits through a mouth narrower than the bore, and no open-hardware design that does
+was found. -> `scad/custom/baffle_cage.scad`, [Decisions](../dev/decisions.md)
 
 **Note on status:** partial/inboard baffles are _characterised_ in the literature, not
 _recommended_. The relevant papers (_Chem Eng Res Des_ S0263876207730952, _Chem Eng Sci_
-S0009250906007950) are paywalled and unread. The lid-plate builds' three inboard baffles rest on an
-unresolved citation.
+S0009250906007950) are paywalled and unread. The three inboard baffles of the lid-plate builds
+therefore rest on an unresolved citation.
 
 ---
 
 ## Unbaffled vessels and eccentric agitation
 
-Mouths under about 98 mm cannot hold four baffles beside two dia 16 probes at any port count
-([Port layout](ports-layout.md#baffles-on-a-narrow-jar)), so the small jars in the family are
-unbaffled whatever else is decided.
+A jar mouth under about 98 mm cannot fit four baffles beside two dia 16 probes at any port count
+([Port layout](ports-layout.md#baffles-on-a-narrow-jar)). The small jars in the family are
+therefore unbaffled, whatever else is decided.
 
 **Montante, G.; Bakker, A.; Paglianti, A.; Magelli, F. (2006).** "Effect of the shaft eccentricity
 on the hydrodynamics of unbaffled stirred tanks." _Chemical Engineering Science_ 61:2807-2814.
 [doi:10.1016/j.ces.2005.09.021](https://doi.org/10.1016/j.ces.2005.09.021) **[PR]** - **read**
-PIV plus RANS CFD in a T = 23.6 cm closed vessel, **Rushton turbine** D = T/3 at C = T/2, 400 rpm,
-Re 4.1e4, above this design's rated Re. The vessel carried a lid deliberately, "in
-order to avoid uncertainties in the velocity measurements due to air bubbles entrainment", so this is
-a closed vessel with no free-surface vortex, like ours.
-The number that matters: with the shaft **centred** and no baffles, the measured impeller flow number
-is **0.25, about 65% below the same impeller in a baffled vessel** (p. 2811, agreeing with Brunazzi
-2003 by LDA). That is the cost of leaving a vessel unbaffled with a centred shaft, and it is large.
-Moving the shaft to **E = T/4** destroys the double-loop structure and the solid-body swirl, replacing
-it with two vortices - one inclined about 10 deg from vertical toward the bottom, one about 30 deg
-toward the top. The paper is a CFD-validation study and **reports no mixing times and no flow number
-for the eccentric case**, so it establishes that eccentricity changes the flow, not by how much it
-improves mixing. It attributes that improvement to Hall et al. (2004), which is read and summarised
-below - Montante establishes that eccentricity changes the flow, and Hall is what says by how much.
-Also useful as a modelling caution: k-epsilon predicts unphysical rigid-body rotation in this
-geometry and steady-state RANS misses the vortices entirely; the Reynolds stress model with a
-transient sliding mesh was needed.
+PIV and RANS CFD in a closed vessel with T = 23.6 cm, using a **Rushton turbine** with D = T/3 at
+C = T/2, at 400 rpm and Re 4.1e4, which is above this design's rated Re. The vessel had a lid,
+deliberately, "in
+order to avoid uncertainties in the velocity measurements due to air bubbles entrainment". Like this
+reactor, it is a closed vessel with no free-surface vortex.
+The key result: with the shaft **centred** and no baffles, the measured impeller flow number is
+**0.25, about 65% below the same impeller in a baffled vessel** (p. 2811, in agreement with LDA
+measurements by Brunazzi 2003). That is the cost of an unbaffled vessel with a centred shaft, and
+it is large.
+Moving the shaft to **E = T/4** breaks up the double-loop structure and the solid-body swirl and
+replaces them with two vortices: one inclined about 10 deg from vertical toward the bottom, and one
+about 30 deg toward the top. The paper is a CFD-validation study and **reports no mixing times and
+no flow number for the eccentric case**. It shows that eccentricity changes the flow, but not how
+much it improves mixing. For the size of that improvement it cites Hall et al. (2004), which has
+been read and is summarised below.
+It is also a useful caution for modelling. The k-epsilon model predicts unphysical rigid-body
+rotation in this geometry, and steady-state RANS misses the vortices entirely. A Reynolds stress
+model with a transient sliding mesh was needed.
 
 **Galletti, C.; Pintus, S.; Brunazzi, E. (2009).** "Effect of shaft eccentricity and impeller blade
 thickness on the vortices features in an unbaffled vessel." _Chemical Engineering Research and
 Design_ 87:391-400. [doi:10.1016/j.cherd.2008.11.013](https://doi.org/10.1016/j.cherd.2008.11.013)
 **[PR]** - **unread**
-Two vortices, above and below the impeller, with the upper one dominating and its inclination set by
-the eccentricity. Notes the vortex oscillates slowly rather than sitting steady, which is a caution
-rather than a recommendation: it means macro-mixing in an eccentric unbaffled vessel is unsteady.
+Two vortices form, above and below the impeller. The upper one dominates, and the eccentricity sets
+its inclination. The paper notes that the vortex oscillates slowly rather than staying steady. This
+is a caution, not a recommendation: macro-mixing in an eccentric unbaffled vessel is unsteady.
 
 **Scargiali, F.; Busciglio, A.; Grisafi, F.; Brucato, A. (2014).** "Mass transfer and hydrodynamic
 characteristics of unbaffled stirred bio-reactors: Influence of impeller design." _Biochemical
 Engineering Journal_ 82:41-47. [doi:10.1016/j.bej.2013.11.009](https://doi.org/10.1016/j.bej.2013.11.009)
 **[PR]** - **read**
-T = 190 mm closed vessel with a mechanical shaft seal, six impellers compared including **a PBT at
-D = T/3**, 100-1300 rpm. Splits the behaviour at a critical speed `N_crit` where the surface vortex
-reaches the impeller and starts ingesting gas.
-Sub-critical (no bubbles at all, transfer through the vortex surface): kLa tops out at 1.3e-3 to
-3.5e-3 1/s depending on impeller, against the 2.8e-4 1/s minimum for animal cell culture - so about
-ten times what such a culture needs, with no bubble bursting anywhere in the vessel. **The PBT is
-recommended by name**: "consistently more efficient in terms of power requirements for achieving a
+A closed vessel with T = 190 mm and a mechanical shaft seal, comparing six impellers, including
+**a PBT at D = T/3**, at 100-1300 rpm. The behaviour divides at a critical speed `N_crit`, at which
+the surface vortex reaches the impeller and starts drawing in gas.
+Below the critical speed there are no bubbles at all, and mass transfer is through the vortex
+surface. kLa reaches at most 1.3e-3 to 3.5e-3 1/s, depending on the impeller, against the
+2.8e-4 1/s minimum for animal cell culture. That is about ten times what such a culture needs, with
+no bubbles bursting anywhere in the vessel. **The paper recommends the PBT by name**: "consistently more efficient in terms of power requirements for achieving a
 given kLa" and "may be recommended as a best choice for growing shear sensitive cells". Its critical
 point is `N_crit` 650 rpm, P/V 126 W/m3, Np 0.52, kLa 2.34e-3 1/s (Table 1).
-Super-critical: unbaffled becomes comparable to standard sparged baffled reactors, but only above
-about **500 W/m3** - this design's mean dissipation across the drive's band
-([Agitation](agitation.md#2-this-reactor-in-the-units-that-matter)) sits below that crossover.
-Both regimes here are **unsparged**. For a vessel that is both unbaffled and sparged, as ours would
-be, the paper points to Cabaret et al. (2008), _Chem Eng Sci_ 63:1636-1647, who measured kLa of
-0.01-0.06 1/s - an order above the vortex route and in the normal range for a stirred bioreactor.
-**Note this is the opposite strategy to the one above**: eccentric mounting suppresses the vortex,
-this uses it. They are two different vessels, not one recommendation.
+Above the critical speed, an unbaffled vessel becomes comparable to a standard sparged, baffled
+reactor, but only above about **500 W/m3**. This design's mean dissipation across the drive's speed
+range ([Agitation](agitation.md#2-this-reactor-in-the-units-that-matter)) is below that crossover.
+Both regimes in this paper are **unsparged**. For a vessel that is both unbaffled and sparged, as
+this reactor would be, the paper refers to Cabaret et al. (2008), _Chem Eng Sci_ 63:1636-1647, who measured kLa of
+0.01-0.06 1/s. That is an order of magnitude above the vortex route, and in the normal range for a
+stirred bioreactor.
+**This is the opposite strategy to eccentric mounting above.** Eccentric mounting suppresses the
+vortex, and this approach uses it. They describe two different vessels, not one recommendation.
 
 **Busciglio, A.; Scargiali, F.; Grisafi, F.; Brucato, A. (2016).** "Oscillation dynamics of free
 vortex surface in uncovered unbaffled stirred vessels." _Chemical Engineering Journal_ 285:477-486.
@@ -602,123 +627,129 @@ Engineering Research and Design_ 132:584-592.
 **Hall, J.F.; Barigou, M.; Simmons, M.J.H.; Stitt, E.H. (2004).** "Mixing in Unbaffled High-Throughput
 Experimentation Reactors." _Industrial & Engineering Chemistry Research_ 43:4149-4158.
 [doi:10.1021/ie049872q](https://doi.org/10.1021/ie049872q) **[PR]** - **read**
-The source Montante was pointing at: **six-bladed 45 deg pitched blade turbines**, up-pumping, in
-vessels of **T = 60 and 88 mm** - the scale of the small jars in this family. All configurations compared at a constant 168 W/m3, which is
-what makes the comparison fair. Table 2, mixing time to 95% homogeneity, on the T = 60 vessel:
-baffled 1.98 s, unbaffled centred 2.80 s, **unbaffled eccentric 1.78 s**. Off-centre is 36% faster
-than unbaffled centred and, at equal power per volume, indistinguishable from baffled - the paper
-puts it at "no discernible difference (<=0.1 s)". Bulk-fluid energy dissipation improved about 200%.
-The eccentric position tested was **e = 0.2 T**, and it was the only one tested.
+The source Montante cites: **six-bladed 45 deg pitched blade turbines**, up-pumping, in vessels of
+**T = 60 and 88 mm**, the same scale as the small jars in this family. All configurations were
+compared at a constant 168 W/m3, which makes the comparison fair. Table 2 gives the mixing time to
+95% homogeneity in the T = 60 vessel: baffled 1.98 s, unbaffled centred 2.80 s, **unbaffled
+eccentric 1.78 s**. In the unbaffled vessel, the off-centre shaft is 36% faster than the centred one
+and, at equal power per volume, indistinguishable from the baffled vessel. The paper reports "no
+discernible difference (<=0.1 s)". Bulk-fluid energy dissipation improved by about 200%. Only one
+eccentric position was tested, **e = 0.2 T**.
 
-**T is the tank's internal diameter**, which this project's use of the paper turns on. Two places in
-it say so independently: the Nomenclature gives "T = tank diameter (m)" alongside "R = tank radius"
-and "Cw = impeller clearance from vessel sidewall", and Table 1 registers `Cw/T` as 0.5 for both the
-baffled and the unbaffled centred runs and **0.7 for the eccentric one** - a shaft half a diameter
-from the wall is on the axis, so 0.7 - 0.5 is the eccentricity and `e = 0.2 T` is measured on the
-bore. Table 1 also fixes the fourth row: T88E's 2.21 s is the 88 mm vessel, so the three figures
-above are one vessel and are comparable to each other.
+**T is the tank's internal diameter**, and this project's use of the paper depends on that. Two
+parts of the paper confirm it independently. The Nomenclature gives "T = tank diameter (m)" alongside "R = tank radius"
+and "Cw = impeller clearance from vessel sidewall". Table 1 lists `Cw/T` as 0.5 for both the
+baffled and the unbaffled centred runs, and **0.7 for the eccentric one**. A shaft half a diameter
+from the wall is on the axis, so 0.7 - 0.5 is the eccentricity, and `e = 0.2 T` is measured against
+the bore. Table 1 also identifies the fourth row: the 2.21 s for T88E is the 88 mm vessel, so the
+three figures above all come from one vessel and can be compared with each other.
 
-**Where it departs from this design**: Table 1 gives **D/T of 0.58 and 0.55** against 0.33 here,
-**H/T = 1** against 1.09 on `jar_10L`, and Re of 8237-19280 against about 2.6e4. The scale matches;
-the impeller class does not, a pitched blade against this build's Rushtons, and nor do the diameter
-ratio and the fill. The 36% is measured on a fatter axial impeller in a shallower vessel.
+**Where it departs from this design**: Table 1 gives **D/T of 0.58 and 0.55**, against 0.33 here;
+**H/T = 1**, against 1.09 on `jar_10L`; and Re of 8237-19280, against about 2.6e4. The scale
+matches. The impeller class does not (a pitched blade, against this build's Rushtons), and neither
+do the diameter ratio and the fill. The 36% was measured with a larger axial impeller in a
+shallower vessel.
 
 **Karcz, J.; Cudak, M.; Szoplik, J. (2005).** "Stirring of a liquid in a stirred tank with an
 eccentrically located impeller." _Chemical Engineering Science_ 60:2369-2380.
 [doi:10.1016/j.ces.2004.11.018](https://doi.org/10.1016/j.ces.2004.11.018) **[PR]** - **read**
-What Hall does not give: the shape of the curve between centred and 0.2 T. **Eq. (6), p. 2372**,
-correlates dimensionless mixing time against eccentricity continuously:
+Gives what Hall does not: the shape of the curve between the centred position and 0.2 T.
+**Eq. (6), p. 2372**, correlates dimensionless mixing time with eccentricity over a continuous
+range:
 
 ```
 Theta = 48.5 + (1/M) * exp[-1.89 * (1/M) * (e/R)] * exp[8.18 * M]
 ```
 
-`Theta = n * t_m`, `M = +0.32` for an up-pumping propeller and `-0.32` for a down-pumping one, and
-**`R = T/2`** - so `e/R` is twice `e/T`, which is the conversion this project needs and the easiest
-thing in the equation to get wrong. Mean relative error **+/-10 %**.
+Here `Theta = n * t_m`, `M = +0.32` for an up-pumping propeller and `-0.32` for a down-pumping one,
+and **`R = T/2`**, so `e/R` is twice `e/T`. This project needs that conversion, and it is the
+easiest part of the equation to get wrong. The mean relative error is **+/-10 %**.
 
-Its envelope, from Table 1 and the text: **unbaffled**, `T = 0.7 m` inner diameter, `H = T`,
+Its range of validity, from Table 1 and the text: **unbaffled**, `T = 0.7 m` inner diameter, `H = T`,
 `V = 270 dm3`, a **propeller at `D = 0.33 T`** with pitch `S = D` and blade width `w = 0.2 D`,
-off-bottom clearance `h = 0.33 H`, `e/R` in [0, 0.57] - so `e/T` up to 0.285, which covers every
-value this design can reach - and **Re in [2e4, 8e4]**, where this design sits at 2.6e4. Table 1's
-first row reads "Inner diameter of the tank, T", which is the second independent confirmation that
-T is the bore.
+off-bottom clearance `h = 0.33 H`, `e/R` in [0, 0.57] (so `e/T` up to 0.285, which covers every
+value this design can reach), and **Re in [2e4, 8e4]**; this design runs at 2.6e4. The first row of
+Table 1 reads "Inner diameter of the tank, T", a second independent confirmation that T is the
+bore.
 
-**The response is exponential, not linear**, so most of the benefit arrives early: half of it by
-e/T = 0.05, and 26% of the centred mixing time gone by e/T = 0.07. Both are eq. (6) evaluated, not
-read off a figure.
+**The response is exponential, not linear**, so most of the benefit comes at small offsets: half of
+it by e/T = 0.05, and a 26% reduction in the centred mixing time by e/T = 0.07. Both figures are
+calculated from eq. (6), not read off a figure.
 
-Cross-checked against Hall at the one point they share, e/T = 0.2: Karcz's equation predicts 42%
-faster than centred, Hall measured 36%. Different impellers, tanks 12x apart in size, agreeing
-within six points - which is why the correlation, not Hall's single point, is used in
-[Agitation](agitation.md#eccentric-mounting).
+At e/T = 0.2, the one point both papers cover, Karcz's equation predicts mixing 42% faster than
+centred, and Hall measured 36%. With different impellers and tanks 12x apart in size, they agree
+within six percentage points. That is why [Agitation](agitation.md#eccentric-mounting) uses the
+correlation rather than Hall's single point.
 
-**The departures are larger than Hall's.** `D = 0.33 T`, as here, is not one; a three-bladed
-**propeller**, or an HE 3, rather than this build's Rushtons; `H = T` against 1.09; and 270 L
-against 8.17. Worst of all, **`M` has only two values and this design is neither** - eq. (6) offers
-up-pumping or down-pumping, the build's two Rushtons pump radially, and the two branches disagree
-about the centred case by a factor of nearly two (`Theta` 91.3 against 48.3). Every figure quoted
-from eq. (6) in this document is the **up-pumping** branch, which is the one Hall's up-pumping PBT
-corroborates.
+**It departs from this design more than Hall does.** `D = 0.33 T` matches. The differences are a
+three-bladed **propeller** or an HE 3 instead of this build's Rushtons, `H = T` against 1.09, and
+270 L against 8.17. The largest problem is that **`M` has only two values, and neither fits this
+design**. Eq. (6) covers up-pumping and down-pumping impellers, but the build's two Rushtons pump
+radially, and the two branches differ by a factor of nearly two in the centred case (`Theta` 91.3
+against 48.3). Every figure this document quotes from eq. (6) uses the **up-pumping** branch, which
+is the one Hall's up-pumping PBT supports.
 
 **Cabaret, F.; Fradette, L.; Tanguy, P.A. (2008).** "Gas-liquid mass transfer in unbaffled
 dual-impeller mixers." _Chemical Engineering Science_ 63:1636-1647.
 [doi:10.1016/j.ces.2007.11.028](https://doi.org/10.1016/j.ces.2007.11.028) **[PR]** - **abstract**
-The sparged unbaffled case, which is the one this reactor would actually be in. Its literature review
-states the consensus plainly - "shaft eccentricity is equivalent to baffling" in turbulent single-phase
-mixing - and adds two things the others do not: **power consumption rises with eccentricity**, and an
-off-centred impeller **produces smaller bubbles**, so the gain is not only in blending. Dual
-Rushton, as here. The kLa range of 0.01-0.06 1/s quoted above is Scargiali's characterisation of this paper,
-not read off it here.
+Covers the sparged, unbaffled case, which is the case this reactor would be in. Its literature
+review states the consensus that "shaft eccentricity is equivalent to baffling" in turbulent
+single-phase mixing. It adds two points the other papers do not: **power consumption rises with
+eccentricity**, and an off-centre impeller **produces smaller bubbles**, so the benefit is not only
+in blending. It uses a dual Rushton, as here. The kLa range of 0.01-0.06 1/s quoted above is
+Scargiali's summary of this paper and was not read from the paper itself.
 
 **Scarsella, M.; Torzillo, G.; Cicci, A.; Belotti, G.; De Filippis, P.; Bravi, M. (2012).**
 "Mechanical stress tolerance of two microalgae." _Process Biochemistry_ 47:1603-1611.
 [doi:10.1016/j.procbio.2011.07.002](https://doi.org/10.1016/j.procbio.2011.07.002) **[PR]** - **read**
-Settles the species question, and **not in the direction assumed here**. Its two test organisms are
-_Chlorella vulgaris_ and _Scenedesmus dimorphus_, and the conclusion is that "**C. vulgaris cells
+Answers the species question, but **not in the direction assumed here**. Its two test organisms
+are _Chlorella vulgaris_ and _Scenedesmus dimorphus_, and it concludes that "**C. vulgaris cells
 appear to be weaker than S. dimorphus cells**".
-What damaged it was a centrifugal pump, at 262 W/kg and 18e3 Pa s of accumulated stress per hour of
-operation. What did **not** damage it was an air-lift at **31 W/kg** and 90-450 Pa s/h. This design's
-peak dissipation is **27.1 W/kg at its rated 320 rpm and 61.2 W/kg at no-load 420 rpm** - the rated
-figure sits just under the non-damaging air-lift and roughly 10x under the damaging pump.
-Read the caution with it: the paper shows the **Kolmogorov criterion mispredicted its own results**
-(both rigs had eddies larger than the cells, yet only one caused damage), and that accumulated stress
-in Pa s was the better descriptor. Nothing in this model computes that.
+A centrifugal pump damaged _C. vulgaris_, at 262 W/kg and 18e3 Pa s of accumulated stress per hour
+of operation. An air-lift at **31 W/kg** and 90-450 Pa s/h did **not** damage it. This design's
+peak dissipation is **27.1 W/kg at its rated 320 rpm and 61.2 W/kg at no-load 420 rpm**. The rated
+figure is just below the non-damaging air-lift and roughly 10x below the damaging pump.
+The paper also carries a caution. It shows that the **Kolmogorov criterion mispredicted its own
+results** (both rigs had eddies larger than the cells, yet only one caused damage), and that
+accumulated stress in Pa s was the better descriptor. The model does not compute accumulated
+stress.
 
 **Ruszkowski, S. (1994).** "A rational method for measuring blending performance, and comparison of
 different impeller types." _Proc. 8th European Conference on Mixing_, IChemE, p. 283. **[PR]** -
 **unread**, but **validated**
-The blend-time correlation the model reports, `t95 = 5.9 T^(2/3) eps^(-1/3) (T/D)^(1/3)`. Taken from
-Hall 2004 eq. (13) rather than from the proceedings, which were not obtained - so the source is
-unread, but the equation is not unchecked: it reproduces Hall's own published table, 1.96 s against
-his 1.9 for a 60 mm vessel and 2.59 against 2.6 for an 88 mm one. Fitted on 0.01-10 m3 fully baffled;
-this reactor is 0.0082 m3, so the model echoes the extrapolation every render.
-Hall prints a second correlation beside it, Cooke's `t90 = 3.3 (1/N) Po^(-1/3) (T/D)^(1/3)`. **That
-one is deliberately not encoded** - it could not be made to reproduce the figures Hall prints for it,
-and a correlation that fails its own published check is not one to build a report on.
+The blend-time correlation the model reports, `t95 = 5.9 T^(2/3) eps^(-1/3) (T/D)^(1/3)`. It was
+taken from Hall 2004 eq. (13), because the proceedings were not obtained. The source is unread, but
+the equation has been checked: it reproduces Hall's published table, giving 1.96 s against his 1.9
+for a 60 mm vessel and 2.59 against 2.6 for an 88 mm one. It was fitted on fully baffled vessels of
+0.01-10 m3. This reactor is 0.0082 m3, so the model echoes the extrapolation on every render.
+Hall gives a second correlation alongside it, Cooke's `t90 = 3.3 (1/N) Po^(-1/3) (T/D)^(1/3)`.
+**That one is deliberately not implemented.** It could not be made to reproduce the figures Hall
+gives for it, and a correlation that fails its own published check should not be the basis of a
+report.
 -> `scad/utils/stirred_tank.scad`, `scad/head.scad` transfer block
 
 **Van't Riet, K. (1979).** "Review of Measuring Methods and Results in Nonviscous Gas-Liquid Mass
 Transfer in Stirred Vessels." _Industrial & Engineering Chemistry Process Design and Development_
 18:357-364. [doi:10.1021/i260071a001](https://doi.org/10.1021/i260071a001) **[PR]** - **unread**
-The standard first estimate for kLa, in two forms because coalescence sets the bubble size and so
-the interfacial area: `0.026 (P/V)^0.4 us^0.5` coalescing, `0.002 (P/V)^0.7 us^0.2` not. Miracle-Gro
-at 0.2 g/L is dilute enough to be the coalescing case, which gives 0.0081 1/s at the rated 320 rpm -
-just under the 0.01-0.06 1/s Cabaret measured for sparged unbaffled tanks, which is the only independent
-check available here.
-Cited second-hand and used outside its range: the correlation is fitted over 500-10000 W/m3 and this
-vessel runs 130. Air-water, besides. The model echoes both caveats rather than presenting the number
-bare.
+The standard first estimate for kLa. It has two forms, because coalescence sets the bubble size
+and therefore the interfacial area: `0.026 (P/V)^0.4 us^0.5` for coalescing media and
+`0.002 (P/V)^0.7 us^0.2` for non-coalescing media. Miracle-Gro at 0.2 g/L is dilute enough to count
+as coalescing, which gives 0.0081 1/s at the rated 320 rpm. That is just below the 0.01-0.06 1/s
+Cabaret measured for sparged unbaffled tanks, the only independent check available here.
+It is cited second-hand and used outside its range. The correlation was fitted over
+500-10000 W/m3, and this vessel runs at 130. It was also fitted on air-water. The model echoes both
+caveats alongside the number rather than presenting the number alone.
 -> `scad/utils/stirred_tank.scad`, `scad/head.scad` transfer block
 
 ---
 
 ## The airlift
 
-The hydrodynamics here were fitted on loops far taller than these jars: Chisti's circulation data
-spans a stated 1.36-8.5 m of reactor height, against 0.17-0.19 m of liquid here. Only Fernandes' 3.7 L columns
-are this size, and they are split cylinders. What carries over is geometry stated as ratios. Chisti's scans are the author's own reprints, archived
-from his Massey University page (`web.archive.org/web/2016id_/http://www.massey.ac.nz/~ychisti/`).
+The hydrodynamic correlations below were fitted on loops much taller than these jars. Chisti's
+circulation data covers a stated reactor height of 1.36-8.5 m, against 0.17-0.19 m of liquid here.
+Only Fernandes' 3.7 L columns are this size, and they are split cylinders. What transfers is
+geometry stated as ratios. The Chisti scans are the author's own reprints, archived from his Massey
+University page (`web.archive.org/web/2016id_/http://www.massey.ac.nz/~ychisti/`).
 
 **Chisti, M.Y. & Moo-Young, M. (1987).** "Airlift reactors: characteristics, applications and
 design considerations." _Chemical Engineering Communications_ 60(1-6):195-242.
@@ -727,45 +758,47 @@ design considerations." _Chemical Engineering Communications_ 60(1-6):195-242.
 p. 213: _"we recommend that the total cross-sectional area for fluid flow from the downcomer to the
 riser, i.e. the area just below the baffles separating the downcomer and the riser in internal loop
 devices ... should not exceed 1.65 times the downcomer cross-section."_ The reason given is a
-bubble-free zone under the baffle that grew as the clearance did. Observed in a rectangular vessel
-sparged at the sides, the flow the other way round from this draft tube. The same page recommends
-a prism or cone under the turn in **annulus**-sparged draught tubes, which is the B variant's
-concern and not this one's.
+bubble-free zone under the baffle that grew with the clearance. This was observed in a rectangular
+vessel sparged at the sides, where the flow runs in the opposite direction to this draft tube. The
+same page recommends a prism or cone under the turn in **annulus**-sparged draught tubes. That
+applies to the B variant, not to this one.
 -> `head_draft_tube_end_gap()`: the gap gives the turn the downcomer's own area, 1.0 of it
 
 **Chisti, M.Y., Halard, B. & Moo-Young, M. (1988).** "Liquid circulation in airlift reactors."
 _Chemical Engineering Science_ 43(3):451-457.
 [doi:10.1016/0009-2509(88)87005-2](<https://doi.org/10.1016/0009-2509(88)87005-2>) **[PR]** -
 **read** (archived reprint `Halard.pdf`)
-The circulation model, eq. (16), and the loss where the flow turns under the tube, eq. (18):
-`K_B = 11.402 (A_d/A_b)^0.789`, "over a `A_d/A_b` range of 0.2-1.8" (p. 455). Fig. 2 draws `A_b`
-for a draught tube as the band under it. At equal area `K_B` is 11.4, mid-fit. **The model itself
-is not run**: its riser holdup, eq. (19), holds "for `U_Lr` > 0.3 m s^-1", its 13 reactors were
-1.36-8.5 m tall, and a 2-5 mm/s riser gas velocity is far outside any of it. Also p. 455: Hatch's
-draught tube, at a 3.3 cm clearance, where _"a 67 % reduction in this area led to a 32.5 % decline
-in the riser superficial liquid velocity"_ - why the gap is sized rather than left to fall where it
-may.
+Gives the circulation model, eq. (16), and the loss where the flow turns under the tube, eq. (18):
+`K_B = 11.402 (A_d/A_b)^0.789`, "over a `A_d/A_b` range of 0.2-1.8" (p. 455). Fig. 2 shows `A_b`
+for a draught tube as the band under it. At equal area, `K_B` is 11.4, in the middle of the fitted
+range. **The circulation model itself is not run.** Its riser holdup, eq. (19), holds "for `U_Lr` >
+0.3 m s^-1", its 13 reactors were 1.36-8.5 m tall, and a riser gas velocity of 2-5 mm/s is far
+outside all of these. Also on p. 455: in Hatch's draught tube, at a 3.3 cm clearance, _"a 67 %
+reduction in this area led to a 32.5 % decline in the riser superficial liquid velocity"_. This is
+why the gap is sized deliberately rather than left to chance.
 -> `head_draft_tube_bottom_loss()`, the `draft tube areas:` line `head()` reports
 
 **Chisti, M.Y. (1989).** _Airlift Bioreactors_. Elsevier, London. **[TX]** - **read**, chapter 5
 only (archived `Chapter5b.pdf`, pp. 190-211)
 p. 194: _"the upper baffle clearance in internal-loop airlifts should be kept small - about 0.15 to
-0.20 m"_, in 3.5-6 m split cylinders. These jars' top gaps are 11 and 38 mm, well inside it; no
-source read states a top clearance scaled to diameter, so the top gap takes the bottom's rule.
+0.20 m"_, for 3.5-6 m split cylinders. The top gaps in these jars are 11 and 38 mm, well within
+that. No source read gives a top clearance scaled to diameter, so the top gap uses the same rule as
+the bottom gap.
 -> `head_draft_tube_end_gap()`
 
 **Sanchez Miron, A., Garcia Camacho, F., Contreras Gomez, A., Molina Grima, E. & Chisti, Y. (2000).**
 "Bubble-column and airlift photobioreactors for algal culture." _AIChE Journal_ 46(9):1872-1887.
 [doi:10.1002/aic.690460915](https://doi.org/10.1002/aic.690460915) **[PR]** - **read** (archived
 reprint `AIChE.pdf`)
-Bubble column, split cylinder and draft-tube airlift, 0.193 m across, about 2 m of liquid, 0.06 m^3,
-_Phaeodactylum tricornutum_: _"there was no significant difference in culture performance in the
-three bioreactors"_, 0.022 h^-1 at 109 W/m^3 (p. 1885; conclusion 7, p. 1886). The draft tube was 0.144 m
-inside, 0.091 m off the floor, riser-to-downcomer ratio 1.24 (p. 1875). The loss they calculate
-from that geometry, K_B 4.6, is reproduced by eq. (18) with A_b over the tube's inside diameter -
-11.4 x 0.319^0.79 = 4.62 - which is the perimeter `head()` takes. **So the airlift is not chosen
-for productivity**: this is the paper that says it buys none over a column at equal power. It is
-chosen for the defined circulation [Agitation](agitation.md#5-agitation-mode-per-vessel) argues for.
+A bubble column, a split cylinder and a draft-tube airlift, each 0.193 m across with about 2 m of
+liquid (0.06 m^3), growing _Phaeodactylum tricornutum_: _"there was no significant difference in
+culture performance in the three bioreactors"_, 0.022 h^-1 at 109 W/m^3 (p. 1885; conclusion 7,
+p. 1886). The draft tube was 0.144 m in inside diameter, 0.091 m off the floor, with a
+riser-to-downcomer ratio of 1.24 (p. 1875). The loss they calculate from that geometry, K_B 4.6, is
+reproduced by eq. (18) with A_b taken at the tube's inside diameter (11.4 x 0.319^0.79 = 4.62).
+`head()` uses the same perimeter. **The airlift is therefore not chosen for productivity**: this
+paper shows it gives no gain over a bubble column at equal power. It is chosen for the defined
+circulation that [Agitation](agitation.md#5-agitation-mode-per-vessel) argues for.
 -> `head_draft_tube_end_gap()`
 
 **Sanchez Miron, A., Ceron Garcia, M.-C., Garcia Camacho, F., Molina Grima, E. & Chisti, Y. (2002).**
@@ -773,10 +806,10 @@ chosen for the defined circulation [Agitation](agitation.md#5-agitation-mode-per
 photobioreactors: studies in fed-batch culture." _Enzyme and Microbial Technology_ 31(7):1015-1023.
 [doi:10.1016/S0141-0229(02)00229-6](<https://doi.org/10.1016/S0141-0229(02)00229-6>) **[PR]** -
 **read** (archived reprint `Asterio Paper.pdf`)
-The same three vessels. p. 1020: in the column cells from the dark core moved freely to the lit
-wall, whereas _"the vertical baffle and the draft-tube prevented radial motion of fluid"_ - so a
-draft tube replaces radial mixing with a loop through lit and dark, and an opaque one would make
-the core a place cells only pass through in the dark.
+The same three vessels. p. 1020: in the bubble column, cells moved freely from the dark core to
+the lit wall, whereas _"the vertical baffle and the draft-tube prevented radial motion of fluid"_.
+A draft tube therefore replaces radial mixing with a loop through lit and dark zones. With an
+opaque tube, cells would pass through the core only in the dark.
 -> `draft_tube_*` in `head.scad`: print it clear
 
 **Fernandes, B.D., Mota, A., Ferreira, A., Dragone, G., Teixeira, J.A. & Vicente, A.A. (2014).**
@@ -786,19 +819,19 @@ _Chemical Engineering Science_ 117:445-454.
 ([repositorium.uminho.pt](https://repositorium.uminho.pt/server/api/core/bitstreams/f22e1867-5736-4381-be69-5a9c40e1522d/content))
 p. 446, on concentric tubes: a _"large fraction of dark zones inside the PBR, mainly due to the
 presence of the internal column, which limits light penetration"_; their own baffles were
-transparent PMMA _"to allow light penetration"_. Ran riser:downcomer 1.0 and 3.0 in 90 mm columns,
-and 1.0 grew better.
+transparent PMMA _"to allow light penetration"_. They tested riser:downcomer ratios of 1.0 and 3.0
+in 90 mm columns, and growth was better at 1.0.
 -> print the tube clear
 
 **Klein, J., Szijjarto, A., Vicente, A.A. & Teixeira, J.A. (2002).** "Hydrodynamic considerations in
 three-phase internal-loop airlift bioreactors - effect of dual separator and draught tube design."
 29th Conference of the Slovak Society of Chemical Engineering. **[PR]** - **read**
 ([repositorium.uminho.pt](https://repositorium.uminho.pt/bitstreams/d3514e13-8670-4171-898d-3a4ded565d52/download))
-Draft-tube sparged, 60 L, A_D/A_R 1.2 against 3.97: the wide downcomer ran about a quarter of the
-riser's liquid velocity and needed U_G 0.03 m/s before any bubble was drawn down it - a gentler
-loop. These jars' 0.54 and 1.72 fall inside what Chisti's circulation data covers, not Klein's;
-**no source read gives an optimal A_d/A_r for an internal loop**, so the model reports it and does
-not target it.
+Draft-tube sparged, 60 L, A_D/A_R 1.2 against 3.97. The wide downcomer ran at about a quarter of
+the riser liquid velocity and needed U_G 0.03 m/s before any bubbles were drawn down it, giving a
+gentler loop. The ratios of these jars, 0.54 and 1.72, fall within the range of Chisti's circulation
+data, not Klein's. **No source read gives an optimal A_d/A_r for an internal loop**, so the model
+reports the ratio and does not target a value.
 -> the `draft tube areas:` line
 
 ---
@@ -809,67 +842,69 @@ not target it.
 <https://web-material3.yokogawa.com/TNA1505_+pH+Installation+and+Maintenance+Manual.pdf>
 **[VN]** - **read**
 "the sensor should be mounted with the process flow coming towards the sensor, and positioned at
-least 15 deg above the horizontal plane to eliminate air bubbles in the pH glass bulb." A probe hanging
-straight down sits 90 deg above horizontal, so vertical clears that by 75 deg. This is why the pH port
-leans 0 deg at no cost to the probe - it is not a concession made to fit the vessel.
+least 15 deg above the horizontal plane to eliminate air bubbles in the pH glass bulb." A probe
+hanging straight down is at 90 deg to the horizontal, 75 deg more than required. The pH port
+therefore leans 0 deg at no cost to the probe; this is not a compromise made to fit the vessel.
 -> `scad/head.scad` `ph_probe_port_tilt_degrees`
 
 **Atlas Scientific, lab-grade DO probe datasheet** -
 <https://files.atlas-scientific.com/LG_DO_probe.pdf> **[VN]** - **read**
-Galvanic, and it CONSUMES the oxygen it reads: "a small amount of water movement is necessary to
-take accurate readings. Approximately 60 ml/min". The chart beside it is the part that matters -
-stagnant water takes the reading from 90 % to 20 % **in thirty seconds**, so a still probe does not
-read a bit low, it reports the hole it has eaten around itself. Silent on mounting angle.
+A galvanic probe, which consumes the oxygen it measures: "a small amount of water movement is
+necessary to take accurate readings. Approximately 60 ml/min". The chart beside that statement is
+the important part. In stagnant water the reading falls from 90 % to 20 % **in thirty seconds**, so
+a probe in still water does not read slightly low; it reports the oxygen it has depleted around
+itself. Gives no mounting angle.
 -> `scad/head.scad` `do_probe_flow_requirement`, and `stirred_tank_circulation_velocity()` for what
 the vessel offers against it
 -> bayonet-port-scad's `purchased/atlas_probes.scad` `do_lab_g2`
 
 **Atlas Scientific, lab-grade pH probe datasheet** -
 <https://files.atlas-scientific.com/pH_probe.pdf> **[VN]** - **read**
-Silent on mounting angle. Its only bubble note is about air inside the probe's own stem after
-shipping, cleared by shaking it down "as done with a clinical thermometer" - _not_ about bubbles on
-the sensing face.
+Gives no mounting angle. Its only note on bubbles concerns air inside the probe stem after
+shipping, which is cleared by shaking the probe down "as done with a clinical thermometer". It does
+_not_ cover bubbles on the sensing face.
 -> bayonet-port-scad's `purchased/atlas_probes.scad` `ph_lab_g2`
 
 **Sensorex, _Operating Dissolved Oxygen Probes in Bioreactors and Cell Culture_** -
 <https://sensorex.com/operating-dissolved-oxygen-probes-bioreactors-cell-culture/> **[VN]** -
 **read**
 "It's possible for air bubbles to collect on the tip of the sensor or to cross over it." Confirms
-the failure mode the DO port's lean is for. Gives no angle for it.
+the failure mode that the DO port's lean addresses, but gives no angle.
 -> `scad/head.scad` `do_probe_port_tilt_max`
 
-**No retrievable source gives a mounting ANGLE for a DO probe.** Mettler-Toledo's bioreactor DO
-sensor page and Hamilton's pH installation note both surface in search saying vertical installations
-are the troublesome case, and neither could be fetched to confirm it - HTTP 406 and an empty
-response respectively. So the 4.5 deg the DO port leans is **reasoned, not cited**: it is a bench
-limit, past which the probe gets very hard to put through the port's mouth, set as the ceiling
-`do_probe_port_tilt_max`. `head()` leans the probe as far toward it as the jar's internals allow,
-so the geometry can only lower it, and the sources only decide its direction.
+**No retrievable source gives a mounting angle for a DO probe.** Search results for
+Mettler-Toledo's bioreactor DO sensor page and Hamilton's pH installation note both say that
+vertical installation is the problem case, but neither page could be fetched to confirm it (HTTP 406
+and an empty response, respectively). The 4.5 deg lean of the DO port is therefore **reasoned, not
+cited**. It is a bench limit: beyond it, the probe becomes very hard to insert through the port
+mouth. It is set as the ceiling `do_probe_port_tilt_max`. `head()` leans the probe as close to that
+ceiling as the jar's internals allow, so the geometry can only reduce the angle. The sources decide
+only its direction.
 
 ---
 
 ## Purchased parts
 
-Vendor pages and datasheets are cited inline on the registry row that uses them, since the row is
-the thing being justified:
+Vendor pages and datasheets are cited inline on the registry row that uses them, because that row
+is what they justify:
 
 - bayonet-port-scad's `purchased/atlas_probes.scad` - Atlas Scientific product pages and datasheets, one per row
 - `scad/purchased/vessels.scad` - the jar listings each vessel row was measured from
 - `scad/purchased/strip_lights.scad` - LED strip listings
 - [Procurement](procurement.md) and [`purchased-parts.csv`](../purchased-parts.csv) - McMaster part numbers with their specifications
 
-Notable rows: bearing **6153K71** (trade no. 608-2RS, and NopSCADlib's `BB608` carries the same
-22 x 7 x 8), heat-set insert **97163A152**, rim gasket sheet **8525T65** (1/16 in = 1.5875 mm, 60A,
+Notable rows: bearing **6153K71** (trade no. 608-2RS; NopSCADlib's `BB608` has the same
+22 x 7 x 8 dimensions), heat-set insert **97163A152**, rim gasket sheet **8525T65** (1/16 in = 1.5875 mm, 60A,
 which sets the ASME gasket factor), port o-ring **8785N383**.
 
 ---
 
 ## Software and libraries
 
-- **OpenSCAD** 2026.10.15, the snapshot CI runs (`.github/workflows/check.yml`); 2021.01, apt's, is the
-  oldest supported, and CI's floor job runs the same gates on it
+- **OpenSCAD** 2026.10.15, the snapshot CI uses (`.github/workflows/check.yml`). 2021.01, the apt
+  version, is the oldest supported, and the CI floor job runs the same gates on it
 - **NopSCADlib** - vitamins: screws, nuts, inserts, ball bearings, shaft couplings, extrusions
-- **bayonet-lock-scad** - the bayonet coupling this project's ports are built on
+- **bayonet-lock-scad** - the bayonet coupling the ports are built on
 - `scad/custom/impeller.scad` is adapted from
   <https://infinityplays.com/3d-part-design-with-openscad-57-a-universal-propeller-impeller-design-module/> -
   a geometry module, not an engineering source
