@@ -2,28 +2,28 @@
 #
 # Render pictures of the model to PNG, for the paper and the docs.
 #
-#   views  the rows of scad/views.tsv, each a name, a build, a view and what is drawn. $2 is a
-#          glob over the names, "*" for all; $3 is a build that replaces every row's own.
-#   parts  every printed part of a build on its own, from the print list export-parts writes, so
-#          a new part gets its picture without a row. $2 is a glob over the part names, $3 the
-#          build (jar_10L_220x305 unless given).
+#   views  the rows of scad/views.tsv, each with a name, a build, a view and what is drawn. $2 is
+#          a glob over the names, "*" for all; $3 is a build that overrides the build in every row.
+#   parts  every printed part of a build separately, from the print list export-parts writes, so
+#          a new part gets a picture without a row. $2 is a glob over the part names, $3 the
+#          build (jar_10L_220x305 by default).
 #
-# Pictures land in $OUT/<build>/ (output/figures unless set), parts under parts/. Each is
-# cropped to the model with a small margin, and nothing is committed: a model change makes a
-# committed picture stale without anything noticing, so the list of views is what is kept.
+# Pictures are written to $OUT/<build>/ (output/figures unless set), with parts under parts/.
+# Each is cropped to the model with a small margin. None are committed: a model change would make
+# a committed picture stale without anything detecting it, so only the list of views is kept.
 #
-# Previews, not renders: a preview keeps the model's colours and the glass's translucency, and
-# takes seconds where a render of the assembly takes minutes. The renders run JOBS at a time.
+# These are previews, not renders: a preview keeps the model colours and the glass translucency,
+# and takes seconds where a render of the assembly takes minutes. The renders run JOBS at a time.
 #
 : "${OPENSCAD:=openscad}"
 : "${JOBS:=$(nproc)}"
 : "${OUT:=output/figures}"
-# Pixels before the crop; the crop keeps the model's share of them
+# Image size in pixels before the crop; the crop keeps the part that contains the model
 : "${RENDER_SIZE:=2400,1800}"
 : "${RENDER_SCHEME:=Tomorrow}"
 
-# A failing render still exits 0, so stderr is the signal, and a picture of nothing is the other
-# failure: a flag that hides more than it meant to leaves an empty frame and no error.
+# A failing render still exits 0, so stderr is the signal. An empty picture is the other failure:
+# a flag that hides more than intended leaves an empty frame and no error.
 set -uo pipefail
 # shellcheck source=scripts/openscad-canary.sh
 source "$(dirname "$0")/openscad-canary.sh"
@@ -31,7 +31,7 @@ openscad_canary
 tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
 # shellcheck source=scripts/export-lib.sh
 source "$(dirname "$0")/export-lib.sh"
-# The crop and the blank check need ImageMagick; without it the pictures are written as rendered
+# The crop and the blank check need ImageMagick; without it the pictures are written uncropped
 if command -v magick >/dev/null; then MAGICK=1; else
     MAGICK=0; echo "skip  crop and blank check (ImageMagick not installed)"
 fi
@@ -41,14 +41,16 @@ mode="${1:-views}"
 filter="${2:-*}"
 build="${3:-}"
 
-# One picture. A job is "name|build|view|scope|flags|out", out without its extension.
+# Render one picture. A job is "name|build|view|scope|flags|out", with out given without its
+# extension.
 #
-# A view is a name below, or a rotation as the GUI's Edit > Copy Viewport Rotation gives it,
-# "[55.00, 0.00, 25.00]", for an angle found by eye. Every view is orthographic, as a drawing is.
-# In perspective the eye can sit inside a section's cutter, and the preview then draws the model
-# uncut; this cut's cutter has not done that from any view here, but one that reaches further would.
-# The scope says which half a part belongs to: "assembly" draws through bioreactor.scad as it
-# stands, "head" and "frame" isolate that half the way export-parts does, part at the origin.
+# A view is one of the names below, or a rotation in the format the GUI copies with Edit > Copy
+# Viewport Rotation, "[55.00, 0.00, 25.00]", for an angle chosen by eye. Every view is
+# orthographic, like a drawing. In perspective the camera can sit inside the cutter of a section,
+# and the preview then draws the model uncut. The current cutter has not done that from any view
+# here, but a larger one would.
+# The scope gives the half a part belongs to: "assembly" renders bioreactor.scad unchanged, and
+# "head" and "frame" isolate that half the way export-parts does, with the part at the origin.
 render_one() {
     local name build view scope flags out cam half box bg
     IFS='|' read -r name build view scope flags out <<< "$1"
@@ -70,14 +72,14 @@ render_one() {
         *) echo "FAIL  $name  the scope is assembly, head or frame, not $scope"; return ;;
     esac
     mkdir -p "$(dirname "$out")"
-    # The cut is off unless a row turns it on: a later -D wins over an earlier one.
+    # The cut is off unless a row turns it on, since a later -D overrides an earlier one.
     # shellcheck disable=SC2086
     "$OPENSCAD" -p scad/bioreactor.json -P "$build" --imgsize="$RENDER_SIZE" \
         --colorscheme="$RENDER_SCHEME" --viewall --autocenter \
         --camera="0,0,0,$cam,0" --projection=o \
         -D cross_section_active=false $half $flags \
         -o "$out.png" scad/bioreactor.scad 2>"$out.err" >/dev/null
-    # A failure keeps the log and not the picture, which could pass for a real one
+    # On failure, keep the log and delete the picture, which could be mistaken for a real one
     if grep -q '^ERROR' "$out.err"; then
         echo "FAIL  $name  $(grep -m1 '^ERROR' "$out.err")"
         rm -f "$out.png"
@@ -88,7 +90,7 @@ render_one() {
         return
     fi
     if [ "$MAGICK" = 1 ]; then
-        # The crop box of a frame holding only background is 0 wide
+        # The crop box of an image that contains only background is 0 wide
         box=$(magick "$out.png" -fuzz 2% -format '%@' info: 2>/dev/null)
         if [[ "$box" == 0x* ]]; then
             echo "FAIL  $name  drew nothing: the flags hide everything ($flags)"
@@ -103,8 +105,8 @@ render_one() {
 }
 export -f render_one export_half_flags
 
-# OpenSCAD ignores a -P naming a set that does not exist and draws the file's defaults, which
-# would label one build's pictures with another's name.
+# OpenSCAD ignores a -P that names a nonexistent set and draws the file defaults, which would
+# label pictures of one build with the name of another.
 known_build() {
     /usr/bin/python3 -c 'import json,sys; sys.exit(sys.argv[2] not in json.load(open(sys.argv[1]))["parameterSets"])' scad/bioreactor.json "$1" ||
         { echo "FAIL  no parameter set is named $1 in scad/bioreactor.json"; return 1; }

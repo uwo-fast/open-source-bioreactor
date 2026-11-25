@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Strip every parameter a set carries at the file's own default, so a set holds only what it changes.
+"""Remove every parameter a set holds at the file default, so each set holds only what it changes.
 
 The Customizer writes EVERY parameter when it saves a set, so one save turns a two-line vessel
-profile into a hundred lines of restated defaults. Run this after saving: a set comes back holding
-only its deviations, which is the whole content of a profile. Writes in the Customizer's own layout
-so a later save does not churn the file.
+profile into a hundred lines of repeated defaults. Run this after saving to reduce each set to the
+values that differ from the defaults, which is all a profile should contain. The output uses the
+Customizer layout, so a later save does not cause unnecessary changes to the file.
 
-Takes the entry files as arguments and prunes the .json beside each.
+Takes the entry files as arguments and prunes the .json next to each.
 """
 
 import json

@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 #
-# Diff every entry file's echo stream, on every registered vessel, against a committed
-# transcript, and bioreactor.scad's on every registered build that sets more than its vessel,
-# which the vessel rows do not reach. `--update` rewrites the transcripts instead of diffing. Not with
-# -D render_all=false, which would reach bioreactor.scad's own flag and drop most of the stream.
+# Diff the echo output of every entry file, for every registered vessel, against a committed
+# transcript. Also diff the bioreactor.scad output for every registered build that sets more than
+# its vessel, which the vessel rows do not cover. `--update` rewrites the transcripts instead of
+# diffing. Renders do not use -D render_all=false, which would also set the bioreactor.scad flag
+# and drop most of the output.
 set -uo pipefail
 
 : "${OPENSCAD:=openscad}"
-# The cells render JOBS at a time (every core, unless set), then are compared in order.
+# The cells render JOBS at a time (every core unless set), and are then compared in order.
 : "${JOBS:=$(nproc)}"
 BASE=tests/echo
 update=0
@@ -33,12 +34,13 @@ cell_list=$(
 
 failed=0 cells=0 changed=0 known=0
 declare -a known_rows=()
-# Every cell is its own OpenSCAD process and none reads another's output, so they render at once
-# into one file each; the loop below compares them in the registry's order as before.
+# Each cell is a separate OpenSCAD process and none reads the output of another, so they render
+# in parallel, one file each. The loop below compares them in registry order, as before.
 export OPENSCAD tmp
 render_cell() {
     IFS='|' read -r f name row <<< "$1"
-    # a build's own values are listed options of bioreactor.scad's, which a set reaches on any release
+    # the values a build sets are listed options of bioreactor.scad, which a set reaches on any
+    # release
     if [ "$f" = build ]; then
         "$OPENSCAD" -p scad/bioreactor.json -P "$name" --export-format echo -o "$tmp/raw.$f.$name.txt" scad/bioreactor.scad 2>/dev/null >/dev/null
     else
@@ -52,12 +54,12 @@ while IFS='|' read -r f name _; do
     out="$BASE/${f}__${name}.txt"
     cp "$tmp/raw.$f.$name.txt" "$tmp/e.txt" 2>/dev/null || : > "$tmp/e.txt"
     # --export-format echo writes ERROR and TRACE into the output file, so the transcript is
-    # that file alone. Line numbers are normalised out: an assert's identity is its condition
-    # and its message. TRACE lines go too: they are OpenSCAD's call stack, worded differently
-    # from one release to the next, not anything the model said.
+    # that file alone. Line numbers are normalised out, because an assert is identified by its
+    # condition and message. TRACE lines are removed too: they are the OpenSCAD call stack,
+    # worded differently from one release to the next, not output from the model.
     sed -e 's/, line [0-9]*/, line N/g' -e '/^TRACE: /d' "$tmp/e.txt" > "$tmp/cell.txt" 2>/dev/null
     n=$(grep -c '^ECHO' "$tmp/cell.txt" || true)
-    # A cell that ERRORs is a vessel this build cannot carry; the assert's message is the reason.
+    # A cell that ERRORs is a vessel this build cannot use, and the assert message gives the reason.
     if grep -q '^ERROR' "$tmp/cell.txt"; then
         known=$((known + 1))
         known_rows+=("$(printf '%-9s %-22s %s' "$f" "$name" \

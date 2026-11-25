@@ -7,16 +7,16 @@
 : "${MESH_SKIP:?exported by the justfile}"
 
 # A failing render still exits 0 and writes a small file, so nothing may be gated on $?. The
-# manifold complaint on stderr is the signal and the file size is the backstop.
+# manifold error on stderr is the signal, and the file size is the fallback.
 set -uo pipefail
 tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
-# The complaint comes from CGAL. A build with a manifold backend defaults to it and stays silent
-# on a non-manifold, so ask for CGAL wherever the binary offers a choice; one without --backend
-# is CGAL already.
+# The error comes from CGAL. A binary with the manifold backend uses it by default and reports
+# nothing on a non-manifold, so request CGAL whenever the binary offers a choice. A binary without
+# --backend already uses CGAL.
 backend=""
 help=$("$OPENSCAD" --help 2>&1)
 case "$help" in *--backend*) backend="--backend=CGAL" ;; esac
-# Flags that turn a file's preview into the part it prints, where the default is an assembly.
+# Flags that make a file render the part it prints, for files whose default is an assembly.
 mesh_flags() {
     case "$1" in
         scad/support/electronics_stand.scad) echo "-D print_corner=true" ;;
@@ -37,7 +37,7 @@ mesh_why() {
 }
 if [ -n "${1:-}" ]; then
     targets="${1:-}"
-    # Naming a skipped file builds it anyway, but say first what to expect.
+    # A skipped file named explicitly is built anyway, after a note on what to expect.
     why=$(mesh_why "${1:-}")
     [ -n "$why" ] && printf 'note  %-46s %s\n' "${1:-}" "$why"
 else

@@ -22,15 +22,16 @@ for path in sys.argv[1:]:
         ms = re.match(r"^\s*/\*\s*\[(.+?)\]\s*\*/", line)
         if ms:
             sec = ms.group(1)
-            # A [Hidden] marker must say WHY. It runs to the next marker, so a bare one can
-            # swallow a whole section - one here hid 17 sparger parameters unremarked, and a
-            # reader with no reason in front of them deletes it and offers all seventeen.
+            # A [Hidden] marker must have a comment saying WHY. It applies until the next marker,
+            # so a bare one can hide a whole section. One here hid 17 sparger parameters without
+            # comment, and a reader who sees no reason would delete it and expose all seventeen.
             prev_is_comment = lines[i - 1].strip().startswith("//") if i else False
             if sec.lower() == "hidden" and not prev_is_comment:
                 bare.append(i + 1)
             continue
-        # $-prefixed names are OpenSCAD SPECIAL variables. The customizer does not offer them,
-        # so they are not parameters and want no description - $fn and $bayonet_shell_only alike.
+        # $-prefixed names are OpenSCAD SPECIAL variables. The customizer does not offer them, so
+        # they are not parameters and need no description. This covers both $fn and
+        # $bayonet_shell_only.
         m = re.match(r"^([A-Za-z_][A-Za-z0-9_]*)\s*=", line)
         if not m:
             continue

@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 #
-# Fail when the purchase list misses a part the model prescribes.
+# Fail when the purchase list is missing a part the model specifies.
 #
-# Only registries carrying a part number are enrolled, and only what the reference build
-# selects. Not enrolled: the gasket sheet (not selected per build yet), the drive motor (its CSV
-# part_number is the compound "RM-ESMO-071 (36PG-555PM-14-EN)", which grep -qxF cannot match),
-# the shaft coupling (uxcell publish no number, so its registry returns undef by design), and the
-# magnetic drive's fan, magnets and stir bar (NopSCADlib rows and generic sizes, no number).
+# Only registries that carry a part number are enrolled, and only the entries the reference build
+# selects. Not enrolled:
+# - the gasket sheet (not yet selected per build);
+# - the drive motor (its CSV part_number is the compound "RM-ESMO-071 (36PG-555PM-14-EN)",
+#   which grep -qxF cannot match);
+# - the shaft coupling (uxcell publish no number, so its registry returns undef by design);
+# - the fan, magnets and stir bar of the magnetic drive (NopSCADlib rows and generic sizes, with
+#   no number).
 #
 : "${OPENSCAD:=openscad}"
 
@@ -41,15 +44,15 @@ if (head_condenser_selected(head_condenser, head_sparger_selected(head_sparger, 
 }
 SCAD
 "$OPENSCAD" -o "$tmp/b.csg" "$tmp/b.scad" 2>"$tmp/err" >/dev/null
-# The part_number column, so a match cannot come from a stale URL elsewhere in the row. System
-# python: the analysis venv does not exist on a clean checkout.
+# Read only the part_number column, so a match cannot come from a stale URL elsewhere in the row.
+# Uses the system python because the analysis venv does not exist on a clean checkout.
 /usr/bin/python3 -c 'import csv;print("\n".join(r["part_number"].strip() for r in csv.DictReader(open("purchased-parts.csv"))))' > "$tmp/pns"
 lines=$(grep -oE 'BOM\|[^|]*\|[^"]*' "$tmp/err" || true)
 if [ -z "$lines" ]; then echo "FAIL  could not read what the model prescribes"; exit 1; fi
 failed=0
 while IFS='|' read -r _ pn what; do
-    # An EMPTY part number used to be skipped, which made a registry row with part_no "" invisible
-    # to this check - the same silence the undef branch exists to break. It fails now.
+    # An EMPTY part number used to be skipped, which hid a registry row with part_no "" from this
+    # check, the same gap the undef branch exists to close. It now fails.
     if [ -z "$pn" ]; then
         echo "FAIL  the $what prescribes an empty part number"; failed=1
     elif [ "$pn" = "undef" ]; then

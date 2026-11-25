@@ -1,13 +1,13 @@
-# Sourced, not run: refuse to go on unless $OPENSCAD is at least OPENSCAD_MIN and can render a
-# cube, and say which binary and version every result below came from.
+# Sourced, not run. Stop unless $OPENSCAD is at least OPENSCAD_MIN and can render a cube, and
+# print the binary and version that every later result comes from.
 #
-# A check that reads "no ERROR on stderr" or "no probe lines" as a pass passes on a binary that
-# renders nothing at all: missing, crashing, or an AppImage that cannot mount. So a script that
-# gates on the absence of output renders something known first. Not on $? alone: a failing export
-# still exits 0, so the file's size is the signal.
+# A check that treats "no ERROR on stderr" or "no probe lines" as a pass also passes on a binary
+# that renders nothing: one that is missing, crashes, or is an AppImage that cannot mount. So a
+# script that gates on the absence of output first renders something known. It does not rely on
+# $? alone: a failing export still exits 0, so the size of the output file is the signal.
 
-# The oldest OpenSCAD anything here runs on, apt's 2021.01: below it the checks' own
-# assumptions (the echo format, -D crossing a use boundary) are untested.
+# The oldest OpenSCAD supported here, 2021.01 from apt. Below it, the assumptions the checks make
+# (the echo format, -D crossing a use boundary) are untested.
 OPENSCAD_MIN=2021.01
 
 openscad_canary() {

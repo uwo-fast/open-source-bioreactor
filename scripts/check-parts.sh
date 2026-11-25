@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Fail when a printed part exists that the print manifest does not carry.
+# Fail when a printed part is missing from the print manifest.
 #
 : "${OPENSCAD:=openscad}"
 : "${ENTRY:?the justfile exports the list of files that render on their own}"
@@ -33,9 +33,10 @@ not_printed=(
     render_heat_pads            # vitamin - the silicone pads the plates hold on the glass
     render_dosing_pumps         # vitamin - the bought pumps, hung on their printed mounts
 )
-# Every drive, because each manifest lists only its own drive's parts and a flag has to reach
-# at least one of them; and with a riser, which only a deep jar's magnetic build stands on. Both
-# baffle designations, for the same reason: the cage is only on a wall build's list.
+# Query every drive, because each manifest lists only the parts for its own drive and every flag
+# must appear in at least one of them. Include the riser, which only the magnetic build on a deep
+# jar stands on. Query both baffle designations for the same reason: the cage is only on the list
+# for a wall build.
 cat > "$tmp/m.scad" <<SCAD
 include <$PWD/scad/bioreactor.scad>
 _v = reactor_vessel;
@@ -64,46 +65,47 @@ for f in $(grep -hoE '^render_[a-z_]+' scad/head.scad scad/frame.scad | sort -u)
         failed=1
     fi
 done
-# And every entry file is accounted for: the two manifests live in head.scad and frame.scad, so
-# a printed part in any other entry file reaches no print list. This stops that being silent.
+# Also check that every entry file is accounted for. The two manifests are in head.scad and
+# frame.scad, so a printed part in any other entry file reaches no print list. This check makes
+# that fail instead of passing silently.
 exported=(scad/head.scad scad/frame.scad)
 not_exported=(
     scad/bioreactor.scad                        # the whole reactor as a picture, not a part
     scad/custom/gasket_cutter.scad
     scad/custom/impeller.scad
     scad/custom/motor_mount.scad
-    scad/custom/sparger.scad                    # exported through head's manifest as "sparge_ring",
-                                                # "sparge_arm" or "sparge_loop";
-                                                # this file's own render is a preview of it
-    scad/custom/magnet_hub_cap.scad             # exported through frame's manifest as
-                                                # "frame_hub_cap", on the fan the frame chose
-    scad/custom/heat_pad_mount.scad             # exported through frame's manifest as
-                                                # "heat_pad_plate", where a build names a pad
-    scad/custom/peri_pump_frame_mount.scad      # exported through frame's manifest as
+    scad/custom/sparger.scad                    # exported through the head manifest as
+                                                # "sparge_ring", "sparge_arm" or "sparge_loop";
+                                                # this file renders only a preview of it
+    scad/custom/magnet_hub_cap.scad             # exported through the frame manifest as
+                                                # "frame_hub_cap", for the fan the frame selects
+    scad/custom/heat_pad_mount.scad             # exported through the frame manifest as
+                                                # "heat_pad_plate", when a build names a pad
+    scad/custom/peri_pump_frame_mount.scad      # exported through the frame manifest as
                                                 # "peri_pump_frame_mount", one per dosing pump
-    scad/custom/bearing_blank.scad              # exported through head's manifest as
-                                                # "bearing_blank", sized to the lid's pocket
-    scad/custom/draft_tube.scad                 # exported through head's manifest as
-                                                # "draft_tube", sized to the airlift's jar
-    scad/custom/baffle_cage.scad                # exported through head's manifest as
-                                                # "baffle_cage_*", sized to the wall build's jar
+    scad/custom/bearing_blank.scad              # exported through the head manifest as
+                                                # "bearing_blank", sized to the lid pocket
+    scad/custom/draft_tube.scad                 # exported through the head manifest as
+                                                # "draft_tube", sized to the airlift jar
+    scad/custom/baffle_cage.scad                # exported through the head manifest as
+                                                # "baffle_cage_*", sized to the wall-build jar
     scad/custom/sheet_gasket.scad               # EPDM cut from a sheet with a knife, not printed
-    # Bench furniture AROUND the reactor rather than part of it, on no reactor manifest. Its
-    # printed parts are on accessory_print_parts() in scad/support/accessories.scad, which
-    # `just export-accessories` walks.
+    # Bench equipment AROUND the reactor rather than part of it, so on no reactor manifest. Its
+    # printed parts are listed in accessory_print_parts() in scad/support/accessories.scad,
+    # which `just export-accessories` processes.
     scad/support/bottle_holder.scad             # "bottle_holder" on the accessories list
     scad/support/equipment_cart.scad            # prints NOTHING: bought extrusion, bought
                                                 # NopSCADlib brackets, bought castors, and a
-                                                # translucent envelope that is a picture. Never
+                                                # translucent envelope for display only. Never
                                                 # built; see dev/future-work.md
-    scad/support/electronics_stand.scad         # "stand_corner" on the accessories list, its
-                                                # print_corner standing in for a bought bracket
+    scad/support/electronics_stand.scad         # "stand_corner" on the accessories list; its
+                                                # print_corner replaces a bought bracket
     scad/support/estop_box.scad                 # "estop_box_base" and "estop_box_lid" on the
                                                 # accessories list
-    scad/custom/peri_pump_head.scad             # a stretch goal rather than this build
-    scad/custom/gl_port_cap.scad                # the inlet humidifier's cap: a bottle, not the
-                                                # reactor, so no manifest of the reactor's has it
-    scad/custom/sampler.scad                    # exported through head's manifest as
+    scad/custom/peri_pump_head.scad             # a stretch goal rather than part of this build
+    scad/custom/gl_port_cap.scad                # the inlet humidifier cap: for a bottle, not the
+                                                # reactor, so no reactor manifest includes it
+    scad/custom/sampler.scad                    # exported through the head manifest as
                                                 # "sampler_base" and "sampler_top" on a lid
                                                 # with a sampler port
     scad/custom/sparge_puck.scad                # bench test pieces, one outlet face per print,
@@ -111,12 +113,12 @@ not_exported=(
                                                 # analysis/methods/sparge-test-pucks
     scad/custom/condenser_cold_finger.scad      # the split cold finger, printed from its own file
                                                 # until head offers it
-    scad/custom/condenser_coil.scad             # exported through head's manifest as
+    scad/custom/condenser_coil.scad             # exported through the head manifest as
                                                 # "condenser_coil_<part>" where head places it
-    scad/custom/gasket_cutter_v2.scad           # WORK IN PROGRESS - a cutter built around a
+    scad/custom/gasket_cutter_v2.scad           # WORK IN PROGRESS: a cutter that uses a
                                                 # standard #11 blade rather than a printed edge.
-                                                # It renders so it can be previewed while it is
-                                                # worked on, and reaches no print list because
+                                                # It renders so it can be previewed during
+                                                # development, and is on no print list because
                                                 # there is not yet a part to print
 )
 for f in $ENTRY; do

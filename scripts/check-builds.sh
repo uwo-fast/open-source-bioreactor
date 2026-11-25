@@ -2,19 +2,19 @@
 #
 # Fail when a registered build does not build.
 #
-# A set in scad/bioreactor.json is a build someone is meant to print, so every one has to resolve
-# with no failed assert. check-echo covers each vessel at the file's own defaults, where an ERROR
-# is the recorded reason that vessel cannot carry them; this covers the builds as registered.
+# Each set in scad/bioreactor.json is a build meant to be printed, so every one must resolve
+# with no failed assert. check-echo covers each vessel at the file defaults, where an ERROR
+# records why that vessel cannot use them. This script covers the builds as registered.
 set -uo pipefail
 : "${OPENSCAD:=openscad}"
-# The sets render JOBS at a time (every core, unless set), then are judged in order.
+# The sets render JOBS at a time (every core unless set), and are then checked in order.
 : "${JOBS:=$(nproc)}"
 tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
 sets=$(/usr/bin/python3 -c 'import json; print("\n".join(json.load(open("scad/bioreactor.json"))["parameterSets"]))')
 [ -n "$sets" ] || { echo "FAIL  scad/bioreactor.json registers no builds"; exit 1; }
 failed=0
-# One file per set, so a render that writes nothing cannot be read as another's; its exit status
-# and stderr land beside it.
+# One output file per set, so a render that writes nothing cannot be mistaken for another one.
+# Its exit status and stderr are written next to it.
 export OPENSCAD tmp
 render_set() {
     "$OPENSCAD" -p scad/bioreactor.json -P "$1" --export-format echo -o "$tmp/$1.txt" scad/bioreactor.scad 2>"$tmp/$1.err" >/dev/null
@@ -36,7 +36,7 @@ for s in $sets; do
         grep -m1 '^ERROR' "$out" | sed 's/.*failed: //; s/ in file.*//' | sed 's/^/        /'
         failed=1
     elif [ -z "$stated" ]; then
-        # the assembly states every build it evaluates, so no statement means it was not evaluated
+        # the assembly echoes every build it evaluates, so no echo means it was not evaluated
         echo "FAIL  $s  the render said nothing about the build"
         failed=1
     else

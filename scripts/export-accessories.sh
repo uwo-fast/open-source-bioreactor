@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #
-# Export the bench's printed parts - what stands beside the reactor rather than in it - as STLs
-# with a print list, to $1/accessories (output/ unless given). The list is
-# accessory_print_parts() in scad/support/accessories.scad; each part renders from its own file
-# and is judged as export-parts judges the reactor's.
+# Export the printed bench parts (those beside the reactor rather than in it) as STLs with a
+# print list, to $1/accessories (output/ by default). The list comes from
+# accessory_print_parts() in scad/support/accessories.scad. Each part renders from its own file
+# and is checked the same way export-parts checks the reactor parts.
 : "${OPENSCAD:=openscad}"
 : "${JOBS:=$(nproc)}"
-: "${SEAM_CEILING:=10}" # as export-parts.sh, which says why
+: "${SEAM_CEILING:=10}" # same as export-parts.sh, which explains the value
 
 # A failing render still exits 0 and writes a small file, so nothing here may be gated on $?.
 set -uo pipefail

@@ -1,26 +1,28 @@
 #!/usr/bin/env bash
 #
-# Fail when a designation stops reaching the model.
+# Fail when a designation no longer reaches the model.
 #
 : "${OPENSCAD:=openscad}"
 
-# A designation is a string a build states and a registry answers to. Nothing else in the suite
-# exercises one: a lookup that quietly returned undef for every name would pass check-echo and
-# check-scad both.
+# A designation is a string that a build sets and a registry looks up. Nothing else in the suite
+# tests one: a lookup that silently returned undef for every name would pass both check-echo and
+# check-scad.
 #
-# Three kinds of row:
+# There are three kinds of row:
 #   differs - the value must change the geometry, proving the designation reaches the model
 #   builds  - it must resolve and render; some designations legitimately cannot move geometry
 #   number  - a plain build parameter, which gets the differs test and no bad-name test
-# The two name kinds also get a name nothing answers to, which must fail. A fourth field names a
-# base build, key=value, that both sides of the differs test are taken on, where the file's
-# defaults cannot show the value: a plain lid only differs off the shaft drive.
+# The two name kinds are also tested with an unregistered name, which must fail. An optional
+# fourth field gives a base build, as key=value, on which both sides of the differs test are run,
+# for values the file defaults cannot show: a plain lid only differs from the default when the
+# drive is not the shaft drive.
 #
-# Driven by a parameter set, not -D: -D reaches a `use`d file's globals and would pass on that
-# leak even with reactor_build broken. -p assigns only the file being rendered. The bad names are
-# the exception: newer OpenSCAD drops a set's value that is not among its parameter's listed
-# options, silently, so a name nothing answers to never arrives that way and goes in as -D. A
-# refusal has no leak to pass on - it is the build's own assert either way.
+# Values are passed in a parameter set, not with -D. -D also sets the globals of a `use`d file,
+# so the test could pass through that leak even with reactor_build broken; -p assigns only the
+# file being rendered. The bad names are the exception: newer OpenSCAD silently drops a set value
+# that is not among the listed options of its parameter, so an unregistered name never arrives
+# that way and is passed with -D instead. A rejection cannot pass through a leak, because it is
+# the build's own assert either way.
 set -uo pipefail
 tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
 matrix=(
@@ -39,7 +41,7 @@ matrix=(
     "lid_center_name|plain|differs|drive_name=magnetic"
     "sparger_name|ring|differs"
     "sparger_name|loop|differs"
-    "baffle_name|lid|differs"       # auto is the cage on the default jar, so the plates are the departure
+    "baffle_name|lid|differs"       # auto selects the cage on the default jar, so the plates differ
     "condenser_name|none|differs"
     "stir_bar_name|50x8|builds"
     "stir_magnet_name|MAGRE6x2p5|builds"
@@ -47,10 +49,10 @@ matrix=(
     "lights_per_quadrant|4|number"
     "heat_pad_name|20W 150x50|differs"
 )
-# Every render is its own OpenSCAD process: the parameter sets are written first, all of them
-# render JOBS at a time (every core, unless set), and the rows are judged in order after.
+# Each render is a separate OpenSCAD process. The parameter sets are written first, then all of
+# them render JOBS at a time (every core unless set), and the rows are then checked in order.
 : "${JOBS:=$(nproc)}"
-# One parameter set: the row's base, key=value, with the named parameter over it.
+# One parameter set: the row base, as key=value, with the named parameter applied on top.
 set_json() { # base param value number
     /usr/bin/python3 -c 'import json,sys
 b, p, v, n = sys.argv[1:]
@@ -58,8 +60,8 @@ s = dict(kv.split("=", 1) for kv in b.split(",") if kv)
 if p: s[p] = float(v) if n == "1" else v
 print(json.dumps({"parameterSets": {"t": s}, "fileFormatVersion": "1"}))' "$@"
 }
-# job lines: <name>|<json, or empty for the file's defaults, or an args file of -D pairs>; each
-# renders to $tmp/<name>.csg
+# job lines: <name>|<json, or empty for the file defaults, or an args file of -D pairs>. Each
+# renders to $tmp/<name>.csg.
 jobs="base|"
 for i in "${!matrix[@]}"; do
     IFS='|' read -r param value want base <<< "${matrix[$i]}"
@@ -109,8 +111,8 @@ for i in "${!matrix[@]}"; do
     else
         printf 'ok    %-18s %-12s %s%s\n' "$param" "$value" "$want" "${base:+ on $base}"
     fi
-    # a name nothing answers to has to fail, loudly. Only for the name kinds - a number has no
-    # registry to be absent from.
+    # an unregistered name must fail with an error. This applies only to the name kinds, since a
+    # number has no registry to be missing from.
     if [ "$want" != number ] && ! grep -q '^ERROR' "$tmp/x$i.err"; then
         echo "FAIL  $param accepted a name nothing is registered under"
         failed=1

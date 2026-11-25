@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 """Fail when a just recipe has no description, or shows a sentence fragment as one.
 
-`just` reads ONLY the comment line immediately above a recipe, exactly as the OpenSCAD
+`just` reads ONLY the comment line immediately above a recipe, just as the OpenSCAD
 Customizer reads the line above a variable. A multi-line comment block therefore shows its
-LAST line, which is usually the middle of a sentence: four recipes here once advertised
+LAST line, which is usually the middle of a sentence. Four recipes here once showed
 "clean while the thermocouple row named a part the model had replaced" and "or hiding one
 that does".
 
-Detecting a fragment by reading it is guesswork - the same trap check-customizer's TODO
-records - so this checks STRUCTURE instead, and the rule is the one the file already follows:
-the description must be the first line of its own block. Either the line above the recipe is
-the only comment line, or the one above IT is a bare `#` separating the description from the
-prose that explains it.
+Detecting a fragment from its wording is guesswork (the same problem the TODO in
+check-customizer records), so this script checks STRUCTURE instead, using the rule the file
+already follows: the description must be the first line of its own block. Either the line
+above the recipe is the only comment line, or the line above IT is a bare `#` that separates
+the description from the explanation above it.
 
-That is mechanical, has no false positives, and is satisfied by writing the description last
-with a `#` above it - which is the fix in every case anyway.
+The check is mechanical, has no false positives, and is satisfied by writing the description
+last with a `#` above it, which is the fix in every case anyway.
 """
 
 import pathlib

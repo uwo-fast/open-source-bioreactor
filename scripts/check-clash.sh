@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
 #
-# Fail when the coil condenser or the turbidity sampler stands in anything else on the lid.
+# Fail when the coil condenser or the turbidity sampler intersects anything else on the lid.
 #
-# Both are tall, and both turn through their bayonet's entry rotation going on. For each build in
-# bioreactor.json, its lid is rendered from head.scad with the build's vessel, drive and lid centre
-# (the build's other designations are below the lid or off it). Each tall part is rendered in
-# place, locked and at entry, and intersected with the probes, the port pins, the motor, the motor
-# mount and the other one, locked. An intersection writes no file when it is empty, which is the
-# pass.
+# Both parts are tall, and both rotate through the bayonet entry angle as they are fitted. For
+# each build in bioreactor.json, the lid is rendered from head.scad with that build's vessel, drive
+# and lid centre (its other designations are below the lid or not on it). Each tall part is
+# rendered in place, locked and at entry, and intersected with the probes, the port pins, the
+# motor, the motor mount and the other tall part, locked. An empty intersection writes no file,
+# which is a pass.
 #
-# It needs the manifold backend: about 16 s a render on it, and over ten minutes for the rest of
-# the lid alone on CGAL, which is all apt's 2021.01 build has. Without it, it says SKIP.
+# Requires the manifold backend: about 16 s per render with it. On CGAL, the only backend in the
+# 2021.01 apt build, the rest of the lid alone takes over ten minutes. Without manifold, the
+# script prints SKIP.
 set -uo pipefail
 : "${OPENSCAD:=openscad}"
-# "Nothing rendered" is also what a binary that renders nothing says.
+# A binary that renders nothing also reports "nothing rendered".
 source "$(dirname "$0")/openscad-canary.sh"
 openscad_canary
 tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
@@ -24,7 +25,7 @@ if ! "$OPENSCAD" --backend=manifold -o "$tmp/probe.stl" "$tmp/probe.scad" >/dev/
     exit 0
 fi
 
-# $1 output, $2 build, the rest -D flags; $lid holds the build's own
+# $1 output, $2 build, the rest -D flags. $lid holds the -D flags of the build itself.
 render() {
     local out=$1 build=$2
     shift 2
@@ -42,13 +43,14 @@ render() {
     fi
 }
 
-# name|-D words, one build a line; what a set leaves out is the file's default in both files
+# name|-D words, one build per line. A parameter a set omits takes the file default, in both
+# files.
 builds=$(python3 -c 'import json
 for k, v in json.load(open("scad/bioreactor.json"))["parameterSets"].items():
     d = {"reactor_vessel_name": "reactor_vessel_name", "drive_name": "head_drive", "lid_center_name": "head_lid_center"}
     print(k + "|" + " ".join(f"-D {d[x]}=\"{y}\"" for x, y in v.items() if x in d))')
 [ -n "$builds" ] || { echo "FAIL  could not read the builds in scad/bioreactor.json"; exit 1; }
-# $1 narrows it to one build by name
+# $1 limits the check to one build, by name
 if [ -n "${1:-}" ]; then
     builds=$(grep "^$1|" <<< "$builds") || { echo "FAIL  no build named $1 in scad/bioreactor.json"; exit 1; }
 fi
@@ -77,7 +79,7 @@ while IFS='|' read -r b lid; do
             x="$tmp/$b-$p-$pos-x"
             printf 'intersection() { import("%s"); union() { %s } }\n' "$tmp/$p-$pos.stl" "$others" > "$x.scad"
             "$OPENSCAD" --backend=manifold --export-format binstl -o "$x.stl" "$x.scad" 2>"$x.err" >/dev/null
-            # an import that fails also leaves no file, so a clean log is part of the pass
+            # a failed import also leaves no file, so a pass also requires a clean log
             if grep -qE '^(ERROR|WARNING)' "$x.err"; then
                 echo "FAIL  $b  the $p's intersection did not render"
                 grep -m3 -E '^(ERROR|WARNING)' "$x.err" | sed 's/^/        /'
