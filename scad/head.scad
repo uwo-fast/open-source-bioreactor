@@ -56,16 +56,16 @@ include <purchased/peri_pumps.scad>;
 include <NopSCADlib/vitamins/ball_bearings.scad>; // BB608 type + bb_diameter()/bb_width()
 use <NopSCADlib/vitamins/shaft_coupling.scad>;
 
-// Preview only: the standalone preview derives the joint with the frame's own accessors rather
-// than quoting it.
+// Preview only: the standalone preview computes the joint with the frame accessors rather than
+// hard-coding it.
 use <frame.scad>;
 
-// Internals and tessellation, which are not build choices. See utils/facets.scad.
+// Internal values and tessellation settings, not build choices. See utils/facets.scad.
 /* [Hidden] */
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
-// Tessellate by feature size. head() re-asserts these: $fn is dynamically scoped and `use`
-// resolves it per OpenSCAD version, so a head rendered from another file would otherwise take
-// that file's $fn on a newer binary.
+// Tessellate by feature size. head() sets these again: $fn is dynamically scoped and `use`
+// resolves it differently between OpenSCAD versions, so on a newer binary a head rendered from
+// another file would otherwise inherit that file's $fn.
 $fn = 0;
 $fa = facet_angle();
 $fs = facet_size();
@@ -74,87 +74,87 @@ $fs = facet_size();
 
 // Overrides all other render flags
 render_all = true;
-// The printed lid itself, with its ports, pockets and gasket recess
+// The printed lid, with its ports, pockets and gasket recess
 render_lid = false;
 
-// The gearmotor, bought, drawn where it sits on its mount
+// The purchased gearmotor, drawn in place on its mount
 render_motor = false;
-// The printed mount that stands the motor off the lid
+// The printed mount that holds the motor above the lid
 render_motor_mount = false;
-// Which piece of it, for a per-part export - the mount prints in three
+// Motor mount piece for a per-part export; the mount prints in three pieces
 motor_mount_part_to_render = "all"; // ["all", "base_plate", "face_plate", "middle_stand"]
-// heat-set into the lid, and they stay there once set
+// Heat-set inserts in the lid for the motor mount; they stay in place once set
 render_motor_mount_inserts = false;
-// the screws into them, which come out every service
+// Motor mount screws, which are removed at every service
 render_motor_mount_screws = false;
-// The bought coupler joining the gearbox shaft to the reactor shaft
+// The purchased coupler joining the gearbox shaft to the reactor shaft
 render_shaft_coupler = false;
-// the 608 in the lid's pocket
+// The 608 bearing in the lid pocket
 render_bearing = false;
-// The 316 SS shaft, bought at a stock length; the motor mount's height takes up the surplus
+// The 316 SS shaft, bought at a stock length; the motor mount height takes up the surplus
 render_ext_shaft = false;
-// The printed impellers on that shaft
+// The printed impellers on the shaft
 render_impeller = false;
-// The stir bar on the punt, a vitamin; only with the magnetic drive
+// The stir bar on the punt, a purchased part; magnetic drive only
 render_stir_bar = false;
-// The plug bolted over the bearing pocket when there is no shaft; the lid is the same print
+// The plug bolted over the bearing pocket when there is no shaft; the lid print is the same
 render_bearing_blank = false;
-// The airlift's draft tube, standing on the floor; only with the airlift
+// The airlift draft tube, standing on the jar floor; airlift only
 render_draft_tube = false;
-// The wall baffle cage, where the build carries one instead of lid plates
+// The wall baffle cage, for builds that use it instead of lid baffle plates
 render_baffle_cage = false;
-// Which of it: the cage in the jar, its hoops or its blades there alone, or one print file as it sits on the bed, at the origin
+// Baffle cage part: the cage in the jar, the hoops or blades alone in place, or one print file at the origin as it sits on the bed
 baffle_cage_part_to_render = "cage"; // [cage, hoops, blades, hoop_top, hoop_bottom, blade]
-// How far the cage's blades are slid in, as they go through the mouth; 0 is out against the glass, in mm
+// How far the cage blades are slid inward, as when passing through the mouth; 0 is against the glass, in mm
 baffle_cage_slide = 0;
-// Which of the pair, or the top half of a split one, for a per-part export; whole, they are mirror images, so two different parts
+// Impeller for a per-part export: one of the pair, or the top half of a split one; the two are mirror images, so different parts
 impeller_to_render = "both"; // [both, lower, upper, lower_half, upper_half]
-// the grub screws holding each impeller to the shaft
+// The grub screws holding each impeller to the shaft
 render_set_screws = false;
-// The bayonet lock rings alone, for looking at the channels an assembled lid buries
+// The bayonet lock rings alone, to show the channels hidden in an assembled lid
 render_bayonet_lock = false;
-// The pin half of every TUBE port - gas and dosing
+// The pin half of every TUBE port (gas and dosing)
 render_tube_pinlock = false;
 // The pin half of the thermocouple port
 render_thermocouple_pinlock = false;
 // The pin half of both Ø16 Atlas probe ports
 render_probe_pinlock = false;
-// Narrows the pin halves above to one port by function ("air_in", "baffle_1"); "" is every port
+// Limits the pin halves above to one port, by function ("air_in", "baffle_1"); "" is every port
 port_to_render = "";
-// A blank: a pin with no bore, for a port left empty. Named by its interface ("std"); "" is none
+// A blank (a pin with no bore) for an empty port, named by its interface ("std"); "" is none
 blank_port_to_render = "";
-// Which piece of a baffle plate; undef emits them all interlocked, the assembled part
+// Baffle plate segment to render; undef renders all of them interlocked, as assembled
 baffle_segment_to_render = undef;
-// the Atlas probes themselves, hanging in their collets
+// The Atlas probes, hanging in their collets
 render_probes = false;
-// The pin half of each baffle port, which the plates hang from
+// The pin half of each baffle port, which the baffle plates hang from
 render_baffle_pinlock = false;
-// the EPDM parts: rim gasket, plug o-ring, port o-rings
+// The EPDM parts: rim gasket, plug o-ring and port o-rings
 render_seals = false;
-// The culture at the fill line; not in render_all, it is not a part
+// The culture at the fill line; not part of render_all because it is not a part
 render_culture = false;
-// The templates the rim gasket is cut with; a tool, so not in render_all
+// The templates used to cut the rim gasket; a tool, so not part of render_all
 render_gasket_cutter = false;
-// Which of its two discs; "all" stands them side by side
+// Gasket cutter disc to render; "all" places both side by side
 gasket_cutter_part_to_render = "all"; // [all, outer, inner]
-// the ring in the inter-impeller gap and its feed arm
+// The sparge ring in the gap between the impellers, and its feed arm
 render_sparger = false;
-// The bought 316 riser and its supports; their own flag so a sparger export is a print file
+// The purchased 316 riser and its supports; a separate flag so a sparger export is a print file
 render_sparge_tubes = false;
-// The open dosing tubes beside a loop or an arm, which are not the sparger's; a ring's are its supports
+// The open dosing tubes next to a loop or arm sparger; for a ring sparger they are its supports
 render_dose_tubes = false;
-// Pull the drive stack and the lid's ports apart along the vessel's axis, this far between neighbours, for an exploded view; 0 is assembled
+// Exploded view: gap between neighbouring parts of the drive stack and lid ports, along the vessel axis; 0 is assembled
 explode = 0;
 // The exhaust condenser on air_out, assembled in place
 render_condenser = false;
 // The turbidity sampler on its port, assembled in place
 render_sampler = false;
-// Which of its prints: one alone renders at the origin, as it prints
+// Sampler print to render; a single print renders at the origin, in print orientation
 sampler_part_to_render = "assembly"; // [assembly, base, top]
-// Which of its parts: one alone renders at the origin, as it prints
+// Condenser part to render; a single part renders at the origin, in print orientation
 condenser_part_to_render = "assembly"; // [assembly, body, panel, former, puck_bottom, puck_top]
 
-// Draw the lid's 24 bayonet halves as bare shells while previewing; renders are unaffected
+// Draw the 24 bayonet halves on the lid as bare shells in preview; renders are unaffected
 fast_bayonet_preview = true;
 $bayonet_shell_only = $preview && fast_bayonet_preview;
 
@@ -162,9 +162,9 @@ $bayonet_shell_only = $preview && fast_bayonet_preview;
 
 /* [Vessel Selection] */
 
-// Which jar this lid is for; a parameter set names it, so it must be a name and not a row
+// The jar this lid fits; parameter sets refer to it by name, so it is a name, not a row
 reactor_vessel_name = "jar_10L_220x305"; // [jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_112x215, jar_1gal_155x251]
-// resolved from the name, not chosen
+// Looked up from the name, not chosen
 /* [Hidden] */
 reactor_vessel = vessel_by_name(reactor_vessel_name);
 assert(
@@ -174,49 +174,49 @@ assert(
 
 /* [Lid Parameters] */
 
-// the height of the lids plug (inner diameter part)
+// Height of the lid plug (the part inside the jar neck)
 lid_plug_height = 10;
-// allowance for the lid to fit on the jar
+// Radial allowance for the lid to fit on the jar
 lid_radial_allowance = 0.4;
-// to the plug's edge, to a neighbouring port, and to the flange's outer edge for the joint posts
-// Least wall the lid keeps around a bore, in mm
+// Applies at the plug edge, between ports, and at the flange outer edge for the joint posts
+// Minimum lid wall around a bore, in mm
 lid_holes_offset = 2.0;
-// the flanges stand on the lid's outer face; the wall between their bores is lid_holes_offset
-// Least air between two neighbouring port flanges, in mm
+// The flanges stand on the outer face of the lid; the wall between their bores is lid_holes_offset
+// Minimum clearance between two neighbouring port flanges, in mm
 lid_flange_gap = 1.0;
-// allowance for the bearing and shaft holes
+// Allowance for the bearing and shaft holes
 bearing_hole_allowance = 0.2;
 
 /* [Lid Seal Parameters] */
 
 /** How the lid seals to the jar.
- * - The pressure boundary is a flat sheet gasket recessed into the lid's flange, squeezed against
- *   the top of the glass. A fire-polished lip presents a crown (vessel_rim_radius()), so the
- *   gasket covers the lip and what is squeezed is the band the crown makes.
- * - The plug o-ring centres the plug in the neck and stands behind the gasket against splash. It
- *   is not a pressure boundary: a radial squeeze tracks the jar's bore, which is not a controlled
+ * - The pressure seal is a flat sheet gasket recessed into the lid flange and compressed against
+ *   the top of the glass. A fire-polished lip is crowned (vessel_rim_radius()), so the gasket
+ *   covers the whole lip and the compressed area is the band formed by the crown.
+ * - The plug o-ring centres the plug in the neck and backs up the gasket against splash. It is
+ *   not a pressure seal: its radial squeeze depends on the jar bore, which is not a controlled
  *   dimension, so it is sized toward the loose end.
- * Bands are Apple Rubber's Table A, static seals: 19-33% squeeze axial, 14-23% radial at this
+ * Squeeze ranges are from Apple Rubber Table A, static seals: 19-33% axial, 14-23% radial at this
  * cord. https://www.applerubber.com/src/pdf/section4-seal-types-and-gland-design-tables.pdf
  */
 
-// its thickness sets the recess depth and its hardness the gasket factor (head_gasket_factor())
+// Its thickness sets the recess depth and its hardness the gasket factor (head_gasket_factor())
 // The registered sheet the rim gasket is cut from
 lid_gasket_sheet = sheet_epdm_1p6_60a;
-// fraction of that the recess squeezes out; 25% is mid-band for a soft sheet
+// Fraction of the sheet thickness the recess compresses; 25% is mid-range for a soft sheet
 lid_gasket_compression = 0.25;
-// land left between the gasket and each edge of the glass's flat top, for the flange to bear on
+// Land between the gasket and each edge of the flat top of the glass, for the flange to bear on
 lid_gasket_land_margin = 1.0;
-// Seating force grows with width and stiffness with its square, and all of it lands on glass
-// Widest the rim gasket is cut, in mm
+// Seating force grows with width and stiffness with width squared, and all of it is on the glass
+// Maximum rim gasket width, in mm
 lid_gasket_width_max = 6;
-// below this a gasket is fiddly to cut and will not stay in its recess; reported, not enforced
+// Narrower gaskets are fiddly to cut and do not stay in the recess; reported, not enforced
 lid_gasket_width_min = 3;
-// derived: any registered ring whose free ID lands this jar's groove between zero and five percent
-// stretch. The groove is cut from the mouth, so one ring seals one mouth.
-// The ring centring the lid plug; undef derives it from the mouth
+// Derived: any registered ring whose free ID stretches 0-5% onto this jar's groove. The groove is
+// sized from the mouth, so each ring fits one mouth.
+// The o-ring centring the lid plug; undef derives it from the mouth
 lid_plug_oring = undef;
-// radial squeeze; low in the 14-25% band because a stretched ring thins by about half its stretch
+// Radial squeeze; low in the 14-25% range because a stretched ring thins by about half its stretch
 lid_plug_oring_squeeze = 0.18;
 
 /* [Bearing Parameters] */
@@ -224,154 +224,156 @@ lid_plug_oring_squeeze = 0.18;
 // The registered bearing the pocket is cut from, plus bearing_hole_allowance
 shaft_bearing = BB608; // McMaster 6153K71, 440C stainless, sealed, trade no. 608-2RS
 
-// Closes the path up the shaft bore and out round the rim. On the OUTER race, which does not
-// turn - a 608's race faces are flush, so a face gasket would be clamped against steel turning at
-// shaft speed. Its ID is the bearing, 22 on 22, so it seats at 0% stretch, and head() checks that.
+// Seals the leak path up the shaft bore and out around the rim. It sits on the OUTER race, which
+// does not turn. The race faces of a 608 are flush, so a face gasket would be clamped against
+// steel turning at shaft speed. Its ID matches the bearing OD (22 on 22), so it seats at 0%
+// stretch; head() checks this.
 // The seal on the bearing's outer diameter
 bearing_oring = oring_22x1p5_epdm;
 
-// A radial gland cut outward from the pocket wall, Table A's radial column.
+// A radial gland cut outward from the pocket wall, sized from the radial column of Table A.
 function head_bearing_gland_diameter() =
   oring_rod_gland_diameter(bb_diameter(shaft_bearing), oring_cross_section(bearing_oring));
 function head_bearing_gland_length() = oring_gland_width(oring_cross_section(bearing_oring));
-// centred in the pocket's depth, so there is wall either side
+// Centred in the pocket depth, so there is wall on either side
 function head_bearing_gland_z() = bb_width(shaft_bearing) / 2;
 
 /* [Drive Selection] */
 
-// A shaft through the lid, a stir bar on the punt following magnets on a fan under the base, none,
-// where the gas is all that moves the culture, or an airlift, which is none with a draft tube. All
-// but the shaft retire the motor, mount, coupling, bearing and its seal.
+// Drive type. shaft: a shaft through the lid. magnetic: a stir bar on the punt, driven by magnets
+// on a fan under the base. none: only the gas mixes the culture. airlift: none plus a draft tube.
+// All except shaft remove the motor, mount, coupling, bearing and bearing seal.
 head_drive = "shaft"; // [shaft, magnetic, none, airlift]
-// The middle of the lid: the bearing pocket, shaft bore and mount inserts, or plain. Auto is
-// bearing under a shaft or magnetic drive, where the blank plugs it, and plain with no drive.
+// Lid centre: bearing (bearing pocket, shaft bore and mount inserts) or plain.
+// Auto selects bearing for a shaft or magnetic drive (the blank plugs it) and plain otherwise.
 head_lid_center = "auto"; // [auto, bearing, plain]
 function head_lid_center_selected(lid_center, drive) =
   lid_center != "auto" ? lid_center : head_gas_driven(drive) ? "plain" : "bearing";
-// No drive but the gas: a bubble column, or an airlift.
+// Gas is the only drive: a bubble column or an airlift.
 function head_gas_driven(drive) = drive == "none" || drive == "airlift";
-// A bearing lid under anything but the shaft is open to the culture until the blank plugs it.
+// A bearing lid with any drive other than shaft is open to the culture until the blank plugs it.
 function head_blank_carried(drive, lid_center) =
   drive != "shaft" && head_lid_center_selected(lid_center, drive) == "bearing";
 // The stir bar a magnetic drive turns, centred on the punt
 head_stir_bar = stir_bar_38x8;
-// what the blank's boss stops short of the pocket's floor, so its flange seats on the lid first
+// Gap between the blank boss and the pocket floor, so the blank flange seats on the lid first
 bearing_blank_seat = 0.2;
 
 /* [Motor & Gearbox Selection] */
 
-// the registered motor; the gearbox comes off its row
+// The registered motor; the gearbox is taken from its row
 head_motor = motor_36pg_555pm_14_en;
-// undef means this file's own row; an explicit undef does not trigger a default argument
+// undef selects this file's row; an explicit undef argument does not trigger a default argument
 function head_motor_selected(motor) = is_undef(motor) ? head_motor : motor;
 
 /* [Shaft Parameters] */
 
-// Gap between the punt and the bottom of the shaft: a collision clearance, not the mixing one
+// Gap between the punt and the bottom of the shaft; a collision clearance, not a mixing clearance
 shaft_jar_punt_clearance = 5;
-// Length sets how far the shaft protrudes above the lid, and so the mount's height.
-// The impeller shaft; undef takes the shortest registered row that leaves the coupling a grip
+// Its length sets how far the shaft protrudes above the lid, and so the mount height.
+// The impeller shaft; undef takes the shortest registered row that still engages the coupling
 head_shaft = undef;
-// Gap between the gearbox's shaft and the impeller shaft inside the coupler, in mm: two rigid
-// shafts that touch push on the gearbox's bearings, and every part's tolerance comes out of it
+// Gap between the gearbox shaft and the impeller shaft inside the coupler, in mm. Two rigid shafts
+// that touch load the gearbox bearings, and every part tolerance is absorbed by this gap
 shaft_shaft_coupling_offset = 3;
-// the registered coupling joining the gearbox output shaft to the impeller shaft
+// The registered coupling joining the gearbox output shaft to the impeller shaft
 shaft_coupler = shaft_coupler_8x8_rigid;
 
 /* [Motor Mount Parameters] */
 
-// Outer diameter of the mount body: the gearbox it collars plus a wall each side. It could go to
-// 42 before the base inserts meet the bearing pocket.
+// Outer diameter of the mount body: the gearbox diameter plus a wall on each side. It could grow
+// to 42 before the base inserts reach the bearing pocket.
 function head_motor_mount_body_diameter(gearbox) =
   gearbox_diameter(gearbox) + 2 * motor_mount_wall_thickness;
-// wall thickness of the mount body; also sets the flange and raised face heights
+// Wall thickness of the mount body; also sets the flange and raised face heights
 motor_mount_wall_thickness = 10;
-// clearance between the telescoping parts, for printed fit
+// Clearance between the telescoping parts, for printed fit
 motor_mount_coupling_allowance = 0.2;
-// number of facets for the mount body (must be divisible by 4)
+// Number of facets for the mount body (must be divisible by 4)
 motor_mount_facets = 20;
-// heat-set, because the mount comes off at every service and a printed thread would not survive
-// it; the hole and the screw length both come off this row
+// Heat-set, because the mount is removed at every service and a printed thread would not survive
+// that. The hole size and the screw length both come from this row.
 // The heat-set insert the mount screws into
 motor_mount_base_insert = insert_m4x4p7_ss;
-// the screw into that insert; its size must match what the insert takes
+// The screw into that insert; its size must match the insert
 motor_mount_base_screw = M4_cap_screw;
-// the insert holes and the bearing pocket; what keeps them from being a leak path into the culture
-// Least lid left under a blind pocket, in mm
+// Applies to the insert holes and the bearing pocket, and keeps them from leaking into the culture
+// Minimum lid thickness under a blind pocket, in mm
 lid_blind_pocket_floor_min = 3.0;
 
 /* [Impeller Parameters] */
 
 // The relations and their citations are in utils/stirred_tank.scad; the impeller types and their
-// process numbers in custom/impellers.scad.
+// process numbers are in custom/impellers.scad.
 
-// The bore, not the outer diameter, is what D/T means in the literature. These three knobs are
-// undef by default, which takes the lower impeller's standard layout from its row in
-// custom/impellers.scad; a number set here is a departure, and head() echoes it as one.
-// Impeller diameter as a fraction of the vessel's bore (D/T); undef takes the type's standard
+// In the literature D/T uses the bore, not the outer diameter. These three parameters default to
+// undef, which takes the standard layout from the lower impeller's row in custom/impellers.scad. A
+// number set here is a departure from it, and head() echoes it as one.
+// Impeller diameter as a fraction of the vessel bore (D/T); undef takes the type's standard
 impeller_bore_ratio = undef;
 // A pair of six-blade disc turbines, the standard fermentation configuration. A radial impeller
-// holds its flow pattern against the sparger's gas at 3x the gas stream's power where an axial
-// one needs 8x (Oldshue p. 228); docs/agitation.md has the case.
+// keeps its flow pattern against the sparger gas at 3x the gas stream power, where an axial one
+// needs 8x (Oldshue p. 228); see docs/agitation.md.
 // The registered type of the lower impeller
 head_impeller_lower_type = impeller_rushton_6;
-// A pitched blade here, for the circulation the light needs, is the hybrid dev/future-work.md
-// keeps; pbt_45_4 is the one whose Po a correlation gives.
+// A pitched blade here, for the circulation the light needs, is the hybrid listed in
+// dev/future-work.md; pbt_45_4 is the one with a Po correlation.
 // The registered type of the upper impeller
 head_impeller_upper_type = impeller_rushton_6;
 
-// the nearest measured shape, and an over-estimate since twist lowers Po (Patwardhan, Kumaresan)
-// The row whose power number stands in when the type has none
+// Nearest measured shape; an over-estimate, since twist lowers Po (Patwardhan, Kumaresan)
+// The row whose power number is used when the type has none
 head_impeller_po_fallback = impeller_folded_axial_4;
 
-// width of each fin blade
+// Width of each fin blade
 impeller_fin_width = 4;
 // Reasoned, not cited: thick enough to bridge between the blades when the turbine prints on them
-// Thickness of a disc turbine's disc, in mm
+// Thickness of the disc on a disc turbine, in mm
 impeller_disc_thickness = 2.4;
-// Standing on its blades, a disc turbine's disc overhangs the whole ring between hub and blades.
-// Split at the disc's mid-plane, each half prints on its half-disc with nothing overhanging, and
-// one half turned over onto another makes the impeller. Printed and run at 70 mm.
+// Printed standing on its blades, the disc of a disc turbine overhangs the whole ring between
+// hub and blades. Split at the disc mid-plane, each half prints on its half-disc with no overhang,
+// and one half flipped onto the other makes the impeller. Printed and run at 70 mm.
 // Print a disc turbine as two identical halves pinned with filament; false prints it whole, on supports
 impeller_split_disc = true;
-// Reasoned, not cited: for 1.75 mm filament, as printed holes come out undersize; printed and fitted
-// Diameter of the filament-pin holes lining up a split turbine's halves, in mm
+// Reasoned, not cited: sized for 1.75 mm filament, as printed holes come out undersize; printed and fitted
+// Diameter of the filament-pin holes that align the halves of a split turbine, in mm
 impeller_pin_diameter = 2.0;
 // Depth of each filament-pin hole in a half, in mm
 impeller_pin_depth = 4;
-// Ring tying the blade tips; off, it prints as an overhang and nothing needs it
+// Ring joining the blade tips; it prints as an overhang and nothing needs it, so it is off
 impeller_tip_ring = false;
-// size of the center hub; the set screw threads through it, so it sets the thread engagement
+// Size of the centre hub; the set screw threads through it, so it sets the thread engagement
 impeller_hub_radius = 10;
-// the set screw holding each impeller to the shaft
+// The set screw holding each impeller to the shaft
 impeller_set_screw = set_screw_m4x6_316;
-// where they land around the collar
+// Set screw angles around the collar
 impeller_set_screw_at = [0, 120];
-// the screws thread into the collar rather than the hub, which keeps them clear of a fin at any
-// count, twist or phase
+// The screws thread into the collar rather than the hub, which keeps them clear of the fins at
+// any blade count, twist or phase
 // Height of the set-screw collar above the blades, in mm
 impeller_collar_height = 8;
-// added to the tap hole for print calibration; printed holes come out undersize
+// Added to the tap hole for print calibration; printed holes come out undersize
 impeller_set_screw_allow = 0;
-// allowance for the shaft hole, diametral; the bore is a slip fit and the set screws locate it
+// Diametral allowance for the shaft hole; the bore is a slip fit and the set screws locate it
 impeller_shaft_allow = 0.4;
-// How much the bore narrows from top to bottom, diametral. Off: two impellers have to be located
-// along one shaft, and a tapered bore has to be driven to its depth rather than set there.
+// Off because two impellers must be positioned along one shaft, and a tapered bore has to be
+// pushed to its depth rather than set there.
+// Diametral taper of the bore from top to bottom
 impeller_shaft_draft = 0;
 // Centre to centre spacing of the two impellers, in impeller diameters; undef takes the type's standard
 impeller_spacing_factor = undef;
 
-// A design declaration: the pair are mirror images and always oppose, and at +1 the lower pumps
-// up, the upper down, and the flows converge on the gap - the one arrangement where a single
-// sparge ring sits in both discharges (Birch & Ahmed).
+// A design choice: the two impellers are mirror images and always pump in opposite directions.
+// At +1 the lower pumps up, the upper pumps down, and the flows meet in the gap. This is the only
+// arrangement where a single sparge ring sits in both discharges (Birch & Ahmed).
 // Which way the shaft turns, right-handed about +Z: +1 counter-clockwise seen from above
 head_shaft_rotation = 1;
 // Lower impeller centreline off the floor, in impeller diameters; undef takes the type's standard
 impeller_clearance_factor = undef;
 
-// What the build runs at: a knob where one is set, else the lower impeller's standard layout. The
-// layout is held over T, so a D/T set alone leaves the clearance and the spacing where the
-// standard puts them in the tank.
+// The values the build uses: a parameter where one is set, otherwise the standard layout of the
+// lower impeller. The layout is stored relative to T, so setting only D/T leaves the clearance and
+// spacing where the standard puts them in the tank.
 function head_layout_type() = head_impeller_lower_type;
 function head_impeller_bore_ratio() =
   is_undef(impeller_bore_ratio) ? impeller_tank_bore_ratio(head_layout_type()) : impeller_bore_ratio;
@@ -389,51 +391,51 @@ assert(
   str(impeller_name(head_layout_type()), " has no standard layout; set impeller_bore_ratio, impeller_clearance_factor and impeller_spacing_factor")
 );
 
-// A fraction of capacity, so it scales across the registry; the literature's 0.8 is reported
-// against.
-// Fraction of the jar's capacity the culture fills
+// A fraction of capacity, so it scales across all registered jars; the deviation from the
+// literature value of 0.8 is reported.
+// Fraction of the jar capacity filled with culture
 culture_fill_fraction = 0.865;
-// Window a shaft speed measurement is averaged over, in seconds; sets what an encoder resolves
+// Averaging window for a shaft speed measurement, in seconds; sets the encoder speed resolution
 encoder_speed_window = 0.1;
 
 /* [Thermocouple Mount Parameters] */
 
-// height of the thermocouple mount
+// Height of the thermocouple mount
 thermocouple_mount_height = 20;
 
-// NPT wedges rather than bottoming out; 0.5 is hand-tight on a printed thread, from the bench
+// NPT threads wedge rather than bottom out; 0.5 is hand-tight on a printed thread (bench result)
 // Fraction of the probe's threaded body engaged in its mount, 0 to 1.
 thermocouple_thread_engagement = 0.5;
 
 /* [Bayonet Lock Parameters] */
 
-// how to draw each port on its lock: "locked" as assembled, or "entry" as it sits before the turn
+// How each port is drawn on its lock: "locked" as assembled, or "entry" before it is turned
 port_position = "locked"; // [locked, entry]
 
 /* [Port Assignment] */
 
-// What sits at each bayonet lock on the lid, going around it: [function, type, bore_radius, probe].
-// The FUNCTION is the port's identity and what head_port_index() looks it up by; baffles all carry
+// The port at each bayonet lock, in order around the lid: [function, type, bore_radius, probe].
+// FUNCTION identifies the port and is the key head_port_index() looks up; all baffles use
 // "baffle". Types:
 //   "tube"         -> generic bayonet port, bore_radius sets the through-hole
 //   "probe"        -> atlas probe holder (flex collet), bore 0, fourth slot the registered probe
 //   "thermocouple" -> NPT thread mount, bore_radius the through-hole, fourth slot the probe
 //   "baffle"       -> blind port carrying a swirl baffle, bore 0; count must divide the port count
 //   "sampler"      -> the turbidity sampler (custom/sampler.scad), whose base is the pin; the
-//                     port's riser is its dip tube, so bore_radius is the riser's, as a tube's
-//   "blank"        -> a port left empty, closed by a blank; made by head_ports_walled(), not listed
+//                     port riser is its dip tube, so bore_radius is the riser bore, as for a tube
+//   "blank"        -> an empty port closed by a blank; made by head_ports_walled(), not listed
 
-// A rigid tube from the lid port down into the sparge ring's socket, and the only thing holding
-// the ring. Above the port tables because they are bored for it.
+// A rigid tube from the lid port down into the sparge ring socket; it is the only support for
+// the ring. Defined above the port tables because they are bored for it.
 // The registered tube the sparger hangs from
 sparge_riser_tube = sparger_riser();
 
-// a guide, not a grip: a ground steel tube does not hold itself in a printed bore the way
-// flexible tubing does
+// A guide, not a grip: a ground steel tube does not hold in a printed bore the way flexible
+// tubing does
 // Bore radius of the tube ports, cut for the riser, in mm
 tube_port_riser_bore = steel_tube_od(sparge_riser_tube) / 2 + 0.2; // 0.2 as the bearing hole takes
 
-// The rod seal closing that annulus; its ID is the tube's OD, which head() checks
+// The rod seal closing the gap around the riser; its ID equals the tube OD, which head() checks
 tube_port_riser_oring = oring_4x1p5_epdm;
 
 // The twelve-port table. Nested, so no parameter set can carry it.
@@ -452,9 +454,9 @@ head_port_set_full = [
   ["dose_4",      "tube",         tube_port_riser_bore], // 330
 ];
 
-// No baffles, and one dosing line rather than three. Tubes and instruments
-// alternate, so the ring hangs from three tubes 120 degrees apart rather than from one side; the
-// thermocouple is 1/8 NPT so it fits a mini, one port from DO.
+// No baffles, and one dosing line instead of three. Tubes and instruments alternate, so the ring
+// hangs from three tubes 120 degrees apart rather than from one side. The thermocouple is 1/8 NPT
+// so it fits a mini, one port from DO.
 // The six-port table a narrow jar carries
 head_port_set_reduced = [
   ["do_probe",    "probe",        0, do_lab_g2], //   0 deg  opposite the air inlet
@@ -465,14 +467,14 @@ head_port_set_reduced = [
   ["dose_1",      "tube",         tube_port_riser_bore], // 300
 ];
 
-// Which set this lid carries. undef derives it from the mouth; set a table to pin one.
+// The port set this lid carries; undef derives it from the mouth, a table fixes it.
 head_ports = undef;
 
-// The sets this lid knows, widest first, so the search takes the fullest that fits.
+// The available port sets, largest first, so the search picks the fullest set that fits.
 function head_port_sets() = [head_port_set_full, head_port_set_reduced];
 
-// Whether a set's flanges clear each other on this mouth: the worst adjacent pair decides.
-// `uniform` asks it of a lid that gives every port the std interface.
+// Whether the flanges of a port set clear each other on this mouth; the worst adjacent pair
+// decides. `uniform` checks a lid that gives every port the std interface.
 function head_port_set_fits(vessel_opening_diameter, ports, uniform = false) =
   let (
     _n = len(ports),
@@ -491,19 +493,19 @@ function head_port_set_fits(vessel_opening_diameter, ports, uniform = false) =
         - bayonet_port_hole_radius(head_port_interface(ports[(i + 1) % _n], uniform))
     ]) >= lid_holes_offset;
 
-// The widest set that fits at all, on the smallest interface each port can take.
+// The largest set that fits, using the smallest interface each port can take.
 function head_port_set_for(vessel_opening_diameter) =
   let (_fit = [for (p = head_port_sets()) if (head_port_set_fits(vessel_opening_diameter, p)) p])
     len(_fit) == 0 ? undef : _fit[0];
 
-// Whether this lid can afford std on every port, so any port takes any function and there is one
-// face o-ring to buy. Usually free, since std-against-std pairs already bind the twelve-port
-// circle.
+// Whether this lid has room for std on every port, so any port can take any function and only one
+// face o-ring size is needed. This usually costs nothing, because std-std pairs already set the
+// size of the twelve-port circle.
 function head_ports_uniform(vessel_opening_diameter, ports) =
   head_port_set_fits(vessel_opening_diameter, ports, true);
 
-// The smallest mouth a set fits, to 0.01 mm, by bisection: the chord grows with the mouth, so the
-// fit is monotone. undef if it fits nothing under 400 mm.
+// The smallest mouth a set fits, to 0.01 mm, by bisection. The chord grows with the mouth, so the
+// fit is monotonic. undef if the set fits no mouth under 400 mm.
 function head_port_set_min_mouth(ports, uniform = false, lo = 40, hi = 400) =
   !head_port_set_fits(hi, ports, uniform) ? undef
   : hi - lo <= 0.01 ? hi
@@ -512,8 +514,8 @@ function head_port_set_min_mouth(ports, uniform = false, lo = 40, hi = 400) =
       ? head_port_set_min_mouth(ports, uniform, lo, _mid)
       : head_port_set_min_mouth(ports, uniform, _mid, hi);
 
-// The table this lid carries, each row with its interface pinned: uniformity is a property of the
-// lid, not of a port.
+// The port table for this lid, with the interface fixed on each row, because uniformity is a
+// property of the lid, not of a port.
 function head_ports_for(vessel_opening_diameter) =
   let (_set = is_undef(head_ports) ? head_port_set_for(vessel_opening_diameter) : head_ports)
     is_undef(_set)
@@ -522,16 +524,16 @@ function head_ports_for(vessel_opening_diameter) =
         [for (p = _set) [p[0], p[1], p[2], p[3], head_port_interface(p, _u)]];
 function head_ports_n(vessel_opening_diameter) = len(head_ports_for(vessel_opening_diameter));
 
-// Which bayonet a port mates to is derived from what the port has to pass.
+// The bayonet interface of a port is derived from what has to pass through the port.
 
-// Material the pin half keeps around its own bore.
+// Wall the pin half keeps around its bore.
 port_bore_wall = 2;
 
-// Smallest first, so the search returns the least interface that will do; std alone when uniform.
+// Smallest first, so the search returns the smallest interface that works; only std when uniform.
 function head_interfaces_by_size(uniform = false) =
   uniform ? [bayonet_std] : [bayonet_mini, bayonet_midi, bayonet_std];
 
-// What passes through has to clear the bore; what stands on top (an NPT mount) must fit the flange.
+// Anything passing through must clear the bore; anything on top (an NPT mount) must fit the flange.
 function head_interface_fits(iface, bore, thread) =
   bayonet_interface_radius(iface) - bore >= port_bore_wall
   && (
@@ -539,15 +541,15 @@ function head_interface_fits(iface, bore, thread) =
     || bayonet_flange_radius(iface) >= npt_thread_major_diameter(thread) / 2 + npt_mount_wall()
   );
 
-// probe and baffle are fixed by what they carry; everything else takes the smallest that fits
-// when the lid has to economise, and std when it does not.
+// Probe and baffle ports are fixed by what they carry. Every other port takes the smallest
+// interface that fits when the lid is short of room, and std when it is not.
 function head_interface_for(type, bore, thread = undef, uniform = false) =
   type == "probe" || type == "baffle"
     ? bayonet_std
     : let (_fit = [for (i = head_interfaces_by_size(uniform)) if (head_interface_fits(i, bore, thread)) i])
       len(_fit) == 0 ? undef : _fit[0];
 
-// A resolved row carries its own interface, and that pin wins.
+// A resolved row carries its own interface, which takes precedence.
 function head_port_interface(port, uniform = false) =
   !is_undef(head_port_pinned_interface(port))
     ? head_port_pinned_interface(port)
@@ -560,20 +562,20 @@ function head_port_interface(port, uniform = false) =
         uniform
       );
 
-// The biggest interface in use; the port circle and the plug groove both derive from it.
+// The largest interface in use; the port circle and the plug groove are both derived from it.
 function head_widest_interface(ports) =
   let (
     _used = [for (p = ports) head_port_interface(p)],
     _holes = [for (i = _used) bayonet_port_hole_radius(i)]
   ) _used[search(max(_holes), _holes)[0]];
 
-function head_port_function(port) = port[0]; // what it is for, and this table's identity
+function head_port_function(port) = port[0]; // its purpose, and its key in this table
 function head_port_type(port) = port[1]; // how it is built
 function head_port_bore_radius(port) = port[2]; // through-hole, 0 where nothing passes
 function head_port_probe(port) = port[3]; // registered probe, "probe" entries only
 function head_port_pinned_interface(port) = port[4]; // set by head_ports_for(), undef on a raw row
 
-// Where the port with this purpose sits; exactly one.
+// Index of the port with this function; there must be exactly one.
 function head_port_index(vessel_opening_diameter, fn) =
   let (
     _ports = head_ports_for(vessel_opening_diameter),
@@ -584,9 +586,10 @@ function head_port_index(vessel_opening_diameter, fn) =
       str("This lid has ", len(_at), " ports for \"", fn, "\"; looking one up by function needs exactly one.")
     ) _at[0];
 
-// What the way out costs at a given flow, Pa: the hand-cut vent slot as an orifice of the tube's
-// bore and the tube above it, or, through the coil condenser, its outlet barb's bore as an
-// orifice, the narrowest it passes; and an outlet filter if one is set.
+// Exhaust pressure drop at a given flow, in Pa. Without a condenser it is the hand-cut vent slot,
+// treated as an orifice of the tube bore, plus the tube above it. With the coil condenser it is
+// the condenser outlet barb bore as an orifice, the narrowest point. An outlet filter is added if
+// one is set.
 function head_gas_exhaust_pressure(flow, vent_length, condenser = "none") =
   let (_bore = steel_tube_id(sparge_riser_tube))
     (
@@ -597,8 +600,8 @@ function head_gas_exhaust_pressure(flow, vent_length, condenser = "none") =
     )
     + (is_undef(sparge_outlet_filter) ? 0 : gas_filter_pressure_drop(flow, gas_filter_drop_slope(sparge_outlet_filter)));
 
-// What the line costs at a given flow, Pa, the vessel and the way out included. A function of
-// flow because the filter is linear in it and dominates.
+// Gas line pressure at a given flow, in Pa, including the vessel and the exhaust. It is a function
+// of flow because the filter drop is linear in flow and dominates.
 function head_gas_line_pressure(flow, vessel_pressure, riser_length, vent_length, condenser = "none") =
   vessel_pressure
   + gas_filter_pressure_drop(flow, gas_filter_drop_slope(sparge_inlet_filter))
@@ -609,11 +612,11 @@ function head_gas_line_pressure(flow, vessel_pressure, riser_length, vent_length
 
 // ----- the lid under the wall cage -----
 //
-// The cage's hoops are Cs, and every probe has to hang in the gap: the hoops pass under the lid
-// inside the ports' reach, and a probe's body and lean reach past them. The gap is the sector
-// between two blades that holds the DO probe, less a block and its ramp on the dovetail's side and
-// a block on the other. A probe outside
-// it moves into a port the lid's plates free inside it, and every port left empty takes a blank.
+// The cage hoops are C-shaped, and every probe has to hang in the gap. The hoops pass under the
+// lid within reach of the ports, and a probe body, with its lean, extends past them. The gap is
+// the sector between the two blades either side of the DO probe, minus a block and its ramp on
+// the dovetail side and a block on the other side. A probe outside the gap moves to a port inside
+// it that the lid baffle plates no longer use, and every empty port gets a blank.
 
 function head_wall_angle_in(a, from, to) = let (_x = ((a - from) % 360 + 360) % 360) _x > 0 && _x < to - from;
 function head_wall_gap(ports, blade_at) =
@@ -625,8 +628,8 @@ function head_wall_gap(ports, blade_at) =
     _k = is_undef(_a) ? undef : floor((((_a - blade_at[0]) % 360) + 360) % 360 / _step),
     _from = is_undef(_k) ? undef : blade_at[0] + _k * _step
   )
-    // from past the ramp on the dovetail's side of the blade at `from`, so the lip that holds the
-    // flange has the band behind it, to the block's side of the next blade
+    // From past the ramp on the dovetail side of the blade at `from` (so the lip that holds the
+    // flange has the band behind it) to the block side of the next blade
     is_undef(_from) ? undef : [_from + baffle_cage_block() + baffle_cage_taper(), _from + _step - baffle_cage_block()];
 function head_ports_walled(ports, blade_at) =
   let (
@@ -652,11 +655,11 @@ function head_ports_for_baffles(vessel_opening_diameter, baffles) =
   let (_p = head_ports_for(vessel_opening_diameter))
     head_baffles_selected(baffles) == "wall" ? head_ports_walled(_p, wall_baffle_at) : _p;
 
-// The gas comes down whichever port is the air inlet, wherever that ends up sitting.
+// The gas feed is the air inlet port, wherever it is placed.
 function head_sparge_feed_port(vessel_opening_diameter) = head_port_index(vessel_opening_diameter, "air_in");
 
-// Every printed part this lid carries: [name, quantity, the flags that render it alone]. It
-// varies with the vessel, so it lives here; `just export-parts` walks it.
+// Every printed part for this lid: [name, quantity, the flags that render it alone]. It depends
+// on the vessel, so it is defined here; `just export-parts` iterates over it.
 function head_print_parts(vessel, lid_flange_height, drive = "shaft", sparger = "auto", lid_center = "auto", condenser = "auto", baffles = "auto") =
   let (
     _sparger = head_sparger_selected(sparger, drive),
@@ -668,31 +671,32 @@ function head_print_parts(vessel, lid_flange_height, drive = "shaft", sparger = 
   )
     concat(
       [["lid", 1, "-D render_lid=true"]],
-      // the shaft drive's parts; a magnetic drive prints the frame's carrier and cap instead
+      // shaft drive parts; a magnetic drive prints the frame carrier and cap instead
       drive != "shaft" ? [] : [
         for (m = ["base_plate", "face_plate", "middle_stand"])
           [str("motor_mount_", m), 1, str("-D render_motor_mount=true -D motor_mount_part_to_render=\"", m, "\"")],
       ],
-      // Whole, mirror images, so two parts and not one printed twice; split, see the function.
+      // Whole impellers are mirror images, so two parts, not one printed twice. For split
+      // impellers, see the function.
       drive != "shaft" ? [] : head_impeller_print_rows(
         stirred_tank_impeller_diameter(vessel_diameter(vessel) - 2 * vessel_thickness(vessel), head_impeller_bore_ratio())
       ),
-      // what plugs the pocket the shaft drive would fill
+      // plugs the bearing pocket when there is no shaft drive
       !head_blank_carried(drive, lid_center) ? [] : [["bearing_blank", 1, "-D render_bearing_blank=true"]],
       drive != "airlift" ? [] : [["draft_tube", 1, "-D render_draft_tube=true"]],
       [[str("sparge_", _sparger), 1, "-D render_sparger=true"]],
-      // the sampler's two prints, its base being its port's pin
+      // the two sampler prints; the base is the port pin
       len([for (q = _ports) if (head_port_type(q) == "sampler") q]) == 0 ? [] : [
         for (c = ["base", "top"])
           [str("sampler_", c), 1, str("-D render_sampler=true -D sampler_part_to_render=\"", c, "\"")],
       ],
-      // the coil condenser's printed parts and the two pucks its ends are formed on; its body is air_out's pin
+      // coil condenser parts and the two pucks its ends are formed on; the body is the air_out pin
       !_coil ? [] : [
         for (c = ["body", "panel", "former", "puck_bottom", "puck_top"])
           [str("condenser_coil_", c), 1, str("-D render_condenser=true -D condenser_part_to_render=\"", c, "\"")],
       ],
-      // One blank per interface the lid carries, to close a port nothing is in, and one for each
-      // port the lid leaves empty.
+      // One blank per interface on the lid, to close an unused port, plus one for each port the
+      // lid leaves empty.
       [
         for (f = head_port_interface_names(_ports))
           [
@@ -706,8 +710,8 @@ function head_print_parts(vessel, lid_flange_height, drive = "shaft", sparger = 
         for (c = [["hoop_top", 1], ["hoop_bottom", 1], ["blade", len(wall_baffle_at)]])
           [str("baffle_cage_", c[0]), c[1], str("-D render_baffle_cage=true -D baffle_cage_part_to_render=\"", c[0], "\"")],
       ],
-      // Ports, in the order they sit on the lid. A baffle's plate prints in pieces, so it is that
-      // many parts; every other port is one.
+      // Ports, in order around the lid. A baffle plate prints in pieces, so it counts as that many
+      // parts; every other port is one part.
       [
         for (i = [0:len(_ports) - 1])
           let (_n = head_port_export_name(_ports, i))
@@ -718,7 +722,7 @@ function head_print_parts(vessel, lid_flange_height, drive = "shaft", sparger = 
             )
               [str("port_", _n), 1, str("-D port_to_render=\"", _n, "\"")],
       ],
-      // Every baffle port is the same part, so one part with a quantity, rendered off the first
+      // Every baffle port is the same part, so one row with a quantity, rendered from the first
       let (
         _baffles = head_baffle_ports(_ports)
       )
@@ -743,7 +747,7 @@ function head_print_parts(vessel, lid_flange_height, drive = "shaft", sparger = 
       ]
     );
 
-// What a per-part export addresses a port by: its function, or baffle_<index>.
+// The name a per-part export uses for a port: its function, or baffle_<index>.
 // The interfaces a port table uses, each once, in the order they first appear.
 function head_port_interface_names(ports) =
   let (_n = [for (p = ports) bayonet_name(head_port_interface(p))])
@@ -754,55 +758,57 @@ function head_port_export_name(ports, i) =
   : head_port_function(ports[i]) == "blank" ? str("blank_", i)
   : head_port_function(ports[i]);
 
-// Which ports have a rigid tube standing in them, and so want a seal around it.
+// Ports with a rigid tube in them, which need a seal around it.
 function head_port_carries_riser(port) = head_port_type(port) == "tube" || head_port_type(port) == "sampler";
 
 /* [Baffle Parameters] */
 
-// Each plate is centred on its port and no wider than its lock's bore lets through, so these are
-// partial baffles standing inboard of the wall. They still break the swirl, and flow accelerating
-// behind a baffle keeps the region from going stagnant.
+// Each plate is centred on its port and no wider than the lock bore allows, so these are partial
+// baffles set in from the wall. They still break the swirl, and flow accelerating behind a baffle
+// keeps the region from going stagnant.
 // https://pmc.ncbi.nlm.nih.gov/articles/PMC8459426/
 
-// The lean is the coupling's worst case (head_baffle_lean()), and the plate narrows to keep this.
-// running clearance between the baffle's inner edge and the impellers, after the plate's lean
+// The lean is the worst case allowed by the coupling (head_baffle_lean()); the plate narrows to
+// keep this clearance.
+// Running clearance between the baffle inner edge and the impellers, after the plate lean
 baffle_impeller_clearance = 1;
-// clearance between the bottom of the baffle and the glass under it
+// Clearance between the bottom of the baffle and the glass below it
 baffle_floor_clearance = 10;
-// clearance between the jar's neck bore and the baffle's outer corner
+// Clearance between the jar neck bore and the outer corner of the baffle
 baffle_neck_clearance = 1.5;
-// clearance between the lock's bore and the plate dropping through it on assembly
+// Clearance between the lock bore and the plate passing through it during assembly
 baffle_bore_clearance = 0.2;
-// a pinned number is still checked against the floor
-// How far the plate hangs below its port, in mm; undef hangs it to the floor limit
+// A set value is still checked against the floor
+// How far the plate hangs below its port, in mm; undef extends it to the floor limit
 baffle_length = undef;
-// A stiffness and dynamics choice, not strength: 10 keeps the blade-passing crossing under the
-// drive's band, thicker walks it in and thinner deflects more. head() warns on both.
+// A stiffness and dynamics choice, not a strength one: 10 keeps the blade-passing frequency
+// crossing below the drive band. Thicker moves it into the band and thinner deflects more. head()
+// warns on both.
 // Thickness of the baffle plate, in mm
 baffle_thickness = 10;
-// printed PETG, for the plate's stiffness; derated from ~2.0 GPa bulk
+// Printed PETG, for the plate stiffness; derated from ~2.0 GPa bulk
 baffle_modulus = 1800; // MPa
 // kg/m^3, PETG
 baffle_density = 1270;
-// height over which the port's round bottom face blends out into the plate
+// Height over which the round bottom face of the port blends into the plate
 baffle_transition_height = 10;
 
-// Splitting the plate so it can be printed. A full-depth plate is the tallest, most slender thing
-// in the model, and it stands in the port's own axis, so what bounds a piece is how tall it may
-// stand on its own footprint - a print quality cap, not a bed one. The joint is a local drop in
-// section, and head() reports what it costs.
+// Splitting the plate for printing. A full-depth plate is the tallest and most slender part in the
+// model, and it prints along the port axis, so a piece is limited by how tall it can stand on its
+// own footprint. That is a print quality limit, not a bed size limit. The joint is a local
+// reduction in section, and head() reports its cost.
 
-// What a piece stands on: its own section plus a brim as wide again each side
+// A piece stands on its own section plus a brim of the same width on each side
 baffle_brim_spread = 3;
-// A judgement, graded on the plate's own section, since a tip piece is more slender than the one
-// carrying the port's flange.
+// A judgement, based on the plate section alone, since a tip piece is more slender than the piece
+// carrying the port flange.
 // How tall a printed piece may stand per unit of footprint
 baffle_slenderness = 4;
-// And a ceiling: the shortest Z any registered printer has, less room for a brim
+// Upper limit: the smallest build height of any registered printer, minus room for a brim
 baffle_segment_height_ceiling = min([for (p = printers) printer_build_z(p)]) - 10;
 
-// The port's own stack included. Graded on the widest plate the port's bore will pass, so the cap
-// is a property of the port, not the vessel.
+// Includes the port stack. Based on the widest plate the port bore will pass, so the limit is a
+// property of the port, not the vessel.
 // Tallest a printed baffle piece may stand, in mm
 baffle_segment_height_max =
   min(
@@ -810,258 +816,263 @@ baffle_segment_height_max =
     baffle_brim_spread * baffle_slenderness
       * max(bayonet_baffle_width(head_interface_for("baffle", 0), baffle_thickness, baffle_bore_clearance), baffle_thickness)
   );
-// How many pieces each plate splits into. undef derives it from the cap above; a number pins it.
+// Number of pieces each plate splits into; undef derives it from the limit above, a number fixes it
 baffle_segments = undef;
-// The dovetail slides along the plate's width and is blind at the far end. The neck is the only
-// material crossing the joint plane, so it is the parameter and the depth follows.
-// Socket wall each side of the dovetail, in mm; four perimeters at a 0.4 nozzle
+// The dovetail slides across the plate width and is blind at the far end. The neck is the only
+// material crossing the joint plane, so it is the parameter and the depth follows from it.
+// Socket wall on each side of the dovetail, in mm; four perimeters with a 0.4 nozzle
 baffle_joint_lip = 1.6;
-// material left crossing the joint
+// The neck: the material that crosses the joint
 baffle_joint_neck = 4.2;
-// degrees off vertical - shallow, so engagement is not bought from the neck
+// Degrees off vertical; shallow, so the engagement does not come at the expense of the neck
 baffle_joint_flare = 10;
-// slide fit between tail and socket; flank clearance only, the butt faces meet
+// Slide fit between tail and socket; flank clearance only, the end faces meet
 baffle_joint_allowance = 0.1;
 
 /* [Baffle Cage Parameters] */
 
-// The standard set instead of lid plates: four at T/12, T/72 off the wall, floor to surface, on two
-// hoops that pass the mouth with the blades slid in (custom/baffle_cage.scad). The lid's baffle
-// ports then take blanks, and a probe outside the hoops' gap moves into one of them.
+// Standard baffles instead of lid plates: four at T/12, T/72 off the wall, floor to surface, on
+// two hoops that pass through the mouth with the blades slid in (custom/baffle_cage.scad). The lid
+// baffle ports then take blanks, and a probe outside the hoop gap moves into one of them.
 
-// Lid-hung plates, or the wall cage; auto is the cage wherever it fits the build, else the plates
+// Lid-hung plates or the wall cage; auto uses the cage wherever it fits the build, otherwise plates
 head_baffles = "auto"; // [auto, lid, wall]
-// Where the cage fits: a shaft or magnetic drive, not the ring, a lid with baffle ports to take a
-// probe the hoops' gap leaves out, and travel enough for a blade to slide free between its detents.
+// The cage fits with a shaft or magnetic drive, a sparger other than the ring, a lid with baffle
+// ports to take any probe outside the hoop gap, and enough travel for a blade to slide free
+// between its detents.
 function head_wall_cage_fits(vessel, drive, sparger) =
   (drive == "shaft" || drive == "magnetic") && sparger != "ring"
   && len(head_baffle_ports(head_ports_for(vessel_opening_diameter(vessel)))) > 0
   && baffle_cage_travel(vessel_diameter(vessel) / 2 - vessel_thickness(vessel), vessel_opening_diameter(vessel) / 2)
     >= baffle_cage_travel_min();
-// head() and head_print_parts() resolve auto with the build in hand and pass the answer down; a
-// helper that is handed auto has no vessel, and takes the plates.
+// head() and head_print_parts() resolve auto using the full build and pass the result down. A
+// helper given auto has no vessel, so it uses the plates.
 function head_baffles_selected(baffles, vessel = undef, drive = "shaft", sparger = "arm") =
   baffles != "auto" ? baffles
   : !is_undef(vessel) && head_wall_cage_fits(vessel, drive, sparger) ? "wall"
   : "lid";
-// Where the cage's blades stand, in degrees, equally spaced: between the frame's lit windows,
-// whose strips stand at 105-165 and 285-345 deg (frame.scad, light_places)
+// Angles of the cage blades, in degrees, equally spaced between the lit windows of the frame,
+// whose light strips are at 105-165 and 285-345 deg (frame.scad, light_places)
 wall_baffle_at = [0, 90, 180, 270];
-// what the top hoop's underside keeps over the culture, in mm
+// Clearance from the underside of the top hoop to the culture surface, in mm
 wall_baffle_surface_clearance = 1;
-// what the bottom hoop's footing keeps over the floor at its inner edge, in mm
+// Clearance from the bottom hoop footing to the floor at its inner edge, in mm
 wall_baffle_floor_clearance = 0.2;
-// what the slid-in bottom bars, detents and all, keep over the floor under them, in mm
+// Clearance from the slid-in bottom bars, including detents, to the floor below them, in mm
 wall_baffle_bar_floor_clearance = 0.5;
-// what the cage keeps off the glass anywhere but its pads, in mm
+// Clearance from the cage to the glass everywhere except its pads, in mm
 wall_baffle_glass_clearance = 1;
-// what the hoops and the bars' tips keep off the tubes and thermocouple hanging inside them, in mm
+// Clearance from the hoops and bar tips to the tubes and thermocouple hanging inside them, in mm
 wall_baffle_hardware_clearance = 1;
 
 /* [Sparger Parameters] */
 
-// The ring goes in the gap between the impellers: Birch & Ahmed 1997 place a ring in the
-// impeller's discharge, and a converging pair (head_shaft_rotation) puts both discharges there.
-// 1.4 D is the ring they tested, the equal-swept-volume radius, and the largest that passes the
-// mouth. Hole size and count are for spacing and against fouling, not for even flow (Rewatkar &
-// Joshi 1993: negligible effect near the impeller).
+// The ring goes in the gap between the impellers. Birch & Ahmed 1997 place a ring in the impeller
+// discharge, and a converging pair (head_shaft_rotation) puts both discharges in the gap. 1.4 D is
+// the ring they tested, the equal-swept-volume radius, and the largest that passes the mouth. Hole
+// size and count are chosen for spacing and against fouling, not for even flow (Rewatkar & Joshi
+// 1993: negligible effect near the impeller).
 
-// A ring between the impellers, an arm off the air inlet's riser ending under the lower impeller
-// with its holes down, or a loop: that riser's tube hooked round into a C under the lower
-// impeller; auto is the arm under a drive and the ring with none
+// ring: a ring between the impellers. arm: an arm off the air inlet riser, ending under the lower
+// impeller with its holes facing down. loop: the riser tube bent into a C under the lower impeller.
+// Sparger type; auto selects the arm with a drive and the ring with none
 head_sparger = "auto"; // [auto, ring, arm, loop]
 function head_sparger_selected(sparger, drive) = sparger != "auto" ? sparger : head_gas_driven(drive) ? "ring" : "arm";
-// how far the arm's holes sit below the lower impeller's underside, in mm
+// Distance of the arm holes below the underside of the lower impeller, in mm
 sparge_cap_drop = 10;
-// what the arm's end keeps clear of the shaft, in mm
+// Clearance between the end of the arm and the shaft, in mm
 sparge_cap_shaft_clearance = 5;
-// clearance the ring keeps to the baffles inboard and the mouth it passes; a static fit
+// Clearance from the ring to the baffles inside it and to the mouth it passes through; a static fit
 sparge_ring_clearance = 1.25;
-// where the ring sits in the gap: 0 at the lower impeller's collar, 1 at the upper impeller
+// Ring position in the gap: 0 at the lower impeller collar, 1 at the upper impeller
 sparge_ring_gap_fraction = 0.5;
-// Under no drive the ring sits on the floor instead, its underside this far over the highest glass
-// beneath it: room for a support cut a little long, and to wipe under it. In mm
+// With no drive the ring sits on the floor instead, with its underside this far above the highest
+// glass below it. This allows for a support cut slightly long, and for wiping under it.
+// Gap under the floor-mounted ring, in mm
 sparge_ring_floor_gap = 10;
-// The airlift's draft tube stands on the floor round everything hanging from the lid: sparged
-// inside, it is the riser and the annulus outside it the downcomer. The ring, inside its feet or
-// its wall, centres it. Print it clear, or it shades the core.
+// The airlift draft tube stands on the floor around everything hanging from the lid. Sparged
+// inside, it is the riser, and the annulus outside it is the downcomer. The ring, inside its feet
+// or its wall, centres it. Print it in clear material, or it shades the core.
 // Wall of the draft tube, in mm
 draft_tube_wall = 2;
-// What the draft tube keeps clear of the probes, the thermocouple and the risers inside it, in mm
+// Clearance from the draft tube to the probes, thermocouple and risers inside it, in mm
 draft_tube_hardware_clearance = 2;
 // How many feet the draft tube stands on
 draft_tube_feet = 3;
-// The least of the culture's depth the tube has to span. A judgement, not a source: the equal-area
-// gaps can stand a tube on a wide jar so high it barely loops
+// Reasoned, not cited: on a wide jar the equal-area gaps can raise a tube so high it barely loops
+// Minimum fraction of the culture depth the tube must span
 draft_tube_span_min = 0.5;
 // Width of each foot, around the tube, in mm
 draft_tube_foot_width = 8;
-// Fillet each side of a foot where it meets the tube, against the corner cracking; a short foot
-// takes its own length, in mm
+// Fillet on each side of a foot where it meets the tube, to stop the corner cracking; a short foot
+// uses its own length.
+// Fillet on each side of a draft tube foot, in mm
 draft_tube_foot_fillet = 6;
-// The feed socket is this tube standing up, so the bore is the riser's own and the outside is
-// that plus this wall, which is also what the socket keeps around the riser.
-// Wall around the sparger's socket bore, in mm; with the slip allowance that keeps the tube 6.4
+// The feed socket is this tube standing up, so its bore is the riser bore and its outside is the
+// bore plus this wall, which is also the wall the socket keeps around the riser.
+// Wall around the sparger socket bore, in mm; with the slip allowance this keeps the tube at 6.4
 sparge_wall = 1.1;
-// octagon outside: flats to drill into, and no crown to bridge
+// Octagonal outside: flats to drill into, and no crown to bridge
 sparge_tube_facets = 8;
-function sparge_bore() = steel_tube_od(sparge_riser_tube); // one passage, the riser's own
-// The feed socket is the tube standing up, so the tube is the socket's bore plus a wall.
+function sparge_bore() = steel_tube_od(sparge_riser_tube); // a single passage, the riser bore
+// The feed socket is the tube standing up, so the tube is the socket bore plus a wall.
 function sparge_tube() = sparge_feed_bore + 2 * sparge_wall;  // across FLATS
-// How many concentric rings; above one they sit on equal area
+// Number of concentric rings; with more than one they are spaced at equal area
 sparge_ring_count = 1;
-// Where the innermost ring sits when there is more than one, as a fraction of the outermost
+// Position of the innermost ring when there is more than one, as a fraction of the outermost
 sparge_inner_fraction = 0.35;
-// the cleaning gap opposite the feed
+// Angle of the cleaning gap opposite the feed
 sparge_split_angle = 14;
-// How far the loop's C runs round from where its hook meets it, in degrees. Short of a full turn
-// by enough that a hex key reaches its end plug along the tube; reasoned, not cited
+// Reasoned, not cited: short of a full turn by enough for a hex key to reach the end plug along
+// the tube.
+// Angle the loop C runs around from where the hook meets it, in degrees
 sparge_loop_sweep = 300;
-// caps each cut end of the ring, self-tapping into a pilot
+// Caps each cut end of the ring, self-tapping into a pilot hole
 sparge_plug_screw = sparger_screw();
 
 // Hidden to the next marker: registry row references a parameter set cannot name, derived values,
-// and settled design constants.
+// and fixed design constants.
 /* [Hidden] */
-// Emit the breakthrough probes check-holes tests. Off for a normal render.
+// Emit the breakthrough probes used by the check-holes tests. Off for a normal render.
 sparge_hole_probes = false;
-// Gas holes, drilled radially inward on the ring (Birch & Ahmed) and down on the arm and the loop.
-// Finer holes make finer bubbles, and bubble size set the fivefold kLa spread Uyar measured. The
-// orifice velocity times the open area is the bore's own velocity, 5.42 m/s at 0.5 vvm on jar_10L,
-// so no size or count keeps both inside Barbosa's 5.4 m/s and an open area of 1: 1 mm x 16 sat on
-// that corner. 1 mm came out too small on a print, so 1.2 mm x 16 runs 3.76 m/s at an open area of
-// 1.44, and its 24 Pa a hole still outweighs the bore's 18 Pa of velocity head, which 3 mm did not.
-// 3 mm was held against fouling, which the culture photos do not show on the sparger
+// Gas holes, drilled radially inward on the ring (Birch & Ahmed) and downward on the arm and loop.
+// Smaller holes make smaller bubbles, and bubble size accounted for the fivefold kLa spread Uyar
+// measured. Orifice velocity times open area equals the bore velocity, 5.42 m/s at 0.5 vvm on
+// jar_10L, so no hole size or count stays within both Barbosa's 5.4 m/s and an open area of 1;
+// 1 mm x 16 was at that limit. 1 mm printed too small, so 1.2 mm x 16 runs at 3.76 m/s with an open area of 1.44.
+// Its 24 Pa per hole still exceeds the 18 Pa velocity head in the bore, which 3 mm holes did not.
+// 3 mm was chosen against fouling, which the culture photos do not show on the sparger
 // (docs/agitation.md).
 sparge_hole_diameter = 1.2;
 sparge_hole_count = 16;
-// The loop feeds its holes down one bore to a dead end, where the ring has two paths, so 16 left
-// its far end bubbling weaker on the bench. 11 brings the holes' area under the bore's (0.99) and
-// doubles the push through each (50 Pa against 24), at 5.47 m/s, a hair past Barbosa's 5.4.
-// The ring stays at 16: an odd count puts a hole in its split.
+// The loop feeds its holes along one bore to a dead end, where the ring has two paths, so with 16
+// holes the far end bubbled more weakly on the bench. 11 holes bring the total hole area below the
+// bore area (0.99) and double the pressure drop across each hole (50 Pa against 24), at 5.47 m/s,
+// slightly above Barbosa's 5.4. The ring stays at 16 because an odd count puts a hole in its split.
 sparge_loop_hole_count = 11;
-// Which ports drop a tube to the ring to hold it steady: every tube port but the feed. Each is
-// capped at the ring and takes a hole higher up, cut at the bench and not modelled.
-// Derived from the table, since a narrow jar's port set carries no dosing pair.
+// Ports that drop a tube to the ring to steady it: every tube port except the feed. Each tube is
+// capped at the ring and has a hole higher up, cut at the bench and not modelled.
+// Derived from the table, since the port set for a narrow jar has no pair of dosing ports.
 function head_sparge_support_ports(vessel_opening_diameter, condenser = "none") =
   let (_p = head_ports_for(vessel_opening_diameter))
     [for (i = [0:len(_p) - 1])
       if (head_port_type(_p[i]) == "tube" && head_port_function(_p[i]) != "air_in"
         && !(condenser != "none" && head_port_function(_p[i]) == "air_out")) i];
-// The socket's fit is sparger.scad's, which the bench puck shares; a -D here moves the lid's alone.
-// allowance on a socket's bore over the riser
+// The socket fit comes from sparger.scad and is shared with the bench puck; a -D here changes only
+// the lid's.
+// Allowance on the socket bore over the riser
 sparge_socket_allow = sparger_socket_allow();
-// bore of the socket the riser drops into, off the tube itself
+// Bore of the socket the riser drops into, taken from the tube
 sparge_feed_bore = steel_tube_od(sparge_riser_tube) + sparge_socket_allow;
-// depth of every socket, which the riser lands at the bottom of
+// Depth of every socket; the riser sits at the bottom
 sparge_socket_depth = sparger_socket_depth();
-// The arm hangs on one riser, so its socket carries a boss and the ring's plug screw self-taps
-// through it to grip the tube; the ring rests on five and needs neither.
-// wall of that boss, which the screw runs through
+// The arm hangs from one riser, so its socket has a boss, and the ring plug screw self-taps
+// through it to grip the tube. The ring rests on five risers and needs neither.
+// Wall of that boss, which the screw passes through
 sparge_cap_boss_wall = sparger_boss_wall();
-// Lead-in at each socket mouth. sparger() bounds it against the wall it eats; the bore below is
-// unchanged.
+// Lead-in chamfer at each socket mouth. sparger() limits it against the wall it removes; the bore
+// below is unchanged.
 sparge_socket_chamfer = sparger_socket_chamfer();
-// The arm or the loop hangs from its riser alone and seals on it by a press fit: a deeper feed
-// socket whose bore tapers from the slip fit at the mouth to this much under the riser at the bottom
+// The arm or loop hangs from its riser alone and seals on it with a press fit: a deeper feed
+// socket whose bore tapers from a slip fit at the mouth to this much under the riser at the bottom
 sparge_hung_socket_depth = sparger_hung_socket_depth();
 sparge_socket_press = sparger_socket_press();
-// The clamp that lands on the riser; its band width is what sets how far the tube stands proud.
+// The hose clamp on the riser; its band width sets how far the tube protrudes.
 sparge_riser_clamp = clamp_sae4_316_5p16;
-// bare tube either side of the band, so the clamp lands wholly on the riser
+// Bare tube on either side of the band, so the whole clamp sits on the riser
 sparge_riser_clamp_lead_in = 3.5;
 
-// How far a tube stands above the top of its port, from the registered clamp. Flexible tubing
-// wants a few diameters of engagement, and this is 3.7.
+// How far a tube protrudes above the top of its port, from the registered clamp. Flexible tubing
+// needs a few diameters of engagement, and this is 3.7.
 sparge_riser_proud = hose_clamp_band_width(sparge_riser_clamp) + 2 * sparge_riser_clamp_lead_in;
-// The sterile inlet filter; its drop slope is extrapolated, see the registry
+// The sterile inlet filter; its pressure drop slope is extrapolated, see the registry
 sparge_inlet_filter = gas_filter_cp_1594522;
-// A filter on the way out. undef is what this build has: the headspace vents through a support
-// tube into the room. Set it and head() prices the exhaust; leave it and head() reports the budget.
+// Exhaust filter. undef matches this build: the headspace vents into the room through a support
+// tube. If set, head() calculates the exhaust drop; if not, head() reports the pressure budget.
 sparge_outlet_filter = undef;
-// What takes the air_out port: the coil condenser, whose body is that port's pin, so the port
-// carries no tube and the headspace leaves through the coil; or none, where a tube hangs from it
-// and the headspace vents through a slot cut in that tube. auto is the coil, unless the ring needs
-// air_out's tube as one of its supports.
+// What fits the air_out port. coil: the coil condenser, whose body is the port pin, so the port has
+// no tube and the headspace exits through the coil. none: a tube hangs from the port and the
+// headspace vents through a slot cut in it. auto selects the coil unless the ring needs the
+// air_out tube as one of its supports.
 head_condenser = "auto"; // [auto, none, coil]
 function head_condenser_selected(condenser, sparger) =
   condenser != "auto" ? condenser : sparger == "ring" ? "none" : "coil";
-// the coil's tubing, and the rod seal each of its two ends passes the panel on
+// The coil tubing, and the rod seal on each of its two ends where they pass through the panel
 condenser_coil_tube = aluminum_tube_by_name("3/16x0.028");
 condenser_coil_end_seal = oring_4p5x1p5_epdm;
-// the check valve; cracking pressure and Cv both come off the row
+// The check valve; cracking pressure and Cv both come from its row
 sparge_check_valve = check_valve_cp_5011521;
-// the aeration rate the holes are reported against, volumes of gas per volume of liquid per minute
+// Aeration rate the holes are reported against, in volumes of gas per volume of liquid per minute
 sparge_design_vvm = 0.5;
-// the band the gas metering has to cover, in vvm
+// Range the gas metering has to cover, in vvm
 sparge_vvm_band = [0.1, 0.5];
-// what pushes the gas
+// The air pump
 head_air_pump = air_pump_resun_35w;
-// what doses the culture; what this model knows of it is the tube it pushes
+// The dosing pump; the model only uses the tube it pumps through
 head_dosing_pump = peri_pump_kamoer_nkp;
-// which ports it feeds. They are numbered, not named for acid, base or media: what each carries is
-// the user's to choose. The twelve-port set has 1, 2 and 4, keeping the numbers they were printed
-// with after the sampler took dose 3's port; a narrow-mouthed jar's six-port set has only the first
+// Ports the dosing pump feeds. They are numbered, not named acid, base or media, because the user
+// chooses what each carries. The twelve-port set has 1, 2 and 4, keeping the printed numbers after
+// the sampler took the dose 3 port; the six-port set for a narrow-mouthed jar has only dose_1
 dosing_pump_functions = ["dose_1", "dose_2", "dose_4"];
 
 /* [Probe Port Parameters] */
 
-// The collet's own choices; every probe dimension comes from the registered probe in head_ports.
+// Collet-specific values; every probe dimension comes from the registered probe in head_ports.
 // Wall of the probe collet, in mm
 probe_port_collet_wall_thickness = 1.2;
-// grip fit; 0.5 was tried twice and was tight, 0.6 stuck
+// Grip fit; 0.5 was tried twice and was tight, 0.6 stuck
 probe_port_collet_body_allowance = 0.6;
-// the same fit on the hex the probe's connector passes through, one size up from the body
+// The same fit on the hex the probe connector passes through, one size up from the body
 probe_port_collet_connector_allowance = 0.6;
-// clearance slot cut around each flex tab, which is what leaves it free to move
+// Clearance slot cut around each flex tab, which lets the tab move
 probe_port_collet_tab_gap = 1.0;
-// how far each flex tab is squeezed inward, so the probe is held by spring rather than a press fit
+// How far each flex tab is pressed inward, so the probe is held by spring force, not a press fit
 probe_port_collet_tab_deflection = 0.5;
-// radius of the tab window's top corners, which the collet's body carries round the opening
+// Radius of the top corners of the tab window, which the collet body carries around the opening
 probe_port_collet_window_radius = 2;
-// Hole at the foot of each slot, where the tab bends: the slot is half the gap wide, less than a
-// nozzle can round, so the corner it would leave at the tab's root is spread by this instead
+// Relief hole at the foot of each slot, where the tab bends. The slot is half the gap wide, too
+// narrow for a nozzle to round, so this hole spreads the corner at the root of the tab instead
 probe_port_collet_tab_relief = 1.0;
-// Atlas say "approximately 60 ml/min"; the probe consumes the oxygen it reads. A property of the
-// sensing principle, so here and not in the registry.
+// Atlas specify "approximately 60 ml/min"; the probe consumes the oxygen it measures. This is a
+// property of the sensing principle, so it is defined here and not in the registry.
 // Flow a galvanic DO probe needs past its membrane, mL/min
 do_probe_flow_requirement = 60;
 
-// The DO probe leans outward to shed bubbles off its membrane. The lean is derived: the most of
-// this ceiling the jar's internals allow (scanned, since the bounds close from both sides), and
-// 0 where nothing clears so the reach asserts report the real conflict.
-// Ceiling on how far the DO probe leans out, in degrees
+// The DO probe leans outward to shed bubbles from its membrane. The lean is derived: the largest
+// value up to this limit that the jar internals allow (scanned, since the bounds close from both
+// sides), and 0 where nothing clears, so the reach asserts report the real conflict.
+// Maximum outward lean of the DO probe, in degrees
 do_probe_port_tilt_max = 4.5;
-// Yokogawa want a pH bulb at least 15 degrees above horizontal, and the long pH probe goes
-// through the sparge ring at any lean
-// How far the pH probe leans, in degrees; vertical
+// Yokogawa specify a pH bulb at least 15 degrees above horizontal, and the long pH probe would
+// intersect the sparge ring at any lean
+// Lean of the pH probe, in degrees; 0 is vertical
 ph_probe_port_tilt_degrees = 0;
-// the collet's standoff below the coupling, before the probe's own diameter is added to it
+// Collet standoff below the coupling, before the probe diameter is added to it
 probe_port_transition_length = 25;
 
 /* [Color Parameters] */
 
-// first color for 3D prints
+// First colour for 3D prints
 prints1_color = "DarkSlateGray";
-// second color for 3D prints
+// Second colour for 3D prints
 prints2_color = "SlateBlue";
 
 module dummy() {
   // stop the customizer detection from here onwards
 }
 
-// What a build chooses, as [name, value] pairs resolved against the defaults above. A key named
-// with the value undef ("derive it") is distinguishable from one not named ("head.scad's own").
+// Build choices, as [name, value] pairs resolved against the defaults above. A key given with the
+// value undef ("derive it") is distinct from a key not given ("use the head.scad default").
 function head_build(build, key, fallback) =
   let (_hit = [for (kv = build) if (kv[0] == key) kv])
     len(_hit) == 0 ? fallback : _hit[0][1];
 
-// The lid is a flange landing on the rim, carrying the joint, and a plug entering the mouth,
-// carrying the ports. The port circle is as far out as a bore can sit and still leave
-// lid_holes_offset to the plug's edge.
+// The lid is a flange that sits on the rim and carries the joint, and a plug that enters the mouth
+// and carries the ports. The port circle is as far out as a bore can go while leaving
+// lid_holes_offset to the plug edge.
 function head_lid_thickness(lid_flange_height) = lid_flange_height + lid_plug_height;
 function head_lid_plug_diameter(vessel_opening_diameter) = vessel_opening_diameter - lid_radial_allowance;
-// `ports` is passed only by the set search, which cannot ask for the table it is choosing.
+// `ports` is passed only by the set search, which cannot look up the table it is choosing.
 function head_port_circle_radius(vessel_opening_diameter, ports = undef) =
   head_lid_plug_diameter(vessel_opening_diameter) / 2
   - bayonet_port_hole_radius(
@@ -1069,21 +1080,22 @@ function head_port_circle_radius(vessel_opening_diameter, ports = undef) =
   )
   - lid_holes_offset;
 
-// The mount's base screws: clearance holes through its flange, insert holes into the lid.
+// Mount base screws: clearance holes through the mount flange, insert holes in the lid.
 function head_motor_mount_screw_hole_diameter() = screw_clearance_radius(motor_mount_base_screw) * 2;
 function head_motor_mount_screw_radius(body_diameter) =
   get_base_screw_separation_radius(body_diameter, head_motor_mount_screw_hole_diameter());
 
-// Which lip this jar has. A ground lip is a flat annulus the gasket insets into with a land each
-// side; a crowned lip has neither, so the gasket covers it and the crown sinks in.
+// The lip type of this jar. A ground lip is a flat annulus, and the gasket is inset on it with a
+// land on each side. A crowned lip has no flat or land, so the gasket covers it and the crown
+// presses into it.
 function head_lip_is_flat(rim_arc_radius) = rim_arc_radius == 0;
 
 function head_gasket_rim_width(vessel_wall_thickness) =
   vessel_wall_thickness - 2 * lid_gasket_land_margin;
 
-// A ground lip: inset into the flat, capped. A crowned lip: covered from the bore out past the
-// lip's footprint. The width cap does not apply to a crown, where only the contact band is
-// squeezed - see head_lip_contact_width().
+// Ground lip: inset on the flat, with the width limited. Crowned lip: covered from the bore out
+// past the lip footprint. The width limit does not apply to a crown, where only the contact band
+// is compressed; see head_lip_contact_width().
 function head_gasket_width(vessel_wall_thickness, rim_arc_radius) =
   head_lip_is_flat(rim_arc_radius)
     ? min(head_gasket_rim_width(vessel_wall_thickness), lid_gasket_width_max)
@@ -1096,24 +1108,24 @@ function head_gasket_outer_radius(vessel_opening_diameter, vessel_wall_thickness
   head_gasket_inner_radius(vessel_opening_diameter, rim_arc_radius)
   + head_gasket_width(vessel_wall_thickness, rim_arc_radius);
 
-// What actually gets squeezed: the gasket's width on a flat lip; on a crown, the chord the lip
-// makes as it sinks by the same fraction of thickness the recess would have squeezed on a flat.
+// The compressed width: the gasket width on a flat lip. On a crown, it is the chord the lip makes
+// when it presses in by the same fraction of thickness the recess would compress on a flat lip.
 function head_lip_contact_width(vessel_wall_thickness, rim_arc_radius, sheet) =
   head_lip_is_flat(rim_arc_radius)
     ? head_gasket_width(vessel_wall_thickness, rim_arc_radius)
-    // The crown is rigid, so what it sinks into the gasket is the travel itself.
+    // The crown is rigid, so it presses into the gasket by the full travel.
     : let (_d = head_gasket_travel(sheet))
         2 * sqrt(max(2 * rim_arc_radius * _d - _d * _d, 0));
 
-// and where that band sits: on a crown it is centred on the crown, not on the gasket.
+// Mean diameter of that band; on a crown it is centred on the crown, not on the gasket.
 function head_lip_contact_mean_diameter(vessel_opening_diameter, vessel_wall_thickness, rim_arc_radius) =
   head_lip_is_flat(rim_arc_radius)
     ? head_gasket_inner_radius(vessel_opening_diameter, rim_arc_radius)
       + head_gasket_outer_radius(vessel_opening_diameter, vessel_wall_thickness, rim_arc_radius)
     : vessel_opening_diameter + 2 * rim_arc_radius;
 
-// What the joint has to hold, on the contact band. Exported: the gasket is the head's and the
-// bolt count is the assembly's. Reported, never asserted on - utils/elastomer.scad.
+// Force the joint must apply on the contact band. Exported, because the gasket belongs to the head
+// and the bolt count to the assembly. Reported, never asserted; see utils/elastomer.scad.
 function head_gasket_seating_force(vessel_opening_diameter, vessel_wall_thickness, sheet, rim_arc_radius) =
   gasket_seating_force(
     gasket_sheet_shore_a(head_gasket_sheet(sheet)),
@@ -1123,36 +1135,38 @@ function head_gasket_seating_force(vessel_opening_diameter, vessel_wall_thicknes
     lid_gasket_compression
   );
 function head_gasket_depth(sheet) = gasket_sheet_thickness(head_gasket_sheet(sheet)) * (1 - lid_gasket_compression);
-// The other part of the same thickness: what the joint has to move.
+// The rest of the same thickness: how far the joint has to compress the gasket.
 function head_gasket_travel(sheet) =
   gasket_sheet_thickness(head_gasket_sheet(sheet)) * lid_gasket_compression;
 
 // Gasket factor m, ASME BPVC.VIII.1-2019 Table 2-5.1: 0 self-energizing, 0.50 below 75A Shore,
-// 1.00 at or above; y is 0 psi below 75A, so this sheet has no seating minimum. The sheet is an
-// argument so the bolt count follows the sheet the lid is cut for; undef means the head's own,
-// resolved here because an explicit undef does not trigger a default (and `undef < 75` is false).
+// 1.00 at or above; y is 0 psi below 75A, so this sheet has no minimum seating stress. The sheet
+// is an argument so the bolt count follows the sheet the lid is cut for. undef means the head
+// default, resolved here because an explicit undef does not trigger a default argument (and
+// `undef < 75` is false).
 function head_gasket_sheet(sheet) = is_undef(sheet) ? lid_gasket_sheet : sheet;
 function head_gasket_factor(sheet) = gasket_sheet_shore_a(head_gasket_sheet(sheet)) < 75 ? 0.5 : 1.0;
 
-// z = 0 is the lid's OUTER face and the flange stands between it and the rim, so every
-// vessel-referenced depth in this file goes through here.
+// z = 0 is the OUTER face of the lid and the flange lies between it and the rim, so every depth
+// measured from the vessel in this file goes through this function.
 function head_punt_top_depth(lid_flange_height, vessel_internal_height) =
   lid_flange_height + vessel_internal_height;
-// Which lean a port gets; anything not one of the two named probe ports hangs straight.
+// The lean of a port; any port other than the two probe ports hangs vertically.
 function head_probe_tilt(port, do_tilt) =
   head_port_function(port) == "do_probe"
     ? do_tilt
     : head_port_function(port) == "ph_probe" ? ph_probe_port_tilt_degrees : 0;
 
-// Where a probe's axis sits `length` down its own lean, in the meridional half-plane (radius out
-// from the shaft, height in head()'s frame). The lean is radial, so this is a straight line.
+// Position of the probe axis at distance `length` along its lean, in the meridional half-plane
+// (radius from the shaft, height in the head() frame). The lean is radial, so this is a straight
+// line.
 function head_probe_axis_at(vessel_opening_diameter, lid_flange_height, length, tilt) =
   [
     head_port_circle_radius(vessel_opening_diameter) + length * sin(tilt),
     -head_lid_thickness(lid_flange_height) - length * cos(tilt),
   ];
 
-// The two runs a probe hangs into the vessel: the collet with the body inside, and the bare tip.
+// The two segments of a probe inside the vessel: the collet with the body inside it, and the tip.
 function head_probe_runs(probe, vessel_opening_diameter, lid_flange_height, tilt) =
   let (
     _shoulder = bayonet_probe_port_collet_drop(probe, probe_port_transition_length)
@@ -1172,9 +1186,9 @@ function head_probe_runs(probe, vessel_opening_diameter, lid_flange_height, tilt
       ],
     ];
 
-// Where the sparge ring sits: in the gap between the lower impeller's collar and the upper
-// impeller's blades, or with no drive, on the floor - floor_rise is how far the glass under it
-// stands above the floor's lowest point (head_ring_floor_rise).
+// Height of the sparge ring: in the gap between the lower impeller collar and the upper impeller
+// blades or, with no drive, on the floor. floor_rise is the height of the glass under the ring
+// above the lowest point of the floor (head_ring_floor_rise).
 function head_sparge_ring_z(impeller_diameter, drive = "shaft", floor_rise = 0) =
   head_gas_driven(drive) ? floor_rise + sparge_ring_floor_gap + sparge_tube_extent() / 2 :
   let (
@@ -1185,30 +1199,31 @@ function head_sparge_ring_z(impeller_diameter, drive = "shaft", floor_rise = 0) 
   )
     _bottom + sparge_ring_gap_fraction * (_top - _bottom);
 
-// Where the arm's holes sit: under the lower impeller's blades by sparge_cap_drop.
+// Height of the arm holes: sparge_cap_drop below the lower impeller blades.
 function head_sparge_cap_z(impeller_diameter) =
   stirred_tank_clearance(impeller_diameter, head_impeller_clearance_factor())
   - head_impeller_span(head_impeller_lower_type, impeller_diameter) / 2
   - sparge_cap_drop;
-// How far the arm runs in from the port circle: to the shaft, less its clearance.
+// How far the arm extends in from the port circle: to the shaft, minus the shaft clearance.
 function head_sparge_cap_reach(mouth, shaft_diameter) =
   head_port_circle_radius(mouth) - shaft_diameter / 2 - sparge_cap_shaft_clearance;
-// Holes along it at the pitch floor, never fewer than one; the elbow takes the first 1.5 tubes.
+// Holes along the arm at the minimum pitch, at least one; the elbow uses the first 1.5 tube
+// widths.
 function head_sparge_cap_holes(reach) =
   max(1, floor(sparge_arm_bored(reach, sparger_bend(sparge_tube()), sparger_plug_depth()) / (sparger_pitch_ratio_floor() * sparge_hole_diameter)));
 
-// The loop: the arm's riser, elbow turned inward, hooked round into a C about the shaft at the
-// arm's height, so the gas comes up into the lower impeller all the way round rather than on one side.
-// It hangs from that riser alone. Birch & Ahmed's 1.4 D where nothing is in the way; but it hangs
-// among the baffles, which come off the lid first, so it yields to them: inboard of their inner
-// edge by the lean they can swing through at its height, the lean its own riser can swing it
-// through by the same rule, and the ring's static clearance. Taken as though the plates reach its
-// height, the safe side. It has to pass the mouth, and its hook has to start inside where the
-// elbow ends, so the elbow always turns in.
-// How far a point is from a segment, in plan.
+// The loop: the arm riser with its elbow turned inward, bent into a C around the shaft at arm
+// height, so the gas rises into the lower impeller all the way around rather than on one side. It
+// hangs from that riser alone. Its radius is Birch & Ahmed's 1.4 D where nothing is in the way.
+// It hangs among the baffles, which are fitted to the lid first, so it gives way to them. It stays
+// inside their inner edge by the lean they can swing through at its height, plus the lean its own
+// riser allows by the same rule, plus the static ring clearance. This assumes the plates reach its
+// height, which is the safe side. It has to pass through the mouth, and its hook has to start
+// inside the end of the elbow, so the elbow always turns inward.
+// Distance from a point to a segment, in plan.
 function head_point_segment_distance(p, a, b) =
   let (_t = max(0, min(1, (p - a) * (b - a) / ((b - a) * (b - a))))) norm(p - (a + _t * (b - a)));
-// Each bound as [what sets it, radius]; the loop takes the least.
+// Each bound as [what sets it, radius]; the loop uses the smallest.
 function head_sparge_loop_bounds(mouth, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, baffles = "auto") =
   concat(
     [
@@ -1228,13 +1243,13 @@ function head_sparge_loop_bounds(mouth, lid_flange_height, vessel_internal_heigh
 function head_sparge_loop_radius(mouth, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, baffles = "auto") =
   min([for (b = head_sparge_loop_bounds(mouth, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, baffles)) b[1]]);
 
-// Everything AXISYMMETRIC a hanging run has to miss, as annuli in the (radius, height)
-// half-plane. See utils/meridian.scad for why that is enough. The arm is not on the list: it
-// stands at the air inlet's bearing alone, where nothing else hangs, so an annulus over its
-// radial span would report a collision with every probe at every other port. What it does have
-// to miss is checked where it is placed - the floor, the shaft and the stir bar. The loop's ring
-// IS on the list as a whole ring, being a C round the axis; its feed and hook are the arm's case.
-// The impellers are on it only under the shaft drive, which is the only one that turns them.
+// Every AXISYMMETRIC obstacle a hanging part has to miss, as annuli in the (radius, height)
+// half-plane. See utils/meridian.scad for why that is enough. The arm is not on the list. It sits
+// only at the air inlet bearing, where nothing else hangs, so an annulus over its radial span
+// would report a collision with every probe at every other port. Its own clearances (floor, shaft
+// and stir bar) are checked where it is placed. The loop IS on the list as a whole ring, since it
+// is a C around the axis; its feed and hook are treated like the arm. The impellers are listed
+// only for the shaft drive, the only drive that turns them.
 function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, sparger = "ring", ring_z = undef, ring_r = undef, baffles = "auto", drive = "shaft") =
   let (
     _floor_z = -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height),
@@ -1270,7 +1285,7 @@ function head_reach_obstacles(vessel_opening_diameter, lid_flange_height, vessel
       ]]
     );
 
-// Does a probe at this lean clear the vessel's internals AND still pass the mouth on the way in?
+// Whether a probe at this lean clears the vessel internals AND still passes through the mouth.
 function head_probe_lean_fits(probe, vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, tilt, sparger = "ring", ring_z = undef, baffles = "auto", drive = "shaft") =
   let (
     _runs = head_probe_runs(probe, vessel_opening_diameter, lid_flange_height, tilt),
@@ -1287,7 +1302,7 @@ function head_probe_lean_fits(probe, vessel_opening_diameter, lid_flange_height,
     meridian_max_radius(_runs[0]) <= vessel_opening_diameter / 2
     && (len(_gaps) == 0 || min(_gaps) > 0);
 
-// The most of `want` this jar allows, scanned down from the ceiling; 0 where nothing fits.
+// The largest lean up to `want` that this jar allows, scanned down from `want`; 0 if none fits.
 function head_probe_tilt_ceiling(probe, vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, want, steps = 45, sparger = "ring", ring_z = undef, baffles = "auto", drive = "shaft") =
   let (
     _ok = [
@@ -1301,8 +1316,8 @@ function head_probe_tilt_ceiling(probe, vessel_opening_diameter, lid_flange_heig
   )
     len(_ok) == 0 ? 0 : _ok[0];
 
-// How far below the lid's outer face the thermocouple tip lands. tip_height is the sheath from
-// the end of the threads, so the flange and the mount stand between it and the lid, less the
+// Depth of the thermocouple tip below the outer face of the lid. tip_height is the sheath length
+// from the end of the threads, so the flange and the mount lie between it and the lid, minus the
 // engaged thread.
 function head_thermocouple_depth(probe, iface, engagement = thermocouple_thread_engagement) =
   thermocouple_probe_tip_height(probe)
@@ -1310,8 +1325,8 @@ function head_thermocouple_depth(probe, iface, engagement = thermocouple_thread_
   - thermocouple_mount_height
   + thermocouple_probe_body_height(probe) * engagement;
 
-// One straight run, all sensing tip. Takes the interface the lid pinned, which a uniform lid may
-// have set wider than smallest-that-fits.
+// One straight segment, all sensing tip. Uses the interface fixed on the lid, which on a uniform
+// lid may be larger than the smallest that fits.
 function head_thermocouple_run(probe, iface, vessel_opening_diameter, lid_flange_height) =
   [
     [head_port_circle_radius(vessel_opening_diameter), -head_lid_thickness(lid_flange_height)],
@@ -1331,8 +1346,8 @@ function head_probe_reach(probe, lid_flange_height, tilt) =
   ) * cos(tilt)
   + atlas_probe_tip_dia(probe) / 2 * sin(tilt);
 
-// The fill height that holds `litres`, by bisection on the jar's own profile; 40 halvings take
-// the tallest registered vessel below a nanometre.
+// The fill height that holds `litres`, by bisection on the jar profile; 40 halvings resolve the
+// tallest registered vessel to below a nanometre.
 function head_fill_height_for(vessel_profile, litres, lo, hi, steps = 40) =
   steps <= 0
     ? (lo + hi) / 2
@@ -1341,11 +1356,11 @@ function head_fill_height_for(vessel_profile, litres, lo, hi, steps = 40) =
         ? head_fill_height_for(vessel_profile, litres, _mid, hi, steps - 1)
         : head_fill_height_for(vessel_profile, litres, lo, _mid, steps - 1);
 
-// What the jar holds to the rim, from the profile's floor at the axis.
+// Jar capacity to the rim, measured from the profile floor at the axis.
 function head_vessel_capacity(vessel_profile, vessel_internal_height) =
   vessel_profile_litres(vessel_profile, vessel_profile[0][1] + vessel_internal_height);
 
-// The fill line; the fraction is a fraction of VOLUME, which is what a bioprocess specifies.
+// The fill line; the fraction is a fraction of VOLUME, which is how a bioprocess specifies it.
 function head_liquid_height(vessel_internal_height, vessel_profile, fill_fraction) =
   head_fill_height_for(
     vessel_profile,
@@ -1356,9 +1371,9 @@ function head_liquid_height(vessel_internal_height, vessel_profile, fill_fractio
 function head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height) =
   head_punt_top_depth(lid_flange_height, vessel_internal_height) + vessel_punt_height;
 
-// The floor is what stops the plate; it clears the impellers radially by construction. The plate
-// hangs from the port's underside, not the lid's outer face, and stops short of the glass under
-// its own span, which on a punted jar stands above the floor's lowest point.
+// The floor limits the plate length; the plate clears the impellers radially by construction. The
+// plate hangs from the underside of the port, not the outer face of the lid, and stops short of the
+// glass under its own width, which on a punted jar is above the lowest point of the floor.
 function head_baffle_max_length(vessel, lid_flange_height, ring) =
   let (
     _r = head_port_circle_radius(vessel_opening_diameter(vessel)),
@@ -1389,17 +1404,18 @@ function head_baffle_segments(vessel, lid_flange_height, ring) =
     )
     : baffle_segments;
 
-// How far the plate can lean at the lower impeller: the coupling's fit allowance over the lid's
-// depth, levered out to the impeller. Bore play alone, with the flange's face contact ignored, so a
-// worst case. It is taken from the shaft drive's impeller whichever drive is built, as the plate is.
+// How far the plate can lean at the lower impeller: the coupling fit allowance over the lid
+// thickness, extrapolated down to the impeller. It uses bore play alone and ignores the flange face
+// contact, so it is a worst case. It uses the shaft drive impeller whichever drive is built, as
+// the plate does.
 function head_baffle_lean(lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter) =
   head_baffle_lean_at(lid_flange_height, vessel_internal_height, vessel_punt_height,
     stirred_tank_clearance(impeller_diameter, head_impeller_clearance_factor()));
-// The same lean at any height off the floor: the coupling's play levered out from the lid.
+// The same lean at any height above the floor: the coupling play extrapolated down from the lid.
 function head_baffle_lean_at(lid_flange_height, vessel_internal_height, vessel_punt_height, height) =
   head_coupling_lean_at(head_interface_for("baffle", 0), lid_flange_height, vessel_internal_height, vessel_punt_height, height);
-// Anything hung from a port leans by its coupling's play the same way; the sparge riser's is the
-// tube port's.
+// Anything hung from a port leans by its coupling play in the same way; the sparge riser uses the
+// tube port coupling.
 function head_riser_lean_at(lid_flange_height, vessel_internal_height, vessel_punt_height, height) =
   head_coupling_lean_at(head_interface_for("tube", steel_tube_od(sparge_riser_tube) / 2), lid_flange_height, vessel_internal_height, vessel_punt_height, height);
 function head_coupling_lean_at(interface, lid_flange_height, vessel_internal_height, vessel_punt_height, height) =
@@ -1408,22 +1424,22 @@ function head_coupling_lean_at(interface, lid_flange_height, vessel_internal_hei
     - head_lid_thickness(lid_flange_height))
   * bayonet_allowance(interface) / head_lid_thickness(lid_flange_height);
 
-// What the tail gives up at the joint plane, as a fraction of the solid plate's second moment.
+// Stiffness at the joint plane, as a fraction of the second moment of the solid plate.
 function head_baffle_joint_stiffness_ratio() = pow(baffle_joint_neck / baffle_thickness, 3);
 
-// What the impeller actually sweeps, against the diameter the correlations are keyed on; anything
-// added outboard of the blades shows up here and takes its clearance with it.
+// The radius the impeller actually sweeps, as opposed to the diameter the correlations use.
+// Anything added outside the blades appears here, and the clearances follow it.
 function head_impeller_swept_radius(impeller_diameter) =
   max(impeller_diameter / 2, impeller_hub_radius);
 
-// What an impeller of this type occupies along the shaft, its blades' thickness included.
+// Axial length of an impeller of this type along the shaft, including the blade thickness.
 function head_impeller_span(type, impeller_diameter) =
   impeller_axial_span(type, impeller_diameter, impeller_fin_width);
 
-// A split turbine has no collar: each half carries two set screws in its hub, in the first and
-// third gaps between the blades, 120 deg apart as on the collar. The half turned over puts its
-// pair at the mirror angles, so the impeller holds with four. A turbine too small for its half
-// to take the screw's hole and the pins prints whole, and head() says so.
+// A split turbine has no collar. Each half has two set screws in its hub, in the first and third
+// gaps between the blades, 120 deg apart as on the collar. The flipped half puts its pair at the
+// mirror angles, so the impeller is held by four. A turbine too small for a half to fit the screw
+// hole and the pins prints whole, and head() reports it.
 function head_impeller_split(type, impeller_diameter) =
   impeller_split_disc && impeller_is_disc(type) && head_impeller_half_fits(type, impeller_diameter);
 function head_impeller_half_fits(type, impeller_diameter) =
@@ -1434,16 +1450,16 @@ function head_impeller_set_screw_hole() = (set_screw_tap_radius(impeller_set_scr
 function head_impeller_collar(type, impeller_diameter) =
   head_impeller_split(type, impeller_diameter) ? 0 : impeller_collar_height;
 function head_impeller_half_screw_at(type) = [0.5, 2.5] * 360 / impeller_blades(type);
-// Midway up what the half-disc leaves of the half, measured from the joint.
+// Midway up the part of the half above the half-disc, measured from the joint.
 function head_impeller_half_screw_z(span) =
   impeller_disc_thickness / 2 + (span / 2 - impeller_disc_thickness / 2) / 2;
-// Turned over about x, an angle a lands on -a: 90 and 270 are the pair that land on each other.
+// Flipped about x, angle a maps to -a, so 90 and 270 map onto each other.
 function head_impeller_pin_at() = [90, 270];
 function head_impeller_pin_radius(hole_radius) = (hole_radius + impeller_hub_radius) / 2;
 
-// What a shaft drive prints for its impellers. A split turbine is one half printed twice, and two
-// split turbines of the same type are that part again, so the pair is one row of four; a mirrored
-// half is the same half turned a half-turn about the shaft.
+// Impeller print rows for a shaft drive. A split turbine is one half printed twice, and two split
+// turbines of the same type use the same part, so the pair is one row of four. A mirrored half is
+// the same half rotated 180 degrees about the shaft.
 function head_impeller_print_rows(impeller_diameter) =
   let (_types = [head_impeller_lower_type, head_impeller_upper_type], _pos = ["lower", "upper"])
     head_impeller_split(_types[0], impeller_diameter) && head_impeller_split(_types[1], impeller_diameter)
@@ -1456,8 +1472,8 @@ function head_impeller_print_rows(impeller_diameter) =
             : [str("impeller_", _pos[i]), 1, str("-D render_impeller=true -D impeller_to_render=\"", _pos[i], "\"")],
       ];
 
-// The impeller's bound keeps the running clearance after the plate's worst-case lean. The ring's
-// applies only where the ring is built: the arm runs in between two baffles, not outboard of them.
+// The impeller limit keeps the running clearance after the worst-case plate lean. The ring limit
+// applies only when the ring is built; the arm runs between two baffles, not outside them.
 function head_baffle_width(vessel_opening_diameter, impeller_diameter, lean, ring) =
   min(concat(
     [
@@ -1467,23 +1483,23 @@ function head_baffle_width(vessel_opening_diameter, impeller_diameter, lean, rin
     ring ? [head_baffle_ring_limit(vessel_opening_diameter)] : []
   ));
 
-// ----- the sparge ring's radius, and what it costs the baffles -----
+// ----- sparge ring radius, and its effect on the baffles -----
 //
-// The ring is placed by the mouth: it has to pass through it, and both sources want it as large
-// as possible (Birch & Ahmed 1.4 D, Rewatkar & Joshi 2 D), so the outermost position the mouth
-// allows is the best available. The room outside a full-width baffle is a constant that does not
-// grow with the mouth and is too small for the ring, so the baffle yields: head_baffle_width()
-// takes a third bound.
+// The mouth sets the ring radius. The ring has to pass through the mouth, and both sources want it
+// as large as possible (Birch & Ahmed 1.4 D, Rewatkar & Joshi 2 D), so the largest radius the mouth
+// allows is the best available. The space outside a full-width baffle is constant, does not grow
+// with the mouth, and is too small for the ring, so the baffle gets narrower: head_baffle_width()
+// takes a third limit.
 
-// What the tube occupies, across corners, where the material is.
+// Tube size across corners, where the material is.
 function sparge_tube_extent() = sparger_across_corners(sparge_tube(), sparge_tube_facets);
 
-// `cap` is an outer limit something else sets - a draft tube the ring has to sit inside.
+// `cap` is an outer limit set by something else, such as a draft tube the ring must sit inside.
 function head_sparge_ring_radius(mouth, cap = undef) =
   let (_mouth = mouth / 2 - sparge_ring_clearance - sparge_tube_extent() / 2)
     is_undef(cap) ? _mouth : min(_mouth, cap);
-// The glass's inner radius at a height over the floor's lowest point, on the wall side, and the
-// least of it between two heights: at the ends and at every profile vertex between.
+// Inner radius of the glass on the wall side, at a height above the lowest point of the floor, and
+// its minimum between two heights, checked at both ends and at every profile vertex in between.
 function head_glass_radius(vessel, z) =
   let (
     _p = vessel_inner_profile(vessel),
@@ -1500,47 +1516,48 @@ function head_glass_radius_min(vessel, z0, z1) =
     _zs = concat([z0, z1], [for (q = vessel_inner_profile(vessel)) if (q[1] - _t > z0 && q[1] - _t < z1) q[1] - _t])
   ) min([for (z = _zs) head_glass_radius(vessel, z)]);
 
-// How far the glass between two radii stands above the floor's lowest point, the datum heights
-// here are taken from: the highest floor across them, at an end or at a profile vertex between.
+// Height of the glass between two radii above the lowest point of the floor, which is the datum
+// for heights here. It is the highest floor point in that range, at either end or at a profile
+// vertex in between.
 function head_floor_rise(vessel, r0, r1) =
   let (_xs = concat([r0, r1], [for (q = vessel_inner_profile(vessel)) if (q[0] > r0 && q[0] < r1) q[0]]))
     max([for (x = _xs) vessel_floor_height(vessel, x)]) - vessel_thickness(vessel);
-// under the ring's width
+// The same, under the width of the ring
 function head_ring_floor_rise(vessel, cap = undef) =
   let (_r = head_sparge_ring_radius(vessel_opening_diameter(vessel), cap))
     head_floor_rise(vessel, _r - sparge_tube_extent() / 2, _r + sparge_tube_extent() / 2);
 
-// ----- the airlift's draft tube -----
+// ----- airlift draft tube -----
 //
 // Its bore clears everything hanging inside it between two heights: the probes and thermocouple as
-// runs, and the risers straight down the port circle. The ring then sits inside it.
+// segments, and the risers straight down from the port circle. The ring sits inside it.
 function head_draft_tube_inner_radius(runs, mouth, z_low, z_high) =
   max(concat(
     [head_port_circle_radius(mouth) + steel_tube_od(sparge_riser_tube) / 2],
     [for (r = runs) let (_m = meridian_max_radius_between(r, z_low, z_high)) if (!is_undef(_m)) _m]
   )) + draft_tube_hardware_clearance;
-// the ring inside it keeps the static clearance it keeps to the mouth
+// the ring inside it keeps the same static clearance it keeps to the mouth
 function head_draft_tube_ring_cap(inner) = inner - sparge_ring_clearance - sparge_tube_extent() / 2;
 // Riser inside, downcomer outside, in mm2.
 function head_draft_tube_riser_area(inner) = PI * inner * inner;
 function head_draft_tube_downcomer_area(inner, bore) = PI * (pow(bore / 2, 2) - pow(inner + draft_tube_wall, 2));
-// The gaps under and over the tube, each giving the turning flow the downcomer's own area round
-// the tube's bore: Chisti & Moo-Young 1987 cap that area at 1.65 times the downcomer's, and at
-// equal area the bottom's loss coefficient is mid-fit (docs/references.md).
+// The gaps below and above the tube, each giving the turning flow the same area as the downcomer,
+// around the tube bore. Chisti & Moo-Young 1987 limit that area to 1.65 times the downcomer area,
+// and at equal area the bottom loss coefficient is in the middle of the fit (docs/references.md).
 function head_draft_tube_end_gap(inner, bore) =
   head_draft_tube_downcomer_area(inner, bore) / (2 * PI * inner);
 // Chisti, Halard & Moo-Young 1988, eq. 18: the loss where the flow turns under the tube, fitted
 // over Ad/Ab 0.2 to 1.8.
 function head_draft_tube_bottom_loss(ad, ab) = 11.402 * pow(ad / ab, 0.789);
 
-// Every ring's radius: one as far out as the mouth allows, several on equal area inboard of it.
+// Radius of each ring: one as far out as the mouth allows, or several at equal area inside it.
 function head_sparge_radii(mouth, cap = undef) =
   let (_o = head_sparge_ring_radius(mouth, cap))
     sparge_ring_count == 1
       ? [_o]
       : sparger_equal_area_radii(sparge_ring_count, _o, sparge_inner_fraction * _o);
 
-// and the holes each of them carries, split by the area it serves.
+// Holes on each ring, divided by the area each ring serves.
 function head_sparge_holes(mouth, cap = undef) =
   let (_o = head_sparge_ring_radius(mouth, cap))
     sparge_ring_count == 1
@@ -1550,15 +1567,15 @@ function head_sparge_holes(mouth, cap = undef) =
           sparger_area_shares(head_sparge_radii(mouth, cap), _o, sparge_inner_fraction * _o)
         );
 
-// The widest plate that still leaves the ring its section and a clearance either side.
+// The widest plate that still leaves room for the ring section and a clearance on each side.
 function head_baffle_ring_limit(mouth) =
   2 * (mouth / 2 - head_port_circle_radius(mouth) - 2 * sparge_ring_clearance - sparge_tube_extent());
 
-// ----- where the mouth and the bore have to agree -----
+// ----- constraints between the mouth and the bore -----
 //
-// Nothing couples a jar's mouth to its bore: the mouth sets the port circle and where the baffles
-// hang, the bore sets the impeller and the ring. The four couplings below are functions of (mouth,
-// impeller diameter) so the asserts in head() and the feasibility report are the same expression.
+// A jar's mouth and bore are independent. The mouth sets the port circle and the baffle positions;
+// the bore sets the impeller and the ring. The four constraints below are functions of (mouth,
+// impeller diameter), so the asserts in head() and the feasibility report use the same expression.
 // Each returns a clearance; positive is feasible.
 
 function head_ring_baffle_gap(mouth, impeller_diameter, lean, cap = undef) =
@@ -1572,9 +1589,9 @@ function head_ring_mouth_gap(mouth, impeller_diameter, cap = undef) =
 function head_mouth_passes_impeller(mouth, impeller_diameter) =
   mouth - 2 * head_impeller_swept_radius(impeller_diameter) > 0;
 
-// Two of the four only bind if the lid carries baffles, and the ring's gap to them only if the ring
-// is built. A mouth too narrow for any port set is not feasible whatever the impeller does, and
-// short-circuits the rest. The lean is the build's: it follows the jar's depth, not its mouth.
+// Two of the four apply only if the lid has baffles, and the ring-to-baffle gap only if the ring is
+// built. A mouth too narrow for any port set is infeasible regardless of the impeller, and skips
+// the other checks. The lean comes from the build: it depends on the jar depth, not the mouth.
 function head_mouth_is_feasible(mouth, impeller_diameter, has_baffles, ring, lean) =
   !is_undef(head_ports_for(mouth))
   && (!has_baffles
@@ -1583,7 +1600,7 @@ function head_mouth_is_feasible(mouth, impeller_diameter, has_baffles, ring, lea
   && head_ring_mouth_gap(mouth, impeller_diameter) > 0
   && head_mouth_passes_impeller(mouth, impeller_diameter);
 
-// Solved by sweeping the predicate, so there is one expression of the four couplings.
+// Solved by sweeping the predicate, so the four constraints are expressed only once.
 function head_feasible_mouth_sweep() = [40, 400, 0.25]; // [lo, hi, step] - the range searched
 function head_feasible_mouth_count() =
   let (_s = head_feasible_mouth_sweep()) floor((_s[1] - _s[0]) / _s[2]) + 1;
@@ -1593,8 +1610,9 @@ function head_feasible_mouths(impeller_diameter, has_baffles, ring, lean) =
   let (_s = head_feasible_mouth_sweep())
     [for (m = [_s[0]:_s[2]:_s[1]]) if (head_mouth_is_feasible(m, impeller_diameter, has_baffles, ring, lean)) m];
 
-// Feasibility flips exactly once as the mouth widens (measured over D = 60..180 mm), so the edge
-// is bisected on the sweep's own grid rather than walked. Lowest feasible index in (lo, hi].
+// Feasibility changes exactly once as the mouth widens (measured over D = 60..180 mm), so the edge
+// is found by bisection on the sweep grid rather than a linear scan. Lowest feasible index in
+// (lo, hi].
 function head_feasible_edge(impeller_diameter, has_baffles, ring, lean, lo, hi) =
   hi - lo <= 1 ? hi
   : let (_mid = floor((lo + hi) / 2))
@@ -1602,8 +1620,8 @@ function head_feasible_edge(impeller_diameter, has_baffles, ring, lean, lo, hi) 
         ? head_feasible_edge(impeller_diameter, has_baffles, ring, lean, lo, _mid)
         : head_feasible_edge(impeller_diameter, has_baffles, ring, lean, _mid, hi);
 
-// [first, last] feasible mouth, or undef if none. An infeasible ceiling means an upper coupling has
-// bound, which the single-flip measurement never covered, so that case walks the full sweep.
+// [first, last] feasible mouth, or undef if none. An infeasible upper end means an upper constraint
+// is active, which the single-change measurement did not cover, so that case scans the full sweep.
 function head_feasible_mouth_window(impeller_diameter, has_baffles, ring, lean) =
   let (
     _top = head_feasible_mouth_count() - 1,
@@ -1617,17 +1635,18 @@ function head_feasible_mouth_window(impeller_diameter, has_baffles, ring, lean) 
     : let (_all = head_feasible_mouths(impeller_diameter, has_baffles, ring, lean))
         len(_all) == 0 ? undef : [_all[0], _all[len(_all) - 1]];
 
-// ----- the drive stack, from the lid's outer face up -----
+// ----- the drive stack, from the outer face of the lid upward -----
 
-// What the shaft has to clear the lid by: the impeller side's half of the coupling.
+// Minimum shaft protrusion above the lid: the impeller-side half of the coupling.
 function head_shaft_min_protrusion() = sc_length(shaft_coupler) / 2;
 
-// How long a shaft this vessel needs: down to the punt, back up through the lid, plus that grip.
+// Shaft length this vessel needs: from the punt up through the lid, plus that protrusion.
 function head_shaft_length_needed(lid_flange_height, vessel_internal_height) =
   head_punt_top_depth(lid_flange_height, vessel_internal_height) - shaft_jar_punt_clearance
   + head_shaft_min_protrusion();
 
-// The shortest registered row that reaches; every millimetre over grows the motor mount.
+// The shortest registered shaft that is long enough; every extra millimetre makes the motor mount
+// taller.
 function head_shaft_for(lid_flange_height, vessel_internal_height) =
   let (
     _need = head_shaft_length_needed(lid_flange_height, vessel_internal_height),
@@ -1641,34 +1660,34 @@ function head_shaft_selected(lid_flange_height, vessel_internal_height, shaft) =
 function head_shaft_protrusion(lid_flange_height, vessel_internal_height, shaft) =
   shaft_length(head_shaft_selected(lid_flange_height, vessel_internal_height, shaft))
   - (head_punt_top_depth(lid_flange_height, vessel_internal_height) - shaft_jar_punt_clearance);
-// The gearbox's shaft stands off its face on the pilot boss, so the boss counts too.
+// The gearbox shaft starts at the pilot boss, not the gearbox face, so the boss is included.
 function head_gearbox_shaft_reach(gearbox) =
   (is_undef(gearbox_out_boss(gearbox)) ? 0 : gearbox_out_boss(gearbox)[1]) + gearbox_output_shaft_length(gearbox);
 function head_motor_mount_height(lid_flange_height, vessel_internal_height, shaft, motor) =
   head_gearbox_shaft_reach(dc_motor_gearbox(head_motor_selected(motor)))
   + head_shaft_protrusion(lid_flange_height, vessel_internal_height, shaft) + shaft_shaft_coupling_offset;
-// top of the motor, which is the highest thing on the reactor
-// Only the shaft drive stacks on the lid; the blank's flange is not counted.
+// top of the motor, which is the highest point of the reactor
+// Only the shaft drive adds height above the lid; the blank flange is not counted.
 function head_stack_height(lid_flange_height, vessel_internal_height, shaft, motor, drive = "shaft") =
   drive != "shaft" ? 0
   : head_motor_mount_height(lid_flange_height, vessel_internal_height, shaft, motor)
     + dc_motor_length(head_motor_selected(motor)) + gearbox_length(dc_motor_gearbox(head_motor_selected(motor)));
-// The groove a given ring would get in a given mouth, and how far that stretches it.
+// The groove diameter for a given ring in a given mouth, and the ring stretch it causes.
 function head_plug_groove_diameter(vessel_opening_diameter, ring) =
   vessel_opening_diameter - 2 * oring_gland_depth(oring_cross_section(ring), lid_plug_oring_squeeze);
 
 function head_plug_oring_stretch(vessel_opening_diameter, ring) =
   oring_stretch(oring_inner_diameter(ring), head_plug_groove_diameter(vessel_opening_diameter, ring));
 
-// The groove and the port bores are cut into the same wall of the plug; the mouth and the offset
-// cancel, so the cord budget is a property of the bayonet and the lid, not of any jar.
+// The groove and the port bores are cut into the same plug wall. The mouth and the offset cancel,
+// so the cross-section limit is a property of the bayonet and the lid, not of any jar.
 function head_plug_oring_cord_limit(vessel_opening_diameter) =
   let (_w = head_widest_interface(head_ports_for(vessel_opening_diameter)))
   (lid_radial_allowance / 2 + bayonet_port_hole_radius(_w) - bayonet_lock_bore_radius(_w))
   / (1 - lid_plug_oring_squeeze);
 
-// Under zero the ring sags out of its groove; over five percent it thins the cord; over the cord
-// limit the groove eats the wall the port bores need.
+// Below zero stretch the ring sags out of its groove. Above five percent the cross-section thins.
+// Above the cross-section limit the groove cuts into the wall the port bores need.
 function head_plug_oring_fits(vessel_opening_diameter, ring) =
   let (_s = head_plug_oring_stretch(vessel_opening_diameter, ring))
     _s >= 0 && _s <= 0.05 && oring_cross_section(ring) <= head_plug_oring_cord_limit(vessel_opening_diameter);
@@ -1683,15 +1702,16 @@ function head_plug_oring_selected(vessel_opening_diameter, plug_oring) =
 function head_plug_groove_width(vessel_opening_diameter, plug_oring) =
   oring_gland_width(oring_cross_section(head_plug_oring_selected(vessel_opening_diameter, plug_oring)));
 
-// A piston gland: cut relative to the bore it seals against, not to the plug it is cut into, so
-// the ring's squeeze is what the glass leaves it.
+// A piston gland: sized from the bore it seals against, not the plug it is cut into, so the ring
+// squeeze is set by the glass.
 function head_plug_oring_groove_radius(vessel_opening_diameter, plug_oring) =
   head_plug_groove_diameter(
     vessel_opening_diameter, head_plug_oring_selected(vessel_opening_diameter, plug_oring)
   ) / 2;
 
-// Place children at port i, on the ring and turned to face out. `flipped` is for callers drawing
-// inside lid_pocketed, which head() turns over with rotate([0, 180, 0]), sending t to 180 - t.
+// Place children at port i, on the port circle and rotated to face outward. `flipped` is for
+// callers drawing inside lid_pocketed, which head() flips with rotate([0, 180, 0]), mapping t to
+// 180 - t.
 module head_port_at(i, vessel_opening_diameter, flipped = false) {
   _angle = i * 360 / head_ports_n(vessel_opening_diameter);
   rotate([0, 0, flipped ? 180 - _angle : _angle])
@@ -1706,12 +1726,12 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
 
   _thickness = head_lid_thickness(lid_flange_height);
 
-  // z = 0 is the lid's outer face here and the part is flipped by the caller, so the flange's
-  // glass-facing side is its far face, at z = lid_flange_height, where the plug starts.
+  // z = 0 is the outer face of the lid here and the caller flips the part, so the glass-facing
+  // side of the flange is its far face, at z = lid_flange_height, where the plug starts.
   _gasket_depth = head_gasket_depth(sheet);
   _plug_groove_w = head_plug_groove_width(vessel_opening_diameter, plug_oring);
-  _plug_groove_z = lid_flange_height + lid_plug_height / 2; // mid plug: most land either side,
-  // and clear of the bayonet channels, which sit in the half of the coupling nearest this face
+  _plug_groove_z = lid_flange_height + lid_plug_height / 2; // mid plug: most land on each side,
+  // and clear of the bayonet channels, which are in the half of the coupling nearest this face
 
   // the rods run through the flange alongside the bolts, so every post on the circle is bored
   bolt_pattern_bores(post_pts, post_hole_diameter, lid_flange_height + z_fight, -z_fight / 2)
@@ -1734,8 +1754,8 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
           rotate([0, 0, 30])
             cylinder(d=bb_diameter(shaft_bearing) + bearing_hole_allowance, h=bb_width(shaft_bearing) + z_fight);
 
-          // seal groove round the bearing's rim, mid-depth so there is wall both sides while the
-          // bearing is pushed past the ring
+          // seal groove around the bearing OD, at mid-depth so there is wall on both sides while
+          // the bearing is pushed past the ring
           translate([0, 0, z_fight / 2 + head_bearing_gland_z() - head_bearing_gland_length() / 2])
             cylinder(d=head_bearing_gland_diameter(), h=head_bearing_gland_length());
         }
@@ -1747,14 +1767,14 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
           translate([head_motor_mount_screw_radius(mount_body_diameter), 0, -z_fight / 2])
             cylinder(r=insert_hole_radius(motor_mount_base_insert), h=insert_hole_length(motor_mount_base_insert) + z_fight / 2);
 
-      // cut out the entry holes for the probes and tubes; the port sizes its own hole so the
-      // lock keeps a bearing land against the lid's underside
+      // cut out the entry holes for the probes and tubes; each port sizes its own hole so the
+      // lock keeps a bearing land against the underside of the lid
       for (i = [0:_n - 1])
         head_port_at(i, vessel_opening_diameter, flipped=true)
           translate([0, 0, _thickness / 2])
             cylinder(r=bayonet_port_hole_radius(head_port_interface(_ports[i])), h=_thickness + z_fight, center=true);
 
-      // rim gasket recess, sunk into the flange's glass-facing face
+      // rim gasket recess, in the glass-facing face of the flange
       translate([0, 0, lid_flange_height - _gasket_depth])
         difference() {
           cylinder(r=head_gasket_outer_radius(vessel_opening_diameter, vessel_wall_thickness, lip_arc_radius), h=_gasket_depth + z_fight);
@@ -1762,7 +1782,7 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
             cylinder(r=head_gasket_inner_radius(vessel_opening_diameter, lip_arc_radius), h=_gasket_depth + z_fight * 3);
         }
 
-      // o-ring groove round the plug
+      // o-ring groove around the plug
       translate([0, 0, _plug_groove_z - _plug_groove_w / 2])
         difference() {
           cylinder(r=head_lid_plug_diameter(vessel_opening_diameter) / 2 + 1, h=_plug_groove_w);
@@ -1772,9 +1792,9 @@ module lid_pocketed(lid_flange_height, vessel_outer_diameter, vessel_opening_dia
     }
 }
 
-// Does this port type care which way round it ends up? A plate and a leaning collet do.
+// Whether this port type has a required orientation; a baffle plate and a leaning collet do.
 function head_port_is_oriented(type) = type == "baffle" || type == "probe";
-// Which of a port table's holes carry a baffle, by index.
+// Indices of the ports in a table that carry a baffle.
 function head_baffle_ports(ports) = [for (i = [0:len(ports) - 1]) if (head_port_type(ports[i]) == "baffle") i];
 
 // One port pin half, dispatched on its registered type.
@@ -1854,7 +1874,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   // ===== derived =====
 
-  // The vessel's fields, read once. A row, because the head reads seven of them.
+  // The vessel fields, read once. The vessel is passed as a row because the head uses seven fields.
   vessel_outer_diameter = vessel_diameter(vessel);
   vessel_opening_diameter = vessel_opening_diameter(vessel);
   vessel_wall_thickness = vessel_thickness(vessel);
@@ -1863,12 +1883,12 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   vessel_profile = vessel_inner_profile(vessel);
   lip_arc_radius = vessel_rim_arc_radius(vessel);
 
-  // This file's tessellation, whatever the caller set - see utils/facets.scad.
+  // This file's tessellation, regardless of what the caller set; see utils/facets.scad.
   $fn = 0;
   $fa = facet_angle();
   $fs = facet_size();
 
-  // Resolved before anything reads them. An empty build is head.scad's own parameters.
+  // Resolved before anything reads them. An empty build uses the head.scad parameters.
   _build_fill_fraction = head_build(build, "culture_fill_fraction", culture_fill_fraction);
   _build_shaft = head_build(build, "head_shaft", head_shaft);
   _build_plug_oring = head_build(build, "lid_plug_oring", lid_plug_oring);
@@ -1880,11 +1900,11 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _drive = head_build(build, "drive", head_drive);
   _shaft_drive = _drive == "shaft";
   _magnetic = _drive == "magnetic";
-  // whether the lid carries the pocket and inserts, which the shaft runs in and the blank plugs
+  // whether the lid has the bearing pocket and inserts, used by the shaft or plugged by the blank
   _lid_center = head_lid_center_selected(head_build(build, "lid_center", head_lid_center), _drive);
   _seated = _lid_center == "bearing";
   _blank = head_blank_carried(_drive, _lid_center);
-  // undef from the build means this file's own row, as the motor does
+  // undef from the build means this file's row, as for the motor
   _build_stir_bar = head_build(build, "stir_bar", undef);
   _stir_bar = is_undef(_build_stir_bar) ? head_stir_bar : _build_stir_bar;
   _sparger = head_sparger_selected(head_build(build, "sparger", head_sparger), _drive);
@@ -1892,14 +1912,14 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _coil = _condenser == "coil";
   _ring = _sparger == "ring";
   _loop = _sparger == "loop";
-  // what the report calls whichever is built
+  // the name the report uses for the sparger that is built
   _sparger_noun = _ring ? "ring" : _loop ? "loop" : "arm";
   _baffles = head_baffles_selected(head_build(build, "baffles", head_baffles), vessel, _drive, _sparger);
   _wall = _baffles == "wall";
 
-  // The table this lid carries, resolved once, with a designated probe spliced in. Safe because
-  // every "probe" port gets bayonet_std whatever it carries; it would not be safe for a
-  // thermocouple, whose interface follows its thread.
+  // The port table for this lid, resolved once, with any designated probe substituted. This is
+  // safe because every "probe" port gets bayonet_std regardless of the probe; it would not be safe
+  // for a thermocouple, whose interface depends on its thread.
   _designated = [
     for (p = head_ports_for_baffles(vessel_opening_diameter, _baffles))
       let (
@@ -1915,25 +1935,25 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _mount_body_d = head_motor_mount_body_diameter(head_gearbox);
 
   // ----- impeller -----
-  // The bore is what the impeller mixes and what D/T is measured against.
+  // The bore is the volume the impeller mixes and the reference for D/T.
   _vessel_bore = vessel_outer_diameter - 2 * vessel_wall_thickness;
 
-  // Resolved once. head_shaft may pin a row; otherwise the shortest that reaches this vessel.
+  // Resolved once. head_shaft may fix a row; otherwise the shortest long enough for this vessel.
   _shaft = head_shaft_selected(lid_flange_height, vessel_internal_height, _build_shaft);
   _liquid_height = head_liquid_height(vessel_internal_height, vessel_profile, _build_fill_fraction);
   _baffle_at = head_baffle_ports(_ports);
 
-  // A lid need not carry baffles; everything that measures a plate asks first.
+  // A lid need not have baffles; everything that measures a plate checks this first.
   _has_baffles = len(_baffle_at) > 0;
-  // what breaks the swirl, the lid's plates or the cage's blades
+  // number of baffles: the lid plates or the cage blades
   _baffle_count = _wall ? len(wall_baffle_at) : len(_baffle_at);
   impeller_diameter = stirred_tank_impeller_diameter(_vessel_bore, head_impeller_bore_ratio());
 
-  // ----- the airlift's draft tube -----
-  // Sized before anything else hangs off the ring: round the probes and thermocouple hanging
-  // straight, over the liquid's whole depth. The DO probe hangs straight too: its lean takes it out
-  // of the shaft's shadow, and inside the riser there is none. The ring goes inside the tube and
-  // centres it.
+  // ----- airlift draft tube -----
+  // Sized before anything else that depends on the ring: around the probes and thermocouple
+  // hanging vertically, over the full liquid depth. The DO probe also hangs vertically: its lean
+  // moves it out of the shaft's shadow, and inside the riser there is no shaft. The ring goes
+  // inside the tube and centres it.
   _airlift = _drive == "airlift";
   _tube_floor_z = -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height);
   _tube_liquid_z = _tube_floor_z + vessel_punt_height + _liquid_height;
@@ -1949,25 +1969,26 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _tube_outer = !_airlift ? undef : _tube_inner + draft_tube_wall;
   _ring_cap = !_airlift ? undef : head_draft_tube_ring_cap(_tube_inner);
   _tube_gap = !_airlift ? undef : head_draft_tube_end_gap(_tube_inner, vessel_outer_diameter - 2 * vessel_wall_thickness);
-  // off the floor datum: the gap over the highest glass under the wall, and the same under the surface
+  // from the floor datum: the gap above the highest glass under the wall, and the same gap below
+  // the surface
   _tube_bottom = !_airlift ? undef : head_floor_rise(vessel, _tube_inner, _tube_outer) + _tube_gap;
   _tube_top = !_airlift ? undef : vessel_punt_height + _liquid_height - _tube_gap;
 
-  // Where the ring sits, off the floor: resolved here because what hangs beside it is measured
-  // against it, the DO lean first.
+  // Ring height above the floor, resolved here because the parts hanging beside it are checked
+  // against it, starting with the DO lean.
   _sparge_ring_height = head_sparge_ring_z(impeller_diameter, _drive, head_ring_floor_rise(vessel, _ring_cap));
-  // The ring lets the tube shift by its clearance where it sits inside the wall; among the feet
-  // only, as far as the gap between two of them allows.
+  // Where the ring sits inside the tube wall, the tube can shift by the ring clearance. Where the
+  // ring is only among the feet, the tube can shift as far as the gap between two feet allows.
   _tube_play = !_airlift ? undef
     : _sparge_ring_height + sparge_tube_extent() / 2 > _tube_bottom ? sparge_ring_clearance
     : sparge_ring_clearance / cos(180 / draft_tube_feet);
-  // what hangs inside has to clear the wall with the tube shifted as far as it goes
+  // parts hanging inside must clear the wall with the tube shifted to its limit
   _tube_obstacle = !_airlift ? [] : [[
     "draft tube",
     [_tube_inner - _tube_play, _tube_outer, _tube_floor_z + _tube_bottom, _tube_floor_z + _tube_top],
   ]];
 
-  // The DO lean, always derived: the most of the ceiling this jar allows.
+  // The DO lean, always derived: the largest lean up to the limit that this jar allows.
   _do_port = [for (p = _ports) if (head_port_function(p) == "do_probe") p];
 
   _do_tilt =
@@ -1978,17 +1999,17 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       sparger=_sparger, ring_z=_loop ? undef : _sparge_ring_height, baffles=_baffles, drive=_drive
     );
 
-  // The mouth window this jar had to land in: too small and the ring will not pass, too large and
-  // the port circle carries the baffles out until the ring fouls them.
+  // The range of mouth sizes this jar must fall within. Too small and the ring will not pass; too
+  // large and the port circle moves the baffles out until the ring hits them.
   _baffle_lean_at_lower = head_baffle_lean(lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter);
   _feasible = head_feasible_mouth_window(impeller_diameter, _has_baffles, _ring, _baffle_lean_at_lower);
 
   impeller_radius = impeller_diameter / 2; // radius of the impeller
 
-  // The pair, lower then upper; each type brings its own blade, power number and flow.
+  // The pair, lower then upper; each type has its own blade, power number and flow number.
   _impeller_types = [head_impeller_lower_type, head_impeller_upper_type];
 
-  // A type that registers no width ratio has no axial span to derive.
+  // A type without a registered width ratio has no axial span to derive.
   for (t = _impeller_types)
     assert(
       !is_undef(impeller_width_ratio(t)),
@@ -1999,7 +2020,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       )
     );
 
-  // What each blade occupies along the shaft, thickness included - every vertical budget reads it.
+  // Axial length of each impeller, including thickness; every vertical budget uses it.
   _impeller_spans = [for (t = _impeller_types) head_impeller_span(t, impeller_diameter)];
   impeller_height_lower = _impeller_spans[0];
   impeller_height_upper = _impeller_spans[1];
@@ -2007,28 +2028,28 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   // radius of the shaft hole in the impeller
   impeller_shaft_hole_radius = (shaft_diameter(_shaft) + impeller_shaft_allow) / 2;
 
-  // What the bore leaves on the shaft it slides over, as the bearing's fit is quoted: the bore's
-  // narrow end against the shaft's high limit, and its wide end against the low one.
+  // Clearance between the bore and the shaft, quoted the same way as the bearing fit: the narrow
+  // end of the bore against the shaft upper limit, and the wide end against the lower limit.
   _bore_tightest = impeller_shaft_hole_radius * 2 - impeller_shaft_draft - shaft_diameter_max(_shaft);
   _bore_loosest = impeller_shaft_hole_radius * 2 - shaft_diameter_min(_shaft);
   impeller_spacing = stirred_tank_impeller_spacing(impeller_diameter, head_impeller_spacing_factor());
 
-  // Where this build sits against the literature. Reported, not asserted.
+  // How this build compares with the literature. Reported, not asserted.
   _impeller_ratio = stirred_tank_ratio(impeller_diameter, _vessel_bore);
   _ratio_band = stirred_tank_ratio_band();
   _ratio_band_axial = stirred_tank_ratio_band_axial();
   _spacing_band = stirred_tank_spacing_band();
 
   // Off-bottom clearance as the literature measures it: impeller centreline to the vessel floor,
-  // not the shaft's collision gap over the punt. Chosen; the shaft's own bound is asserted below.
+  // not the shaft collision gap above the punt. It is chosen; the shaft limit is asserted below.
   _impeller_clearance = stirred_tank_clearance(impeller_diameter, head_impeller_clearance_factor());
   _clearance_ratio = stirred_tank_clearance_ratio(_impeller_clearance, impeller_diameter);
   _clearance_band = stirred_tank_clearance_band_fluidfoil();
 
-  // The diameter the part sweeps against the one the correlations use; equal by construction.
+  // The swept diameter, compared with the one the correlations use; equal by construction.
   _swept = head_impeller_swept_radius(impeller_diameter) * 2;
 
-  // Coverage over the upper impeller, and the room under the lower one where a sparger goes.
+  // Liquid coverage above the upper impeller, and the space below the lower one for a sparger.
   _upper_impeller_top = _impeller_clearance + impeller_spacing + impeller_height_upper / 2;
 
   _impeller_coverage =
@@ -2036,13 +2057,13 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _coverage_ratio = stirred_tank_coverage_ratio(_impeller_coverage, impeller_diameter);
   _sparger_room = _impeller_clearance - impeller_height_lower / 2;
 
-  // Whether this column wants two impellers at all: the spacing band bounds the count, in liquid
-  // height over IMPELLER diameter. Reported, since the bounds come from a convention.
+  // Whether this liquid column needs two impellers: the spacing band limits the count, in liquid
+  // height over IMPELLER diameter. Reported, since the limits come from a convention.
   _liquid_to_bore = _liquid_height / _vessel_bore;
   _count_bounds = stirred_tank_impeller_count_bounds(_liquid_height, impeller_diameter);
 
-  // Set screws hold the impeller to the shaft; the bore is a slip fit. Engagement is what the hub
-  // wall leaves between socket and shaft, reach is whether the tip gets there at all.
+  // Set screws hold the impeller to the shaft; the bore is a slip fit. Engagement is the hub wall
+  // between the socket and the shaft; reach is whether the screw tip reaches the shaft at all.
   _set_screw_engagement = impeller_hub_radius - impeller_shaft_hole_radius;
 
   _set_screw_reach =
@@ -2050,16 +2071,16 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _set_screw_hole = (set_screw_tap_radius(impeller_set_screw) + impeller_set_screw_allow) * 2;
 
   // ----- culture -----
-  // Integrated over the jar's own wetted profile, from the punt top.
+  // Integrated over the wetted jar profile, from the top of the punt.
   _floor_y = vessel_wall_thickness + vessel_punt_height;
   _culture_volume = vessel_profile_litres(vessel_profile, _floor_y + _liquid_height);
   _vessel_capacity = head_vessel_capacity(vessel_profile, vessel_internal_height);
 
   // ----- power number -----
-  // Po and x come off each registered type: measured (the row carries it), correlated (the row
-  // carries a blade angle and Medek's correlation reports its envelope) or borrowed (a fallback
-  // row's number). Which kind is echoed, since Po is the largest uncertainty in everything below.
-  // Medek is read at the pair's off-bottom clearance for either impeller, as it was for the pair.
+  // Po and x come from each registered type: measured (the row has it), correlated (the row has a
+  // blade angle and Medek's correlation reports its envelope) or borrowed (from a fallback row).
+  // The kind is echoed, since Po is the largest uncertainty in everything below. Medek is evaluated
+  // at the off-bottom clearance of the pair for either impeller, as it was for the pair.
   _tank_ratio = _vessel_bore / impeller_diameter;
   _height_ratio = _liquid_height / _vessel_bore;
   _po_kind = [
@@ -2084,7 +2105,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   ];
   _impeller_x = [for (t = _impeller_types) impeller_dissipation_factor(t)];
 
-  // Listed where a source lists it, correlated where Medek reaches, undef otherwise.
+  // From a source where one lists it, from Medek's correlation within its range, undef otherwise.
   _impeller_flow_number = [
     for (i = [0, 1]) let (t = _impeller_types[i])
       !is_undef(impeller_flow_number_listed(t)) ? impeller_flow_number_listed(t)
@@ -2093,16 +2114,16 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       : undef
   ];
 
-  // The pair's shaft power at a speed. Summed it is an upper bound, since a pair at under ~1.55 D
-  // interacts and draws less; the larger impeller's alone is a lower bound. The means below read
-  // the lower bound and the torque the upper one, as they did for a pair of one type.
+  // Shaft power of the pair at a given speed. The sum is an upper bound, since a pair spaced under
+  // ~1.55 D interacts and draws less; the larger impeller alone is a lower bound. The mean values
+  // below use the lower bound and the torque the upper one, as they did for a pair of one type.
   function _pair_power(rpm) = [for (i = [0, 1]) stirred_tank_power(impeller_diameter, rpm, _impeller_po[i])];
   function _pair_power_low(rpm) = max(_pair_power(rpm));
   function _pair_power_high(rpm) = _pair_power(rpm)[0] + _pair_power(rpm)[1];
 
   _rated_torque = dc_motor_rated_output_torque(_motor); // undef on a motor that publishes none
 
-  // no-load and rated are different facts and either may be unpublished
+  // no-load and rated speeds are separate values and either may be unpublished
   _drive_speeds = [
     for (s = [
       ["no-load", dc_motor_no_load_output_rpm(_motor)],
@@ -2111,8 +2132,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   ];
 
   // ----- probes -----
-  // The thermocouple has to end up in the culture and short of the floor. Asserted: a probe
-  // through the floor is not a departure, it is a part that does not fit.
+  // The thermocouple tip must be in the culture and above the floor. Asserted, because a probe
+  // through the floor is not a departure from a guideline but a part that does not fit.
   _tc_port = [for (q = _ports) if (head_port_type(q) == "thermocouple") q];
 
   // ----- transfer and drive -----
@@ -2126,23 +2147,23 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       _culture_volume
     );
 
-  // Whether the speed above can be measured or only commanded.
+  // Whether the shaft speed can be measured or only commanded.
   _encoder = dc_motor_encoder(_motor);
   _encoder_counts = dc_motor_encoder_counts_per_output_rev(_motor);
 
   // ----- drive stack -----
   shaft_protrusion = head_shaft_protrusion(lid_flange_height, vessel_internal_height, _build_shaft);
 
-  // The shaft runs in the bearing's inner race: two registered tolerances meeting. Reported, since
-  // a transition fit is what a rotating inner ring wants.
+  // The shaft runs in the bearing inner race, so two registered tolerances meet. Reported, since a
+  // rotating inner ring should have a transition fit.
   _fit_loosest = bb_bore(shaft_bearing) - shaft_diameter_min(_shaft);
   _fit_tightest = (bb_bore(shaft_bearing) - 0.007) - shaft_diameter_max(_shaft);
 
   // the height that the motor coupling assembly requires
   motor_mount_height = head_motor_mount_height(lid_flange_height, vessel_internal_height, _build_shaft, _motor);
 
-  // Mount slenderness, height over diameter, calibrated at 2.3. The coupling is rigid, so the
-  // mount's deflection is reacted by the bearings.
+  // Mount slenderness, height over diameter, calibrated at 2.3. The coupling is rigid, so mount
+  // deflection is reacted by the bearings.
   _mount_slenderness = motor_mount_height / _mount_body_d;
 
   // The hole is blind because the other side of the plug is the culture.
@@ -2151,7 +2172,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   // The bearing pocket is the other blind hole in this face, and the deeper of the two.
   _bearing_floor = head_lid_thickness(lid_flange_height) - bb_width(shaft_bearing);
 
-  // The bearing's seal, whose ID is the bearing, seats at 0% stretch; checked, not assumed.
+  // The bearing seal ID equals the bearing OD, so it seats at 0% stretch; checked, not assumed.
   _bearing_seal_stretch =
   oring_stretch(oring_inner_diameter(bearing_oring), bb_diameter(shaft_bearing));
 
@@ -2169,8 +2190,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _baffle_joint_at = [for (j = [1:1:_baffle_segments - 1]) j * _baffle_length / _baffle_segments];
   _baffle_width = head_baffle_width(vessel_opening_diameter, impeller_diameter, _baffle_lean_at_lower, _ring);
 
-  // Oldshue sizes baffling by total projected area; the width is bound, so the levers are the
-  // count and how much plate is under the liquid.
+  // Oldshue sizes baffling by total projected area. The width is constrained, so the remaining
+  // variables are the count and how much of the plate is below the liquid surface.
   _baffle_freeboard =
   head_punt_top_depth(lid_flange_height, vessel_internal_height) - _liquid_height - lid_thickness;
   _baffle_wetted = stirred_tank_baffle_wetted_length(_baffle_length, _baffle_freeboard, _liquid_height);
@@ -2178,15 +2199,15 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _baffle_area_ratio =
   stirred_tank_baffle_area_ratio(_vessel_bore, _liquid_height, len(_baffle_at), _baffle_width, _baffle_wetted);
 
-  // Both levers, with the numbers; an equally spaced count has to divide the port count.
+  // Both variables, with values; an equally spaced baffle count must divide the port count.
   _next_baffle_count = [for (n = [len(_baffle_at) + 1:_n]) if (_n % n == 0) n];
 
   _baffle_ratio_at_depth = stirred_tank_baffle_area_ratio(
     _vessel_bore, _liquid_height, len(_baffle_at), _baffle_width,
     stirred_tank_baffle_wetted_length(baffle_max_length, _baffle_freeboard, _liquid_height));
 
-  // What the plate does under load: whether it still blocks the swirl, and whether it sits on
-  // something the drive excites. Worst case is the no-load speed.
+  // Plate behaviour under load: whether it still blocks the swirl, and whether its natural
+  // frequency is excited by the drive. The worst case is the no-load speed.
   _baffle_rpm = max([for (s = _drive_speeds) s[1]]);
 
   _baffle_torque = stirred_tank_torque(_pair_power_high(_baffle_rpm), _baffle_rpm);
@@ -2194,7 +2215,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _baffle_load = stirred_tank_baffle_load(_baffle_torque, len(_baffle_at), port_circle_radius);
 
   // ----- the wall cage -----
-  // In the floor datum's frame, as the draft tube is: heights over the floor's lowest point.
+  // In the floor datum frame, as for the draft tube: heights above the lowest point of the floor.
   _cage_bore = _vessel_bore / 2;
   _cage_mouth = vessel_opening_diameter / 2;
   _cage_ri = baffle_cage_hoop_inner(_cage_mouth);
@@ -2208,7 +2229,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _cage_surface = vessel_punt_height + _liquid_height;
   _cage_top = _cage_surface + wall_baffle_surface_clearance;
   _cage_bottom = head_floor_rise(vessel, _cage_ri, _cage_ro) + wall_baffle_floor_clearance;
-  // the footing lifts the slid-in bars, detents and all, clear of the floor rising under them
+  // the footing lifts the slid-in bars, including detents, clear of the floor rising under them
   _cage_tip_in = baffle_cage_bar_tip(_cage_mouth) - _cage_travel;
   _cage_foot = max(
     0,
@@ -2219,10 +2240,10 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _cage_blade_bottom = baffle_cage_blade_bottom(_cage_bottom, _cage_foot);
   _cage_wetted = min(_cage_surface - _cage_blade_bottom, _liquid_height);
   _cage_area_ratio = stirred_tank_baffle_area_ratio(_vessel_bore, _liquid_height, len(wall_baffle_at), _cage_width, _cage_wetted);
-  // the arm catches the air inlet's riser, the tube the sparger hangs from
+  // the arm engages the air inlet riser, the tube the sparger hangs from
   _cage_key_i = [for (i = [0:_n - 1]) if (head_port_function(_ports[i]) == "air_in") i];
   _cage_key = len(_cage_key_i) == 0 ? undef : [_cage_key_i[0] * 360 / _n, port_circle_radius, steel_tube_od(sparge_riser_tube)];
-  // what hangs inside the hoops, the probes aside: the tubes, and the thermocouple's sheath
+  // parts hanging inside the hoops, apart from the probes: the tubes and the thermocouple sheath
   _cage_hardware = port_circle_radius + max(concat(
     [steel_tube_od(sparge_riser_tube) / 2],
     [for (p = _ports) if (head_port_type(p) == "thermocouple") thermocouple_probe_tip_dia(head_port_probe(p)) / 2]
@@ -2231,7 +2252,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _cage_raw = head_ports_for(vessel_opening_diameter);
   _cage_moved = [for (i = [0:_n - 1]) if (_wall && head_port_function(_ports[i]) != head_port_function(_cage_raw[i]) && head_port_type(_ports[i]) != "blank") str(head_port_function(_ports[i]), " to ", i * 360 / _n)];
   _cage_blanks = [for (i = [0:_n - 1]) if (head_port_type(_ports[i]) == "blank") i * 360 / _n];
-  // the pads, which are meant to sit in the straight bore
+  // the pads, which should sit in the straight part of the bore
   _cage_pad_zones = [
     [_cage_blade_top - baffle_cage_pad_from_top() - baffle_cage_pad_height() - _cage_pad, _cage_blade_top - baffle_cage_pad_from_top() + _cage_pad],
     [_cage_blade_bottom + baffle_cage_pad_from_bottom() - _cage_pad, _cage_blade_bottom + baffle_cage_pad_from_bottom() + baffle_cage_pad_height() + _cage_pad],
@@ -2242,7 +2263,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _baffle_solid_deflection = stirred_tank_baffle_deflection(
     _baffle_load, _baffle_length, _baffle_freeboard, _baffle_width, baffle_thickness, baffle_modulus);
 
-  // A split plate is what gets printed, so the joints are in the headline number.
+  // The plate is printed split, so the joints are included in the main deflection figure.
   _baffle_joint_depth = bayonet_baffle_joint_depth(
     baffle_thickness, baffle_joint_lip, baffle_joint_neck, baffle_joint_flare);
 
@@ -2261,17 +2282,18 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _baffle_frequency = stirred_tank_baffle_frequency(
     _baffle_length, _baffle_width, baffle_thickness, baffle_modulus, baffle_density);
 
-  // The cap only binds when the count is derived; a pinned count that overruns it says so.
+  // The height limit only applies when the count is derived; a fixed count that exceeds it is
+  // reported.
   _baffle_piece_height =
     _baffle_length / _baffle_segments
     + bayonet_baffle_stack_height(head_interface_for("baffle", 0), lid_thickness);
 
-  // The plate hangs from a coupling with its own fit allowance, so it can lean; what matters is
-  // the lean at the impellers, which the width already keeps clear of (head_baffle_lean()).
+  // The plate hangs from a coupling with its own fit allowance, so it can lean. What matters is
+  // the lean at the impellers, which the width already allows for (head_baffle_lean()).
   _baffle_gap = port_circle_radius - _baffle_width / 2 - head_impeller_swept_radius(impeller_diameter);
 
-  // Where the mode is crossed, as a speed: a DC motor sweeps every frequency below its maximum,
-  // so what decides the plate is whether a crossing is inside the operating band.
+  // The speeds at which the plate mode is crossed. A DC motor passes through every frequency below
+  // its maximum, so the plate is judged on whether a crossing falls inside the operating range.
   _drive_rpm_lo = min([for (s = _drive_speeds) s[1]]);
 
   _baffle_crossings = [
@@ -2283,7 +2305,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _baffle_crossings_in_band =
     [for (c = _baffle_crossings) if (c[1] >= _drive_rpm_lo && c[1] <= _baffle_rpm) c];
 
-  // How far the nearest crossing sits outside the band.
+  // How far the nearest crossing is outside the operating range.
   _baffle_crossing_clearance = min([
     for (c = _baffle_crossings)
       c[1] < _drive_rpm_lo
@@ -2296,7 +2318,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _sparge_support_ports = head_sparge_support_ports(vessel_opening_diameter, _condenser);
   _sparge_support_angles = [for (i = _sparge_support_ports) i * 360 / _n];
 
-  // A support tube is cut from the riser's own stock, so whichever ports carry one have to pass it.
+  // A support tube is cut from the same stock as the riser, so any port carrying one must pass it.
   _support_bores = [for (i = _sparge_support_ports) head_port_bore_radius(_ports[i])];
 
   // Reported before it is drawn.
@@ -2310,20 +2332,20 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _sparge_flow = stirred_tank_gas_flow(sparge_design_vvm, _culture_volume);
   _sparge_velocity = stirred_tank_orifice_velocity(_sparge_flow, sparge_hole_count, sparge_hole_diameter);
 
-  // The arm: off the inlet's riser, in to the shaft, holes down under the lower impeller.
+  // The arm: from the inlet riser in toward the shaft, holes facing down under the lower impeller.
   _cap_z = head_sparge_cap_z(impeller_diameter);
   _cap_reach = head_sparge_cap_reach(vessel_opening_diameter, shaft_diameter(_shaft));
   _cap_holes = head_sparge_cap_holes(_cap_reach);
   _cap_velocity = stirred_tank_orifice_velocity(_sparge_flow, _cap_holes, sparge_hole_diameter);
-  // The loop: the arm's riser and height, hooked into a C round the shaft, with the ring's holes.
+  // The loop: the arm riser and height, bent into a C around the shaft, with ring-style holes.
   _loop_velocity = stirred_tank_orifice_velocity(_sparge_flow, sparge_loop_hole_count, sparge_hole_diameter);
   _sparge_loop_bounds = head_sparge_loop_bounds(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, _baffles);
   _sparge_loop_radius = head_sparge_loop_radius(vessel_opening_diameter, lid_flange_height, vessel_internal_height, vessel_punt_height, impeller_diameter, _baffles);
   _sparge_loop_ratio = stirred_tank_sparge_ring_ratio(2 * _sparge_loop_radius, impeller_diameter);
   _sparge_loop_lean = head_baffle_lean_at(lid_flange_height, vessel_internal_height, vessel_punt_height, _cap_z);
   _sparge_loop_riser_lean = head_riser_lean_at(lid_flange_height, vessel_internal_height, vessel_punt_height, _cap_z);
-  // The boss round the socket of a sparger that hangs from its riser alone, the arm's or the loop's,
-  // and how far its screw bites the riser through it.
+  // The boss around the socket of a sparger that hangs from its riser alone (arm or loop), and how
+  // far its screw grips the riser through it.
   _sparge_cap_boss = sparge_feed_bore + 2 * sparge_cap_boss_wall;
   _sparge_feed_depth = _ring ? sparge_socket_depth : sparge_hung_socket_depth;
   _sparge_feed_bottom = steel_tube_od(sparge_riser_tube) - sparge_socket_press;
@@ -2332,18 +2354,18 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     _ring || _cap_bite > 0,
     str("A ", set_screw_length(sparge_plug_screw), " mm screw does not reach through the ", _sparger_noun, "'s ", sparge_cap_boss_wall, " mm boss wall.")
   );
-  // where the gas leaves, off the floor, and how fast: the ring's or the loop's, or the arm's
+  // height above the floor where the gas exits, and its velocity, for the ring, loop or arm
   _sparge_height = _ring ? _sparge_ring_height : _cap_z;
   _sparge_hole_velocity = _ring ? _sparge_velocity : _loop ? _loop_velocity : _cap_velocity;
 
-  // ----- does anything hanging from the lid run into anything already in the vessel? -----
+  // ----- collisions between parts hanging from the lid and parts in the vessel -----
   //
-  // The immersion asserts measure depth; a leaning probe can have the right depth and go through
-  // the blades. A 2D question because the obstacles are axisymmetric - utils/meridian.scad.
+  // The immersion asserts check depth; a leaning probe can be at the right depth and still hit
+  // the blades. This is a 2D check because the obstacles are axisymmetric; see utils/meridian.scad.
   _floor_z = -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height);
 
-  // The stir bar lies on the punt plateau, sweeping a disc a bar's half-length out; the impellers
-  // are the shaft drive's.
+  // The stir bar lies on the punt plateau and sweeps a disc of radius half its length; the
+  // impellers apply only to the shaft drive.
   _punt_top_z = -head_punt_top_depth(lid_flange_height, vessel_internal_height);
   _obstacles = concat(
     head_reach_obstacles(
@@ -2378,18 +2400,18 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       ]]
   );
 
-  // ----- can the vessel keep the DO probe fed, and where does it sit in the gas? -----
+  // ----- flow past the DO probe, and its position relative to the gas -----
   //
-  // The probe is galvanic and consumes the oxygen it reads. Atlas ask for a flow where a tank can
-  // only offer a velocity, so 60 mL/min is spread over the probe's sensing face.
+  // The probe is galvanic and consumes the oxygen it measures. Atlas specify a flow, but a tank
+  // only provides a velocity, so 60 mL/min is spread over the sensing face of the probe.
   _do_probe = [
     for (q = _ports) if (head_port_type(q) == "probe" && head_port_function(q) == "do_probe") q
   ];
 
   // ----- risers -----
-  // What the riser has to span. Two datums: the feed's socket sits on the elbow of whichever
-  // part it feeds, a support's on the ring's section top face. Without the ring the supports are
-  // plain tubes, and they end where the ring would have held them.
+  // Length the riser has to span. There are two datums: the feed socket sits on the elbow of the
+  // part it feeds, and a support socket on the top face of the ring section. Without the ring the
+  // supports are plain tubes that end where the ring would have held them.
   _sparge_ring_top_z =
   -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height)
   + _sparge_ring_height;
@@ -2401,7 +2423,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _sparge_socket_top = _sparge_ring_top_z
   + sparger_socket_top(sparge_tube(), sparge_tube_facets, sparge_socket_depth, "support");
 
-  // From inside its socket to clear of its port's flange.
+  // From inside its socket to above the port flange.
   _sparge_port_top = bayonet_flange_height(head_interface_for("tube", steel_tube_od(sparge_riser_tube) / 2));
 
   _sparge_riser_length =
@@ -2412,38 +2434,39 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   _sparge_submergence = vessel_punt_height + _liquid_height - _sparge_height;
 
-  // What holds the ring up, as cantilevers over the free span between the lid's underside and
-  // the socket. Reported: what the flow pushes the ring with is not known. A support's span is
-  // the longer and softer, so it is the one reported.
+  // The ring supports, as cantilevers over the free span between the underside of the lid and the
+  // socket. Reported, because the force the flow puts on the ring is not known. The support span is
+  // longer and softer, so that is the one reported.
   _riser_I = steel_tube_second_moment(sparge_riser_tube);
   _riser_free = -lid_thickness - _sparge_socket_top;
   _riser_k = 3 * steel_tube_modulus() * _riser_I / pow(_riser_free, 3);
   _feed_free = -lid_thickness - _sparge_socket_top_feed;
   _feed_k = 3 * steel_tube_modulus() * _riser_I / pow(_feed_free, 3);
-  // A part hung from the feed riser alone is pushed where its tube is, not at the socket's top:
-  // the socket and elbow are a rigid lever below the riser's end, so it moves by the riser's end
-  // deflection and its slope over that lever.
+  // A part hung from the feed riser alone is loaded at its tube, not at the top of the socket. The
+  // socket and elbow are a rigid lever below the end of the riser, so the part moves by the riser
+  // end deflection plus the end slope times that lever.
   _hung_lever = sparger_socket_top(sparge_tube(), sparge_tube_facets, _sparge_feed_depth, "feed");
   _hung_k = 3 * steel_tube_modulus() * _riser_I
     / (pow(_feed_free, 3) + 3 * _hung_lever * pow(_feed_free, 2) + 3 * pow(_hung_lever, 2) * _feed_free);
 
-  // Where to drill a support tube's vent: above the liquid, below the lid's inner face, measured
-  // from the tube's top end. Nearer the lid is better, since foam finds the lowest hole.
+  // Where to drill the vent in a support tube: above the liquid and below the inner face of the
+  // lid, measured from the top end of the tube. Closer to the lid is better, since foam reaches the
+  // lowest hole first.
   _riser_top_z = _sparge_port_top + sparge_riser_proud;
 
   _liquid_surface_z =
   -head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height)
   + vessel_punt_height + _liquid_height;
 
-  // Only the ring rests on the tubes in the other ports, so only the ring's are cut to its sockets
-  // and capped. Beside a loop or an arm a dosing tube holds nothing up, and ends open where the
-  // agitator draws the dose in: at the upper impeller's centre, where the impellers are drawn. A
-  // magnetic build has no impeller there, and takes the same height, as its arm takes its own from
-  // the impellers a stirred build turns. air_out's tube, where it carries one, vents the headspace
-  // and keeps the support's length and drilled slot.
+  // Only the ring rests on the tubes in the other ports, so only for the ring are they cut to the
+  // sockets and capped. With a loop or arm a dosing tube supports nothing, and ends open where the
+  // agitator draws the dose in: at the centre of the upper impeller, where impellers are drawn. A
+  // magnetic build has no impeller there but uses the same height, just as its arm takes its
+  // height from the impellers of a stirred build. The air_out tube, where there is one, vents the
+  // headspace and keeps the support length and drilled slot.
   _dose_bottom_z = _floor_z + _impeller_clearance + impeller_spacing;
   _dose_length = _riser_top_z - _dose_bottom_z;
-  // each tube but the feed: [port, angle, length, open at its bottom end]
+  // each tube except the feed: [port, angle, length, open at its bottom end]
   _sparge_others = [
     for (i = _sparge_support_ports)
       let (_dose = !_ring && head_port_function(_ports[i]) != "air_out")
@@ -2452,12 +2475,13 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _dose_open_n = len([for (t = _sparge_others) if (t[3]) 1]);
   _vent_tube = !_ring && _dose_open_n < len(_sparge_others);
 
-  // The port's ring is chosen by its ID, and its ID is the tube: two registered rows compared.
+  // The port o-ring is chosen by its ID, which matches the tube OD; this compares the two
+  // registered rows.
   _riser_seal_stretch = oring_stretch(
     oring_inner_diameter(tube_port_riser_oring), steel_tube_od(sparge_riser_tube)
   );
 
-  // Off the gland the port actually cuts, against the tube it seals on.
+  // From the gland the port actually cuts, against the tube it seals on.
   _riser_seal_squeeze =
     oring_rod_gland_squeeze(steel_tube_od(sparge_riser_tube), 2 * bayonet_bore_gland_radius(tube_port_riser_oring),
                   oring_cross_section(tube_port_riser_oring));
@@ -2466,8 +2490,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     head_port_bore_radius(head_ports_for(vessel_opening_diameter)[head_sparge_feed_port(vessel_opening_diameter)]) * 2;
 
   // ----- dosing -----
-  // The dosing line goes over the riser's proud end, so the fit is the pump tube's inside against
-  // the riser's outside, and interference is the grip. Empty on a lid with no dosing port.
+  // The dosing line pushes over the protruding end of the riser, so the fit is the pump tube ID
+  // against the riser OD, and the interference provides the grip. Empty on a lid with no dosing
+  // port.
   _dosing_ports = [
     for (i = [0:_n - 1])
       if (len([for (f = dosing_pump_functions) if (head_port_function(_ports[i]) == f) 1]) > 0) i
@@ -2475,26 +2500,26 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _dosing_tube_id = peri_pump_tube_inner_diameter(head_dosing_pump);
   _riser_od = steel_tube_od(sparge_riser_tube);
 
-  // The sampler's dip tube is its port's riser, ending open at the culture's mid-depth, where it
-  // draws; its top end stops inside the sampler's base, under the clear tube.
+  // The sampler dip tube is the riser of its port. It ends open at mid-depth in the culture, where
+  // it draws from, and its top end stops inside the sampler base, under the clear tube.
   _sampler_at = [for (i = [0:_n - 1]) if (head_port_type(_ports[i]) == "sampler") i];
   _sampler_i = len(_sampler_at) == 0 ? undef : _sampler_at[0];
   _sampler = !is_undef(_sampler_i);
   _sampler_riser_cut = !_sampler ? 0 : sampler_riser_top_z() - (_liquid_surface_z - _liquid_height / 2);
 
-  // Bought as stock and cut, so the purchase list needs the stock length and the cut list.
+  // Bought as stock and cut to length, so the purchase list needs the stock length and cut list.
   _riser_total = _sparge_feed_length + _dose_open_n * _dose_length
   + (len(_sparge_others) - _dose_open_n) * _sparge_riser_length + _sampler_riser_cut;
   _riser_stock = steel_tube_stock_for(_riser_total, 1);
 
   // ----- gas supply -----
   //
-  // What the pump does against this vessel, what a throttle takes out, and which meter reads it.
+  // Pump performance against this vessel, the drop a throttle must add, and which flow meter fits.
   _gas_vessel_pressure = _sparge_submergence / 1000 * stirred_tank_medium_density() * 9.81
   + stirred_tank_capillary_pressure(sparge_hole_diameter);
   _gas_band = [sparge_vvm_band[0] * _culture_volume, sparge_vvm_band[1] * _culture_volume];
 
-  // The line's own losses at the design flow, for the echo; head_gas_line_pressure() has the total.
+  // Line losses at the design flow, for the echo; head_gas_line_pressure() gives the total.
   _gas_filter_drop = gas_filter_pressure_drop(_gas_band[1], gas_filter_drop_slope(sparge_inlet_filter));
 
   _gas_riser_drop = gas_tube_pressure_drop(
@@ -2503,8 +2528,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _gas_check_valve_drop = check_valve_cracking(sparge_check_valve)
     + gas_valve_pressure_drop(_gas_band[1], check_valve_cv(sparge_check_valve), _gas_vessel_pressure);
 
-  // The vent slot is hand-cut anywhere between the lid's underside and the liquid's surface, so
-  // the tube above it is priced at the longer end of that window.
+  // The vent slot is hand-cut anywhere between the underside of the lid and the liquid surface, so
+  // the tube drop above it is calculated for the longest case.
   _vent_run = [_riser_top_z + lid_thickness, _riser_top_z - _liquid_surface_z];
   _gas_vent_length = max(_vent_run);
 
@@ -2516,19 +2541,19 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _gas_free_flow = air_pump_free_flow_min(head_air_pump);
   _gas_dead_head = air_pump_dead_head(head_air_pump);
 
-  // The line priced at both ends of the band, so where the pump settles can be asked.
+  // Line pressure at both ends of the flow range, to find the pump operating point.
   _gas_line = gas_line_secant(
     _gas_band[0], head_gas_line_pressure(_gas_band[0], _gas_vessel_pressure, _sparge_feed_length, _gas_vent_length, _condenser),
     _gas_band[1], _gas_back_pressure);
 
   _gas_ceiling_flow = gas_operating_flow(_gas_free_flow, _gas_dead_head, _gas_line);
 
-  // What guards the way out, which today is nothing.
+  // Pressure budget for an exhaust filter, of which there is currently none.
   _gas_outlet_budget =
     gas_filter_slope_budget(_gas_free_flow, _gas_dead_head, _gas_line, _gas_band[1]);
 
-  // What the way out costs before any filter: the vent slot is hand-cut, and an orifice is
-  // unforgiving in the small direction. Both come out of the throttle's headroom.
+  // Exhaust pressure drop before any filter. The vent slot is hand-cut, and an orifice that comes
+  // out too small costs a lot of pressure. Both drops come out of the throttle headroom.
   _vent_bore = steel_tube_id(sparge_riser_tube);
   _vent_bore_area = PI / 4 * pow(_vent_bore, 2);
   _vent_budget_pa = _gas_outlet_budget * _gas_band[1] * 1000;
@@ -2540,13 +2565,14 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _vent_min_area = stirred_tank_orifice_area(_gas_band[1] / 60000, _vent_budget_pa) * 1e6;
   _vent_min_diameter = sqrt(4 * _vent_min_area / PI);
 
-  // The throttle as a part, only where a valve has anything to do: a negative drop is a nan Cv.
+  // The throttle as a part, only where a valve is needed: a negative drop gives a nan Cv.
   _gas_throttle_drop =
     gas_throttle_pressure(_gas_free_flow, _gas_dead_head, _gas_band[1], _gas_back_pressure);
 
-  // Oldshue p.228: an axial impeller needs 8-10x the gas stream's power to hold its flow pattern,
-  // a radial one 3x. Each impeller against the whole gas stream, at each drive speed. The cap goes
-  // as N^3, so each also has a slowest speed that still holds the design rate.
+  // Oldshue p.228: an axial impeller needs 8-10x the gas stream power to keep its flow pattern, a
+  // radial one 3x. Each impeller is checked against the whole gas stream at each drive speed. The
+  // limit scales as N^3, so each impeller also has a minimum speed that still handles the design
+  // rate.
   _gas_ceilings = [
     for (s = _drive_speeds) [
       for (i = [0, 1])
@@ -2557,7 +2583,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     : [for (i = [0, 1]) _drive_speeds[0][1] * pow(_sparge_flow / _gas_ceilings[0][i], 1 / 3)];
 
   // ----- port spacing -----
-  // Whether that many ports clear each other on the circle: the worst adjacent pair of flanges
+  // Whether that many ports clear each other on the circle; the worst adjacent pair of flanges
   // decides.
   _port_gap = min([
     for (i = [0:_n - 1])
@@ -2573,15 +2599,15 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       - bayonet_port_hole_radius(head_port_interface(_ports[(i + 1) % _n]))
   ]);
 
-  // Which interfaces this lid ended up with, since the answer is derived.
+  // The interfaces this lid uses, reported because they are derived.
   _iface_names = [for (p = _ports) bayonet_name(head_port_interface(p))];
   _uniform = len([for (nm = _iface_names) if (nm != _iface_names[0]) nm]) == 0;
 
-  // The motor mount stands on the same face as the flanges, so the ports have to clear it inward.
+  // The motor mount is on the same face as the flanges, so the ports must clear it on the inside.
   _mount_to_ports = port_circle_radius - bayonet_flange_radius(head_widest_interface(_ports)) - _mount_body_d / 2;
 
-  // What the slack above that minimum would be worth as an eccentric offset. Not a gain this
-  // build collects: Karcz's correlation is for an unbaffled tank. Reported, never warned on.
+  // The spare clearance above that minimum, expressed as a possible eccentric offset. This build
+  // does not use it, since Karcz's correlation is for an unbaffled tank. Reported, never warned on.
   _eccentricity_room = max(0, _mount_to_ports - lid_holes_offset);
   _eccentricity_ratio = _eccentricity_room / _vessel_bore;
 
@@ -2591,7 +2617,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     _eccentricity_ratio, _baffle_count, impeller_to_render == "both", false
   );
 
-  // The joint posts are bored through the flange, and where its edge falls is the assembly's to set
+  // The joint posts are bored through the flange, and the assembly sets where its edge falls
   _post_reach = max([for (p = post_pts) norm(p)]) + post_hole_diameter / 2;
 
   // --- lid seal ---
@@ -2605,8 +2631,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   _gasket_rim = head_gasket_rim_width(vessel_wall_thickness);
   _gasket_force = head_gasket_seating_force(vessel_opening_diameter, vessel_wall_thickness, _gasket_sheet, lip_arc_radius);
 
-  // The ring's installed ID is the groove it is cut for; with no ring selected the groove is
-  // quoted against the largest cord registered.
+  // The installed ring ID is the groove diameter; with no ring selected the groove is reported
+  // for the largest registered cross-section.
   _plug_ring = head_plug_oring_selected(vessel_opening_diameter, _build_plug_oring);
   _plug_cord_nominal = max([for (r = orings) oring_cross_section(r)]);
   _ring_id =
@@ -2623,7 +2649,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     oring_gland_depth(oring_cross_section(_plug_ring), lid_plug_oring_squeeze)
   );
 
-  // how much of the cord the groove holds, the check against it rolling out
+  // how much of the cross-section the groove holds, which checks against the ring rolling out
   _plug_containment = oring_containment(
     oring_cross_section(_plug_ring),
     head_lid_plug_diameter(vessel_opening_diameter) / 2 - _groove_r
@@ -2646,9 +2672,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     ),
   ];
 
-  // The joint holding the mount down: inserts in the lid, screws through the mount's flange. The
-  // screw head lands on the counterbore floor partway down that flange. The blank's flange is as
-  // thick as that grip, so one screw serves both.
+  // The joint holding the mount down: inserts in the lid, screws through the mount flange. The
+  // screw head sits on the counterbore floor partway down that flange. The blank flange is as
+  // thick as that grip length, so one screw fits both.
   _joint_grip = motor_mount_base_screw_grip(motor_mount_wall_thickness);
 
   // ===== checks and reports =====
@@ -2702,7 +2728,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       )
     );
 
-    // The tube is sized round what hangs inside it, and a baffle is not on that list.
+    // The tube is sized around what hangs inside it, and baffles are not included.
     assert(!_has_baffles, "The airlift's draft tube stands where this jar's baffles hang; an airlift wants a lid without them.");
 
     echo(str(
@@ -2716,7 +2742,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       "; the ", _tube_gap, " mm gaps under and over it give the turning flow the downcomer's own area, K_B ",
       head_draft_tube_bottom_loss(_ad, 2 * PI * _tube_inner * _tube_gap)
     ));
-    // Chisti's circulation model is not run: it was fitted on loops 1.36 m tall and more.
+    // Chisti's circulation model is not used: it was fitted on loops 1.36 m tall or more.
     echo(str(
       "draft tube gas: ", _sparge_flow / (_ar * 1e-6) * 1000, " mm/s superficial in the riser at ",
       sparge_design_vvm, " vvm"
@@ -2724,8 +2750,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   }
 
   // ----- magnetic drive -----
-  // The bar rides the plateau; what it must miss is what else reaches the floor. The magnets and
-  // the gap through the glass are the frame's, which hangs the fan.
+  // The bar sits on the plateau and must miss anything else that reaches the floor. The magnets
+  // and the gap through the glass belong to the frame, which holds the fan.
   if (_magnetic) {
     assert(
       !is_undef(_stir_bar),
@@ -2754,7 +2780,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     );
 
     assert(
-      // the loop is a C round the bar, so it is clear when it is outside the sweep at any height
+      // the loop is a C around the bar, so it is clear when it is outside the sweep at any height
       _ring || _loop && _bar_reach < _sparge_loop_radius - sparge_tube_extent() / 2 || _arm_over_bar > 0,
       str("The sparge ", _sparger_noun, " hangs ", -_arm_over_bar, " mm into the stir bar's sweep.")
     );
@@ -2780,7 +2806,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         ? str("vessel fit: no mouth is feasible for a ", impeller_diameter, " mm impeller at these allowances")
         : str(
           "vessel fit: a ", impeller_diameter, " mm impeller is feasible in mouths ", _feasible[0], " to ",
-          // an upper bound at the search ceiling is the search running out, not a constraint
+          // an upper bound at the search limit is the end of the search range, not a constraint
           _feasible[1] >= head_feasible_mouth_sweep()[1] ? "unbounded" : str(_feasible[1], " mm"),
           "; this jar's is ", vessel_opening_diameter
         )
@@ -2793,7 +2819,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       "-", _spacing_band[1], ")"
     ));
 
-    // The layout against the lower impeller's standard: each knob set is a departure from it.
+    // The layout compared with the lower impeller standard; each parameter set is a departure.
     let (_std = head_layout_type()[7]) {
       echo(str(
         "impeller layout: ", impeller_name(head_layout_type()),
@@ -2844,8 +2870,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           stirred_tank_coverage_minimum(), " D floor")
     ));
 
-    // Oldshue's 1-2 d is a permissive allowance for fluidfoils; what fits a pitched blade is Fořt,
-    // who found hydraulic efficiency higher at C/D 1.0 than 0.5. Neither reaches a radial impeller.
+    // Oldshue's 1-2 d is a permissive allowance for fluidfoils; for a pitched blade the relevant
+    // source is Fořt, who found hydraulic efficiency higher at C/D 1.0 than 0.5. Neither applies to
+    // a radial impeller.
     if (impeller_pumping(head_impeller_lower_type) == "axial" && !stirred_tank_in_band(_clearance_ratio, _clearance_band))
       echo(str(
         "impeller clearance: ", _clearance_ratio, " D is below Oldshue's ", _clearance_band[0], "-",
@@ -2869,9 +2896,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         _spacing_band[1], " D band; too close costs up to 35% of the power imparted, too far mixes the zones poorly"
       ));
 
-    // Which way each pumps, and therefore where gas belongs; the drawn parts do not show it. An
-    // axial blade pumps by its handedness and the shaft's turn, the upper mirrored against the lower;
-    // a radial one throws its discharge to the wall whichever way it turns.
+    // Pumping direction of each impeller, and so where the gas should go; the drawn parts do not
+    // show it. An axial blade pumps according to its handedness and the shaft rotation, with the
+    // upper mirrored against the lower. A radial one discharges toward the wall either way.
     _axial = [for (t = _impeller_types) impeller_pumping(t) == "axial"];
     _up = stirred_tank_lower_pumps_up(head_shaft_rotation);
     echo(str(
@@ -2889,7 +2916,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         "single sparge ring sits in both (Birch & Ahmed); reverse head_shaft_rotation, see docs/agitation.md"
       ));
 
-    // One line for the pair when both are held the same way, one per impeller when they are not.
+    // One line for the pair when both are fixed the same way, one per impeller when they are not.
     for (i = head_impeller_split(_impeller_types[0], impeller_diameter) == head_impeller_split(_impeller_types[1], impeller_diameter) ? [0] : [0, 1])
       let (
         _t = _impeller_types[i],
@@ -2934,7 +2961,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           " mm pin, so it prints whole, standing on its blades with supports under the disc"
         ));
 
-    // Two impellers are located along one shaft, so the bore slides and the screws hold.
+    // Two impellers are positioned along one shaft, so the bore is a slip fit and the screws hold.
     echo(str(
       "impeller bore: ", impeller_shaft_hole_radius * 2, " mm",
       impeller_shaft_draft == 0
@@ -2952,7 +2979,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       )
     );
 
-    // The collar stands in the gap between the impellers.
+    // The collar sits in the gap between the impellers.
     assert(
       head_impeller_collar(head_impeller_lower_type, impeller_diameter) < impeller_spacing - (impeller_height_lower + impeller_height_upper) / 2,
       str(
@@ -2998,7 +3025,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     _liquid_height / vessel_internal_height * 100, "% of the ", vessel_internal_height, " mm internal height"
   ));
 
-  // 0.8 of capacity is the usual headspace allowance; unsourced, so sat against rather than a band
+  // 0.8 of capacity is the usual headspace allowance; it has no source, so it is a reference
+  // value rather than a band
   echo(str(
     "culture headspace: ", _vessel_capacity - _culture_volume, " L of gas space at ",
     _build_fill_fraction * 100, "% of capacity",
@@ -3021,8 +3049,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     if (len(_drive_speeds) == 0)
       echo(str("drive: ", dc_motor_name(_motor), " registers no output speed, so no Re or dissipation follows"));
 
-    // P is the larger impeller's alone, a lower bound on the pair; the torque is both summed, an
-    // upper bound. The peak is the larger of the two impellers' own.
+    // P is the larger impeller alone, a lower bound for the pair; the torque is the sum of both, an
+    // upper bound. The peak is the larger of the two impeller peaks.
     for (s = _drive_speeds)
       let (_rpm = s[1], _power = _pair_power_low(_rpm))
         echo(str(
@@ -3044,7 +3072,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     _tc_reach = head_thermocouple_depth(_tc_probe, _tc_iface);
     _tc_floor = head_floor_depth(lid_flange_height, vessel_internal_height, vessel_punt_height);
     _tc_surface = _tc_floor - vessel_punt_height - _liquid_height;
-    // Engagement is what the fitter does, so both bounds are checked.
+    // Engagement depends on the person fitting it, so both limits are checked.
     _tc_deepest = head_thermocouple_depth(_tc_probe, _tc_iface, 1);
     _tc_shallowest = head_thermocouple_depth(_tc_probe, _tc_iface, 0);
 
@@ -3072,7 +3100,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     );
   }
 
-  // The same two questions for the probes, which seat where their collets put them.
+  // The same two checks for the probes, whose depth is set by their collets.
   for (i = [for (j = [0:_n - 1]) if (head_port_type(_ports[j]) == "probe") j])
     let (
       _p = head_port_probe(_ports[i]),
@@ -3108,8 +3136,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   if (_shaft_drive) {
     // ----- transfer -----
-    // Blend time and kLa, from the specific power above; see utils/stirred_tank.scad for what each
-    // correlation is worth.
+    // Blend time and kLa, from the specific power above; see utils/stirred_tank.scad for the
+    // reliability of each correlation.
     for (s = _drive_speeds)
       let (
         _rpm = s[1],
@@ -3152,7 +3180,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       str("Impellers overlap: ", impeller_spacing, " mm apart but ", impeller_height_lower, " and ", impeller_height_upper, " mm tall.")
     );
 
-    // Below this the lower impeller hangs off the end of its own shaft.
+    // Below this the lower impeller would extend past the end of the shaft.
     assert(
       _impeller_clearance - impeller_height_lower / 2 >= vessel_punt_height + shaft_jar_punt_clearance,
       str(
@@ -3163,7 +3191,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       )
     );
 
-    // An impeller in the headspace pumps air, so this is submersion rather than fit.
+    // An impeller in the headspace pumps air, so this checks submersion rather than fit.
     assert(
       _impeller_clearance + impeller_spacing + impeller_height_upper / 2 <= vessel_punt_height + _liquid_height,
       str(
@@ -3173,7 +3201,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       )
     );
 
-    // Scaled off the bore, but it has to pass the opening.
+    // Scaled from the bore, but it has to pass through the opening.
     assert(
       head_mouth_passes_impeller(vessel_opening_diameter, impeller_diameter),
       str(
@@ -3187,7 +3215,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       str("Shaft is drawn ", -shaft_jar_punt_clearance, " mm into the jar's floor.")
     );
 
-    // What the shaft leaves above the lid for the coupling to grip.
+    // Shaft length above the lid for the coupling to grip.
     assert(
       shaft_protrusion >= head_shaft_min_protrusion(),
       str(
@@ -3214,9 +3242,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       )
     );
 
-    // Where the two shafts actually end: the gearbox's face sits on the mount's top and its shaft
-    // reaches down past the boss; the impeller shaft stands its protrusion above the lid. They
-    // must not meet, and the coupler, centred on the gap, has to keep a grip on each.
+    // Where the two shafts actually end: the gearbox face sits on top of the mount and its shaft
+    // extends down past the boss; the impeller shaft protrudes above the lid. They must not touch,
+    // and the coupler, centred on the gap, has to grip each of them.
     _shaft_gap = motor_mount_height - head_gearbox_shaft_reach(head_gearbox) - shaft_protrusion;
     _shaft_grip = (sc_length(shaft_coupler) - _shaft_gap) / 2;
     assert(
@@ -3226,7 +3254,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         "that much taller, and shaft_shaft_coupling_offset more, for a gap between them."
       )
     );
-    // the set screws sit toward the coupler's ends, so each shaft has to reach a quarter of it
+    // the set screws are near the coupler ends, so each shaft must reach a quarter of its length in
     assert(
       _shaft_grip >= sc_length(shaft_coupler) / 4,
       str(
@@ -3265,7 +3293,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     ));
   }
 
-  // --- the pocket and the inserts, which a bearing lid carries under either drive ---
+  // --- the pocket and the inserts, which a bearing lid has with either drive ---
   if (_seated) {
     assert(
       screw_radius(motor_mount_base_screw) * 2 == insert_screw_diameter(motor_mount_base_insert),
@@ -3305,7 +3333,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       )
     );
 
-    // The groove has to sit inside the pocket with wall left either side.
+    // The groove has to fit inside the pocket with wall on each side.
     assert(
       head_bearing_gland_z() - head_bearing_gland_length() / 2 > 0
         && head_bearing_gland_z() + head_bearing_gland_length() / 2 < bb_width(shaft_bearing),
@@ -3391,8 +3419,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       str("The wall cage's blades slide ", _cage_travel, " mm on this jar, and run free between their detents only past ",
         baffle_cage_travel_min(), " mm: the hoop's width, a detent and its play at each end.")
     );
-    // The arm runs in from its riser, which the hardware check covers; the loop's C and hook stay
-    // inside the riser too, so this holds by construction and says so if that changes.
+    // The arm runs inward from its riser, which the hardware check covers. The loop C and hook also
+    // stay inside the riser, so this holds by construction; the assert reports it if that changes.
     assert(
       !_loop || _sparge_loop_radius + sparge_tube_extent() / 2 + wall_baffle_hardware_clearance <= baffle_cage_bar_tip(_cage_mouth),
       str("The sparge loop reaches r ", _sparge_loop_radius + sparge_tube_extent() / 2, " and the cage's bars' tips stand at r ",
@@ -3458,7 +3486,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       _cage_ri - _cage_hardware, " mm and the bars' tips ", baffle_cage_bar_tip(_cage_mouth) - _cage_hardware,
       " mm off the tubes and thermocouple"
     ));
-    // the impellers' torque, so the shaft drive's alone; a stir bar's is a measurement nobody has
+    // impeller torque, so shaft drive only; no measurement exists for a stir bar
     if (_shaft_drive)
     echo(str(
       "baffle cage load: ", _cage_load, " N each at ", _baffle_rpm, " rpm, and the air inlet's riser stops the cage turning with ",
@@ -3466,7 +3494,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     ));
   }
 
-  // Loaded by the impellers' torque and excited at the shaft's speeds, so the shaft drive's alone.
+  // Loaded by impeller torque and excited at shaft speeds, so shaft drive only.
   if (_has_baffles && _shaft_drive)
     echo(str(
       "baffle plate: ", _baffle_load, " N each, deflecting ", _baffle_deflection, " mm at the tip",
@@ -3525,7 +3553,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   // ----- sparge ring -----
   //
-  // The feed comes down the air inlet, whose sector must have no baffle in it.
+  // The feed comes down through the air inlet, which must not have a baffle in its sector.
   assert(
     head_port_type(head_ports_for(vessel_opening_diameter)[head_sparge_feed_port(vessel_opening_diameter)]) == "tube",
     str("the air_in port, ", head_sparge_feed_port(vessel_opening_diameter), ", is a \"", head_port_type(head_ports_for(vessel_opening_diameter)[head_sparge_feed_port(vessel_opening_diameter)]),
@@ -3554,7 +3582,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     _sparger == "ring" || _sparger == "arm" || _sparger == "loop",
     str("The sparger is \"", _sparger, "\"; it is ring, arm or loop.")
   );
-  // The ring centres the draft tube; the arm and the loop sit under an impeller the airlift has not got.
+  // The ring centres the draft tube; the arm and loop sit under an impeller, which an airlift lacks.
   assert(
     !_airlift || _ring,
     str("The airlift's draft tube is centred by the ring, and this build fits the ", _sparger_noun, "; an airlift takes the ring.")
@@ -3592,7 +3620,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       tube=sparge_tube(), bore=sparge_bore(), gas_flow=_sparge_flow, paths=2
     );
 
-    // `just check-holes` renders with -D sparge_hole_probes=true and probes each point in the
+    // `just check-holes` renders with -D sparge_hole_probes=true and tests each point against the
     // mesh, so the probes are echoed where the part is drawn
     if (sparge_hole_probes)
       sparger_hole_probes(
@@ -3614,13 +3642,14 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         " D band; the mouth places it, so this jar's mouth and bore are too far apart for a ring that suits both"
       ));
   } else if (_loop) {
-    // The C of it is in the axisymmetric obstacle list as a whole ring, so the probes are checked
-    // against it there; what is left is the floor under it, the impeller over it and the shaft it
-    // rings. The baffles outside it placed it, so their gap is reported rather than asserted. The
-    // hook is not round the axis: it swings off the riser's bearing outside the curl, toward the
-    // next plate round, so its gap to each plate is measured in plan, with both leans spent.
+    // The C of the loop is in the axisymmetric obstacle list as a whole ring, so the probes are
+    // checked against it there. The remaining checks are the floor below it, the impeller above it
+    // and the shaft inside it. The baffles outside it set its radius, so their gap is reported
+    // rather than asserted. The hook is not around the axis: it extends from the riser bearing
+    // outside the curl, toward the next plate, so its gap to each plate is measured in plan with
+    // both at full lean.
     _loop_inner = _sparge_loop_radius - sparge_tube_extent() / 2;
-    // What is left between the loop and a plate once both have leaned toward each other.
+    // Remaining gap between the loop and a plate once both have leaned toward each other.
     _loop_baffle_gap = port_circle_radius - _baffle_width / 2 - _sparge_loop_lean - _sparge_loop_riser_lean
       - (_sparge_loop_radius + sparge_tube_extent() / 2);
     _loop_set_by = [for (b = _sparge_loop_bounds) if (b[1] == _sparge_loop_radius) b[0]][0];
@@ -3680,7 +3709,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       hole_diameter=sparge_hole_diameter, bore=sparge_bore(), gas_flow=_sparge_flow
     );
 
-    // It hangs from one riser, as the arm does, so its socket carries the arm's boss and screw.
+    // It hangs from one riser, like the arm, so its socket has the same boss and screw as the arm.
     echo(str(
       "sparge loop socket: the arm's, ", _sparge_feed_depth, " mm deep, its bore ", sparge_feed_bore, " mm at the mouth to ",
       _sparge_feed_bottom, " at the bottom, a press fit over the lower ",
@@ -3688,9 +3717,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       " mm boss filled down to the loop's underside, one ", set_screw_name(sparge_plug_screw), " biting the riser by ", _cap_bite,
       " mm; it hangs on that riser alone, ", _hung_k, " N/mm at the loop, ", _hung_lever, " mm under the riser's end"
     ));
-    // As the ring's warning where it has no supports: what the flow pushes with is not known. Nor
-    // is what turns it: the swirl's torque on a C round the shaft turns it about the riser,
-    // against the port's seal alone, which nothing here prices.
+    // Same as the ring warning when it has no supports: the force from the flow is not known.
+    // Neither is the torque: the swirl acting on a C around the shaft turns it about the riser,
+    // resisted only by the port seal, which is not calculated here.
     if (_has_baffles)
       echo(str(
         "WARNING sparge loop: it hangs on the feed riser alone; ", _loop_baffle_gap * _hung_k,
@@ -3704,9 +3733,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         bearing=_sparge_feed_angle
       );
   } else {
-    // The arm stands at the air inlet's bearing alone, so what it has to miss is checked here
-    // rather than in the axisymmetric obstacle list: the floor under it, the shaft it reaches
-    // toward, and the lower impeller it hangs beneath.
+    // The arm exists only at the air inlet bearing, so its clearances are checked here rather than
+    // in the axisymmetric obstacle list: the floor below it, the shaft it extends toward, and the
+    // lower impeller above it.
     assert(
       _cap_z - sparge_tube_extent() / 2 > vessel_punt_height,
       str("The sparge arm's underside is ", _cap_z - sparge_tube_extent() / 2, " mm off the floor, under the ", vessel_punt_height, " mm punt.")
@@ -3763,8 +3792,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       );
   }
 
-  // The ring is placed to satisfy both gaps, so an assert on either would be dead; what is worth
-  // reporting is what the placement cost. Only a ring build pays it; the arm leaves the plates alone.
+  // The ring is placed to satisfy both gaps, so an assert on either would never fire. What is
+  // worth reporting is the cost of that placement, which applies only to a ring build; the arm does
+  // not affect the plates.
   _baffle_width_unringed = head_baffle_width(vessel_opening_diameter, impeller_diameter, _baffle_lean_at_lower, false);
   if (_has_baffles && _ring && _baffle_width < _baffle_width_unringed)
     echo(str(
@@ -3773,7 +3803,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       " mm; room outside a baffle does not grow with the mouth"
     ));
 
-  // The ratio is why even flow is not a design target here.
+  // This ratio is why even flow is not a design target here.
   echo(str(
     "sparge holes: capillary ", stirred_tank_capillary_pressure(sparge_hole_diameter),
     " Pa to launch a bubble against ", stirred_tank_orifice_pressure(_sparge_hole_velocity),
@@ -3802,7 +3832,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       _face = PI / 4 * pow(atlas_probe_tip_dia(_do), 2),
       _needed = do_probe_flow_requirement * 1000 / 60 / _face
     ) {
-      // the feed past the face needs the upper impeller's flow number; the plume check below does not
+      // the flow past the face needs the upper impeller flow number; the plume check below does not
       if (!is_undef(_impeller_flow_number[1]))
       for (sp = _drive_speeds)
         let (
@@ -3816,7 +3846,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
             "x; mean, not local"
           ));
 
-      // Where the sensing face sits against the ring of bubbles; where the gas goes is not modelled
+      // Position of the sensing face relative to the ring of bubbles; the gas path is not modelled
       if (_ring || _loop)
       let (
         _tip = head_probe_axis_at(
@@ -3835,7 +3865,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           " mm off its radius; where the bubbles go is a bench question"
         ));
 
-        // the gas rises, so a face under the ring is out of it whatever its radius
+        // the gas rises, so a face below the ring is clear of it at any radius
         if (_over > 0 && abs(_tip[0] - _bubble_r)
           < sparge_tube_extent() / 2 + atlas_probe_tip_dia(_do) / 2)
           echo(str(
@@ -3846,10 +3876,11 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       }
     }
 
-  // ----- and does it fit through the mouth on the way in? -----
+  // ----- fit through the mouth during assembly -----
   //
-  // The lid descends through the neck, so what matters is the widest the printed port ever gets;
-  // the probes go in afterwards through the bore. The collet's bottom is the widest point.
+  // The lid is lowered through the neck, so what matters is the maximum width of the printed port;
+  // the probes are inserted afterwards through the bore. The bottom of the collet is the widest
+  // point.
   for (i = [for (j = [0:_n - 1]) if (head_port_type(_ports[j]) == "probe") j])
     let (
       _tilt = head_probe_tilt(_ports[i], _do_tilt),
@@ -3982,7 +4013,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     _gas_filter_drop / _gas_vessel_pressure, "x the vessel"
   ));
 
-  // A line the pump cannot beat leaves a throttle nothing to drop; the throttle warning says so.
+  // If the line pressure exceeds what the pump delivers, the throttle has nothing to drop; the
+  // throttle warning reports this.
   echo(str(
     "gas supply: ", air_pump_name(head_air_pump), " settles at ", _gas_ceiling_flow,
     " L/min against this line, where ", _gas_band[1], " L/min is wanted, ",
@@ -3995,7 +4027,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       : "so there is nothing for a throttle to drop"
   ));
 
-  // A line the pump cannot beat gives a negative budget, which is not a filter to buy.
+  // A line pressure above what the pump delivers gives a negative budget, which no filter can meet.
   echo(
     is_undef(sparge_outlet_filter)
       ? _gas_outlet_budget <= 0
@@ -4017,8 +4049,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       )
   );
 
-  // Only where there is headroom to spend; a line the pump cannot beat gives a negative budget.
-  // Under the condenser there is no slot: the port carries no tube.
+  // Only where there is pressure headroom; a line pressure above what the pump delivers gives a
+  // negative budget. With the condenser there is no slot, because the port has no tube.
   if (!_coil && len(_sparge_support_angles) > 0)
     echo(
       _gas_outlet_budget <= 0
@@ -4085,7 +4117,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       : str("so a 0-", gas_meter_full_scale(_gas_band[0], _gas_band[1]), " L/min rotameter")
   ));
 
-  // The pump's own numbers, checked against each other
+  // The pump's published figures, checked for consistency
   if (gas_pump_implied_efficiency(_gas_free_flow, _gas_dead_head, air_pump_power(head_air_pump)) > 0.5)
     echo(str(
       "gas supply: ", air_pump_name(head_air_pump), "'s free flow and dead head cannot be simultaneous, together ",
@@ -4122,7 +4154,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     str(_n, " ports leave ", _port_gap, " mm between flanges on a ", port_circle_radius * 2, " mm circle; ", lid_flange_gap, " mm is the least this lid keeps between two of them.")
   );
 
-  // The wall the lid keeps between bores, as against the air between flanges.
+  // The lid wall between bores, as opposed to the clearance between flanges.
   assert(
     _bore_gap >= lid_holes_offset,
     str(_n, " ports leave ", _bore_gap, " mm of lid between neighbouring bores; ", lid_holes_offset, " mm is the least this lid keeps.")
@@ -4142,7 +4174,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     head_port_set_min_mouth(head_port_set_reduced, true), " uniform std); this jar's is ", vessel_opening_diameter
   ));
 
-  // The blank's flange is the mount's body, so a bearing lid needs the room under either drive.
+  // The blank flange is the same size as the mount body, so a bearing lid needs the space with
+  // either drive.
   assert(
     !_seated || _mount_to_ports >= lid_holes_offset,
     str(
@@ -4178,7 +4211,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     gasket_sheet_size(_gasket_sheet)[0], " x ", gasket_sheet_size(_gasket_sheet)[1], " mm sheet"
   ));
 
-  // What the gasket actually touches.
+  // The actual gasket contact.
   echo(str(
     "lid lip: ",
     head_lip_is_flat(lip_arc_radius)
@@ -4190,8 +4223,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     "; ", _gasket_w, " mm of gasket, ", _lip_band, " mm of contact"
   ));
 
-  // The only load in the reactor, over the contact band. Reported: the modulus is correlated from
-  // hardness (utils/elastomer.scad).
+  // The only load in the reactor, over the contact band. Reported, because the modulus is
+  // correlated from hardness (utils/elastomer.scad).
   echo(str(
     "lid gasket load: ", _lip_band, " mm of contact, ", _gasket_force, " N to hold ",
     lid_gasket_compression * 100, "% squeeze, ",
@@ -4254,7 +4287,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     str("Gasket recess is ", head_gasket_depth(_gasket_sheet), " mm deep at ", lid_gasket_compression * 100, "% squeeze.")
   );
 
-  // the groove is cut from the bore, so a fatter cord walks inward toward the port bores
+  // the groove is sized from the bore, so a thicker cord moves it inward toward the port bores
   assert(
     _groove_r - (port_circle_radius + bayonet_lock_bore_radius(head_widest_interface(_ports))) >= lid_holes_offset,
     str(
@@ -4269,8 +4302,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     str("Plug o-ring groove is ", _groove_w, " mm wide and the plug is only ", lid_plug_height, " mm.")
   );
 
-  // The same band the derivation selects on, applied to whatever ring is fitted: a designated
-  // ring is fit-checked, not trusted.
+  // The same range the derivation selects with, applied to whatever ring is fitted; a designated
+  // ring is checked, not trusted.
   assert(
     is_undef(_plug_ring) || (_plug_stretch >= 0 && _plug_stretch <= 0.05),
     str(
@@ -4320,11 +4353,11 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   // ===== geometry =====
 
-  // An exploded view: the lid stays put and each piece moves k steps of `explode` along the axis,
-  // up for what goes on from above and down for what goes on from below, in assembly order. A
-  // drawing aid only: at 0 it moves nothing, and no export or check reads it.
+  // Exploded view: the lid stays in place and each part moves k steps of `explode` along the axis,
+  // up for parts fitted from above and down for parts fitted from below, in assembly order. It is a
+  // drawing aid only: at 0 it moves nothing, and no export or check uses it.
   module _exploded(k) {
-    // no transform at all when assembled: even a zero translate moves the preview's pixels
+    // no transform at all when assembled: even a zero translate shifts the preview pixels
     if (explode == 0)
       children();
     else
@@ -4332,8 +4365,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         children();
   }
 
-  // One tube down a port: the sparger's, carrying gas or only load, or an open dosing tube. top is
-  // its socket's top and depth how far it goes in, so an open tube is placed by its bottom end.
+  // One tube through a port: a sparger tube, carrying gas or only load, or an open dosing tube. top
+  // is the top of its socket and depth is how far it goes in, so an open tube is placed by its
+  // bottom end.
   module _sparge_tube(top, length, depth = sparge_socket_depth) {
     translate([port_circle_radius, 0, top - depth])
       difference() {
@@ -4353,7 +4387,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           _sparge_tube(_dose_bottom_z, t[2], 0);
         else if (!t[3] && (render_sparge_tubes || render_all))
           _sparge_tube(_sparge_socket_top, t[2]);
-    // the sampler's dip tube, from its open end at mid-depth up into the sampler's base
+    // the sampler dip tube, from its open end at mid-depth up into the sampler base
     if (_sampler && (render_sparge_tubes || render_all))
       rotate([0, 0, _sampler_i * 360 / _n])
         _sparge_tube(_liquid_surface_z - _liquid_height / 2, _sampler_riser_cut, 0);
@@ -4424,14 +4458,14 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           plug_tap_radius=set_screw_tap_radius(sparge_plug_screw)
         );
 
-  // Every lock in the lid's bores; the bore is bayonet_port_hole_fudge narrower, so they union in.
+  // Every lock in the lid bores; the bore is bayonet_port_hole_fudge narrower, so they union.
   module lid_locks() {
     for (i = [0:_n - 1])
       head_port_at(i, vessel_opening_diameter)
         bayonet_port(type=head_port_interface(_ports[i]), part="lock", panel_thickness=lid_thickness);
   }
 
-  // The lid: the blank, pocketed and bored, with its locks - one printed piece.
+  // The lid: the blank, pocketed and bored, with its locks, as one printed piece.
   if (render_lid || render_all) {
     color(prints2_color)
       union() {
@@ -4441,14 +4475,14 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       }
   }
 
-  // the locks alone, for looking at the channels the assembled lid buries
+  // the locks alone, to show the channels hidden in the assembled lid
   if (render_bayonet_lock && !(render_lid || render_all)) {
     color(prints2_color)
       lid_locks();
   }
 
-  // The culture, revolved from the same clipped profile vessel_profile_litres() integrates. The
-  // profile is in the jar's own frame, so it is dropped by the whole stack.
+  // The culture, revolved from the same clipped profile that vessel_profile_litres() integrates.
+  // The profile is in the jar frame, so it is moved down by the full stack height.
   if (render_culture)
     color("DarkSeaGreen", 0.35)
       translate([0, 0, -(vessel_internal_height + vessel_punt_height + vessel_wall_thickness + lid_flange_height)])
@@ -4460,15 +4494,15 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
             )
           );
 
-  // The templates the rim gasket is cut with, on the gasket's own numbers, at its plane.
+  // The templates used to cut the rim gasket, sized from the gasket, at the gasket plane.
   if (render_gasket_cutter)
     translate([0, 0, -lid_flange_height - (gasket_sheet_thickness(_gasket_sheet) - head_gasket_depth(_gasket_sheet))])
       gasket_cutter(_gasket_ir * 2, _gasket_or * 2, gasket_sheet_thickness(_gasket_sheet), part=gasket_cutter_part_to_render);
 
-  // The EPDM, each at its free size on the diameter it is installed at, so it overlaps what it
+  // The EPDM parts, each at its free size on its installed diameter, so it overlaps the surface it
   // seals against by its squeeze.
   if (render_seals || render_all) {
-    // rim gasket, standing proud of the flange by what the recess squeezes out of it
+    // rim gasket, protruding from the flange by the amount the recess compresses
     _exploded(-1)
       translate([0, 0, -lid_flange_height - (gasket_sheet_thickness(_gasket_sheet) - head_gasket_depth(_gasket_sheet))])
         sheet_gasket(_gasket_ir * 2, _gasket_or * 2, gasket_sheet_thickness(_gasket_sheet));
@@ -4478,7 +4512,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       translate([0, 0, -lid_flange_height - lid_plug_height / 2])
         oring(_plug_ring, id=_ring_id);
 
-    // port o-rings, at free size, sitting on the groove's floor
+    // port o-rings, at free size, on the groove floor
     for (i = [0:_n - 1])
       let (_pi = head_port_interface(_ports[i]))
         _exploded(0.5)
@@ -4486,7 +4520,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
             translate([0, 0, bayonet_gland_depth(_pi) - bayonet_oring_cs_diameter(_pi) / 2])
               oring(bayonet_oring(_pi));
 
-    // the pocket's seal, on the bearing's rim or the blank's boss; the lid runs downward from z 0
+    // the pocket seal, on the bearing OD or the blank boss; the lid extends downward from z 0
     if (_seated)
       _exploded(0.5)
         translate([0, 0, -head_bearing_gland_z()])
@@ -4500,7 +4534,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
             oring(tube_port_riser_oring);
   }
 
-  // Port pin halves, in the lock's datum; port_position turns each between locked and entry.
+  // Port pin halves, in the lock datum; port_position rotates each between locked and entry.
   if (port_to_render != "" || render_tube_pinlock || render_probe_pinlock || render_thermocouple_pinlock || render_baffle_pinlock || render_all) {
     for (i = [0:_n - 1]) {
       _port = _ports[i];
@@ -4508,12 +4542,12 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       _port_turn = (port_position == "entry")
         ? bayonet_entry_rotation(head_port_interface(_port))
         : 0;
-      // naming one port selects it, whatever the type flags say
+      // naming one port selects it, regardless of the type flags
       _show = (port_to_render != "")
         ? port_to_render == head_port_export_name(_ports, i)
         : render_all || (_type == "tube" && render_tube_pinlock) || (_type == "probe" && render_probe_pinlock) || (_type == "thermocouple" && render_thermocouple_pinlock) || (_type == "baffle" && render_baffle_pinlock);
 
-      // under the condenser, air_out's pin is the condenser's body
+      // with the condenser, the air_out pin is the condenser body
       if (_show && !(_coil && head_port_function(_port) == "air_out"))
         color(prints1_color)
           _exploded(1)
@@ -4523,8 +4557,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
     }
   }
 
-  // The coil condenser in air_out's place, or one of its parts alone at the origin, as it prints.
-  // In place it turns with port_position, as the pins do.
+  // The coil condenser in place on air_out, or one of its parts alone at the origin, in print
+  // orientation. In place it rotates with port_position, like the pins.
   if (_coil && (render_condenser || render_all)) {
     _cond_i = head_port_index(vessel_opening_diameter, "air_out");
     _cond_iface = head_port_interface(_ports[_cond_i]);
@@ -4538,8 +4572,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       condenser_coil_part(condenser_part_to_render, _cond_iface, aluminum_tube_od(condenser_coil_tube), condenser_coil_end_seal);
   }
 
-  // The sampler on its port, or one of its prints alone at the origin. Under render_all its base is
-  // already drawn as that port's pin. In place it turns with port_position, as the pins do.
+  // The sampler on its port, or one of its prints alone at the origin. With render_all its base is
+  // already drawn as the port pin. In place it rotates with port_position, like the pins.
   _sampler_turn = _sampler && port_position == "entry"
     ? bayonet_entry_rotation(head_port_interface(_ports[_sampler_i]))
     : 0;
@@ -4558,7 +4592,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       sampler_print(sampler_part_to_render);
   }
 
-  // A blank for each interface named, at the origin: it closes whichever port of that size is empty.
+  // A blank for the named interface, at the origin; it closes any empty port of that size.
   if (blank_port_to_render != "") {
     _blank_iface = [for (p = _ports) if (bayonet_name(head_port_interface(p)) == blank_port_to_render) head_port_interface(p)];
     assert(
@@ -4569,8 +4603,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       bayonet_port(type=_blank_iface[0], part="pin", panel_thickness=lid_thickness, text_labels=true, label="BLANK");
   }
 
-  // The probes, placed off the same numbers the port is built from. atlas_probe() draws tip-up
-  // from its neck, so it is flipped and lifted by its neck height to seat the body.
+  // The probes, placed from the same values the port is built from. atlas_probe() draws tip-up
+  // from its neck, so it is flipped and raised by its neck height to seat the body.
   if (render_probes || render_all)
     for (i = [for (j = [0:_n - 1]) if (head_port_type(_ports[j]) == "probe") j])
       let (_p = head_port_probe(_ports[i]))
@@ -4587,8 +4621,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
                   atlas_probe(_p);
 
   // The thermocouple, screwed into the mount on its port. thermocouple_probe() draws tip-up from
-  // the neck, so it is flipped and lifted until its tip lands at head_thermocouple_depth(), the
-  // depth the floor and clearance checks hold it to.
+  // the neck, so it is flipped and raised until its tip is at head_thermocouple_depth(), the depth
+  // the floor and clearance checks use.
   if (render_probes || render_all)
     for (i = [for (j = [0:_n - 1]) if (head_port_type(_ports[j]) == "thermocouple") j])
       let (
@@ -4602,7 +4636,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
             rotate([180, 0, 0])
               thermocouple_probe(_p);
 
-  // The stir bar, lying on the punt plateau under whatever the lid hangs.
+  // The stir bar, lying on the punt plateau below everything hanging from the lid.
   if (_magnetic && (render_stir_bar || render_all))
     translate([0, 0, -head_punt_top_depth(lid_flange_height, vessel_internal_height) + stir_bar_diameter(_stir_bar) / 2])
       stir_bar(_stir_bar);
@@ -4610,18 +4644,18 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   // motor and shaft
   if (_shaft_drive && (render_motor || render_all)) {
 
-    // Motor, flipped so it hangs off the top of the mount with the gearbox output face flush on it.
+    // Motor, flipped so it sits on top of the mount with the gearbox output face flush against it.
     _exploded(8)
     translate([0, 0, motor_mount_height + dc_motor_length(_motor) + gearbox_length(head_gearbox)])
       rotate([0, 180, 0])
         dc_motor(_motor);
   }
 
-  // motor mount; the module does not color itself, so all three telescoping parts take this one
+  // motor mount; the module does not set a colour, so all three telescoping parts use this one
   if (_shaft_drive && (render_motor_mount || render_all)) {
-    // Exploded, one call a piece so each takes its own step: the base on the lid, the stand, the
-    // face plate. Assembled, the one call as before: the pieces' coincident faces z-fight a few
-    // preview pixels differently when they are drawn apart.
+    // Exploded: one call per piece so each gets its own step (the base on the lid, the stand, the
+    // face plate). Assembled: a single call as before, because the coincident faces of the pieces
+    // z-fight slightly differently in preview when they are drawn separately.
     for (m = explode == 0
       ? [[motor_mount_part_to_render, 0]]
       : [for (q = [["base_plate", 2], ["middle_stand", 6], ["face_plate", 7]])
@@ -4643,7 +4677,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       );
   }
 
-  // one placement for both halves of the joint, so a screw cannot land anywhere but in its insert
+  // one placement for both halves of the joint, so each screw always lines up with its insert
   module motor_mount_fastener_at() {
     for (i = [0:3])
       rotate([0, 0, i * 90])
@@ -4651,8 +4685,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           children();
   }
 
-  // Separate flags: the insert stays in the lid, the screw comes out with what it holds down -
-  // the mount, or the blank in its place.
+  // Separate flags: the insert stays in the lid, and the screw is removed with the part it holds
+  // down (the mount, or the blank in its place).
   if (_seated && (render_motor_mount_inserts || render_all))
     _exploded(0.5)
     motor_mount_fastener_at()
@@ -4664,8 +4698,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
       translate([0, 0, _joint_grip])
         screw(motor_mount_base_screw, screw_length(motor_mount_base_screw, _joint_grip, 0, insert=motor_mount_base_insert));
 
-  // The draft tube where it stands, feet on the glass; each foot is the gap under the tube, since the
-  // tube's bottom is that gap over the highest glass under its wall.
+  // The draft tube in place, feet on the glass. Each foot is as long as the gap under the tube,
+  // since the tube bottom is that gap above the highest glass under its wall.
   if (_airlift && (render_draft_tube || render_all))
     color(prints2_color, 0.6)
       translate([0, 0, _tube_floor_z + _tube_bottom])
@@ -4679,7 +4713,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
           foot_fillet=draft_tube_foot_fillet
         );
 
-  // The wall cage, in the floor datum's frame, or one print file as it sits on the bed.
+  // The wall cage in the floor datum frame, or one print file in print orientation.
   if (_wall && (render_baffle_cage || render_all))
     color(prints2_color)
       if (baffle_cage_in_place(baffle_cage_part_to_render))
@@ -4710,7 +4744,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
   // shaft coupling
   if (_shaft_drive && (render_shaft_coupler || render_all)) {
 
-    // it sits near the top of the stand, so its step lands it in the gap the stand leaves below
+    // it sits near the top of the stand, so this step places it in the gap below the stand
     _exploded(2.5)
     translate(
       [0, 0, shaft_protrusion + shaft_shaft_coupling_offset / 2]
@@ -4728,9 +4762,9 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         cylinder(h=shaft_length(_shaft), d=shaft_diameter(_shaft), center=false);
   }
 
-  // Radial tap holes through the collar, at the screw's tap radius, opening into the bore. In the
-  // collar rather than the hub because above the blades there are no fins at any angle. `height`
-  // is the impeller's span; the collar stands on it.
+  // Radial tap holes through the collar, at the screw tap radius, opening into the bore. They are
+  // in the collar rather than the hub because above the blades there are no fins at any angle.
+  // `height` is the impeller span; the collar sits on top of it.
   module head_impeller_set_screw_holes(height) {
     _r = set_screw_tap_radius(impeller_set_screw) + impeller_set_screw_allow;
     translate([0, 0, height / 2 + impeller_collar_height / 2])
@@ -4740,8 +4774,8 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
             cylinder(r=_r, h=impeller_hub_radius + z_fight, $fn=32);
   }
 
-  // The screws in those holes, placed from the same numbers, socket outward. A split impeller's
-  // sit in each half's hub, the lower half's turned over with it.
+  // The screws in those holes, placed from the same values, socket outward. On a split impeller
+  // they sit in the hub of each half, and the lower half's screws are flipped with it.
   module head_impeller_set_screws(type, height) {
     module _screw_at(a)
       rotate([0, 0, a])
@@ -4758,14 +4792,14 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         for (a = impeller_set_screw_at) _screw_at(a);
   }
 
-  // The printed part and its screws at one impeller's position, so the mirror below catches both.
+  // The printed part and its screws at one impeller position, so the mirror below applies to both.
   module head_impeller_assembly(type) {
     if (render_impeller || render_all) head_impeller(type);
     if (render_set_screws || render_all) head_impeller_set_screws(type, head_impeller_span(type, impeller_diameter));
   }
 
-  // One half of a split disc turbine, as it prints: the joint on z = 0 and the half-disc on it,
-  // the blades and the hub standing up, the screw and pin holes in the hub.
+  // One half of a split disc turbine, in print orientation: the joint on z = 0 with the half-disc
+  // on it, the blades and hub pointing up, and the screw and pin holes in the hub.
   module head_impeller_half(type) {
     _height = head_impeller_span(type, impeller_diameter);
     color(prints2_color)
@@ -4799,7 +4833,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 
   module head_impeller(type) {
     if (head_impeller_split(type, impeller_diameter))
-      // the top half alone is the printed part; the assembly turns a second one over under it
+      // the top half alone is the printed part; the assembly flips a second one underneath it
       for (flip = impeller_to_render == "lower_half" || impeller_to_render == "upper_half" ? [0] : [0, 180])
         rotate([flip, 0, 0]) head_impeller_half(type);
     else
@@ -4839,7 +4873,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
             blade_pitch=impeller_is_twisted(type) ? undef : impeller_blade_angle(type),
             blade_width=impeller_width_ratio(type) * impeller_diameter
           );
-        // top ring tying the blade tips, inboard of the radius; off by default
+        // top ring joining the blade tips, inside the radius; off by default
         if (impeller_tip_ring && !impeller_is_disc(type))
           translate([0, 0, _height / 2 - impeller_fin_width / 2])
             linear_extrude(impeller_fin_width, center=true)
@@ -4847,17 +4881,18 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
                 circle(r=impeller_radius, $fn=64);
                 circle(r=impeller_radius - impeller_fin_width, $fn=64);
               }
-        // Collar for the set screws, standing clear of the blades. It starts inside the body
-        // rather than on its face: a collar that lands exactly on that face shares it with the
-        // hub, and the renderer keeps the shared ring rather than merging the two. It goes on
-        // solid, and the bore is cut once after the union for the same reason: cut in the collar
-        // alone, the hub's bore edge would lie on the collar's bore wall.
+        // Collar for the set screws, above the blades. It starts inside the body rather than on
+        // its face: a collar placed exactly on that face shares it with the hub, and the renderer
+        // keeps the shared ring rather than merging the two. For the same reason the collar is
+        // added solid and the bore is cut once after the union: if the bore were cut in the
+        // collar alone, the hub bore edge would lie on the collar bore wall.
         translate([0, 0, _height / 2 - _collar_lead])
           cylinder(r=impeller_hub_radius, h=impeller_collar_height + _collar_lead, $fn=64);
       }
         head_impeller_set_screw_holes(_height);
-        // the bore, from below the collar's buried face so the cut shares no face with it; a
-        // drafted bore runs straight over that last stretch, its loose end, by a few hundredths
+        // the bore, from below the buried face of the collar so the cut shares no face with it; a
+        // drafted bore is straight over that last short section at its loose end, off by a few
+        // hundredths
         translate([0, 0, _height / 2 - 2 * _collar_lead])
           cylinder(r=impeller_shaft_hole_radius, h=impeller_collar_height + 4 * _collar_lead, $fn=64);
       }
@@ -4870,7 +4905,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
         _exploded(-2)
         head_impeller_assembly(head_impeller_lower_type);
 
-      // Mirrored, not turned over, which is what makes the pair oppose each other.
+      // Mirrored, not flipped, which is what makes the pair pump in opposite directions.
       if (impeller_to_render != "lower" && impeller_to_render != "lower_half")
         _exploded(-1.5)
         translate([0, 0, impeller_spacing])
@@ -4881,7 +4916,7 @@ module head(vessel, lid_flange_height, joint_outer_diameter, post_pts, post_hole
 }
 
 // ----- standalone preview -----
-// What the assembly chooses; everything below follows from them the way the assembly derives it.
+// Values the assembly chooses; everything below is derived from them as in the assembly.
 _preview_flange_height = 8;
 _preview_wall_thickness = 37;
 _preview_n_rods = 4;

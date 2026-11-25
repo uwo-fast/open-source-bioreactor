@@ -1,32 +1,32 @@
 /**
  * @file bolt_pattern.scad
- * @brief Bolt circle for a flanged joint: where the posts fall, the bores through them, and the bolts
+ * @brief Bolt circle for a flanged joint: post positions, holes and bolts
  * @author Cameron K. Brooks
  * @copyright 2026
- * @description Two flanges clamped together by a ring of fasteners, where tie rods running the
- * length of the assembly already occupy some of the positions. The rods are posts like any other,
- * so the pattern has to land on them rather than around them.
+ * @description Two flanges are clamped together by a ring of fasteners. Tie rods running the
+ * length of the assembly already occupy some of the positions. The rods count as posts, so the
+ * pattern must include their positions.
  *
  * The post count comes from the ASME VIII-1 Mandatory Appendix 2 maximum bolt spacing rule,
- * 2a + 6t/(m + 0.5), which is the spacing beyond which a gasket leaks between posts. It is then
- * rounded up to a whole multiple of the rods, so the rods sit on pattern positions and the bolts
- * fall in the gaps between them.
+ * 2a + 6t/(m + 0.5). Above this spacing a gasket leaks between posts. The count is then rounded
+ * up to a whole multiple of the rod count, so the rods sit on pattern positions and the bolts
+ * fill the gaps between them.
  * https://codesignengg.com/wp-content/uploads/2025/05/LinkedIn-Article-Flange-Design-per-Appendix-2.pdf
  *
- * There is no lower bound in the rule: minimum spacing is not a stress question but whether a
- * wrench fits, so check bolt_post_spacing against the fastener before trusting a count.
+ * The rule has no lower bound. Minimum spacing is set by wrench clearance, not stress, so check
+ * bolt_post_spacing against the fastener before using a count.
  *
- * Both flanges must be cut from the same pattern or the holes will not line up, so derive the
- * points once and pass the list to each side rather than recomputing it per part.
+ * Both flanges must use the same pattern or the holes will not line up. Compute the points once
+ * and pass the list to each part rather than recomputing it.
  *
- * Sets no $fn, so the resolution of the calling file carries through.
+ * Sets no $fn, so the resolution of the calling file applies.
  */
 
 include <NopSCADlib/core.scad>;
 include <NopSCADlib/vitamins/screws.scad>;
 
 /**
- * @brief Total posts around the joint, the rods included.
+ * @brief Total number of posts around the joint, including the rods.
  * @param n_rods           Tie rods already on the circle; the count is rounded up to a multiple of this
  * @param bolt_diameter    Nominal fastener diameter, a in the spacing rule
  * @param pattern_diameter Diameter of the bolt circle
@@ -39,7 +39,7 @@ function bolt_post_count(n_rods, bolt_diameter, pattern_diameter, flange_thickne
     n_rods * ceil(ceil(PI * pattern_diameter / max_spacing) / n_rods);
 
 /**
- * @brief Arc length between adjacent post centres, to check a wrench will fit.
+ * @brief Arc length between adjacent post centres, for checking wrench clearance.
  * @param n_posts          Total posts on the circle
  * @param pattern_diameter Diameter of the bolt circle
  * @return Centre to centre spacing
@@ -49,9 +49,9 @@ function bolt_post_spacing(n_posts, pattern_diameter) = PI * pattern_diameter / 
 /**
  * @brief ISO 261 coarse thread pitch for a nominal diameter, mm. undef for a size not listed.
  *
- * NopSCADlib's screw rows carry no pitch and a turn past snug needs one - see
- * utils/elastomer.scad. Looked up from the diameter rather than registered beside the bolt,
- * because a pitch written down next to an M8 stays 1.25 after someone changes the bolt to an M6.
+ * NopSCADlib's screw rows have no pitch, and the angle-past-snug instruction needs one (see
+ * utils/elastomer.scad). The pitch is looked up from the diameter rather than stored with the
+ * bolt, because a pitch stored next to an M8 would stay 1.25 if the bolt were changed to an M6.
  */
 function bolt_coarse_pitch(diameter) =
   let (_at = [
@@ -64,7 +64,7 @@ function bolt_coarse_pitch(diameter) =
  * @brief Points of a bolt circle, counter-clockwise from positive x with a post on that axis.
  * @param n_posts          Total posts on the circle
  * @param pattern_diameter Diameter of the bolt circle
- * @param n_rods           Rods to leave out, every n_posts/n_rods'th post being one; 0 returns every post
+ * @param n_rods           Number of rods to omit (every (n_posts/n_rods)th post); 0 returns every post
  * @return A list of [x, y] points
  */
 function bolt_pattern_pts(n_posts, pattern_diameter, n_rods = 0) =
@@ -76,11 +76,11 @@ function bolt_pattern_pts(n_posts, pattern_diameter, n_rods = 0) =
   ];
 
 /**
- * @brief Bore a clearance hole through the children at every point.
+ * @brief Cut a clearance hole through the children at every point.
  * @param pts           Points from bolt_pattern_pts
  * @param hole_diameter Clearance hole diameter
- * @param depth         Bore depth
- * @param z             Height the bore starts at; the caller's z fighting margin belongs here
+ * @param depth         Hole depth
+ * @param z             Starting height of the hole; pass the caller's z-fighting margin here
  */
 module bolt_pattern_bores(pts, hole_diameter, depth, z = 0) {
   difference() {
@@ -93,7 +93,7 @@ module bolt_pattern_bores(pts, hole_diameter, depth, z = 0) {
 }
 
 /**
- * @brief Bolts at every point, the head bearing on z = 0 and the shank running up from it.
+ * @brief A bolt at every point, with the head bearing on z = 0 and the shank pointing up.
  * @param pts    Points from bolt_pattern_pts
  * @param screw  NopSCADlib screw type, e.g. M8_hex_screw
  * @param length Shank length; screw_length() picks a stock size for a given grip
