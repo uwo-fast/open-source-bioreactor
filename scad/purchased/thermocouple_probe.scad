@@ -16,7 +16,7 @@ include <bayonet-port-scad/utils/npt_threads.scad>
 
 function thermocouple_probe_name(type) = type[0];
 function thermocouple_probe_part_number(type) = type[1];
-function thermocouple_probe_thread(type) = type[2]; // registered NPT thread it screws in on
+function thermocouple_probe_thread(type) = type[2]; // registered NPT thread of the probe
 function thermocouple_probe_neck_dia(type) = type[3][0]; // diameter of the neck
 function thermocouple_probe_neck_height(type) = type[3][1]; // height of the neck
 function thermocouple_probe_flats_height(type) = type[3][2]; // height of the hex flats
@@ -26,7 +26,7 @@ function thermocouple_probe_tip_height(type) = type[3][5]; // immersion depth
 function thermocouple_probe_wire_dia(type) = type[3][6]; // diameter of the wire
 function thermocouple_probe_wire_height(type) = type[3][7]; // height of the wire stub
 
-// Both follow from the thread.
+// Both are derived from the thread.
 function thermocouple_probe_flats_dia(type) = npt_thread_hex_across_flats(thermocouple_probe_thread(type));
 function thermocouple_probe_body_dia(type) = npt_thread_major_diameter(thermocouple_probe_thread(type));
 
@@ -70,8 +70,8 @@ module thermocouple_probe(
           cylinder(d=body_d, h=body_h);
         }
 
-      // Sensing Tip: tip_h is the whole sheath past the threads, its rounded end included, as the
-      // catalogue's length is and as head_thermocouple_depth() reads it
+      // Sensing tip: tip_h is the full sheath length beyond the threads, including the rounded end,
+      // which matches the catalogue length and how head_thermocouple_depth() reads it
       translate([0, 0, neck_h + body_h + flats_h]) color(colors[4]) union() {
             cylinder(h=tip_h - tip_d / 2, d=tip_d, $fn=64);
             translate([0, 0, tip_h - tip_d / 2]) sphere(d=tip_d, $fn=64);

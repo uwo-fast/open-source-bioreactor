@@ -4,10 +4,9 @@
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * This file contains a mount for holding and fixing a peristaltic pump in place by its base. The mount is
- * derived/inspired by a model found on printables.com: https://www.printables.com/model/857120-peristaltic-pump-mount.
- * Notable changes include the addition of a z-fighting avoidance, modularization, documentation/readability, and a
- * reduction in the number of parameters.
+ * A mount that holds a peristaltic pump by its base. It is derived from a model on printables.com:
+ * https://www.printables.com/model/857120-peristaltic-pump-mount. Changes: z-fighting avoidance, modularization,
+ * documentation and readability, and fewer parameters.
  */
 
 z_fight = $preview ? 0.01 : 0; // z-fighting avoidance for preview

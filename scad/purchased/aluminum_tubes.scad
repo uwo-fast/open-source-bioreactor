@@ -1,15 +1,17 @@
 // parameters for physical realization of aluminum tubing
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
-// Tube that has to be bent by hand, which is the condenser's coolant coil: soft enough to wind on
-// its former, and a fraction of the cost of a soft stainless tube. Not for anything in the culture,
-// which stays 316 (steel_tubes.scad). Aluminum stands the 7.5 % hydrogen peroxide everything but the
-// probes is sterilised with, and not bleach or chlorite, which only the glass vessel ever gets.
+// Tube that is bent by hand, used for the condenser coolant coil. It is soft enough to wind on its
+// former and costs a fraction of soft stainless tube. Not for anything in contact with the
+// culture, which stays 316 (steel_tubes.scad). Aluminum resists the 7.5 % hydrogen peroxide used
+// to sterilise everything except the probes. It does not resist bleach or chlorite, which are used
+// only on the glass vessel.
 //
-// McMaster's seamless 3003 coils, soft temper, flared-fitting grade, sold by the coil. Transcribed
-// from their "Aluminum Tubing" listing, read 2026-09-24. Sizes are inch; the row stores mm. The
-// listing also gives a pressure rating (580 to 2,300 psi at 72 F), not registered because nothing
-// here comes near it. ID is od - 2 * wall, as the listing's ID column agrees to its rounding.
+// McMaster seamless 3003 coils, soft temper, flared-fitting grade, sold by the coil. Transcribed
+// from their "Aluminum Tubing" listing, read 2026-09-24. Sizes are in inches; the row stores mm.
+// The listing also gives a pressure rating (580 to 2,300 psi at 72 F). It is not registered
+// because nothing here comes near it. ID is od - 2 * wall, which matches the listed ID to its
+// rounding.
 
 //                                ["name"           part_no     [od,             wall          ], material, construction, temper]
 aluminum_tube_1_8x0p025         = ["1/8x0.025",     "5177K61",  [ 1/8  * 25.4, 0.025 * 25.4], "3003 Al", "seamless",   "soft"];

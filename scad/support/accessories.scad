@@ -1,17 +1,17 @@
 /**
  * @file support/accessories.scad
- * @brief The print list for the bench around one reactor, apart from the reactor's own
+ * @brief Print list for the bench equipment around one reactor, excluding the reactor itself
  *
- * The reactor's printed parts are head_print_parts() and frame_print_parts(). What stands beside
- * it on the bench prints from files of its own, each a part rather than a subassembly, so its list
- * lives here: [file, name, quantity, the flags that render that part alone]. `just
- * export-accessories` walks it.
+ * The reactor's printed parts are head_print_parts() and frame_print_parts(). Bench equipment
+ * beside the reactor prints from separate files, each a single part rather than a subassembly, so
+ * its list is kept here as [file, name, quantity, flags that render that part alone]. `just
+ * export-accessories` reads it.
  *
- * The cart prints nothing, and is not built; dev/future-work.md has it.
+ * The cart has no printed parts and has not been built; see dev/future-work.md.
  */
 
 function accessory_print_parts() = [
-  // one sleeve per dosing pump's bottle, at the file's own 86.1 mm round bottle
+  // one sleeve per dosing pump bottle, at the file default of an 86.1 mm round bottle
   ["scad/support/bottle_holder.scad", "bottle_holder", 3, ""],
   ["scad/support/estop_box.scad", "estop_box_base", 1, "-D part=\"base\""],
   ["scad/support/estop_box.scad", "estop_box_lid", 1, "-D part=\"lid\""],

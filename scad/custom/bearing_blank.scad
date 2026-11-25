@@ -1,15 +1,15 @@
 /**
  * @file bearing_blank.scad
- * @brief A printed plug for the lid's bearing pocket, for a build with no shaft
+ * @brief Printed plug for the lid bearing pocket, for a build without a shaft
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * A boss the bearing's size enters the pocket and is sealed by the pocket's own o-ring; a pin
- * fills the shaft bore to the lid's underside; a flange bolts down on the inserts the motor
- * mount would use. The lid is the same print either way.
+ * A boss the size of the bearing fits the pocket and seals on the pocket o-ring. A pin fills the
+ * shaft bore down to the underside of the lid. A flange bolts to the same inserts the motor mount
+ * uses. The lid print is the same with or without a shaft.
  *
- * DATUM: z = 0 is the lid's outer face, +z outward. The boss and pin hang below, the flange
- * stands above.
+ * DATUM: z = 0 is the outer face of the lid, +z outward. The boss and pin extend below it and the
+ * flange sits above it.
  */
 
 $fn = $preview ? 64 : 128;
@@ -17,17 +17,17 @@ z_fight = $preview ? 0.05 : 0;
 
 /* [Preview] */
 
-// diameter of the pocket's bearing, which the boss matches
+// boss diameter, equal to the bearing the pocket is cut for
 boss_diameter = 22;
-// width of that bearing, the pocket's depth
+// boss height, equal to the bearing width (the pocket depth)
 boss_height = 7;
-// diameter of the shaft the bore was cut for, which the pin matches
+// pin diameter, equal to the shaft the bore is cut for
 pin_diameter = 8;
-// how far the pin reaches below the boss, to the lid's underside
+// pin length below the boss, down to the underside of the lid
 pin_length = 24;
 // diameter of the flange
 flange_diameter = 56;
-// thickness of the flange, the screws' grip
+// thickness of the flange (the screw grip length)
 flange_thickness = 5;
 // radius the four screw holes sit on
 screw_radius = 23;
@@ -39,13 +39,13 @@ module dummy() {
 }
 
 /**
- * @brief The blank, flange on z = 0 standing up, boss and pin hanging down
- * @param boss_diameter Matches the bearing the pocket is cut for; the pocket's o-ring seals on it
- * @param boss_height The pocket's depth, less what keeps the flange seated first
- * @param pin_diameter Matches the shaft the bore was cut for
- * @param pin_length From the boss's underside to the lid's underside
- * @param flange_diameter Outside of the flange
- * @param flange_thickness The screws' grip
+ * @brief The blank: flange on z = 0 extending up, boss and pin extending down
+ * @param boss_diameter Diameter of the bearing the pocket is cut for. The pocket o-ring seals on it
+ * @param boss_height Pocket depth, less enough that the flange seats first
+ * @param pin_diameter Diameter of the shaft the bore is cut for
+ * @param pin_length From the underside of the boss to the underside of the lid
+ * @param flange_diameter Outside diameter of the flange
+ * @param flange_thickness Flange thickness (the screw grip length)
  * @param screw_radius Radius of the four screw holes
  * @param screw_hole_diameter Clearance for the screw
  */

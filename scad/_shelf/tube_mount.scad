@@ -14,7 +14,7 @@ $fn = $preview ? 64 : 128;
  * @param width The width of the mount
  * @param height The height of the mount
  * @param hole_diameter The diameter of the hole for the tube
- * @param hole_taper The amount by which the hole diameter is tapers inwards for a snug fit of a tube
+ * @param hole_taper The amount the hole diameter tapers inwards for a snug fit on the tube
  * @param allowance The amount of space to allow for the tube to fit
  * @param screw_hole_diameter The diameter of the screw holes
  */
@@ -69,7 +69,7 @@ module tube_mount(
 // Diameter of the center through hole
 example_hole_diameter = 4;
 
-// The amount by which the hole diameter is tapers inwards for a snug fit of a tube
+// The amount the hole diameter tapers inwards for a snug fit on the tube
 example_hole_hole_taper = 0.2;
 
 // Width of the mount
@@ -78,13 +78,13 @@ example_width = 20;
 // Height of the mount
 example_height = 2;
 
-// Amount of space to allow to create a clearance for the tube
+// Clearance for the tube
 example_tube_allowance = 0.05;
 
 // Diameter of the 4 corner screw holes
 example_screw_hole_diameter = 2.2;
 
-//  Amount of space to allow for the screw holes
+// Clearance for the screw holes
 example_screw_allowance = 0.2;
 
 // Diameter of the neck

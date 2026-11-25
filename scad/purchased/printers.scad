@@ -1,8 +1,8 @@
 // parameters for the 3D printers this design is meant to be buildable on
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
-// Tooling, not a part: what a builder owns is a constraint on the design. Build volume is the
-// only field because it is the only one anything reads. Manufacturers' figures.
+// Tooling, not a part: the printers builders own constrain the design. Build volume is the only
+// field because nothing reads any other. Figures are from the manufacturers.
 
 //                         ["name"              [x,    y,    z  ]]
 printer_prusa_mk3s       = ["prusa_mk3s",       [250,  210,  210]];
@@ -29,10 +29,10 @@ function printer_build_x(type)  = type[1][0];
 function printer_build_y(type)  = type[1][1];
 function printer_build_z(type)  = type[1][2];
 
-// The largest disc a bed takes: a circle cannot be turned to fit a bed narrower than itself.
+// Largest disc that fits the bed. Rotating a circle does not help on a bed narrower than it.
 function printer_max_disc(type) = min(printer_build_x(type), printer_build_y(type));
 
-// Whether a part's bounding box fits, either way round on the bed but not tipped.
+// Whether a part bounding box fits the bed in either orientation, without tipping it over.
 function printer_fits(type, size) =
   size[2] <= printer_build_z(type)
   && (

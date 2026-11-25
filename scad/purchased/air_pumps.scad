@@ -1,14 +1,14 @@
 // parameters for physical realization of aeration pumps
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
-// A diaphragm pump is specified by the two ends of its curve: free flow at zero back-pressure and
-// dead-head pressure at zero flow, never simultaneous. Flow is a band because that is how these
-// are listed; the low end is the conservative one.
+// A diaphragm pump is specified by the two end points of its pressure-flow curve: free flow at
+// zero back-pressure, and dead-head pressure at zero flow. The two never occur together. Flow is
+// stored as a range because the listings give a range. The low end is the conservative value.
 
 //                        ["name"       model                                supply [free_lo, free_hi] dead_head power]
 air_pump_resun_35w      = ["ReSun 35W", "DC 12V aquarium aerator/compressor", 12,   [65,      70     ], 27000,    35];
 
-// No part number: an Amazon listing, nothing stable to register.
+// No part number: this is an Amazon listing with no stable identifier.
 
 air_pumps = [air_pump_resun_35w];
 

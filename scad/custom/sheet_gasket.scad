@@ -4,8 +4,9 @@
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * Only the sheet is bought; the ring's diameters come from what it seals, so the caller passes the
- * cut. Drawn at its free thickness, so what stands proud of the recess is the compression.
+ * Only the sheet is purchased. The ring diameters depend on the joint it seals, so the caller
+ * passes them. The gasket is drawn at its uncompressed thickness, so the amount it stands proud of
+ * the recess is the compression.
  */
 
 use <../purchased/gasket_sheets.scad>;

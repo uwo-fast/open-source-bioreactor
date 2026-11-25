@@ -4,40 +4,42 @@
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * Exhaust rises from the funnel up the annulus between a shell and a well hung down its middle,
- * and leaves by a barb under the roof; condensate runs back down the funnel against it.
+ * Exhaust rises from the funnel through the annulus between a shell and a well hung down its
+ * centre, and leaves through a barb under the roof. Condensate runs back down the funnel against
+ * the gas flow.
  *
- * `assembly = "monolithic"` prints shell, roof and well as one piece, the ribs tying the well to the
- * shell:
+ * `assembly = "monolithic"` prints the shell, roof and well as one piece, with ribs joining the
+ * well to the shell:
  *
  *             __       __
  *            |  |     |  |===     barb, just under the roof
- *            |  | well|  |        the well is open at the top and closed below: left empty the
- *            |  |     |  |        shell and the well both cool to the room; filled with cold water
- *            |   \   /   |        or ice, the well is a cold finger below room temperature
+ *            |  | well|  |        the well is open at the top and closed at the bottom. Empty, the
+ *            |  |     |  |        shell and well both cool to room temperature; filled with cold
+ *            |   \   /   |        water or ice, the well is a cold finger below room temperature
  *             \   \ /   /         funnel and well tip at 45 degrees, one gap apart
  *              \       /
  *               |     |           neck, lifting the shell clear of the neighbouring ports
  *             __|     |__
- *            |___     ___|        flange; z = 0 is the panel's outer face, as for every bayonet_port
- *               |     |           the coupling, in the lid's port
+ *            |___     ___|        flange; z = 0 is the panel outer face, as for every bayonet_port
+ *               |     |           the coupling, in the lid port
  *
- * It prints standing on its roof, well mouth down; the barb may not rise past the roof for the same
- * reason.
+ * It prints standing on its roof, well mouth down. For the same reason the barb must not extend
+ * above the roof.
  *
- * `"split"` makes the well a bayonet insert locking into the roof, so it lifts out to clean and
- * reseals on its face ring; the body does not widen for it, since the joint is the roof. Two inserts
- * fit the same body:
+ * `"split"` makes the well a bayonet insert that locks into the roof, so it can be lifted out for
+ * cleaning and reseals on its face ring. The body does not need to be wider, because the joint is
+ * in the roof. Two inserts fit the same body:
  *
- *  - "open": the well's mouth is open at the top. Empty, it cools to the room; filled with ice or
- *    cold water, it is a cold finger below it. A lid closes the mouth over the ice, vented so the
- *    melt never pressurises the well; printed sparse, it is the insulation too.
- *  - "flow": a head over the mouth seals on a dip tube down its middle and carries an overflow barb,
- *    opposite the gas outlet. Coolant goes down the dip tube to the well's bottom and out over the
- *    top, so the well runs full.
+ *  - "open": the well mouth is open at the top. Empty, it cools to room temperature; filled with
+ *    ice or cold water, it is a cold finger below room temperature. A lid closes the mouth over the
+ *    ice. It is vented so the meltwater never pressurises the well, and printed with sparse infill
+ *    it also acts as insulation.
+ *  - "flow": a head over the mouth seals on a dip tube down the centre and has an overflow barb
+ *    opposite the gas outlet. Coolant flows down the dip tube to the bottom of the well and out
+ *    over the top, so the well runs full.
  *
- * With "flow" the printed well is the only wall between coolant and gas: feed it by gravity, or
- * through a valve on the inlet with the outlet draining freely, never from a tap straight.
+ * With "flow" the printed well is the only wall between coolant and gas. Feed it by gravity, or
+ * through a valve on the inlet with the outlet draining freely. Never connect it directly to a tap.
  *
  * The body prints standing on its roof, the insert on its flange ("open") or head ("flow").
  */
@@ -59,14 +61,14 @@ $fs = facet_size();
 assembly = "split"; // [monolithic, split]
 // The well insert: open at the top, or with a dip tube and overflow for flowing coolant
 well_mode = "open"; // [open, flow]
-// What the standalone file draws: the assembly, or one part in its print orientation ("insert" only when split)
+// What this file draws: the assembly, or one part in its print orientation ("insert" only when split)
 part = "assembly"; // [assembly, body, insert, lid]
-// Cut the assembly's preview open to see inside; ignored on a render
+// Cut the assembly preview open to show the inside; ignored on a render
 cross_section_active = true;
-// How much the cut leaves: 0.5 is a half, 0.75 removes a quarter
+// Fraction the cut keeps: 0.5 keeps half, 0.75 removes a quarter
 cross_section_keep = 0.5;
 
-// example usage: the jar_10L lid's air_out port, which is std
+// example usage: the air_out port on the jar_10L lid, which is std
 if (assembly == "monolithic" && part == "body")
   translate([0, 0, condenser_body_top_z(
     bayonet_std, condenser_cold_finger_bore, condenser_cold_finger_neck, condenser_cold_finger_mono_shell,
@@ -93,34 +95,34 @@ else
 
 // ----- dimensions -----
 
-// The defaults every module and helper below starts from, named once so the print, assembly and
-// report helpers cannot drift from the parts they draw.
-condenser_cold_finger_bore = 12; // gas up, condensate down, through the pin and neck
+// Defaults for every module and helper below, defined once so the print, assembly and report
+// helpers cannot drift from the parts they draw.
+condenser_cold_finger_bore = 12; // bore through the pin and neck (gas up, condensate down)
 condenser_cold_finger_neck = 30; // straight neck above the flange
 condenser_cold_finger_wall = 2;
 condenser_cold_finger_cooled = 150; // straight annulus above the funnel
-condenser_cold_finger_split_shell = 40; // inside of the split body's shell
-condenser_cold_finger_roof = 10; // the split body's roof, which is the well's panel
-condenser_cold_finger_collar = 14; // the flow head's collar, where the overflow leaves
-condenser_cold_finger_head_top = 6; // the flow head's top, carrying the dip tube's seal
-condenser_cold_finger_mono_shell = 44; // inside of the one-piece shell
-condenser_cold_finger_mono_well = 32; // outside of the one-piece well
+condenser_cold_finger_split_shell = 40; // inside diameter of the split body shell
+condenser_cold_finger_roof = 10; // roof of the split body, which is the well panel
+condenser_cold_finger_collar = 14; // collar of the flow head, where the overflow leaves
+condenser_cold_finger_head_top = 6; // top of the flow head, which holds the dip tube seal
+condenser_cold_finger_mono_shell = 44; // inside diameter of the one-piece shell
+condenser_cold_finger_mono_well = 32; // outside diameter of the one-piece well
 
-// The rod seal's captive lip, as bayonet_port cuts it; a variable there, so read back through its
-// centre function rather than restated.
+// Captive lip of the rod seal, as bayonet_port cuts it. It is a local variable there, so it is
+// derived from the gland centre function instead of being restated.
 function condenser_cold_finger_gland_lip(ring) = bayonet_bore_gland_centre(ring, 0) - bayonet_bore_gland_length(ring) / 2;
 
-// The well is as wide as will drop through the lock.
+// The well is as wide as will pass through the lock.
 function condenser_cold_finger_well_od(well_type) = 2 * bayonet_pin_face_radius(well_type);
 
-// Where the roof's top face, the well's panel, stands above the lid.
+// Height of the roof top face (the well panel) above the lid.
 function condenser_cold_finger_roof_top_z(
   type, bore_diameter = condenser_cold_finger_bore, neck_height = condenser_cold_finger_neck,
   shell_inner_diameter = condenser_cold_finger_split_shell, cooled_length = condenser_cold_finger_cooled,
   roof = condenser_cold_finger_roof
 ) = condenser_body_top_z(type, bore_diameter, neck_height, shell_inner_diameter, cooled_length) + roof;
 
-// The well's tip, in the lid's datum: one gap off the funnel, measured normal to both cones.
+// Height of the well tip in the lid datum: one gap from the funnel, measured normal to both cones.
 function condenser_cold_finger_tip_z(type, bore_diameter, neck_height, shell_inner_diameter, well_od) =
   bayonet_flange_height(type) + neck_height - bore_diameter / 2
   + (shell_inner_diameter - well_od) / 2 * sqrt(2);
@@ -128,16 +130,16 @@ function condenser_cold_finger_tip_z(type, bore_diameter, neck_height, shell_inn
 // ----- body -----
 
 /**
- * @param type                 Registered bayonet interface the lid's port carries
+ * @param type                 Registered bayonet interface of the lid port
  * @param well_type            Registered bayonet interface the well locks into
- * @param bore_diameter        Gas up, condensate down, through the pin and neck
+ * @param bore_diameter        Bore through the pin and neck (gas up, condensate down)
  * @param neck_height          Straight neck above the flange
- * @param shell_inner_diameter Inside of the shell
+ * @param shell_inner_diameter Inside diameter of the shell
  * @param cooled_length        Straight annulus between the funnel and the roof
  * @param wall                 Wall of the shell
- * @param roof                 Roof thickness, which is the well's panel
- * @param stub_height          Height of the ribs at the annulus's foot that keep the well's tip central
- * @param hose_inner_diameter  Hose the outlet barb takes
+ * @param roof                 Roof thickness, which is the well panel
+ * @param stub_height          Height of the ribs at the annulus bottom that centre the well tip
+ * @param hose_inner_diameter  Inside diameter of the hose on the outlet barb
  * @param outlet_bore_diameter Bore of the outlet barb
  */
 module condenser_cold_finger_body(
@@ -185,7 +187,7 @@ module condenser_cold_finger_body(
         }
       translate([0, 0, _z_roof]) bayonet_port(type=well_type, part="lock", panel_thickness=roof);
 
-      // Stubs at the annulus's foot, stopping short of the well, so its tip cannot wander
+      // Stubs at the bottom of the annulus, stopping short of the well, so its tip stays centred
       for (a = [60, 180, 300])
         rotate([0, 0, a])
           translate([_well_r + 0.3, -0.6, _z_funnel])
@@ -211,18 +213,18 @@ module condenser_cold_finger_body(
 // ----- insert -----
 
 /**
- * The well insert in the roof's datum: z = 0 is the roof's top face, the flange above it and the
- * well hanging below.
+ * The well insert in the roof datum: z = 0 is the top face of the roof, with the flange above it
+ * and the well hanging below.
  *
  * @param well_type   Registered bayonet interface it locks with
- * @param tip_z       The well's tip, in this datum
- * @param roof        Roof thickness, the coupling's length
+ * @param tip_z       Height of the well tip, in this datum
+ * @param roof        Roof thickness, which is the coupling length
  * @param wall        Well wall
  * @param well_mode   "open", or "flow" with a head sealing on a dip tube and an overflow barb
- * @param dip_ring    Registered o-ring sealing on the dip tube, whose ID is the tube
- * @param head_top    Thickness of the head's top, which carries the dip tube's rod seal
+ * @param dip_ring    Registered o-ring sealing on the dip tube; its ID matches the tube
+ * @param head_top    Thickness of the top of the head, which holds the dip tube rod seal
  * @param collar      Height of the collar between flange and head, where the overflow leaves
- * @param hose_inner_diameter  Hose the overflow barb takes
+ * @param hose_inner_diameter  Inside diameter of the hose on the overflow barb
  * @param overflow_bore        Bore of the overflow barb
  */
 module condenser_cold_finger_insert(
@@ -241,7 +243,7 @@ module condenser_cold_finger_insert(
   _fr = bayonet_flange_radius(well_type);
   _ro = condenser_cold_finger_well_od(well_type) / 2;
   _ri = _ro - wall;
-  _mouth_r = bayonet_interface_radius(well_type) - bayonet_pin_radius(well_type) - 2; // 2 mm in the coupling
+  _mouth_r = bayonet_interface_radius(well_type) - bayonet_pin_radius(well_type) - 2; // 2 mm inside the coupling
   _barb_r = hose_inner_diameter / 2;
   _barb_length = hose_inner_diameter * 2.5;
 
@@ -274,7 +276,7 @@ module condenser_cold_finger_insert(
       }
     }
 
-    // The well's inside; 45 degrees up into the coupling's narrower mouth, and to a tip below
+    // Inside of the well: 45 degrees up into the narrower mouth of the coupling, and down to a tip
     rotate_extrude()
       polygon(
         [
@@ -288,8 +290,8 @@ module condenser_cold_finger_insert(
       );
 
     if (well_mode == "flow") {
-      // The collar's inside, open to the well; the dip tube's bore and its rod seal, the seal's lip
-      // toward the collar so the ring is captive; the overflow's bore
+      // Inside of the collar, open to the well; the dip tube bore and its rod seal, with the seal
+      // lip toward the collar so the o-ring is captive; the overflow bore
       translate([0, 0, _fh]) cylinder(h=collar, r=_mouth_r);
       translate([0, 0, _fh + collar - 1])
         cylinder(h=head_top + 2, r=oring_inner_diameter(dip_ring) / 2 + 0.2);
@@ -302,22 +304,22 @@ module condenser_cold_finger_insert(
   }
 }
 
-// The open well's lid, and the vent through it: the smallest hole that still prints open, so ice
-// melting and water warming push air out rather than pressurising the well.
+// Lid for the open well, and the vent through it. The vent is the smallest hole that still prints
+// open, so melting ice and warming water push air out instead of pressurising the well.
 condenser_cold_finger_lid_thickness = 8;
 condenser_cold_finger_lid_vent = 1.5;
 
 /**
- * The open well's lid in the flange's datum: z = 0 is the insert's flange top, the lid resting on it
- * with a spigot down into the mouth.
+ * Lid for the open well, in the flange datum: z = 0 is the top of the insert flange. The lid rests
+ * on it with a spigot down into the mouth.
  *
  * @param well_type  Registered bayonet interface of the insert it closes
- * @param spigot     How far the spigot reaches down into the mouth
+ * @param spigot     Depth the spigot extends down into the mouth
  * @param clearance  Radial clearance of the spigot in the mouth
  */
 module condenser_cold_finger_lid(well_type, spigot = 6, clearance = 0.25) {
   _fr = bayonet_flange_radius(well_type);
-  _mouth_r = bayonet_interface_radius(well_type) - bayonet_pin_radius(well_type) - 2; // as the insert's
+  _mouth_r = bayonet_interface_radius(well_type) - bayonet_pin_radius(well_type) - 2; // same as the insert
 
   difference() {
     union() {
@@ -328,7 +330,7 @@ module condenser_cold_finger_lid(well_type, spigot = 6, clearance = 0.25) {
   }
 }
 
-// The insert as it prints: on its flange ("open") or its head ("flow").
+// The insert in print orientation: on its flange ("open") or its head ("flow").
 module condenser_cold_finger_insert_printed(type, well_mode, well_type = bayonet_large) {
   _tip = condenser_cold_finger_tip_z(
     type, condenser_cold_finger_bore, condenser_cold_finger_neck, condenser_cold_finger_split_shell,
@@ -340,7 +342,7 @@ module condenser_cold_finger_insert_printed(type, well_mode, well_type = bayonet
   translate([0, 0, _top]) rotate([180, 0, 0]) condenser_cold_finger_insert(well_type, _tip, well_mode=well_mode);
 }
 
-// Body and insert as assembled, in the lid's datum; the dip tube drawn for "flow".
+// Body and insert as assembled, in the lid datum; the dip tube is drawn for "flow".
 module condenser_cold_finger_assembly(type, well_mode, well_type = bayonet_large) {
   _z_roof = condenser_cold_finger_roof_top_z(type);
   _tip = condenser_cold_finger_tip_z(
@@ -360,7 +362,7 @@ module condenser_cold_finger_assembly(type, well_mode, well_type = bayonet_large
   }
 }
 
-// What the split part's numbers come to.
+// Reports the derived figures for the split version.
 module condenser_cold_finger_report(
   type, well_type = bayonet_large, flow_lpm = 4.11, shell_inner_diameter = condenser_cold_finger_split_shell,
   cooled_length = condenser_cold_finger_cooled
@@ -379,26 +381,26 @@ module condenser_cold_finger_report(
 
 // ----- monolithic -----
 
-// The gap between well and shell, which is also the gap between the well's tip and the funnel.
+// Gap between well and shell, which is also the gap between the well tip and the funnel.
 function condenser_cold_finger_gap(shell_inner_diameter, well_outer_diameter) =
   (shell_inner_diameter - well_outer_diameter) / 2;
 
 /**
- * Shell, roof and well in one piece, in the lid's datum.
+ * Shell, roof and well in one piece, in the lid datum.
  *
- * @param type                 Registered bayonet interface the lid's port carries
+ * @param type                 Registered bayonet interface of the lid port
  * @param panel_thickness      Thickness of the panel the pin passes through
- * @param bore_diameter        Gas up, condensate down, through the pin and neck
- * @param neck_height          Straight neck above the flange, before the funnel opens
- * @param shell_inner_diameter Inside of the shell
- * @param well_outer_diameter  Outside of the well; with the shell it sets the gap
+ * @param bore_diameter        Bore through the pin and neck (gas up, condensate down)
+ * @param neck_height          Straight neck above the flange, below the funnel
+ * @param shell_inner_diameter Inside diameter of the shell
+ * @param well_outer_diameter  Outside diameter of the well; with the shell it sets the gap
  * @param cooled_length        Straight annulus above the funnel
  * @param wall                 Wall of the shell, the well, the neck and the roof
- * @param rib_count            Radial ribs tying the well to the shell; 0 for none
+ * @param rib_count            Number of radial ribs joining the well to the shell; 0 for none
  * @param rib_thickness        Thickness of each rib
- * @param hose_inner_diameter  Hose the outlet barb takes
+ * @param hose_inner_diameter  Inside diameter of the hose on the outlet barb
  * @param outlet_bore_diameter Bore of the outlet barb
- * @param outlet_angle         Direction of the barb about the port axis, in the port's locked frame
+ * @param outlet_angle         Direction of the barb about the port axis, in the locked port frame
  * @param outlet_tilt          Barb above horizontal, degrees; negative points it down
  */
 module condenser_cold_finger_monolithic(
@@ -428,9 +430,9 @@ module condenser_cold_finger_monolithic(
   _barb_r = hose_inner_diameter / 2;
   _barb_length = hose_inner_diameter * 2.5;
   _outlet_r = outlet_bore_diameter / 2;
-  _outlet_z = _z_roof - _outlet_r - wall; // just under the roof, where the gas is last
+  _outlet_z = _z_roof - _outlet_r - wall; // just under the roof, the end of the gas path
   _outlet_x = (_rw + _rs) / 2; // mid-gap, clear of the well
-  _outlet_run = (_rs + wall - _outlet_x) / cos(outlet_tilt) + wall; // to clear the shell's outside
+  _outlet_run = (_rs + wall - _outlet_x) / cos(outlet_tilt) + wall; // to clear the outside of the shell
   _barb_top = _outlet_z + sin(outlet_tilt) * (_outlet_run + _barb_length) + _barb_r * 1.15 * cos(outlet_tilt);
 
   assert(
@@ -456,7 +458,7 @@ module condenser_cold_finger_monolithic(
     union() {
       condenser_body(type, panel_thickness, bore_diameter, neck_height, shell_inner_diameter, cooled_length, wall);
 
-      // Roof over the annulus, overlapping the shell's top rather than resting on it
+      // Roof over the annulus, overlapping the top of the shell instead of resting on it
       translate([0, 0, _z_roof - 0.5])
         difference() {
           cylinder(h=wall + 0.5, r=_rs + wall);
@@ -474,7 +476,7 @@ module condenser_cold_finger_monolithic(
             translate([_rw - 0.1, -rib_thickness / 2, _z_funnel])
               cube([_gap + 0.2, rib_thickness, cooled_length + 0.1]);
 
-      // Outlet barb, from under the roof, kept out of the annulus it drains
+      // Outlet barb from under the roof, trimmed so it does not intrude into the annulus it vents
       difference() {
         rotate([0, 0, outlet_angle])
           translate([_outlet_x, 0, _outlet_z])
@@ -489,7 +491,7 @@ module condenser_cold_finger_monolithic(
       }
     }
 
-    // The well's inside, open through the roof
+    // Inside of the well, open through the roof
     rotate_extrude()
       polygon(
         [
@@ -500,7 +502,7 @@ module condenser_cold_finger_monolithic(
         ]
       );
 
-    // Outlet bore, from the annulus out through the barb - outward only, or it cuts into the well
+    // Outlet bore from the annulus out through the barb, outward only so it does not cut the well
     rotate([0, 0, outlet_angle])
       translate([_outlet_x, 0, _outlet_z])
         rotate([0, 90 - outlet_tilt, 0])
@@ -508,7 +510,7 @@ module condenser_cold_finger_monolithic(
   }
 }
 
-// What a given flow sees: velocities against the limit a falling film can drain against.
+// Reports gas velocities at a given flow, compared with the flooding limit for a falling film.
 module condenser_cold_finger_monolithic_report(
   type,
   flow_lpm,

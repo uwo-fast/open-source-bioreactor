@@ -1,13 +1,13 @@
 /**
  * @file draft_tube.scad
- * @brief The draft tube of an internal-loop airlift, standing on feet
+ * @brief Draft tube for an internal-loop airlift, standing on feet
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * A plain tube: the gas rises inside it and the liquid comes down outside. It stands on feet so the
- * liquid can turn under it, and what sits just inside its foot centres it.
+ * A plain tube. Gas rises inside it and liquid flows down outside it. It stands on feet so the
+ * liquid can flow under the bottom edge. The part just inside the feet centres it.
  *
- * DATUM: z = 0 is the tube's bottom edge, +z up. The feet reach below it.
+ * DATUM: z = 0 is the bottom edge of the tube, +z up. The feet extend below it.
  */
 
 $fn = $preview ? 64 : 128;
@@ -21,13 +21,13 @@ inner_radius = 39;
 wall = 2;
 // length of the tube, bottom edge to top edge
 height = 140;
-// how far each foot reaches below the bottom edge
+// length of each foot below the bottom edge
 foot_lengths = [12, 12, 12];
-// where the feet stand, in degrees around the tube
+// angular positions of the feet, in degrees around the tube
 foot_angles = [0, 120, 240];
-// width of each foot, around the tube
+// width of each foot, measured around the tube
 foot_width = 8;
-// radius of the fillet each side of a foot, where it meets the bottom edge
+// radius of the fillet on each side of a foot where it meets the bottom edge
 foot_fillet = 6;
 
 module dummy() {
@@ -35,14 +35,14 @@ module dummy() {
 }
 
 /**
- * @brief The tube, bottom edge on z = 0 and standing up, feet hanging below
- * @param inner_radius Clears everything inside it
+ * @brief The tube, bottom edge on z = 0 extending up, feet extending below
+ * @param inner_radius Inside radius; must clear everything inside the tube
  * @param wall Wall thickness
  * @param height Bottom edge to top edge
- * @param foot_lengths How far each foot reaches below the bottom edge, one per foot
- * @param foot_angles Where each foot stands, in degrees
- * @param foot_width Each foot's width around the tube
- * @param foot_fillet Radius of the fillet each side of a foot, no longer than the foot
+ * @param foot_lengths Length of each foot below the bottom edge, one per foot
+ * @param foot_angles Angular position of each foot, in degrees
+ * @param foot_width Width of each foot around the tube
+ * @param foot_fillet Radius of the fillet on each side of a foot, no larger than the foot length
  */
 module draft_tube(inner_radius, wall, height, foot_lengths, foot_angles, foot_width, foot_fillet = 0) {
   assert(len(foot_lengths) == len(foot_angles), "draft_tube: one length per foot");
@@ -54,9 +54,9 @@ module draft_tube(inner_radius, wall, height, foot_lengths, foot_angles, foot_wi
     translate([0, 0, -z_fight]) cylinder(r=inner_radius, h=height + 2 * z_fight);
   }
 
-  // Each foot is the wall carried on down over its width, so it prints as part of the wall. It
-  // overlaps the wall rather than meeting it at the bottom edge. Its outline is drawn flat, the
-  // foot and a fillet each side of it where it meets the edge, and pressed through the wall.
+  // Each foot is a downward extension of the wall over its width, so it prints as part of the
+  // wall. It overlaps the wall instead of meeting it at the bottom edge. The outline (foot plus a
+  // fillet on each side at the edge) is drawn flat and extruded through the wall.
   for (i = [0:len(foot_angles) - 1])
     let (_l = foot_lengths[i], _r = min(foot_fillet, _l))
       rotate([0, 0, foot_angles[i]])
@@ -72,8 +72,8 @@ module draft_tube(inner_radius, wall, height, foot_lengths, foot_angles, foot_wi
         }
 }
 
-// A foot's outline across the wall, width along x and down along -y, the bottom edge at y = 0:
-// the foot, and a quarter circle cut from a square each side of it for the fillet.
+// Outline of a foot across the wall: width along x, downward along -y, bottom edge at y = 0. It
+// is the foot plus, on each side, a square with a quarter circle cut out to form the fillet.
 module _foot_outline(width, length, fillet) {
   translate([-width / 2, -length - 1]) square([width, length + 2]);
   if (fillet > 0)

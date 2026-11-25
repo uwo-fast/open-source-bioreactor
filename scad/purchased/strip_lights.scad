@@ -1,9 +1,9 @@
 // parameters for physical realization of various strip lights
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
-// All four are USB grow light bars of the same extrusion, differing in length. Depth and front
-// radius are the RWNTAO caliper readings, reused across the rows. per_cord is packaging: one cord
-// and controller drives a fixed number.
+// All four are USB grow light bars with the same extrusion in different lengths. Depth and front
+// radius are caliper readings from the RWNTAO bar, reused for every row. per_cord is packaging:
+// the number of bars one cord and controller drives.
 
 //                    ["name"         [width, depth, length, radius], per_cord];
 generic_strip_light = ["generic",     [14.2,  7.6,   330,    0.5   ], 1       ];

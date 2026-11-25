@@ -1,8 +1,8 @@
 // parameters for physical realization of gas-line check valves
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
-// A check valve costs a cracking pressure to open and a flowing drop (Cv) once open; catalogues
-// quote only the first. See utils/gas_supply.scad.
+// A check valve needs a cracking pressure to open and has a flow pressure drop (Cv) once open.
+// Catalogues quote only the cracking pressure. See utils/gas_supply.scad.
 
 //                              ["name"        part_no     cracking  cv  ]
 

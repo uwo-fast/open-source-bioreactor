@@ -30,7 +30,7 @@ jar_1p5L_112x215     = ["jar_1p5L_112x215",     [215,       111.50,     4       
 // modelled.
 jar_1gal_155x251     = ["jar_1gal_155x251",     [251,       155.3,      3        ], [95.8,        30  ], [25,          14             ], [6,      73   ], 0    ];
 
-// Only orderable rows are swept; generic_vessel stays defined and out of it.
+// Only orderable rows are listed; generic_vessel is defined but not listed.
 vessels = [jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_112x215, jar_1gal_155x251];
 
 function vessel_by_name(name) = registry_by_name(vessels, name, "sllllN");

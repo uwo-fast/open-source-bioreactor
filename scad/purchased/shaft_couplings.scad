@@ -6,8 +6,8 @@
 
 //                         ["name"          length  outer_d  shaft1  shaft2  flexible]
 
-// uxcell rigid aluminium coupling, twin set screws per side, sold in twos; the listing's own
-// dimensions, no part number published.
+// uxcell rigid aluminium coupling, two set screws per side, sold in pairs. Dimensions are from the
+// listing; no part number is published.
 shaft_coupler_8x8_rigid  = ["SC_8x8_rigid", 25,     14,      8,      8,      false];
 
 shaft_couplings = [shaft_coupler_8x8_rigid];

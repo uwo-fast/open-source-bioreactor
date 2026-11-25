@@ -1,13 +1,14 @@
 // parameters for physical realization of impeller shafts
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
-// Rotary shafts, turned, ground and polished - not plain rod. The row carries tolerances because
-// the shaft runs in the 608's inner race: shaft 8 -0.005/0 against bearing 8 -0.007/0 is a
-// transition fit (0.005 clearance to 0.007 interference), which a rotating inner ring wants; h9
-// rod would allow 0.043 of slop.
+// Rotary shafts, turned, ground and polished - not plain rod. The rows carry tolerances because
+// the shaft runs in the inner race of a 608 bearing. Shaft 8 -0.005/0 against bearing 8 -0.007/0
+// is a transition fit (0.005 clearance to 0.007 interference), which suits a rotating inner
+// ring. h9 rod would allow 0.043 of play.
 //
-// 316 because the shaft is wetted and the reactor is chemically sterilised (7.5 % hydrogen peroxide;
-// bleach only on the glass vessel, whose chloride 303/304 do not stand up to). NopSCADlib's rod() draws the geometry; the rows are ours.
+// 316 because the shaft is wetted and the reactor is chemically sterilised with 7.5 % hydrogen
+// peroxide. Bleach is used only on the glass vessel; 303/304 do not resist its chloride.
+// NopSCADlib's rod() draws the geometry; the rows are defined here.
 
 //                  ["name"        part_no    [dia, dia_tol_lo, dia_tol_hi]   [length, len_tol], material, straightness_per_300]
 shaft_8x200_316   = ["8x200_316",  "1265K64", [8,   -0.005,      0         ], [200,    0.25    ], "316 SS", 0.18];
@@ -15,7 +16,7 @@ shaft_8x400_316   = ["8x400_316",  "1265K66", [8,   -0.005,      0         ], [4
 shaft_8x600_316   = ["8x600_316",  "1265K67", [8,   -0.005,      0         ], [600,    0.25    ], "316 SS", 0.18];
 shaft_8x800_316   = ["8x800_316",  "1265K68", [8,   -0.005,      0         ], [800,    0.25    ], "316 SS", 0.18];
 
-// 600 and 800 are the same part in a longer cut, for taller vessels than any registered.
+// 600 and 800 are the same part cut longer, for vessels taller than any registered.
 
 shafts = [shaft_8x200_316, shaft_8x400_316, shaft_8x600_316, shaft_8x800_316];
 
@@ -35,4 +36,4 @@ function shaft_straightness(type) = type[5]; // mm per 300 mm
 function shaft_diameter_min(type) = shaft_diameter(type) + shaft_diameter_tol(type)[0];
 function shaft_diameter_max(type) = shaft_diameter(type) + shaft_diameter_tol(type)[1];
 
-use <NopSCADlib/vitamins/rod.scad>; // rod() draws the chamfered cylinder these actually are
+use <NopSCADlib/vitamins/rod.scad>; // rod() draws these as the chamfered cylinders they are

@@ -1,10 +1,11 @@
 // parameters for physical realization of silicone heating pads
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
-// Silicone rubber over a nichrome element, run from the reactor's 12 V rail and held bare against
-// the jar's outside. No built-in thermostat: whatever switches the rail controls them. Size,
-// thickness, cold resistance and lead length are measured on a delivered pad; volts and watts are
-// the listing's. At 12 V the measured resistance is what sets the power, not the watts column.
+// Silicone rubber over a nichrome element, powered from the reactor 12 V rail and held directly
+// against the outside of the jar. No built-in thermostat: whatever switches the rail controls the
+// pads. Size, thickness, cold resistance and lead length are measured on a delivered pad. Volts
+// and watts are from the listing. At 12 V the measured resistance sets the power, not the watts
+// column.
 
 //                       ["name",       part_no,      [length, height, thickness], [volts, watts], ohms, lead]
 // Generic 4-pack, 12 V 20 W, 150 x 50 mm - https://www.amazon.ca/dp/B0C4GX3F76
@@ -12,8 +13,8 @@
 heat_pad_20w_150x50 = ["20W 150x50", "B0C4GX3F76", [150,    50,     1.85     ], [12,    20   ], 7.6,  320 ];
 
 // MECCANIXITY 2-pack, 12 V 30 W, 150 x 50 mm - https://www.amazon.ca/dp/B0GWNFH6LH
-// Pending delivery: registered once measured. The listing gives only the 150 x 50, and its cold
-// resistance should come in near 12^2 / 30 = 4.8 ohm.
+// Pending delivery; to be registered once measured. The listing gives only the 150 x 50 size.
+// Cold resistance should be near 12^2 / 30 = 4.8 ohm.
 // heat_pad_30w_150x50 = ["30W 150x50", "B0GWNFH6LH", [150,    50,     undef    ], [12,    30   ], undef, undef];
 
 heat_pads = [heat_pad_20w_150x50];

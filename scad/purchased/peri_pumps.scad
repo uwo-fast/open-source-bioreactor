@@ -1,18 +1,17 @@
 // parameters for physical realization of peristaltic dosing pumps
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
-// A bought unit - head and motor in one body. Flow, voltage and power are on the purchase list;
-// nothing here doses.
+// A purchased unit, with head and motor in one body. Flow, voltage and power are on the purchase
+// list; nothing in this model computes dosing.
 //
-// [l, w, h]: l is the catalogue's 67 along the motor's axis, terminals included; w x h is the
-// faceplate, by calipers, 54.6 x 40.5, which the catalogue rounds to 55 x 41. The frame's spacing
-// check reads w.
+// [l, w, h]: l is the catalogue 67 along the motor axis, terminals included. w x h is the
+// faceplate, measured with calipers at 54.6 x 40.5 (the catalogue rounds to 55 x 41). The frame
+// spacing check reads w.
 //
 // head: [cover_d, depth, plate_t, [hole_spacing, hole_d], [barb_pitch, barb_od, barb_reach]].
-// By calipers: depth, the faceplate's face to the cover's top, 20; plate_t 3; hole_spacing 48,
-// which the printed frame mount's screws fit; barb_pitch 18, centre to centre. Estimated from
-// photos, until calipers replace them: cover_d, hole_d, barb_od and barb_reach, the barb's tip
-// from the motor's axis.
+// Measured with calipers: depth (faceplate face to top of cover) 20, plate_t 3, hole_spacing 48
+// (the screws of the printed frame mount fit it), and barb_pitch 18 centre to centre. Estimated
+// from photos until measured: cover_d, hole_d, barb_od, and barb_reach (motor axis to barb tip).
 
 include <dc_motors.scad>
 

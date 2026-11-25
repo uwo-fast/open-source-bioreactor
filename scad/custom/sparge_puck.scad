@@ -1,18 +1,18 @@
 /**
  * @file sparge_puck.scad
- * @brief A bench sparger: one printed outlet face over a plenum, to measure what a face costs and
- *        what it makes before any sparger in the reactor changes.
+ * @brief A bench sparger: one printed outlet face over a plenum, for measuring the pressure drop
+ *        and bubbles of an outlet face before any sparger in the reactor is changed.
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * The reactor's sparger has one number nothing in this model can supply: what its outlet face
- * costs at a flow. Drilled holes are priced from the orifice equation and Tate's law; a printed
- * porous face is priced by nothing, and the one published printed membrane (Palfy et al. 2021)
- * gives a single point. This part exists to be printed several times, one outlet per print, and
- * put on the bench, so that number is measured rather than borrowed.
+ * This model cannot supply one number for the reactor sparger: the pressure drop across its
+ * outlet face at a given flow. Drilled holes are modelled with the orifice equation and Tate's
+ * law. A printed porous face has no model, and the only published printed membrane (Palfy et al.
+ * 2021) gives a single data point. This part is printed several times, one outlet per print, and
+ * tested on the bench so that the number is measured rather than borrowed.
  *
  * The outlet face prints on the bed, where the first layers are flattest, and points DOWN in the
- * water, as the arm's holes do. The plenum's roof is a 45 deg cone, so nothing bridges.
+ * water, like the holes in the sparger arm. The plenum roof is a 45 deg cone, so nothing bridges.
  *
  * DATUM: z = 0 is the outlet face, +z up to the inlet.
  */
@@ -25,22 +25,23 @@ include <../purchased/set_screws.scad>;
 include <../purchased/air_pumps.scad>;
 
 $fn = $preview ? 48 : 96;
-// How far each cut runs past the face it opens through, in the render as in the preview: two cuts
-// that meet exactly share a face, and the renderer keeps it as coincident triangles.
+// Two cuts that meet exactly share a face, which the renderer keeps as coincident triangles.
+// How far each cut extends past the face it opens through, in mm, in both render and preview
 puck_eps = 0.01;
 
 /* [Outlet] */
 
-// What lets the gas out: drilled holes, or a solid face sliced to leak
+// Outlet type: drilled holes, or a solid face sliced so that gas leaks through
 outlet = "holes"; // [holes, porous]
-// Hole diameter, in mm: the drill each hole is finished with after printing
+// Hole diameter, in mm: the drill size used to finish each hole after printing
 hole_diameter = 3;
-// How many holes; 0 takes the most that keeps every hole flowing at bench_flow (see puck_hole_count())
+// Number of holes; 0 uses the most holes that all still flow at bench_flow (see puck_hole_count())
 hole_count = 0;
-// How far one finished hole may differ from the next, in mm. Reasoned, not cited: measure it
+// Allowed diameter variation between finished holes, in mm (estimated, not cited: measure it)
 hole_scatter = 0.1;
-// How many times the drop through a hole has to exceed what that scatter moves the launch
-// pressure by, for every hole to flow. Reasoned, not cited
+// For every hole to flow, the drop through a hole must exceed the launch-pressure spread caused
+// by hole_scatter by this factor. Estimated, not cited.
+// Required ratio of hole pressure drop to launch-pressure spread
 even_flow_margin = 4;
 // Thickness of a drilled face, in mm
 hole_face_thickness = 1;
@@ -48,54 +49,55 @@ hole_face_thickness = 1;
 porous_layers = 3;
 // Layer height the porous face is sliced at, in mm; Palfy et al. used 0.2
 porous_layer_height = 0.2;
-// Diameter of a porous face, in mm; 52.8 is the circle of Palfy's 46.8 mm square, 2190 mm2
+// Diameter of a porous face, in mm; 52.8 has the area of Palfy's 46.8 mm square, 2190 mm2
 porous_diameter = 52.8;
-// Radial ribs under a porous face, standing in for the honeycomb Palfy's membrane printed on
+// Radial ribs under a porous face, in place of the honeycomb Palfy's membrane was printed on
 porous_ribs = 8;
 
 /* [Inlet] */
 
-// What feeds it: the 4 mm steel riser into a socket, or a soft tube over a barb
+// Inlet type: the 4 mm steel riser into a socket, or a soft tube over a barb
 inlet = "socket"; // [socket, barb]
-// Inside diameter of the soft tube a barb takes, in mm; 4.7625 is the 3/16 in silicone the gas
-// line runs after the rotameter (docs/build.md)
+// 4.7625 is the 3/16 in silicone tube in the gas line after the rotameter (docs/build.md).
+// Inside diameter of the soft tube on the barb, in mm
 barb_tube_id = 4.7625;
-// How far a barb's crest stretches that tube, as a fraction of its bore. Reasoned, not cited
+// Stretch of the tube over the barb crest, as a fraction of its bore (estimated, not cited)
 barb_stretch = 0.15;
 // Ridges on the barb
 barb_ridges = 3;
 
 /* [Duty] */
 
-// The flow the bench runs at, in L/min; jar_10L's 0.5 vvm is 4.08517 (head.scad's report)
+// Bench gas flow, in L/min; 0.5 vvm for jar_10L is 4.08517 (from the head.scad report)
 bench_flow = 4;
-// Water over the outlet face, in mm; jar_10L's arm sits under 186.503 (head.scad's report)
+// Water depth over the outlet face, in mm; the jar_10L arm is 186.503 deep (head.scad report)
 bench_depth = 190;
 
 /* [Hidden] */
 
-// Emit the breakthrough probes check-holes tests. Off for a normal render.
+// Emit the breakthrough probes that check-holes tests. Off for a normal render.
 sparge_hole_probes = false;
 
-// The riser, the screw that grips it and the socket's fit are sparger.scad's, the ones the lid's
-// spargers are bored to, so printing this is how the lid's socket gets bench-checked.
+// The riser, its set screw and the socket fit come from sparger.scad, the same values the lid
+// spargers are bored to, so printing this part bench-checks the lid socket.
 puck_riser = sparger_riser();
 puck_set_screw = sparger_screw();
 puck_socket_allow = sparger_socket_allow();
 puck_socket_depth = sparger_socket_depth();
 puck_socket_chamfer = sparger_socket_chamfer();
-// The pump the bench is fed from: what it still pushes at the bench's flow is what a face may cost.
+// Pump that feeds the bench. The pressure it still delivers at the bench flow is the most a face
+// may drop.
 puck_pump = air_pump_resun_35w;
 
 // Wall everywhere a printed boundary holds pressure, in mm: five 0.4 mm lines.
 puck_wall = 2;
-// Height of the plenum's straight side under the cone, in mm. Palfy's chamber was 3.6.
+// Height of the straight plenum side under the cone, in mm. Palfy's chamber was 3.6.
 puck_plenum_height = 3;
 // Clearance from a hole's edge to the plenum wall, in mm
 puck_plenum_margin = 1.5;
-// Wall round the socket that the set screw runs through, as the arm's boss
+// Wall around the socket that the set screw passes through, the same as the arm boss
 puck_boss_wall = sparger_boss_wall();
-// Thinnest wall a barb's bore may leave under its shank, in mm: two 0.4 mm lines
+// Minimum wall between the barb bore and the shank surface, in mm: two 0.4 mm lines
 puck_barb_min_wall = 0.8;
 // Length of one barb ridge, in mm
 puck_barb_ridge = 3;
@@ -105,29 +107,31 @@ puck_petg_density = 1270;
 // ----- Palfy et al. 2021, the one printed membrane with a measured point -----
 //
 // HardwareX 9:e00192, Table 2: 14.7 L/h through a 46.8 x 46.8 mm membrane at 0.2 bar, with 50
-// entry points, all within 838 mm2 of it. The paper does not say where the 0.2 bar was read, so
-// it is taken as the whole cost of the face. One point, so scaling it is linear by assumption.
+// entry points, all within 838 mm2 of it. The paper does not say where the 0.2 bar was measured,
+// so it is taken as the full pressure drop across the face. With one point, scaling is assumed
+// linear.
 function palfy_flow() = 14.7 / 60; // L/min
 function palfy_pressure() = 20000; // Pa
 function palfy_area() = 2190; // mm2, the membrane
 
-// Borrowed: Palfy's cost per unit flow per unit area, carried to another flow and area, Pa.
+// Borrowed: Palfy's pressure drop per unit flow per unit area, scaled to another flow and area, Pa.
 function puck_porous_pressure(flow, area) =
   palfy_pressure() * (flow / palfy_flow()) * (palfy_area() / area);
 
-// ----- what the holes have to do -----
+// ----- hole count for even flow -----
 //
-// A hole launches a bubble only once the plenum beats its capillary pressure, 4 sigma / d, and a
-// smaller hole asks more. So among holes that differ by `scatter`, the largest opens first and
-// takes the gas, unless the drop through each hole outweighs that difference: then a hole that
-// opened early runs faster, costs more, and pushes the plenum up until the rest open too.
+// A hole releases a bubble only once the plenum pressure exceeds its capillary pressure,
+// 4 sigma / d, which is higher for a smaller hole. So among holes that differ by `scatter`, the
+// largest opens first and takes the gas, unless the drop through each hole outweighs that
+// difference. In that case a hole that opened early carries more flow, has a larger drop, and
+// raises the plenum pressure until the rest open too.
 
-// What a scatter in hole size moves the launch pressure by, Pa.
+// Change in launch pressure caused by a scatter in hole size, Pa.
 function puck_capillary_spread(d, scatter) =
   stirred_tank_capillary_pressure(d) - stirred_tank_capillary_pressure(d + scatter);
 
-// The most holes that keep the drop through each at margin times that spread: fewer holes, more
-// drop each. At least one.
+// Largest hole count that keeps the drop through each hole at margin times that spread (fewer
+// holes give more drop per hole). At least one.
 function puck_hole_count(flow, d, scatter, margin) =
   let (_area = stirred_tank_orifice_area(flow / 60000, margin * puck_capillary_spread(d, scatter)))
     max(1, floor(_area / (PI / 4 * pow(d / 1000, 2))));
@@ -135,44 +139,45 @@ function puck_hole_count(flow, d, scatter, margin) =
 function puck_holes(count, flow, d, scatter, margin) =
   count > 0 ? count : puck_hole_count(flow, d, scatter, margin);
 
-// Holes on one circle, so every hole is the same distance from the feed, at the pitch floor
-// centre to centre. One hole sits on the axis.
+// Holes are on one circle, so every hole is the same distance from the feed, spaced at the
+// minimum pitch centre to centre. A single hole sits on the axis.
 function puck_pitch(d) = sparger_pitch_ratio_floor() * d;
 function puck_hole_circle(count, d) = count == 1 ? 0 : puck_pitch(d) / (2 * sin(180 / count));
 function puck_hole_positions(count, d) =
   let (_r = puck_hole_circle(count, d))
     [for (j = [0:count - 1]) [_r * cos(360 * j / count), _r * sin(360 * j / count)]];
 
-// ----- the part's section, named once -----
+// ----- section dimensions -----
 
-function puck_feed_bore() = steel_tube_id(puck_riser); // the riser's own bore, either inlet
+function puck_feed_bore() = steel_tube_id(puck_riser); // riser bore, for either inlet
 function puck_face_thickness(kind) = kind == "porous" ? porous_layers * porous_layer_height : hole_face_thickness;
 function puck_plenum_radius(kind, count, d) =
   kind == "porous" ? porous_diameter / 2 : max(puck_hole_circle(count, d) + d / 2 + puck_plenum_margin, puck_feed_bore());
 function puck_socket_bore() = steel_tube_od(puck_riser) + puck_socket_allow;
 function puck_boss_radius(kind) =
   kind == "socket" ? puck_socket_bore() / 2 + puck_boss_wall : barb_tube_id / 2 + puck_wall;
-// Where the cone meets the plenum's side.
+// Height where the cone meets the plenum side.
 function puck_cone_base(kind) = puck_face_thickness(kind) + puck_plenum_height;
-// Where the cone's inside reaches the feed bore.
+// Height where the inside of the cone reaches the feed bore.
 function puck_cone_top(kind, count, d) =
   puck_cone_base(kind) + puck_plenum_radius(kind, count, d) - puck_feed_bore() / 2;
-// Height of the boss above the cone's inside apex: the socket's depth plus a floor under it, or a
-// collar the tube end butts on.
+// Height of the boss above the inner cone apex: socket depth plus a floor below it, or a collar
+// for the tube end to butt against.
 function puck_boss_height(kind) = kind == "socket" ? puck_socket_depth + puck_wall : puck_wall;
 function puck_barb_crest() = barb_tube_id * (1 + barb_stretch);
 function puck_barb_length() = barb_ridges * puck_barb_ridge;
 
-// The outside, as an (r, z) polygon: the face, the side, the cone offset a wall above the plenum's,
-// the boss, and on a barb the ridges, each widening downward so the tube catches on its shoulder.
-// The inside is the plenum: the face's top, the side, the cone to the feed bore.
+// The outside as an (r, z) polygon: the face, the side, the cone offset one wall above the plenum
+// cone, the boss, and for a barb the ridges. Each ridge widens downward so the tube catches on its
+// shoulder. The inside is the plenum: the top of the face, the side, and the cone up to the feed
+// bore.
 function puck_outer_profile(outlet_kind, inlet_kind, count, d) =
   let (
     _rp = puck_plenum_radius(outlet_kind, count, d),
     _rb = puck_boss_radius(inlet_kind),
-    _R = max(_rp + puck_wall, _rb), // a boss wider than a small plenum's wall takes the side
+    _R = max(_rp + puck_wall, _rb), // a boss wider than the wall of a small plenum sets the side
     _zc = puck_cone_base(outlet_kind),
-    _lift = puck_wall * sqrt(2), // the outer cone, a wall clear of the inner one along its normal
+    _lift = puck_wall * sqrt(2), // outer cone, one wall from the inner cone along its normal
     _zb = max(_zc + _rp - _rb + _lift, _zc + _lift - puck_wall),
     _top = puck_cone_top(outlet_kind, count, d) + puck_boss_height(inlet_kind),
     _barb = inlet_kind != "barb" ? [] : [
@@ -218,7 +223,7 @@ module sparge_puck(outlet_kind = outlet, inlet_kind = inlet, count, d = hole_dia
       (barb_tube_id - puck_feed_bore()) / 2, " mm of wall, under ", puck_barb_min_wall
     )
   );
-  // The pilot runs from the boss's outside to the socket; it has to land inside the socket's depth.
+  // The pilot runs from the outside of the boss to the socket and must be within the socket depth.
   assert(
     inlet_kind == "barb" || set_screw_diameter(puck_set_screw) < puck_socket_depth,
     str("sparge_puck: an M", set_screw_diameter(puck_set_screw), " screw does not fit a ", puck_socket_depth, " mm socket")
@@ -235,9 +240,9 @@ module sparge_puck(outlet_kind = outlet, inlet_kind = inlet, count, d = hole_dia
           rotate([0, 0, 360 * k / porous_ribs])
             // from clear of the feed out to the wall, so gas reaches every sector from the middle
             translate([puck_feed_bore(), -puck_wall / 4, _t - puck_eps])
-              cube([_rp - puck_feed_bore() + puck_eps, puck_wall / 2, puck_plenum_height + 2 * puck_eps]); // past the cone's corner
+              cube([_rp - puck_feed_bore() + puck_eps, puck_wall / 2, puck_plenum_height + 2 * puck_eps]); // past the cone corner
     }
-    // up to the socket's floor, or out through the barb's end
+    // up to the socket floor, or out through the end of the barb
     translate([0, 0, _apex - puck_eps])
       cylinder(h = (inlet_kind == "socket" ? _top - puck_socket_depth : _end) - _apex + 2 * puck_eps, d = puck_feed_bore());
 
@@ -251,7 +256,7 @@ module sparge_puck(outlet_kind = outlet, inlet_kind = inlet, count, d = hole_dia
         cylinder(h = puck_socket_depth + puck_eps, d = puck_socket_bore());
       translate([0, 0, _top - puck_socket_chamfer])
         cylinder(h = puck_socket_chamfer + puck_eps, d1 = puck_socket_bore(), d2 = puck_socket_bore() + 2 * puck_socket_chamfer);
-      // the set screw's pilot, radial at mid depth, to self-tap and grip the riser
+      // radial pilot for the set screw at mid depth; the screw self-taps and grips the riser
       translate([0, 0, _top - puck_socket_depth / 2])
         rotate([-90, 0, 0])
           cylinder(h = puck_boss_radius(inlet_kind) + puck_eps, r = set_screw_tap_radius(puck_set_screw));
@@ -259,9 +264,9 @@ module sparge_puck(outlet_kind = outlet, inlet_kind = inlet, count, d = hole_dia
   }
 }
 
-// For check-holes: per hole, a point at each end of the hole, just inside the outlet face and just
-// under the plenum's floor. A point in the plenum itself is void whether the hole reaches it or
-// not, so it cannot fail; these two are void only if the hole runs the face's whole thickness.
+// For check-holes: for each hole, one point at each end, just inside the outlet face and just
+// below the plenum floor. A point inside the plenum is void whether or not the hole reaches it, so
+// it cannot fail. These two points are void only if the hole runs through the full face thickness.
 module sparge_puck_hole_probes(count, d, margin = 0.05) {
   for (p = puck_hole_positions(count, d)) {
     echo(str("HOLEPROBE|exit|", p[0], "|", p[1], "|", margin));
@@ -269,16 +274,16 @@ module sparge_puck_hole_probes(count, d, margin = 0.05) {
   }
 }
 
-// ----- what it does to the gas, from the same arguments -----
+// ----- gas-side report, from the same arguments -----
 
 module sparge_puck_report(outlet_kind, inlet_kind, count, d, flow, depth) {
   _q = flow / 60000;
   _head = stirred_tank_medium_density() * 9.81 * depth / 1000;
   _bore_v = stirred_tank_sparge_bore_velocity(_q, puck_feed_bore(), 1);
-  // the pump's curve at this flow, from the conservative end of its free-flow band
+  // pump pressure at this flow, using the conservative end of its free-flow range
   _avail = gas_pump_back_pressure_for(air_pump_free_flow_min(puck_pump), air_pump_dead_head(puck_pump), flow);
-  // The swept profiles leave out the feed bore, which is air, and the ribs, which are plastic
-  // standing in the plenum. The holes are left out: a few cubic millimetres of water.
+  // The swept profiles omit the feed bore, which is air, and the ribs, which are plastic inside
+  // the plenum. The holes are ignored; they hold a few cubic millimetres of water.
   _bore = PI / 4 * pow(puck_feed_bore(), 2)
     * (inlet_kind == "socket" ? puck_boss_height(inlet_kind) - puck_socket_depth : puck_boss_height(inlet_kind) + puck_barb_length());
   _ribs = outlet_kind != "porous" ? 0
@@ -304,8 +309,8 @@ module sparge_puck_report(outlet_kind, inlet_kind, count, d, flow, depth) {
       "sparge puck bubbles: ", _db, " mm at formation by Tate's law, a floor; ",
       stirred_tank_bubble_rate(_q, _db), " a second. Finish each hole with a ", d, " mm drill"
     ));
-    // 4 sigma / d is the peak each bubble passes through as it launches, not a mean, so a damped
-    // gauge reads between the drop alone and the drop with it.
+    // 4 sigma / d is the peak pressure at each bubble launch, not a mean, so a damped gauge reads
+    // between the drop alone and the drop plus that peak.
     echo(str(
       "sparge puck gauge: under ", depth, " mm of water the plenum reads ", _head + _drop, " to ", _head + _cap + _drop,
       " Pa: ", _head, " of water, ", _drop, " through the hole, and up to ", _cap, " at each bubble's launch; what it reads over ",
@@ -316,7 +321,7 @@ module sparge_puck_report(outlet_kind, inlet_kind, count, d, flow, depth) {
     if (_drop / _spread < even_flow_margin)
       echo(str("WARNING sparge puck: ", count, " holes leave ", _drop / _spread, "x the scatter's spread, under ", even_flow_margin, ", so expect the largest holes to take the gas"));
   } else {
-    // the ribs stand on the face, so what they cover does not leak
+    // the ribs sit on the face, so the area they cover does not leak
     _ribbed = porous_ribs * (puck_wall / 2) * (porous_diameter / 2 - puck_feed_bore());
     _area = PI / 4 * pow(porous_diameter, 2) - _ribbed;
     _p = puck_porous_pressure(flow, _area);
@@ -330,7 +335,7 @@ module sparge_puck_report(outlet_kind, inlet_kind, count, d, flow, depth) {
       "sparge puck gauge: under ", depth, " mm of water what the plenum reads over ", _head,
       " Pa is the face's cost; read it at three flows, since one point cannot say whether the face is linear"
     ));
-    // Where the face's line, linear in flow, crosses the pump's falling one over the water's head.
+    // Flow where face pressure (linear in flow) plus water head meets the falling pump curve.
     _k = puck_porous_pressure(1, _area); // Pa per L/min
     _ff = air_pump_free_flow_min(puck_pump);
     _dh = air_pump_dead_head(puck_pump);
@@ -355,7 +360,7 @@ module sparge_puck_report(outlet_kind, inlet_kind, count, d, flow, depth) {
       : str(barb_ridges, " ridges cresting at ", puck_barb_crest(), " mm in a ", barb_tube_id, " mm tube")
   ));
 
-  // A socket hangs from the riser; a barb hangs from a soft tube, which cannot hold it down.
+  // A socket is held by the riser. A barb hangs from a soft tube, which cannot hold it down.
   _net = (_solid * puck_petg_density - (_solid + _air) * stirred_tank_medium_density()) * 1e-6; // g, + sinks
   if (inlet_kind == "barb")
     echo(str(
@@ -366,12 +371,12 @@ module sparge_puck_report(outlet_kind, inlet_kind, count, d, flow, depth) {
     ));
 }
 
-// The area a porous face needs for a flow at a pressure, mm2: Palfy's point turned round.
+// Area a porous face needs to pass a flow at a pressure, mm2: Palfy's point solved for area.
 function puck_porous_area_for(flow, pressure) = palfy_area() * (palfy_pressure() / pressure) * (flow / palfy_flow());
 
-// ----- the part, as set above -----
+// ----- the part, from the parameters above -----
 
-// What cannot be built at all, before anything divides by it.
+// Reject parameters that cannot be built, before anything divides by them.
 assert(
   hole_count >= 0 && hole_count == floor(hole_count),
   str("sparge_puck: hole_count is ", hole_count, "; a whole number of holes, or 0 for the most that all flow")

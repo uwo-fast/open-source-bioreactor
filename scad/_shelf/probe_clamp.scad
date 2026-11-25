@@ -64,10 +64,9 @@ module tab(width, thickness, height, hole, collar_thickness = 0) {
 /**
  * @brief Generates a probe pinch collar.
  *
- * Generates a probe pinch collar with a given nominal diameter and expanded diameter where the nominal diameter is
- * expanded to the expanded diameter while maintaining the same cord distance at a decreased angular range. This means
- * the nominal diameter has a full angle of 360 degrees while the expanded diameter has a smaller angle. The mount is to
- * allow for screws in application to clamp the collar around a probe in order to pinch it to the nominal diameter.
+ * The collar keeps the same chord distance at the nominal and expanded diameters. At the nominal diameter it spans a
+ * full 360 degrees; at the expanded diameter it spans a smaller angle. Screws through the mount clamp the collar
+ * around a probe and pinch it to the nominal diameter.
  *
  * @param nominal_diameter The nominal diameter of the collar.
  * @param expanded_diameter The expanded diameter of the collar.
