@@ -42,10 +42,12 @@ then follow [`docs/build.md`](docs/build.md).
 - [`docs/ports-layout.md`](docs/ports-layout.md) - what sits at each port on the lid, and why
 - [`docs/procurement.md`](docs/procurement.md) - how the bought parts were chosen
 - [`docs/references.md`](docs/references.md) - the sources, and how far each one was actually read
+- [`CHANGELOG.md`](CHANGELOG.md) - what each release added, changed and fixed
 - For contributors:
   - [`dev/architecture.md`](dev/architecture.md) - who may hand a number to whom
   - [`dev/decisions.md`](dev/decisions.md) - what was settled and why, and the figures that were corrected
   - [`dev/future-work.md`](dev/future-work.md) - ideas with their reasoning, not planned or tracked
+  - [`CHANGELOG.md`](CHANGELOG.md) - a change a builder would notice, to the CAD, a build, the purchase list, the docs or the checks, adds a line under `## [Unreleased]` in the same pull request; a release moves those lines under its version
 
 ## Citation
 
