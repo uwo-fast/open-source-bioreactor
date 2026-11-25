@@ -6,7 +6,7 @@ authors:
   - family-names: "Brooks"
     given-names: "Cameron"
 url: "https://github.com/uwo-fast/open-source-bioreactor"
-# Only the software licence goes here. A licence list in CFF means "either licence,
-# at your option", which is not what a repository licensed separately by component
-# grants; LICENSING.md states the data licence.
+# Only the software licence goes here. In CFF, a list of licences means "either
+# licence, at your option". This repository instead licenses each component
+# separately. LICENSING.md states the data licence.
 license: GPL-3.0-or-later

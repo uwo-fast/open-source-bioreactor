@@ -1,4 +1,4 @@
-# analysis
+# Analysis
 
 Culture runs and hardware characterisation for the bioreactor.
 
@@ -16,8 +16,8 @@ in common — a 2024 paired-channel dump and a 2026 long-event export — so
 there is nothing worth factoring out, and each pipeline stays readable on its
 own.
 
-A method can be a protocol alone, a README, until it has data. Every run directory, and every
-method once it has data, has the same shape:
+Until it has data, a method can be just a protocol in a README. Every run directory, and every
+method that has data, has the same structure:
 
 | Path          | Committed? | What                                   |
 | ------------- | ---------- | -------------------------------------- |
@@ -46,23 +46,23 @@ method once it has data, has the same shape:
 **Raw is immutable and committed. Everything derived is git-ignored and has a
 script that regenerates it.**
 
-Before this directory was restructured in 2026-08 it worked the other way
-round: derived CSVs were committed while the code that produced them was
-never written down at all. The `raw → cleaned0` step for the 2024 run had to
-be reverse-engineered from the data itself, and the 2026 run shipped 587,061
-rows twice — once as the master, once as per-signal splits.
+Before this directory was restructured in 2026-08, it worked the other way
+around: derived CSVs were committed, but the code that produced them was never
+written down. The `raw → cleaned0` step for the 2024 run had to be
+reverse-engineered from the data, and the 2026 run committed 587,061 rows
+twice, once as the master file and once as per-signal splits.
 
-Concretely, when adding a run:
+When adding a run:
 
 - Put the export in `raw/` and do not touch it again. If it needs fixing, fix
   it in `pipeline.py`.
 - Anything you can regenerate goes in `derived/`, which is git-ignored.
 - Write the README **when you do the run**, not later. Organism, medium,
-  control mode, and anything that went wrong are unrecoverable a year on —
-  the 2024 run has no record of what was even growing in it.
-- Figures are committed despite being derived. They are small, they are the
-  thing people actually look at, and they should survive the raw data moving
-  out of git.
+  control mode, and anything that went wrong cannot be recovered a year
+  later. The 2024 run has no record of what organism was growing in it.
+- Figures are committed even though they are derived. They are small, they
+  are what people look at, and they should survive the raw data moving out of
+  git.
 
 ## Running things
 
@@ -80,16 +80,16 @@ Or directly, once `analysis-setup` has been run:
 ```
 
 Every `pipeline.py` takes `--verify`, which checks its output against
-independent evidence — recorded sha256 digests for the 2024 run, the
-exporter's own row counts for the 2026 run.
+independent evidence: recorded sha256 digests for the 2024 run, and the row
+counts reported by the exporter for the 2026 run.
 
 ## Data size
 
 `raw/` is 74 MB across both runs and compresses to roughly 14 MB in git. That
-is affordable now but scales linearly with every run: one 8.7-day culture is
+is affordable now, but it grows linearly with each run. One 8.7-day culture is
 ~14 MB packed, permanently.
 
 Before committing the next export, decide where it goes. Once raw telemetry
-approaches a few hundred MB, move `raw/` to Git LFS or to external storage
-and keep only the manifests and their sha256 digests in git — the 2026 run's
-`raw/manifests/` already has exactly what that needs.
+approaches a few hundred MB, move `raw/` to Git LFS or to external storage,
+and keep only the manifests and their sha256 digests in git. The
+`raw/manifests/` directory of the 2026 run already has what this needs.

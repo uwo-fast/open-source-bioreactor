@@ -2,8 +2,9 @@
 
 This document states which licence covers which parts of this repository, and
 explains what that means. [What applies where](#what-applies-where) is the operative
-section — it is how these files are made available. The commentary around it is for
-convenience; the binding terms are the full texts in [`LICENSES/`](LICENSES/).
+section: it states how these files are made available. The rest of the document is
+commentary, provided for convenience. The binding terms are the full texts in
+[`LICENSES/`](LICENSES/).
 
 - **The design and its software** — GNU General Public License v3.0 or later
   (`GPL-3.0-or-later`) — [`LICENSES/GPL-3.0-or-later.txt`](LICENSES/GPL-3.0-or-later.txt)
@@ -11,8 +12,8 @@ convenience; the binding terms are the full texts in [`LICENSES/`](LICENSES/).
   [`LICENSES/CC-BY-4.0.txt`](LICENSES/CC-BY-4.0.txt)
 
 The root [`LICENSE`](LICENSE) is a copy of the GPL text. GitHub reports only one
-licence per repository and reads that file, so this document is where the full
-picture lives.
+licence per repository and reads it from that file, so this document gives the full
+picture.
 
 ## What applies where
 
@@ -32,23 +33,24 @@ Add a row to the table above for each new top-level directory.
 
 **Why the hardware is GPL, not CERN-OHL-S.** The
 [organization policy](https://github.com/uwo-fast/.github/blob/main/LICENSING.md)
-licenses hardware design files `CERN-OHL-S-2.0` where it can. It cannot here: the
-parametric source includes GPL-licensed libraries — NopSCADlib, and through the
-sampler, turbidity-sensor's sampler case and probe library — and GPL-3.0 is not a Compatible Licence
-under CERN-OHL-S-2.0 §1.2, so the whole-work licensing its §3.3(d) requires cannot be
-granted over source entangled with them. The whole design chain is therefore
-`GPL-3.0-or-later`: source, geometry, drawings and bills of materials alike. That
-gives up CERN-OHL-S's hardware-specific reciprocity, not openness. If that
-reciprocity is ever wanted, the route is removing the GPL libraries from the export
-path, not relabelling the licence.
+licenses hardware design files under `CERN-OHL-S-2.0` where possible. That is not
+possible here. The parametric source includes GPL-licensed libraries: NopSCADlib and,
+through the sampler, the sampler case and probe library from turbidity-sensor. GPL-3.0
+is not a Compatible Licence under CERN-OHL-S-2.0 §1.2, so the whole-work licensing
+required by its §3.3(d) cannot be granted for source combined with them. The whole
+design chain is therefore `GPL-3.0-or-later`, including the source, geometry, drawings
+and bills of materials. This gives up the hardware-specific reciprocity of CERN-OHL-S,
+not openness. If that reciprocity is wanted later, the GPL libraries must be removed
+from the export path; relabelling the licence is not enough.
 
-**Documentation** is `GPL-3.0-or-later` throughout: every document here documents
-the design or the tooling that builds it.
+**Documentation** is `GPL-3.0-or-later` throughout, because every document here
+describes the design or the tooling that builds it.
 
 ## Third-party components
 
-Anything included keeps its own licence, unaffected by this document. None of these
-is vendored: `just setup` fetches each at the revision `scadman.lock` pins.
+Each included component keeps its own licence, which this document does not change.
+None of them is vendored. `just setup` fetches each one at the revision pinned in
+`scadman.lock`.
 
 | Component                                                                                      | Licence                                                                     |
 | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
@@ -78,8 +80,8 @@ modifying, or distributing this project.
 
 ## Disclaimer of warranty and liability
 
-A summary of terms in the licences themselves — GPL-3.0 sections 15–17 and
-CC-BY-4.0 section 5.
+This section summarises terms in the licences themselves: GPL-3.0 sections 15–17
+and CC-BY-4.0 section 5.
 
 THIS PROJECT, INCLUDING ALL SOFTWARE, HARDWARE DESIGNS AND DATA, IS PROVIDED "AS IS"
 WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
@@ -110,5 +112,5 @@ contributors, except as needed to describe the project's origin.
 ## Precedence
 
 Where the commentary in this document and the full licence texts conflict, the full
-texts prevail. The scope table above is not commentary — it is the statement of
-which files are made available under which terms.
+texts prevail. The scope table above is not commentary. It is the statement of which
+files are made available under which terms.
