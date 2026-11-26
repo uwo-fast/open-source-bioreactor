@@ -4,22 +4,22 @@
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * The reactor is a purchased glass jar (purchased/vessel.scad), a head (head.scad: lid, drive,
- * ports) and a frame (frame.scad: bases, ribs, rods, lights). This file carries two kinds of
- * parameter and nothing else.
+ * The reactor consists of a purchased glass jar (purchased/vessel.scad), a head (head.scad: lid,
+ * drive, ports) and a frame (frame.scad: bases, ribs, rods, lights). This file holds only two
+ * kinds of parameter.
  *
- * CROSS-COUPLING: what two subassemblies must agree on, derived once here and handed down.
+ * CROSS-COUPLING: values two subassemblies must agree on, derived once here and passed down.
  *   vessel -> head, frame   the registered row
  *   light  -> frame   the registered strip light row
- *   drive  -> head, frame   shaft, magnetic or none: the head loses its drive stack, the frame hangs the fan
- *   head  <-> frame   the joint: lid_flange_height (chosen here), the bolt circle, the bore and
- *                     the outer face (read back from frame.scad), and the post pattern
- *   head   -> here    head_gasket_factor(), which sets the joint's bolt count
+ *   drive  -> head, frame   shaft, magnetic or none; the head drops its drive stack, the frame holds the fan
+ *   head  <-> frame   the joint: lid_flange_height (set here), the bolt circle, the bore and
+ *                     the outer face (read from frame.scad), and the post pattern
+ *   head   -> here    head_gasket_factor(), which sets the joint bolt count
  *
- * BUILD DESIGNATIONS: the choices an operator states per reactor. They live here because a
- * customizer parameter set can only assign parameters of the file being rendered. Each names a
- * registered row by its STRING name, resolved once below; "auto" means the subassembly derives
- * it, and only stated departures are passed down.
+ * BUILD DESIGNATIONS: the choices an operator makes for each reactor. They are set here because a
+ * Customizer parameter set can only assign parameters of the file being rendered. Each names a
+ * registered row by its STRING name and is resolved once below. "auto" means the subassembly
+ * chooses the value; only explicit choices are passed down.
  */
 
 include <purchased/vessels.scad>;
@@ -41,114 +41,117 @@ use <frame.scad>;
 
 /* [Part Render Selection] */
 
-// The glass jar, translucent, so what the printed parts have to fit is visible
+// Render the glass jar, translucent so the fit of the printed parts is visible
 render_vessel = true;
-// The head subassembly: lid, ports, drive, impellers, sparger
+// Render the head subassembly: lid, ports, drive, impellers, sparger
 render_head = false;
-// The frame subassembly: bases, ribs, rods, spacers, lights
+// Render the frame subassembly: bases, ribs, rods, spacers, lights
 render_frame = false;
-// Overrides the three above, which is the whole reactor as a picture
+// Render the whole reactor, overriding the three flags above
 render_all = true;
-// Draw the jar; off hides it whatever the flags above say. These are how a picture drops a half:
-// render_all is also head.scad's and frame.scad's own flag, so turning it off empties both.
+// The show_ flags hide a subassembly in a render_all picture. render_all is also a flag in
+// head.scad and frame.scad, so turning it off renders nothing from either.
+// Draw the jar; off hides it regardless of the flags above
 show_vessel = true;
-// Draw the head; off hides it whatever the flags above say
+// Draw the head; off hides it regardless of the flags above
 show_head = true;
-// Draw the frame; off hides it whatever the flags above say
+// Draw the frame; off hides it regardless of the flags above
 show_frame = true;
-// Export a part where head.scad would have put it, not at its assembled height (see `just export-parts`)
+// Export a part at its head.scad position, not its assembled height (see `just export-parts`)
 export_at_origin = false;
 
 /* [Rendering Parameters] */
 
-// $fn is zero unless something assigns it, and frame.scad takes the caller's. head.scad sets its
-// own from $fa/$fs and re-asserts it inside head(), so this cannot reach it - see utils/facets.scad.
+// $fn is zero unless assigned, and frame.scad uses the caller's value. head.scad sets its own
+// from $fa/$fs and re-sets it inside head(), so this value does not reach it (utils/facets.scad).
 $fn = $preview ? 64 : 128;
 
-// Cut the preview open to see inside; ignored on a render
+// Cut the preview open to show the inside; ignored on a render
 cross_section_active = true;
-// How much of the assembly the cut leaves: 0.5 is a half, 0.75 removes a quarter
+// Fraction of the assembly kept by the cut: 0.5 keeps half, 0.75 removes a quarter
 cross_section_keep = 0.5;
 
 /* [Vessel Selection] */
 
-// Which jar this build is for; a parameter set names it, so it must be a name and not a row
+// The jar for this build, by name (a parameter set can only store a name, not a row)
 reactor_vessel_name = "jar_10L_220x305"; // [jar_10L_220x305, jar_1gal_180x197, jar_6p5gal_305x470, jar_1p5L_112x215, jar_1gal_155x251]
 
 /* [Light Strip Selection] */
 
-// The strip light; auto takes the shortest row that covers the culture
+// The strip light; auto selects the shortest row that covers the culture depth
 strip_light_name = "auto"; // [auto, RWNTAO 13in, grow 13in, grow 16in, grow 8.6in]
-// Tubes in each lit quadrant
+// Number of light tubes in each lit quadrant
 lights_per_quadrant = 3; // [1:1:6]
-// The heating pad held on the jar in each unlit quadrant, or none
+// The heating pad held against the jar in each unlit quadrant, or none
 heat_pad_name = "none"; // [none, 20W 150x50]
 
 /* [Head Parameters - Coupling] */
 
-// Height of the lid flange, vessel rim to the top of the lid, in mm
+// Height of the lid flange from the vessel rim to the top of the lid, in mm
 lid_flange_height = 8;
-// Wall the frame carries outboard of its jar pocket, in mm (diametral)
+// Frame wall thickness outside the jar pocket, in mm (diametral)
 frame_wall_thickness = 37;
 
 /* [Head to Frame Joint] */
 
-// How many tie rods run the assembly; they are posts on the bolt circle too
+// Number of tie rods in the assembly; each is also a post on the bolt circle
 n_rods = 4;
-// M8 is the cap: NopSCADlib's screw rows stop there, and the joint's only load is seating the
-// gasket - a few hundred newtons a post, 1.7 kN on the widest jar - which an M8 carries many
-// times over. A jar that wants more should look at the gasket width first (lid_gasket_width_max).
+// M8 is the maximum because NopSCADlib's screw rows stop there. The only joint load is gasket
+// seating, a few hundred newtons per post and 1.7 kN on the widest jar, well within an M8's
+// capacity. For a jar that needs more, check the gasket width first (lid_gasket_width_max).
 // The fastener clamping the lid flange to the top base
 joint_bolt = M8_hex_screw;
 
 /* [Build] */
 
-// Fraction of the jar's CAPACITY the culture fills; a run at another volume states its fraction
+// Fraction of the jar CAPACITY filled with culture; set it for a run at another volume
 culture_fill_fraction = 0.865;
-// What turns the culture: a shaft through the lid, a stir bar following a fan under the base, or
-// none, where the gas is all that moves it, or an airlift, which is none with a draft tube
+// shaft: through the lid. magnetic: a stir bar driven by a fan magnet under the base.
+// none: gas only. airlift: none plus a draft tube.
+// Mixing method: shaft, magnetic stir bar, gas only (none), or airlift
 drive_name = "shaft"; // [shaft, magnetic, none, airlift]
-// The middle of the lid: the bearing pocket and mount inserts, or plain; auto is plain under no drive
+// Lid centre: bearing pocket and mount inserts, or plain; auto is plain when there is no drive
 lid_center_name = "auto"; // [auto, bearing, plain]
-// What the gas comes out of: a ring between the impellers, an arm under the lower one, or a loop,
-// the arm's riser hooked round into a C under the lower one; auto is the arm under a drive and the
-// ring under none
+// ring: between the impellers. arm: under the lower impeller. loop: the arm riser bent around into
+// a C under the lower impeller. auto is the arm with a drive and the ring without one.
+// Sparger type: ring, arm or loop; auto chooses from the drive
 sparger_name = "auto"; // [auto, ring, arm, loop]
-// What breaks the swirl: plates hung from the lid, or the standard four on the wall, on a cage that
-// goes in through the mouth; auto is the lid's plates
+// lid: plates hung from the lid. wall: the standard four wall baffles on a cage inserted through
+// the mouth.
+// Baffle type: lid plates or wall baffles; auto is the lid plates
 baffle_name = "auto"; // [auto, lid, wall]
-// What takes the air_out port: the coil condenser, or none, where a tube hangs from it and the
-// headspace vents through a slot in it; auto is the coil, unless the ring needs that tube
+// none: a tube hangs from the air_out port and the headspace vents through a slot in it.
+// auto is the coil, unless the ring sparger needs that tube.
+// Fitting on the air_out port: the coil condenser or none
 condenser_name = "auto"; // [auto, none, coil]
-// The stir bar a magnetic drive turns; auto takes the head's own row
+// The stir bar for a magnetic drive; auto uses the head default
 stir_bar_name = "auto"; // [auto, 25x8, 38x8, 50x8]
-// The magnets on the fan hub, two; auto takes the frame's own row
+// The two magnets on the fan hub; auto uses the frame default
 stir_magnet_name = "auto"; // [auto, MAG5x8, MAGRE6x2p5, MAG8x4x4p2, MAG484]
-// The impeller shaft; auto takes the shortest row that reaches this vessel
+// The impeller shaft; auto selects the shortest row long enough for this vessel
 shaft_name = "auto"; // [auto, 8x200_316, 8x400_316, 8x600_316, 8x800_316]
-// The ring centring the lid plug; auto takes one this mouth can stretch onto
+// The o-ring centring the lid plug; auto selects one that stretches onto this mouth
 plug_oring_name = "auto"; // [auto, 4x1.5 EPDM, 11x1.5 EPDM, 12x1.5 EPDM, 13x1.5 EPDM, 14x1.5 EPDM, 15x1.5 EPDM, 16x1.5 EPDM, 17x1.5 EPDM, 18x1.5 EPDM, 20x1.5 EPDM, 22x1.5 EPDM, 23x1.5 EPDM, 24x1.5 EPDM, 25x1.5 EPDM, 28x1.5 EPDM, 30x1.5 EPDM, AS568-150, AS568-151, AS568-152, AS568-153, AS568-154, AS568-155, AS568-156, AS568-157, AS568-158, AS568-159, AS568-160, AS568-161, AS568-162, AS568-163, AS568-164, AS568-165, AS568-166, AS568-167, AS568-168, AS568-169, AS568-170, AS568-171]
-// The drive motor; auto takes the head's own registered row
+// The drive motor; auto uses the head default
 motor_name = "auto"; // [auto, 36GP-3530-5.18, 36PG-3429-5.2, 36PG-555PM-14-EN, 12v_5w]
-// The lid's rim gasket stock; auto takes the head's own registered sheet
+// The lid rim gasket stock; auto uses the head default sheet
 gasket_sheet_name = "auto"; // [auto, EPDM 1/16 60A]
-// Any registered Atlas row is accepted in either port, EC and ORP included; the fit checks run on
-// whatever is named, but the DO-specific reports assume a galvanic DO probe.
-// The probe in the DO port; auto takes whatever the port table carries
+// Either port accepts any registered Atlas row, including EC and ORP. The fit checks run on the
+// named probe, but the DO-specific reports assume a galvanic DO probe.
+// The probe in the DO port; auto uses the port table entry
 do_probe_name = "auto"; // [auto, pH mini, pH con, pH lab g1, pH lab g2, pH res, DO mini, DO lab g1, DO lab g2, EC mini K1.0, EC K0.1, EC K1.0, EC K10, EC K0.1 8cm, ORP mini, ORP con, ORP lab, ORP gold]
-// The probe in the pH port; auto takes whatever the port table carries
+// The probe in the pH port; auto uses the port table entry
 ph_probe_name = "auto"; // [auto, pH mini, pH con, pH lab g1, pH lab g2, pH res, DO mini, DO lab g1, DO lab g2, EC mini K1.0, EC K0.1, EC K1.0, EC K10, EC K0.1 8cm, ORP mini, ORP con, ORP lab, ORP gold]
-// The lean is always derived - the most of this the jar's internals allow - so this can only ask
-// for less.
-// Ceiling on how far the DO probe leans out, in degrees
+// The tilt is always derived as the maximum the jar internals allow, so this can only reduce it.
+// Maximum DO probe tilt, in degrees
 do_probe_port_tilt_max = 4.5;
 
-// Resolved from the parameters above, not inputs.
+// Values resolved from the parameters above; not inputs.
 /* [Hidden] */
 
-// Each designation resolves once, here. registry_by_name returns undef for a name nothing answers
-// to and for one two rows answer to, so the assert says both. A failing assert exits 0, so the
-// ERROR line on stderr is the only thing the checks can catch.
+// Each designation is resolved once, here. registry_by_name returns undef for a name that matches
+// no row and for one that matches two rows, so the assert message covers both. A failing assert
+// exits 0, so the ERROR line on stderr is the only thing the checks can detect.
 reactor_vessel = vessel_by_name(reactor_vessel_name);
 
 assert(
@@ -180,7 +183,7 @@ assert(
   str("No registered gasket sheet is named \"", gasket_sheet_name, "\", or it is registered twice. See scad/purchased/gasket_sheets.scad.")
 );
 
-// Gasket factor m for the lid seal, read back from the sheet: a harder sheet wants more bolts.
+// Gasket factor m for the lid seal, read from the sheet. A harder sheet needs more bolts.
 lid_gasket_factor = head_gasket_factor(_build_gasket_sheet);
 
 _build_do_probe = do_probe_name == "auto" ? undef : atlas_probe_by_name(do_probe_name);
@@ -219,8 +222,8 @@ assert(
   str("No registered heating pad is named \"", heat_pad_name, "\", or it is registered twice. See scad/purchased/heat_pads.scad.")
 );
 
-// Pairs, not a positional row: each is optional, and an explicit undef ("derive it") has to stay
-// distinguishable from not naming it. head_build() reads them.
+// Key-value pairs, not a positional row: each entry is optional, and an explicit undef ("derive
+// it") must stay distinguishable from an omitted entry. head_build() reads them.
 reactor_build = [
   ["culture_fill_fraction", culture_fill_fraction],
   ["head_shaft", _build_shaft],
@@ -247,8 +250,8 @@ assert(
   "No strip light is registered, so nothing can light the vessel. See scad/purchased/strip_lights.scad."
 );
 
-// A designated light skips the coverage test "auto" selects on. Echoed, not asserted: an under-lit
-// reactor is buildable.
+// A named light skips the coverage test that "auto" uses for selection. This is a warning, not an
+// assert, because an under-lit reactor can still be built.
 _culture_depth = head_liquid_height(vessel_internal_height(reactor_vessel), vessel_inner_profile(reactor_vessel), culture_fill_fraction);
 if (strip_light_length(_reactor_light) < _culture_depth)
   echo(str(
@@ -257,8 +260,8 @@ if (strip_light_length(_reactor_light) < _culture_depth)
     _culture_depth - strip_light_length(_reactor_light), " mm of it is unlit; auto would take the shortest row that covers it"
   ));
 
-// What this build states, in one line, so a transcript or a print list can say which build it is
-// without listing the parameters itself. "auto" is the subassembly's own choice and is not stated.
+// One-line summary of the explicit choices in this build, so a transcript or print list can
+// identify the build without listing every parameter. "auto" values are left out.
 _designated = [
   for (d = [
     ["shaft", shaft_name], ["plug o-ring", plug_oring_name], ["motor", motor_name],
@@ -278,14 +281,14 @@ module dummy() {
   // stop the customizer detection from here onwards
 }
 
-// The joint, derived once: the top base and the lid flange are bored from the same pattern.
+// The joint is derived once: the top base and the lid flange are drilled from the same pattern.
 joint_bolt_circle = frame_bolt_circle_diameter(vessel_diameter(reactor_vessel));
-// Every post is bored to the rod's clearance, bolts included: the plug locates the lid radially,
-// so the bolt positions are deliberately loose.
+// Every post hole, including the bolt holes, is sized for rod clearance. The plug locates the lid
+// radially, so the bolt holes are deliberately loose.
 joint_hole_diameter = frame_rod_hole_diameter();
-// The face the joint presents, which the head builds its flange to exactly.
+// Outer diameter of the joint; the head matches its flange to it exactly.
 joint_outer_diameter = frame_outer_diameter(vessel_diameter(reactor_vessel), frame_wall_thickness);
-// ASME's spacing rule divides by the flange thickness, so the thinner of the two plates governs.
+// The ASME spacing rule divides by the flange thickness, so the thinner of the two plates governs.
 _joint_plate = min(lid_flange_height, frame_upper_base_height());
 joint_posts = bolt_post_count(n_rods, screw_radius(joint_bolt) * 2, joint_bolt_circle, _joint_plate, lid_gasket_factor);
 
@@ -294,7 +297,8 @@ assert(
   str("Bolt spacing of ", bolt_post_spacing(joint_posts, joint_bolt_circle), " mm is too tight to get a wrench on.")
 );
 
-// The bore never reads the screw, so thinning the rod would take the bolt holes down with it.
+// The hole size depends only on the rod, not the screw, so a thinner rod would also shrink the
+// bolt holes.
 assert(
   joint_hole_diameter >= screw_clearance_radius(joint_bolt) * 2,
   str(
@@ -305,7 +309,7 @@ assert(
 
 echo(str("joint: ", joint_posts, " posts at ", bolt_post_spacing(joint_posts, joint_bolt_circle), " mm on a ", joint_bolt_circle, " mm circle"));
 
-// The rod and the bolt are set in different files; a mismatch is allowed but worth saying.
+// The rod and the bolt are set in different files. A mismatch is allowed but gets a warning.
 _rod_d = frame_rod_diameter();
 _bolt_d = screw_radius(joint_bolt) * 2;
 if (_rod_d != _bolt_d)
@@ -315,7 +319,8 @@ if (_rod_d != _bolt_d)
     " mm of slop; run the bolts at M", _rod_d, " to match"
   ));
 
-// The head owns the gasket so it owns the force; the count is this file's. See utils/elastomer.scad.
+// The head defines the gasket, so it computes the force; this file sets the post count. See
+// utils/elastomer.scad.
 _seating_force = head_gasket_seating_force(
   vessel_opening_diameter(reactor_vessel), vessel_thickness(reactor_vessel),
   _build_gasket_sheet, vessel_rim_arc_radius(reactor_vessel)
@@ -325,8 +330,8 @@ echo(str(
   _seating_force / joint_posts, " N each, on M", _bolt_d, " bolts and M", _rod_d, " rods"
 ));
 
-// The bench instruction is a turn past snug, not a torque: the gasket's travel over the thread's
-// pitch has no friction coefficient in it, and the glass is what limits this joint anyway.
+// The assembly instruction is an angle past snug, not a torque. Gasket travel divided by thread
+// pitch involves no friction coefficient, and the glass limits this joint in any case.
 _joint_pitch = bolt_coarse_pitch(_bolt_d);
 
 assert(
@@ -340,7 +345,7 @@ echo(str(
   " mm of gasket travel on a ", _joint_pitch, " mm pitch); the printed flange creeps, so go back to them"
 ));
 
-// The assembled envelope, for anything that has to make room for one (support/equipment_cart.scad).
+// The assembled envelope, for parts that must make room for it (support/equipment_cart.scad).
 function reactor_envelope_diameter() = joint_outer_diameter; // the flange circle IS the envelope
 function reactor_envelope_height() =
   frame_base_floor(reactor_vessel, _reactor_light, _build_magnet)
@@ -350,9 +355,9 @@ function reactor_envelope_height() =
 
 echo(str("reactor envelope: ", reactor_envelope_diameter(), " mm dia x ", reactor_envelope_height(), " mm tall"));
 
-// The lid and both frame bases are discs of the joint's outer diameter, the widest parts by far,
-// and only this file sees both halves. A disc wants min(x, y) of the bed, not printer_fits().
-// Height is not checked: every registered printer has 250 mm of Z against a tallest part of ~163.
+// The lid and both frame bases are discs at the joint outer diameter, by far the widest parts, and
+// only this file sees both halves. A disc needs min(x, y) of the bed, not printer_fits().
+// Height is not checked: every registered printer has 250 mm of Z and the tallest part is ~163.
 _widest_printed = joint_outer_diameter;
 _printers_fitting = [for (p = printers) if (printer_max_disc(p) >= _widest_printed) printer_name(p)];
 
@@ -361,12 +366,12 @@ echo(str("printers: the widest printed part is a ", _widest_printed, " mm disc (
 if (len(_printers_fitting) == 0)
   echo(str("WARNING printers: no registered printer takes a ", _widest_printed, " mm disc; see scad/purchased/printers.scad"));
 
-// The vessel sections itself by revolving less far, which is cheaper than cutting it; the head and
-// the frame are cut to the same sector. utils/section.scad keeps the sector from 0 degrees, which
-// is where the vessel's own sweep starts, so the three agree without being told about each other.
-// Preview only: a part exported with a wedge missing would be silently wrong.
+// The vessel is sectioned by revolving it through a smaller angle, which is cheaper than cutting
+// it. The head and frame are cut to the same sector. utils/section.scad keeps the sector starting
+// at 0 degrees, where the vessel sweep also starts, so the three match without sharing state.
+// Preview only: an exported part with a wedge missing would be wrong without any warning.
 _section_active = cross_section_active && $preview;
-_section_size = vessel_height(reactor_vessel) * 2; // comfortably past anything the assembly reaches
+_section_size = vessel_height(reactor_vessel) * 2; // well beyond the extent of the assembly
 
 if ((render_vessel || render_all) && show_vessel) {
   vessel(reactor_vessel, angle=(_section_active ? cross_section_keep * 360 : 360));

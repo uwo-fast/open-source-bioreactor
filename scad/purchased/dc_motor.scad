@@ -25,18 +25,18 @@ function dc_motor_output_speeds(type) = type[6]; // [no_load_rpm, rated_rpm] at 
 function dc_motor_no_load_output_rpm(type) = is_undef(type[6]) ? undef : type[6][0];
 function dc_motor_rated_output_rpm(type) = is_undef(type[6]) ? undef : type[6][1];
 
-// The torque rated speed is quoted at. Stored in N m; this family's sheets publish kg.cm.
+// Torque at which the rated speed is quoted, in N m. The datasheets for this family give kg.cm.
 function dc_motor_rated_output_torque(type) = type[7];
 
 function dc_motor_encoder(type) = type[8]; // [ppr, channels] of a fitted encoder, optional
 
-// Counts per turn of the output shaft, every edge of every channel, through the reduction.
+// Encoder counts per output shaft revolution: every edge on every channel, times the gear ratio.
 function dc_motor_encoder_counts_per_output_rev(type) =
   let (e = dc_motor_encoder(type), g = dc_motor_gearbox(type))
     is_undef(e) || is_undef(g) ? undef : e[0] * 2 * e[1] * gearbox_ratio(g);
 
-// Shaft, gearbox and boss are drawn when present. The gearbox seats on the motor face and covers
-// the shaft; shaft length is free length past the boss.
+// Draws the shaft, gearbox and boss when present. The gearbox seats on the motor face and covers
+// the shaft. Shaft length is the free length beyond the boss.
 module dc_motor(type) {
   diameter = dc_motor_diameter(type);
   length = dc_motor_length(type);

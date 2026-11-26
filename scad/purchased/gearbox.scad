@@ -26,8 +26,8 @@ function gearbox_out_boss(type) = type[6]; // [boss_d, boss_l] pilot boss on the
 function gearbox_in_boss(type) = type[7]; // [boss_d, boss_l] recess in the input face, optional
 function gearbox_ratio(type) = type[8]; // reduction, input turns per output turn, optional
 
-// The input pockets are registered at the motor's own boss and shaft, so a motor seats face to
-// face and CGAL will not call the union 2-manifold. A render allowance, not a fit.
+// The input pockets are sized to the motor's boss and shaft, so a motor seats face to face and
+// CGAL does not treat the union as 2-manifold. This is a render allowance, not a fit.
 gearbox_input_render_allowance = 0.2;
 
 /**
@@ -46,8 +46,8 @@ module gearbox(type) {
   out_boss = gearbox_out_boss(type);
   in_boss = gearbox_in_boss(type);
 
-  // Neither boss counts toward `length`. The output boss stands the shaft off the face; the
-  // input boss is a recess the input bore starts below.
+  // Neither boss counts toward `length`. The output boss raises the shaft off the face. The
+  // input boss is a recess, and the input bore starts at its floor.
   out_boss_length = is_undef(out_boss) ? 0 : out_boss[1];
   in_boss_depth = is_undef(in_boss) ? 0 : in_boss[1];
 
@@ -93,7 +93,7 @@ module gearbox(type) {
           cube([cut_dim, cut_dim, cut_dim], center=true);
     }
 
-    // remove spot where faceplate screw holes
+    // cut the faceplate screw holes
     for (i = [0:3]) {
       rotate([0, 0, i * 90])
         translate([faceplate_bolt_circle_dia / 2, 0, length - screw_diameter / 2 + z_fight])

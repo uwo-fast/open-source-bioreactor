@@ -14,26 +14,26 @@ function impeller_name(type) = type[0];
 function impeller_blades(type) = type[1][0]; // number of blades
 function impeller_blade_angle(type) = type[1][1]; // degrees from the plane of rotation, undef when twisted
 function impeller_width_ratio(type) = type[1][2]; // blade dimension / impeller diameter, undef when unsourced
-function impeller_twist(type) = type[1][3]; // linear_extrude pitch specifier, undef on a flat blade
+function impeller_twist(type) = type[1][3]; // twist value for linear_extrude, undef for a flat blade
 function impeller_pumping(type) = type[2]; // "radial" or "axial"
 function impeller_power_number(type) = type[3][0]; // turbulent Po, undef when unmeasured
 function impeller_power_number_tol(type) = type[3][1]; // reported uncertainty, undef when the source gives none
 function impeller_dissipation_factor(type) = type[4]; // x in Grenville's peak-dissipation correlation
 function impeller_flow_number_listed(type) = type[5][0]; // Fl where a source lists it, undef where correlated
-function impeller_disc_ratio(type) = type[6][0]; // disc diameter / D on a disc turbine
-function impeller_blade_length_ratio(type) = type[6][1]; // radial blade length / D on a disc turbine
+function impeller_disc_ratio(type) = type[6][0]; // disc diameter / D for a disc turbine
+function impeller_blade_length_ratio(type) = type[6][1]; // radial blade length / D for a disc turbine
 function impeller_is_disc(type) = !is_undef(type[6]);
 function impeller_tank_bore_ratio(type) = type[7][0]; // standard D/T
-function impeller_tank_clearance_ratio(type) = type[7][1]; // lower impeller's centreline off the floor, over T
-function impeller_tank_spacing_ratio(type) = type[7][2]; // the pair's centre-to-centre spacing, over T
+function impeller_tank_clearance_ratio(type) = type[7][1]; // lower impeller centreline height off the floor, over T
+function impeller_tank_spacing_ratio(type) = type[7][2]; // centre-to-centre spacing of the pair, over T
 function impeller_has_tank(type) = !is_undef(type[7]);
 
 function impeller_is_twisted(type) = !is_undef(impeller_twist(type));
 function impeller_has_power_number(type) = !is_undef(impeller_power_number(type));
 
-// What the blade occupies along the shaft: a flat blade at an angle projects sin(angle) of its
-// width plus cos(angle) of its thickness; a twisted blade's extrusion height is the span already.
-// thickness defaults to 0, the idealisation the correlations are written on.
+// Axial length of the blade along the shaft. A flat blade at an angle projects sin(angle) of its
+// width plus cos(angle) of its thickness. For a twisted blade the extrusion height is the span.
+// thickness defaults to 0, the idealisation the correlations assume.
 function impeller_axial_span(type, impeller_diameter, thickness = 0) =
   let (_angle = impeller_blade_angle(type), _width = impeller_width_ratio(type) * impeller_diameter)
     is_undef(_angle) ? _width : _width * sin(_angle) + thickness * cos(_angle);
@@ -42,8 +42,8 @@ z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
 // Fins around a hub with a centre hole. Twisted fins are extruded with `twist` (twist_slices = 90
-// holds the surface within ~27 um of a 360-slice sweep); a flat plate at `blade_pitch` degrees
-// is drawn instead when it is given, with `blade_width` across the blade.
+// keeps the surface within ~27 um of a 360-slice sweep). If `blade_pitch` is given, a flat plate
+// at `blade_pitch` degrees is drawn instead, `blade_width` wide.
 module impeller(
   radius,
   height,
@@ -79,10 +79,11 @@ module impeller(
       for (i = [1:fins]) {
         rotate([0, 0, (360 / fins) * i])
         if (_pitched)
-          // Flat plate hinged about its own radius, so the pitch stays exact. A tilted rectangle's
-          // extreme points are its corners, so both ends are solved for the corners: outboard on
-          // the diameter the power number is defined on, inboard buried in the hub (a plate whose
-          // inner face sits at the hub radius is tangent to it, a non-manifold joint).
+          // Flat plate rotated about its own radial axis, so the pitch is exact. The extreme points
+          // of a tilted rectangle are its corners, so both ends are solved at the corners. The
+          // outer corners lie on the diameter the power number is defined on. The inner corners
+          // are buried in the hub (a plate whose inner face sits at the hub radius is tangent to
+          // it, which gives a non-manifold joint).
           let (
             _half = _blade_w / 2 * cos(blade_pitch) + fin_width / 2 * sin(blade_pitch),
             _tip = sqrt(pow(radius, 2) - pow(_half, 2)),
@@ -119,10 +120,10 @@ module impeller(
   }
 }
 
-// A disc turbine: a disc at mid-height, and flat radial blades standing through it, the full height,
-// on the same hub and bore as impeller(). Each blade's outer corners are on `radius`, the diameter
-// the power number is defined on. It prints standing on the blades' lower edges, the disc bridging
-// between them at mid-height.
+// Disc turbine: a disc at mid-height with full-height flat radial blades passing through it, on
+// the same hub and bore as impeller(). The outer corners of each blade lie on `radius`, the
+// diameter the power number is defined on. It prints standing on the lower edges of the blades,
+// with the disc bridging between them at mid-height.
 module disc_turbine(
   radius,
   height,

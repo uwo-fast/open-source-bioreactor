@@ -1,14 +1,14 @@
 // parameters for physical realization of sterile gas-line filters
 // DO NOT FORMAT THIS FILE, as it is manually spaced out for readability
 
-// A filter is registered by what it costs the line: kPa per L/min, linear because membrane flow
-// at these pressures is viscous (Darcy).
+// A filter is registered by its pressure drop in kPa per L/min. The drop is linear because
+// membrane flow at these pressures is viscous (Darcy).
 
 //                              ["name"        part_no     slope  micron  area_cm2]
 
-// Slope EXTRAPOLATED, not measured: Cole-Parmer publish no curve, so 3.45 is a fit from an
-// equivalent 0.2 um PTFE disc; area-correcting Pall's Acro 50 gives 3.02. A water manometer at the
-// set flow would replace it.
+// Slope is EXTRAPOLATED, not measured. Cole-Parmer publish no curve, so 3.45 is a fit from an
+// equivalent 0.2 um PTFE disc. Area-correcting Pall's Acro 50 gives 3.02. A water manometer
+// reading at the set flow would replace it.
 gas_filter_cp_1594522        = ["Cole-Parmer 1594522", "1594522",  3.45,  0.2,    16.2    ];
 
 gas_filters = [gas_filter_cp_1594522];

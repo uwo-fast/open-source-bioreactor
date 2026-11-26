@@ -4,10 +4,10 @@
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * An insert block that drops into an empty light pocket in a frame rib from above, hanging
- * from a flange that the pump's motor bolts through. A half-round detent across the insert's
- * outer face, near its bottom, catches under the rib so the mount clicks in and stays put.
- * Nothing on the frame changes, so the lights keep their loose fit.
+ * An insert block that drops from above into an empty light pocket in a frame rib. It hangs from
+ * a flange that the pump motor bolts through. A half-round detent across the outer face of the
+ * insert, near the bottom, catches under the rib so the mount clicks in and stays in place. The
+ * frame is unchanged, so the lights keep their loose fit.
  */
 
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
@@ -18,11 +18,11 @@ $fn = $preview ? 64 : 128;
 // height of the flange that the motor mounts to
 flange_height = 2.4;
 
-// diameter of the motor the flange bore clears
+// motor diameter, which the flange bore clears
 motor_diameter = 27.5;
 
-// Centre to centre distance between the flange screws, bolting to the pump head faceplate.
-// Move onto the peri pump registration once that faceplate is modelled.
+// Centre-to-centre distance between the flange screws that bolt to the pump head faceplate.
+// Move this into the peri pump registry entry once that faceplate is modelled.
 screw_separation = 48.0;
 
 // Distance of the bridge separating the flange from the main insert block
@@ -37,7 +37,7 @@ insert_width = 14.1;
 // depth of the insert block
 insert_depth = 7.6;
 
-// radius of the half-round detent across the insert's outer face, which catches under the rib
+// radius of the half-round detent across the outer face of the insert, which catches under the rib
 detent_radius = 0.4;
 
 // diameter of the screws used to attach the pump to the mount
@@ -55,8 +55,8 @@ peri_pump_frame_mount(
   detent_radius=detent_radius
 );
 
-// Where the motor's bore sits, from the insert's centre toward its outer face, which is where
-// whatever hangs a pump on this mount puts the pump's axis. The flange's top is z 0.
+// Offset of the motor bore from the insert centre toward its outer face. Callers that hang a
+// pump on this mount place the pump axis here. The top of the flange is z 0.
 function peri_pump_frame_mount_bore_offset(
   motor_diameter = motor_diameter,
   screw_diameter = screw_diameter,
@@ -66,11 +66,11 @@ function peri_pump_frame_mount_bore_offset(
 function peri_pump_frame_mount_insert_depth() = insert_depth;
 function peri_pump_frame_mount_flange_height() = flange_height;
 function peri_pump_frame_mount_bore() = motor_diameter;
-// the flange's length across the screws, which two mounts side by side must not overlap
+// flange length across the screws; the flanges of two side-by-side mounts must not overlap
 function peri_pump_frame_mount_span() = screw_separation + screw_diameter * 1.5 * 2;
 
-// The defaults are this file's own parameters, so a caller that uses the file gets the mount as
-// it is printed.
+// The defaults are the parameters in this file, so a caller that uses the file gets the mount as
+// printed.
 module peri_pump_frame_mount(
   flange_height = flange_height,
   flange_insert_separation = flange_insert_separation,
@@ -113,8 +113,8 @@ module peri_pump_frame_mount(
     _flange_y = peri_pump_frame_mount_bore_offset(motor_diameter, screw_diameter, flange_insert_separation);
     translate([0, _flange_y, -flange_height / 2]) {
       difference() {
-        // the ellipse, bridged straight back to the insert's footprint so the bridge lands on
-        // the insert's back face and covers its corners
+        // the ellipse, bridged straight back to the insert footprint so the bridge meets the
+        // back face of the insert and covers its corners
         hull() {
           resize([screw_separation + _flange_width * 2, outer_diameter, flange_height])
             cylinder(d=outer_diameter, h=flange_height, center=true);

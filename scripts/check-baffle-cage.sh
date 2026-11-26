@@ -1,26 +1,26 @@
 #!/usr/bin/env bash
 #
-# Fail when the wall cage's blades do not slide, stop and hold as the cage is drawn, or when the
-# cage stands in the glass or in anything that hangs from the lid.
+# Fail when the wall-cage blades do not slide, stop and hold as the cage is drawn, or when the
+# cage intersects the glass or anything that hangs from the lid.
 #
-# For each build in bioreactor.json that carries a wall cage, its hoops and its blades are rendered
-# apart, in place, through bioreactor.scad with the build's own parameter set, so its designations
-# are the ones the reactor is built with. The blade at 0 deg is then slid along its bar against
-# both hoops, and each row says whether it must meet them:
-#   - at the slide's two ends, out and at the stop, and between the detents, it slides free;
-#   - just past out, the tip detent; just in, the out-detent; just short of the stop, the
-#     in-detent: each has to be pushed through a hoop;
-#   - past the stop, the bar's closed end meets the hoop's lip.
-# The cage, out, must clear the glass and the probes, tubes, sparger, condenser, sampler, shaft and
-# impellers. And its hoops turned 2 deg either way must meet the air inlet's riser, the tube the
-# arm catches, so the cage cannot turn; the same blade 1 mm further out must meet the glass, which
-# is what shows the glass rows can fail. An intersection writes no file when it is empty.
+# For each build in bioreactor.json that has a wall cage, the hoops and the blades are rendered
+# separately, in place, through bioreactor.scad with that build's parameter set, so the
+# designations are the ones the reactor is built with. The blade at 0 deg is then slid along its
+# bar against both hoops, and each row states whether it must touch them:
+#   - at both ends of the slide (out, and at the stop) and between the detents, it slides free;
+#   - just past out (the tip detent), just in (the out-detent) and just short of the stop (the
+#     in-detent), it has to be pushed through a hoop;
+#   - past the stop, the closed end of the bar meets the hoop lip.
+# With the cage out, it must clear the glass and the probes, tubes, sparger, condenser, sampler,
+# shaft and impellers. The hoops turned 2 deg either way must meet the air inlet riser (the tube
+# the arm catches), so the cage cannot turn. The same blade 1 mm further out must meet the glass,
+# which shows that the glass rows can fail. An empty intersection writes no file.
 #
-# It needs the manifold backend: about 16 s a render on it, and four renders a build that carries
-# a cage. Without it, it says SKIP.
+# Requires the manifold backend: about 16 s per render with it, and four renders per build that
+# has a cage. Without it, the script prints SKIP.
 set -uo pipefail
 : "${OPENSCAD:=openscad}"
-# "Nothing rendered" is also what a binary that renders nothing says.
+# A binary that renders nothing also reports "nothing rendered".
 source "$(dirname "$0")/openscad-canary.sh"
 openscad_canary
 tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
@@ -31,8 +31,8 @@ if ! "$OPENSCAD" --backend=manifold -o "$tmp/probe.stl" "$tmp/probe.scad" >/dev/
     exit 0
 fi
 
-# $1 output, $2 build, the rest -D flags; through bioreactor.scad, the head alone unless a flag
-# turns the vessel back on
+# $1 output, $2 build, the rest -D flags. Renders bioreactor.scad, the head only unless a flag
+# turns the vessel back on.
 render() {
     local out=$1 build=$2
     shift 2
@@ -50,14 +50,14 @@ render() {
     fi
 }
 
-# $1 label, $2 want (clear|meet), $3 and $4 OpenSCAD objects; prints FAIL and returns 1 when the
-# answer is not the one wanted
+# $1 label, $2 want (clear|meet), $3 and $4 OpenSCAD objects. Prints FAIL and returns 1 when the
+# result is not the wanted one.
 meets() {
     local label=$1 want=$2 x got
     x="$tmp/x$((++n))"
     printf 'intersection() { %s %s }\n' "$3" "$4" > "$x.scad"
     "$OPENSCAD" --backend=manifold --export-format binstl -o "$x.stl" "$x.scad" 2>"$x.err" >/dev/null
-    # an import that fails also leaves no file, so a clean log is part of a clear
+    # a failed import also leaves no file, so "clear" also requires a clean log
     if grep -qE '^(ERROR|WARNING)' "$x.err"; then
         echo "FAIL  $b  $label: the intersection did not render"
         grep -m3 -E '^(ERROR|WARNING)' "$x.err" | sed 's/^/        /'
@@ -72,17 +72,17 @@ meets() {
 
 builds=$(python3 -c 'import json; print("\n".join(json.load(open("scad/bioreactor.json"))["parameterSets"]))')
 [ -n "$builds" ] || { echo "FAIL  could not read the builds in scad/bioreactor.json"; exit 1; }
-# $1 narrows it to one build by name
+# $1 limits the check to one build, by name
 if [ -n "${1:-}" ]; then
     builds=$(grep -x -- "$1" <<< "$builds") || { echo "FAIL  no build named $1 in scad/bioreactor.json"; exit 1; }
 fi
 failed=0
 n=0
 while read -r b; do
-    # the echoes alone, no geometry: whether it carries a cage, and the blade's travel
+    # echoes only, no geometry: whether the build has a cage, and the blade travel
     "$OPENSCAD" -p scad/bioreactor.json -P "$b" -D render_all=false -D render_head=true \
         -o "$tmp/$b.echo" scad/bioreactor.scad 2>/dev/null
-    # head() says where every build's baffles are, so without that line it did not run
+    # head() echoes where the baffles are for every build, so without that line it did not run
     if ! grep -q '^ECHO: "baffles: ' "$tmp/$b.echo"; then
         echo "FAIL  $b  head() echoed nothing about its baffles, so whether it carries a cage is unknown"
         failed=1

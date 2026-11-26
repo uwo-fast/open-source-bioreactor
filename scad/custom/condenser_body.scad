@@ -1,15 +1,15 @@
 /**
  * @file condenser_body.scad
- * @brief The lower half every exhaust condenser shares: port pin, neck, funnel and an open shell
+ * @brief Lower half shared by all exhaust condensers: port pin, neck, funnel and open shell
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * A bayonet pin with a wide bore, a neck lifting the rest clear of the neighbouring ports, a 45
- * degree funnel out to the shell, and a straight shell open at the top for whatever cools it.
- * Condensate runs back down the funnel and the bore against the gas, so the bore is sized for that
- * rather than for the flow alone.
+ * A bayonet pin with a wide bore, a neck that lifts the rest clear of the neighbouring ports, a 45
+ * degree funnel out to the shell, and a straight shell open at the top for the cooling element.
+ * Condensate runs back down the funnel and the bore against the gas flow, so the bore is sized for
+ * that and not for the gas flow alone.
  *
- * DATUM: z = 0 is the panel's outer face, as for every bayonet_port.
+ * DATUM: z = 0 is the outer face of the panel, as for every bayonet_port.
  */
 
 use <../utils/facets.scad>
@@ -21,23 +21,23 @@ $fn = 0;
 $fa = facet_angle();
 $fs = facet_size();
 
-// How far the body sinks into the flange, so the two overlap rather than meet face to face.
+// Depth the body sinks into the flange, so the two overlap instead of meeting face to face.
 condenser_body_flange_overlap = 0.5;
 
-// Where the funnel meets the shell.
+// Height where the funnel meets the shell.
 function condenser_body_funnel_top_z(type, bore_diameter, neck_height, shell_inner_diameter) =
   bayonet_flange_height(type) + neck_height + (shell_inner_diameter - bore_diameter) / 2;
 
-// The shell's open top.
+// Height of the open top of the shell.
 function condenser_body_top_z(type, bore_diameter, neck_height, shell_inner_diameter, shell_length) =
   condenser_body_funnel_top_z(type, bore_diameter, neck_height, shell_inner_diameter) + shell_length;
 
 /**
- * @param type                 Registered bayonet interface the lid's port carries
+ * @param type                 Registered bayonet interface of the lid port
  * @param panel_thickness      Thickness of the panel the pin passes through
- * @param bore_diameter        Gas up, condensate down, through the pin and neck
- * @param neck_height          Straight neck above the flange, before the funnel opens
- * @param shell_inner_diameter Inside of the shell
+ * @param bore_diameter        Bore through the pin and neck (gas up, condensate down)
+ * @param neck_height          Straight neck above the flange, below the funnel
+ * @param shell_inner_diameter Inside diameter of the shell
  * @param shell_length         Straight shell above the funnel, open at its top
  * @param wall                 Wall of the neck, funnel and shell
  */
@@ -63,7 +63,7 @@ module condenser_body(
   // A 45 degree wall is w thick normal to itself when its faces are w * sqrt(2) apart along r - z.
   _slant = wall * (sqrt(2) - 1);
   _neck_r = _rb + wall;
-  _gusset_top = _fh + (_fr - _neck_r); // 45 degree fillet from the flange's edge in to the neck
+  _gusset_top = _fh + (_fr - _neck_r); // 45 degree fillet from the flange edge in to the neck
 
   assert(
     _rb + 2 <= _core_r,

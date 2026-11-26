@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 #
-# Report how well an ASCII STL closes: triangles, edges used by one face, edges used by more than
-# two, and triangles that repeat. A closed surface uses every edge exactly twice and no triangle
-# twice; anything else is a seam the renderer left behind.
+# Report whether an ASCII STL is closed: the triangle count, edges used by one face, edges used by
+# more than two faces, and repeated triangles. A closed surface uses every edge exactly twice and
+# no triangle twice. Anything else is a seam left by the renderer.
 #
 # Prints "<triangles> <open> <over> <duplicate>" on one line. Exits 1 if any of the last three is
-# non-zero, so it can gate on its own, and 0 otherwise.
+# non-zero, so it can be used as a gate by itself, and 0 otherwise.
 #
-# OpenSCAD's own "not a valid 2-manifold" is about the CSG result, not the mesh it then writes, so
-# a tangency that tessellates into coincident faces passes it. This asks the file on disk.
+# The OpenSCAD "not a valid 2-manifold" check applies to the CSG result, not to the mesh written
+# afterwards, so a tangency that tessellates into coincident faces passes it. This script checks
+# the file on disk.
 set -uo pipefail
 
 file="${1:?usage: stl-seams.sh <file.stl>}"

@@ -1,7 +1,7 @@
 /**
  * @file heat_pad.scad
- * @brief A silicone heating pad, drawn flat: length along x, height along z, centred on both, its
- * glass-side face on y = 0 and its thickness toward +y
+ * @brief A silicone heating pad, drawn flat: length along x and height along z, centred on both,
+ * with the glass-side face on y = 0 and the thickness toward +y
  * @author Cameron K. Brooks
  * @copyright 2026
  */

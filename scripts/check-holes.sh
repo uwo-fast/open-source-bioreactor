@@ -7,15 +7,15 @@
 
 # $1 one file to probe, empty for all of $ENTRY; $2 the render flags.
 
-# A blind hole is a perfectly good solid, so check-mesh cannot catch one. The model states a
-# claim - "if this hole opened, this point is void" - by echoing HOLEPROBE lines, derived from the
-# same functions that cut the hole, and this tests the claim against the built mesh.
+# A blind hole is a valid solid, so check-mesh cannot detect one. The model echoes HOLEPROBE
+# lines, computed by the same functions that cut the hole, which state "if this hole is open,
+# this point is void". This script tests each one against the built mesh.
 #
-# Rendered in the configuration that makes the part, not the picture: the default flags are what
-# the print manifest exports the sparger with. A file that emits no HOLEPROBE has nothing to say.
-# Not in `just check`: it needs a full render.
+# Files are rendered in the configuration that produces the part, not the picture: the default
+# flags are the ones the print manifest exports the sparger with. A file that emits no HOLEPROBE
+# is skipped. Not in `just check`, because it needs a full render.
 set -uo pipefail
-# "No probe lines" is also what a binary that renders nothing says.
+# A binary that renders nothing also produces "no probe lines".
 source "$(dirname "$0")/openscad-canary.sh"
 openscad_canary
 targets="${1:-}"
@@ -26,9 +26,9 @@ checked=0
 for f in $targets; do
     "$OPENSCAD" ${2:-} -D sparge_hole_probes=true --export-format binstl \
         -o "$tmp/p.stl" "$f" 2>"$tmp/err" >/dev/null
-    # A file that does not RENDER has not passed, it has not been tested. Without this a part
-    # whose assert fires reads as "nothing to say" and the recipe reports ok on a file that
-    # produced no geometry at all - which is how a stale fire-test came back green.
+    # A file that does not RENDER has not passed; it has not been tested. Without this check, a
+    # part whose assert fires looks like a file with no probes, and the recipe reports ok on a
+    # file that produced no geometry. That is how a stale fire-test came back green.
     if grep -q '^ERROR' "$tmp/err"; then
         echo "FAIL  $f  does not render, so its holes cannot be checked"
         grep -m1 '^ERROR' "$tmp/err" | sed 's/.*failed: //; s/ in file.*//' | sed 's/^/        /'
@@ -38,10 +38,10 @@ for f in $targets; do
     grep -o 'HOLEPROBE|[^"]*' "$tmp/err" > "$tmp/probes" || true
     [ -s "$tmp/probes" ] || continue
     checked=$((checked + 1))
-    # uv rather than the system python, because this probe needs numpy and nothing
-    # said so - CI has a python3 without it, and the failure was a traceback from
-    # inside a heredoc rather than anything naming a dependency. --with declares it
-    # at the point of use, so the check carries its own requirement.
+    # Uses uv rather than the system python because this probe needs numpy, and that was
+    # not declared anywhere. CI has a python3 without numpy, and the failure appeared as a
+    # traceback from inside a heredoc rather than as a missing dependency. --with declares
+    # numpy at the point of use, so the check carries its own requirement.
     if ! uv run --no-project --quiet --with numpy python - "$tmp/p.stl" "$tmp/probes" "$f" <<'EOF'
 import struct, sys, numpy as np
 stl, probes, name = sys.argv[1], sys.argv[2], sys.argv[3]

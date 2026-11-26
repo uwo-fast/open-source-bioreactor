@@ -3,31 +3,31 @@ set dotenv-load := false
 PY := "analysis/.venv/bin/python"
 export OPENSCAD := env("OPENSCAD", "openscad")
 
-# The libraries scadman.lock pins, installed by `just setup`. Project-local so a render is
-# reproducible or fails loudly.
+# Libraries pinned in scadman.lock and installed by `just setup`. They are project-local, so a
+# render is either reproducible or fails loudly.
 export OPENSCADPATH := justfile_directory() + "/.scadman/env"
 
-# Tool caches live in the repository too, so the gate runs the same on a bench, in CI and in a
-# sandbox that cannot write the home directory. Gitignored.
+# Tool caches are also kept in the repository (gitignored), so the gate behaves the same on a
+# bench machine, in CI and in a sandbox that cannot write to the home directory.
 export npm_config_cache := justfile_directory() + "/.cache/npm"
 export UV_CACHE_DIR := justfile_directory() + "/.cache/uv"
 export UV_TOOL_DIR := justfile_directory() + "/.cache/uv-tools"
 
-# What the formatters see: the tracked files of the types they own, so a stray in the tree is not
-# the gate's business. .prettierignore still applies.
+# Files passed to the formatters: tracked files of the types they handle, so untracked files do
+# not affect the gate. .prettierignore still applies.
 FORMATTED := "$(git ls-files '*.md' '*.json' '*.jsonc' '*.yml' '*.yaml')"
 
-# What check-mesh does not build by default, each for its own reason: head.scad and
-# equipment_cart.scad are not 2-manifolds as they preview (vitamins - seals, probes, bearing -
-# break the union, and those are on check-parts' not_printed list); frame.scad is clean but
-# 141 s; bioreactor.scad does not finish. `just export-parts` covers the reactor's parts one at
-# a time instead.
+# Files check-mesh skips by default, each for its own reason. head.scad and equipment_cart.scad
+# are not 2-manifold as previewed, because the vitamins (seals, probes, bearing) break the union;
+# those are on the not_printed list in check-parts. frame.scad is clean but takes 141 s.
+# bioreactor.scad does not finish. `just export-parts` checks the reactor parts one at a time
+# instead.
 export MESH_SKIP := "scad/bioreactor.scad scad/support/equipment_cart.scad scad/frame.scad scad/head.scad scad/custom/condenser_coil.scad scad/custom/sampler.scad"
 
 ENTRY_CUSTOMIZED := "scad/bioreactor.scad scad/head.scad scad/frame.scad"
 
-# The files that render on their own. check-scad asserts everything else emits no geometry, so a
-# new entry file fails until it is listed here.
+# Files that render on their own. check-scad asserts that every other file emits no geometry, so
+# a new entry file fails until it is added here.
 export ENTRY := "scad/bioreactor.scad scad/support/bottle_holder.scad scad/support/equipment_cart.scad scad/support/electronics_stand.scad \
 scad/support/estop_box.scad \
 scad/frame.scad scad/head.scad \
@@ -46,11 +46,12 @@ default:
 setup:
     @scripts/install-libraries.sh
 
-# Everything CI runs.
+# Run every check that CI runs.
 check: check-openscad fmt-check lint check-recipes check-echo check-scad check-designations check-json check-builds check-bom check-prices check-parts check-customizer
 
-# Prettier owns markdown, JSON and YAML; ruff owns the Python. Nothing formats SCAD: the registries
-# are aligned by hand. Versions are pinned so a style bump is not a surprise diff.
+# Prettier formats markdown, JSON and YAML, and ruff formats the Python. SCAD has no formatter;
+# the registries are aligned by hand. Versions are pinned so a formatter update does not produce
+# an unexpected diff.
 #
 # Format markdown, JSON and the analysis Python in place.
 fmt:
@@ -58,7 +59,7 @@ fmt:
     uvx ruff@0.14.5 format analysis scripts
     uvx ruff@0.14.5 check --fix analysis scripts
 
-# Verify formatting without touching anything, which is what `check` needs.
+# Check formatting without modifying any files, as `check` requires.
 fmt-check:
     npx --yes prettier@3.8.4 --check {{FORMATTED}}
     uvx ruff@0.14.5 format --check analysis scripts
@@ -68,43 +69,44 @@ lint:
     npx --yes markdownlint-cli2@0.18.1 $(git ls-files '*.md')
     uvx ruff@0.14.5 check analysis scripts
 
-# The checks a CGAL render puts out of the fast gate's reach: minutes, not seconds.
+# These checks need a CGAL render, which takes minutes rather than seconds, so they are kept out
+# of the fast gate.
 #
-# The slow half of verification: mesh validity, holes, sampler fits, lid clashes and the wall cage.
+# Run the slow checks: mesh validity, holes, sampler fits, lid clashes and the wall cage.
 test: check-openscad check-mesh check-holes check-clash check-baffle-cage
 
-# Remove what the recipes build.
+# Remove the files the recipes build.
 clean:
     rm -rf output
 
-# just runs whichever openscad is first on PATH unless OPENSCAD names one, so every gate starts by
-# saying which, and refuses one older than 2021.01, the oldest supported. CI runs the snapshot
-# .github/workflows/check.yml pins, and its floor job runs the gates on 2021.01 as well.
+# just runs the first openscad on PATH unless OPENSCAD names one, so every gate first prints which
+# one it uses and rejects any version older than 2021.01, the oldest supported. CI runs the
+# snapshot pinned in .github/workflows/check.yml, and its floor job also runs the gates on 2021.01.
 #
-# Fail when OpenSCAD is older than the oldest supported, or cannot render; print its version.
+# Print the OpenSCAD version, and fail if it is older than the oldest supported or cannot render.
 check-openscad:
     @scripts/check-openscad.sh
 
-# OpenSCAD reads only the line immediately above a variable, and /* [Hidden] */ runs to the next
-# marker, so both are checked.
+# OpenSCAD reads only the line immediately above a variable, and /* [Hidden] */ applies until the
+# next marker, so the script checks both.
 #
 # Fail when a Customizer parameter has no description the UI can show.
 check-customizer:
     @scripts/check_customizer.py {{ENTRY_CUSTOMIZED}}
 
-# Pins the whole reported surface, 3 entry files x 5 registered vessels, byte for byte. Cells
-# that ERROR are pinned like any other.
+# Pins the full echo output of 3 entry files x 5 registered vessels, byte for byte. Cells that
+# ERROR are pinned like any other.
 #
-# Fail when any entry file's echo stream moves against its committed transcript.
+# Fail when the echo output of any entry file differs from its committed transcript.
 check-echo:
     @scripts/check-echo.sh
 
-# Rewrite the transcripts. Only after reading the diff `just check-echo` printed.
+# Rewrite the transcripts. Run this only after reading the diff that `just check-echo` printed.
 check-echo-update:
     @scripts/check-echo.sh --update
 
-# `just` shows only the comment line immediately above a recipe, so a description has to be last
-# in its block.
+# `just` shows only the comment line immediately above a recipe, so the description must be the
+# last line of its block.
 #
 # Fail when a recipe has no description, or shows a fragment as one.
 check-recipes:
@@ -114,9 +116,9 @@ check-recipes:
 check-scad:
     @scripts/check-scad.sh
 
-# Not part of `check`. cloc rather than tokei: trixie's tokei predates OpenSCAD support and
-# counts none of the SCAD tree. It is not installed here; add it to whatever provisions the
-# machine.
+# Not part of `check`. It uses cloc rather than tokei because the tokei in trixie predates
+# OpenSCAD support and counts none of the SCAD files. cloc is not installed by this repository;
+# add it to whatever provisions the machine.
 #
 # Report lines of code and comment per language. Needs cloc.
 stats:
@@ -157,7 +159,7 @@ analysis-method name:
 check-builds:
     @scripts/check-builds.sh
 
-# Fail when a designation stops reaching the model.
+# Fail when a designation no longer reaches the model.
 check-designations:
     @scripts/check-designations.sh
 
@@ -165,87 +167,88 @@ check-designations:
 check-holes file="" flags="-D render_all=false -D render_sparger=true":
     @scripts/check-holes.sh "{{file}}" "{{flags}}"
 
-# It needs the manifold backend, and says SKIP without it.
+# Requires the manifold backend, and prints SKIP without it.
 #
-# Fail when the condenser or the sampler stands in anything else on the lid, locked or at entry.
+# Fail when the condenser or the sampler overlaps any other part on the lid, locked or at entry.
 check-clash build="":
     @scripts/check-clash.sh "{{build}}"
 
-# It needs the manifold backend, and says SKIP without it.
+# Requires the manifold backend, and prints SKIP without it.
 #
-# Fail when the wall cage's blades stop sliding, stopping or holding, or the cage meets the glass or the lid's parts.
+# Fail when the wall-cage blades no longer slide, stop or hold, or the cage touches the glass or the lid parts.
 check-baffle-cage build="":
     @scripts/check-baffle-cage.sh "{{build}}"
 
-# Only registries that carry a part number are checked, and only what the reference build
-# selects; it compares the part_number field, not the file. The script says what is not enrolled.
+# Only registries that carry a part number are checked, and only the entries the reference build
+# selects. It compares the part_number field, not the file. The script lists what is not enrolled.
 #
-# Fail when the purchase list misses a part the model prescribes.
+# Fail when the purchase list is missing a part the model specifies.
 check-bom:
     @scripts/check-bom.sh
 
-# Fail when a purchase-list row cannot be summed: no scope, a qty that is not a count, a price with no currency.
+# Fail when a purchase-list row cannot be summed: no scope, a qty that is not a count, or a price with no currency.
 check-prices:
     @/usr/bin/python3 scripts/bom-cost.py --check
 
-# The list is one file for every build; scope splits the reference reactor from the sampler, the
-# bench and the tools. Totals stay per currency unless you pass today's rate.
+# One purchase list covers every build. The scope column separates the reference reactor from the
+# sampler, the bench and the tools. Totals are kept per currency unless you pass a current rate.
 #
 # Total the purchase list by scope, e.g. `just cost 1.3960` for one figure at that CAD per USD rate.
 cost rate="":
     @/usr/bin/python3 scripts/bom-cost.py {{ if rate == "" { "" } else { "--cad-per-usd " + rate } }}
 
-# The .json beside each entry file is authored, one set per registered vessel, holding only what
-# that build changes from the defaults. The GUI reads <file>.json automatically and
-# `-p <file>.json -P <vessel>` selects one from a script.
+# The .json file next to each entry file is a source file, not generated. It holds one set per
+# registered vessel, with only the values that build changes from the defaults. The GUI loads
+# <file>.json automatically, and `-p <file>.json -P <vessel>` selects a set from a script.
 #
 # Fail when a parameter-set file has drifted from its entry file or the registries.
 check-json:
     @scripts/check-json.py {{ENTRY_CUSTOMIZED}}
 
-# The Customizer writes every parameter when it saves; this strips a set back to its deviations.
+# The Customizer writes every parameter when it saves. This removes those left at their defaults.
 #
-# Strip parameters a set carries at the file's own default.
+# Remove the parameters in a set that equal the entry file's default.
 json-prune:
     @scripts/json-prune.py {{ENTRY_CUSTOMIZED}}
 
-# head_print_parts() is hand-written where the render flags are, so a new printed part with a
-# flag and no manifest row is caught here. `not_printed` in the script is the record of flags
-# that make nothing you print, and it fails both ways.
+# head_print_parts() is written by hand next to the render flags, so this catches a new printed
+# part that has a flag but no manifest row. `not_printed` in the script lists the flags that
+# produce nothing to print, and the check fails in both directions.
 #
-# Fail when a printed part exists that the print manifest does not carry.
+# Fail when a printed part is missing from the print manifest.
 check-parts:
     @scripts/check-parts.sh
 
-# The complement of the purchase list: head_print_parts() and frame_print_parts() say what is
-# printed, and this renders each part CGAL and checks it for a manifold, every core at once
-# (JOBS=n for fewer). A build is a parameter set in bioreactor.json: a vessel, and whatever it
-# designates (`jar_10L_magnetic` names the drive). With one, it writes that build flat to
-# output/<build> in about as long as the lid, a minute and a half. With none, it writes every
-# registered build to build/<vessel>/: common/ for what all that vessel's builds print the same,
-# and stirred/, magnetic/ or airlift/ for what each adds - about ten minutes.
+# The counterpart of the purchase list. head_print_parts() and frame_print_parts() list the
+# printed parts, and this renders each one with CGAL and checks that it is manifold, on every core
+# (JOBS=n for fewer). A build is a parameter set in bioreactor.json: a vessel and whatever it
+# designates (`jar_10L_magnetic` names the drive). Given a build, it writes that build flat to
+# output/<build> in about the time the lid takes, a minute and a half. Without one, it writes
+# every registered build to build/<vessel>/ in about ten minutes. common/ holds the parts that
+# every build of that vessel prints the same, and stirred/, magnetic/ or airlift/ hold what each
+# build adds.
 #
 # Export printed parts as STLs with print lists: every build by vessel, or `just export-parts jar_10L_magnetic` for one.
 export-parts build="" out="":
     @scripts/export-parts.sh "{{build}}" "{{out}}"
 
-# The same render as export-parts for one row of the print list, which is what iterating on a
-# part before printing it wants. No list is written.
+# The export-parts render for a single row of the print list, for iterating on a part before
+# printing it. No print list is written.
 #
 # Export one printed part by its print-list name, e.g. `just export-part frame_base jar_10L_magnetic`.
 export-part part build="" out="output":
     @scripts/export-parts.sh "{{build}}" "{{out}}" "{{part}}"
 
-# The bench's own list, accessory_print_parts() in scad/support/accessories.scad: the bottle
-# holders, the e-stop box and the stand's corner, each from its own file, judged as export-parts
-# judges the reactor's parts.
+# Uses the bench print list, accessory_print_parts() in scad/support/accessories.scad: the bottle
+# holders, the e-stop box and the stand corner, each from its own file. Each part is checked the
+# same way export-parts checks the reactor parts.
 #
-# Export the bench's printed parts with a print list, to output/accessories.
+# Export the bench printed parts with a print list, to output/accessories.
 export-accessories out="output":
     @scripts/export-accessories.sh "{{out}}"
 
-# Pictures for the paper and the docs, from the list in scad/views.tsv. Previews, so seconds each;
-# `just render-parts` covers every printed part without a row.
+# Figures for the paper and the docs, listed in scad/views.tsv. They are previews, so each takes
+# seconds. `just render-parts` renders every printed part without needing a row.
 #
 # Render the pictures in scad/views.tsv to output/figures: all, or `just render 'head_*'`.
 render filter="*" build="":
@@ -255,9 +258,10 @@ render filter="*" build="":
 render-parts build="jar_10L_220x305" filter="*":
     @scripts/render-views.sh parts "{{filter}}" "{{build}}"
 
-# check-scad exports the CSG tree, so CGAL never runs and a degenerate solid is invisible to it.
-# This builds the entry files into solids. Not part of `check`: minutes, not seconds. What to run
-# before printing is `just export-parts`, which covers the reactor's own parts.
+# check-scad only exports the CSG tree, so CGAL never runs and it cannot see a degenerate solid.
+# This recipe builds the entry files into solids. It is not part of `check` because it takes
+# minutes rather than seconds. Before printing, run `just export-parts`, which covers the reactor
+# parts.
 #
 # Build entry files into solids and fail on a non-manifold. `just check-mesh <file>` for one.
 check-mesh file="":

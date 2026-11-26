@@ -20,8 +20,8 @@ from decimal import Decimal, InvalidOperation
 
 SCOPES = ("reactor", "sampler", "bench", "tooling")
 CURRENCIES = ("USD", "CAD")
-# How a price was got. Every one but `none` carries a price; `listed` is the only priced one
-# without a date, because it predates recording one.
+# How a price was obtained. Every value except `none` has a price. `listed` is the only priced
+# value without a date, because it predates recording dates.
 CONFIDENCE = ("read", "listed", "representative", "cited", "estimate", "none")
 DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 

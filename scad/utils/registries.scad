@@ -1,28 +1,31 @@
 /**
- * @brief Look a registered row up by its name.
+ * @brief Look up a registered row by name.
  *
- * A designation travels as a name, so every registry a build may designate wraps this below its
- * swept list, where the list is in scope (a function resolves globals from its own file):
+ * Build designations are passed as names, so every registry a build can designate wraps this
+ * function below its list, where the list is in scope (a function resolves globals from its own
+ * file):
  *
  *     use <../utils/registries.scad>;
  *     function shaft_by_name(name) = registry_by_name(shafts, name, "ssllsn");
  *
- * Rows are read by position, so `fields` says what a row carries: a signature, one letter a field -
- * s a string, n a number, l a list, b a bool, the capital where the field may also be undef - or
- * a list of signatures where a trailing field is optional. A bare count is accepted and checks the
- * length alone. Every row is checked on every lookup, the one asked for or not: a row that lost or
- * gained a field, or holds a list where a number goes, fails here rather than reading the wrong
- * value. Two fields of the same type swapped still pass; only named fields would catch that.
+ * Rows are read by position, so `fields` describes the row layout. It is a signature with one
+ * letter per field (s string, n number, l list, b bool; upper case if the field may also be
+ * undef), or a list of signatures when a trailing field is optional. A plain number is also
+ * accepted and checks only the length. Every row is checked on every lookup, not only the
+ * requested one. A row with a missing or extra field, or a list where a number belongs, fails here
+ * instead of returning the wrong value. Two swapped fields of the same type still pass; only named
+ * fields would catch that.
  *
- * A miss returns undef, and so does a duplicate name - two rows answering to one name is a defect,
- * not a pick by list order. The consumer owes the assert, because only it can name the registry
- * that was searched, and a failing assert exits 0 so its ERROR line is what the checks catch.
+ * A missing name returns undef, and so does a duplicate name: two rows with the same name is a
+ * defect, not a choice by list order. The caller must assert on the result, because only it can
+ * name the registry searched. A failing assert exits 0, so the checks detect its ERROR line.
  */
 function registry_by_name(rows, name, fields) =
   let (_checked = registry_checked(rows, fields))
   let (_m = [for (r = _checked) if (r[0] == name) r]) len(_m) == 1 ? _m[0] : undef;
 
-// The rows, once every one fits one of the signatures; for a registry whose rows carry no name.
+// Returns the rows after checking that each fits one of the signatures. Also used directly for a
+// registry whose rows have no name.
 function registry_checked(rows, fields) =
   let (
     _n = is_list(fields) ? fields : [fields],

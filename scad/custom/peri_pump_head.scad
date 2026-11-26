@@ -4,15 +4,15 @@
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * WORK IN PROGRESS, AND NOT WHAT THIS BUILD USES. A head of our own that a small motor could
- * drive. It started as a replica of the bought pump and may yet become a design; it is drawn here
- * so the idea has somewhere to live and gets rendered.
+ * WORK IN PROGRESS, AND NOT USED IN THIS BUILD. A custom pump head that a small motor could
+ * drive. It started as a replica of the purchased pump and may become a separate design. It is
+ * kept here so the idea is recorded and rendered.
  *
- * ONE FILE, where the repo usually splits a registry from its geometry. Nothing includes this,
- * so a second file would buy nothing.
+ * ONE FILE, although the repo usually splits a registry from its geometry. Nothing includes this
+ * file, so a second file would add nothing.
  *
- * Every name here carries the peri_pump_head_ prefix, because purchased/peri_pump.scad owns
- * peri_pump_* for the bought unit and OpenSCAD has one flat namespace across includes.
+ * Every name here has the peri_pump_head_ prefix, because purchased/peri_pump.scad uses
+ * peri_pump_* for the purchased unit and OpenSCAD has a single flat namespace across includes.
  */
 
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
@@ -50,16 +50,16 @@ function peri_pump_head_roller_radius(type) =
   peri_pump_head_carrier_diameter(type) / 2 - peri_pump_head_roller_outer_diameter(type) / 2
   + peri_pump_head_roller_offset(type);
 
-// Example usage. Live rather than commented, because this is an entry file: it renders on its own
-// and `just check-mesh` builds it, which is the only thing standing between a work in progress and
-// a work that has quietly stopped building.
+// Example usage. It is left active, not commented out, because this is an entry file: it renders
+// on its own and `just check-mesh` builds it. That build is the only check that catches this work
+// in progress if it stops building.
 peri_pump_head(peri_pump_head_generic);
 
 /**
  * @brief Create a peristaltic pump from a registered type
  * @param type Registered parameter set (see peri_pumps.scad)
  *
- * Everything that is not the motor: the cassette, the roller subassembly and the cover.
+ * Everything except the motor: the cassette, the roller subassembly and the cover.
  */
 module peri_pump_head(type) {
   cassette_wall_thickness = peri_pump_head_cassette_wall_thickness(type);

@@ -2,40 +2,43 @@
 #
 # Export every printed part as its own STL, with a print list.
 #
-# With a build - a parameter set in scad/bioreactor.json - $1, it writes that build flat to
-# $2/<build> (output/ unless given), and $3 names one part to write alone, with no list.
+# Given a build in $1 (a parameter set in scad/bioreactor.json), it writes that build flat to
+# $2/<build> (output/ by default). $3 names a single part to write, with no print list.
 #
-# With no build, it writes every registered build, grouped by vessel, to $2/<vessel> (build/
-# unless given): common/ holds what every one of that vessel's builds prints the same, and a
-# folder per build type - stirred, magnetic, airlift - holds only what that type adds. A part is
-# common when every build of the vessel carries it with the same geometry, judged by its CSG,
-# and it is not one drive's own. Each distinct part renders once. A vessel's folder is replaced
-# whole, so what is there is what the model prints now.
+# Without a build, it writes every registered build, grouped by vessel, to $2/<vessel> (build/ by
+# default). common/ holds the parts that every build of that vessel prints the same, and one
+# folder per build type (stirred, magnetic, airlift) holds only what that type adds. A part is
+# common when every build of the vessel has it with the same geometry, compared by its CSG, and
+# it does not belong to one drive only. Each distinct part renders once. The folder for a vessel
+# is replaced as a whole, so its contents always match what the model prints now.
 #
-# The renders run JOBS at a time (every core, unless set): each is one OpenSCAD process on one
-# core, and the lid alone is a minute and a half, so the lot takes about as long as the lid.
+# The renders run JOBS at a time (every core unless set). Each is one OpenSCAD process on one
+# core, and the lid alone takes a minute and a half, so the whole run takes about as long as the
+# lid.
 #
 : "${OPENSCAD:=openscad}"
 : "${JOBS:=$(nproc)}"
 
-# A failing render still exits 0 and writes a small file, the same as check-mesh, so nothing
-# here may be gated on $?. stderr is the signal and the file size is the backstop.
+# A failing render still exits 0 and writes a small file, as in check-mesh, so nothing here may
+# be gated on $?. stderr is the signal, and the file size is the fallback.
 set -uo pipefail
-# what prints is only as good as the binary that rendered it, so say which and refuse an old one
+# the printed parts are only as good as the binary that rendered them, so print which binary is
+# used and reject an old one
 source "$(dirname "$0")/openscad-canary.sh"
 openscad_canary
 tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
 
 build="${1:-}"
 only="${3:-}"
-# How many coincident faces a part may leave before it is a defect rather than a tangency.
+# The number of coincident faces a part may have before it counts as a defect rather than a
+# tangency.
 #
-# Two solids that touch on exactly one plane leave the whole shared face behind, which is tens or
-# hundreds of edges: sparge_arm's socket taper left 202, the impeller's collar 124, the probe's
-# tilt wedge 43. A curve meeting a surface at a point leaves one or two, and which side of the
-# rounding they land on depends on the machine - the same part measures 0 here and 1 on a
-# different CGAL build. Counting those exactly makes the check a property of the host; a ceiling
-# well clear of both ranges makes it a property of the project.
+# Two solids that touch on exactly one plane leave the whole shared face, which is tens or
+# hundreds of edges: the socket taper on sparge_arm left 202, the impeller collar 124, and the
+# probe tilt wedge 43. A curve meeting a surface at a point leaves one or two, and the rounding
+# that decides this depends on the machine: the same part measures 0 here and 1 on a different
+# CGAL build. Counting those exactly would make the result depend on the host. A ceiling well
+# clear of both ranges makes it depend only on the project.
 : "${SEAM_CEILING:=10}"
 export OPENSCAD JOBS SEAM_CEILING tmp
 
@@ -47,12 +50,12 @@ failed=0
 
 if [ -n "$build" ] || [ -n "$only" ]; then
     # A string, not an array, because the render below runs in a child shell and an array cannot
-    # be exported; set names are identifiers, so word splitting is safe.
+    # be exported. Set names are identifiers, so word splitting is safe.
     sel=""
     if [ -n "$build" ]; then
-        # OpenSCAD ignores a -P naming a set that does not exist and silently falls back to the
-        # file's own defaults, which would write a directory labelled with one build and full of
-        # another's parts. So the set is looked up first.
+        # OpenSCAD ignores a -P that names a nonexistent set and silently falls back to the file
+        # defaults, which would write a directory named for one build but containing the parts
+        # of another. So the set is looked up first.
         if ! /usr/bin/python3 -c 'import json,sys; sys.exit(sys.argv[2] not in json.load(open(sys.argv[1]))["parameterSets"])' scad/bioreactor.json "$build"; then
             echo "FAIL  no parameter set is named $build in scad/bioreactor.json"
             exit 1
@@ -60,16 +63,16 @@ if [ -n "$build" ] || [ -n "$only" ]; then
         sel="-p scad/bioreactor.json -P $build"
     fi
 
-    # Ask the model what it prints, through the assembly, which owns both halves. A stub with
-    # render_all off, so it costs a second. Each row says which half it belongs to.
+    # Get the printed parts from the model, through the assembly, which contains both halves.
+    # The stub has render_all off, so it takes about a second. Each row names its half.
     if ! export_manifest "$sel" "$tmp/m"; then
         echo "FAIL  ${build:-the default build} does not resolve, so there is nothing to export"
         grep -m1 '^ERROR' "$tmp/m.err" | sed 's/^/        /'
         exit 1
     fi
-    # What the build is, in the model's own words: the vessel, the drive and every designation
-    # stated rather than left auto. Printed and written into the list, because an STL of a g1
-    # collet and one of a g2 collet look identical in a directory listing.
+    # The build description echoed by the model: the vessel, the drive and every designation set
+    # explicitly rather than left at auto. It is printed and written into the list, because an
+    # STL of a g1 collet and one of a g2 collet look identical in a directory listing.
     stated=$(cat "$tmp/m.stated")
     echo "note  $stated"
     rows=$(cat "$tmp/m.rows")
@@ -94,7 +97,7 @@ if [ -n "$build" ] || [ -n "$only" ]; then
     done <<< "$rows" > "$tmp/jobs"
     export_render "$tmp/jobs"
 
-    # Then each part, in the manifest's order, judged off what its render left behind.
+    # Then check each part, in manifest order, from the output of its render.
     while IFS='|' read -r file name qty flags; do
         [ -z "$name" ] && continue
         parts=$((parts + 1))
@@ -102,7 +105,7 @@ if [ -n "$build" ] || [ -n "$only" ]; then
         export_judge "$name" "$qty" "$dir/$name.stl" "$tmp/rows.md" "$tmp/sizes" "$tmp/$name.err"
     done <<< "$rows"
 
-    # One part alone is for looking at it; the list is the whole build's.
+    # A single part is exported for inspection only; the print list covers the whole build.
     if [ -n "$only" ]; then exit $failed; fi
 
     allfit=$(export_fits "$tmp/sizes" "$sel" "$tmp/nofit")
@@ -130,8 +133,8 @@ fi
 
 out="${2:-build}"
 mkdir -p "$out"
-# The folders this replaces are under a root that has to exist, be a real directory and sit
-# inside the repository - never the repository itself - before anything in it is removed.
+# Before anything is removed, the root of the replaced folders must exist, be a real directory
+# and be inside the repository, but not be the repository itself.
 root=$(realpath -e "$out") || { echo "FAIL  $out is not a directory"; exit 1; }
 repo=$(realpath -e .)
 if [ -L "$out" ] || [ "$root" = "$repo" ] || [ "${root#"$repo"/}" = "$root" ]; then
@@ -139,8 +142,9 @@ if [ -L "$out" ] || [ "$root" = "$repo" ] || [ "${root#"$repo"/}" = "$root" ]; t
     exit 1
 fi
 
-# Each build's print list under its own drive, and under the other two, which is what says a part
-# is one drive's own rather than merely absent from another build of the same vessel.
+# Get the print list of each build under its own drive and under the other two. This shows
+# whether a part belongs to one drive only, rather than simply being absent from another build of
+# the same vessel.
 /usr/bin/python3 - "$tmp" <<'PY'
 import json, sys
 tmp = sys.argv[1]
@@ -158,7 +162,7 @@ export_manifest_job() {
     local set drive
     IFS='|' read -r set drive <<< "$1"
     export_manifest "-p $tmp/variants.json -P ${set}__$drive" "$tmp/man.$set.$drive" || true
-    # the build as registered, once per set; the shaft job is as good a place as any to do it
+    # the build as registered, once per set; the shaft job is used for this, though any would do
     if [ "$drive" = shaft ]; then
         export_manifest "-p scad/bioreactor.json -P $set" "$tmp/man.$set" || echo unresolved > "$tmp/man.$set.bad"
     fi
@@ -175,7 +179,8 @@ while read -r set; do
 done < "$tmp/sets"
 [ $failed -eq 0 ] || exit 1
 
-# Every part of every build as CSG, which is fast and says whether two builds print the same thing.
+# Render every part of every build as CSG, which is fast and shows whether two builds print the
+# same part.
 mkdir -p "$tmp/csg"
 while read -r set; do
     while IFS='|' read -r file name _ flags; do
@@ -186,7 +191,7 @@ export_render "$tmp/csg-jobs"
 : > "$tmp/keys"
 while read -r set; do
     while IFS='|' read -r _ name _ _; do
-        # a CSG that did not come out stands for no other build's part, so it is never common
+        # a CSG that failed to render cannot match a part of another build, so it is never common
         if grep -q '^ERROR' "$tmp/csg/$set.$name.err" || [ ! -s "$tmp/csg/$set.$name.csg" ]; then
             echo "$set|$name|unrendered-$set" >> "$tmp/keys"
         else
@@ -195,9 +200,9 @@ while read -r set; do
     done < "$tmp/man.$set.rows"
 done < "$tmp/sets"
 
-# The plan: where each part goes, and which render stands for it. A line per destination:
-# key|set|file|name|qty|flags|vessel/folder. The lists file says which folders each vessel gets
-# and which builds they serve.
+# The plan: where each part goes, and which render is used for it. One line per destination:
+# key|set|file|name|qty|flags|vessel/folder. The lists file gives the folders for each vessel and
+# the builds each folder serves.
 /usr/bin/python3 - "$tmp" <<'PY'
 import collections, re, sys
 tmp = sys.argv[1]
@@ -259,7 +264,7 @@ for s in sets:
 PY
 [ -s "$tmp/plan" ] || { echo "FAIL  no export plan came out of the builds' print lists"; exit 1; }
 
-# One render per distinct part, then a copy wherever it goes.
+# One render per distinct part, then a copy to each destination.
 mkdir -p "$tmp/stl"
 awk -F'|' '!seen[$1 FS $4]++' "$tmp/plan" | while IFS='|' read -r key set file name _ flags _; do
     printf '%s|%s|%s|%s|%s\n' "-p scad/bioreactor.json -P $set" "$file" "$flags" "$tmp/stl/${key:0:16}.$name.stl" "$tmp/stl/${key:0:16}.$name.err"
@@ -267,7 +272,7 @@ done > "$tmp/stl-jobs"
 echo "note  $(wc -l < "$tmp/plan") parts across $(wc -l < "$tmp/sets") builds, $(wc -l < "$tmp/stl-jobs") distinct renders"
 export_render "$tmp/stl-jobs"
 
-# Stage every vessel's folder beside the one it replaces, and put each part where it goes.
+# Stage the folder for each vessel next to the one it replaces, and copy each part into place.
 declare -A stage
 for vessel in $(cut -d'|' -f1 "$tmp/lists" | sort -u); do
     stage[$vessel]=$(mktemp -d "$root/.staging-$vessel.XXXX")
@@ -280,8 +285,8 @@ while IFS='|' read -r key _ _ name _ _ dest; do
         || echo "no render flags known" > "$tmp/err.$vessel.$kind.$name"
 done < "$tmp/plan"
 
-# Judge each part where it lands and write each folder's list. Common comes first in the lists
-# file, so its sizes are there when a type's printers are asked for.
+# Check each part in its destination and write the print list for each folder. common comes first
+# in the lists file, so its sizes are available when the printers for a build type are computed.
 while IFS='|' read -r vessel kind who; do
     d="${stage[$vessel]}/$kind"
     mkdir -p "$d"
@@ -298,7 +303,7 @@ while IFS='|' read -r vessel kind who; do
         sel="-p scad/bioreactor.json -P ${first#*=}"
         sizes="$tmp/sizes.$vessel.common"
     else
-        # a type's printers have to take common/ as well, since both are printed for that build
+        # the printers for a type must also fit common/, since both are printed for that build
         cat "$tmp/sizes.$vessel.common" "$tmp/sizes.$vessel.$kind" > "$tmp/sizes.$vessel.$kind.all"
         sel="-p scad/bioreactor.json -P $who"
         sizes="$tmp/sizes.$vessel.$kind.all"
@@ -336,8 +341,8 @@ while IFS='|' read -r vessel kind who; do
     echo "ok    $vessel/$kind  ($pieces pieces, $parts parts)"
 done < "$tmp/lists"
 
-# Swap each staged folder in for the old one. The target is the checked root plus a vessel name,
-# which has to be an identifier; a symlink there is refused rather than followed.
+# Replace each old folder with the staged one. The target is the checked root plus a vessel name,
+# which must be an identifier. A symlink at the target is refused rather than followed.
 for vessel in "${!stage[@]}"; do
     target="$root/$vessel"
     if ! [[ "$vessel" =~ ^[A-Za-z0-9_]+$ ]] || [ -L "$target" ]; then

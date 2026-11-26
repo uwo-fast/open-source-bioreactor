@@ -1,18 +1,19 @@
 /**
  * @file gl_port_cap.scad
- * @brief A GL screw cap whose top carries bayonet locks, so tube ports fit a lab bottle
+ * @brief GL screw cap with bayonet locks in the top, for fitting tube ports to a lab bottle
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * The cap and its thread come from din168-thread-scad; this adds the locks. The top is the panel
- * the locks are sunk into, so its thickness is the ports' panel thickness, and the pins printed for
- * it are drawn with the same value. The bottle's rim seals on a sheet gasket against the top's
- * underside.
+ * The cap and its thread come from din168-thread-scad; this file adds the locks. The top is the
+ * panel the locks are sunk into, so its thickness is the port panel thickness, and the matching
+ * pins are drawn with the same value. The bottle rim seals on a sheet gasket against the underside
+ * of the top.
  *
- * DATUM: z = 0 is the seal plane, where the bottle's rim meets the top's underside, as in
- * din168_cap. The top's outer face, where each port's own z = 0 lands, is at z = panel_thickness.
+ * DATUM: z = 0 is the seal plane, where the bottle rim meets the underside of the top, as in
+ * din168_cap. The outer face of the top, where z = 0 of each port lands, is at z = panel_thickness.
  *
- * First use: the inlet humidifier - air in down a steel dip tube, humid air out of the second port.
+ * First use: the inlet humidifier. Air enters down a steel dip tube and humid air leaves through
+ * the second port.
  */
 
 use <din168-thread-scad/din168.scad>
@@ -26,7 +27,7 @@ $fn = 0;
 $fa = facet_angle();
 $fs = facet_size();
 
-// example usage: a GL45 humidifier cap, its two tube pins beside it, and its rim gasket
+// example usage: a GL45 humidifier cap, with its two tube pins and rim gasket beside it
 _gl = din168_by_name("GL45");
 gl_port_cap(_gl);
 for (i = [0:1])
@@ -40,14 +41,14 @@ translate([0, 60, 0]) sheet_gasket(inner_diameter=34, outer_diameter=45, thickne
 /**
  * @param size             Registered DIN 168 size, e.g. din168_by_name("GL45")
  * @param type             Registered bayonet interface for every port
- * @param panel_thickness  The top's thickness, and the ports' panel thickness
- * @param port_count       Ports, evenly round the axis
+ * @param panel_thickness  Thickness of the top, which is also the port panel thickness
+ * @param port_count       Number of ports, evenly spaced around the axis
  * @param port_offset      Distance of each port from the axis
- * @param thread_length    Length of the cap's thread; undef for din168's default, five pitches
+ * @param thread_length    Length of the cap thread; undef for the din168 default of five pitches
  * @param liner_space      Plain wall between the thread and the top, where the gasket sits
- * @param wall             Wall outside the thread's root
+ * @param wall             Wall outside the thread root
  * @param clearance        Thread clearance, per flank and radially
- * @param ribs             Grip ribs round the outside; 0 for none
+ * @param ribs             Grip ribs around the outside; 0 for none
  * @param ring_band        Band at the mouth that clears a pouring ring, in mm; 0 for none
  */
 module gl_port_cap(
@@ -66,7 +67,7 @@ module gl_port_cap(
   _r_cap = din168_cap_radius(size, wall, clearance);
   _flange_r = bayonet_flange_radius(type);
 
-  // Neighbouring flanges may not overlap, and each has to land on the top.
+  // Neighbouring flanges must not overlap, and each must fit on the top.
   assert(
     port_count < 2 || 2 * port_offset * sin(180 / port_count) >= 2 * _flange_r + 0.5,
     str(

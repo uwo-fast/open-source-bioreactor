@@ -4,22 +4,22 @@
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * For standard cylindrical electrical motors which have a circular faceplate with 4 screws
- * in a square pattern, and a central shaft. Built as two identical male end caps joined by a
- * female middle tube, so the standoff height is set by one parameter; part_to_render selects
- * one part for printing or "all" for the assembled view.
+ * For standard cylindrical electric motors with a circular faceplate, 4 screws in a square
+ * pattern and a central shaft. It is built as two identical male end caps joined by a female
+ * middle tube, so one parameter sets the standoff height. part_to_render selects one part for
+ * printing, or "all" for the assembled view.
  */
 
 z_fight = $preview ? 0.05 : 0; // z-fighting avoidance for preview
 $fn = $preview ? 64 : 128;
 
-// Function to get the (centered) distance between the base holes. Leaves 1.5 hole diameters from
-// centre to the body's edge, so the counterbore over it - one hole diameter in radius - always
-// keeps half a hole diameter of wall, whatever the body is scaled to.
+// Radius of the base holes from the centre. It leaves 1.5 hole diameters from the hole centre to
+// the body edge, so the counterbore (one hole diameter in radius) always leaves half a hole
+// diameter of wall, at any body size.
 function get_base_screw_separation_radius(body_diameter, screws_diameter) = (body_diameter - screws_diameter * 3) / 2;
 
-// The flange left under a base screw's head: the counterbore floor is halfway down it, so this
-// is what the screw grips before it reaches whatever the mount is bolted to.
+// Flange thickness under a base screw head. The counterbore floor is halfway down the flange, so
+// this is the grip length of the screw before it reaches the part the mount is bolted to.
 function motor_mount_base_screw_grip(wall_thickness) = wall_thickness / 2;
 
 module motor_mount(
@@ -45,16 +45,16 @@ module motor_mount(
 
   motor_screw_diameter = screws_diameter + vertical_hole_allowance;
 
-  // The hole is a facets-sided polygon, so the boss has to pass its inscribed circle.
+  // The hole is a polygon with `facets` sides, so the boss must fit its inscribed circle.
   motor_boss_hole_diameter = (motor_boss_diameter + boss_allowance) / cos(180 / facets);
 
   raised_face_height = wall_thickness;
 
   flange_height = wall_thickness;
 
-  // The base screws fasten the mount to whatever carries it, so they are sized and placed by
-  // that joint, not by the gearbox. Driven off the hole rather than a nominal size because the
-  // caller owns the screw and so knows its real clearance.
+  // The base screws fasten the mount to its support, so that joint sets their size and position,
+  // not the gearbox. They are set from the hole diameter instead of a nominal screw size because
+  // the caller chooses the screw and knows its actual clearance.
   base_screw_separation_radius = get_base_screw_separation_radius(body_diameter, base_screw_hole_diameter);
 
   middle_height = height - flange_height * 2;
@@ -63,19 +63,19 @@ module motor_mount(
 
   // ----- assertions -----
 
-  // facets must be divisible by 4 (screws are placed every 90°) while providing rough
-  // poly such that the parts cannot concentrically rotate relatively to each other
+  // facets must be divisible by 4 (screws are placed every 90°), and the polygon must be coarse
+  // enough that the parts cannot rotate relative to each other
   assert(facets % 4 == 0, "facets must be divisible by 4 for screw holes to be properly placed");
 
-  // The mount telescopes to reach the shaft, so its height is derived from the vessel it stands
-  // over and can come out negative on a tall one. Nothing downstream notices, so it is caught here.
+  // The mount telescopes to reach the shaft, so its height is calculated from the vessel below it
+  // and can come out negative for a tall vessel. Nothing downstream detects that, so check it here.
   assert(
     middle_height > 0,
     str("Motor mount is ", height, " mm tall, which leaves ", middle_height, " mm of middle stand between two ", flange_height, " mm flanges.")
   );
 
-  // The body is a free choice and the bolt circle comes with the gearbox, so nothing but this
-  // makes the mount wide enough for the motor it was picked to carry.
+  // The body diameter is a free choice and the bolt circle is fixed by the gearbox, so only this
+  // check ensures the mount is wide enough for its motor.
   assert(
     motor_faceplate_bolt_circle_dia / 2 + motor_screw_diameter <= body_diameter / 2,
     str(
@@ -142,8 +142,8 @@ module male_end(
   coupling_screw_diameter,
   facets
 ) {
-  // the head's pocket follows the hole it sinks into, so each end plate counterbores its own
-  // screw rather than both ends following the motor's
+  // the counterbore is sized from its own hole, so each end plate fits its own screw instead of
+  // both ends using the motor screw size
   counterbore_diameter = vertical_hole_diameter * 2;
 
   difference() {
@@ -218,11 +218,11 @@ module middle_pipe(
 
 // ----- example values -----
 //
-// A worked example on M3 screws; this file's render is a preview.
+// A worked example with M3 screws. The render in this file is a preview.
 
 _mm_screws_diameter = 3;
 
-// clearance hole for the screws holding the mount down; an M3's, to match the example above
+// clearance hole for the base screws; M3, to match the example above
 _mm_base_screw_hole_diameter = 3.4;
 
 _mm_shaft_diameter = 8.0;

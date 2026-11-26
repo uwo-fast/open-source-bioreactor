@@ -4,9 +4,10 @@
  * @author Cameron K. Brooks
  * @copyright 2026
  *
- * Square, sized by the body's wider side plus wire_space all round and below. The neck goes
- * through the lid's centre bore, the lid screws into four corner posts, and the wires leave by
- * one hole in the +y wall. Measure the four e-stop numbers and everything else follows from them.
+ * Square, sized by the wider side of the body plus wire_space on all sides and below. The neck
+ * passes through the centre bore of the lid, the lid screws into four corner posts, and the wires
+ * exit through one hole in the +y wall. Measure the four e-stop dimensions; everything else is
+ * derived from them.
  *
  * DATUM: z = 0 is the underside of the base.
  */
@@ -28,7 +29,7 @@ estop_neck_bore = 22.5;
 
 // room for the wires, kept around the body on every side and below it
 wire_space = 10;
-// diameter of the hole the four wires leave by, a grommet's or gland's mounting hole
+// diameter of the hole the four wires exit through, sized for a grommet or cable gland
 wire_hole_diameter = 8;
 // side wall and floor thickness
 wall = 2.4;
@@ -59,7 +60,7 @@ outer_side = cavity_side + 2 * wall;
 base_height = wall + cavity_z;
 // sunk half a wall into the corner so the post is not tangent to the walls
 post_offset = cavity_side / 2 - post_diameter / 2 + wall / 2;
-// the outside corners are arcs on the post centres, so the wall round each screw is even
+// the outside corners are arcs centred on the posts, so the wall around each screw is even
 corner_radius = outer_side / 2 - post_offset;
 
 assert(

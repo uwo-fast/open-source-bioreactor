@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 #
-# What export-parts.sh does to a part, as functions, so exporting one build and exporting every
-# vessel judge a part and write a print list the same way. Sourced, not run; the caller sets
+# The per-part steps of export-parts.sh as functions, so exporting one build and exporting every
+# vessel check parts and write print lists the same way. Sourced, not run. The caller sets
 # OPENSCAD, JOBS, SEAM_CEILING and tmp, and a failure sets `failed`.
 # shellcheck disable=SC2034,SC2154
 
-# A build's parameter set as -D assignments, one argument per line: `sel` is empty or a -p/-P
-# pair. The stubs below `include` the model, and a parameter set reaches only the file OpenSCAD
-# opens on newer releases, not one it includes; a -D reaches both. A set holds names and numbers,
-# so a value goes in bare when it reads as a number, a boolean or a vector and quoted otherwise;
-# -p also coerces to the type of the file's default, which this cannot see. Fails on a set that
-# does not exist, rather than leaving the stub on the file's defaults.
+# Print the parameter set of a build as -D assignments, one argument per line. `sel` is empty or
+# a -p/-P pair. The stubs below `include` the model, and on newer releases a parameter set reaches
+# only the file OpenSCAD opens, not the files it includes; a -D reaches both. A set holds names
+# and numbers, so a value is passed bare when it reads as a number, a boolean or a vector, and
+# quoted otherwise. -p also coerces to the type of the file default, which this function cannot
+# see. Fails on a set that does not exist, rather than leaving the stub at the file defaults.
 export_defines() {
     local f s
     read -r _ f _ s <<< "$1"
@@ -28,10 +28,10 @@ for k, v in sets[sys.argv[2]].items():
     print("-D"); print(f"{k}={v}" if bare else f"{k}=\"{q}\"")' "$f" "$s"
 }
 
-# The model's print list for a build: `sel` is empty for the file's own defaults, or a -p/-P pair,
-# and the rows land in $2.rows ("file|name|qty|flags") with the model's statement of the build in
-# $2.stated and the render's stderr in $2.err. Returns 1 when the build does not resolve; the
-# caller reports it.
+# Get the print list for a build from the model. `sel` is empty for the file defaults, or a -p/-P
+# pair. The rows are written to $2.rows ("file|name|qty|flags"), the build description the model
+# echoes to $2.stated, and the render stderr to $2.err. Returns 1 when the build does not resolve;
+# the caller reports it.
 export_manifest() {
     local sel="$1" out="$2"
     cat > "$out.scad" <<SCAD
@@ -53,10 +53,10 @@ SCAD
 }
 
 # The flags that isolate one half of the assembly. Every part renders through bioreactor.scad,
-# whichever half it belongs to: that file carries the build's designations, and head.scad's own
-# tail calls head() with no build. render_all overrides every other flag, so it goes off first;
-# export_at_origin puts a head part where head.scad would have put it rather than at its
-# assembled height, which moves the part and does not change its shape.
+# whichever half it belongs to, because that file carries the build designations and the end of
+# head.scad calls head() with no build. render_all overrides every other flag, so it is turned off
+# first. export_at_origin places a head part where head.scad would place it rather than at its
+# assembled height; this moves the part without changing its shape.
 export_half_flags() {
     case "$1" in
         scad/head.scad)  echo "-D render_vessel=false -D render_frame=false -D render_head=true -D export_at_origin=true" ;;
@@ -65,12 +65,12 @@ export_half_flags() {
     esac
 }
 
-# Render jobs, JOBS at a time. A job is "sel|file|flags|out|err"; `out` is written as whatever its
-# extension says, an STL to print or a CSG to compare. stderr goes to `err` for the judge.
+# Render jobs, JOBS at a time. A job is "sel|file|flags|out|err". `out` is written in the format
+# its extension names: an STL to print or a CSG to compare. stderr goes to `err` for export_judge.
 export_render_one() {
     local sel file flags out err half
     IFS='|' read -r sel file flags out err <<< "$1"
-    # an accessory is a part in a file of its own, with no build to carry, so it renders from it
+    # an accessory is a part in its own file, with no build parameters, so it renders from that file
     if [[ "$file" == scad/support/* ]]; then
         # shellcheck disable=SC2086
         "$OPENSCAD" $EXPORT_BACKEND $flags -o "$out" "$file" 2>"$err" >/dev/null
@@ -86,8 +86,9 @@ export_render_one() {
 export_render() {
     export -f export_render_one export_half_flags
     export OPENSCAD
-    # CGAL wherever the binary offers a backend choice: the "2-manifold" warning the judge fails
-    # on comes from CGAL, and a build that defaults to manifold stays silent on a non-manifold.
+    # Use CGAL whenever the binary offers a backend choice. The "2-manifold" warning that
+    # export_judge fails on comes from CGAL, and a binary that defaults to manifold reports
+    # nothing on a non-manifold.
     local help
     help=$("$OPENSCAD" --help 2>&1)
     EXPORT_BACKEND=""
@@ -96,8 +97,9 @@ export_render() {
     xargs -d '\n' -P "$JOBS" -I{} bash -c 'export_render_one "$1"' _ {} < "$1"
 }
 
-# A CSG's identity: the text with the empty groups a branch that draws nothing leaves behind
-# stripped out, since they carry no geometry and differ between builds that differ elsewhere.
+# A hash that identifies a CSG: its text with the empty groups removed. A branch that draws
+# nothing leaves an empty group, which carries no geometry but differs between builds that differ
+# elsewhere.
 export_csg_key() {
     /usr/bin/python3 -c 'import re, sys, hashlib
 s = open(sys.argv[1]).read()
@@ -109,16 +111,16 @@ while True:
 print(hashlib.sha256(s.encode()).hexdigest())' "$1"
 }
 
-# Judge one exported part and append its row to $4 (the list's table) and its size to $5.
-# A failing render still exits 0 and writes a small file, so nothing here is gated on $?: stderr
-# is the signal and the file size is the backstop.
+# Check one exported part, and append its row to $4 (the print-list table) and its size to $5.
+# A failing render still exits 0 and writes a small file, so nothing here is gated on $?. stderr
+# is the signal, and the file size is the fallback.
 export_judge() {
     local name="$1" qty="$2" out="$3" rows="$4" sizes="$5" err="$6" size tris raw box open_edges over_edges dup_faces
     size=$(stat -c%s "$out" 2>/dev/null || echo 0)
     tris=$(grep -c '^ *facet' "$out" 2>/dev/null || echo 0)
-    # The bounding box, because "will this fit my printer" is the question the baffle is split
-    # to answer and a triangle count cannot answer it. Read off the mesh rather than asked of
-    # the model, so it measures what was actually exported.
+    # The bounding box, because the baffle is split to fit a printer and a triangle count cannot
+    # show whether it does. It is read from the mesh rather than from the model, so it measures
+    # what was actually exported.
     raw=$(awk '/^ *vertex/ {
         if (n++ == 0) { x1=x2=$2; y1=y2=$3; z1=z2=$4 }
         else {
@@ -128,9 +130,9 @@ export_judge() {
         }
     } END { if (n) printf "%.2f %.2f %.2f", x2-x1, y2-y1, z2-z1 }' "$out" 2>/dev/null)
     box=$(echo "$raw" | awk '{ printf "%.0f x %.0f x %.0f", $1, $2, $3 }')
-    # How well the written mesh closes. OpenSCAD's own "not a valid 2-manifold" is about the CSG
-    # result, not the file it then writes, so a tangency that tessellates into coincident faces
-    # passes it and reaches the slicer.
+    # Whether the written mesh is closed. The OpenSCAD "not a valid 2-manifold" check applies to
+    # the CSG result, not to the file written afterwards, so a tangency that tessellates into
+    # coincident faces passes it and reaches the slicer.
     read -r _ open_edges over_edges dup_faces <<< "$(scripts/stl-seams.sh "$out" 2>/dev/null)"
     if grep -q '^ERROR\|^no render flags' "$err"; then
         echo "FAIL  $name"; grep -m1 '^ERROR\|^no render flags' "$err" | sed 's/^/        /'; failed=1
@@ -142,9 +144,9 @@ export_judge() {
         echo "FAIL  $name  rendered nothing"; failed=1
         printf '| %s | %s | — | — | **rendered nothing** |\n' "$name" "$qty" >> "$rows"
     elif [ "${open_edges:-0}" -gt 0 ] || [ "${over_edges:-0}" -gt 0 ] || [ "${dup_faces:-0}" -gt 0 ]; then
-        # A hole is always this project's problem. A handful of coincident faces is a tangency the
-        # renderer left, zero-volume and dropped by any slicer; a great many is two solids sharing
-        # a face, which is a defect in the model.
+        # A hole is always a defect in this project. A few coincident faces are a tangency left
+        # by the renderer, with zero volume, and any slicer drops them. A large number means two
+        # solids share a face, which is a defect in the model.
         if [ "${open_edges:-0}" -eq 0 ] && [ "${over_edges:-0}" -le "$SEAM_CEILING" ]; then
             printf 'note  %-28s x%-3s %-16s %s triangles, %s coincident edges\n' \
                 "$name" "$qty" "$box mm" "$tris" "$over_edges"
@@ -163,15 +165,15 @@ export_judge() {
     fi
 }
 
-# Which registered printers take every part in a sizes file, asked of purchased/printers.scad
-# with the sizes off the meshes. Reported, not targeted. Prints the list of printers, and writes
-# the name of any part that fits none to $3, which the caller fails on: this runs in the
-# subshell that captures its output, so it cannot set `failed` itself.
+# List the registered printers that fit every part in a sizes file, using purchased/printers.scad
+# and the sizes measured from the meshes. This is reported, not a design target. Prints the list
+# of printers, and writes the name of any part that fits no printer to $3, which the caller fails
+# on. This function runs in the subshell that captures its output, so it cannot set `failed`.
 export_fits() {
     local sizes="$1" sel="$2" nofit="$3" stub="$tmp/fit.$RANDOM"
     {
-        # printers.scad explicitly, not by way of head.scad: the fit rule is this stub's dependency
-        # and it should say so rather than lean on another file's include chain.
+        # Include printers.scad directly, not through head.scad: the stub depends on the fit rule
+        # and should declare it rather than rely on the include chain of another file.
         printf 'include <%s/scad/purchased/printers.scad>\n' "$PWD"
         printf 'include <%s/scad/bioreactor.scad>\n_s = [' "$PWD"
         while read -r n w d h; do printf '["%s", [%s, %s, %s]],' "$n" "$w" "$d" "$h"; done < "$sizes"
@@ -188,7 +190,7 @@ export_fits() {
     grep -m1 '^ECHO: "ALLFIT|' "$stub.err" | sed 's/.*ALLFIT|//; s/"$//; s/[]["]//g'
 }
 
-# The print list's fixed text, after its title and what it is.
+# The fixed text of the print list, after its title and introduction.
 export_list_body() {
     local allfit="$1" rows="$2" up="$3"
     echo "Food-grade clear PETG for anything the culture touches, grey PETG for structure -"

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Fail when a parameter-set file has drifted from the file it belongs to, or from the registries.
 
-The JSON beside each entry file is authored: one set per registered vessel, and any further
-build a set names (a vessel plus its designations), each carrying only what it changes from the
-file's defaults. This checks and never writes:
+The JSON next to each entry file is a source file, not generated. It holds one set per
+registered vessel, plus any further build a set names (a vessel plus its designations). Each set
+holds only the values it changes from the file defaults. This script checks and never writes:
 
   - every registered vessel has a set in every entry file's JSON
   - every parameter a set names exists in that file's Customizer surface
@@ -21,8 +21,8 @@ import sys
 REPO = pathlib.Path(__file__).resolve().parent.parent
 ENTRY = [pathlib.Path(a) for a in sys.argv[1:]]
 
-# Dropdowns that list a registry's names. "auto" beside them is the file's own business: the
-# assembly offers it where a subassembly derives the row, and the subassembly's file does not.
+# Dropdowns that list the names in a registry. Whether "auto" is also listed is up to each file:
+# the assembly offers it where a subassembly derives the row, and the subassembly file does not.
 DESIGNATIONS = {
     "reactor_vessel_name": ("vessels", "vessel_name"),
     "shaft_name": ("shafts", "shaft_name"),
@@ -42,7 +42,7 @@ LIBRARY_REGISTRIES = {"orings", "atlas_probes"}
 
 
 def registry_names():
-    """Every registry's row names, read from the registries themselves."""
+    """The row names of every registry, read from the registries themselves."""
     pairs = sorted(set(DESIGNATIONS.values()))
     src = "".join(
         f"include <bayonet-port-scad/purchased/{r}.scad>\n"

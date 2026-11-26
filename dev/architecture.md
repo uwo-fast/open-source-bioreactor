@@ -1,8 +1,8 @@
 # Architecture
 
-Where a number is allowed to come from. [Design conventions](../docs/design-conventions.md) says how a
-number is justified; this says who may hand it to whom. It is normative: a file that breaks a rule
-here is a defect.
+This document defines where a number may come from. [Design conventions](../docs/design-conventions.md)
+says how a number is justified; this document says which file may pass it to which. It is
+normative: a file that breaks a rule here is a defect.
 
 ## The layers
 
@@ -25,56 +25,60 @@ _shelf/  _archive/      off the tree; nothing on it imports them
 | `purchased`     | a swept row list, a by-name lookup, accessors, a drawing              | `use` its own drawing, utils                                 | know what it is bought for                     |
 | `utils`         | a standard, a law, a geometry helper                                  | `use` other utils                                            | know a part                                    |
 
-`use` unless it says `include`. `include` hands over every global of the included file, which is
-the coupling this document exists to stop, so it is reserved for a file taking its own data: a
-subassembly including the registries it resolves designations from, `bayonet_port.scad` including
-`bayonet_interfaces.scad`.
+Imports use `use` unless the table says `include`. `include` passes on every global of the
+included file, which is the coupling this document exists to prevent. It is therefore reserved for a
+file that takes in its own data: a subassembly including the registries it resolves designations
+from, or `bayonet_port.scad` including `bayonet_interfaces.scad`.
 
 ## The rules
 
 1. **Decisions flow down; interfaces are read back.** A module takes what it consumes as an
-   argument. A composer may read a subassembly's accessor (`frame_outer_diameter()`,
-   `head_gasket_factor()`) rather than rebuild the value. Nobody reads a global another file set,
-   and no file reaches into a sibling's state. The one sideways read is `head.scad`'s standalone
-   preview using `frame.scad` to derive the joint; it is preview-only and stays.
+   argument. A composer may read a subassembly accessor (`frame_outer_diameter()`,
+   `head_gasket_factor()`) rather than rebuild the value. No file reads a global set by another
+   file, or reaches into the state of a sibling. The one exception is the standalone preview in
+   `head.scad`, which uses `frame.scad` to derive the joint. It is preview-only and stays.
 
-2. **A designation is resolved where the choice is owned.** `bioreactor.scad` resolves what a build
-   states, by name through the registry's `*_by_name()`; a subassembly resolves its own `"auto"`.
-   Geometry never browses a registry to decide what it wants. This is why a subassembly may include
-   a registry and a part may not: the subassembly is sometimes the file being rendered. A part's
-   standalone preview may `use` a registry to pick its example row by name.
+2. **A designation is resolved where the choice is owned.** `bioreactor.scad` resolves the
+   designations a build states, by name, through the `*_by_name()` function of the registry. A
+   subassembly resolves its own `"auto"`. Geometry never searches a registry to decide what it
+   needs. This is why a subassembly may include a registry and a part may not: the subassembly is
+   sometimes the file being rendered. A standalone preview of a part may `use` a registry to select
+   its example row by name.
 
-3. **Narrowest coherent interface.** A scalar when the consumer reads one physical fact; the row
-   when it depends on the part's identity or several of its fields (a port takes the probe row, a
-   gasket takes a thickness); an interface record when two halves must agree (`bayonet_interfaces`,
-   the head-frame joint). Fields are read through accessors, never by index.
+3. **Narrowest coherent interface.** Pass a scalar when the consumer reads one physical fact, and
+   the row when it depends on the identity of the part or on several of its fields. For example, a
+   port takes the probe row, and a gasket takes a thickness. Pass an interface record when two
+   halves must agree (`bayonet_interfaces`, the head-frame joint). Fields are read through
+   accessors, never by index.
 
-4. **Derive once.** The bolt circle, the joint diameter, the working volume: one expression, in one
-   file, handed on. A standalone preview calls the same function; it never quotes the result.
+4. **Derive once.** The bolt circle, the joint diameter and the working volume are each one
+   expression, in one file, passed on from there. A standalone preview calls the same function and
+   never copies the result.
 
 5. **A subassembly's parameters are live standalone defaults.** The build passes only the
-   departures it states, as `[key, value]` pairs, so "derive it" stays distinguishable from "not
-   stated". `"auto"` is never packed.
+   departures it states, as `[key, value]` pairs, so that "derive it" stays distinguishable from
+   "not stated". `"auto"` is never packed.
 
-6. **A registry row may name another registry's row, inside the registry.** A motor naming its
-   gearbox, an interface naming its o-ring: data describing data, resolved once. It is the one
-   cross-registry `include` that is honest, and it is not a licence for geometry to do the same.
+6. **A registry row may name a row in another registry, inside the registry.** For example, a
+   motor names its gearbox, and an interface names its o-ring. This is data describing data,
+   resolved once. It is the only legitimate cross-registry `include`, and it does not permit
+   geometry to do the same.
 
-7. **Analysis and geometry are separate.** Functions derive; a report module echoes and asserts; a
-   geometry module draws. A module that draws does not also carry the fit checks of everything it
+7. **Analysis and geometry are separate.** Functions derive values, report modules echo and assert,
+   and geometry modules draw. A module that draws does not also carry the fit checks of everything it
    draws. Reports are read by people, so a report line is one line: the quantity, the value, the
    band and the source.
 
 8. **Minimal.** Every argument is consumed. Every exported function has a caller. A wrapper that
-   forwards its arguments unchanged is deleted. A comment says what a number is and why; what it
-   used to be is in git and [Decisions](decisions.md).
+   forwards its arguments unchanged is deleted. A comment says what a number is and why. Earlier
+   values are in git and in [Decisions](decisions.md).
 
 ## Not yet settled
 
-- Whether a subassembly resolving names itself (rule 2) is the right price for rendering
-  standalone, or whether every name resolves in the entry file and `head.scad` carries a tiny
-  profile of its own. The second removes eighteen includes from `head.scad`.
-- How a subassembly splits into files without the pieces reading each other. `head()` is one
-  module in three sections - derived, checks, geometry - because a module returns nothing, so the
-  checks cannot move out without restating what they check. The next cut is by subsystem, where a
-  real boundary shows.
+- Whether letting a subassembly resolve names itself (rule 2) is the right price for standalone
+  rendering, or whether every name should resolve in the entry file, with `head.scad` carrying a
+  small profile of its own. The second option removes eighteen includes from `head.scad`.
+- How to split a subassembly into files without the pieces reading each other. `head()` is one
+  module in three sections (derived values, checks and geometry). A module returns nothing, so the
+  checks cannot move out without restating what they check. The next split will be by subsystem,
+  where a real boundary appears.

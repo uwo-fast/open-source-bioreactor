@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 #
-# Install the OpenSCAD libraries scadman.lock pins into .scadman/env, which every recipe
-# puts on OPENSCADPATH, so "it renders" is a property of the project. scadman checks each
-# library against the content hash in the lock and refuses a lock that has fallen behind
-# scadman.toml.
+# Install the OpenSCAD libraries pinned in scadman.lock into .scadman/env, which every recipe
+# puts on OPENSCADPATH, so whether a file renders depends only on the project. scadman checks
+# each library against the content hash in the lock, and rejects a lock that is out of date
+# with scadman.toml.
 #
-# scadman itself is pinned here, like the formatters in the justfile: on Linux x86_64 and
-# macOS the release archive is fetched into .cache/ and checked against its published
-# sha256. Elsewhere (Windows, other architectures) a scadman on PATH is used. Its store
-# lives in .cache/ too, so setup runs the same on a bench, in CI and in a sandbox that
-# cannot write the home directory. Idempotent.
+# scadman itself is pinned here, like the formatters in the justfile. On Linux x86_64 and
+# macOS the release archive is downloaded into .cache/ and checked against its published
+# sha256. Elsewhere (Windows, other architectures) a scadman on PATH is used. Its store is
+# also in .cache/, so setup behaves the same on a bench machine, in CI and in a sandbox that
+# cannot write to the home directory. Idempotent.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

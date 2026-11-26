@@ -3,28 +3,30 @@
 # Evaluate every SCAD file and report anything that does not build.
 #
 # A failing CSG export still exits 0 and writes a 1 byte file, so nothing here may be gated
-# on $?. ERROR on stderr is the signal; the file size is the backstop.
+# on $?. ERROR on stderr is the signal, and the file size is the fallback.
 #
-# Files are checked in both directions. The ones in $ENTRY must emit geometry; every other
-# file is include'd or use'd by something and must emit none. A new entry file fails until it
-# is listed.
+# Files are checked in both directions. Files in $ENTRY must emit geometry. Every other file is
+# include'd or use'd by another file and must emit none. A new entry file fails until it is
+# listed.
 #
-# Run with default render flags. render_all is declared in bioreactor.scad, head.scad and
-# frame.scad, so -D render_all=false sets all three and leaves 4 of the 36 asserts standing.
+# Files are rendered with the default render flags. render_all is declared in bioreactor.scad,
+# head.scad and frame.scad, so -D render_all=false sets all three and leaves only 4 of the 36
+# asserts active.
 set -uo pipefail
 
 : "${OPENSCAD:=openscad}"
-# A file meant to emit nothing passes on a binary that emits nothing, so prove it renders first.
+# A file meant to emit nothing also passes on a binary that emits nothing, so first confirm that
+# the binary renders.
 source "$(dirname "$0")/openscad-canary.sh"
 openscad_canary
 : "${ENTRY:?the justfile exports the list of files that render on their own}"
 
 entry=($ENTRY)
 tmp=$(mktemp -d) && trap 'rm -rf "$tmp"' EXIT
-# _spikes/ holds self-contained experiments, which carry checks of their own
+# _spikes/ holds self-contained experiments, which have their own checks
 files=$(find scad -name '*.scad' -not -path '*/_archive/*' -not -path '*/_shelf/*' -not -path '*/_spikes/*' | sort)
-# Both passes of every file render JOBS at a time (every core, unless set) into files of their
-# own, and are judged in order below.
+# Both passes of every file render JOBS at a time (every core unless set), each to its own
+# output file, and are checked in order below.
 : "${JOBS:=$(nproc)}"
 export OPENSCAD tmp
 render_file() {
@@ -49,8 +51,8 @@ while read -r f; do
         grep '^ERROR' "$base.err" | sed 's/^/        /'
         failed=1
     elif grep -q '^WARNING' "$base.err"; then
-        # Warnings are how OpenSCAD reports an undef reaching arithmetic, and a parse error in
-        # a use'd file shows up as nothing else.
+        # OpenSCAD reports an undef used in arithmetic as a warning, and a parse error in a
+        # use'd file appears only as a warning.
         echo "FAIL  $f"
         grep '^WARNING' "$base.err" | sort | uniq -c | sort -rn | head -5 | sed 's/^/        /'
         failed=1
@@ -61,9 +63,9 @@ while read -r f; do
         echo "FAIL  $f  emits $size bytes into every consumer; add it to entry if it renders"
         failed=1
     else
-        # Second pass with $fn forced to zero, which is what an unset viewport is. 2021.01 lets
-        # a `use`d module resolve $fn from its own file where newer builds pass the caller's, so
-        # a file that divides by $fn can pass here and produce nan in a current GUI.
+        # Second pass with $fn forced to zero, the value an unset viewport has. 2021.01 lets a
+        # `use`d module resolve $fn from its own file, while newer builds pass the caller's
+        # value, so a file that divides by $fn can pass here and produce nan in a current GUI.
         if [ ! -f "$base.err0" ] || grep -qE '^(ERROR|WARNING)' "$base.err0"; then
             echo "FAIL  $f  at \$fn=0"
             grep -E '^(ERROR|WARNING)' "$base.err0" 2>/dev/null | sort | uniq -c | sort -rn | head -3 | sed 's/^/        /'
